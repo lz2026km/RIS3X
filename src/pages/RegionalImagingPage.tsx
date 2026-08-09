@@ -67,7 +67,7 @@ const ApplicationList: React.FC = () => {
           + 发起调阅申请
         </button>
       </div>
-      <table style={styles.table}>
+      <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
             <th style={styles.th}>申请ID</th>
@@ -110,7 +110,7 @@ const ApplicationList: React.FC = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -226,7 +226,7 @@ const ReceiveList: React.FC = () => {
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>接收列表 - 待审批</h3>
       </div>
-      <table style={styles.table}>
+      <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
             <th style={styles.th}>申请ID</th>
@@ -264,7 +264,7 @@ const ReceiveList: React.FC = () => {
               </tr>
             ))}
         </tbody>
-      </table>
+      </table></div>
     </div>
   );
 };
@@ -319,7 +319,7 @@ const ConsultationRequests: React.FC = () => {
           + 发起会诊
         </button>
       </div>
-      <table style={styles.table}>
+      <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
             <th style={styles.th}>会诊ID</th>
@@ -380,7 +380,7 @@ const ConsultationRequests: React.FC = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -532,7 +532,7 @@ const AccessRecords: React.FC = () => {
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>调阅记录历史</h3>
       </div>
-      <table style={styles.table}>
+      <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
             <th style={styles.th}>记录ID</th>
@@ -559,7 +559,7 @@ const AccessRecords: React.FC = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </div>
   );
 };
@@ -751,7 +751,7 @@ const CrossInstitutionQuery: React.FC = () => {
             查询结果: {results.length} 条检查记录 (来自{" "}
             {institutions.find((i) => i.id === selectedInstitution)?.name})
           </div>
-          <table style={styles.table}>
+          <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr style={styles.tableHeaderRow}>
                 <th style={styles.th}>患者ID</th>
@@ -834,7 +834,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>
@@ -999,7 +999,7 @@ const XDSIntegration: React.FC = () => {
           <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>
             文档条目: {docs.length} 条
           </div>
-          <table style={styles.table}>
+          <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr style={styles.tableHeaderRow}>
                 <th style={styles.th}>患者ID</th>
@@ -1039,7 +1039,7 @@ const XDSIntegration: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
       <div
@@ -1060,7 +1060,7 @@ const XDSIntegration: React.FC = () => {
         >
           跨机构访问审计日志
         </div>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
               <th style={styles.th}>患者ID</th>
@@ -1083,7 +1083,7 @@ const XDSIntegration: React.FC = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );
@@ -1150,7 +1150,7 @@ const RegionalSharing: React.FC = () => {
       {loading ? (
         <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
       ) : (
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
               <th style={styles.th}>机构名称</th>
@@ -1199,7 +1199,7 @@ const RegionalSharing: React.FC = () => {
               </tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       )}
       {detail && (
         <div style={styles.modalOverlay} onClick={() => setDetail(null)}>
@@ -1313,7 +1313,7 @@ const DepartmentSchedule: React.FC = () => {
       {loading ? (
         <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
       ) : (
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
               <th style={styles.th}>日期</th>
@@ -1354,7 +1354,7 @@ const DepartmentSchedule: React.FC = () => {
               </tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       )}
       {editing && (
         <div style={styles.modalOverlay} onClick={() => setEditing(null)}>

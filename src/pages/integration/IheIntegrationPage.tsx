@@ -114,7 +114,19 @@ const IheIntegrationPage: React.FC = () => {
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
               <Button block icon={<IdCard size={14} />} onClick={() => { setPixModal(true); setPixResult('') }}>PIX 患者索引查询</Button>
               <Button block icon={<FileSearch size={14} />} onClick={() => { setPdqModal(true); setPixResult('') }}>PDQ 患者人口学查询</Button>
-              <Button block icon={<ArrowLeftRight size={14} />} onClick={() => message.success('PIX 增量更新通知已发送(模拟)')}>PIX 增量更新通知</Button>
+              <Button block icon={<ArrowLeftRight size={14} />} onClick={async () => {
+                try {
+                  const res = await iheApi.pixUpdateNotification({
+                    patientId: 'PAT-10086', assigningAuthority: status?.affinityDomain.assigningAuthorityId ?? 'HOSP',
+                    identifiers: [{ domain: 'HOSP', value: 'PAT-10086', assigningAuthority: 'HOSP' }],
+                    name: { family: '测试', given: ['患者'] }, birthDate: '1990-01-01', gender: 'U',
+                  });
+                  if (res.success) message.success(`PIX 增量更新通知已发送 (${res.data?.messageId ?? ''})`);
+                  else message.warning(`PIX 增量更新通知未送达(模拟): ${res.error?.message ?? ''}`);
+                } catch (e) {
+                  message.warning('PIX 增量更新通知未送达(模拟): ' + (e instanceof Error ? e.message : String(e)));
+                }
+              }}>PIX 增量更新通知</Button>
               <Button block icon={<CalendarRange size={14} />} onClick={() => setPamModal(true)}>PAM 就诊管理文档</Button>
             </Space>
           </Card>
@@ -132,7 +144,7 @@ const IheIntegrationPage: React.FC = () => {
                   { title: '事务', dataIndex: 'transaction', render: (t: string) => <Tag color="blue">{t}</Tag> },
                   { title: '说明', render: (_, r) => <span style={{ fontSize: 12, color: '#64748b' }}>{TRANSACTION_DESC[r.transaction as string] ?? 'IHE 集成事务'}</span> },
                 ]}
-              />
+              scroll={{ x: 'max-content' }} />
             )}
           </Card>
         </Col>
@@ -164,7 +176,7 @@ const IheIntegrationPage: React.FC = () => {
         </Space>
       </Modal>
 
-      <Modal title="PAM 就诊管理 (Patient Administration Management)" open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>关闭</Button>} width={520}>
+      <Modal title="PAM 就诊管理" open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>关闭</Button>} width={520}>
         <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
           <Alert type="info" showIcon message="PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动" />
           <Descriptions bordered column={1} size="small">

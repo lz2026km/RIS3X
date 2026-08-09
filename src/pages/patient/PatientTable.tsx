@@ -433,7 +433,7 @@ export function PatientTable({
             maxHeight: "calc(100vh - 320px)",
           }}
         >
-          <table
+          <div style={{ overflowX: "auto" }}><table
             style={{
               width: "100%",
               borderCollapse: "separate",
@@ -848,7 +848,7 @@ export function PatientTable({
                 </tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </div>
 
         <Pagination

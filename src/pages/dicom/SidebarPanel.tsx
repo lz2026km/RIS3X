@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import type { Dispatch, SetStateAction } from 'react'
 import { User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, FileText, AlertCircle, Activity, Info, Layers3, Box, RefreshCw, Calendar, CheckCircle, Clock, PenTool, Eye, X, Upload, Camera, Download, AlertTriangle, ScrollText, ArrowLeftRight } from 'lucide-react'
 import MeasurementPanel from './MeasurementPanel'
+import { Card } from 'antd'
 import type { Series, DicomImage, MeasureSubMenu, Measurement, RightTab, Tool, CompareLayout } from './DicomViewerTypes'
 import { PRIMARY } from './DicomViewerTypes'
 
@@ -226,22 +227,22 @@ export default function SidebarPanel(props: Props) {
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Activity size={12} />{t('dcm.mip')}</div>
-              <div style={s.mipControlPanel}>
+              <Card bordered={false} style={s.mipControlPanel} styles={{ body: { padding: 0 } }}>
                 <div style={s.mipControlTitle}><span>{t('dcm.projDir')}</span></div>
                 <div style={s.mipDirRow}>{(['axial', 'sagittal', 'coronal'] as const).map(dir => (<button key={dir} style={{ ...s.mipDirBtn, ...(mipDirection === dir ? s.mipDirBtnActive : {}) }} onClick={() => setMipDirection(dir)}>{dir === 'axial' ? '轴位' : dir === 'sagittal' ? '矢状' : '冠状'}</button>))}</div>
                 <div style={s.mipControlTitle}><span>{t('dcm.frameSelect')}</span></div>
                 <div style={s.mipFrameRow}><span style={s.mipFrameLabel}>帧:</span><input type="range" min={0} max={Math.max(0, images.length - 1)} value={mipFrame} onChange={e => setMipFrame(parseInt(e.target.value))} style={{ flex: 1, accentColor: PRIMARY }} /><span style={s.mipFrameVal}>{mipFrame + 1}/{images.length}</span></div>
-              </div>
+              </Card>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Box size={12} />{t('dcm.vr')}</div>
-              <div style={s.vrControlPanel}>
+              <Card bordered={false} style={s.vrControlPanel} styles={{ body: { padding: 0 } }}>
                 <div style={s.vrSliderRow}><span style={s.vrSliderLabel}>{t('dcm.rotateX')}</span><input type="range" min={0} max={360} value={vrRotX} onChange={e => setVrRotX(parseInt(e.target.value))} style={s.vrSlider} /><span style={s.vrSliderVal}>{vrRotX}°</span></div>
                 <div style={s.vrSliderRow}><span style={s.vrSliderLabel}>{t('dcm.rotateY')}</span><input type="range" min={0} max={360} value={vrRotY} onChange={e => setVrRotY(parseInt(e.target.value))} style={s.vrSlider} /><span style={s.vrSliderVal}>{vrRotY}°</span></div>
                 <div style={s.vrSliderRow}><span style={s.vrSliderLabel}>{t('dcm.rotateZ')}</span><input type="range" min={0} max={360} value={vrRotZ} onChange={e => setVrRotZ(parseInt(e.target.value))} style={s.vrSlider} /><span style={s.vrSliderVal}>{vrRotZ}°</span></div>
                 <div style={s.vrSliderRow}><span style={s.vrSliderLabel}>{t('dcm.opacity')}</span><input type="range" min={0} max={100} value={Math.round(vrOpacity * 100)} onChange={e => setVrOpacity(parseInt(e.target.value) / 100)} style={s.vrSlider} /><span style={s.vrSliderVal}>{Math.round(vrOpacity * 100)}%</span></div>
                 <button style={s.vrResetBtn} onClick={() => { setVrRotX(30); setVrRotY(45); setVrRotZ(0); setVrOpacity(0.8) }}><RefreshCw size={12} />{t('dcm.resetView')}</button>
-              </div>
+              </Card>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => showToast('PNG已导出')}><Camera size={14} />{t('dcmexp.exportPng')}</button>
@@ -310,7 +311,7 @@ export default function SidebarPanel(props: Props) {
           <>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><FileSearch size={12} />{t('dcm.reportStatus')}</div>
-              <div style={s.reportStatusCard}>
+              <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItemName}</span>
                   <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? '#dcfce7' : reportStatus === '待书写' ? '#fef3c7' : '#f1f5f9', color: reportStatus === '已报告' ? '#16a34a' : reportStatus === '待书写' ? '#d97706' : '#64748b' }}>
@@ -318,7 +319,7 @@ export default function SidebarPanel(props: Props) {
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>患者: {exam.patientName} | {exam.age}岁{exam.gender}<br />检查日期: {exam.examDate} {exam.examTime}</div>
-              </div>
+              </Card>
               {reportStatus === '已报告' && (
                 <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
                 <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
@@ -400,14 +401,14 @@ export default function SidebarPanel(props: Props) {
                     <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? '开' : '关'}</button></div>
                   <button style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
                 </div>
-                <div style={s.compareInfoCard}>
+                <Card bordered={false} style={s.compareInfoCard} styles={{ body: { padding: 0 } }}>
                   <div style={s.compareInfoCardTitle}><ArrowLeftRight size={12} />{t('dcm.compareInfo')}</div>
                   <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.currentExam')}</span><span style={s.compareInfoValue}>{exam.examDate}</span></div>
                   <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.historyExam')}</span><span style={s.compareInfoValue}>{compareExam.examDate}</span></div>
                   <div style={s.compareInfoRow}><span style={s.compareInfoLabel}>{t('dcm.timeInterval')}</span><span style={s.compareInfoValue}>约45天</span></div>
-                </div>
+                </Card>
                 {getCompareDiffInfo() && (
-                  <div style={s.diffSummaryCard}>
+                  <Card bordered={false} style={s.diffSummaryCard} styles={{ body: { padding: 0 } }}>
                     <div style={s.diffSummaryTitle}><AlertTriangle size={12} />{t('dcm.diffSummary')}</div>
                     {getCompareDiffInfo()?.map((diff: any, idx: number) => (
                       <div key={idx} style={s.diffSummaryItem}>
@@ -416,14 +417,14 @@ export default function SidebarPanel(props: Props) {
                         <span style={{ color: diff.type === 'increase' ? '#ef4444' : diff.type === 'decrease' ? '#3b82f6' : diff.type === 'new' ? '#22c55e' : '#94a3b8', fontWeight: 600 }}>{diff.oldVal} → {diff.newVal}</span>
                       </div>
                     ))}
-                  </div>
+                  </Card>
                 )}
-                <div style={s.compareInfoCard}>
+                <Card bordered={false} style={s.compareInfoCard} styles={{ body: { padding: 0 } }}>
                   <div style={s.compareInfoCardTitle}><ScrollText size={12} />{t('dcm.historyReport')}</div>
                   <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{compareExam.reportDoctor || '未报告'}</div></div>
                   {compareExam.finding && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.finding')}</div><div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{compareExam.finding}</div></div>}
                   {compareExam.conclusion && <div><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div><div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5 }}>{compareExam.conclusion}</div></div>}
-                </div>
+                </Card>
               </>
             )}
           </>
@@ -483,11 +484,11 @@ export default function SidebarPanel(props: Props) {
                 {selectedExternalExam.finding && (
                   <div style={s.infoSection}>
                     <div style={s.infoSectionTitle}><ScrollText size={12} />外院报告摘要</div>
-                    <div style={s.reportStatusCard}>
+                    <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
                       <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.reportDoctor')}</span><div style={s.infoValue}>{selectedExternalExam.reportDoctor || '未填写'}</div></div>
                       {selectedExternalExam.finding && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.finding')}</span><div style={{ ...s.infoValueFull, fontSize: 12, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div></div>}
                       {selectedExternalExam.conclusion && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.conclusion')}</span><div style={{ ...s.infoValueFull, fontSize: 12, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div></div>}
-                    </div>
+                    </Card>
                   </div>
                 )}
                 <div style={s.infoSection}>

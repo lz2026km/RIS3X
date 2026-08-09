@@ -703,7 +703,7 @@ export default function DictionaryPage() {
           </div>
         </div>
       ) : (
-        <table style={s.table}>
+        <div style={{ overflowX: "auto" }}><table style={s.table}>
           <thead>
             <tr>
               <th style={s.th}>分类</th>
@@ -769,7 +769,7 @@ export default function DictionaryPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
 
       <div style={s.pagination}>
@@ -848,7 +848,7 @@ export default function DictionaryPage() {
               <span style={{ fontSize: 12, color: '#92400e' }}>发现 {unmapped.length} 条未映射术语 <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>查看报告</button></span>
             </div>
           )}
-          <table style={s.table}>
+          <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
                 <th style={s.th}>源编码</th>
@@ -888,7 +888,7 @@ export default function DictionaryPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>共 {filteredMappings.length} 条映射关系</div>
         </div>
       </div>
@@ -1028,7 +1028,7 @@ export default function DictionaryPage() {
             </select>
             <span style={{ fontSize: 12, color: '#64748b' }}>共 {dictVersions.length} 个版本</span>
           </div>
-          <table style={s.table}>
+          <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
                 <th style={s.th}>版本号</th>
@@ -1121,7 +1121,7 @@ export default function DictionaryPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           {diffView && (
             <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>Diff 视图</div>

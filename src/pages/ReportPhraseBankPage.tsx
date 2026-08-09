@@ -1,9 +1,10 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.7 - 报告短语库
 // Phase R7：6 分类短语 + 占位符替换 + 评分 + 复制
+// [W2-A] 短语接入 templatesApi.snippets 实时 (失败回退本地演示数据 + 本地 CRUD)
 // ============================================================
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { message, Modal, Form, Input, Select } from 'antd';
 import {
   BookOpen, Search, Copy, Star, Plus, Edit2, Trash2,
@@ -15,6 +16,25 @@ import {
   type ReportPhrase,
   type PhraseCategory,
 } from '../data/knowledgeStatsMock';
+import { templatesApi } from '../services/api/templatesApi';
+
+const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
+  '正常': 'normal',
+  '异常': 'abnormal',
+  '建议': 'recommendation',
+  '随访': 'followup',
+  '危急': 'critical',
+  '免责': 'disclaimer',
+};
+
+const CATEGORY_KEY_TO_LABEL: Record<PhraseCategory, string> = {
+  normal: '正常',
+  abnormal: '异常',
+  recommendation: '建议',
+  followup: '随访',
+  critical: '危急',
+  disclaimer: '免责',
+};
 
 // ============================================================
 // 主组件
@@ -28,6 +48,52 @@ export default function ReportPhraseBankPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [newPhrase, setNewPhrase] = useState<{ title: string; category: PhraseCategory; content: string }>({ title: '', category: 'normal', content: '' });
   const editorRef = useRef<HTMLTextAreaElement | null>(null);
+  // [W2-A] 数据源状态
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
+
+  const loadPhrases = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await templatesApi.listSnippets();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped: ReportPhrase[] = res.data.map((snip: any, i: number) => {
+          const content = String(snip.content || '');
+          const placeholders = Array.from(content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1] ?? '');
+          return {
+            id: snip.id || `snp-${i}`,
+            title: snip.name || '未命名短语',
+            content,
+            category: CATEGORY_LABEL_TO_KEY[String(snip.category || '')] ?? 'normal',
+            bodyPart: [],
+            modality: [],
+            scene: '智能片段（templatesApi）',
+            placeholders,
+            usageCount: Number(snip.usage ?? 0),
+            rating: 5,
+            tags: [],
+            author: '系统',
+            createdAt: String(snip.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+          };
+        });
+        setPhrases(mapped);
+        setSelectedPhraseId(mapped[0]?.id ?? null);
+        setSource('api');
+      } else {
+        setSource('demo');
+        setApiError('templatesApi 暂不可用，当前展示内置演示短语');
+      }
+    } catch (e) {
+      setSource('demo');
+      setApiError(e instanceof Error ? e.message : '短语加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadPhrases(); }, [loadPhrases]);
 
   // 过滤
   const filtered = useMemo(() => {
@@ -75,7 +141,6 @@ export default function ReportPhraseBankPage() {
       .replace(/\{\{direction\}\}/g, '后方')
       .replace(/\{\{compressNerve\}\}/g, '压迫硬膜囊及左侧神经根')
       .replace(/\{\{canal\}\}/g, '狭窄')
-      .replace(/\{\{density\}\}/g, '混合型致密')
       .replace(/\{\{bone\}\}/g, '右桡骨')
       .replace(/\{\{type\}\}/g, '横行')
       .replace(/\{\{displacement\}\}/g, '骨折远端向背侧移位')
@@ -91,31 +156,62 @@ export default function ReportPhraseBankPage() {
     message.success('已复制到剪贴板！');
   };
 
-  // 新建短语：本地添加（无后端短语 API 时持久化到内存）
-  const handleCreate = () => {
+  // 新建短语: API 源 → templatesApi.createSnippet; 演示源 → 本地内存
+  const handleCreate = async () => {
     if (!newPhrase.title.trim()) { message.warning('请输入短语标题'); return; }
     if (!newPhrase.content.trim()) { message.warning('请输入短语内容'); return; }
-    const placeholders = Array.from(newPhrase.content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1]!);
-    const phrase: ReportPhrase = {
-      id: `p-${Date.now()}`,
-      title: newPhrase.title.trim(),
-      content: newPhrase.content.trim(),
-      category: newPhrase.category,
-      bodyPart: [],
-      modality: [],
-      scene: '自定义短语',
-      placeholders,
-      usageCount: 0,
-      rating: 5,
-      tags: [],
-      author: '当前用户',
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    setPhrases(prev => [phrase, ...prev]);
+    const placeholders = Array.from(newPhrase.content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1] ?? '');
+    if (source === 'api') {
+      try {
+        const res = await templatesApi.createSnippet({
+          name: newPhrase.title.trim(),
+          content: newPhrase.content.trim(),
+          category: CATEGORY_KEY_TO_LABEL[newPhrase.category] ?? '正常',
+        });
+        const created: ReportPhrase = {
+          id: res.data?.id || `p-${Date.now()}`,
+          title: newPhrase.title.trim(),
+          content: newPhrase.content.trim(),
+          category: newPhrase.category,
+          bodyPart: [],
+          modality: [],
+          scene: '智能片段（templatesApi）',
+          placeholders,
+          usageCount: 0,
+          rating: 5,
+          tags: [],
+          author: '当前用户',
+          createdAt: new Date().toISOString().slice(0, 10),
+        };
+        setPhrases(prev => [created, ...prev]);
+        setSelectedPhraseId(created.id);
+        message.success('短语已创建（templatesApi）');
+      } catch (e) {
+        message.error('创建失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        return;
+      }
+    } else {
+      const phrase: ReportPhrase = {
+        id: `p-${Date.now()}`,
+        title: newPhrase.title.trim(),
+        content: newPhrase.content.trim(),
+        category: newPhrase.category,
+        bodyPart: [],
+        modality: [],
+        scene: '自定义短语',
+        placeholders,
+        usageCount: 0,
+        rating: 5,
+        tags: [],
+        author: '当前用户',
+        createdAt: new Date().toISOString().slice(0, 10),
+      };
+      setPhrases(prev => [phrase, ...prev]);
+      setSelectedPhraseId(phrase.id);
+      message.success('短语已创建');
+    }
     setCreateOpen(false);
     setNewPhrase({ title: '', category: 'normal', content: '' });
-    setSelectedPhraseId(phrase.id);
-    message.success('短语已创建');
   };
 
   // 编辑：聚焦内容编辑区
@@ -134,13 +230,21 @@ export default function ReportPhraseBankPage() {
     message.success(`已评分 ${next} 星`);
   };
 
-  // 删除：本地删除
-  const handleDelete = () => {
+  // 删除：API 源 → templatesApi.deleteSnippet; 演示源 → 本地删除
+  const handleDelete = async () => {
     if (!selected) return;
+    if (source === 'api') {
+      try {
+        await templatesApi.deleteSnippet(selected.id);
+        message.success('短语已删除（templatesApi）');
+      } catch (e) {
+        message.error('删除失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        return;
+      }
+    }
     setPhrases(prev => prev.filter(p => p.id !== selected.id));
     setSelectedPhraseId(phrases.filter(p => p.id !== selected.id)[0]?.id ?? null);
     setEditedContent('');
-    message.success('短语已删除');
   };
 
   return (
@@ -151,9 +255,19 @@ export default function ReportPhraseBankPage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <MessageSquare size={20} color="#3b82f6" /> 报告短语库
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{
+              fontSize: 11, padding: '2px 8px', borderRadius: 10,
+              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              color: source === 'api' ? '#16a34a' : '#92400e',
+              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+              fontWeight: 500,
+            }}>
+              {loading ? '同步中...' : source === 'api' ? '数据源: templatesApi.snippets 实时' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             {phrases.length} 短语 · 6 分类 · 占位符替换 · 一键复制 · 评分系统
+            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <button
@@ -319,7 +433,7 @@ export default function ReportPhraseBankPage() {
                 <button onClick={() => handleCopy(filledContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
                   <Copy size={11} /> 一键复制
                 </button>
-                <button onClick={handleDelete} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Trash2 size={11} /> 删除
                 </button>
               </div>
@@ -340,6 +454,7 @@ export default function ReportPhraseBankPage() {
                   {selected.tags.map(t => (
                     <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: '#dbeafe', color: '#1e40af', borderRadius: 10 }}>#{t}</span>
                   ))}
+                  {selected.tags.length === 0 && <span style={{ fontSize: 12, color: '#94a3b8' }}>（无标签）</span>}
                 </div>
               </div>
             </div>
@@ -351,7 +466,7 @@ export default function ReportPhraseBankPage() {
         title="新建短语"
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
-        onOk={handleCreate}
+        onOk={() => void handleCreate()}
         okText="创建"
         cancelText="取消"
         width={520}

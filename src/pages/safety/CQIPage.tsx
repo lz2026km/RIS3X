@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ChartContainer } from '../../components/charts'
 import { TrendingUp, CheckCircle, Target, Plus, BarChart3, Activity } from 'lucide-react'
 import {
   getCqiDashboard, createCqiProject, closeCqiProject,
@@ -153,7 +154,7 @@ export default function CQIPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <BarChart3 size={16} color="#3b82f6" />CQI项目状态
                 </div>
-                <ResponsiveContainer width="100%" height={200}>
+                <ChartContainer height={200} state={statusData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CQI状态数据">
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -161,13 +162,13 @@ export default function CQIPage() {
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Activity size={16} color="#22c55e" />指标达成情况
                 </div>
-                <ResponsiveContainer width="100%" height={200}>
+                <ChartContainer height={200} state={indicatorData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无指标达成数据">
                   <BarChart data={indicatorData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="indicator" tick={{ fontSize: 8, fill: '#8b949e' }} />
@@ -178,7 +179,7 @@ export default function CQIPage() {
                     <Bar dataKey="current" fill="#22c55e" radius={[4, 4, 0, 0]} name="当前" />
                     <Bar dataKey="target" fill="#3b82f6" radius={[4, 4, 0, 0]} name="目标" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Typography, Modal, Form, Input, Select, Switch, Popconfirm, message, Alert, Empty, Spin, Segmented, Progress } from 'antd';
 import { FileText, Copy, Plus, Edit3, Layout, Layers, RefreshCw, Trash2, BarChart3 } from 'lucide-react';
 import { templatesApi } from '@/services/api/templatesApi';
+import { usePagination } from '@/hooks/usePagination';
 
 const { TextArea } = Input;
 
@@ -35,6 +36,8 @@ const MODALITY_OPTIONS = ['CT', 'MR', 'OCT', 'CBCT', 'X-ray', 'US'].map(m => ({ 
 export const ReportTemplateManagerPage: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const { pageData: templatePageData, pagination: templatePagination } = usePagination(templates, 8);
+  const { pageData: snippetPageData, pagination: snippetPagination } = usePagination(snippets, 5);
   const [loading, setLoading] = useState(true);
   const [snippetLoading, setSnippetLoading] = useState(true);
   const [error, setError] = useState('');
@@ -254,9 +257,9 @@ export const ReportTemplateManagerPage: React.FC = () => {
       >
         <Spin spinning={loading}>
           <Table
-            dataSource={templates}
+            dataSource={templatePageData}
             rowKey="id"
-            pagination={{ pageSize: 8, showSizeChanger: false }}
+            pagination={templatePagination}
             columns={columns}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无模板, 点击新建模板创建" /> }}
@@ -267,9 +270,9 @@ export const ReportTemplateManagerPage: React.FC = () => {
       <Card size="small" title={<Space><Layers size={14} />智能片段 <Tag>{snippets.length}</Tag></Space>} style={{ marginTop: 16 }} extra={<Button icon={<Plus size={12} />} onClick={() => setSnippetModal(true)}>新建片段</Button>}>
         <Spin spinning={snippetLoading}>
           <Table
-            dataSource={snippets}
+            dataSource={snippetPageData}
             rowKey="id"
-            pagination={{ pageSize: 5, showSizeChanger: false }}
+            pagination={snippetPagination}
             size="small"
             columns={[
               { title: '名称', dataIndex: 'name', key: 'name', width: 240, render: (v: string) => <b>{v}</b> },

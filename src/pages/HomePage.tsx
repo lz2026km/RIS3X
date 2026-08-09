@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   AreaChart, Area
 } from 'recharts'
 import {
@@ -2004,7 +2004,7 @@ const HomePage: FC = () => {
         }}>
           {/* 饼图 */}
           <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={160} state={qualityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无质量数据">
               <PieChart>
                 <Pie
                   data={qualityData}
@@ -2028,7 +2028,7 @@ const HomePage: FC = () => {
                   }}
                 />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             {/* 中心文字 - v3.0.6.8-23c (A8-P2-2): 显示真实优良率 */}
             <div style={{
               position: 'absolute',
@@ -2215,7 +2215,7 @@ const HomePage: FC = () => {
       }}>
         本周收入趋势
       </div>
-      <ResponsiveContainer width="100%" height={200}>
+      <ChartContainer height={200} state={revenueTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收入趋势数据">
         <AreaChart data={revenueTrendData}>
           <defs>
             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -2251,7 +2251,7 @@ const HomePage: FC = () => {
             name="收入"
           />
         </AreaChart>
-      </ResponsiveContainer>
+      </ChartContainer>
     </div>
   )
 

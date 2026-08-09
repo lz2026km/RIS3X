@@ -5,6 +5,7 @@ import {
 } from 'antd'
 import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter } from 'lucide-react'
 import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor } from '../../services/api/triageApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const { Text, Title } = Typography
 
@@ -117,7 +118,7 @@ const TriageDashboardPage: React.FC = () => {
     try {
       const res = await triageApi.update(selectedItem.id, {
         assignedDoctor: newDoctor || undefined,
-        status: newStatus || undefined,
+        status: (newStatus || undefined) as 'ASSIGNED' | 'PENDING' | 'COMPLETED' | undefined,
       })
       if (res.success) {
         message.success('更新成功')
@@ -139,6 +140,7 @@ const TriageDashboardPage: React.FC = () => {
       (item.assignedDoctor ?? '').includes(searchText)
     return matchStatus && matchSearch
   })
+  const { pageData: queuePageData, pagination: queuePagination } = usePagination(filteredItems, 10)
 
   const scoreColor = (score: number) => {
     if (score >= 16) return 'red'
@@ -308,11 +310,11 @@ const TriageDashboardPage: React.FC = () => {
         }
       >
         <Table
-          dataSource={filteredItems}
+          dataSource={queuePageData}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }}
+          pagination={queuePagination}
         scroll={{ x: 'max-content' }}
         />
       </Card>

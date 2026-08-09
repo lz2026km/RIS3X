@@ -5,6 +5,7 @@ import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, In
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
 import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
+import { usePagination } from '../../hooks/usePagination';
 
 // [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
 
@@ -27,6 +28,7 @@ export const ConsentEducationPage: React.FC = () => {
   const [sentMaterials, setSentMaterials] = useState<Set<string>>(new Set());
   const [consentForm] = Form.useForm();
   const [materialForm] = Form.useForm();
+  const { pageData: consentPageData, pagination: consentPagination } = usePagination(consents, 6);
 
   // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
   const sendToPatient = (m: EducationMaterialDto) => {
@@ -90,6 +92,8 @@ export const ConsentEducationPage: React.FC = () => {
   const filteredMaterials = activeCategory === '全部'
     ? materials
     : materials.filter((m) => m.category === activeCategory);
+
+  const { pageData: materialPageData, pagination: materialPagination } = usePagination(filteredMaterials, 6);
 
   const createConsent = async () => {
     const values = await consentForm.validateFields();
@@ -175,9 +179,9 @@ export const ConsentEducationPage: React.FC = () => {
       >
         <Spin spinning={loading}>
           <Table
-            dataSource={consents}
+            dataSource={consentPageData}
             rowKey="id"
-            pagination={{ pageSize: 6, showSizeChanger: false }}
+            pagination={consentPagination}
             columns={[
               { title: '患者', dataIndex: 'patient' },
               { title: '类型', dataIndex: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
@@ -217,9 +221,9 @@ export const ConsentEducationPage: React.FC = () => {
           items={[{ key: '全部', label: '全部' }, ...categories.map((c) => ({ key: c, label: c }))]}
         />
         <Table
-          dataSource={filteredMaterials}
+          dataSource={materialPageData}
           rowKey="id"
-          pagination={{ pageSize: 6, showSizeChanger: false }}
+          pagination={materialPagination}
           columns={[
             { title: '标题', dataIndex: 'title', width: 200 },
             { title: '语言', dataIndex: 'lang', render: (l: string) => <Tag>{l}</Tag> },

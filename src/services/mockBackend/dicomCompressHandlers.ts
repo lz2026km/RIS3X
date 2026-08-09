@@ -321,6 +321,14 @@ export const dicomCompressHandlers = [
     );
   }),
 
+  // [W1-B] 任务详情: GET /dicom/compress/tasks/:id (dicomCompressApi.getTask)
+  http.get(`${API}/tasks/:id`, async ({ params }) => {
+    await delay(30);
+    const task = taskStore.get(String(params.id));
+    if (!task) return HttpResponse.json(null, { status: 404 });
+    return HttpResponse.json({ ...task });
+  }),
+
   http.post(`${API}/decompress`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as { fileId?: string };

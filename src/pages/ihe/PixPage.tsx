@@ -143,10 +143,10 @@ export const PixPage: React.FC = () => {
           ack: res.data.ack,
           storedPid: res.data.storedPid || pid,
         });
-        message.success("PIX Feed 发送成功");
+        message.success("PIX 馈送发送成功");
       } else {
         setFeedResult({ success: false, ack: "AE" });
-        message.error("PIX Feed 发送失败");
+        message.error("PIX 馈送发送失败");
       }
     } catch (err) {
       console.warn("[PixPage] PIX Feed 服务不可用，已使用演示响应", err);
@@ -265,7 +265,7 @@ export const PixPage: React.FC = () => {
       setMappings([...mappings, newMapping]);
       setMappingModal(false);
       mappingForm.resetFields();
-      message.success("Mapping 已添加");
+      message.success("映射已添加");
     } catch (err) {
       console.warn("[PixPage] handleAddMapping failed", err);
     }
@@ -273,12 +273,12 @@ export const PixPage: React.FC = () => {
 
   const handleDeleteMapping = (id: string) => {
     setMappings(mappings.filter((m) => m.id !== id));
-    message.success("Mapping 已删除");
+    message.success("映射已删除");
   };
 
   const identitiesColumns = [
     {
-      title: "Assigning Authority",
+      title: "分配机构",
       dataIndex: "assigningAuthority",
       key: "aa",
     },
@@ -328,7 +328,7 @@ export const PixPage: React.FC = () => {
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="Patient Identity Feed (ITI-8)">
+                  <Card size="small" title="患者身份馈送 (ITI-8)">
                     <Form form={feedForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
@@ -339,7 +339,7 @@ export const PixPage: React.FC = () => {
                       </Form.Item>
                       <Form.Item
                         name="assigningAuthority"
-                        label="Assigning Authority"
+                        label="分配机构"
                         rules={[{ required: true }]}
                       >
                         <Input placeholder="例如: HOSPITAL_A" />
@@ -453,7 +453,7 @@ export const PixPage: React.FC = () => {
                         <div
                           style={{ fontSize: 11, color: "#999", marginTop: 4 }}
                         >
-                          Transaction: {queryResult.transaction}
+                          事务: {queryResult.transaction}
                         </div>
                       )}
                     </Card>
@@ -490,7 +490,7 @@ export const PixPage: React.FC = () => {
                   pagination={false}
                   columns={[
                     {
-                      title: "Assigning Authority",
+                      title: "分配机构",
                       dataIndex: "assigningAuthority",
                     },
                     { title: "外部 ID", dataIndex: "externalId" },
@@ -589,7 +589,7 @@ export const PixPage: React.FC = () => {
                         columns={[
                           { title: "患者 ID", dataIndex: "patientId" },
                           {
-                            title: "Authority",
+                            title: "分配机构",
                             dataIndex: "assigningAuthority",
                           },
                           {
@@ -638,7 +638,7 @@ export const PixPage: React.FC = () => {
         <Form form={mappingForm} layout="vertical" size="small">
           <Form.Item
             name="assigningAuthority"
-            label="Assigning Authority"
+            label="分配机构"
             rules={[{ required: true }]}
           >
             <Input placeholder="例如: HOSPITAL_A" />

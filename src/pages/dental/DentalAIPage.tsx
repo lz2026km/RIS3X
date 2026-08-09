@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Card, Space, Tag, Button, Row, Col, Statistic, message, Divider, Alert, Tabs, Empty, Modal, Table, Spin, Progress, Badge, Descriptions } from 'antd';
 import { Brain, CheckCircle2, Scan, Eye, RefreshCw, History, Sparkles } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { usePagination } from '../../hooks/usePagination';
 
 interface AiFindingRecord {
   id: string;
@@ -41,6 +42,7 @@ export const DentalAIPage: React.FC = () => {
   const [error, setError] = useState('');
   const [results, setResults] = useState<Record<string, DetectionResult | null>>({});
   const [detail, setDetail] = useState<AiFindingRecord | null>(null);
+  const { pageData: findingPageData, pagination: findingPagination } = usePagination(findings, 8);
 
   const loadFindings = useCallback(async () => {
     setListLoading(true);
@@ -208,9 +210,9 @@ export const DentalAIPage: React.FC = () => {
         <Card size="small" title={<Space><History size={14} />AI 检测记录</Space>}>
           <Spin spinning={listLoading}>
             <Table
-              dataSource={findings}
+              dataSource={findingPageData}
               rowKey="id"
-              pagination={{ pageSize: 8, showSizeChanger: false }}
+              pagination={findingPagination}
               columns={[
                 { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
                 { title: '患者', dataIndex: 'patientName', render: (v?: string) => v ?? '—' },

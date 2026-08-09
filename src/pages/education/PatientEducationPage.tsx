@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber } from 'antd'
+import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card } from 'antd'
 import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
 import { patientPortalApi, type CreateEducationInput } from '../../services/api'
 
@@ -203,7 +203,7 @@ export default function PatientEducationPage() {
 
       {/* Materials Tab */}
       {activeTab === 'materials' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -283,12 +283,12 @@ export default function PatientEducationPage() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Records Tab */}
       {activeTab === 'records' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>患者学习记录</h3>
           {records.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
@@ -302,12 +302,12 @@ export default function PatientEducationPage() {
             </div>
           ))}
           {records.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无学习记录</div>}
-        </div>
+        </Card>
       )}
 
       {/* Communication Tab */}
       {activeTab === 'communication' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>沟通模板</h3>
           {templates.map(t => (
             <div key={t.id} style={{ padding: 16, marginBottom: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
@@ -322,7 +322,7 @@ export default function PatientEducationPage() {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       )}
 
       {/* [W5] 新建宣教资料 */}

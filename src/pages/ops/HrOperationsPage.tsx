@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from 'recharts'
+import { ChartContainer } from '../../components/charts'
 import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
 // [W2-A] 人员名册/工作量接 userApi 实时; 排班/满意度趋势无数据源 → 标注演示数据
 import { userApi } from '../../services/api/userApi'
@@ -171,7 +172,7 @@ export default function HrOperationsPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={16} color="#22c55e" />本周工作量对比 (在职) {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(userApi 实时)</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ChartContainer height={220} state={prodData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
                   <BarChart data={prodData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -179,14 +180,14 @@ export default function HrOperationsPage() {
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name="检查量" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
 
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={16} color="#8b5cf6" />员工满意度趋势 <span style={{ fontSize: 11, color: '#f59e0b' }}>(演示数据)</span>
                 </div>
-                <ResponsiveContainer width="100%" height={220}>
+                <ChartContainer height={220} state={SATISFACTION_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无满意度数据">
                   <LineChart data={SATISFACTION_TREND}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -194,7 +195,7 @@ export default function HrOperationsPage() {
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}`, '满意度']} />
                     <Line type="monotone" dataKey="satisfaction" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} name="满意度" />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 

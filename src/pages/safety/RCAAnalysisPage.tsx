@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
 import { Search, CheckCircle, AlertTriangle, FileText, Plus, BarChart3 } from 'lucide-react'
+import { ChartContainer } from '../../components/charts'
 import {
   getRcaInvestigations, createRcaInvestigation, updateRcaInvestigation,
   type RcaInvestigation, type RcaStatus,
@@ -195,7 +196,7 @@ export default function RCAAnalysisPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <BarChart3 size={16} color="#3b82f6" />RCA状态分布
                 </div>
-                <ResponsiveContainer width="100%" height={200}>
+                <ChartContainer height={200} state={statusData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无RCA状态数据">
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -203,13 +204,13 @@ export default function RCAAnalysisPage() {
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#dc2626" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <CheckCircle size={16} color="#22c55e" />CAPA执行状态
                 </div>
-                <ResponsiveContainer width="100%" height={200}>
+                <ChartContainer height={200} state={capaChartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CAPA执行数据">
                   <BarChart data={capaChartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -217,7 +218,7 @@ export default function RCAAnalysisPage() {
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 
@@ -230,7 +231,7 @@ export default function RCAAnalysisPage() {
             </div>
 
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>编号</th>
@@ -261,7 +262,7 @@ export default function RCAAnalysisPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </>
         )}

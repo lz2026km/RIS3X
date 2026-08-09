@@ -60,6 +60,9 @@ export const Hl7BuilderPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<Hl7ArchiveRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  // [W1-B] 直发端点: 批量 ORU (POST /hl7/batch) / 推送 ORU (POST /hl7/push-oru)
+  const [batchSending, setBatchSending] = useState(false);
+  const [pushSending, setPushSending] = useState(false);
   // [W3-C] 受控分页: 发送历史表
   const historyPagination = usePagination(history, 8);
 
@@ -243,6 +246,49 @@ export const Hl7BuilderPage: React.FC = () => {
 
   const isSiu = activeTab === "SIU^S12";
 
+  // [W1-B] 批量发送 ORU: POST /hl7/batch (hl7Api.buildBatch)
+  const handleBatchSend = async () => {
+    setBatchSending(true);
+    setError(null);
+    try {
+      const base = buildPayload(getValues());
+      const reports: Hl7Report[] = [base, { ...base, accessionNumber: `${base.accessionNumber}-B`, reportId: `${base.reportId}-B` }];
+      const res = await hl7Api.buildBatch(reports);
+      if (res.success) {
+        message.success(`批量 ORU 已发送 (${res.data?.count ?? reports.length} 条, POST /hl7/batch)`);
+        fetchHistory();
+      } else {
+        setError(res.error?.message ?? "批量发送失败");
+      }
+    } catch {
+      setError("批量发送请求失败");
+    }
+    setBatchSending(false);
+  };
+
+  // [W1-B] 推送 ORU: POST /hl7/push-oru (hl7Api.pushOru)
+  const handlePushOru = async () => {
+    setPushSending(true);
+    setError(null);
+    try {
+      const values = getValues();
+      if (!values.examId.trim()) {
+        setError("请填写检查 ID (examId) 以推送 ORU");
+        return;
+      }
+      const res = await hl7Api.pushOru(values.examId.trim(), values.examId.trim());
+      if (res.success) {
+        message.success(`ORU 已推送至外部系统 (POST /hl7/push-oru)`);
+        fetchHistory();
+      } else {
+        setError(res.error?.message ?? "推送失败");
+      }
+    } catch {
+      setError("推送请求失败");
+    }
+    setPushSending(false);
+  };
+
   return (
     <div className="p-4 space-y-3">
       <Card size="small" className="shadow-sm">
@@ -345,6 +391,24 @@ export const Hl7BuilderPage: React.FC = () => {
                 >
                   发送到远端
                 </Button>
+                {activeTab === "ORU^R01" && (
+                  <>
+                    <Button
+                      icon={<Send className="w-3 h-3" />}
+                      onClick={handleBatchSend}
+                      loading={batchSending}
+                    >
+                      批量 ORU (/hl7/batch)
+                    </Button>
+                    <Button
+                      icon={<Send className="w-3 h-3" />}
+                      onClick={handlePushOru}
+                      loading={pushSending}
+                    >
+                      推送 ORU (/hl7/push-oru)
+                    </Button>
+                  </>
+                )}
               </div>
 
               {preview && (

@@ -227,10 +227,10 @@ export const SmartAuthPage: React.FC = () => {
             scopes: ["openid", "fhirUser", "patient/*.read"],
           }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Form.Item label="client_id" name="clientId" rules={[{ required: true }]}>
+              <Form.Item label="客户端 ID" name="clientId" rules={[{ required: true }]}>
                 <Input placeholder="g005-ris-web" />
               </Form.Item>
-              <Form.Item label="redirect_uri" name="redirectUri" rules={[{ required: true }]}>
+              <Form.Item label="回调地址" name="redirectUri" rules={[{ required: true }]}>
                 <Input placeholder="https://app.g005.local/callback" />
               </Form.Item>
               <Form.Item label="患者 (patient context)" name="patientId">
@@ -246,8 +246,8 @@ export const SmartAuthPage: React.FC = () => {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="state" name="state">
-                <Input placeholder="CSRF state" />
+              <Form.Item label="状态参数" name="state">
+                <Input placeholder="CSRF 状态参数" />
               </Form.Item>
             </div>
             <Form.Item label="作用域" name="scopes" rules={[{ required: true, message: "请至少选择一个 scope" }]}>

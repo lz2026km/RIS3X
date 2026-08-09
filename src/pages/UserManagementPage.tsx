@@ -110,7 +110,7 @@ export default function UserManagementPage() {
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }} data-testid="user-management-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#1a3a5c' }}>用户权限管理</h2>
+        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>用户权限管理</h2>
         <button
           type="button"
           onClick={onSave}

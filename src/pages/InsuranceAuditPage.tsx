@@ -10,7 +10,8 @@ import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { VOUCHER_DATA } from '../data/initialData';
 import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { ChartContainer } from '../components/charts';
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -2445,7 +2446,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     marginBottom: 20,
   },
-  title: { fontSize: 18, fontWeight: 700, color: "#1a3a5c", margin: 0 },
+  title: { fontSize: 18, fontWeight: 700, color: "var(--color-primary-800)", margin: 0 },
   kpiRow: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
@@ -2473,7 +2474,7 @@ const styles: Record<string, React.CSSProperties> = {
   kpiValue: {
     fontSize: 26,
     fontWeight: 700,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     lineHeight: 1.2,
   },
   kpiLabel: {
@@ -2562,7 +2563,7 @@ const styles: Record<string, React.CSSProperties> = {
   cardPatient: {
     fontSize: 16,
     fontWeight: 700,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
   },
   cardPatientId: {
     fontSize: 12,
@@ -2723,7 +2724,7 @@ const styles: Record<string, React.CSSProperties> = {
   statValue: {
     fontSize: 28,
     fontWeight: 700,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
   },
   chartCard: {
     background: "var(--bg-card)",
@@ -2735,7 +2736,7 @@ const styles: Record<string, React.CSSProperties> = {
   chartTitle: {
     fontSize: 15,
     fontWeight: 600,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     marginBottom: 16,
   },
   ruleCard: {
@@ -2948,7 +2949,7 @@ const styles: Record<string, React.CSSProperties> = {
   modalTitle: {
     fontSize: 16,
     fontWeight: 700,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     marginBottom: 16,
   },
   modalText: {
@@ -2974,7 +2975,7 @@ const styles: Record<string, React.CSSProperties> = {
   fundMonitorTitle: {
     fontSize: 16,
     fontWeight: 600,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     display: "flex",
     alignItems: "center",
     gap: 8,
@@ -3006,7 +3007,7 @@ const styles: Record<string, React.CSSProperties> = {
   fundKpiValue: {
     fontSize: 26,
     fontWeight: 700,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     lineHeight: 1.2,
   },
   fundKpiLabel: {
@@ -3029,7 +3030,7 @@ const styles: Record<string, React.CSSProperties> = {
   fundChartTitle: {
     fontSize: 14,
     fontWeight: 600,
-    color: "#1a3a5c",
+    color: "var(--color-primary-800)",
     marginBottom: 16,
   },
   violationListCard: {
@@ -4008,7 +4009,7 @@ export default function InsuranceAuditPage() {
               />
               近30天基金使用趋势
             </div>
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={fundTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无基金使用趋势数据">
               <AreaChart data={fundTrendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
@@ -4042,7 +4043,7 @@ export default function InsuranceAuditPage() {
                   name="实际使用"
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           {/* 科室使用分布 */}
@@ -4060,7 +4061,7 @@ export default function InsuranceAuditPage() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 220, height: 220, flexShrink: 0 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer height={220} state={deptUsageData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无科室分布数据">
                 <PieChart>
                   <Pie
                     data={deptUsageData}
@@ -4083,7 +4084,7 @@ export default function InsuranceAuditPage() {
                     }}
                   />
                 </PieChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ flex: 1 }}>
                 {deptUsageData.map((dept, idx) => (
                   <div
@@ -4111,7 +4112,7 @@ export default function InsuranceAuditPage() {
                       style={{
                         fontSize: 12,
                         fontWeight: 600,
-                        color: "#1a3a5c",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {dept.value}%
@@ -4139,7 +4140,7 @@ export default function InsuranceAuditPage() {
               />
               近12个月基金使用趋势
             </div>
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={fundMonthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度基金数据">
               <BarChart data={fundMonthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
@@ -4168,7 +4169,7 @@ export default function InsuranceAuditPage() {
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           {/* 违规使用预警列表 */}
@@ -4250,8 +4251,8 @@ export default function InsuranceAuditPage() {
             />
             审核通过率趋势（近30天）
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={passRateTrendData}>
+            <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无通过率趋势数据">
+              <AreaChart data={passRateTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
               <YAxis
@@ -4273,7 +4274,7 @@ export default function InsuranceAuditPage() {
                 name="审核通过率"
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </div>
 
@@ -4508,7 +4509,7 @@ export default function InsuranceAuditPage() {
           </div>
 
           <div style={styles.tableWrapper}>
-            <table style={styles.table}>
+            <div style={{ overflowX: "auto" }}><table style={styles.table}>
               <thead>
                 <tr>
                   <th style={styles.th}>{t("history.auditTime")}</th>
@@ -4526,7 +4527,7 @@ export default function InsuranceAuditPage() {
                   <HistoryRow key={record.id} record={record} />
                 ))}
               </tbody>
-            </table>
+            </table></div>
 
             <div style={styles.pagination}>
               <div style={styles.pageInfo}>
@@ -4864,7 +4865,7 @@ export default function InsuranceAuditPage() {
 
           {/* 电子凭证列表 */}
           <div style={styles.voucherTableWrapper}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th style={styles.voucherTh}>凭证ID</th>
@@ -4940,7 +4941,7 @@ export default function InsuranceAuditPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
           <div
             style={{
@@ -5055,7 +5056,7 @@ export default function InsuranceAuditPage() {
                 </button>
               ))}
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr
                   style={{
@@ -5213,7 +5214,7 @@ export default function InsuranceAuditPage() {
                     </tr>
                   ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
           <div
             style={{
@@ -5233,7 +5234,7 @@ export default function InsuranceAuditPage() {
             >
               ICD-10 / CPT 编码映射
             </h3>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr
                   style={{
@@ -5337,7 +5338,7 @@ export default function InsuranceAuditPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
       )}
@@ -5459,7 +5460,7 @@ export default function InsuranceAuditPage() {
                   </button>
                 ))}
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr
                     style={{
@@ -5611,7 +5612,7 @@ export default function InsuranceAuditPage() {
                       </tr>
                     ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
             <div
               style={{
@@ -5631,7 +5632,7 @@ export default function InsuranceAuditPage() {
               >
                 拒赔率趋势
               </h3>
-              <ResponsiveContainer width="100%" height={180}>
+              <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无拒赔率趋势数据">
                 <AreaChart data={denialRateTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -5646,7 +5647,7 @@ export default function InsuranceAuditPage() {
                     name="拒赔率"
                   />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div
                 style={{
                   marginTop: 12,
@@ -6109,7 +6110,7 @@ export default function InsuranceAuditPage() {
               overflow: "hidden",
             }}
           >
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr
                   style={{
@@ -6251,7 +6252,7 @@ export default function InsuranceAuditPage() {
                   );
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
           <div
             style={{
@@ -6315,7 +6316,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   fontSize: 15,
                   fontWeight: 600,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   margin: "0 0 12px 0",
                 }}
               >
@@ -6369,7 +6370,7 @@ export default function InsuranceAuditPage() {
               <div style={styles.ruleHeader}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
-                    style={{ fontSize: 15, fontWeight: 600, color: "#1a3a5c" }}
+                    style={{ fontSize: 15, fontWeight: 600, color: "var(--color-primary-800)" }}
                   >
                     {rule.examName}
                   </span>
@@ -6434,7 +6435,7 @@ export default function InsuranceAuditPage() {
               style={{
                 fontSize: 15,
                 fontWeight: 600,
-                color: "#1a3a5c",
+                color: "var(--color-primary-800)",
                 marginBottom: 12,
               }}
             >
@@ -6445,7 +6446,7 @@ export default function InsuranceAuditPage() {
               限制药品库
             </h3>
             <div style={styles.tableWrapper}>
-              <table style={styles.drugTable}>
+              <div style={{ overflowX: "auto" }}><table style={styles.drugTable}>
                 <thead>
                   <tr>
                     <th style={styles.drugTh}>药品名称</th>
@@ -6462,7 +6463,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           ...styles.drugTd,
                           fontWeight: 600,
-                          color: "#1a3a5c",
+                          color: "var(--color-primary-800)",
                         }}
                       >
                         {drug.name}
@@ -6512,7 +6513,7 @@ export default function InsuranceAuditPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         </>

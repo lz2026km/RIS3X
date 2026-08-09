@@ -106,7 +106,7 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500 }}>医联体成员 ({allianceMembers.length})</h2>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
               <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
                 <th style={thStyle}>机构名称</th>
@@ -133,7 +133,7 @@ const MedicalAlliancePage: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
             <div style={{ flex: 1, padding: 16, background: '#eff6ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
               <div style={{ fontSize: 13, color: '#1e40af' }}>共享资源</div>
@@ -153,7 +153,7 @@ const MedicalAlliancePage: React.FC = () => {
             <h2 style={{ fontSize: 18, fontWeight: 500 }}>转诊记录 ({allianceReferrals.length})</h2>
             <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>新建转诊</button>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
               <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
                 <th style={thStyle}>患者</th>
@@ -189,7 +189,7 @@ const MedicalAlliancePage: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 

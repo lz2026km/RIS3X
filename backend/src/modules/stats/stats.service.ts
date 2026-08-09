@@ -78,6 +78,19 @@ export interface StatsDashboardData {
   alerts: { openCritical: number; devicesActive: number; doctorsActive: number }
 }
 
+// [G005 Wave1A P0] Top N 设备 / 模态 (StatsReportPage / EquipmentEfficiencyPage 在用)
+export interface TopDeviceRow {
+  deviceId: string
+  deviceName: string
+  modality: string
+  count: number
+}
+
+export interface TopModalityRow {
+  modality: string
+  count: number
+}
+
 const DOCTORS = [
   { id: 'D001', name: '张医生', department: '放射科' },
   { id: 'D002', name: '李医生', department: '放射科' },
@@ -300,6 +313,36 @@ function seedDashboard(seed: number): StatsDashboardData {
       doctorsActive: 24,
     },
   }
+}
+
+// [G005 Wave1A P0] 确定性 seed: Top N 设备 (与 MSW stats top-devices 形状对齐: deviceId/count)
+const SEED_DEVICES: Array<[string, string, string]> = [
+  ['CT-1', 'GE Revolution CT', 'CT'],
+  ['CT-2', '西门子 SOMATOM Force', 'CT'],
+  ['MR-1', 'GE SIGNA 3.0T', 'MR'],
+  ['MR-2', '飞利浦 Ingenia 1.5T', 'MR'],
+  ['DR-1', '联影 uDR', 'DR'],
+  ['DR-2', '万东 DR', 'DR'],
+  ['US-1', '迈瑞 Resona 8', 'US'],
+  ['MG-1', '豪洛捷 Selenia Dimensions', 'MG'],
+]
+
+function seedTopDevices(seed: number, limit: number): TopDeviceRow[] {
+  const rnd = mulberry32(seed ^ 0x51ab3f2d)
+  return SEED_DEVICES.slice(0, limit).map(([deviceId, deviceName, modality], i) => ({
+    deviceId,
+    deviceName,
+    modality,
+    count: 60 + Math.floor(rnd() * 80) - i * 7,
+  })).sort((a, b) => b.count - a.count)
+}
+
+function seedTopModalities(seed: number, limit: number): TopModalityRow[] {
+  const rnd = mulberry32(seed ^ 0x0b8c0f14)
+  return MODALITIES.map((modality, i) => ({
+    modality,
+    count: 40 + Math.floor(rnd() * 90) - i * 6,
+  })).sort((a, b) => b.count - a.count).slice(0, limit)
 }
 
 // ============ Service ============
@@ -660,5 +703,67 @@ export class StatsService {
         alerts: { openCritical: alerts[0], devicesActive: alerts[1], doctorsActive: alerts[2] },
       }
     }, seedDashboard)
+  }
+
+  // [G005 Wave1A P0] GET /stats/top-devices — 设备 TOP N (Exam 按 deviceId 分组 + Device 名称)
+  // 返回裸数组 (与 MSW 形状一致: { deviceId, count }), 前端 StatsReportPage/EquipmentEfficiencyPage 直接消费
+  async getTopDevices(limit = 10): Promise<TopDeviceRow[]> {
+    const clamped = Math.min(Math.max(Math.floor(limit) || 10, 1), 50)
+    try {
+      const grouped = await this.prisma.exam.groupBy({
+        by: ['deviceId'],
+        where: { deviceId: { not: null } },
+        _count: { deviceId: true },
+        orderBy: { _count: { deviceId: 'desc' } },
+        take: clamped,
+      })
+      if (grouped.length === 0) return seedTopDevices(dateSeed(), clamped)
+      const ids = grouped.map((g) => g.deviceId!).filter(Boolean)
+      const devices = await this.prisma.device.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, name: true, modality: true },
+      })
+      const byId = new Map(devices.map((d) => [d.id, d]))
+      return grouped.map((g) => ({
+        deviceId: g.deviceId!,
+        deviceName: byId.get(g.deviceId!)?.name ?? g.deviceId!,
+        modality: byId.get(g.deviceId!)?.modality ?? 'CT',
+        count: g._count.deviceId,
+      }))
+    } catch (err) {
+      this.logger.warn(`[Stats] top-devices DB query failed, fallback to seed: ${(err as Error).message}`)
+      return seedTopDevices(dateSeed(), clamped)
+    }
+  }
+
+  // [G005 Wave1A P0] GET /stats/top-modalities — 模态 TOP N (Exam 按 modality 分组)
+  async getTopModalities(limit = 10): Promise<TopModalityRow[]> {
+    const clamped = Math.min(Math.max(Math.floor(limit) || 10, 1), 50)
+    try {
+      const grouped = await this.prisma.exam.groupBy({
+        by: ['modality'],
+        _count: { modality: true },
+        orderBy: { _count: { modality: 'desc' } },
+        take: clamped,
+      })
+      if (grouped.length === 0) return seedTopModalities(dateSeed(), clamped)
+      return grouped.map((g) => ({ modality: g.modality, count: g._count.modality }))
+    } catch (err) {
+      this.logger.warn(`[Stats] top-modalities DB query failed, fallback to seed: ${(err as Error).message}`)
+      return seedTopModalities(dateSeed(), clamped)
+    }
+  }
+
+  // [G005 Wave1A P0] GET /stats/export.csv — 复用 daily/trend 数据生成 CSV (含 BOM, 确定性)
+  async exportCsv(): Promise<string> {
+    const [trend, daily] = await Promise.all([this.getTrend(30), this.getDaily()])
+    const header = ['date', 'examCount', 'reportCount', 'criticalCount', 'cosignCount', 'avgTAT', 'defectCount', 'qcAvgScore']
+    const lines = [header.join(',')]
+    for (const p of trend.data) {
+      lines.push([p.date, p.examCount, p.reportCount, p.criticalCount, p.cosignCount, '', '', ''].join(','))
+    }
+    const d = daily.data
+    lines.push([d.date, d.examCount, d.reportCount, d.criticalCount, d.cosignCount ?? 0, d.avgTAT ?? '', d.defectCount ?? '', d.qcAvgScore ?? ''].join(','))
+    return '\uFEFF' + lines.join('\r\n')
   }
 }

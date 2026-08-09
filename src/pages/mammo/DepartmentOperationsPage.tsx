@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Users, Calendar, Clock, Activity, TrendingUp, RefreshCw, Download, Plus, Bed, UserCheck, FileText } from 'lucide-react'
 import { statsApi } from '../../services/api/statsApi'
+import { Card } from 'antd'
 
 const statsData = [
   { label: '今日检查量', value: '28', unit: '例', icon: Activity, color: '#2563eb', bg: '#eff6ff' },
@@ -16,15 +17,15 @@ const statsData = [
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
   subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
+  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 },
@@ -164,16 +165,16 @@ const DepartmentOperationsPage = () => {
 
       <div style={s.statsRow}>
         {effectiveStats.map((stat, i) => (
-          <div key={i} style={s.statCard}>
+          <Card key={i} bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ ...s.statIcon, background: stat.bg }}><stat.icon size={20} color={stat.color} /></div>
             <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span></div>
             <div style={s.statLabel}>{stat.label}</div>
-          </div>
+          </Card>
         ))}
       </div>
 
       {byModality && Object.keys(byModality).length > 0 && (
-        <div style={{ ...s.section, padding: 12, marginBottom: 16 }}>
+        <Card bordered={false} style={{ ...s.section, padding: 12, marginBottom: 16 }} styles={{ body: { padding: 0 } }}>
           <div style={{ ...s.sectionTitle, marginBottom: 8 }}><Activity size={16} color="#2563eb" />乳腺模态检查分布 (数据源: /stats/by-modality)</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {Object.entries(byModality).map(([mod, stat]) => {
@@ -183,11 +184,11 @@ const DepartmentOperationsPage = () => {
               )
             })}
           </div>
-        </div>
+        </Card>
       )}
 
       <div style={s.grid2}>
-        <div style={s.section}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
           <div style={s.sectionTitle}><Bed size={16} color='#2563eb' />设备状态</div>
           {rooms.map((r, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8fafc' }}>
@@ -201,9 +202,9 @@ const DepartmentOperationsPage = () => {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
 
-        <div style={s.section}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
           <div style={s.sectionTitle}><Users size={16} color='#7c3aed' />值班人员</div>
           <div style={s.grid4}>
             {staff.map((p, i) => (
@@ -216,10 +217,10 @@ const DepartmentOperationsPage = () => {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div style={s.section}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={s.sectionTitle}><Calendar size={16} color='#0891b2' />候诊队列</div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -247,7 +248,7 @@ const DepartmentOperationsPage = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {showStatsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStatsModal(false)}>

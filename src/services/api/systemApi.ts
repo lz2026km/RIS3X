@@ -1,5 +1,4 @@
-import { api, API_BASE } from './client'
-import { getToken } from '../../utils/auth'
+import { api } from './client'
 
 export interface AuditLogDto {
   id: string
@@ -93,21 +92,11 @@ export const auditApi = {
     api.get<AuditLogDto>(`/audit/${encodeURIComponent(id)}`),
 
   // 导出 CSV（后端 GET /audit/export 返回 text/csv，需按 blob 下载）
+  // [W1-B] 去重: 与 services/api/auditApi.ts 的 auditApi.export 为同一后端端点(重复封装)。
+  // 保留本方法供 AuditPage 使用(import 兼容), 实现委托给 auditApi.export, 避免双实现漂移。
   async exportCsv(params?: AuditListParams): Promise<Blob> {
-    const query = new URLSearchParams()
-    if (params?.userId) query.set('userId', params.userId)
-    if (params?.action) query.set('action', params.action)
-    if (params?.resource) query.set('resource', params.resource)
-    if (params?.startDate) query.set('startDate', params.startDate)
-    if (params?.endDate) query.set('endDate', params.endDate)
-    const url = `${API_BASE}/audit/export${query.toString() ? '?' + query.toString() : ''}`
-    const token = getToken()
-    const res = await fetch(url, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      credentials: 'include',
-    })
-    if (!res.ok) throw new Error(`导出失败 (${res.status})`)
-    return res.blob()
+    const { auditApi: auditExportApi } = await import('./auditApi')
+    return auditExportApi.export((params ?? {}) as Parameters<typeof auditExportApi.export>[0])
   },
 }
 

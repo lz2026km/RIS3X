@@ -26,9 +26,16 @@ export class AuditController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: '瀹¤鏃ュ織缁熻' })
+  @ApiOperation({ summary: '瀹¤鏃ュ織缁熻' })
   stats() {
     return this.audit.stats()
+  }
+
+  // [G005 Wave1A P0] 审计聚合 (AuditCompliancePage 在用): 按操作/资源/用户/时间聚合
+  @Get('aggregation')
+  @ApiOperation({ summary: '瀹¤鏃ュ織鑱氬悎缁熻 (byAction/byResource/byUser)' })
+  aggregation() {
+    return this.audit.aggregation()
   }
 
   @Get('export')

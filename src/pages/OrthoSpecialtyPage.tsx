@@ -48,7 +48,7 @@ const OrthoSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>演示数据</span></h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>演示数据</span></h1>
           <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>骨科影像专科 · 关节分析 · 脊柱评估 · 骨密度 · 创伤 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>演示数据（后端无骨科接口）</span></p>
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}><Bone size={14} /> 新建分析</button>
@@ -57,7 +57,7 @@ const OrthoSpecialtyPage = () => {
       {showCreateModal && (
         <div onClick={() => setShowCreateModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 12, padding: 24, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>新建骨科分析</span>
               <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}>×</button>
             </div>
@@ -105,7 +105,7 @@ const OrthoSpecialtyPage = () => {
         ].map((k, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#1a3a5c' }}>{k.value}</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)' }}>{k.value}</div>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{k.label}</div>
           </div>
         ))}
@@ -120,7 +120,7 @@ const OrthoSpecialtyPage = () => {
       {tab === 'joints' && (
         <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={16} color="#9333ea" /> 关节影像列表</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={16} color="#9333ea" /> 关节影像列表</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="#64748b" />
@@ -170,7 +170,7 @@ const OrthoSpecialtyPage = () => {
       {tab === 'spine' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><Activity size={16} color="#9333ea" /> 脊柱评估</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Activity size={16} color="#9333ea" /> 脊柱评估</div>
             {['C3-C4', 'C4-C5', 'C5-C6', 'C6-C7', 'L3-L4', 'L4-L5', 'L5-S1'].map((level, i) => {
               const pathologies = ['正常', '正常', '椎间盘突出', '正常', '椎间盘膨出', '椎间盘突出', '正常'];
               const stenosis = ['无', '无', '轻度', '无', '无', '中度', '无'];
@@ -185,7 +185,7 @@ const OrthoSpecialtyPage = () => {
             })}
           </div>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><Scale size={16} color="#ca8a04" /> 脊柱排列</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Scale size={16} color="#ca8a04" /> 脊柱排列</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { label: 'Cobb 角', value: '12°', status: '异常', color: '#ea580c' },
@@ -195,7 +195,7 @@ const OrthoSpecialtyPage = () => {
               ].map(item => (
                 <div key={item.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{item.label}</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: '#1a3a5c' }}>{item.value}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-800)' }}>{item.value}</div>
                   <div style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{item.status}</div>
                 </div>
               ))}
@@ -207,7 +207,7 @@ const OrthoSpecialtyPage = () => {
       {tab === 'bmd' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><Scale size={16} color="#ca8a04" /> 骨密度检测</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Scale size={16} color="#ca8a04" /> 骨密度检测</div>
             {[
               { site: 'L1-L4 腰椎', tScore: -3.2, density: 0.72, cat: '骨质疏松' },
               { site: '股骨颈', tScore: -2.8, density: 0.68, cat: '骨质疏松' },
@@ -226,7 +226,7 @@ const OrthoSpecialtyPage = () => {
             ))}
           </div>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><BarChart3 size={16} color="#9333ea" /> FRAX 风险评估</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#9333ea" /> FRAX 风险评估</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { label: '髋部骨折', value: '8.5%', color: '#dc2626' },
@@ -247,7 +247,7 @@ const OrthoSpecialtyPage = () => {
       {tab === 'stats' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><BarChart3 size={16} color="#9333ea" /> 关节分布</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#9333ea" /> 关节分布</div>
             {Object.entries(JOINT_LABELS).map(([k, v]) => {
               const count = mockStudies.filter(r => r.joint === k).length;
               return (
@@ -260,7 +260,7 @@ const OrthoSpecialtyPage = () => {
             })}
           </div>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><TrendingUp size={16} color="#16a34a" /> 骨折检出趋势</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><TrendingUp size={16} color="#16a34a" /> 骨折检出趋势</div>
             {['2026-07', '2026-06', '2026-05', '2026-04'].map((m, i) => {
               const vals = [8, 12, 6, 10];
               return (

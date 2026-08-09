@@ -39,6 +39,7 @@ import type {
   SrSection,
   SrConceptName,
 } from "../../services/api/srReportApi";
+import { usePagination } from "../../hooks/usePagination";
 
 const { Text, Paragraph } = Typography;
 
@@ -59,6 +60,7 @@ const valueTypeTag: Record<string, string> = {
 const SrReportPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [documents, setDocuments] = useState<SrDocument[]>([]);
+  const { pageData: docPageData, pagination: docPagination } = usePagination(documents, 10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [detail, setDetail] = useState<SrDocument | null>(null);
@@ -368,9 +370,9 @@ const SrReportPage: React.FC = () => {
         <Spin spinning={loading}>
           <Table
             rowKey="id"
-            dataSource={documents}
+            dataSource={docPageData}
             columns={columns}
-            pagination={{ pageSize: 10, showSizeChanger: false }}
+            pagination={docPagination}
             size="small"
           scroll={{ x: 'max-content' }}
           />

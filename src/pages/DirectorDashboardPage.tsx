@@ -531,7 +531,7 @@ const DirectorDashboardPage: React.FC = () => {
     <div>
       <div style={{ marginBottom: '24px' }}>
         <div style={styles.sectionTitle}>🥇 医生工作量排名</div>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
               <th style={{ ...styles.th, width: '50px' }}>排名</th>
@@ -586,12 +586,12 @@ const DirectorDashboardPage: React.FC = () => {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       </div>
 
       <div>
         <div style={styles.sectionTitle}>🔧 技师工作量排名</div>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
               <th style={{ ...styles.th, width: '50px' }}>排名</th>
@@ -634,7 +634,7 @@ const DirectorDashboardPage: React.FC = () => {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );
@@ -685,7 +685,7 @@ const DirectorDashboardPage: React.FC = () => {
       <div style={styles.grid2Col}>
         <div>
           <div style={styles.sectionTitle}>📅 设备预约满员率排名</div>
-          <table style={styles.table}>
+          <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
                 <th style={styles.th}>设备</th>
@@ -719,12 +719,12 @@ const DirectorDashboardPage: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
 
         <div>
           <div style={styles.sectionTitle}>⚠️ 设备故障率统计</div>
-          <table style={styles.table}>
+          <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
                 <th style={styles.th}>设备</th>
@@ -755,7 +755,7 @@ const DirectorDashboardPage: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
     </div>
@@ -766,7 +766,7 @@ const DirectorDashboardPage: React.FC = () => {
     <div>
       <div style={{ marginBottom: '24px' }}>
         <div style={styles.sectionTitle}>🏆 医生报告质量评分排名</div>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
               <th style={{ ...styles.th, width: '50px' }}>排名</th>
@@ -840,7 +840,7 @@ const DirectorDashboardPage: React.FC = () => {
                 );
               })}
           </tbody>
-        </table>
+        </table></div>
       </div>
 
       <div>

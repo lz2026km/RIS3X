@@ -26,10 +26,12 @@ import type {
   IheProfileId,
 } from "../../types/integration";
 import { useNavigate } from "react-router-dom";
+import { usePagination } from "@/hooks/usePagination";
 
 export const IheConnectathonPage: React.FC = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<IheConnectathonSession | null>(null);
+  const testCasePagination = usePagination(session?.testCases ?? [], 10);
   const [cfg, setCfg] = useState({
     name: "G005 Connectathon 2026",
     venue: "汉东省人民医院",
@@ -425,10 +427,10 @@ export const IheConnectathonPage: React.FC = () => {
               <Table
                 size="small"
                 rowKey="id"
-                pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+                pagination={testCasePagination.pagination}
                 locale={{ emptyText: <Empty description="暂无数据" /> }}
                 scroll={{ x: "max-content" }}
-                dataSource={session.testCases}
+                dataSource={testCasePagination.pageData}
                 columns={[
                   {
                     title: "配置",

@@ -75,6 +75,11 @@ export class DeviceMgmtService {
     return { items, total: items.length }
   }
 
+  /** [W1-B] 注射指令下发: 落 auditLog (resource: injection-command) 供追溯 */
+  async sendInjectionCommand(body: Record<string, unknown>) {
+    return this.prisma.auditLog.create({ data: { action: 'SEND', resource: 'injection-command', detail: body as Prisma.InputJsonValue, tenantId: getCurrentTenantId() } })
+  }
+
   async getContrastInventory() {
     const items = await this.prisma.auditLog.findMany({ where: { resource: 'contrast-inventory' }, orderBy: { createdAt: 'desc' } })
     return { items, total: items.length }

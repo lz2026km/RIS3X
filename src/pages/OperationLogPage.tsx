@@ -615,7 +615,7 @@ export default function OperationLogPage() {
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                 {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
               </tr></thead>
@@ -632,7 +632,7 @@ export default function OperationLogPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             {anomalyScores.filter(s => s.score >= 70).length > 0 && (
               <div style={{ marginTop: 12, padding: '10px 14px', background: '#fee2e2', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} color={DANGER} />

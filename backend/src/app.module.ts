@@ -111,6 +111,14 @@ import { NuclearStatsModule } from "./modules/nuclear-stats/nuclear-stats.module
 import { ScreeningModule } from "./modules/screening/screening.module";
 import { DicomShareModule } from "./modules/dicom-share/dicom-share.module";
 import { TreatmentPlansModule } from "./modules/treatment-plans/treatment-plan.module";
+// [G005 Wave1A] 后端扩充 (P1 六模块 + 医保审核写操作)
+import { PacsAdminModule } from "./modules/pacs-admin/pacs-admin.module";
+import { ConsultationsModule } from "./modules/consultations/consultations.module";
+import { PrintModule } from "./modules/print/print.module";
+import { AutoCollectionModule } from "./modules/auto-collection/auto-collection.module";
+import { KioskModule } from "./modules/kiosk/kiosk.module";
+import { ConsentEducationModule } from "./modules/consent-education/consent-education.module";
+import { InsuranceAuditsModule } from "./modules/insurance-audits/insurance-audits.module";
 
 @Module({
   imports: [
@@ -240,6 +248,13 @@ import { TreatmentPlansModule } from "./modules/treatment-plans/treatment-plan.m
     ScreeningModule,
     DicomShareModule,
     TreatmentPlansModule,
+    PacsAdminModule,
+    ConsultationsModule,
+    PrintModule,
+    AutoCollectionModule,
+    KioskModule,
+    ConsentEducationModule,
+    InsuranceAuditsModule,
   ],
   controllers: [HealthController],
   providers: [

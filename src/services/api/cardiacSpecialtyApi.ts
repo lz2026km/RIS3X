@@ -1,5 +1,8 @@
 // Cardiac Specialty API — 心脏分析 · 冠脉评估 · 心功能
 // [v3.0.6.11-81] W1-B P1: 后端无 /cardiac/* 端点 (仅 MSW mock), 页面为演示页。
+// [v3.0.6.11-83] W1-B: CardiacSpecialtyPage / CvDatabasePage 已优先接真实 cardiacAiApi
+// (/ai-diagnosis/cardiac-ai, 见 pages/cardiac/cardiacAiAdapter.ts), 本文件全部方法 MOCK_ONLY
+// 保留为演示回退 (真实接口失败时兜底), 保持 import 兼容。
 // 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
 import type { ApiResponse } from './types';
 

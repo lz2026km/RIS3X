@@ -275,13 +275,13 @@ describe('BiService', () => {
       const res = await svc.getTrend(7)
       expect(res.source).toBe('database')
       expect(res.data).toHaveLength(7)
-      const last = res.data[res.data.length - 1]!
-      const today = new Date().toISOString().slice(0, 10)
-      expect(last.date).toBe(today)
-      expect(last.examCount).toBe(1)
-      expect(last.reportCount).toBe(1)
-      expect(last.criticalCount).toBe(1)
-      expect(last.completionRate).toBe(100)
+      // 分桶键使用 UTC 日期 (toISOString), 测试断言按记录自身的 UTC 日定位, 避免时区边界 flaky
+      const today = hoursAgo(1).toISOString().slice(0, 10)
+      const point = res.data.find((p: { date: string }) => p.date === today)!
+      expect(point.examCount).toBe(1)
+      expect(point.reportCount).toBe(1)
+      expect(point.criticalCount).toBe(1)
+      expect(point.completionRate).toBe(100)
     })
 
     it('getKpi falls back to demo when DB is empty', async () => {

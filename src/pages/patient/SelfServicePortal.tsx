@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer } from 'antd'
+import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card } from 'antd'
 import {
   patientPortalApi,
   type PortalPatientDto,
@@ -530,7 +530,7 @@ export default function SelfServicePortal() {
   if (!loggedIn) {
     return (
       <div style={styles.container}>
-        <div style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }}>
+        <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
           <h2 style={{ fontSize: 22, marginBottom: 8 }}>患者自助服务</h2>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>输入手机号或证件号查询</p>
           <input
@@ -545,7 +545,7 @@ export default function SelfServicePortal() {
           </button>
           {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 16, textAlign: 'left' }} />}
           <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>演示账号：输入 13800138000 或 P001</div>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -569,17 +569,17 @@ export default function SelfServicePortal() {
       children: (
         <div>
           <div style={styles.statRow}>
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <Statistic title="检查记录" value={exams.length} suffix="次" />
-            </div>
-            <div style={styles.card}>
+            </Card>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <Statistic title="待完成预约" value={upcomingAppointments.length} suffix="项" />
-            </div>
-            <div style={styles.card}>
+            </Card>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <Statistic title="已出报告" value={reports.length} suffix="份" />
-            </div>
+            </Card>
           </div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>今日待办</h3>
             {upcomingAppointments.length === 0 && reports.length === 0 ? (
               <Empty description="暂无待办事项" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -612,9 +612,9 @@ export default function SelfServicePortal() {
                 )}
               </div>
             )}
-          </div>
+          </Card>
           {upcomingAppointments.length > 0 && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>最近预约</h3>
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
@@ -625,7 +625,7 @@ export default function SelfServicePortal() {
                   </div>
                 </div>
               ))}
-            </div>
+            </Card>
           )}
         </div>
       ),
@@ -636,7 +636,7 @@ export default function SelfServicePortal() {
       children: (
         <div>
           {bookingDone && (
-            <div style={{ ...styles.card, border: '1px solid #a7f3d0', background: '#f0fdf4' }}>
+            <Card bordered={false} style={{ ...styles.card, border: '1px solid #a7f3d0', background: '#f0fdf4' }} styles={{ body: { padding: 0 } }}>
               <h3 style={{ ...styles.subTitle, color: '#166534' }}>预约成功</h3>
               <div style={styles.grid2}>
                 <div><div style={styles.label}>检查类型</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? '未指定部位'}）</div></div>
@@ -645,9 +645,9 @@ export default function SelfServicePortal() {
                 <div><div style={styles.label}>状态</div><div style={styles.value}>{APPOINTMENT_STATE_LABEL[bookingDone.state] ?? bookingDone.state}</div></div>
               </div>
               <p style={{ fontSize: 12, color: '#059669', marginTop: 12 }}>请按预约时间提前 15 分钟到放射科登记台报到，检查当天请携带本人有效证件。</p>
-            </div>
+            </Card>
           )}
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>选择检查类型</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {MODALITIES.map(m => (
@@ -668,9 +668,9 @@ export default function SelfServicePortal() {
                 </button>
               ))}
             </div>
-          </div>
+          </Card>
           {booking.modality && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>选择检查部位</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 {modalityParts.map(p => (
@@ -688,10 +688,10 @@ export default function SelfServicePortal() {
                   >{p}</button>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
           {booking.modality && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>选择检查日期</h3>
               <MiniCalendar
                 month={calendarMonth}
@@ -699,10 +699,10 @@ export default function SelfServicePortal() {
                 onSelect={d => setBooking({ ...booking, date: d })}
                 onMonthChange={setCalendarMonth}
               />
-            </div>
+            </Card>
           )}
           {booking.modality && booking.date && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>选择时段 — {booking.date}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {TIME_SLOTS.map(s => (
@@ -720,10 +720,10 @@ export default function SelfServicePortal() {
                   >{s}</button>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
           {booking.modality && booking.bodyPart && booking.date && booking.slot && (
-            <div style={{ ...styles.card, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card bordered={false} style={{ ...styles.card, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} styles={{ body: { padding: 0 } }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
                   {booking.modality} · {booking.bodyPart} · {booking.date} {booking.slot}
@@ -733,7 +733,7 @@ export default function SelfServicePortal() {
               <button style={{ ...styles.btn, padding: '12px 28px', fontSize: 14 }} onClick={() => void submitBooking()} disabled={bookingLoading}>
                 {bookingLoading ? '提交中...' : '确认预约'}
               </button>
-            </div>
+            </Card>
           )}
         </div>
       ),
@@ -743,7 +743,7 @@ export default function SelfServicePortal() {
       label: '我的报告',
       children: (
         <div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>报告列表（{reports.length}）</h3>
             {reports.length === 0 ? (
               <Empty description="暂无已发布报告" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -771,9 +771,9 @@ export default function SelfServicePortal() {
                 </tbody>
               </table>
             )}
-          </div>
+          </Card>
           {selectedReport && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>报告详情 — {selectedReport.modality ?? '影像'}（{selectedReport.bodyPart ?? '未指定'}）</span>
                 {selectedReport.isCritical && <Tag color="error">危急值</Tag>}
@@ -804,10 +804,10 @@ export default function SelfServicePortal() {
               <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
                 电子报告与纸质报告具有同等法律效力；如有疑问请携带报告咨询临床医生。
               </p>
-            </div>
+            </Card>
           )}
           {!selectedReport && exams.filter(e => e.reportContent).length > 0 && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>历史检查报告</h3>
               {exams.filter(e => e.reportContent).map(exam => (
                 <div key={exam.id} style={styles.todoItem}>
@@ -836,7 +836,7 @@ export default function SelfServicePortal() {
                   </div>
                 )
               })()}
-            </div>
+            </Card>
           )}
         </div>
       ),
@@ -846,7 +846,7 @@ export default function SelfServicePortal() {
       label: '我的影像',
       children: (
         <div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>可查看的检查</h3>
             {viewableExams.length === 0 ? (
               <Empty description="暂无可用影像" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -874,9 +874,9 @@ export default function SelfServicePortal() {
                 </tbody>
               </table>
             )}
-          </div>
+          </Card>
           {selectedExam && (
-            <div style={styles.card}>
+            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>电子胶片 — {selectedExam.examItem}</h3>
               {study && study.series.length > 0 && (
                 <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
@@ -913,9 +913,9 @@ export default function SelfServicePortal() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           )}
-          <div style={{ ...styles.card, textAlign: 'center' }}>
+          <Card bordered={false} style={{ ...styles.card, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>影像下载凭证</h3>
             <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>生成凭证后可在自助终端领取影像光盘</p>
             {!voucherCode ? (
@@ -927,7 +927,7 @@ export default function SelfServicePortal() {
                 <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>有效期：24小时</div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       ),
     },
@@ -936,7 +936,7 @@ export default function SelfServicePortal() {
       label: '宣教资料',
       children: (
         <div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>健康宣教（{educations.length}）</h3>
             {educations.length === 0 ? (
               <Empty description="暂无宣教资料" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -978,7 +978,7 @@ export default function SelfServicePortal() {
                 )
               })
             )}
-          </div>
+          </Card>
         </div>
       ),
     },
@@ -987,7 +987,7 @@ export default function SelfServicePortal() {
       label: '临床数据',
       children: (
         <div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>临床数据记录（{clinicalData.length}）</h3>
             {clinicalData.length === 0 ? (
               <Empty description="暂无临床数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -1014,7 +1014,7 @@ export default function SelfServicePortal() {
                 </tbody>
               </table>
             )}
-          </div>
+          </Card>
         </div>
       ),
     },
@@ -1023,7 +1023,7 @@ export default function SelfServicePortal() {
       label: '联系医护',
       children: (
         <div>
-          <div style={styles.card}>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>医护联系方式</span>
               <button style={{ ...styles.btn, background: '#475569' }} onClick={() => void openContacts()} disabled={contactsLoading}>
@@ -1061,7 +1061,7 @@ export default function SelfServicePortal() {
               </div>
             )}
             <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>联系电话仅供就医咨询使用，工作时间 08:00-17:00。</p>
-          </div>
+          </Card>
         </div>
       ),
     },
@@ -1069,7 +1069,7 @@ export default function SelfServicePortal() {
       key: 'feedback',
       label: '满意度反馈',
       children: (
-        <div style={styles.card}>
+        <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
           <h3 style={styles.subTitle}>服务满意度评价</h3>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>您的评价将帮助我们持续改进服务品质，感谢您的参与。</p>
           <div style={{ marginBottom: 24 }}>
@@ -1109,7 +1109,7 @@ export default function SelfServicePortal() {
           <button style={{ ...styles.btn, padding: '10px 32px', fontSize: 14 }} onClick={() => void submitFeedback()} disabled={submitting}>
             {submitting ? '提交中...' : '提交反馈'}
           </button>
-        </div>
+        </Card>
       ),
     },
   ]
@@ -1118,7 +1118,7 @@ export default function SelfServicePortal() {
     <div style={styles.container}>
       {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
       {/* 患者身份卡 */}
-      <div style={styles.card}>
+      <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
         <div style={styles.header}>
           <h2 style={styles.title}>患者自助服务</h2>
           <button style={{ ...styles.btn, background: '#64748b' }} onClick={handleLogout}>退出</button>
@@ -1141,7 +1141,7 @@ export default function SelfServicePortal() {
           <div><div style={styles.label}>手机号</div><div style={styles.value}>{user?.phone ?? '-'}</div></div>
           <div><div style={styles.label}>注册日期</div><div style={styles.value}>{user?.createdAt ? fmtDate(new Date(user.createdAt)) : '-'}</div></div>
         </div>
-      </div>
+      </Card>
 
       <Tabs
         activeKey={activeTab}

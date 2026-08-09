@@ -27,7 +27,8 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings } from "lucide-react";
+import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings, LayoutDashboard, Users, FileText, ShieldCheck, GitBranch, Printer, Sparkles, Network, UserCheck, BarChart3, DollarSign, FileSpreadsheet, Eye, LayoutGrid, Package } from "lucide-react";
+import { Badge } from "antd";
 import {
   SIDEBAR_ITEMS,
   type Role,
@@ -52,6 +53,8 @@ import { useAppTheme, type ThemeMode } from "../components/Provider";
 import { SettingsPanel } from "../components/feedback/SettingsPanel";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
 import { SkipLink } from "../a11y/SkipLink";
+// [W1-B] 铃铛未读数: notificationsApi.getUnread (GET /notifications/unread/:userId)
+import { notificationsApi } from "../services/api/notificationsApi";
 
 const NavigateCtx = createContext<(path: string) => void>(() => {});
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx);
@@ -140,7 +143,7 @@ const s: Record<string, React.CSSProperties> = {
     background: "var(--bg-primary, #f8fafc)",
   },
   sidebar: {
-    background: "var(--bg-sidebar, #1a3a5c)",
+    background: "var(--bg-sidebar, #172554)",
     display: "flex",
     flexDirection: "column",
     borderRight: "1px solid var(--border-color, #475569)",
@@ -167,15 +170,20 @@ const s: Record<string, React.CSSProperties> = {
   },
   nav: { flex: 1, overflowY: "auto", padding: "8px 0" },
   sectionTitle: (open: boolean): React.CSSProperties => ({
-    padding: open ? "8px 16px 4px" : 0,
-    fontSize: 12,
-    fontWeight: 700,
-    color: "var(--text-sidebar, #e2e8f0)",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    opacity: open ? 0.85 : 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    padding: open ? "10px 14px 4px" : 0,
+    marginLeft: open ? 8 : 0,
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: "0.02em",
+    color: "var(--text-sidebar, rgba(241,245,249,0.72))",
+    textTransform: "none",
+    opacity: open ? 0.9 : 0,
     height: open ? "auto" : 0,
     overflow: "hidden",
+    whiteSpace: "nowrap" as const,
   }),
   navItem: (active: boolean, open: boolean): React.CSSProperties => ({
     display: "flex",
@@ -186,8 +194,12 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     cursor: "pointer",
     color: "var(--text-sidebar, #ffffff)",
-    background: active ? "rgba(255,255,255,0.15)" : "transparent",
-    borderLeft: active ? "4px solid #22c55e" : "4px solid transparent",
+    background: active
+      ? "var(--sidebar-item-active-bg, rgba(37, 99, 235, 0.22))"
+      : "transparent",
+    borderLeft: active
+      ? "4px solid var(--color-primary-600, #2563eb)"
+      : "4px solid transparent",
     fontSize: 14,
     fontWeight: active ? 700 : 500,
     transition: "all 0.15s",
@@ -308,6 +320,28 @@ const THEME_META: Record<
   },
 };
 
+// W4A-C4: 侧边栏分组标题图标 (lucide, 与 sidebarConfig 图标体系一致)
+const SECTION_ICONS: Record<string, React.ReactNode> = {
+  "nav.workbench": <LayoutDashboard size={12} />,
+  "nav.patientManagement": <Users size={12} />,
+  "nav.reportManagement": <FileText size={12} />,
+  "nav.qualityControlV3": <ShieldCheck size={12} />,
+  "nav.qualityControl": <ShieldCheck size={12} />,
+  "nav.workflowV3": <GitBranch size={12} />,
+  "nav.imagingPrint": <Printer size={12} />,
+  "nav.aiIntelligence": <Sparkles size={12} />,
+  "nav.regionalCoordination": <Network size={12} />,
+  "nav.dicomNetwork": <Radio size={12} />,
+  "nav.patientService": <UserCheck size={12} />,
+  "nav.dataAnalysis": <BarChart3 size={12} />,
+  "nav.revenue": <DollarSign size={12} />,
+  "nav.dataReport": <FileSpreadsheet size={12} />,
+  "nav.eyeSpecialty": <Eye size={12} />,
+  "nav.specialtyModules": <LayoutGrid size={12} />,
+  "nav.systemManage": <Settings size={12} />,
+  "nav.equipmentMaterials": <Package size={12} />,
+};
+
 function Breadcrumb({ pathname }: { pathname: string }) {
   const segments = pathname.split("/").filter(Boolean);
   const isHome = pathname === "/";
@@ -413,7 +447,8 @@ const NavItem = React.memo(function NavItem({
       style={{ ...s.navItem(active, open) }}
       onMouseEnter={(e) => {
         if (!active)
-          e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+          e.currentTarget.style.background =
+            "var(--sidebar-item-hover-bg, rgba(37, 99, 235, 0.14))";
       }}
       onMouseLeave={(e) => {
         if (!active) e.currentTarget.style.background = "transparent";
@@ -447,7 +482,11 @@ const NavItem = React.memo(function NavItem({
 });
 
 export function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const userConfig = useUserConfig();
+  // [W4A-C3] 折叠状态持久化: UserConfig.sidebarCollapsed (localStorage)
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => !userConfig.config.sidebarCollapsed,
+  );
   const [locale, setLocale] = useState<Locale>(getCurrentLocale());
   const navigate = useNavigate();
   const location = useLocation();
@@ -458,13 +497,41 @@ export function AppLayout() {
   const isNarrow = bp === "xs" || bp === "sm" || bp === "md";
   const filteredItems = useSidebarItems((user?.role as Role) ?? "医生");
   const { theme: appTheme, cycleTheme } = useAppTheme();
-  const userConfig = useUserConfig();
+
+  // [W4A-C7] Header 搜索: 路由名匹配下拉 (sidebarConfig labelKey 中文)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    const hits: Array<{ path: string; label: string }> = [];
+    for (const section of SIDEBAR_ITEMS) {
+      for (const item of section.items) {
+        const label = t(item.labelKey);
+        if (
+          label.toLowerCase().includes(q) ||
+          item.path.toLowerCase().includes(q)
+        ) {
+          hits.push({ path: item.path, label });
+        }
+      }
+    }
+    return hits.slice(0, 10);
+  }, [searchQuery]);
 
   useEffect(() => onLocaleChange((l) => setLocale(l)), []);
 
   useEffect(() => {
     if (isNarrow) setSidebarOpen(false);
   }, [isNarrow]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      userConfig.updateField("sidebarCollapsed", !next);
+      return next;
+    });
+  };
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -473,6 +540,25 @@ export function AppLayout() {
   const currentUser = user;
   const direction = getDirection(locale);
   const effectiveSidebarOpen = isNarrow ? false : sidebarOpen;
+
+  // [W1-B] 铃铛未读数 (GET /notifications/unread/:userId, 后端限定 ADMIN/DIRECTOR), 点击跳转通知中心
+  const [unreadCount, setUnreadCount] = useState(0);
+  const canReadUnread = useMemo(() => {
+    const role = String(currentUser?.role ?? "");
+    return role === "ADMIN" || role === "DIRECTOR" || role === "管理员" || role === "主任";
+  }, [currentUser?.role]);
+  useEffect(() => {
+    if (!currentUser?.id || !canReadUnread) return;
+    let cancelled = false;
+    const loadUnread = () => {
+      notificationsApi.getUnread(currentUser.id).then(res => {
+        if (!cancelled && res.success && res.data) setUnreadCount(Number(res.data.unread ?? 0));
+      }).catch(() => { /* 未读数不可用不阻断 */ });
+    };
+    loadUnread();
+    const iv = setInterval(loadUnread, 60000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [currentUser?.id, canReadUnread]);
 
   const handleNavKey = (e: React.KeyboardEvent, path: string) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -503,7 +589,12 @@ export function AppLayout() {
       <NavigateCtx.Provider value={navigate}>
         <aside
           className="app-sidebar no-print"
-          style={{ ...s.sidebar, width: effectiveSidebarOpen ? 260 : 60 }}
+          style={{
+            ...s.sidebar,
+            width: effectiveSidebarOpen
+              ? "var(--sidebar-w, 260px)"
+              : "var(--sidebar-w-collapsed, 60px)",
+          }}
           aria-label={t("app.sidebar")}
         >
           <div style={s.logoWrap}>
@@ -537,7 +628,18 @@ export function AppLayout() {
                   style={s.sectionTitle(effectiveSidebarOpen)}
                   aria-hidden={!effectiveSidebarOpen}
                 >
-                  {t(section.section)}
+                  <span
+                    style={{
+                      width: 3,
+                      height: 12,
+                      borderRadius: 2,
+                      background: "var(--color-primary-500, #3b82f6)",
+                      flexShrink: 0,
+                      opacity: effectiveSidebarOpen ? 1 : 0,
+                    }}
+                  />
+                  {SECTION_ICONS[section.section] ?? null}
+                  <span>{t(section.section)}</span>
                 </div>
                 {section.items.map((item) => (
                   <NavItem
@@ -595,7 +697,7 @@ export function AppLayout() {
               )}
             </div>
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={toggleSidebar}
               style={s.collapseBtn}
               aria-label={
                 effectiveSidebarOpen ? t("app.collapse") : t("app.expand")
@@ -629,7 +731,7 @@ export function AppLayout() {
             }}
           >
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={toggleSidebar}
               style={s.headerBtn}
               aria-label={
                 effectiveSidebarOpen ? t("app.collapse") : t("app.expand")
@@ -675,10 +777,16 @@ export function AppLayout() {
                   left: 10,
                   color: "var(--text-muted, #64748b)",
                   pointerEvents: "none",
+                  zIndex: 1,
                 }}
               />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                }}
                 placeholder={t("app.searchPlaceholder") || "搜索患者/检查号/报告..."}
                 aria-label={t("app.searchPlaceholder") || "搜索患者/检查号/报告"}
                 style={{
@@ -694,12 +802,92 @@ export function AppLayout() {
                   transition: "border-color 0.15s",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#3b82f6";
+                  e.currentTarget.style.borderColor = "var(--color-primary-500, #3b82f6)";
+                  setSearchOpen(true);
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = "var(--border-color, #334155)";
+                  setSearchOpen(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchResults.length > 0) {
+                    const first = searchResults[0];
+                    if (first) {
+                      navigate(first.path);
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }
+                  } else if (e.key === "Escape") {
+                    setSearchOpen(false);
+                  }
                 }}
               />
+              {searchOpen && searchResults.length > 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 36,
+                    left: 0,
+                    right: 0,
+                    background: "var(--bg-card, #ffffff)",
+                    color: "var(--text-primary, #1e293b)",
+                    border: "1px solid var(--border-color, #e2e8f0)",
+                    borderRadius: 8,
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                    zIndex: "var(--z-dropdown, 300)" as unknown as number,
+                    maxHeight: 320,
+                    overflowY: "auto" as const,
+                    overflowX: "hidden",
+                  }}
+                  role="listbox"
+                >
+                  {searchResults.map((r) => (
+                    <div
+                      key={r.path}
+                      role="option"
+                      aria-selected={false}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        navigate(r.path);
+                        setSearchOpen(false);
+                        setSearchQuery("");
+                      }}
+                      style={{
+                        padding: "8px 12px",
+                        fontSize: 13,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        borderBottom: "1px solid var(--border-subtle, rgba(0,0,0,0.06))",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "var(--color-primary-50, #eff6ff)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <Search
+                        size={12}
+                        style={{ color: "var(--text-muted, #94a3b8)", flexShrink: 0 }}
+                      />
+                      <span style={{ whiteSpace: "nowrap" }}>{r.label}</span>
+                      <span
+                        style={{
+                          marginLeft: "auto",
+                          fontSize: 11,
+                          color: "var(--text-muted, #94a3b8)",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {r.path}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div
@@ -743,21 +931,25 @@ export function AppLayout() {
                 />
               }
             />
-            <button style={s.headerBtn} aria-label={t("nav.notification")}>
-              <Bell size={18} />
-              <span
-                style={{
-                  position: "absolute",
-                  top: -2,
-                  right: -2,
-                  width: 8,
-                  height: 8,
-                  background: "var(--color-error, #ef4444)",
-                  borderRadius: "50%",
-                }}
-                aria-hidden="true"
-              />
-            </button>
+            <Badge
+              count={unreadCount}
+              size="small"
+              overflowCount={99}
+              offset={[0, 2]}
+            >
+              <button
+                style={s.headerBtn}
+                aria-label={t("nav.notification")}
+                title={
+                  unreadCount > 0
+                    ? `${unreadCount} 条未读通知`
+                    : t("nav.notification")
+                }
+                onClick={() => navigate("/notification-center")}
+              >
+                <Bell size={18} />
+              </button>
+            </Badge>
             <span
               className="hide-xs"
               style={{

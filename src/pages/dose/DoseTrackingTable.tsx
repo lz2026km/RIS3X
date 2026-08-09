@@ -50,7 +50,7 @@ export default function DoseTrackingTable({
           </div>
         </div>
         <div style={{ overflowX: "auto", maxHeight: 500, overflowY: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead style={{ position: "sticky", top: 0, background: "#f8fafc" }}>
               <tr>
                 {[t("doseTrack.table.patientName"), t("doseTrack.table.gender"), t("doseTrack.table.age"), t("doseTrack.table.modality"), t("doseTrack.table.examItem"), t("doseTrack.table.examDate"), t("doseTrack.table.doseValue"), t("doseTrack.table.alertLevel"), t("doseTrack.table.actions")].map((h) => (
@@ -123,7 +123,7 @@ export default function DoseTrackingTable({
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
 

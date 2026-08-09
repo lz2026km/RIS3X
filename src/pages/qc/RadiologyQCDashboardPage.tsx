@@ -382,7 +382,7 @@ export default function RadiologyQCDashboardPage() {
         {activeTab === "image" && (
           <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>影像质控 - 设备等级分布 (ACR 标准)</h3>
-            <table style={{ width: "100%", fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
                   {["设备", "型号", "厂家", "等级", "剂量合规率", "月扫描", "状态"].map((h) => (
@@ -407,7 +407,7 @@ export default function RadiologyQCDashboardPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 
@@ -415,7 +415,7 @@ export default function RadiologyQCDashboardPage() {
         {activeTab === "report" && (
           <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>报告质控 - 医生绩效 (本月)</h3>
-            <table style={{ width: "100%", fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
                   {["排名", "医生", "职称", "报告数", "缺陷数", "缺陷率", "质量分", "等级"].map((h) => (
@@ -437,7 +437,7 @@ export default function RadiologyQCDashboardPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 

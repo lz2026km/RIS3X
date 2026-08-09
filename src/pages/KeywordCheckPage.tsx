@@ -3,7 +3,7 @@
 // Phase R4：基于 R1 keywordChecker 引擎的全库扫描
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Search, AlertTriangle, Info, CheckCircle2, XCircle,
   Filter, FileText, Tag, Settings,
@@ -20,6 +20,7 @@ import {
 } from '../data/keywordRules';
 import { checkKeywords, type KeywordCheckOutput, type KeywordIssue } from '../utils/keywordChecker';
 import { extendedReportMock } from '../data/reportSubsystemMock';
+import { reportApi } from '../services/api/reportApi';
 
 // ============================================================
 // 严重度配置
@@ -39,10 +40,27 @@ const CATEGORY_LABELS: Record<string, string> = {
   critical: '危急值',
 };
 
+// 扫描用报告行 (reportApi 归一化 / 演示报告回退)
+interface ScanReportRow {
+  id: string;
+  patientName: string;
+  modality: string;
+  bodyPart: string;
+  examItemName: string;
+  examFindings: string;
+  diagnosis: string;
+  impression: string;
+}
+
 // ============================================================
 // 主组件
 // ============================================================
 export default function KeywordCheckPage() {
+  // [W2-A] 报告列表接 reportApi 实时 (失败回退演示报告)
+  const [reports, setReports] = useState<ScanReportRow[]>(extendedReportMock);
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
   // 选中报告
   const [selectedReportId, setSelectedReportId] = useState<string>('rpt-013');
   const [scanning, setScanning] = useState(false);
@@ -52,8 +70,42 @@ export default function KeywordCheckPage() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [selectedIssue, setSelectedIssue] = useState<KeywordIssue | null>(null);
 
+  const loadReports = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await reportApi.list({ take: '50' });
+      const list = Array.isArray(res.data) ? res.data : Array.isArray((res.data as any)?.items) ? (res.data as any).items : [];
+      if (Array.isArray(list) && list.length > 0) {
+        const mapped: ScanReportRow[] = list.map((r: any) => ({
+          id: String(r.id),
+          patientName: String(r.patientName ?? r.reportId ?? r.id),
+          modality: String(r.modality ?? 'CT'),
+          bodyPart: String(r.bodyPart ?? ''),
+          examItemName: `${r.modality ?? 'CT'} ${r.bodyPart ?? ''}`.trim(),
+          examFindings: String(r.findings ?? ''),
+          diagnosis: String(r.diagnosis ?? ''),
+          impression: String(r.impression ?? ''),
+        }));
+        setReports(mapped);
+        setSelectedReportId(mapped[0]?.id ?? 'rpt-013');
+        setSource('api');
+      } else {
+        setSource('demo');
+        setApiError('reportApi 暂不可用，当前展示内置演示报告');
+      }
+    } catch (e) {
+      setSource('demo');
+      setApiError(e instanceof Error ? e.message : '报告加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadReports(); }, [loadReports]);
+
   // 当前报告
-  const currentReport = extendedReportMock.find(r => r.id === selectedReportId);
+  const currentReport = reports.find(r => r.id === selectedReportId);
 
   // 模拟扫描
   const handleScan = () => {
@@ -115,9 +167,19 @@ export default function KeywordCheckPage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Search size={20} color="#3b82f6" /> 关键字全量扫描
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+            <span style={{
+              fontSize: 11, padding: '2px 8px', borderRadius: 10,
+              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              color: source === 'api' ? '#16a34a' : '#92400e',
+              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+              fontWeight: 500,
+            }}>
+              {loading ? '同步中...' : source === 'api' ? '数据源: reportApi 实时' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             6 大类 · {ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion}+ 条规则 · 0-100 评分
+            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -158,11 +220,11 @@ export default function KeywordCheckPage() {
         }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={12} /> 选择报告 ({extendedReportMock.length})
+              <FileText size={12} /> 选择报告 ({reports.length})
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
-            {extendedReportMock.map(r => (
+            {reports.map(r => (
               <div
                 key={r.id}
                 onClick={() => { setSelectedReportId(r.id); setScanResult(null); }}

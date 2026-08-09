@@ -3,13 +3,15 @@
 // Phase R2：模板继承 / 克隆 / 版本管理 / 使用统计
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import {
   GitBranch, GitFork, Copy, History, ChevronRight, ChevronDown,
   GitMerge, Plus, Tag, Eye,
   TrendingUp, Users, Layers, BarChart3, Activity, FileCode,
 } from 'lucide-react';
+import { templatesApi } from '../services/api/templatesApi';
 
 // ============================================================
 // 模拟继承关系数据
@@ -28,7 +30,7 @@ interface TemplateNode {
   description?: string;
 }
 
-// 基于现有 6 大模板构造继承关系
+// 基于现有 6 大模板构造继承关系 (演示回退数据)
 const buildInheritanceTree = (): TemplateNode[] => {
   const now = new Date();
   const isoDaysAgo = (d: number) => new Date(now.getTime() - d * 86400000).toISOString().slice(0, 10);
@@ -79,11 +81,57 @@ const computeStats = (nodes: TemplateNode[]) => ({
 // ============================================================
 export default function TemplateInheritancePage() {
   const navigate = useNavigate();
+  // [W2-A] templatesApi 实时 (失败回退演示继承树)
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
   const [nodes, setNodes] = useState<TemplateNode[]>(buildInheritanceTree());
   const [selectedId, setSelectedId] = useState<string | null>('tpl-chest-ct-001');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['tpl-chest-ct-001', 'tpl-head-ct-001', 'tpl-mg-001']));
+
+  const loadTemplates = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await templatesApi.list();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped: TemplateNode[] = res.data.map((t: any) => ({
+          id: t.id || '',
+          name: t.name || '未命名模板',
+          parentId: t.parentId ?? null,
+          version: `v${t.version ?? 1}.0`,
+          childIds: [],
+          createdBy: t.createdById || '系统',
+          createdAt: String(t.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+          usageCount: Number(t.usage ?? 0),
+          status: t.status === 'draft' ? 'draft' : t.status === 'deprecated' ? 'deprecated' : 'active',
+          type: t.parentId ? 'child' : 'parent',
+          description: String(t.body || '').slice(0, 60),
+        }));
+        // 由 parentId 派生 childIds
+        mapped.forEach(n => {
+          n.childIds = mapped.filter(c => c.parentId === n.id).map(c => c.id);
+        });
+        const parents = mapped.filter(n => n.parentId === null);
+        setNodes(mapped);
+        setSelectedId(parents[0]?.id ?? mapped[0]?.id ?? null);
+        setExpandedIds(new Set(parents.slice(0, 3).map(p => p.id)));
+        setSource('api');
+      } else {
+        setSource('demo');
+        setApiError('templatesApi 暂不可用，当前展示内置演示继承树');
+      }
+    } catch (e) {
+      setSource('demo');
+      setApiError(e instanceof Error ? e.message : '模板加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadTemplates(); }, [loadTemplates]);
 
   const stats = useMemo(() => computeStats(nodes), [nodes]);
 
@@ -106,10 +154,37 @@ export default function TemplateInheritancePage() {
     setExpandedIds(next);
   };
 
-  // 克隆节点
-  const cloneNode = (id: string) => {
+  // 克隆节点: API 源 → POST /templates/:id/clone 真实创建; 演示源 → 本地克隆
+  const cloneNode = async (id: string) => {
     const src = nodes.find(n => n.id === id);
     if (!src) return;
+    if (source === 'api') {
+      try {
+        const res = await templatesApi.clone(id);
+        const created: TemplateNode = {
+          ...src,
+          id: res.data?.id || `tpl-clone-${Date.now()}`,
+          name: res.data?.name || `${src.name}（克隆）`,
+          version: res.data ? `v${(res.data as any)?.version ?? 1}.0` : 'v1.0',
+          childIds: [],
+          parentId: id,
+          createdBy: res.data?.createdById || '当前医生',
+          createdAt: String(res.data?.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
+          usageCount: 0,
+          status: 'draft',
+          type: 'child',
+        };
+        setNodes(prev => prev.map(n => n.id === id ? { ...n, childIds: [...n.childIds, created.id] } : n));
+        setNodes(prev => [created, ...prev]);
+        setSelectedId(created.id);
+        if (!expandedIds.has(id)) setExpandedIds(new Set([...expandedIds, id]));
+        message.success(`已通过 templatesApi 克隆为新模板：${created.name} (ID: ${created.id})`);
+        return;
+      } catch (e) {
+        message.error('克隆失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        return;
+      }
+    }
     const newNode: TemplateNode = {
       ...src,
       id: `tpl-clone-${Date.now()}`,
@@ -124,7 +199,6 @@ export default function TemplateInheritancePage() {
       type: 'child',
     };
     setNodes([...nodes, newNode]);
-    // 添加到源节点的 childIds
     setNodes(prev => prev.map(n => n.id === id ? { ...n, childIds: [...n.childIds, newNode.id] } : n));
     setSelectedId(newNode.id);
     if (!expandedIds.has(id)) {
@@ -217,9 +291,19 @@ export default function TemplateInheritancePage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <GitBranch size={20} color="#7c3aed" /> 模板继承与克隆
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
+            <span style={{
+              fontSize: 11, padding: '2px 8px', borderRadius: 10,
+              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              color: source === 'api' ? '#16a34a' : '#92400e',
+              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+              fontWeight: 500,
+            }}>
+              {loading ? '同步中...' : source === 'api' ? '数据源: templatesApi 实时' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             模板版本管理、克隆/继承、父子追溯、使用统计
+            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -366,7 +450,7 @@ export default function TemplateInheritancePage() {
 
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <button
-                    onClick={() => cloneNode(selectedNode.id)}
+                    onClick={() => void cloneNode(selectedNode.id)}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
                       background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -376,7 +460,7 @@ export default function TemplateInheritancePage() {
                     <Copy size={11} /> 克隆
                   </button>
                   <button
-                    onClick={() => inheritNode(selectedNode.id)}
+                    onClick={() => void inheritNode(selectedNode.id)}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
                       background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600,

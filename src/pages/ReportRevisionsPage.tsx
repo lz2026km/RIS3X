@@ -1,9 +1,10 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.3 - 报告修订链与版本对比
 // Phase R3：修订链 / 版本对比 (Diff) / 补发 / 患者告知
+// [W2-A] 修订链由 reportApi.auditTrail + reportApi.diff 真实渲染 (失败回退演示数据)
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   History, GitCompare, ChevronRight, Plus, Edit2, Eye, X,
@@ -15,6 +16,7 @@ import {
   type ReportRevision,
 } from '../data/reviewRevisionCollabMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
+import { reportApi } from '../services/api/reportApi';
 
 // ============================================================
 // 修订动作配置
@@ -65,6 +67,14 @@ function diffText(before: string, after: string): { type: 'same' | 'removed' | '
   return result;
 }
 
+function mapAction(fromState: string, toState: string): ReportRevision['action'] {
+  const s = `${fromState}|${toState}`.toUpperCase();
+  if (s.includes('WITHDRAWN')) return 'recall';
+  if (s.includes('SUPPLEMENT')) return 'addendum';
+  if (s.includes('AMEND')) return 'revise';
+  return 'initial';
+}
+
 // ============================================================
 // 主组件
 // ============================================================
@@ -72,21 +82,103 @@ export default function ReportRevisionsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); // [W2-3] 支持 /report-revisions?reportId= 直达
 
-  // 加载所有修订报告
-  const allRevisions = useMemo(() => {
-    const list: ReportRevision[] = [];
-    for (const rev of [...REPORT_REVISIONS, ...REPORT_REVISIONS_044]) {
-      list.push(rev);
+  // [W2-A] 真实数据源 (auditTrail + diff), 失败回退演示
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [allRevisions, setAllRevisions] = useState<ReportRevision[]>(() =>
+    [...REPORT_REVISIONS, ...REPORT_REVISIONS_044].sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+  );
+  const [reportMeta, setReportMeta] = useState<Record<string, { patientName: string; modality: string; bodyPart: string }>>(() => {
+    const m: Record<string, { patientName: string; modality: string; bodyPart: string }> = {};
+    for (const r of extendedReportMock) {
+      m[r.id] = { patientName: r.patientName, modality: r.modality, bodyPart: r.bodyPart };
     }
-    return list.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    return m;
+  });
+
+  const loadRevisions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await reportApi.list({ take: '50' });
+      const reports = Array.isArray(res.data) ? res.data : Array.isArray((res.data as any)?.items) ? (res.data as any).items : [];
+      if (!Array.isArray(reports) || reports.length === 0) {
+        setSource('demo');
+        setError('reportApi 暂不可用，当前展示内置演示修订数据');
+        return;
+      }
+      const meta: Record<string, { patientName: string; modality: string; bodyPart: string }> = {};
+      for (const r of reports) {
+        const rr = (r ?? {}) as Record<string, any>;
+        meta[String(rr.id)] = {
+          patientName: String(rr.patientName ?? rr.reportId ?? rr.id),
+          modality: String(rr.modality ?? ''),
+          bodyPart: String(rr.bodyPart ?? ''),
+        };
+      }
+      const batch = reports.slice(0, 12).map(async (r: any) => {
+        const id = String(r.id);
+        const [trailRes, diffRes] = await Promise.allSettled([
+          reportApi.auditTrail(id),
+          reportApi.diff(id),
+        ]);
+        const events = trailRes.status === 'fulfilled' && Array.isArray(trailRes.value.data?.events)
+          ? trailRes.value.data.events
+          : [];
+        if (events.length === 0) return null;
+        const diff = diffRes.status === 'fulfilled' ? diffRes.value.data : null;
+        const oldV = (diff?.oldVersion ?? {}) as Record<string, any>;
+        const newV = (diff?.newVersion ?? {}) as Record<string, any>;
+        return events.map((ev: any, i: number) => {
+          const isLastTwo = i >= events.length - 2;
+          const isNewest = i === events.length - 1;
+          const content = isNewest ? newV : isLastTwo ? oldV : {};
+          return {
+            id: `rev-${id}-${i}`,
+            reportId: id,
+            versionNumber: i + 1,
+            versionLabel: `v1.${i}`,
+            authorId: String(ev.actor ?? 'unknown'),
+            authorName: String(ev.actor ?? '未知用户'),
+            authorTitle: '—',
+            action: mapAction(String(ev.fromState ?? ''), String(ev.toState ?? '')),
+            reason: String(ev.reason ?? `${ev.fromState ?? ''} → ${ev.toState ?? ''}`),
+            changes: [],
+            findings: String(content?.findings ?? ''),
+            diagnosis: String(content?.conclusion ?? ''),
+            impression: '',
+            createdAt: String(ev.timestamp ?? '').replace('T', ' ').slice(0, 19),
+            patientNotified: false,
+          } as ReportRevision;
+        });
+      });
+      const results = (await Promise.all(batch)).filter((x): x is ReportRevision[] => Array.isArray(x) && x.length > 0);
+      if (results.length > 0) {
+        const flat = results.flat().sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+        setAllRevisions(flat);
+        setReportMeta(prev => ({ ...prev, ...meta }));
+        setSource('api');
+      } else {
+        setSource('demo');
+        setError('未检索到带修订记录的报告，展示演示数据');
+      }
+    } catch (e) {
+      setSource('demo');
+      setError(e instanceof Error ? e.message : '修订数据加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { void loadRevisions(); }, [loadRevisions]);
 
   // 分组按报告 ID
   const revisionsByReport = useMemo(() => {
     const map: Record<string, ReportRevision[]> = {};
     for (const r of allRevisions) {
       if (!map[r.reportId]) map[r.reportId] = [];
-      map[r.reportId].push(r);
+      map[r.reportId]!.push(r);
     }
     return map;
   }, [allRevisions]);
@@ -97,8 +189,8 @@ export default function ReportRevisionsPage() {
   // 选中报告 ([W2-3] 支持从报告列表带 ?reportId= 直达)
   const [selectedReportId, setSelectedReportId] = useState<string>(() => {
     const fromUrl = searchParams.get('reportId');
-    if (fromUrl && revisionsByReport[fromUrl]) return fromUrl;
-    return reportIds[0] || 'rpt-043';
+    if (fromUrl) return fromUrl;
+    return 'rpt-043';
   });
   const [leftVersion, setLeftVersion] = useState<number>(1);
   const [rightVersion, setRightVersion] = useState<number>(2);
@@ -109,7 +201,7 @@ export default function ReportRevisionsPage() {
 
   // 当前选中的报告的修订链
   const currentRevisions = revisionsByReport[selectedReportId] || [];
-  const report = extendedReportMock.find(r => r.id === selectedReportId);
+  const report = reportMeta[selectedReportId] || extendedReportMock.find(r => r.id === selectedReportId);
 
   // 选中的左右版本
   const leftRev = currentRevisions.find(r => r.versionNumber === leftVersion);
@@ -123,9 +215,19 @@ export default function ReportRevisionsPage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <History size={20} color="#f59e0b" /> 报告修订与版本管理
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
+            <span style={{
+              fontSize: 11, padding: '2px 8px', borderRadius: 10,
+              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              color: source === 'api' ? '#16a34a' : '#92400e',
+              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+              fontWeight: 500,
+            }}>
+              {loading ? '同步中...' : source === 'api' ? '数据源: reportApi.auditTrail/diff 实时' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             修订链追溯 · 版本对比 (Diff) · 补发/勘误 · 患者告知
+            {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -179,18 +281,22 @@ export default function ReportRevisionsPage() {
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
             {reportIds
-              .filter(rid => !search || rid.includes(search) || report?.patientName.includes(search))
+              .filter(rid => {
+                if (!search) return true;
+                const meta = reportMeta[rid];
+                return rid.includes(search) || (meta?.patientName || '').includes(search);
+              })
               .map(rid => {
-              const revs = revisionsByReport[rid];
-              const r = extendedReportMock.find(x => x.id === rid);
+              const revs = revisionsByReport[rid] ?? [];
+              const r = reportMeta[rid];
               const isSelected = rid === selectedReportId;
               return (
                   <div
                     key={rid}
                     onClick={() => {
                       setSelectedReportId(rid);
-                      setLeftVersion(revs[0].versionNumber);
-                      setRightVersion(revs[revs.length - 1].versionNumber);
+                      setLeftVersion(revs[0]!.versionNumber);
+                      setRightVersion(revs[revs.length - 1]!.versionNumber);
                     }}
                     style={{
                       padding: 10, borderBottom: '1px solid #f1f5f9',
@@ -242,7 +348,7 @@ export default function ReportRevisionsPage() {
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
                         {report.patientName} · {report.modality} {report.bodyPart}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{report.id}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{selectedReportId}</div>
                     </div>
                     <div style={{ fontSize: 12, color: '#475569' }}>
                       <span style={{ fontSize: 12, color: '#94a3b8' }}>修订次数</span>

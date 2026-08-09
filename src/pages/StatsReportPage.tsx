@@ -461,6 +461,8 @@ export default function StatsReportPage() {
   const [liveDoctorRows, setLiveDoctorRows] = useState<any[]>([])
   const [liveDateRows, setLiveDateRows] = useState<any[]>([])
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('fallback')
+  // [W1-B] 周报: statsApi.getWeekly (GET /stats/weekly)
+  const [weekly, setWeekly] = useState<{ totalExams: number; totalReports: number; totalCritical: number; avgExamsPerDay: number; daily: { date: string; count: number }[] } | null>(null)
 
   const loadStats = useCallback(async (days: number) => {
     setLoading(true)
@@ -472,6 +474,18 @@ export default function StatsReportPage() {
         biApi.getDeviceOee(14),
         statsApi.getTopDevices(15),
       ])
+      // [W1-B] 周报: GET /stats/weekly (独立请求, 失败不阻断主流程)
+      statsApi.getWeekly().then(res => {
+        if (res.success && res.data) {
+          setWeekly({
+            totalExams: Number(res.data.totalExams ?? 0),
+            totalReports: Number(res.data.totalReports ?? 0),
+            totalCritical: Number(res.data.totalCritical ?? 0),
+            avgExamsPerDay: Number(res.data.avgExamsPerDay ?? 0),
+            daily: Array.isArray(res.data.daily) ? res.data.daily : [],
+          })
+        }
+      }).catch(() => { /* 周报不可用不阻断 */ })
       const ok = (r: any) => r.status === 'fulfilled' && r.value.success === true && r.value.data != null
       const trend = ok(t) && Array.isArray(t.value.data) ? t.value.data : []
       const workload = ok(w) && Array.isArray(w.value.data) ? w.value.data : []
@@ -1078,6 +1092,52 @@ export default function StatsReportPage() {
           </div>
         ))}
       </div>
+
+      {/* [W1-B] 周报: statsApi.getWeekly (GET /stats/weekly) */}
+      {weekly && (
+        <div style={{ ...styles.tableCard, marginBottom: 16 }}>
+          <div style={styles.tableHeader}>
+            <div style={styles.tableTitle}>
+              <TrendingUp size={18} /> 周报 (近7天)
+              <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>实时</span>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, padding: '0 0 12px' }}>
+            <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.primary }}>{weekly.totalExams}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>检查总数</div>
+            </div>
+            <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.success }}>{weekly.totalReports}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>报告总数</div>
+            </div>
+            <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.danger }}>{weekly.totalCritical}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>危急值</div>
+            </div>
+            <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>日均检查</div>
+            </div>
+          </div>
+          {weekly.daily.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, minHeight: 90, padding: '8px 4px 0' }}>
+              {weekly.daily.slice(-7).map((d, i) => {
+                const max = Math.max(...weekly.daily.map(x => x.count), 1)
+                return (
+                  <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{d.count}</div>
+                    <div style={{ height: 60, background: COLORS.bgGray, borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: `${Math.max((d.count / max) * 100, 4)}%`, background: COLORS.primaryLight, borderRadius: '4px 4px 0 0' }} />
+                    </div>
+                    <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 4 }}>{(d.date ?? '').slice(5)}</div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 标签页切换 */}
       <div style={styles.mainContent}>

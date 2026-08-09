@@ -6,6 +6,7 @@ import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import VisionAcuityInput from '@/components/eye/VisionAcuityInput';
 import { toAllNotations, visionGrade } from '@/services/eye/visionConverter';
 import { eyeApi } from '@/services/api/eyeApi';
+import { usePagination } from '@/hooks/usePagination';
 
 interface VisionRecord {
   id: string;
@@ -32,6 +33,7 @@ const PATIENT_OPTIONS = [
 const VisionExamPage: React.FC = () => {
   const [va, setVa] = useState({ odUcva: 0.5, odBcva: 1.0, odPhva: 0.8, osUcva: 0.4, osBcva: 0.8, osPhva: 0.7 });
   const [records, setRecords] = useState<VisionRecord[]>([]);
+  const { pageData: recordPageData, pagination: recordPagination } = usePagination(records, 8);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -183,9 +185,9 @@ const VisionExamPage: React.FC = () => {
         <Spin spinning={loading}>
           <Table
             rowKey="id"
-            dataSource={records}
+            dataSource={recordPageData}
             columns={historyColumns}
-            pagination={{ pageSize: 8, showSizeChanger: false }}
+            pagination={recordPagination}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无检查记录, 保存后将显示在此" /> }}
           scroll={{ x: 'max-content' }}

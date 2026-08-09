@@ -916,7 +916,7 @@ const SubmissionAuditTrail = () => {
           <Clock size={16} color={COLORS.primary} /> 提交历史记录
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 {['报告类型', '提交时间', '目标机构', '状态', '签名指纹', '回执编号', '版本'].map(h => (
@@ -944,7 +944,7 @@ const SubmissionAuditTrail = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
 
@@ -1602,7 +1602,7 @@ export default function NationalReportPage() {
           <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
             {/* 检查统计表格 */}
             {activeTab === 'exam' && (
-              <table style={styles.table}>
+              <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
                     <th style={styles.th}>设备类型</th>
@@ -1627,12 +1627,12 @@ export default function NationalReportPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
 
             {/* 辐射剂量表格 */}
             {activeTab === 'dose' && (
-              <table style={styles.table}>
+              <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
                     <th style={styles.th}>上报月份</th>
@@ -1670,12 +1670,12 @@ export default function NationalReportPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
 
             {/* 报告质量表格 */}
             {activeTab === 'quality' && (
-              <table style={styles.table}>
+              <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
                     <th style={styles.th}>上报月份</th>
@@ -1719,7 +1719,7 @@ export default function NationalReportPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
 
             {/* FHIR标准化报告 */}
@@ -1739,7 +1739,7 @@ export default function NationalReportPage() {
 
             {/* 上报记录 */}
             {activeTab === 'log' && (
-              <table style={styles.table}>
+              <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
                     <th style={styles.th}>上报类型</th>
@@ -1766,7 +1766,7 @@ export default function NationalReportPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
 

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X } from 'lucide-react';
 import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
+import { Card } from 'antd';
 
 // ─── Constants ───
 const STROKE_COLORS: Record<string, string> = {
@@ -24,15 +25,15 @@ const TUMOR_GRADE_COLORS = ['#16a34a', '#ca8a04', '#ea580c', '#dc2626'];
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 },
   subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 },
   statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
+  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
@@ -175,11 +176,11 @@ const NeuroSpecialtyPage = () => {
           { label: 'LVO 阳性', value: String(stats?.lvoPositive ?? 0), unit: '例', icon: Eye, color: '#ea580c', bg: '#fff7ed' },
           { label: '待报告', value: String(stats?.pendingReports ?? 0), unit: '份', icon: FileText, color: '#16a34a', bg: '#f0fdf4' },
         ].map((k, i) => (
-          <div key={i} style={s.statCard}>
+          <Card key={i} bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ ...s.statIcon, background: k.bg }}><k.icon size={20} color={k.color} /></div>
             <div style={s.statValue}>{k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{k.unit}</span></div>
             <div style={s.statLabel}>{k.label}</div>
-          </div>
+          </Card>
         ))}
       </div>
 
@@ -199,14 +200,14 @@ const NeuroSpecialtyPage = () => {
       </div>
 
       {loading && (
-        <div style={{ ...s.section, textAlign: 'center', padding: 48, color: '#64748b', fontSize: 13 }}>
+        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: '#64748b', fontSize: 13 }} styles={{ body: { padding: 0 } }}>
           <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 8 }} />
           正在加载神经专科数据...
-        </div>
+        </Card>
       )}
 
       {!loading && tab === 'stroke' && (
-        <div style={s.section}>
+        <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={s.sectionTitle}><Zap size={16} color="#dc2626" /> 脑卒中评估</div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -255,12 +256,12 @@ const NeuroSpecialtyPage = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {!loading && tab === 'tumor' && (
         <div style={s.grid2}>
-          <div style={s.section}>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Brain size={16} color="#7c3aed" /> 脑肿瘤列表</div>
             {filtered.filter(r => r.type === 'tumor').map(r => (
               <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #f8fafc' }}>
@@ -277,8 +278,8 @@ const NeuroSpecialtyPage = () => {
                 </div>
               </div>
             ))}
-          </div>
-          <div style={s.section}>
+          </Card>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><BarChart3 size={16} color="#7c3aed" /> 肿瘤分级分布</div>
             {['I', 'II', 'III', 'IV'].map(g => {
               const count = tumorGrades.find(t => t.grade === g)?.count ?? 0;
@@ -303,13 +304,13 @@ const NeuroSpecialtyPage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {!loading && tab === 'epilepsy' && (
         <div style={s.grid2}>
-          <div style={s.section}>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Eye size={16} color="#ca8a04" /> 癫痫评估</div>
             {filtered.filter(r => r.type === 'epilepsy').map(r => (
               <div key={r.id} style={{ padding: 14, background: '#fefce8', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
@@ -325,8 +326,8 @@ const NeuroSpecialtyPage = () => {
                 </div>
               </div>
             ))}
-          </div>
-          <div style={s.section}>
+          </Card>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><AlertTriangle size={16} color="#dc2626" /> 动脉瘤评估</div>
             {filtered.filter(r => r.type === 'aneurysm').map(r => (
               <div key={r.id} style={{ padding: 14, background: '#fef2f2', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
@@ -342,13 +343,13 @@ const NeuroSpecialtyPage = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </Card>
         </div>
       )}
 
       {!loading && tab === 'stats' && (
         <div style={s.grid2}>
-          <div style={s.section}>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><BarChart3 size={16} color="#dc2626" /> 疾病分布</div>
             {(stats?.diseaseDistribution ?? []).map(d => (
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
@@ -360,8 +361,8 @@ const NeuroSpecialtyPage = () => {
                 <span style={{ fontSize: 12, fontWeight: 600, width: 50, textAlign: 'right' }}>{d.count} ({d.pct}%)</span>
               </div>
             ))}
-          </div>
-          <div style={s.section}>
+          </Card>
+          <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><TrendingUp size={16} color="#16a34a" /> 卒中治疗时间窗</div>
             {strokeWindows.map(t => (
               <div key={t.window} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
@@ -372,7 +373,7 @@ const NeuroSpecialtyPage = () => {
                 <span style={{ fontSize: 12, fontWeight: 600, width: 30, textAlign: 'right' }}>{t.count}</span>
               </div>
             ))}
-          </div>
+          </Card>
         </div>
       )}
 
@@ -384,7 +385,7 @@ const NeuroSpecialtyPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailStudy(null)}>
           <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Brain size={18} color="#dc2626" />病例详情
               </div>
               <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
@@ -392,7 +393,7 @@ const NeuroSpecialtyPage = () => {
             <div style={{ padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: '#1a3a5c' }}>{detailStudy.patientName}</div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-primary-800)' }}>{detailStudy.patientName}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{detailStudy.id} · {detailStudy.age}y {detailStudy.gender} · {detailStudy.modality ?? '-'}</div>
                 </div>
                 <span style={{ alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: detailStudy.type === 'stroke' ? '#fef2f2' : detailStudy.type === 'tumor' ? '#f5f3ff' : '#fefce8', color: detailStudy.type === 'stroke' ? '#dc2626' : detailStudy.type === 'tumor' ? '#7c3aed' : '#ca8a04' }}>

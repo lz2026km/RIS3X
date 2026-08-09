@@ -27,6 +27,7 @@ export const AuditCompliancePage: React.FC = () => {
   const [detail, setDetail] = useState<AuditEventDto | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [exporting, setExporting] = useState(false);
   const [filters, setFilters] = useState<{ user?: string; action?: string; status?: string; search?: string }>({});
   const [form] = Form.useForm();
 
@@ -126,7 +127,23 @@ export const AuditCompliancePage: React.FC = () => {
       <Card
         size="small"
         title={<Space><FileSearch size={14} />审计轨迹</Space>}
-        extra={<Button icon={<Download size={12} />} onClick={() => { message.info('导出功能: 请使用后端 /audit/export 接口'); }}>导出</Button>}
+        extra={<Button icon={<Download size={12} />} loading={exporting} onClick={async () => {
+          setExporting(true);
+          try {
+            const blob = await auditApi.export({ userId: filters.user, action: filters.action, status: filters.status, search: filters.search });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `审计轨迹_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            message.success('审计轨迹已导出');
+          } catch (e) {
+            message.error((e as Error)?.message ?? '导出失败');
+          } finally {
+            setExporting(false);
+          }
+        }}>导出</Button>}
       >
         <Form form={form} layout="inline" size="small" style={{ marginBottom: 12 }}>
           <Form.Item name="user" label="用户"><Input placeholder="用户 ID" allowClear /></Form.Item>

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Alert, Empty, Tooltip, Segmented } from 'antd'
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
 import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const levelColor: Record<string, string> = { CRITICAL: 'red', URGENT: 'orange', SEMI_URGENT: 'gold', ROUTINE: 'green' }
 const levelLabel: Record<string, string> = { CRITICAL: '危急', URGENT: '紧急', SEMI_URGENT: '半紧急', ROUTINE: '常规' }
@@ -121,6 +122,7 @@ const AiTriagePage: React.FC = () => {
   }
 
   const filtered = filter === 'ALL' ? items : items.filter(i => i.status === filter)
+  const { pageData: triagePageData, pagination: triagePagination } = usePagination(filtered, 10)
 
   const columns = [
     { title: '检查ID', dataIndex: 'examId', key: 'examId', width: 150, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
@@ -172,11 +174,11 @@ const AiTriagePage: React.FC = () => {
         }
       >
         <Table
-          dataSource={filtered}
+          dataSource={triagePageData}
           columns={columns}
           rowKey="examId"
           loading={loading}
-          pagination={{ pageSize: 10, showSizeChanger: false }}
+          pagination={triagePagination}
           size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分检任务" /> }}
         scroll={{ x: 'max-content' }}

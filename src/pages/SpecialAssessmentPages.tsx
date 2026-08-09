@@ -4,7 +4,7 @@
 // 单一文件多组件导出，根据 URL query 选择渲染
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ChevronLeft, Save, CheckCircle2,
@@ -14,12 +14,19 @@ import {
 import {
   SPECIAL_ASSESSMENTS,
 } from '../data/criticalValueAssessmentMock';
+import { qcextApi } from '../services/api/qcextApi';
 
 // ============================================================
 // 通用评估组件
 // ============================================================
 interface SpecialAssessmentPageProps {
   assessmentId: string;
+}
+
+interface HistoryRow {
+  date: string;
+  grade: string;
+  doctor: string;
 }
 
 const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmentId }) => {
@@ -35,13 +42,34 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   const [values, setValues] = useState<Record<string, any>>({});
   const [showHistory, setShowHistory] = useState(false);
   const [, setSavedMessage] = useState<string>('');
-
-  // 模拟评估历史
-  const mockHistory = [
+  // [W2-A] 历次评估: 尽力接 qcextApi (影像质控评估记录), 失败回退演示历史
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historySource, setHistorySource] = useState<'api' | 'demo'>('demo');
+  const [historyRows, setHistoryRows] = useState<HistoryRow[]>([
     { date: '2026-05-15', grade: assessment.grades[0]?.value || '', doctor: '张明远' },
     { date: '2026-03-20', grade: assessment.grades[0]?.value || '', doctor: '李慧敏' },
     { date: '2026-01-10', grade: assessment.grades[0]?.value || '', doctor: '王建华' },
-  ];
+  ]);
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await qcextApi.listQcImages();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setHistoryRows(res.data.slice(0, 10).map((q: any) => ({
+          date: String(q.examDate || '').slice(0, 10),
+          grade: `评分${Number(q.score ?? 0)}`,
+          doctor: String(q.patientName || q.device || '—'),
+        })));
+        setHistorySource('api');
+      }
+    } catch { /* 保持演示历史 */ }
+    finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   // 计算结果
   const currentGrade = assessment.grades.find(g => g.value === selectedGrade);
@@ -77,6 +105,13 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 12, opacity: 0.85 }}>指南参考</div>
             <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{assessment.reference}</div>
+            <div style={{
+              fontSize: 11, marginTop: 6, padding: '1px 8px', borderRadius: 10, display: 'inline-block',
+              background: historySource === 'api' ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)',
+              border: `1px solid ${historySource === 'api' ? '#22c55e' : '#f59e0b'}`,
+            }}>
+              {historyLoading ? '同步中...' : historySource === 'api' ? '数据源: qcextApi 实时（历次评估）' : '演示数据(qcextApi 无评估历史端点)'}
+            </div>
           </div>
         </div>
       </div>
@@ -210,8 +245,11 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginTop: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={13} /> 历次评估记录
+            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>
+              {historySource === 'api' ? '（qcextApi 实时）' : '（演示数据）'}
+            </span>
           </div>
-          {mockHistory.map((h, i) => {
+          {historyRows.map((h, i) => {
             const gradeObj = assessment.grades.find(g => g.value === h.grade);
             return (
               <div key={i} style={{
@@ -220,16 +258,25 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
               }}>
                 <div style={{ fontSize: 12, color: '#64748b', minWidth: 80 }}>{h.date}</div>
                 <div style={{ fontSize: 12, color: '#475569' }}>报告：{h.doctor}</div>
-                {gradeObj && (
+                {gradeObj ? (
                   <span style={{
                     fontSize: 12, padding: '2px 8px', borderRadius: 10,
                     background: gradeObj.color, color: '#fff', fontWeight: 600,
                     marginLeft: 'auto',
                   }}>{gradeObj.label}</span>
+                ) : (
+                  <span style={{
+                    fontSize: 12, padding: '2px 8px', borderRadius: 10,
+                    background: '#e0f2fe', color: '#0369a1', fontWeight: 600,
+                    marginLeft: 'auto',
+                  }}>{h.grade}</span>
                 )}
               </div>
             );
           })}
+          {historyRows.length === 0 && (
+            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无评估记录</div>
+          )}
         </div>
       )}
     </div>

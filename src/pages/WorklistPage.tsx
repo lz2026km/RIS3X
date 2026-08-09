@@ -5,11 +5,12 @@ import {
   Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
 } from 'lucide-react'
 import {
-  AreaChart, Area, BarChart, Bar, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar,
 } from 'recharts'
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
+import { ChartContainer } from '../components/charts'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { realtime } from '../services/realtime'
 import { t } from '../i18n/appI18n'
@@ -228,7 +229,7 @@ function MiniSparkline({ data, color }: { data?: { value: number }[]; color: str
   const chartData = data || sparklineData
   return (
     <div style={{ width: 80, height: 30 }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ChartContainer height={30} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="">
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id={`sparkGrad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
@@ -238,7 +239,7 @@ function MiniSparkline({ data, color }: { data?: { value: number }[]; color: str
           </defs>
           <Area type="monotone" dataKey="value" stroke={color} fill={`url(#sparkGrad-${color.replace('#', '')})`} strokeWidth={1.5} dot={false} />
         </AreaChart>
-      </ResponsiveContainer>
+      </ChartContainer>
     </div>
   )
 }
@@ -428,6 +429,18 @@ export default function WorklistPage() {
   const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
 
   const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
+
+  // [W1-B] 工作量/状态分布: GET /worklist/stats (worklistApi.getStats)
+  const [serverStats, setServerStats] = useState<{ total: number; byStatus: Record<string, number> } | null>(null)
+  const fetchServerStats = useCallback(async () => {
+    try {
+      const res = await worklistApi.getStats()
+      if (res.success && res.data) {
+        setServerStats({ total: Number(res.data.total ?? 0), byStatus: res.data.byStatus ?? {} })
+      }
+    } catch { /* 统计不可用不阻断 */ }
+  }, [])
+  useEffect(() => { void fetchServerStats() }, [fetchServerStats])
 
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
     try { return JSON.parse(localStorage.getItem('worklist-filter-presets') || '[]') }
@@ -1283,11 +1296,11 @@ export default function WorklistPage() {
               </div>
             </div>
             <div style={{ width: 80, height: 30 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ChartContainer height={30}>
                 <BarChart data={[{ v: stats.critical }, { v: Math.max(stats.critical - 2, 0) }, { v: stats.critical + 1 }]}>
                   <Bar dataKey="v" fill="#dc2626" radius={[2, 2, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         </div>
@@ -1339,6 +1352,28 @@ export default function WorklistPage() {
           </div>
         </div>
       </div>
+
+      {/* [W1-B] 服务器状态分布: GET /worklist/stats */}
+      {serverStats && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          background: 'var(--bg-card)', border: '1px solid #e2e8f0', borderRadius: 12,
+          padding: '10px 16px', marginBottom: 16, fontSize: 12,
+        }}>
+          <span style={{ fontWeight: 700, color: '#1e40af' }}>服务器统计 (GET /worklist/stats)</span>
+          <span style={{ color: '#64748b' }}>总量: <b style={{ color: '#1e293b' }}>{serverStats.total}</b></span>
+          {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
+            <span key={status} style={{
+              padding: '2px 10px', borderRadius: 999, background: '#f1f5f9', color: '#475569',
+            }}>
+              {status}: <b>{count}</b>
+            </span>
+          ))}
+          {Object.keys(serverStats.byStatus ?? {}).length === 0 && (
+            <span style={{ color: '#94a3b8' }}>暂无状态分布数据</span>
+          )}
+        </div>
+      )}
 
       <BatchToolbar
         batch={batch}

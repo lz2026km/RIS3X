@@ -17,6 +17,7 @@ export interface UserConfig {
   highContrast: boolean;
   rightPanelDefaultTab: string;
   leftPanelDefaultSection: string;
+  sidebarCollapsed: boolean;
 }
 
 export const DEFAULT_CONFIG: UserConfig = {
@@ -38,4 +39,5 @@ export const DEFAULT_CONFIG: UserConfig = {
   highContrast: false,
   rightPanelDefaultTab: 'templates',
   leftPanelDefaultSection: 'images',
+  sidebarCollapsed: false,
 };

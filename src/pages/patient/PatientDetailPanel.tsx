@@ -530,7 +530,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>暂无检查记录</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['检查日期', '检查项目', '设备', '检查类型', '优先级', '状态', '报告结果', '操作'].map(h => (
@@ -581,7 +581,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   )
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
       </div>
@@ -598,7 +598,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无危急值记录</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['触发时间', '类型', '严重度', '状态', '闭环状态', '操作'].map(h => (
@@ -638,7 +638,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
       </div>
@@ -655,7 +655,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无报告</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['报告编号', '检查项目', '状态', '出具时间', '报告医生', '操作'].map(h => (
@@ -695,7 +695,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
       </div>
@@ -712,7 +712,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>该患者暂无账单记录</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['账单号', '检查项目', '日期', '总金额', '已付', '待缴', '状态'].map(h => (
@@ -744,7 +744,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   )
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
       </div>

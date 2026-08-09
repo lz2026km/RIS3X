@@ -17,6 +17,7 @@ import {
   vnaApi, type VnaObject, type VnaObjectType, type VnaStats, type VnaStudy, type PatientArchive,
 } from '../services/api/vnaApi'
 import { invalidateApiCache } from '../services/api/client'
+import { usePagination } from '../hooks/usePagination'
 
 const { Text } = Typography
 
@@ -46,6 +47,8 @@ const VNADashboardPage: React.FC = () => {
   const [stats, setStats] = useState<VnaStats | null>(null)
   const [objects, setObjects] = useState<VnaObject[]>([])
   const [studies, setStudies] = useState<VnaStudy[]>([])
+  const { pageData: objectPageData, pagination: objectPagination } = usePagination(objects, 10)
+  const { pageData: studyPageData, pagination: studyPagination } = usePagination(studies, 10)
   const [loading, setLoading] = useState(false)
   const [studiesLoading, setStudiesLoading] = useState(false)
   const [typeFilter, setTypeFilter] = useState<VnaObjectType | ''>('')
@@ -391,12 +394,12 @@ const VNADashboardPage: React.FC = () => {
                   </Space>
                   <Table
                     data-testid="vna-objects-table"
-                    dataSource={objects}
+                    dataSource={objectPageData}
                     rowKey="id"
                     size="small"
                     loading={loading}
                     columns={objectColumns}
-                    pagination={{ pageSize: 10, showSizeChanger: false }}
+                    pagination={objectPagination}
                   scroll={{ x: 'max-content' }}
                   />
                 </>
@@ -408,11 +411,11 @@ const VNADashboardPage: React.FC = () => {
               children: (
                 <Table
                   data-testid="vna-studies-table"
-                  dataSource={studies}
+                  dataSource={studyPageData}
                   rowKey="studyUid"
                   size="small"
                   loading={studiesLoading}
-                  pagination={{ pageSize: 10, showSizeChanger: false }}
+                  pagination={studyPagination}
                   columns={[
                     { title: 'Study UID', dataIndex: 'studyUid', key: 'uid', width: 260, ellipsis: true },
                     { title: '模态', dataIndex: 'modality', key: 'mod', width: 80, render: (v: string) => <Tag color="blue">{v}</Tag> },

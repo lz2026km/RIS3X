@@ -3,20 +3,21 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Shield, CheckCircle, XCircle, Download, RefreshCw, Filter, Target, BarChart3, Activity, Users, FileText } from 'lucide-react'
 import { mammoQcApi, type MammoQcOverview, type MammoQcRecord } from '../../services/api/mammoQcApi'
+import { Card } from 'antd'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
   subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
+  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
   section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
@@ -118,16 +119,16 @@ const QualityManagementPage = () => {
 
       <div style={s.statsRow}>
         {statsData.map((stat, i) => (
-          <div key={i} style={s.statCard}>
+          <Card key={i} bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ ...s.statIcon, background: stat.bg }}><stat.icon size={20} color={stat.color} /></div>
             <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span></div>
             <div style={s.statLabel}>{stat.label}</div>
             {stat.sub && <div style={s.statSub}>{stat.sub}</div>}
-          </div>
+          </Card>
         ))}
       </div>
 
-      <div style={{ ...s.section }}>
+      <Card bordered={false} style={{ ...s.section }} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><BarChart3 size={16} color='#2563eb' />ACR合规检查</div>
         <div style={s.grid3}>
           {acrChecks.map((item, i) => (
@@ -144,9 +145,9 @@ const QualityManagementPage = () => {
           ))}
           {!loading && acrChecks.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', padding: 12 }}>暂无 ACR 合规检查数据</div>}
         </div>
-      </div>
+      </Card>
 
-      <div style={s.section}>
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />质量审核记录</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }} placeholder='搜索患者或技师...' value={search} onChange={e => setSearch(e.target.value)} />
@@ -175,7 +176,7 @@ const QualityManagementPage = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

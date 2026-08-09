@@ -61,6 +61,12 @@ export class DicomCompressController {
     })
   }
 
+  @Get('tasks/:id')
+  @ApiOperation({ summary: 'Get single compression task detail' })
+  getTask(@Param('id') id: string) {
+    return this.service.getStatus(id)
+  }
+
   @Post('decompress')
   @ApiOperation({ summary: 'Decompress DICOM file back to original pixel data' })
   decompress(@Body(new ZodValidationPipe(DecompressSchema)) body: { fileId: string }) {

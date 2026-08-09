@@ -71,7 +71,7 @@ const MontagePage: React.FC = () => {
                   <div
                     key={n}
                     style={{
-                      background: "#1a3a5c",
+                      background: "var(--color-primary-800)",
                       borderRadius: 4,
                       display: "flex",
                       alignItems: "center",

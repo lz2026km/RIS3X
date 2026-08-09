@@ -82,7 +82,7 @@ const VisualFieldPage: React.FC = () => {
                           v === 0
                             ? "#0f172a"
                             : v === 1
-                              ? "#1a3a5c"
+                              ? "var(--color-primary-800)"
                               : v === 2
                                 ? "#2d5a8c"
                                 : v === 3

@@ -1,5 +1,7 @@
 // Breast Specialty API — BI-RADS 评分 · 乳腺工作流 · 筛查管理
 // [v3.0.6.11-81] W1-B P1: 后端无 /breast/* 端点 (仅 MSW mock), 页面为演示页。
+// [v3.0.6.11-83] W1-B: BreastSpecialtyPage 已优先接真实 breastCadApi (/ai-diagnosis/breast-cad),
+// 本文件全部方法 MOCK_ONLY 保留为演示回退 (页面加载失败时兜底), 保持 import 兼容。
 // 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
 import type { ApiResponse } from './types';
 

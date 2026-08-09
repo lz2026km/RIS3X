@@ -16,6 +16,7 @@ import {
 import ShareDialog from '../components/portal/ShareDialog';
 import QrShareButton from '../components/portal/QrShareButton';
 import { patientPortalApi } from '../services/api/patientPortalApi';
+import { shareApi } from '../services/api/shareApi';
 
 // ============================================================
 // 主组件
@@ -137,7 +138,7 @@ export default function PatientReportPortalPage() {
                 <InfoCell icon={Eye} label="查看" value={selectedAccess.viewCount} color="#10b981" />
                 <InfoCell icon={Download} label="下载" value={selectedAccess.downloadCount} color="#3b82f6" />
                 <InfoCell icon={Share2} label="分享" value={selectedAccess.shareCount} color="#7c3aed" />
-                <InfoCell icon={Smartphone} label="设备" value={selectedAccess.deviceFingerprint.split('-')[0]} color="#f59e0b" />
+                <InfoCell icon={Smartphone} label="设备" value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="#f59e0b" />
               </div>
 
               <div style={{ marginBottom: 8 }}>
@@ -174,7 +175,7 @@ export default function PatientReportPortalPage() {
       <ShareDialog
         open={showShareDialog}
         onClose={() => setShowShareDialog(false)}
-        patientId={selectedAccess?.patientId ?? 'p-000'}
+        patientId={selectedAccess?.reportId ?? 'p-000'}
         patientName={selectedAccess?.patientName ?? '患者'}
         doctorId="dr-001"
         doctorName="张医师"
@@ -209,6 +210,29 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
     a.click();
     URL.revokeObjectURL(url);
     message.success('报告 PDF 已开始下载');
+  };
+
+  const handleShare = async () => {
+    const fallback = `https://r.hospital.cn/portal/${access.accessToken}`;
+    try {
+      const res = await shareApi.create({
+        studyId: access.reportId,
+        patientName: access.patientName,
+        toDept: 'patient-portal',
+        protocol: 'wado',
+        expiresAt: access.expiresAt,
+      });
+      if (res.success && res.data?.url) {
+        const url = res.data.url.startsWith('http') ? res.data.url : fallback;
+        try { await navigator.clipboard.writeText(url); message.success('分享链接已生成并复制到剪贴板'); }
+        catch { message.success(`分享链接已生成: ${url}`); }
+        return;
+      }
+    } catch (e) {
+      console.warn('[Portal] shareApi.create failed, fallback:', e);
+    }
+    try { await navigator.clipboard.writeText(fallback); message.success('分享链接已生成并复制到剪贴板'); }
+    catch { message.success(`分享链接已生成: ${fallback}`); }
   };
 
   return (
@@ -283,7 +307,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                   <button onClick={() => setTab('image')} style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     🖼️ 影像
                   </button>
-                  <button onClick={() => message.success(`分享链接已生成: https://r.hospital.cn/portal/${access.accessToken}`)} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
+                  <button onClick={() => void handleShare()} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     ↗ 分享
                   </button>
                 </div>

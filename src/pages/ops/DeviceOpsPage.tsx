@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
-import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight } from 'lucide-react'
+import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight, Gauge } from 'lucide-react'
+import { ChartContainer } from '../../components/charts'
 import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 // [W2-A] 设备运营接 deviceMgmtApi (equipment-lifecycle/faults/maintenance-plans) + oeeApi (利用率)
-import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
+// [W1-B] 剂量追踪接 deviceMgmtApi.getDoseTracking/recordDose (POST /device-mgmt/dose-tracking)
+import { deviceMgmtApi, type DoseRecord } from '../../services/api/deviceMgmtApi'
 import { oeeApi } from '../../services/api/oeeApi'
 
 interface Device {
@@ -55,6 +57,67 @@ export default function DeviceOpsPage() {
   const [utilData, setUtilData] = useState(UTIL_DATA)
   const [faults, setFaults] = useState(FAULTS)
   const [maintLog, setMaintLog] = useState(MAINT_LOG)
+
+  // [W1-B] 剂量追踪: deviceMgmtApi.getDoseTracking (GET /device-mgmt/dose-tracking)
+  const [doseRecords, setDoseRecords] = useState<DoseRecord[]>([])
+  const [doseLoading, setDoseLoading] = useState(false)
+  const [doseError, setDoseError] = useState('')
+  const [doseForm, setDoseForm] = useState({ patientId: '', deviceId: '', doseValue: '', doseUnit: 'mGy', examType: 'CT' })
+  const [doseSaving, setDoseSaving] = useState(false)
+
+  const loadDoses = useCallback(async () => {
+    setDoseLoading(true)
+    setDoseError('')
+    try {
+      const res = await deviceMgmtApi.getDoseTracking()
+      const raw = res.data as unknown
+      const items: any[] = Array.isArray(raw) ? raw : (raw as any)?.items ?? []
+      setDoseRecords(items.length > 0
+        ? items.map((r: any) => ({
+            id: String(r.id ?? ''),
+            patientId: String(r.detail?.patientId ?? r.patientId ?? ''),
+            deviceId: String(r.detail?.deviceId ?? r.deviceId ?? ''),
+            doseValue: Number(r.detail?.doseValue ?? r.doseValue ?? 0),
+            doseUnit: String(r.detail?.doseUnit ?? r.doseUnit ?? 'mGy'),
+            examType: String(r.detail?.examType ?? r.examType ?? ''),
+            recordedAt: String(r.detail?.recordedAt ?? r.createdAt ?? ''),
+          }))
+        : [])
+    } catch (e) {
+      setDoseError(e instanceof Error ? e.message : '剂量记录加载失败, 展示空列表')
+    } finally {
+      setDoseLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadDoses() }, [loadDoses])
+
+  const handleRecordDose = async () => {
+    if (!doseForm.patientId.trim() || !doseForm.deviceId.trim()) { setDoseError('请填写患者ID和设备ID'); return }
+    const value = Number(doseForm.doseValue)
+    if (!Number.isFinite(value) || value <= 0) { setDoseError('剂量值必须为正数'); return }
+    setDoseSaving(true)
+    setDoseError('')
+    try {
+      const res = await deviceMgmtApi.recordDose({
+        patientId: doseForm.patientId.trim(),
+        deviceId: doseForm.deviceId.trim(),
+        doseValue: value,
+        doseUnit: doseForm.doseUnit,
+        examType: doseForm.examType,
+      })
+      if (res.success) {
+        setDoseRecords(prev => [{ ...res.data, recordedAt: res.data.recordedAt || new Date().toISOString() }, ...prev])
+        setDoseForm({ patientId: '', deviceId: '', doseValue: '', doseUnit: 'mGy', examType: 'CT' })
+      } else {
+        setDoseError(res.error?.message ?? '剂量记录提交失败')
+      }
+    } catch (e) {
+      setDoseError(e instanceof Error ? e.message : '剂量记录提交失败')
+    } finally {
+      setDoseSaving(false)
+    }
+  }
 
   const toNum = (v: unknown): number => {
     const n = Number(v)
@@ -209,7 +272,7 @@ export default function DeviceOpsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart size={16} color="#3b82f6" />设备使用率
             </div>
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备使用率数据">
               <BarChart data={utilData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -217,7 +280,7 @@ export default function DeviceOpsPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                 <Bar dataKey="utilization" fill="#3b82f6" radius={[4, 4, 0, 0]} name="使用率" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
@@ -301,6 +364,61 @@ export default function DeviceOpsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* [W1-B] 剂量追踪: deviceMgmtApi.getDoseTracking / recordDose */}
+        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Gauge size={16} color="#22d3ee" />剂量追踪 <span style={{ fontSize: 11, color: '#22d3ee' }}>(/device-mgmt/dose-tracking 实时)</span>
+            <button onClick={() => void loadDoses()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>刷新</button>
+          </div>
+          {doseError && <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 8 }}>{doseError}</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>患者ID</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>设备ID</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>剂量</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查类型</th>
+                    <th style={{ textAlign: 'left', padding: '8px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>记录时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {doseRecords.map(r => (
+                    <tr key={r.id}>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #21262d' }}>{r.patientId}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{r.deviceId}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #21262d', fontWeight: 600, color: '#22d3ee' }}>{r.doseValue} {r.doseUnit}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{r.examType}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #21262d', color: '#6e7681' }}>{(r.recordedAt ?? '').replace('T', ' ').slice(0, 16) || '—'}</td>
+                    </tr>
+                  ))}
+                  {doseRecords.length === 0 && (
+                    <tr><td colSpan={5} style={{ padding: '16px', textAlign: 'center', color: '#6e7681' }}>{doseLoading ? '剂量记录加载中...' : '暂无剂量记录, 请在右侧登记'}</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ background: '#0d1117', borderRadius: 6, padding: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc', marginBottom: 10 }}>登记剂量记录</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <input placeholder="患者ID *" value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                <input placeholder="设备ID *" value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
+                  <input type="number" placeholder="剂量值 *" value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                  <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+                    <option>mGy</option><option>mGy·cm</option><option>dGy</option>
+                  </select>
+                </div>
+                <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+                  <option>CT</option><option>DR</option><option>DSA</option><option>MG</option><option>X-ray</option>
+                </select>
+                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? '提交中...' : '登记剂量 (POST /dose-tracking)'}</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

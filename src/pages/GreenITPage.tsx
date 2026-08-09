@@ -11,10 +11,11 @@ import {
 import { Spin, Alert, Tag } from 'antd'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts'
 import { statsApi } from '../services/api/statsApi'
 import { deviceApi } from '../services/api/deviceApi'
+import { ChartContainer } from '../components/charts'
 
 // ============================================================
 // [W2-B] 共享数据 Hook: statsApi.getDaily/getTrend/getByModality + deviceApi.list
@@ -480,7 +481,7 @@ function PaperlessTrendTab() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid #e2e8f0',
       }}>
-        <ResponsiveContainer width="100%" height={320}>
+        <ChartContainer height={320}>
           <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
@@ -523,7 +524,7 @@ function PaperlessTrendTab() {
               activeDot={{ r: 4, fill: '#94a3b8' }}
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       {/* 统计摘要 */}
@@ -751,7 +752,7 @@ function CarbonTab() {
         border: '1px solid #e2e8f0',
       }}>
         <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>碳减排构成</h4>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200}>
           <BarChart
             data={[
               { name: '纸张', value: d.carbonFromPaper },
@@ -781,7 +782,7 @@ function CarbonTab() {
               ))}
             </Bar>
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   )
@@ -838,7 +839,7 @@ function SignatureTab() {
           border: '1px solid #e2e8f0',
         }}>
           <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>电子签名 vs 纸质签名</h4>
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={pieData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无签名占比数据">
             <PieChart>
               <Pie
                 data={pieData}
@@ -863,7 +864,7 @@ function SignatureTab() {
                 formatter={(value: number) => [value.toLocaleString(), '']}
               />
             </PieChart>
-          </ResponsiveContainer>
+          </ChartContainer>
           <div style={{
             display: 'flex',
             justifyContent: 'center',
@@ -1093,12 +1094,12 @@ function CostTab() {
       }}>
         <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>成本节约构成</h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
-          <ResponsiveContainer width={200} height={180}>
+          <ChartContainer height={180} style={{ width: 200, flexShrink: 0 }}>
             <PieChart>
               <Pie
                 data={[
-                  { name: '纸张', value: costData.paperCost, color: C.primary },
-                  { name: '耗材', value: costData.inkCost, color: C.purple },
+                  { name: 'ֽ��', value: costData.paperCost, color: C.primary },
+                  { name: '�Ĳ�', value: costData.inkCost, color: C.purple },
                 ]}
                 cx="50%"
                 cy="50%"
@@ -1120,7 +1121,7 @@ function CostTab() {
                 formatter={(value: number) => [`¥${value.toFixed(2)}`, '']}
               />
             </PieChart>
-          </ResponsiveContainer>
+          </ChartContainer>
           <div style={{ flex: 1 }}>
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -1215,7 +1216,7 @@ const PaperConsumptionDashboard = () => {
           各部门纸张消耗明细
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
                 {['部门', '打印量(张)', '节省量(张)', '纸张成本(元)', '耗材成本(元)', '拯救树木(棵)'].map(h => (
@@ -1235,7 +1236,7 @@ const PaperConsumptionDashboard = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
     </div>
@@ -1308,7 +1309,7 @@ const EnergyMonitoring = () => {
       {/* 设备能耗对比 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 16 }}>设备日能耗对比（活跃 vs 待机）</div>
-        <ResponsiveContainer width="100%" height={240}>
+        <ChartContainer height={240} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备能耗数据">
           <BarChart data={chartData} barCategoryGap="25%">
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1318,7 +1319,7 @@ const EnergyMonitoring = () => {
             <Bar dataKey="active" fill={C.primary} radius={[4, 4, 0, 0]} name="活跃能耗(kWh)" />
             <Bar dataKey="idle" fill="#94a3b8" radius={[4, 4, 0, 0]} name="待机能耗(kWh)" />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       {/* 设备明细表 */}
@@ -1327,7 +1328,7 @@ const EnergyMonitoring = () => {
           设备能耗明细
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
                 {['设备', '活跃功率(kW)', '待机功率(kW)', '日能耗(kWh)', '月能耗(kWh)', '能源成本(元)', '碳排放(kg)'].map(h => (
@@ -1348,7 +1349,7 @@ const EnergyMonitoring = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
     </div>
@@ -1427,7 +1428,7 @@ const DigitizationScorecard = () => {
       {/* 数字化趋势 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 16 }}>数字化采用趋势</div>
-        <ResponsiveContainer width="100%" height={240}>
+        <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无数字化趋势数据">
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1438,7 +1439,7 @@ const DigitizationScorecard = () => {
             <Line type="monotone" dataKey="paper" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3 }} name="纸质率(%)" />
             <Line type="monotone" dataKey="costSaved" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} name="节约成本(元)" />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       {/* 科室排名 */}
@@ -1447,7 +1448,7 @@ const DigitizationScorecard = () => {
           科室数字化排名
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
                 {['排名', '科室', '数字率', '纸质率', '节约成本'].map(h => (
@@ -1472,7 +1473,7 @@ const DigitizationScorecard = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
     </div>
@@ -1610,7 +1611,7 @@ const ISO14001Compliance = () => {
           <ClipboardList size={16} color={C.primary} /> ISO 14001:2015 条款清单
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
                 {['条款', '要求', '状态', '证据', '目标日期'].map(h => (
@@ -1642,7 +1643,7 @@ const ISO14001Compliance = () => {
                 )
               })}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
 
@@ -1749,7 +1750,7 @@ function RunStatsTab() {
         {trend.length === 0 ? (
           <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无趋势数据</div>
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
+          <ChartContainer height={280}>
             <LineChart data={trend}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
@@ -1759,7 +1760,7 @@ function RunStatsTab() {
               <Line type="monotone" dataKey="examCount" name="检查量" stroke={C.primary} strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="reportCount" name="报告量" stroke="#059669" strokeWidth={2} dot={false} />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         )}
       </div>
 
@@ -1768,7 +1769,7 @@ function RunStatsTab() {
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={16} color={C.green} /> 设备模态工作量分布
           </div>
-          <ResponsiveContainer width="100%" height={260}>
+          <ChartContainer height={260} state={byModality.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备模态分布数据">
             <BarChart data={byModality}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="modality" tick={{ fontSize: 11, fill: '#94a3b8' }} />
@@ -1776,7 +1777,7 @@ function RunStatsTab() {
               <Tooltip />
               <Bar dataKey="count" name="检查量" fill={C.primary} radius={[4, 4, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       )}
     </div>

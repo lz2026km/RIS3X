@@ -4,9 +4,9 @@
  */
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  Card, Space, Tag, Button, Table, Select, Row, Col, Statistic, message, Modal, Form, Input, DatePicker, Spin, Alert, Empty, Popconfirm, Typography,
+  Card, Space, Tag, Button, Table, Select, Row, Col, Statistic, message, Modal, Form, Input, DatePicker, Spin, Alert, Empty, Popconfirm, Typography, Descriptions,
 } from 'antd'
-import { Share2, Send, Download, Link2, Trash2 } from 'lucide-react'
+import { Share2, Send, Download, Link2, Trash2, Eye } from 'lucide-react'
 import dayjs from 'dayjs'
 import { shareApi, type ShareRecord, type ShareStats } from '../../services/api/shareApi'
 
@@ -37,6 +37,25 @@ const DicomSharePage: React.FC = () => {
   const [creating, setCreating] = useState(false)
   // [W2-C] 受控分页
   const [sharePage, setSharePage] = useState(1)
+  // [W1-B] 详情: shareApi.get (GET /dicom-share/shares/:id)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailShare, setDetailShare] = useState<ShareRecord | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const handleViewDetail = async (id: string) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setDetailShare(null)
+    try {
+      const res = await shareApi.get(id)
+      if (res.success && res.data) setDetailShare(res.data)
+      else message.error(res.error?.message ?? '详情加载失败')
+    } catch {
+      message.error('详情加载失败')
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -137,6 +156,7 @@ const DicomSharePage: React.FC = () => {
       title: '操作', key: 'actions', width: 190,
       render: (_: unknown, row: ShareRecord) => (
         <Space size={4}>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void handleViewDetail(row.id)}>详情</Button>
           <Button size="small" type="primary" ghost icon={<Link2 size={12} />} onClick={() => handleCopyLink(row)}>复制链接</Button>
           <Button size="small" icon={<Download size={12} />} onClick={() => handleDownload(row)}>下载</Button>
           <Popconfirm title="删除共享记录?" onConfirm={() => handleDelete(row.id)}>
@@ -199,6 +219,30 @@ const DicomSharePage: React.FC = () => {
             <Input.Password placeholder="设置密码后需密码才能访问链接" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* [W1-B] 共享详情: GET /dicom-share/shares/:id */}
+      <Modal title={`共享详情 - ${detailShare?.id ?? ''}`} open={detailOpen} onCancel={() => setDetailOpen(false)} footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>} width={560}>
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
+        ) : detailShare ? (
+          <Descriptions bordered column={2} size="small">
+            <Descriptions.Item label="编号" span={2}><Text code>{detailShare.id}</Text></Descriptions.Item>
+            <Descriptions.Item label="检查">{detailShare.studyId}</Descriptions.Item>
+            <Descriptions.Item label="患者">{detailShare.patientName}</Descriptions.Item>
+            <Descriptions.Item label="来源科室">{detailShare.fromDept}</Descriptions.Item>
+            <Descriptions.Item label="目标科室">{detailShare.toDept}</Descriptions.Item>
+            <Descriptions.Item label="协议"><Tag color={detailShare.protocol === 'dicom-tls' ? 'cyan' : 'geekblue'}>{detailShare.protocol === 'dicom-tls' ? 'DICOM TLS' : 'WADO'}</Tag></Descriptions.Item>
+            <Descriptions.Item label="状态"><Tag color={STATUS_META[detailShare.status]?.color}>{STATUS_META[detailShare.status]?.label ?? detailShare.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="大小">{detailShare.sizeMb ?? 0} MB</Descriptions.Item>
+            <Descriptions.Item label="有效期至">{detailShare.expiresAt ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label="访问密码">{detailShare.password ? <Text code>{detailShare.password}</Text> : '-'}</Descriptions.Item>
+            <Descriptions.Item label="链接" span={2}>{detailShare.url ? <Text copyable style={{ fontSize: 12 }}>{detailShare.url}</Text> : '-'}</Descriptions.Item>
+            <Descriptions.Item label="创建时间" span={2}>{detailShare.createdAt}</Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <Empty description="未加载到详情" />
+        )}
       </Modal>
     </div>
   )

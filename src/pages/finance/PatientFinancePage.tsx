@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
-import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
+import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
+import { Card } from 'antd'
+
+// [W1-B] 开票 Modal (POST /finance/invoices)
+const modalOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }
+const modalCard: React.CSSProperties = { background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }
 
 // ===== Styles =====
 const s = {
@@ -54,11 +59,44 @@ export default function PatientFinancePage() {
   const svc = getFinanceService()
   const [_invoices, setInvoices] = useState<InvoiceDto[]>([])
 
+  // [W1-B] 开票: financeApi.createInvoice (POST /finance/invoices)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [chargeItems, setChargeItems] = useState<ChargeItemDto[]>([])
+  const [invPatientId, setInvPatientId] = useState('')
+  const [invItemIds, setInvItemIds] = useState<string[]>([])
+  const [invDiscount, setInvDiscount] = useState(0)
+  const [invSaving, setInvSaving] = useState(false)
+
   useEffect(() => {
     svc.getBills('P001').then(setBills)
     svc.getInsuranceClaims('P001').then(setClaims)
     financeApi.listInvoices().then(res => { if (res.success) setInvoices(res.data); }).catch((err) => { console.error('[F04]', err); })
+    financeApi.listChargeItems().then(res => { if (res.success) setChargeItems(res.data ?? []) }).catch(() => { /* 收费项目不可用不阻断 */ })
   }, [])
+
+  const handleCreateInvoice = async () => {
+    if (!invPatientId.trim()) { alert('请填写患者ID'); return }
+    if (invItemIds.length === 0) { alert('请至少选择一项收费项目'); return }
+    setInvSaving(true)
+    try {
+      const res = await financeApi.createInvoice({
+        patientId: invPatientId.trim(),
+        chargeItemIds: invItemIds,
+        discount: invDiscount > 0 ? invDiscount : undefined,
+      })
+      if (res.success) {
+        alert(`发票已开具: ${res.data.id} (¥${res.data.totalAmount})`)
+        setShowInvoiceModal(false)
+        setInvPatientId(''); setInvItemIds([]); setInvDiscount(0)
+      } else {
+        alert(res.error?.message ?? '开票失败')
+      }
+    } catch (e) {
+      alert((e as Error)?.message ?? '开票失败')
+    } finally {
+      setInvSaving(false)
+    }
+  }
 
   const handleSelectBill = async (bill: PatientBill) => {
     setSelectedBill(bill)
@@ -87,7 +125,10 @@ export default function PatientFinancePage() {
 
   return (
     <div style={s.container}>
-      <h2 style={s.title}>患者财务</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={s.title}>患者财务</h2>
+        <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowInvoiceModal(true)}>开票 (POST /finance/invoices)</button>
+      </div>
 
       {/* Stats */}
       <div style={s.statGrid}>
@@ -108,7 +149,7 @@ export default function PatientFinancePage() {
 
       {/* Bills Tab */}
       {activeTab === 'bills' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           {selectedBill ? (
             <div>
               <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => { setSelectedBill(null); setBillPayments([]) }}>← 返回账单列表</button>
@@ -182,12 +223,12 @@ export default function PatientFinancePage() {
               ))}
             </>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Payments Tab */}
       {activeTab === 'payments' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>缴费记录</h3>
           {bills.length === 0 ? <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无缴费用记录</div> :
             bills.filter(b => b.paidAmount > 0).map(b => (
@@ -197,12 +238,12 @@ export default function PatientFinancePage() {
               </div>
             ))
           }
-        </div>
+        </Card>
       )}
 
       {/* Claims Tab */}
       {activeTab === 'claims' && (
-        <div style={s.card}>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>医保理赔</h3>
           {claims.map(c => (
             <div key={c.id} style={{ padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
@@ -217,6 +258,45 @@ export default function PatientFinancePage() {
               {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>拒绝原因：{c.rejectReason}</div>}
             </div>
           ))}
+        </Card>
+      )}
+
+      {/* [W1-B] 开票 Modal */}
+      {showInvoiceModal && (
+        <div style={modalOverlay} onClick={() => setShowInvoiceModal(false)}>
+          <div style={modalCard} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>开具发票</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <div style={s.label}>患者ID *</div>
+                <input value={invPatientId} onChange={e => setInvPatientId(e.target.value)} placeholder="如 P100006"
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <div style={s.label}>收费项目 *</div>
+                <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 6, padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {chargeItems.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无收费项目 (GET /finance/charge-items)</div>}
+                  {chargeItems.map(item => (
+                    <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={invItemIds.includes(item.id)}
+                        onChange={e => setInvItemIds(prev => e.target.checked ? [...prev, item.id] : prev.filter(x => x !== item.id))} />
+                      <span>{item.name}</span>
+                      <span style={{ marginLeft: 'auto', color: '#059669', fontWeight: 600 }}>¥{item.unitPrice}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={s.label}>优惠金额 (元)</div>
+                <input type="number" min={0} value={invDiscount} onChange={e => setInvDiscount(Number(e.target.value))}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+                <button style={{ ...s.btn, background: '#64748b' }} onClick={() => setShowInvoiceModal(false)}>取消</button>
+                <button style={s.btn} disabled={invSaving} onClick={() => void handleCreateInvoice()}>{invSaving ? '开票中...' : '确认开票'}</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

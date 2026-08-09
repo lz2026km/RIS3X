@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Alert } from 'antd'
-import { FileSignature, CheckCircle, XCircle, Pen, Eye } from 'lucide-react'
+import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Alert, Form } from 'antd'
+import { FileSignature, CheckCircle, XCircle, Pen, Eye, Plus } from 'lucide-react'
 import { teleSignApi, type TeleSignSession } from '../../services/api/teleSignApi'
 
 const { Text } = Typography
@@ -16,6 +16,37 @@ const TeleSignPage: React.FC = () => {
   const [comment, setComment] = useState('')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
+  // [W1-B] 发起签署会话: teleSignApi.createSession (POST /tele-sign/session)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createSaving, setCreateSaving] = useState(false)
+  const [createForm] = Form.useForm()
+
+  const handleCreateSession = async () => {
+    try {
+      const values = await createForm.validateFields()
+      setCreateSaving(true)
+      const res = await teleSignApi.createSession({
+        reportId: values.reportId,
+        reportTitle: values.reportTitle,
+        patientName: values.patientName,
+        signerId: values.signerId,
+        signerName: values.signerName,
+      })
+      if (res.success) {
+        message.success(`签署会话已发起: ${res.data.id}`)
+        setCreateOpen(false)
+        createForm.resetFields()
+        void fetchSessions()
+      } else {
+        message.error((res.error as { message?: string })?.message || '发起失败')
+      }
+    } catch (e: any) {
+      if (e?.errorFields) return
+      message.error((e as Error)?.message || '发起失败')
+    } finally {
+      setCreateSaving(false)
+    }
+  }
 
   const fetchSessions = useCallback(async () => {
     setLoading(true)
@@ -115,6 +146,7 @@ const TeleSignPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <FileSignature size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>远程双签</span>
+        <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>发起签署会话</Button>
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}>重试</Button>} style={{ marginBottom: 16 }} />}
       <Card>
@@ -146,6 +178,27 @@ const TeleSignPage: React.FC = () => {
           {selectedSession?.comment && <><Text strong>备注: </Text><Text>{selectedSession.comment}</Text></>}
           {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>签名:</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
         </Card>
+      </Modal>
+
+      {/* [W1-B] 发起签署会话: POST /tele-sign/session */}
+      <Modal title="发起签署会话 (POST /tele-sign/session)" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
+        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+          <Form.Item label="报告ID" name="reportId" rules={[{ required: true, message: '请输入报告ID' }]}>
+            <Input placeholder="如 R20260718-001" />
+          </Form.Item>
+          <Form.Item label="报告标题" name="reportTitle" rules={[{ required: true, message: '请输入报告标题' }]}>
+            <Input placeholder="胸部CT平扫报告" />
+          </Form.Item>
+          <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
+            <Input placeholder="患者姓名" />
+          </Form.Item>
+          <Form.Item label="签署人ID" name="signerId" rules={[{ required: true, message: '请输入签署人ID' }]}>
+            <Input placeholder="如 D002" />
+          </Form.Item>
+          <Form.Item label="签署人姓名" name="signerName" rules={[{ required: true, message: '请输入签署人姓名' }]}>
+            <Input placeholder="签署医师姓名" />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   )

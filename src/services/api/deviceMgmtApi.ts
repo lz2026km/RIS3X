@@ -160,6 +160,22 @@ export interface ContrastQuality {
   expiryDate: string
 }
 
+// [W1-B] 注射指令下发 DTO (POST /device-mgmt/contrast/injection)
+export interface SendInjectionCommandDto {
+  examId?: string
+  patientId?: string
+  patientName?: string
+  protocolId: string
+  protocolName?: string
+  contrastType?: string
+  totalVolumeMl?: number
+  flowRateMls?: number
+  operator?: string
+  weightKg?: number
+  eGFR?: number
+  adjustedVolumeMl?: number
+}
+
 // [W4-B] 设备保养计划
 export interface MaintenancePlan {
   id: string
@@ -264,6 +280,13 @@ export const deviceMgmtApi = {
   //  Contrast: Injection Workstation 
   getInjectionWorkstation: () =>
     api.get<InjectionWorkstation>('/device-mgmt/contrast/injection'),
+
+  // [W1-B] 注射指令下发 (ContrastInjectionWorkstationPage 开始注射)
+  sendInjectionCommand: async (dto: SendInjectionCommandDto) => {
+    const res = await api.post<{ id: string; action: string; resource: string }>('/device-mgmt/contrast/injection', dto)
+    await invalidateApiCacheByPrefix('/device-mgmt/contrast/injection')
+    return res
+  },
 
   //  Contrast: Inventory 
   getContrastInventory: () =>

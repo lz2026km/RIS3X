@@ -25,10 +25,10 @@ export const FhirSubscriptionPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedSub(res.data)
       } else {
-        message.warning(res.error?.message ?? 'Subscription 详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? '订阅详情加载失败，展示列表数据')
       }
     } catch {
-      message.warning('Subscription 详情加载失败，展示列表数据')
+      message.warning('订阅详情加载失败，展示列表数据')
     }
     setDetailLoading(false)
   }
@@ -41,7 +41,7 @@ export const FhirSubscriptionPage: React.FC = () => {
         setSubscriptions(Array.isArray(res.data) ? res.data : [])
       }
     } catch {
-      message.warning('Subscription 列表加载失败，使用演示数据')
+      message.warning('订阅列表加载失败，使用演示数据')
       setSubscriptions([
         { id: 'sub1', resourceType: 'Subscription', status: 'active', reason: '监控新检查报告', criteria: 'DiagnosticReport?status=final', channel: { type: 'rest-hook', endpoint: 'https://example.com/hook', payload: 'id-only' } },
         { id: 'sub2', resourceType: 'Subscription', status: 'inactive', reason: '患者变更通知', criteria: 'Patient?name=张', channel: { type: 'websocket', payload: 'full-resource' } },
@@ -69,7 +69,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       }
       const res = await fhirApi.createSubscription(body)
       if (res.success) {
-        message.success('Subscription 已创建')
+        message.success('订阅已创建')
         setModalOpen(false)
         form.resetFields()
         fetchSubscriptions()
@@ -87,7 +87,7 @@ export const FhirSubscriptionPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     const res = await fhirApi.deleteSubscription(id)
     if (res.success) {
-      message.success('Subscription 已删除')
+      message.success('订阅已删除')
       fetchSubscriptions()
     } else {
       message.error('删除失败')
@@ -142,7 +142,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       render: (_: any, r: FhirSubscription) => (
         <Space size="small">
           <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
-          <Popconfirm title="确认删除此 Subscription?" onConfirm={() => handleDelete(r.id!)}>
+          <Popconfirm title="确认删除此订阅?" onConfirm={() => handleDelete(r.id!)}>
             <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
           </Popconfirm>
         </Space>
@@ -154,17 +154,17 @@ export const FhirSubscriptionPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Subscription 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 订阅管理</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
 
       <Card
         size="small"
-        title={`Subscription 列表 (${subscriptions.length})`}
+        title={`订阅列表 (${subscriptions.length})`}
         extra={
           <Space>
             <Button icon={<RefreshCw size={14} />} onClick={fetchSubscriptions}>刷新</Button>
-            <Button type="primary" icon={<Plus size={14} />} onClick={() => { form.resetFields(); setModalOpen(true) }}>新建 Subscription</Button>
+            <Button type="primary" icon={<Plus size={14} />} onClick={() => { form.resetFields(); setModalOpen(true) }}>新建订阅</Button>
           </Space>
         }
       >
@@ -180,7 +180,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="新建 Subscription"
+        title="新建订阅"
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleCreate}
@@ -204,7 +204,7 @@ export const FhirSubscriptionPage: React.FC = () => {
                 { value: 'message', label: '消息' },
               ]} />
             </Form.Item>
-            <Form.Item name="payload" label="Payload 类型">
+            <Form.Item name="payload" label="负载类型">
               <Select options={[
                 { value: 'id-only', label: 'ID Only' },
                 { value: 'full-resource', label: 'Full Resource' },
@@ -219,7 +219,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       </Modal>
 
       <Modal
-        title="Subscription 详情"
+        title="订阅详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}

@@ -114,7 +114,7 @@ export const DicomSrPage: React.FC = () => {
           </div>
 
           <div>
-            <Text strong>{t('dicomSr.findings') || '影像所见 / Findings'}:</Text>
+            <Text strong>{t('dicomSr.findings') || '影像所见'}:</Text>
             <TextArea
               style={{ marginTop: 4 }}
               rows={3}
@@ -125,7 +125,7 @@ export const DicomSrPage: React.FC = () => {
           </div>
 
           <div>
-            <Text strong>{t('dicomSr.impression') || '诊断印象 / Impression'}:</Text>
+            <Text strong>{t('dicomSr.impression') || '诊断印象'}:</Text>
             <TextArea
               style={{ marginTop: 4 }}
               rows={2}

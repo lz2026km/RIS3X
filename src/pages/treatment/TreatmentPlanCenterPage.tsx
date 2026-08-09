@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
+import { usePagination } from '../../hooks/usePagination';
 
 const { TextArea } = Input;
 
@@ -40,12 +41,62 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   const [createModal, setCreateModal] = useState(false);
   const [detailModal, setDetailModal] = useState(false);
   const [plans, setPlans] = useState<TreatmentPlan[]>([]);
+  const { pageData: planPageData, pagination: planPagination } = usePagination(plans, 10);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [transitioning, setTransitioning] = useState('');
   const [error, setError] = useState('');
   const [detail, setDetail] = useState<TreatmentPlan | null>(null);
   const [form] = Form.useForm();
+  // [W1-B] 详情抽屉: getTimeline (GET /treatment-plans/:id/timeline) + 编辑 (PATCH /treatment-plans/:id)
+  type TimelineItem = NonNullable<TreatmentPlan['timeline']>[number];
+  const [detailTimeline, setDetailTimeline] = useState<TimelineItem[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editForm] = Form.useForm();
+
+  const openDetail = useCallback(async (plan: TreatmentPlan) => {
+    setDetail(plan);
+    setDetailModal(true);
+    setDetailTimeline(plan.timeline ?? []);
+    setTimelineLoading(true);
+    try {
+      const res = await treatmentPlanApi.getTimeline(plan.id);
+      if (res.success && Array.isArray(res.data)) setDetailTimeline((res.data as TimelineItem[] | null) ?? []);
+    } catch { /* 时间线不可用沿用列表内数据 */ }
+    setTimelineLoading(false);
+  }, []);
+
+  const handleUpdate = async () => {
+    if (!detail) return;
+    try {
+      const values = await editForm.validateFields();
+      setEditSaving(true);
+      const res = await treatmentPlanApi.update(detail.id, {
+        type: values.type,
+        department: (values.departments ?? []).join('→'),
+        startDate: values.startDate,
+        desc: values.desc,
+        outcome: values.outcome ?? '',
+      });
+      if (res.success) {
+        message.success('治疗计划已更新');
+        setEditModal(false);
+        void load();
+        const updated = res.data as TreatmentPlan;
+        setDetail(updated);
+        setDetailTimeline(updated.timeline ?? detailTimeline);
+      } else {
+        message.error(res.error?.message ?? '更新失败');
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message) message.error(e.message);
+      else message.error('更新失败');
+    } finally {
+      setEditSaving(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -151,7 +202,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       title: '操作', key: 'actions', width: 220,
       render: (_: unknown, r: TreatmentPlan) => (
         <Space size={4}>
-          <Button size="small" onClick={() => { setDetail(r); setDetailModal(true); }}>详情</Button>
+          <Button size="small" onClick={() => { void openDetail(r); }}>详情</Button>
           {r.status === 'planned' && <Button size="small" type="primary" icon={<PlayCircle size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>开始</Button>}
           {r.status === 'in_progress' && <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'completed')}>完成</Button>}
           {r.status === 'completed' && <Button size="small" loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>重启</Button>}
@@ -185,9 +236,9 @@ export const TreatmentPlanCenterPage: React.FC = () => {
           <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>新建治疗计划</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button></Space>} size="small" title={`${plans.length} 项`}>
             <Spin spinning={loading}>
               <Table
-                dataSource={plans}
+                dataSource={planPageData}
                 rowKey="id"
-                pagination={{ pageSize: 8, showSizeChanger: false }}
+                pagination={planPagination}
                 columns={columns}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无治疗计划, 点击新建创建" /> }}
               scroll={{ x: 'max-content' }}
@@ -233,10 +284,21 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       </Modal>
 
       <Modal title={`计划详情 - ${detail?.id ?? ''}`} open={detailModal} onCancel={() => setDetailModal(false)} footer={
-        detail && nextStatus ? (
-          <Button type="primary" loading={transitioning === detail.id} onClick={() => void handleTransition(detail, nextStatus)}>
-            {nextStatus === 'in_progress' ? '开始执行' : '标记完成'}
-          </Button>
+        detail ? (
+          <>
+            <Button onClick={() => { editForm.setFieldsValue({
+              type: detail.type,
+              departments: detail.department ? detail.department.split('→') : [],
+              startDate: detail.startDate,
+              desc: detail.desc,
+              outcome: detail.outcome ?? '',
+            }); setEditModal(true); }}>编辑</Button>
+            {nextStatus ? (
+              <Button type="primary" loading={transitioning === detail.id} onClick={() => void handleTransition(detail, nextStatus)}>
+                {nextStatus === 'in_progress' ? '开始执行' : '标记完成'}
+              </Button>
+            ) : null}
+          </>
         ) : null
       } width={640}>
         {detail && (
@@ -250,18 +312,43 @@ export const TreatmentPlanCenterPage: React.FC = () => {
               <Descriptions.Item label="描述" span={2}>{detail.desc}</Descriptions.Item>
               <Descriptions.Item label="结果" span={2}>{detail.outcome || '-'}</Descriptions.Item>
             </Descriptions>
-            <Card size="small" title="治疗时间线">
-              <Steps
-                current={(detail.timeline ?? []).filter(s => s.status === 'completed').length}
-                orientation="vertical"
-                items={(detail.timeline ?? []).map(s => ({
-                  title: <Space>{s.step}<Tag color={TIMELINE_STATUS[s.status]?.color ?? 'default'}>{TIMELINE_STATUS[s.status]?.label ?? s.status}</Tag></Space>,
-                  description: s.date,
-                }))}
-              />
+            <Card size="small" title={<Space>治疗时间线 <Tag color="blue">GET /treatment-plans/:id/timeline</Tag></Space>} extra={timelineLoading ? <Spin size="small" /> : null}>
+              {detailTimeline.length === 0 ? (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无时间线数据" />
+              ) : (
+                <Steps
+                  current={detailTimeline.filter(s => s.status === 'completed').length}
+                  orientation="vertical"
+                  items={detailTimeline.map(s => ({
+                    title: <Space>{s.step}<Tag color={TIMELINE_STATUS[s.status]?.color ?? 'default'}>{TIMELINE_STATUS[s.status]?.label ?? s.status}</Tag></Space>,
+                    description: s.date,
+                  }))}
+                />
+              )}
             </Card>
           </>
         )}
+      </Modal>
+
+      {/* [W1-B] 编辑计划: PATCH /treatment-plans/:id */}
+      <Modal title={`编辑治疗计划 - ${detail?.id ?? ''}`} open={editModal} onCancel={() => setEditModal(false)} onOk={() => void handleUpdate()} confirmLoading={editSaving} width={520}>
+        <Form form={editForm} layout="vertical" size="small">
+          <Form.Item label="治疗类型" name="type" rules={[{ required: true, message: '请选择类型' }]}>
+            <Select options={PLAN_TYPE_OPTIONS} />
+          </Form.Item>
+          <Form.Item label="涉及科室" name="departments" rules={[{ required: true, message: '请选择科室' }]}>
+            <Select mode="multiple" options={DEPT_OPTIONS} />
+          </Form.Item>
+          <Form.Item label="开始日期" name="startDate">
+            <Input type="date" />
+          </Form.Item>
+          <Form.Item label="描述" name="desc" rules={[{ required: true, message: '请输入计划概述' }]}>
+            <TextArea rows={3} placeholder="治疗计划概述" />
+          </Form.Item>
+          <Form.Item label="预期结果" name="outcome">
+            <TextArea rows={2} placeholder="预期治疗结果 (可选)" />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

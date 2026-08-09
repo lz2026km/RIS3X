@@ -54,6 +54,22 @@ export const UpdateContrastInventorySchema = z.object({
   location: z.string().optional(),
 })
 
+// [W1-B] 对比剂注射指令下发 (ContrastInjectionWorkstationPage 开始注射)
+export const SendInjectionCommandSchema = z.object({
+  examId: z.string().min(1).optional(),
+  patientId: z.string().min(1).optional(),
+  patientName: z.string().optional(),
+  protocolId: z.string().min(1),
+  protocolName: z.string().optional(),
+  contrastType: z.string().min(1).optional(),
+  totalVolumeMl: z.number().positive().optional(),
+  flowRateMls: z.number().positive().optional(),
+  operator: z.string().min(1).optional(),
+  weightKg: z.number().positive().optional(),
+  eGFR: z.number().optional(),
+  adjustedVolumeMl: z.number().positive().optional(),
+})
+
 // [W4-B] 设备保养计划
 export const CreateMaintenancePlanSchema = z.object({
   deviceId: z.string().min(1),

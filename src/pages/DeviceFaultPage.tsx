@@ -9,11 +9,12 @@ import {
   FileText, Calendar, Zap, Gauge, Download
 } from 'lucide-react'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
   AreaChart, Area
 } from 'recharts'
 import { deviceMgmtApi, type DeviceFault } from '../services/api/deviceMgmtApi'
+import { ChartContainer } from '../components/charts'
 
 // ============================================================
 // 样式常量
@@ -574,14 +575,14 @@ export default function DeviceFaultPage() {
                 故障类型分布
               </h3>
               <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={220} state={FAULT_TYPE_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无故障类型数据">
                   <RePieChart>
                     <Pie data={FAULT_TYPE_STATS} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
                       {FAULT_TYPE_STATS.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <Tooltip formatter={(value: number) => `${value} 次`} />
                   </RePieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 
@@ -592,7 +593,7 @@ export default function DeviceFaultPage() {
                 月度故障与维修趋势
               </h3>
               <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={220} state={MONTHLY_FAULT_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无故障趋势数据">
                   <AreaChart data={MONTHLY_FAULT_TREND}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                     <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
@@ -601,7 +602,7 @@ export default function DeviceFaultPage() {
                     <Area type="monotone" dataKey="faults" stroke={C.danger} fill={C.dangerLight} name="故障次数" />
                     <Area type="monotone" dataKey="repairs" stroke={C.success} fill={C.successLight} name="维修完成" />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
           </div>
@@ -615,7 +616,7 @@ export default function DeviceFaultPage() {
                 设备故障次数排行
               </h3>
               <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={220} state={DEVICE_FAULT_COUNT.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备故障排行数据">
                   <BarChart data={DEVICE_FAULT_COUNT} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                     <XAxis type="number" tick={{ fontSize: 12, fill: C.textMid }} />
@@ -623,7 +624,7 @@ export default function DeviceFaultPage() {
                     <Tooltip formatter={(value: number) => `${value} 次`} />
                     <Bar dataKey="faultCount" fill={C.danger} name="故障次数" radius={[0, 4, 4, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
 
@@ -634,7 +635,7 @@ export default function DeviceFaultPage() {
                 维修费用统计（万元）
               </h3>
               <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={220} state={REPAIR_COST_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无维修费用数据">
                   <BarChart data={REPAIR_COST_STATS}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                     <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
@@ -643,7 +644,7 @@ export default function DeviceFaultPage() {
                     <Bar dataKey="parts" stackId="a" fill={C.primary} name="配件费用" />
                     <Bar dataKey="labor" stackId="a" fill={C.info} name="人工费用" />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
           </div>

@@ -2,9 +2,10 @@ import { t } from "../../i18n/appI18n";
 import { Monitor, Clock } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
+  Tooltip, Legend,
 } from "recharts";
 import type { DeviceDoseData } from "./types";
+import { ChartContainer } from "../../components/charts";
 
 interface DoseTrendChartProps {
   doseHistoryData: { date: string; CT: number; MR: number; DR: number; DSA: number; MG: number }[];
@@ -29,7 +30,7 @@ export default function DoseTrendChart({
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={doseHistoryData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量趋势数据">
             <BarChart data={doseHistoryData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -40,14 +41,14 @@ export default function DoseTrendChart({
               <Bar dataKey="DR" fill="#22c55e" name="DR" radius={[4, 4, 0, 0]} />
               <Bar dataKey="DSA" fill="#f59e0b" name="DSA" radius={[4, 4, 0, 0]} />
             </BarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
 
         <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={ctdivolTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CTDI趋势数据">
             <LineChart data={ctdivolTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -57,7 +58,7 @@ export default function DoseTrendChart({
               <Line type="monotone" dataKey="CT2" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: "#8b5cf6", r: 3 }} name="CT-2" />
               <Line type="monotone" dataKey="threshold" stroke="#dc2626" strokeWidth={2} strokeDasharray="5 5" dot={false} name={t("doseTrack.ctdiTrend.threshold")} />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </div>
 
@@ -68,7 +69,7 @@ export default function DoseTrendChart({
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={240}>
+        <ChartContainer height={240} state={deviceDAPComparison.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备DAP对比数据">
           <BarChart data={deviceDAPComparison} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -77,7 +78,7 @@ export default function DoseTrendChart({
             <Bar dataKey="DAP" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日DAP" />
             <Bar dataKey="avgDAP" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均DAP" />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>

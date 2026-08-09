@@ -1,9 +1,10 @@
-// [W3-2] AI 智能分检 MSW handlers (/api/v1/ai-triage/*)
-// 页面: /ai-triage (AiTriagePage)
-// 后端暂无 /ai-triage 控制器, MSW 提供可 CRUD 的内存实现, 与 aiTriageApi 对齐。
+// [W3-2] AI 智能分检 MSW handlers (/api/v1/triage/*)
+// 页面: /ai-triage (AiTriagePage) / TriageDashboardPage
+// [G005 Wave1A P0] 路径与后端 triage.controller 对齐 (/triage/score|batch-score|assign|pending|stats)。
+// 后端已实现同路径真实端点, MSW 仅用于 dev mock 模式支撑。
 import { http, HttpResponse, delay } from 'msw';
 
-const API = '/api/v1/ai-triage';
+const API = '/api/v1/triage';
 
 const LEVEL_DOCTORS: Record<string, string> = {
   CRITICAL: '急诊放射科·值班二线',

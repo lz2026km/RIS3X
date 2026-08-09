@@ -16,7 +16,9 @@ export const auditApi = {
   },
   getById: (id: string) => api.get<AuditEventDto>(`/audit/${encodeURIComponent(id)}`),
   getAggregation: () => api.get<AuditAggregationDto>('/audit/aggregation'),
-  // 导出 CSV: 后端 GET /audit/export 返回 text/csv, 以 blob 下载 (与 systemApi.auditApi.exportCsv 一致)
+  // 导出 CSV: 后端 GET /audit/export 返回 text/csv, 以 blob 下载
+  // [W1-B] 去重: 与 systemApi.auditApi.exportCsv 为同一后端端点(重复封装)。
+  // 本方法为保留实现 (systemApi.exportCsv 已委托调用本方法), 页面 import 兼容不受影响。
   export: async (params?: AuditQueryParams): Promise<Blob> => {
     const sp = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }

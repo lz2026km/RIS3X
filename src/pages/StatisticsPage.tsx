@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart as StatBarChart, Bar, PieChart as StatPieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   AreaChart, Area, ComposedChart
 } from 'recharts'
 // [v3.0.6.8-28] 主数据池 + 生成器 (替换硬编码, 三甲级真实数据)
@@ -619,14 +619,14 @@ function ExamVolumeTab() {
         <ChartCard title="患者类型占比分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={160} state={patientTypeData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无患者类型数据">
               <StatPieChart>
                 <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {patientTypeData.map(item => (
@@ -652,7 +652,7 @@ function ExamVolumeTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* 检查部位分布 */}
         <ChartCard title="检查部位分布（前10）">
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={bodyPartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无部位分布数据">
             <StatBarChart data={bodyPartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -662,12 +662,12 @@ function ExamVolumeTab() {
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6]]} />)}
               </Bar>
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
 
         {/* 时段分布 */}
         <ChartCard title="检查时段分布">
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={timeSlotData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无时段分布数据">
             <StatBarChart data={timeSlotData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -677,7 +677,7 @@ function ExamVolumeTab() {
                 {timeSlotData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i % RAD_COLORS.length]} />)}
               </Bar>
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
     </div>
@@ -741,7 +741,7 @@ function WorkloadTab() {
           </div>
         </div>
         {viewMode === 'table' ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: C.background }}>
                 {tableHeaders.map(h => (
@@ -761,11 +761,11 @@ function WorkloadTab() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         ) : (
           <div style={{ padding: 20 }}>
-            <ResponsiveContainer width="100%" height={280}>
-              <StatBarChart data={doctorWorkloadData}>
+          <ChartContainer height={280} state={doctorWorkloadData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医师工作量数据">
+            <StatBarChart data={doctorWorkloadData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -774,7 +774,7 @@ function WorkloadTab() {
                 <Bar dataKey="written" fill="#3b82f6" name="书写报告数" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reviewed" fill="#8b5cf6" name="审核报告数" radius={[4, 4, 0, 0]} />
               </StatBarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         )}
       </div>
@@ -782,7 +782,7 @@ function WorkloadTab() {
       {/* 7天趋势图 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', marginBottom: 20 }}>
         <ChartCard title="各医生7天报告量趋势">
-          <ResponsiveContainer width="100%" height={260}>
+          <ChartContainer height={260} state={doctorTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医师趋势数据">
             <LineChart data={doctorTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -794,7 +794,7 @@ function WorkloadTab() {
               <Line type="monotone" dataKey="张海涛" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="刘芳" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -900,7 +900,7 @@ function RevenueTab() {
       {/* 收入趋势面积图 */}
       <div style={{ marginBottom: 16 }}>
         <ChartCard title="收入趋势（万元）">
-          <ResponsiveContainer width="100%" height={280}>
+          <ChartContainer height={280} state={(chartView === '7days' ? revenueTrend7 : revenueTrend30).length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收入趋势数据">
             <AreaChart data={chartView === '7days' ? revenueTrend7 : revenueTrend30}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -915,7 +915,7 @@ function RevenueTab() {
                 formatter={(value: number) => [`¥${(value / 10000).toFixed(1)}万`, '收入']} />
               <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name="收入" />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -925,14 +925,14 @@ function RevenueTab() {
         <ChartCard title="按设备类型收入分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={150} state={revenueByModality.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态收入数据">
               <StatPieChart>
                 <Pie data={revenueByModality} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {revenueByModality.map(item => (
@@ -1041,14 +1041,14 @@ function QualityControlTab() {
         <ChartCard title="报告质量评分分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={150} state={qualityDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无质量分布数据">
               <StatPieChart>
                 <Pie data={qualityDistribution} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {qualityDistribution.map(item => (
@@ -1116,7 +1116,7 @@ function QualityControlTab() {
       {/* 报告修改次数分布 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <ChartCard title="报告修改次数分布">
-          <ResponsiveContainer width="100%" height={200}>
+          <ChartContainer height={200} state={modificationData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无报告修改数据">
             <StatBarChart data={modificationData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="times" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1126,11 +1126,11 @@ function QualityControlTab() {
                 {modificationData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i]} />)}
               </Bar>
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
 
         <ChartCard title="超时率与及时率趋势">
-          <ResponsiveContainer width="100%" height={200}>
+          <ChartContainer height={200} state={sevenDayData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无7日数据">
             <LineChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1139,7 +1139,7 @@ function QualityControlTab() {
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name="危急值数" />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -1157,15 +1157,15 @@ function QualityControlTab() {
           </div>
         }
       >
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={trendData}>
+          <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+            <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
             <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
             <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[93, 100]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
             <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="质控评分" />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </ChartCard>
     </div>
   )
@@ -1234,7 +1234,7 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备列表</div>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
                   {tableHeaders.map(h => (
@@ -1268,13 +1268,13 @@ function DeviceEfficiencyTab() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <ChartCard title="各设备利用率对比">
-              <ResponsiveContainer width="100%" height={240}>
-                <StatBarChart data={deviceEfficiencyData}>
+          <ChartContainer height={240} state={deviceEfficiencyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备效率数据">
+            <StatBarChart data={deviceEfficiencyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
@@ -1285,7 +1285,7 @@ function DeviceEfficiencyTab() {
                     ))}
                   </Bar>
                 </StatBarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </ChartCard>
 
             <ChartCard title="维保计划列表">
@@ -1322,7 +1322,7 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备开机率详情</div>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
                   {['设备名称', '开机率', '平均启动时间', '故障次数', '状态'].map(h => (
@@ -1354,12 +1354,12 @@ function DeviceEfficiencyTab() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           <ChartCard title="各设备开机率对比">
-            <ResponsiveContainer width="100%" height={280}>
-              <StatBarChart data={deviceStartupData}>
+          <ChartContainer height={280} state={deviceStartupData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备开机数据">
+            <StatBarChart data={deviceStartupData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[80, 100]} />
@@ -1370,7 +1370,7 @@ function DeviceEfficiencyTab() {
                   ))}
                 </Bar>
               </StatBarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </ChartCard>
         </>
       )}
@@ -1382,7 +1382,7 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>检查完成时间统计</div>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
                   {extendedHeaders.map(h => (
@@ -1411,13 +1411,13 @@ function DeviceEfficiencyTab() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <ChartCard title="各设备平均检查时间对比">
-              <ResponsiveContainer width="100%" height={240}>
-                <StatBarChart data={examCompletionTimeData}>
+          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无完成时长数据">
+            <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1428,12 +1428,12 @@ function DeviceEfficiencyTab() {
                     ))}
                   </Bar>
                 </StatBarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </ChartCard>
 
             <ChartCard title="完成时间分布">
-              <ResponsiveContainer width="100%" height={240}>
-                <StatBarChart data={examCompletionTimeData}>
+          <ChartContainer height={240} state={examCompletionTimeData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无完成时长数据">
+            <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1442,7 +1442,7 @@ function DeviceEfficiencyTab() {
                   <Bar dataKey="minTime" name="最短时间" fill="#059669" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="maxTime" name="最长时间" fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </StatBarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </ChartCard>
           </div>
         </>
@@ -1455,7 +1455,7 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>预约等待时间统计</div>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: C.background }}>
                   {['设备类型', '平均等待', '最长等待', '今日预约', '已完成', '待检查', '完成率'].map(h => (
@@ -1485,13 +1485,13 @@ function DeviceEfficiencyTab() {
                   )
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <ChartCard title="各设备预约等待时间">
-              <ResponsiveContainer width="100%" height={240}>
-                <StatBarChart data={appointmentWaitData}>
+          <ChartContainer height={240} state={appointmentWaitData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无预约等待数据">
+            <StatBarChart data={appointmentWaitData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1502,12 +1502,12 @@ function DeviceEfficiencyTab() {
                     ))}
                   </Bar>
                 </StatBarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </ChartCard>
 
             <ChartCard title="时段等待时间趋势">
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={waitTimeTrendData}>
+          <ChartContainer height={240} state={waitTimeTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无等待趋势数据">
+            <LineChart data={waitTimeTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1517,7 +1517,7 @@ function DeviceEfficiencyTab() {
                   <Line type="monotone" dataKey="MR" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="MR" />
                   <Line type="monotone" dataKey="DR" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} name="DR" />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </ChartCard>
           </div>
         </>
@@ -1611,14 +1611,14 @@ function PatientAnalysisTab() {
         <ChartCard title="患者来源分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={160} state={patientSourceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无患者来源数据">
               <StatPieChart>
                 <Pie data={patientSourceData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {patientSourceData.map(item => (
@@ -1643,14 +1643,14 @@ function PatientAnalysisTab() {
         <ChartCard title="患者性别分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={160} state={genderDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无性别分布数据">
               <StatPieChart>
                 <Pie data={genderDistribution} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {genderDistribution.map(item => (
@@ -1674,7 +1674,7 @@ function PatientAnalysisTab() {
       {/* 年龄分布柱状图 */}
       <div style={{ marginBottom: 16 }}>
         <ChartCard title="患者年龄分布">
-          <ResponsiveContainer width="100%" height={240}>
+          <ChartContainer height={240} state={ageDistributionData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无年龄分布数据">
             <StatBarChart data={ageDistributionData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="range" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1684,7 +1684,7 @@ function PatientAnalysisTab() {
               <Bar dataKey="male" name="男性" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="female" name="女性" fill="#ec4899" radius={[4, 4, 0, 0]} />
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -1692,7 +1692,7 @@ function PatientAnalysisTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* 各设备阳性率 */}
         <ChartCard title="各设备阳性率对比">
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无阳性率数据">
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1704,12 +1704,12 @@ function PatientAnalysisTab() {
                 ))}
               </Bar>
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
 
         {/* 阳性率趋势 */}
         <ChartCard title="检查阳性率7天趋势">
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无阳性趋势数据">
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1717,7 +1717,7 @@ function PatientAnalysisTab() {
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
     </div>
@@ -1799,7 +1799,7 @@ function PositiveRateTab() {
       {/* 阳性率趋势图（30天） */}
       <div style={{ marginBottom: 16 }}>
         <ChartCard title="阳性率30天趋势">
-          <ResponsiveContainer width="100%" height={260}>
+          <ChartContainer height={260} state={positiveRateTrend30Days.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无30日阳性率数据">
             <LineChart data={positiveRateTrend30Days}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1809,7 +1809,7 @@ function PositiveRateTab() {
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name="阳性率%" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name="危急值数" />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -1888,7 +1888,7 @@ function PositiveRateTab() {
       {/* 各设备阳性率与复查率对比 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <ChartCard title="各设备阳性率分布">
-          <ResponsiveContainer width="100%" height={240}>
+          <ChartContainer height={240} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无阳性率数据">
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1900,11 +1900,11 @@ function PositiveRateTab() {
                 ))}
               </Bar>
             </StatBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
 
         <ChartCard title="阳性率7天趋势">
-          <ResponsiveContainer width="100%" height={240}>
+          <ChartContainer height={240} state={positiveTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无阳性趋势数据">
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -1912,7 +1912,7 @@ function PositiveRateTab() {
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
     </div>
@@ -1979,7 +1979,7 @@ function BusinessAnalysisTab() {
       {/* 月度利润趋势（面积图） */}
       <div style={{ marginBottom: 16 }}>
         <ChartCard title="月度收入、成本、利润趋势（万元）">
-          <ResponsiveContainer width="100%" height={280}>
+          <ChartContainer height={280} state={monthlyProfitData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度利润数据">
             <AreaChart data={monthlyProfitData}>
               <defs>
                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
@@ -2000,7 +2000,7 @@ function BusinessAnalysisTab() {
               <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name="成本" />
               <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name="利润" />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
@@ -2010,14 +2010,14 @@ function BusinessAnalysisTab() {
         <ChartCard title="成本结构分析">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ width: 150, height: 150, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={150} state={costBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无成本构成数据">
               <StatPieChart>
                 <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
               </StatPieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {costBreakdown.map(item => (
@@ -2038,7 +2038,7 @@ function BusinessAnalysisTab() {
 
         {/* 人均产出趋势 */}
         <ChartCard title="人均产出趋势（万元）">
-          <ResponsiveContainer width="100%" height={220}>
+          <ChartContainer height={220} state={perCapitaTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无人均费用数据">
             <LineChart data={perCapitaTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
@@ -2049,13 +2049,13 @@ function BusinessAnalysisTab() {
               <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="人均收入" />
               <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="人均利润" />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </ChartCard>
       </div>
 
       {/* 科室效益排名表 */}
       <ChartCard title="各科室效益分析">
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: C.background }}>
               {['科室', '收入(万)', '成本(万)', '利润(万)', '人数', '人均利润(万)', '利润率'].map(h => (
@@ -2085,7 +2085,7 @@ function BusinessAnalysisTab() {
               )
             })}
           </tbody>
-        </table>
+        </table></div>
       </ChartCard>
     </div>
   )

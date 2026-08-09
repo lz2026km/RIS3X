@@ -260,7 +260,7 @@ function ProjectsTab() {
         <button onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> 新建课题</button>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}>
             <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>课题编号</th>
             <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>课题名称</th>
@@ -284,7 +284,7 @@ function ProjectsTab() {
               </div></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <Modal open={showModal} onClose={() => setShowModal(false)} title="新建课题" width={560}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -377,7 +377,7 @@ function ExtractTab() {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, marginBottom: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Database size={16} /> 抽取预览（10条）</div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead><tr style={{ background: COLORS.bgGray }}>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>患者ID</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>姓名</th>
@@ -400,7 +400,7 @@ function ExtractTab() {
                 {showDesensitization && <><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontFamily: 'monospace', fontSize: 12 }}>{maskIdCard(record.idCard)}</td><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontFamily: 'monospace', fontSize: 12 }}>{maskPhone(record.phone)}</td><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontSize: 12 }}>{maskAddress(record.address)}</td></>}
               </tr>
             ))}</tbody>
-          </table>
+          </table></div>
         </div>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20, marginBottom: 20 }}>
@@ -482,7 +482,7 @@ function LabelsTab() {
         <button onClick={() => setShowAddModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> 自定义标签</button>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>标签名</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>标签类型</th><th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>使用次数</th><th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>操作</th></tr></thead>
           <tbody>{filteredLabels.map((label, idx) => (
             <tr key={label.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
@@ -492,7 +492,7 @@ function LabelsTab() {
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={12} /> 应用</button><button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={12} /></button></div></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={{ marginTop: 20, padding: 20, background: COLORS.primaryLighter, borderRadius: 12, border: '1px solid ' + COLORS.primaryLight }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={16} /> 已抽取数据标签管理</div>
@@ -553,7 +553,7 @@ function ExportTab() {
           <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={16} /> 导出记录</div>
           <button onClick={() => setShowPermissionModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}><Shield size={14} /> 导出权限管理</button>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>课题</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出格式</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出时间</th><th style={{ padding: '12px 16px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>记录数</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>操作人</th><th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>操作</th></tr></thead>
           <tbody>{exports.map((record, idx) => (
             <tr key={record.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
@@ -565,7 +565,7 @@ function ExportTab() {
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleDownload(record)} style={{ padding: '6px 12px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Download size={12} /> 下载</button></div></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <Modal open={showPermissionModal} onClose={() => setShowPermissionModal(false)} title="导出权限管理" width={500}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -611,7 +611,7 @@ function DeidEngineTab() {
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={16} /> DICOM标签脱敏规则</div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>标签名</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>操作</th></tr></thead>
           <tbody>{phiTags.map((t, idx) => (
             <tr key={idx} style={{ borderTop: '1px solid ' + COLORS.border }}>
@@ -619,7 +619,7 @@ function DeidEngineTab() {
               <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: t.status === 'remove' ? COLORS.dangerLight : COLORS.successLight, color: t.status === 'remove' ? COLORS.danger : COLORS.success }}>{t.status === 'remove' ? '移除' : '保留'}</span></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Eye size={16} /> 像素级脱敏（模拟）</div>
@@ -776,7 +776,7 @@ function IRBWorkflowTab() {
         <button onClick={() => setShowForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> 新建IRB申请</button>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>课题名称</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>PI</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>提交日期</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>状态</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>批准日期</th><th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>到期日期</th><th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>操作</th></tr></thead>
           <tbody>{submissions.map((s, idx) => (
             <tr key={s.id} style={{ borderTop: '1px solid ' + COLORS.border, background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray }}>
@@ -789,7 +789,7 @@ function IRBWorkflowTab() {
               <td style={{ padding: '12px 16px', textAlign: 'center' }}><button onClick={() => setViewing(s)} style={{ padding: '4px 10px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查看</button></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><FileSignature size={16} /> 知情同意书管理</div>
@@ -895,7 +895,7 @@ function ExportPipelineTab() {
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><ClipboardList size={16} /> 导出审计日志</div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出ID</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>申请人</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>审批人</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出时间</th><th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>记录数</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>目的</th><th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>状态</th></tr></thead>
           <tbody>{auditLog.map((a) => (
             <tr key={a.id} style={{ borderTop: '1px solid ' + COLORS.border }}>
@@ -908,7 +908,7 @@ function ExportPipelineTab() {
               <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: COLORS.successLight, color: COLORS.success }}>{a.status}</span></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )
@@ -962,7 +962,7 @@ function DataQualityTab() {
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Target size={16} /> 字段质量评分</div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>字段</th><th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>完整度</th><th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>一致度</th><th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>新鲜度</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>改进建议</th></tr></thead>
           <tbody>{scores.map((f, idx) => (
             <tr key={idx} style={{ borderTop: '1px solid ' + COLORS.border }}>
@@ -973,7 +973,7 @@ function DataQualityTab() {
               <td style={{ padding: '10px 12px', fontSize: 12, color: f.suggestion ? COLORS.warning : COLORS.textSecondary }}>{f.suggestion || '✓ 良好'}</td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> 质量提升建议</div>

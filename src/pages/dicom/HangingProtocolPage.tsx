@@ -8,6 +8,7 @@ import {
 } from 'antd'
 import { Plus, RefreshCw, LayoutGrid, Search, Sparkles } from 'lucide-react'
 import { hangingApi, type HangingProtocol, type HangingMatchResult, type HangingLayout } from '../../services/api/hangingApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const { Title, Text } = Typography
 
@@ -74,6 +75,7 @@ const HangingProtocolPage: React.FC = () => {
   const [matchLoading, setMatchLoading] = useState(false)
   const [form] = Form.useForm()
   const [matchForm] = Form.useForm()
+  const { pageData: protocolPageData, pagination: protocolPagination } = usePagination(protocols, 10)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -245,10 +247,10 @@ const HangingProtocolPage: React.FC = () => {
         <Table
           rowKey="id"
           loading={loading}
-          dataSource={protocols}
+          dataSource={protocolPageData}
           columns={columns}
           size="middle"
-          pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+          pagination={protocolPagination}
         scroll={{ x: 'max-content' }}
         />
       </Card>

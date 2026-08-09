@@ -185,7 +185,7 @@ export const EmrTemplatesPage: React.FC = () => {
                   {title:'名称',dataIndex:'name'},
                   {title:'分类',dataIndex:'category',render:(c)=><Tag>{c}</Tag>},
                   {title:'操作',render:(_,r)=><Button size="small" icon={<Plus size={10}/>} onClick={()=>handleAddDiagnosis(r)}>添加到诊断</Button>},
-                ]} />
+                ]} scroll={{ x: 'max-content' }} />
               {diagnoses.length > 0 && (
                 <Card size="small" style={{ marginTop: 12 }} title={`已添加的诊断 (${diagnoses.length})`}>
                   <Space wrap>

@@ -165,7 +165,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
           {consultations.length === 0 ? (
             <div style={styles.emptyState}><FileText size={48} style={{ marginBottom: '12px', opacity: 0.3 }} /><div>暂无会诊记录</div></div>
           ) : (
-            <table style={styles.table}>
+            <div style={{ overflowX: "auto" }}><table style={styles.table}>
               <thead><tr><th style={styles.th}>病例号</th><th style={styles.th}>患者信息</th><th style={styles.th}>检查信息</th><th style={styles.th}>申请机构</th><th style={styles.th}>状态</th><th style={styles.th}>申请时间</th><th style={styles.th}>操作</th></tr></thead>
               <tbody>{consultations.map(c => (
                 <tr key={c.id} style={{ cursor: 'pointer', backgroundColor: selectedConsultation?.id === c.id ? '#eff6ff' : 'transparent' }} onClick={() => onSelect(c)}>
@@ -181,7 +181,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
                   </td>
                 </tr>
               ))}</tbody>
-            </table>
+            </table></div>
           )}
         </div>
       )}
@@ -229,7 +229,7 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
         <input type="text" placeholder="搜索报告号、患者姓名..." style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>报告号</th><th style={styles.th}>患者信息</th><th style={styles.th}>检查信息</th><th style={styles.th}>报告机构</th><th style={styles.th}>质控评分</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th></tr></thead>
           <tbody>{reports.map(r => (
             <tr key={r.id} style={{ cursor: 'pointer', backgroundColor: selectedReport?.id === r.id ? '#eff6ff' : 'transparent' }} onClick={() => onSelect(r)}>
@@ -245,7 +245,7 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
               </td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )
@@ -271,7 +271,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
         {searchKeyword && <X size={14} style={{ cursor: 'pointer', color: COLORS.textMuted }} onClick={() => onSearchChange('')} />}
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>病例号</th><th style={styles.th}>患者信息</th><th style={styles.th}>检查类型</th><th style={styles.th}>申请机构</th><th style={styles.th}>远程专家</th><th style={styles.th}>状态</th><th style={styles.th}>申请时间</th><th style={styles.th}>操作</th></tr></thead>
           <tbody>{diagnoses.map(rd => (
             <tr key={rd.id} style={{ cursor: 'pointer', backgroundColor: selectedRemoteDiagnosis?.id === rd.id ? '#eff6ff' : 'transparent' }} onClick={() => onSelect(rd)}>
@@ -285,7 +285,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
               <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(rd)}><PenTool size={12} /> 书写</button></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )
@@ -310,7 +310,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
         <input type="text" placeholder="搜索报告编号、患者姓名..." style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }} value={searchKeyword} onChange={e => onSearchChange(e.target.value)} />
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>报告编号</th><th style={styles.th}>患者信息</th><th style={styles.th}>检查类型</th><th style={styles.th}>参与机构</th><th style={styles.th}>签发状态</th><th style={styles.th}>签发时间</th><th style={styles.th}>操作</th></tr></thead>
           <tbody>{records.map(cs => (
             <tr key={cs.id} style={{ cursor: 'pointer', backgroundColor: selectedCoSign?.id === cs.id ? '#eff6ff' : 'transparent' }} onClick={() => onSelect(cs)}>
@@ -323,7 +323,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
               <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(cs)}><Eye size={12} /> 查看</button></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )
@@ -350,7 +350,7 @@ export const CriticalValuePanel: React.FC<CriticalValuePanelProps> = ({ critical
         </div>
       </div>
       <div style={{ overflowX: 'auto' }}>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>患者信息</th><th style={styles.th}>检查信息</th><th style={styles.th}>机构</th><th style={styles.th}>危急发现</th><th style={styles.th}>严重程度</th><th style={styles.th}>上报时间</th><th style={styles.th}>上报医生</th><th style={styles.th}>状态</th><th style={styles.th}>接收时间</th><th style={styles.th}>处理时间</th><th style={styles.th}>操作</th></tr></thead>
           <tbody>{criticalValues.map(cv => (
             <tr key={cv.id}>
@@ -370,7 +370,7 @@ export const CriticalValuePanel: React.FC<CriticalValuePanelProps> = ({ critical
               </td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={styles.pagination}>
         <div style={{ fontSize: '12px', color: COLORS.textMuted }}>共 {criticalValues.length} 条记录</div>
@@ -427,7 +427,7 @@ export const ReportSharingSection: React.FC = () => {
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>跨机构报告分享</span><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => setShowShareModal(true)}><Share2 size={14} /> 分享报告</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>报告编号</th><th style={styles.th}>患者</th><th style={styles.th}>来源机构</th><th style={styles.th}>目标机构</th><th style={styles.th}>分享时间</th><th style={styles.th}>分享人</th><th style={styles.th}>知情同意</th><th style={styles.th}>访问次数</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th></tr></thead>
           <tbody>{shares.map(s => (
             <tr key={s.id}>
@@ -438,7 +438,7 @@ export const ReportSharingSection: React.FC = () => {
               <td style={styles.td}>{s.status === 'active' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.danger, color: 'white' }} onClick={() => handleRevoke(s.id)}><UserX size={12} /> 撤销</button>}</td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
       <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px', background: '#f9fafb' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, color: COLORS.textMuted, marginBottom: '8px' }}>分享审计日志</div>
@@ -486,7 +486,7 @@ export const SLAAndTATSection: React.FC = () => {
           <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.warning }}>3.0h</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>平均周转时间</div></div>
           <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.success }}>92%</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>SLA达标率</div></div>
         </div>
-        <table style={styles.table}>
+        <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>远程站点</th><th style={styles.th}>分配检查</th><th style={styles.th}>已完成</th><th style={styles.th}>平均TAT</th><th style={styles.th}>SLA目标</th><th style={styles.th}>SLA合规率</th><th style={styles.th}>状态</th></tr></thead>
           <tbody>{slaData.map((s, idx) => (
             <tr key={idx}>
@@ -499,7 +499,7 @@ export const SLAAndTATSection: React.FC = () => {
               <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.slaCompliance >= 90 ? '#dcfce7' : s.slaCompliance >= 80 ? '#fef3c7' : '#fee2e2', color: s.slaCompliance >= 90 ? COLORS.success : s.slaCompliance >= 80 ? COLORS.warning : COLORS.danger }}>{s.slaCompliance >= 90 ? '达标' : s.slaCompliance >= 80 ? '临界' : '未达标'}</span></td>
             </tr>
           ))}</tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

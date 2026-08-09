@@ -22,6 +22,10 @@ const UpdateSchema = z.object({
   status: z.enum(['PENDING', 'ASSIGNED', 'COMPLETED']).optional(),
 })
 
+const BatchScoreSchema = z.object({
+  items: z.array(ScoreAssignSchema).min(1).max(100),
+})
+
 @ApiTags('triage')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
@@ -34,6 +38,12 @@ export class TriageController {
     return this.service.score(body)
   }
 
+  // [G005 Wave1A] aiTriageApi.batchScore → /triage/batch-score
+  @Post('batch-score')
+  batchScore(@Body(new ZodValidationPipe(BatchScoreSchema)) body: { items: TriageExamInput[] }) {
+    return this.service.batchScore(body.items)
+  }
+
   @Post('assign')
   assign(@Body(new ZodValidationPipe(ScoreAssignSchema)) body: TriageExamInput) {
     return this.service.assign(body)
@@ -42,6 +52,12 @@ export class TriageController {
   @Get('pending')
   getPending() {
     return this.service.getPending()
+  }
+
+  // [G005 Wave1A] aiTriageApi.getStats → /triage/stats
+  @Get('stats')
+  getStats() {
+    return this.service.getStats()
   }
 
   @Put(':id')

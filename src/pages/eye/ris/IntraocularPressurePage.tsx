@@ -5,6 +5,7 @@ import { Droplets, Save, Trash2, RefreshCw, TrendingUp, Activity } from 'lucide-
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import IopCurveChart from '@/components/eye/IopCurveChart';
 import { eyeApi } from '@/services/api/eyeApi';
+import { usePagination } from '@/hooks/usePagination';
 
 const DEVICE_OPTIONS = [
   { value: 'nct', label: 'NCT 非接触' },
@@ -48,6 +49,7 @@ const IntraocularPressurePage: React.FC = () => {
   const [patient, setPatient] = useState('p-1001');
   const [patientName, setPatientName] = useState('李明');
   const [iopRecords, setIopRecords] = useState<IopRecord[]>([]);
+  const { pageData: iopPageData, pagination: iopPagination } = usePagination(iopRecords, 8);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -184,9 +186,9 @@ const IntraocularPressurePage: React.FC = () => {
         <Spin spinning={loading}>
           <Table
             rowKey="id"
-            dataSource={iopRecords}
+            dataSource={iopPageData}
             columns={columns}
-            pagination={{ pageSize: 8, showSizeChanger: false }}
+            pagination={iopPagination}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无测量记录" /> }}
           scroll={{ x: 'max-content' }}

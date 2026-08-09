@@ -21,7 +21,7 @@
   "viewDetail": "查看详情",
   "noData": "暂无检查",
   "loadingApi": "正在从 API 加载检查数据...",
-  "errorFallback": "{{error}} (已 fallback 到本地 initialData)",
+  "errorFallback": "{{error}}（已回退到本地数据）",
   "dicomConnected": "DICOM WL 已连接",
   "refresh": "刷新列表",
   "totalExams": "全部检查",

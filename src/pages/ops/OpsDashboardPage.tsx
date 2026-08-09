@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend,
+  Legend,
 } from 'recharts'
 import {
   Activity, TrendingUp, Clock, Monitor, Users, RefreshCw,
   ArrowUp, ArrowDown,
 } from 'lucide-react'
 import { getOpsAnalyticsService } from '../../services/ops'
+import { Card } from 'antd'
+import { ChartContainer } from '../../components/charts'
 
 const svc = getOpsAnalyticsService()
 
@@ -28,7 +30,7 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
   title: string; value: string | number; unit?: string; icon: typeof Activity; trend?: 'up' | 'down'; color: string
 }) {
   return (
-    <div style={s.kpiCard}>
+    <Card bordered={false} style={s.kpiCard} styles={{ body: { padding: 0 } }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <span style={{ fontSize: 12, color: '#8b949e' }}>{title}</span>
         <Icon size={20} style={{ color }} />
@@ -41,7 +43,7 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
           {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}vs 昨日
         </div>
       )}
-    </div>
+    </Card>
   )
 }
 
@@ -83,7 +85,7 @@ export default function OpsDashboardPage() {
         </div>
 
         <div style={s.grid2}>
-          <div style={s.panel}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
             <div style={s.panelTitle}><TrendingUp size={16} color="#3b82f6" />检查工作量趋势</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {[7, 14, 30].map(d => (
@@ -93,7 +95,7 @@ export default function OpsDashboardPage() {
                 </button>
               ))}
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={workload.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
               <LineChart data={workload}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => v.slice(5)} />
@@ -103,12 +105,12 @@ export default function OpsDashboardPage() {
                 <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name="本周期" />
                 <Line type="monotone" dataKey="previousExams" stroke="#6e7681" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="上一周期" />
               </LineChart>
-            </ResponsiveContainer>
-          </div>
+            </ChartContainer>
+          </Card>
 
-          <div style={s.panel}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
             <div style={s.panelTitle}><Monitor size={16} color="#22c55e" />设备利用率</div>
-            <ResponsiveContainer width="100%" height={260}>
+            <ChartContainer height={260} state={modUtil.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备利用率数据">
               <BarChart data={modUtil}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -116,14 +118,14 @@ export default function OpsDashboardPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, '利用率']} />
                 <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name="利用率" />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
+            </ChartContainer>
+          </Card>
         </div>
 
         <div style={s.grid2}>
-          <div style={s.panel}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
             <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />高峰时段分析 (每小时检查量)</div>
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无高峰时段数据">
               <BarChart data={peakData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -131,10 +133,10 @@ export default function OpsDashboardPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name="检查量" />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
+            </ChartContainer>
+          </Card>
 
-          <div style={s.panel}>
+          <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
             <div style={s.panelTitle}><Users size={16} color="#8b5cf6" />技师生产力排行</div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -158,7 +160,7 @@ export default function OpsDashboardPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

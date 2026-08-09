@@ -4,7 +4,7 @@ import {
 } from "antd";
 import { Archive, Filter, RotateCcw, Search, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, Send } from "lucide-react";
 import { hl7Api } from "../../services/api/integrationApi";
-import type { Hl7ArchiveRecord } from "../../services/api/integrationApi";
+import { usePagination } from "../../hooks/usePagination";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -24,6 +24,7 @@ export const Hl7ArchivePage: React.FC = () => {
   const [data, setData] = useState<Hl7ArchiveRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const { pageData, pagination } = usePagination(data, 10);
 
   const [filterType, setFilterType] = useState<string | undefined>();
   const [filterDirection, setFilterDirection] = useState<string | undefined>();
@@ -182,10 +183,10 @@ export const Hl7ArchivePage: React.FC = () => {
         size="small"
         rowKey="id"
         loading={loading}
-        dataSource={data}
+        dataSource={pageData}
         columns={columns}
         scroll={{ x: "max-content" }}
-        pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+        pagination={pagination}
         expandable={{
           expandedRowKeys: expandedId !== null ? [expandedId] : [],
           onExpand: (expanded, record) => setExpandedId(expanded ? record.id : null),

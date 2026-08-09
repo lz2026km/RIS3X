@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
+  CartesianGrid, Tooltip,
 } from 'recharts'
 import {
   AlertTriangle, CheckCircle, XCircle, Plus, Search,
@@ -11,6 +11,7 @@ import {
   getAdverseEvents, getAdverseEventTrend, createAdverseEvent,
   type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrendItem,
 } from '../../services/api/safetyApi'
+import { ChartContainer } from '../../components/charts'
 
 const SEVERITY_COLORS: Record<EventSeverity, string> = {
   'near-miss': '#8b5cf6',
@@ -150,7 +151,7 @@ export default function AdverseEventPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Activity size={16} color="#3b82f6" />事件趋势
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无事件趋势数据">
               <LineChart data={trendChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -158,13 +159,13 @@ export default function AdverseEventPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Line type="monotone" dataKey="total" stroke="#7c3aed" strokeWidth={2} dot={{ fill: '#7c3aed' }} name="事件数量" />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart3 size={16} color="#22c55e" />事件类型分布
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={categoryChartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无事件类型数据">
               <BarChart data={categoryChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -172,7 +173,7 @@ export default function AdverseEventPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} name="数量" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
 

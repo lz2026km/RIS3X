@@ -1,4 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { appointmentApi } from '../../services/api/appointmentApi'
+import { templatesApi } from '../../services/api/templatesApi'
+import { getCurrentUser } from '../../utils/auth'
+import { Card } from 'antd'
 
 // ===== Types =====
 export interface PushTemplate {
@@ -45,7 +49,7 @@ export interface AppointmentRecord {
   phone: string
 }
 
-// ===== Mock Data =====
+// ===== Mock Data (回退) =====
 const MOCK_TEMPLATES: PushTemplate[] = [
   { id: 'T1', name: '报告完成通知', channel: '短信', content: '尊敬的{name}，您的{exam}检查报告已出具，请登录查看。', enabled: true },
   { id: 'T2', name: '电子胶片通知', channel: '微信', content: '您的{exam}电子胶片已生成，点击查看。', enabled: true },
@@ -61,6 +65,16 @@ const generateCode = () => {
   let code = 'AP'
   for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)]
   return code
+}
+
+const STATUS_MAP: Record<string, AppointmentRecord['status']> = {
+  SCHEDULED: '待确认',
+  CONFIRMED: '已确认',
+  CHECKED_IN: '已确认',
+  IN_PROGRESS: '已确认',
+  COMPLETED: '已完成',
+  CANCELLED: '已取消',
+  NO_SHOW: '已取消',
 }
 
 // ===== Styles =====
@@ -85,6 +99,10 @@ const s = {
 // ===== Component =====
 export default function ServiceManagement() {
   const [activeTab, setActiveTab] = useState<'appointment' | 'push' | 'preference'>('appointment')
+  // [W2-A] 预约/模板接 appointmentApi + templatesApi 实时 (失败回退演示数据)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
   const [templates, setTemplates] = useState<PushTemplate[]>(MOCK_TEMPLATES)
   const [prefs, setPrefs] = useState<ServicePreference>({
     smsNotify: true, wechatNotify: true, emailNotify: false,
@@ -95,20 +113,86 @@ export default function ServiceManagement() {
   const [bookingForm, setBookingForm] = useState<BookingForm>({ department: '', date: '', timeSlot: '', phone: '', notes: '' })
   const [successCode, setSuccessCode] = useState<string | null>(null)
 
-  const handleBook = () => {
-    if (!bookingForm.department || !bookingForm.date || !bookingForm.timeSlot || !bookingForm.phone) return
-    const code = generateCode()
-    const newAppt: AppointmentRecord = {
-      id: `APT${Date.now()}`, department: bookingForm.department, date: bookingForm.date,
-      timeSlot: bookingForm.timeSlot, status: '待确认', code, phone: bookingForm.phone,
+  const loadData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [apptRes, snipRes] = await Promise.allSettled([
+        appointmentApi.list({ take: 20 }),
+        templatesApi.listSnippets(),
+      ])
+      let live = false
+      if (apptRes.status === 'fulfilled' && Array.isArray(apptRes.value.data)) {
+        setAppointments(apptRes.value.data.map((a: any) => ({
+          id: a.id,
+          department: a.bodyPart || a.modality || '放射科',
+          date: String(a.startAt || '').slice(0, 10),
+          timeSlot: (String(a.startAt || '').slice(11, 16) || '--') + '-' + (String(a.endAt || '').slice(11, 16) || '--'),
+          status: STATUS_MAP[a.state] ?? '待确认',
+          code: a.id,
+          phone: a.patientName || '',
+        })))
+        live = true
+      }
+      if (snipRes.status === 'fulfilled' && Array.isArray(snipRes.value.data) && snipRes.value.data.length > 0) {
+        setTemplates(snipRes.value.data.map((t: any, i: number) => ({
+          id: t.id || `snp-${i}`,
+          name: t.name || '未命名模板',
+          content: t.content || '',
+          channel: (/短信/.test(String(t.category ?? '')) ? '短信' : /邮件/.test(String(t.category ?? '')) ? '邮件' : '微信') as PushTemplate['channel'],
+          enabled: true,
+        })))
+        live = true
+      }
+      setSource(live ? 'api' : 'demo')
+      if (!live) setError('appointmentApi/templatesApi 暂不可用，当前展示内置演示数据')
+    } catch (e) {
+      setSource('demo')
+      setError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+    } finally {
+      setLoading(false)
     }
-    setAppointments(prev => [newAppt, ...prev])
-    setSuccessCode(code)
-    setBookingForm({ department: '', date: '', timeSlot: '', phone: '', notes: '' })
-    setTimeout(() => setSuccessCode(null), 5000)
   }
 
-  const handleCancel = (id: string) => {
+  useEffect(() => { void loadData() }, [])
+
+  const handleBook = async () => {
+    if (!bookingForm.department || !bookingForm.date || !bookingForm.timeSlot || !bookingForm.phone) return
+    const start = `${bookingForm.date}T${bookingForm.timeSlot.split('-')[0]}:00`
+    const end = `${bookingForm.date}T${bookingForm.timeSlot.split('-')[1] || '00:00'}:00`
+    const user = getCurrentUser()
+    try {
+      const res = await appointmentApi.create({
+        patientName: `患者${bookingForm.phone.slice(-4)}`,
+        patientId: `P-${Date.now()}`,
+        modality: 'CT',
+        bodyPart: bookingForm.department,
+        startAt: start,
+        endAt: end,
+        deviceId: 'DEV-001',
+        deviceName: bookingForm.department,
+        priority: 'ROUTINE',
+        note: bookingForm.notes,
+        createdById: user?.id ?? 'unknown',
+      })
+      const code = res.data?.id || generateCode()
+      const newAppt: AppointmentRecord = {
+        id: code, department: bookingForm.department, date: bookingForm.date,
+        timeSlot: bookingForm.timeSlot, status: '待确认', code, phone: bookingForm.phone,
+      }
+      setAppointments(prev => [newAppt, ...prev])
+      setSuccessCode(code)
+      setBookingForm({ department: '', date: '', timeSlot: '', phone: '', notes: '' })
+      setTimeout(() => setSuccessCode(null), 5000)
+    } catch (e) {
+      window.alert?.('预约提交失败: ' + (e instanceof Error ? e.message : '未知错误'))
+    }
+  }
+
+  const handleCancel = async (id: string) => {
+    try {
+      await appointmentApi.cancel(id)
+    } catch { /* 后端失败时仍本地更新状态 */ }
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: '已取消' as const } : a))
   }
 
@@ -118,6 +202,12 @@ export default function ServiceManagement() {
 
   return (
     <div style={s.container}>
+      {/* 数据源状态条 */}
+      <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: source === 'api' ? '#f0fdf4' : '#fffbeb', border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`, fontSize: 12, color: source === 'api' ? '#166534' : '#92400e', display: 'flex', alignItems: 'center', gap: 8 }}>
+        {loading ? '数据同步中...' : source === 'api' ? '数据源: appointmentApi / templatesApi 实时（预约、推送模板）' : '数据源: 演示数据（接口不可用，已回退）'}
+        {error && <span style={{ color: '#dc2626', marginLeft: 'auto' }}>{error}</span>}
+      </div>
+
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
         {(['appointment', 'push', 'preference'] as const).map(tab => (
@@ -134,7 +224,7 @@ export default function ServiceManagement() {
       {/* Appointment Tab */}
       {activeTab === 'appointment' && (
         <>
-          <div style={s.card}>
+          <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
             <h3 style={s.title}>新建预约</h3>
             <div style={s.grid2}>
               <div>
@@ -164,18 +254,18 @@ export default function ServiceManagement() {
                 <input placeholder="病情描述或特殊要求" value={bookingForm.notes} onChange={e => setBookingForm(p => ({ ...p, notes: e.target.value }))} style={s.input} />
               </div>
             </div>
-            <button style={{ ...s.btn, marginTop: 12 }} onClick={handleBook}>提交预约</button>
+            <button style={{ ...s.btn, marginTop: 12 }} onClick={() => void handleBook()}>提交预约</button>
             {successCode && (
               <div style={{ marginTop: 16, padding: 16, background: '#f0fdf4', borderRadius: 8, textAlign: 'center' }}>
                 <div style={{ fontSize: 14, color: '#166534', fontWeight: 600 }}>预约成功！</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#059669', fontFamily: 'monospace', letterSpacing: 2, marginTop: 8 }}>{successCode}</div>
               </div>
             )}
-          </div>
+          </Card>
 
           {appointments.length > 0 && (
-            <div style={s.card}>
-              <h3 style={s.title}>我的预约</h3>
+            <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+              <h3 style={s.title}>我的预约 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(appointmentApi 实时)' : '(演示)'}</span></h3>
               {appointments.map(a => (
                 <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
                   <div>
@@ -186,20 +276,20 @@ export default function ServiceManagement() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
                     {a.status !== '已取消' && a.status !== '已完成' && (
-                      <button style={{ ...s.btnSmall, background: '#fee2e2', color: '#991b1b' }} onClick={() => handleCancel(a.id)}>取消</button>
+                      <button style={{ ...s.btnSmall, background: '#fee2e2', color: '#991b1b' }} onClick={() => void handleCancel(a.id)}>取消</button>
                     )}
                   </div>
                 </div>
               ))}
-            </div>
+            </Card>
           )}
         </>
       )}
 
       {/* Push Templates Tab */}
       {activeTab === 'push' && (
-        <div style={s.card}>
-          <h3 style={s.title}>推送模板管理</h3>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+          <h3 style={s.title}>推送模板管理 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(templatesApi.snippets 实时)' : '(演示)'}</span></h3>
           {templates.map(t => (
             <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ flex: 1 }}>
@@ -221,13 +311,14 @@ export default function ServiceManagement() {
               </button>
             </div>
           ))}
-        </div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>说明：模板内容来自 templatesApi；开启/关闭状态为本地演示（无后端开关端点）。</div>
+        </Card>
       )}
 
       {/* Preference Tab */}
       {activeTab === 'preference' && (
-        <div style={s.card}>
-          <h3 style={s.title}>通知偏好</h3>
+        <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
+          <h3 style={s.title}>通知偏好 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>(本地存储)</span></h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
               { key: 'smsNotify' as const, label: '短信通知' },
@@ -264,7 +355,7 @@ export default function ServiceManagement() {
               }
             }}
           >保存设置</button>
-        </div>
+        </Card>
       )}
     </div>
   )

@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
 import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { ChartContainer } from '../../components/charts'
 import { oeeApi } from '../../services/api';
 import type { OeeDeviceMetric, OeePoint, OeeDeviceDetail, OeeStats } from '../../services/api';
 
@@ -178,7 +179,7 @@ export const OEEDashboardPage: React.FC = () => {
             {trendData.length === 0 ? (
               <Empty description="暂无趋势数据" style={{ padding: 40 }} />
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ChartContainer height={260}>
                 <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" fontSize={12} />
@@ -189,7 +190,7 @@ export const OEEDashboardPage: React.FC = () => {
                   <Line type="monotone" dataKey="performance" stroke={COLORS.yellow} name="性能" strokeWidth={1.5} dot={false} />
                   <Line type="monotone" dataKey="quality" stroke="#722ed1" name="质量" strokeWidth={1.5} dot={false} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             )}
           </Card>
         </Col>
@@ -198,14 +199,14 @@ export const OEEDashboardPage: React.FC = () => {
             {causeData.length === 0 ? (
               <Empty description="暂无原因数据" style={{ padding: 40 }} />
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ChartContainer height={260}>
                 <PieChart>
                   <Pie data={causeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
                     {causeData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Tooltip />
                 </PieChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             )}
           </Card>
         </Col>

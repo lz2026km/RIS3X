@@ -39,7 +39,7 @@ export default function DeviceDAPComparisonChart() {
     payload?: TooltipPayload[];
   }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const data = payload[0]!.payload;
       return (
         <div
           style={{
@@ -109,6 +109,14 @@ export default function DeviceDAPComparisonChart() {
             今日DAP vs 法规阈值 vs 设备平均值
           </div>
         </div>
+        <span
+          style={{
+            fontSize: 11, color: "#b45309", background: "#fef3c7",
+            border: "1px solid #fcd34d", borderRadius: 10, padding: "2px 10px",
+          }}
+        >
+          演示数据 · 未接入接口
+        </span>
         <div style={{ display: "flex", gap: 12 }}>
           <Legend color="#3b82f6" label="今日DAP" />
           <Legend color="#94a3b8" label="平均DAP" />

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { Target, CheckCircle, TrendingUp, BarChart3, AlertTriangle, Plus } from 'lucide-react'
 import { getPatientSafetyGoals, createPatientSafetyGoal, type PatientSafetyGoal } from '../../services/api/safetyApi'
+import { ChartContainer } from '../../components/charts'
 
 const CATEGORIES = ['身份识别', '手术安全', '用药安全', '危急值管理', '患者安全', '感染控制', '辐射安全', '服务品质']
 const STATUS_CONFIG = {
@@ -104,7 +105,7 @@ export default function PatientSafetyGoalsPage() {
               <div style={{ fontSize: 36, fontWeight: 700, color: overallProgress >= 80 ? '#22c55e' : overallProgress >= 60 ? '#f59e0b' : '#ef4444' }}>{overallProgress}%</div>
               <div style={{ fontSize: 12, color: '#8b949e' }}>整体达标率</div>
             </div>
-            <ResponsiveContainer width="100%" height={180}>
+            <ChartContainer height={180} state={progressData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无目标进度数据">
               <BarChart data={progressData.slice(0, 6)} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -112,13 +113,13 @@ export default function PatientSafetyGoalsPage() {
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="progress" fill="#3b82f6" radius={[0, 4, 4, 0]} name="完成度(%)" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart3 size={16} color="#22c55e" />各类别推进情况
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={categoryCompData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无类别推进数据">
               <BarChart data={categoryCompData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="category" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -128,7 +129,7 @@ export default function PatientSafetyGoalsPage() {
                 <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="达标" stackId="a" />
                 <Bar dataKey="failed" fill="#ef4444" radius={[4, 4, 0, 0]} name="未达标" stackId="a" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
 

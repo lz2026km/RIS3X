@@ -32,12 +32,12 @@ import {
   Legend,
   Line,
   LineChart,
-  ResponsiveContainer,
   Tooltip as ReTooltip,
   XAxis,
   YAxis,
 } from 'recharts'
 import { biApi } from '../../services/api/biApi'
+import { ChartContainer } from '../../components/charts'
 import type {
   CriticalSlaDto,
   DeviceOeeDto,
@@ -379,7 +379,7 @@ export default function DeptDashboardPage() {
               }
             >
               {timelinessChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
+                <ChartContainer height={220}>
                   <BarChart data={timelinessChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
@@ -399,7 +399,7 @@ export default function DeptDashboardPage() {
                           />
                         ))}
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               ) : (
                 <Text type="secondary">暂无数据</Text>
               )}
@@ -408,7 +408,7 @@ export default function DeptDashboardPage() {
 
           <Col xs={24} lg={14}>
             <Card title="医生工作量 (报告数 / RVU)">
-              <ResponsiveContainer width="100%" height={160}>
+              <ChartContainer height={160} state={state.rvu.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无工作量数据">
                 <BarChart data={state.rvu}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="doctorName" />
@@ -418,7 +418,7 @@ export default function DeptDashboardPage() {
                   <Bar dataKey="reportCount" name="报告数" fill="#2563eb" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <Table
                 rowKey="doctorName"
                 columns={rvuColumns}
@@ -459,7 +459,7 @@ export default function DeptDashboardPage() {
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   全院日均 OEE 趋势
                 </Text>
-                <ResponsiveContainer width="100%" height={160}>
+                <ChartContainer height={160} state={state.oeeTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无OEE趋势数据">
                   <LineChart data={state.oeeTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tick={{ fontSize: 11 }} />
@@ -467,7 +467,7 @@ export default function DeptDashboardPage() {
                     <ReTooltip />
                     <Line type="monotone" dataKey="oee" name="OEE %" stroke="#722ed1" dot={false} />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </Card>
           </Col>
@@ -501,7 +501,7 @@ export default function DeptDashboardPage() {
                 </Col>
               </Row>
               <div style={{ marginTop: 12, height: 150 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={150} state={(state.sla?.distribution ?? []).length === 0 ? 'empty' : 'ready'} emptyDescription="暂无SLA分布数据">
                   <BarChart data={state.sla?.distribution ?? []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="bucket" tick={{ fontSize: 10 }} />
@@ -509,7 +509,7 @@ export default function DeptDashboardPage() {
                     <ReTooltip />
                     <Bar dataKey="count" name="例数" fill="#fa8c16" radius={[4, 4, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               {state.sla && state.sla.overdue.length > 0 && (
                 <div style={{ marginTop: 12 }}>
@@ -548,7 +548,7 @@ export default function DeptDashboardPage() {
                 />
               }
             >
-              <ResponsiveContainer width="100%" height={280}>
+              <ChartContainer height={280} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无指标趋势数据">
                 <LineChart data={trendChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
@@ -558,7 +558,7 @@ export default function DeptDashboardPage() {
                   <Line type="monotone" dataKey="检查量" stroke="#2563eb" dot={false} />
                   <Line type="monotone" dataKey="报告量" stroke="#52c41a" dot={false} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ marginTop: 8, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
                 <Tooltip title="按时完成的报告占比">
                   <Tag color="blue" style={{ cursor: 'pointer' }}>

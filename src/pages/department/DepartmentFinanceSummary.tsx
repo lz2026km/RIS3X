@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { BarChart3, TrendingUp, TrendingDown, Minus, Eye, Award } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   LineChart, Line, Legend,
 } from "recharts";
+import { ChartContainer } from "../../components/charts";
 
 const C = {
   primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
@@ -82,27 +83,27 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             </div>
           </div>
           <div style={panelBodyStyle}>
-            <div style={{ height: 200, marginBottom: 24 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>个人报告数量</div>
-              <ResponsiveContainer width="100%" height="85%">
-                <BarChart data={PERFORMANCE_DATA}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} /><Tooltip />
-                  <Bar dataKey="written" name="书写" fill={C.primary} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="reviewed" name="审核" fill={C.accent} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+              <div style={{ height: 200, marginBottom: 24 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>个人报告数量</div>
+                <ChartContainer height={170} state={PERFORMANCE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无报告数量数据">
+                  <BarChart data={PERFORMANCE_DATA}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} /><Tooltip />
+                    <Bar dataKey="written" name="书写" fill={C.primary} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="reviewed" name="审核" fill={C.accent} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
             <div style={{ height: 180 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>阳性率趋势</div>
-              <ResponsiveContainer width="100%" height="80%">
+              <ChartContainer height={144} state={POSITIVE_RATE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无阳性率数据">
                 <LineChart data={POSITIVE_RATE_DATA}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={[0, 60]} />
                   <Tooltip formatter={(v) => `${v}%`} />
                   <Line type="monotone" dataKey="rate" stroke={C.warning} strokeWidth={2} dot={{ fill: C.warning, r: 4 }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         </div>
@@ -122,7 +123,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>质控评分</div>
               <div style={{ height: 150 }}>
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer height={150} state={QUALITY_SCORE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无质控评分数据">
                   <BarChart data={QUALITY_SCORE_DATA} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis type="number" domain={[90, 100]} tick={{ fontSize: 12 }} />
@@ -130,7 +131,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                     <Tooltip formatter={(v) => `${v}分`} />
                     <Bar dataKey="score" fill={C.success} radius={[0, 4, 4, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
           </div>
@@ -175,7 +176,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             </div>
           </div>
           {kpiView === "charts" && (
-            <ResponsiveContainer width="100%" height={260}>
+            <ChartContainer height={260} state={KPI_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无KPI趋势数据">
               <LineChart data={KPI_TREND_DATA}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -187,7 +188,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                 <Line yAxisId="right" type="monotone" dataKey="quality" name="质控评分" stroke={C.success} strokeWidth={2} dot={{ r: 4 }} />
                 <Line yAxisId="right" type="monotone" dataKey="satisfaction" name="满意度(%)" stroke={C.warning} strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           )}
           {kpiView === "cards" && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>

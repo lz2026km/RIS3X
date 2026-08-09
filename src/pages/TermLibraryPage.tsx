@@ -644,7 +644,7 @@ export default function TermLibraryPage() {
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>提取术语</th>
@@ -682,7 +682,7 @@ export default function TermLibraryPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         </div>
       </div>
     </div>
@@ -711,7 +711,7 @@ export default function TermLibraryPage() {
           </select>
         </div>
         <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>中文</th>
@@ -744,7 +744,7 @@ export default function TermLibraryPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         </div>
         <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证</div>
       </div>
@@ -1050,7 +1050,7 @@ export default function TermLibraryPage() {
               </div>
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
+                  <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
                     <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                       {['代码', '标准检查名称', '常用别名', '科室', '检查子类', '报告模板', '状态'].map((h, i) => (
                         <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
@@ -1079,7 +1079,7 @@ export default function TermLibraryPage() {
                         )
                       })}
                     </tbody>
-                  </table>
+                  </table></div>
                 </div>
                 <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
                   <span style={{ fontSize: 12, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredWsStandards.length}</strong> 条标准，已对照 <strong style={{ color: '#16a34a' }}>{WS_STANDARDS.filter(w => mappedWsCodes.has(w.code)).length}</strong> 条</span>
@@ -1201,7 +1201,7 @@ export default function TermLibraryPage() {
                   </div>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
+                  <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
                     <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                       {['词条ID', '词条内容', '类别', '设备类型', '使用次数', '最近使用', '标准对照', '操作'].map((h, i) => (
                         <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
@@ -1238,7 +1238,7 @@ export default function TermLibraryPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 </div>
                 <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
                   <span style={{ fontSize: 12, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong> 条词条，已对照标准 <strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong> 条</span>

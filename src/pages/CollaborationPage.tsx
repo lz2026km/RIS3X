@@ -3,7 +3,7 @@
 // Phase R3：在线用户 / 光标位置 / 选区高亮 / @提醒 / 评论批注
 // ============================================================
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Users, MessageSquare, Send, AtSign, CheckCircle2, Reply,
   Edit2, Activity, Wifi, Clock, UserCheck, UserX,
@@ -17,6 +17,15 @@ import {
   type CollabComment,
   type CollabActivity,
 } from '../data/reviewRevisionCollabMock';
+import { consultationApi } from '../services/api/consultationApi';
+
+// 评论者颜色 (按名称稳定派生)
+function colorOf(name: string): string {
+  const palette = ['#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7', '#3b82f6', '#be185d'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length] ?? '#7c3aed';
+}
 
 // ============================================================
 // 状态配置
@@ -53,11 +62,14 @@ const MOCK_REPORT_CONTENT = {
 // 主组件
 // ============================================================
 export default function CollaborationPage() {
-  // 当前选中的报告
+  // [W2-A] 会诊列表/评论接 consultationApi 真实 (失败回退演示数据)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [consultations, setConsultations] = useState<Array<{ id: string; label: string; reportId: string }>>([]);
+  // 当前选中的报告 (演示默认 rpt-013 / 真实为会诊 ID)
   const [selectedReportId, setSelectedReportId] = useState<string>('rpt-013');
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
-  // 在线用户
+  // 在线用户 (演示)
   const [users] = useState<CollabUser[]>(COLLAB_USERS);
   // 评论
   const [comments, setComments] = useState<CollabComment[]>(COLLAB_COMMENTS);
@@ -72,7 +84,70 @@ export default function CollaborationPage() {
   // 自动滚动
   const [autoScroll, setAutoScroll] = useState(true);
   // 当前用户
-  const currentUser = users[0]; // 张明远
+  const currentUser = users[0]!; // 张明远
+
+  const loadComments = useCallback(async (consultationId: string) => {
+    try {
+      const res = await consultationApi.listComments(consultationId);
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setComments(res.data.map((c: any) => ({
+          id: c.id,
+          reportId: consultationId,
+          authorId: c.author,
+          authorName: c.author,
+          authorColor: colorOf(String(c.author)),
+          content: String(c.content || ''),
+          fieldRef: undefined,
+          position: { x: 200, y: 200 },
+          resolved: false,
+          parentId: c.parentId,
+          mentions: [],
+          createdAt: String(c.createdAt || '').replace('T', ' ').slice(0, 19),
+        })));
+      } else {
+        setComments([]);
+      }
+    } catch {
+      setComments([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await consultationApi.list();
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (list.length > 0) {
+          const opts = list.map((c: any) => ({
+            id: c.id,
+            label: `${c.patientName ?? '未知患者'}（${c.modality ?? ''}${c.bodyPart ? '·' + c.bodyPart : ''}）`,
+            reportId: c.id,
+          }));
+          setConsultations(opts);
+          setSelectedReportId(opts[0]!.id);
+          if (!cancelled) setSource('api');
+        } else {
+          setSource('demo');
+        }
+      } catch (e) {
+        setSource('demo');
+        setError(e instanceof Error ? e.message : '会诊加载失败，已回退演示数据');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (source === 'api' && selectedReportId.startsWith('CMT') === false) {
+      void loadComments(selectedReportId);
+    }
+  }, [selectedReportId, source, loadComments]);
 
   // 过滤当前报告的评论
   const reportComments = useMemo(() => {
@@ -116,10 +191,21 @@ export default function CollaborationPage() {
     return () => clearInterval(interval);
   }, [reportOnlineUsers]);
 
-  // 提交评论
-  const handleSubmitComment = () => {
+  // 提交评论: API 源 → consultationApi.addComment; 演示源 → 本地追加
+  const handleSubmitComment = async () => {
     if (!newComment.trim()) return;
-    const mentions = Array.from(newComment.matchAll(/@(\S+)/g)).map(m => m[1]);
+    const mentions = Array.from(newComment.matchAll(/@(\S+)/g)).map(m => m[1] ?? '');
+    if (source === 'api') {
+      try {
+        await consultationApi.addComment(selectedReportId, currentUser.name, newComment.trim());
+        setNewComment('');
+        await loadComments(selectedReportId);
+        return;
+      } catch (e) {
+        window.alert?.('评论发送失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        return;
+      }
+    }
     const newC: CollabComment = {
       id: `cmt-${Date.now()}`,
       reportId: selectedReportId,
@@ -143,7 +229,7 @@ export default function CollaborationPage() {
   };
 
   if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (users.length === 0) {
     return (
       <div data-testid="collab-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
@@ -173,6 +259,13 @@ export default function CollaborationPage() {
             </div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
               实时同步 · 光标位置 · 选区高亮 · @提醒 · 评论批注
+              <span style={{
+                fontSize: 11, padding: '1px 8px', borderRadius: 10, marginLeft: 8,
+                background: source === 'api' ? 'rgba(34,197,94,0.35)' : 'rgba(245,158,11,0.35)',
+                color: '#fff', border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
+              }}>
+                {source === 'api' ? '数据源: consultationApi 实时 (列表/评论)' : '演示数据(评论接口不可用)'}
+              </span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -184,8 +277,14 @@ export default function CollaborationPage() {
                 borderRadius: 4, fontSize: 12, color: '#1e293b', background: 'rgba(255,255,255,0.95)',
               }}
             >
-              <option value="rpt-013">RP20260604013 黄海涛（胸部CT）</option>
-              <option value="rpt-018">RP20260603018 韩雪梅（乳腺钼靶）</option>
+              {consultations.length > 0 ? consultations.map(c => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              )) : (
+                <>
+                  <option value="rpt-013">RP20260604013 黄海涛（胸部CT）</option>
+                  <option value="rpt-018">RP20260603018 韩雪梅（乳腺钼靶）</option>
+                </>
+              )}
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
               <Wifi size={12} />
@@ -231,7 +330,7 @@ export default function CollaborationPage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FileText size={14} /> 报告正文（实时协同）
+                <FileText size={14} /> 报告正文（实时协同） <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {(['findings', 'diagnosis', 'impression'] as const).map(f => (

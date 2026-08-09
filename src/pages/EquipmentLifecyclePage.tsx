@@ -5,6 +5,7 @@ import {
   X, Trash2, Download, Edit, CheckCircle, Clock, XCircle
 } from 'lucide-react'
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
+import { Card } from 'antd'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -36,12 +37,12 @@ const maintenanceRecords = [
 // ===== 样式 =====
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 32 },
-  title: { fontSize: 22, fontWeight: 700, color: '#1a3a5c', marginBottom: 24 },
+  title: { fontSize: 22, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 24 },
   // 统计卡片区
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginBottom: 24 },
   statCard: { background: '#fff', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
   statLabel: { fontSize: 13, color: '#64748b', marginBottom: 8 },
-  statValue: { fontSize: 28, fontWeight: 700, color: '#1a3a5c' },
+  statValue: { fontSize: 28, fontWeight: 700, color: 'var(--color-primary-800)' },
   statSub: { fontSize: 12, color: '#94a3b8', marginTop: 4 },
   statGreen: { color: '#16a34a' },
   statOrange: { color: '#d97706' },
@@ -53,7 +54,7 @@ const s: Record<string, React.CSSProperties> = {
   searchInput: { border: 'none', outline: 'none', fontSize: 15, flex: 1, background: 'transparent' },
   select: { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 14, outline: 'none' },
   btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
-  btnPrimary: { background: '#1a3a5c', color: '#fff' },
+  btnPrimary: { background: 'var(--color-primary-700)', color: '#fff' },
   btnSuccess: { background: '#16a34a', color: '#fff' },
   btnWarning: { background: '#d97706', color: '#fff' },
   btnDanger: { background: '#dc2626', color: '#fff' },
@@ -72,26 +73,26 @@ const s: Record<string, React.CSSProperties> = {
   // 详情弹窗
   modal: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   modalContent: { background: '#fff', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
-  modalTitle: { fontSize: 18, fontWeight: 700, color: '#1a3a5c', marginBottom: 20 },
+  modalTitle: { fontSize: 18, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 20 },
   detailGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 },
   detailItem: { padding: '10px 14px', background: '#f8fafc', borderRadius: 8 },
   detailLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
-  detailValue: { fontSize: 15, fontWeight: 600, color: '#1a3a5c' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' },
+  detailValue: { fontSize: 15, fontWeight: 600, color: 'var(--color-primary-800)' },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' },
   progressBar: { height: 8, borderRadius: 4, background: '#e2e8f0', overflow: 'hidden', marginTop: 6 },
   progressFill: { height: '100%', borderRadius: 4, transition: 'width 0.5s' },
   costRow: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 14 },
   // 维保计划
   maintAlert: { background: '#fff', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: 24 },
-  alertTitle: { fontSize: 16, fontWeight: 700, color: '#1a3a5c', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 },
+  alertTitle: { fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 },
   alertGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   alertCard: { padding: '14px 16px', borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  alertName: { fontSize: 14, fontWeight: 600, color: '#1a3a5c' },
+  alertName: { fontSize: 14, fontWeight: 600, color: 'var(--color-primary-800)' },
   alertDate: { fontSize: 12, color: '#dc2626', fontWeight: 600, marginTop: 4 },
   // 标签页
   tabs: { display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid #e2e8f0' },
   tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 15, fontWeight: 600, color: '#64748b', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
-  tabActive: { color: '#1a3a5c', borderBottomColor: '#1a3a5c' },
+  tabActive: { color: 'var(--color-primary-800)', borderBottomColor: 'var(--color-primary-800)' },
   empty: { textAlign: 'center' as const, padding: 40, color: '#94a3b8', fontSize: 15 },
 }
 
@@ -169,36 +170,36 @@ export default function EquipmentLifecyclePage() {
         <>
           {/* 统计卡片 */}
           <div style={s.statsGrid}>
-            <div style={s.statCard}>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>设备总数</div>
               <div style={s.statValue}>{mockDevices.length}</div>
               <div style={s.statSub}>在用 {mockDevices.filter(d => d.status === '在用').length} 台</div>
-            </div>
-            <div style={s.statCard}>
+            </Card>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>在用设备</div>
               <div style={{ ...s.statValue, ...s.statGreen }}>{mockDevices.filter(d => d.status === '在用').length}</div>
               <div style={s.statSub}>使用率 78%</div>
-            </div>
-            <div style={s.statCard}>
+            </Card>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>维保中</div>
               <div style={{ ...s.statValue, ...s.statOrange }}>{mockDevices.filter(d => d.status === '维保中').length}</div>
               <div style={s.statSub}>含故障处理</div>
-            </div>
-            <div style={s.statCard}>
+            </Card>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>到期预警</div>
               <div style={{ ...s.statValue, ...s.statRed }}>{soonExpire.length}</div>
               <div style={s.statSub}>30天内维保到期</div>
-            </div>
-            <div style={s.statCard}>
+            </Card>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>资产总值</div>
               <div style={s.statValue}>{Math.round(totalValue / 10000)}万</div>
               <div style={s.statSub}>设备累计折旧</div>
-            </div>
+            </Card>
           </div>
 
           {/* 维保到期提醒 */}
           {soonExpire.length > 0 && (
-            <div style={s.maintAlert}>
+            <Card bordered={false} style={s.maintAlert} styles={{ body: { padding: 0 } }}>
               <div style={s.alertTitle}>
                 <AlertTriangle size={18} color="#d97706" />
                 维保到期提醒 — {soonExpire.length} 台设备将在30天内到期
@@ -223,7 +224,7 @@ export default function EquipmentLifecyclePage() {
                   )
                 })}
               </div>
-            </div>
+            </Card>
           )}
 
           {/* 工具栏 */}
@@ -246,7 +247,7 @@ export default function EquipmentLifecyclePage() {
           </div>
 
           {/* 表格 */}
-          <table style={s.table}>
+          <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
                 {['设备编号', '设备名称', '型号', '使用科室', '状态', '使用次数', '下次维保', '使用率', '操作'].map(h => (
@@ -292,7 +293,7 @@ export default function EquipmentLifecyclePage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </>
       )}
 
@@ -303,7 +304,7 @@ export default function EquipmentLifecyclePage() {
               <Plus size={16} /> 新建维保计划
             </button>
           </div>
-          <div style={{ ...s.maintAlert, marginTop: 0 }}>
+          <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }}>
             <div style={s.alertTitle}>
               <Clock size={18} color="#2563eb" />
               未来90天维保日历
@@ -311,7 +312,7 @@ export default function EquipmentLifecyclePage() {
             <div style={{ fontSize: 14, color: '#64748b', marginBottom: 12 }}>
               2026年5月—7月维保计划（共 {mockDevices.filter(d => d.status !== '已报废').length} 台设备需维保）
             </div>
-            <table style={s.table}>
+            <div style={{ overflowX: "auto" }}><table style={s.table}>
               <thead>
                 <tr>
                   {['设备名称', '型号', '维保类型', '计划日期', '距今天数', '服务商', '费用', '操作'].map(h => (
@@ -348,8 +349,8 @@ export default function EquipmentLifecyclePage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </table></div>
+          </Card>
         </div>
       )}
 
@@ -360,7 +361,7 @@ export default function EquipmentLifecyclePage() {
               <Plus size={16} /> 记录维保
             </button>
           </div>
-          <table style={s.table}>
+          <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
                 {['日期', '设备编号', '设备名称', '维保类型', '费用', '服务商', '结果', '操作'].map(h => (
@@ -391,15 +392,15 @@ export default function EquipmentLifecyclePage() {
                 )
               })}
             </tbody>
-          </table>
+          </table></div>
           {/* 成本汇总 */}
-          <div style={{ marginTop: 24, background: '#fff', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}>维保成本汇总</div>
+          <Card bordered={false} style={{ marginTop: 24, background: '#fff', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} styles={{ body: { padding: 0 } }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>维保成本汇总</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
               {[
-                { label: '累计维保费用', value: `¥${maintenanceRecords.filter(r => r.cost > 0).reduce((s, r) => s + r.cost, 0).toLocaleString()}`, color: '#1a3a5c' },
-                { label: '累计配件费用', value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: '#1a3a5c' },
-                { label: '设备总价值', value: `¥${totalValue.toLocaleString()}`, color: '#1a3a5c' },
+                { label: '累计维保费用', value: `¥${maintenanceRecords.filter(r => r.cost > 0).reduce((s, r) => s + r.cost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: '累计配件费用', value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: '设备总价值', value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: '维保费用占设备比', value: `${Math.round(maintenanceRecords.reduce((s, r) => s + r.cost, 0) / totalValue * 100)}%`, color: '#d97706' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, textAlign: 'center' as const }}>
@@ -408,7 +409,7 @@ export default function EquipmentLifecyclePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -464,7 +465,7 @@ export default function EquipmentLifecyclePage() {
               ].map(item => (
                 <div key={item.label} style={{ ...s.detailItem, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={s.detailLabel}>{item.label}</div>
-                  <div style={{ ...s.detailValue, color: item.highlight ? '#dc2626' : '#1a3a5c' }}>{item.value}</div>
+                  <div style={{ ...s.detailValue, color: item.highlight ? '#dc2626' : 'var(--color-primary-800)' }}>{item.value}</div>
                 </div>
               ))}
             </div>

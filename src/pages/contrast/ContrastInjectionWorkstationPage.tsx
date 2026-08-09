@@ -3,6 +3,8 @@ import { Syringe, Play, Monitor, Settings, List } from 'lucide-react'
 import { message } from 'antd'
 import { getInjectionWorkstationService } from '../../services/contrast'
 import type { InjectionProtocol, InjectionRecord, InjectorDeviceStatus } from '../../services/contrast'
+// [W1-B] 注射指令接真实后端 POST /device-mgmt/contrast/injection (失败回退本地演示 startInjection)
+import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
 
 const svc = getInjectionWorkstationService()
 
@@ -16,6 +18,46 @@ export default function ContrastInjectionWorkstationPage() {
   const [egfr, setEgfr] = useState(90)
   const [calculatedParams, setCalculatedParams] = useState<{ volumeMl: number; flowRateMls: number; rationale: string } | null>(null)
   const [showHistory, setShowHistory] = useState(false)
+  const [injecting, setInjecting] = useState(false)
+
+  // [W1-B] 开始注射: 优先 POST /device-mgmt/contrast/injection (真实指令), 失败回退本地演示
+  const handleStartInjection = async () => {
+    const proto = protocols.find(p => p.id === selectedProtocol)
+    if (!proto) return
+    setInjecting(true)
+    try {
+      const res = await deviceMgmtApi.sendInjectionCommand({
+        examId: `E-${Date.now().toString().slice(-8)}`,
+        patientId: 'P-DEMO',
+        patientName: '演示患者',
+        protocolId: proto.id,
+        protocolName: proto.name,
+        contrastType: proto.contrastName,
+        totalVolumeMl: proto.totalVolumeMl,
+        flowRateMls: proto.phases[0]?.flowRateMls ?? 3,
+        operator: 'current-user',
+        weightKg: weight,
+        eGFR: egfr,
+        adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl,
+      })
+      if (res.success) {
+        message.success('注射指令已发送至设备 (POST /device-mgmt/contrast/injection)')
+      } else {
+        throw new Error(res.error?.message ?? '指令下发失败')
+      }
+    } catch (e) {
+      // 演示回退: 本地服务记录一条进行中注射
+      try {
+        await svc.startInjection(`E-${Date.now().toString().slice(-8)}`, proto.id, { weightKg: weight, eGFR: egfr, adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl })
+        setRecords(await svc.getInjectionHistory())
+        message.warning(`后端不可用, 已回退本地演示: ${e instanceof Error ? e.message : '未知错误'}`)
+      } catch {
+        message.error('注射指令发送失败')
+      }
+    } finally {
+      setInjecting(false)
+    }
+  }
 
   useEffect(() => {
     const run = async () => {
@@ -116,8 +158,8 @@ export default function ContrastInjectionWorkstationPage() {
                       </div>
                     ))}
                     {calculatedParams && (
-                      <button onClick={() => { message.success('注射指令已发送'); }} style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                        <Play size={16} />开始注射
+                      <button onClick={() => void handleStartInjection()} disabled={injecting} style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: injecting ? 'wait' : 'pointer', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                        <Play size={16} />{injecting ? '指令发送中...' : '开始注射'}
                       </button>
                     )}
                   </div>

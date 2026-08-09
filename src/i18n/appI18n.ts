@@ -1,5 +1,5 @@
-/**
- * G005 放射RIS系统 v3.0.6.11-82 - 简单 i18n 翻译函数与 locale 切换
+﻿/**
+ * G005 放射RIS系统 v3.0.6.11-83 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-82 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-83 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -189,7 +189,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-82]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-83]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -205,7 +205,7 @@ export const translations: Translations = {
     "nav.doseTrack": "剂量追踪",
     // OEE 看板翻译键
     "oee.title": "设备 OEE 看板",
-    "oee.subtitle": "Overall Equipment Effectiveness",
+    "oee.subtitle": "设备综合效率",
     "oee.today": "今日",
     "oee.week": "本周",
     "oee.month": "本月",
@@ -219,7 +219,7 @@ export const translations: Translations = {
     "oee.deviceList": "设备 OEE 列表",
     "oee.deviceName": "设备名称",
     "oee.model": "型号",
-    "oee.modality": "Modality",
+    "oee.modality": "设备类型",
     "oee.oee": "OEE%",
     "oee.availability": "可用性%",
     "oee.performance": "性能%",
@@ -396,9 +396,9 @@ export const translations: Translations = {
     "dicomSr.selectTemplate": "选择 SR 模板",
     "dicomSr.reportId": "报告 ID",
     "dicomSr.reportIdPlaceholder": "输入报告 ID...",
-    "dicomSr.findings": "影像所见 / Findings",
+    "dicomSr.findings": "影像所见",
     "dicomSr.findingsPlaceholder": "输入影像所见内容...",
-    "dicomSr.impression": "诊断印象 / Impression",
+    "dicomSr.impression": "诊断印象",
     "dicomSr.impressionPlaceholder": "输入诊断印象...",
     "dicomSr.generate": "生成 SR",
     "dicomSr.generating": "正在生成 SR...",
@@ -514,7 +514,7 @@ export const translations: Translations = {
     "qc.compositeScore": "综合评分",
     "qc.imageQuality": "图像质量",
     "qc.reportQuality": "报告质量",
-    "qc.timeliness": "及时性 (Timeliness)",
+    "qc.timeliness": "及时性",
     "qc.criticalReporting": "危急值报告",
     "qc.trend": "趋势",
     "qc.top3Comparison": "TOP3 机构多维对比",
@@ -556,10 +556,10 @@ export const translations: Translations = {
     "qc.status": "状态",
     "qc.score": "评分",
     "qc.reviewCriteria": "评审评分标准",
-    "qc.accuracy": "准确性 (Accuracy)",
-    "qc.completeness": "完整性 (Completeness)",
+    "qc.accuracy": "准确性",
+    "qc.completeness": "完整性",
     "qc.weight": "权重",
-    "qc.kappa": "评分者间信度 (Cohen's Kappa)",
+    "qc.kappa": "评分者间信度",
     "qc.reviewer1": "评审人1",
     "qc.reviewer2": "评审人2",
     "qc.totalCases": "总案例数",
@@ -1062,7 +1062,7 @@ export const translations: Translations = {
     "worklist.viewDetail": "查看详情",
     "worklist.noData": "暂无检查",
     "worklist.loadingApi": "正在从 API 加载检查数据...",
-    "worklist.errorFallback": "{{error}} (已 fallback 到本地 initialData)",
+    "worklist.errorFallback": "{{error}}（已回退到本地数据）",
     "worklist.dicomConnected": "DICOM WL 已连接",
     "worklist.refresh": "刷新列表",
     "worklist.totalExams": "全部检查",
@@ -1169,7 +1169,7 @@ export const translations: Translations = {
     "critical.resolved": "已处理",
     "critical.escalate": "升级",
     "critical.escalatedTo": "升级对象",
-    "critical.categories": "[object Object]",
+    "critical.categories.info": "危急值分类",
 
     // === v3worklist namespace (audit-fix-2026-07-02) ===
     "v3worklist.advancedFilter": "高级筛选",
@@ -1289,9 +1289,9 @@ export const translations: Translations = {
     "v3report.imagePreviewArea": "DICOM 图像预览区",
     "v3report.imageDescription": "医学影像",
     "v3report.imageList": "图像列表 ({{count}})",
-    "v3report.reportFindings": "所见 (Findings)",
+    "v3report.reportFindings": "所见",
     "v3report.reportFindingsSummary": "所见要点",
-    "v3report.reportImpression": "印象 (Impression)",
+    "v3report.reportImpression": "印象",
     "v3report.reportAnnotations": "典型征象标注",
     "v3report.discussionAdd": "添加讨论",
     "v3report.discussionPlaceholder": "请输入您的讨论内容...",
@@ -2059,7 +2059,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-82 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-83 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2230,7 +2230,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-82]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-83]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",

@@ -12,6 +12,7 @@ import {
   type CreateComplianceDocInput,
 } from '../../services/api/complianceDocsApi';
 import { invalidateApiCacheByPrefix } from '../../services/api/client';
+import { usePagination } from '../../hooks/usePagination';
 
 const { TextArea } = Input;
 
@@ -42,6 +43,8 @@ export const ComplianceDocsPage: React.FC = () => {
   const [form] = Form.useForm();
 
   const [detail, setDetail] = useState<ComplianceDocDto | null>(null);
+
+  const { pageData: docsPageData, pagination: docsPagination } = usePagination(docs, 10);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -264,8 +267,8 @@ export const ComplianceDocsPage: React.FC = () => {
       <Card>
         <Spin spinning={loading}>
           <Table
-            rowKey="id" columns={columns} dataSource={docs}
-            pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+            rowKey="id" columns={columns} dataSource={docsPageData}
+            pagination={docsPagination}
           scroll={{ x: 'max-content' }}
           />
         </Spin>

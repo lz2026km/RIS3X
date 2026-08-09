@@ -4,9 +4,10 @@ import { Modal, Input, Select, message, Spin } from 'antd'
 import { financeApi, type RevenueAnalysisDto, type CostAccountingDto } from '../../services/api/financeApi'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, PieChart, Pie, Cell,
+  Legend, PieChart, Pie, Cell,
 } from 'recharts'
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download, FileText, Receipt, RefreshCw, Eye, CreditCard } from 'lucide-react'
+import { ChartContainer } from '../../components/charts'
 
 type Period = 'monthly' | 'quarterly' | 'yearly'
 type PageTab = 'overview' | 'invoices' | 'reports'
@@ -288,7 +289,7 @@ export default function DepartmentFinancePage() {
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <TrendingUp size={16} color="#3b82f6" />月度收支趋势
               </div>
-              <ResponsiveContainer width="100%" height={260}>
+              <ChartContainer height={260} state={MONTHLY_REVENUE.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收支趋势数据">
                 <LineChart data={MONTHLY_REVENUE}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -299,14 +300,14 @@ export default function DepartmentFinancePage() {
                   <Line type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} dot={false} name="成本" />
                   <Line type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} dot={false} name="利润" />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
 
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={16} color="#f59e0b" />各检查类型收入分布
               </div>
-              <ResponsiveContainer width="100%" height={260}>
+              <ChartContainer height={260} state={REVENUE_BY_MODALITY.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无类型收入数据">
                 <BarChart data={REVENUE_BY_MODALITY}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -318,7 +319,7 @@ export default function DepartmentFinancePage() {
                     ))}
                   </Bar>
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
 
@@ -328,7 +329,7 @@ export default function DepartmentFinancePage() {
                 <PieIcon size={16} color="#8b5cf6" />成本构成
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-                <ResponsiveContainer width={180} height={180}>
+                <ChartContainer height={180} style={{ width: 180, flexShrink: 0 }}>
                   <PieChart>
                     <Pie data={COST_BREAKDOWN} cx="50%" cy="50%" outerRadius={80} dataKey="amount" nameKey="category" label={({ percent }) => `${(percent).toFixed(0)}%`}>
                       {COST_BREAKDOWN.map((_e, i) => {
@@ -338,7 +339,7 @@ export default function DepartmentFinancePage() {
                     </Pie>
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, '金额']} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div style={{ flex: 1 }}>
                   {COST_BREAKDOWN.map((c, i) => {
                     const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6']
@@ -602,7 +603,7 @@ export default function DepartmentFinancePage() {
                 {trendData.length === 0 ? (
                   <div style={{ padding: 24, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>暂无趋势数据</div>
                 ) : (
-                  <ResponsiveContainer width="100%" height={260}>
+                  <ChartContainer height={260}>
                     <LineChart data={trendData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                       <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -612,7 +613,7 @@ export default function DepartmentFinancePage() {
                       <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name="应收" />
                       <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} dot={false} name="实收" />
                     </LineChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 )}
               </div>
             </>

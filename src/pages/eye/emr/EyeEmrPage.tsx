@@ -94,7 +94,7 @@ const EyeEmrPage: React.FC = () => {
                   ),
                 },
               ]}
-            />
+            scroll={{ x: 'max-content' }} />
           </Card>
         </Col>
         <Col span={18}>
@@ -184,7 +184,7 @@ const EyeEmrPage: React.FC = () => {
                               { title: "OD", render: (_, r) => r.od },
                               { title: "OS", render: (_, r) => r.os },
                             ]}
-                          />
+            scroll={{ x: 'max-content' }} />
                         </Card>
                         <Card
                           size="small"

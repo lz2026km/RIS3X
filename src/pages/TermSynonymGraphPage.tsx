@@ -1,9 +1,10 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.7 - 同义词图谱可视化
 // Phase R7：1000+ 词条 / 7 大分类 / 同义词图谱 / ICD 联动
+// [W2-A] 词条由 termApi.list 真实列表派生 (失败回退演示数据)
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Network, Search } from 'lucide-react';
 import {
   FEATURED_TERMS,
@@ -13,6 +14,19 @@ import {
   type TermCategory,
   type TermEntry,
 } from '../data/knowledgeStatsMock';
+import { termApi } from '../services/api/termApi';
+
+const MSW_CATEGORY_MAP: Record<string, TermCategory> = {
+  finding: 'imaging_sign',
+  morphology: 'imaging_sign',
+  density: 'imaging_sign',
+  anatomy: 'anatomy',
+  disease: 'disease',
+  procedure: 'procedure',
+  modifier: 'modifier',
+  measurement: 'measurement',
+  syndrome: 'syndrome',
+};
 
 // ============================================================
 // 主组件
@@ -22,10 +36,62 @@ export default function TermSynonymGraphPage() {
   const [filterCategory, setFilterCategory] = useState<TermCategory | 'all'>('all');
   const [selectedTermId, setSelectedTermId] = useState<string | null>('t-001');
   const [graphFocus, setGraphFocus] = useState<string>('t-001');
+  // [W2-A] 词条数据源
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
+  const [terms, setTerms] = useState<TermEntry[]>(FEATURED_TERMS);
+  const [totalCount, setTotalCount] = useState(TOTAL_TERMS_COUNT);
+  const [categoryStats, setCategoryStats] = useState<Record<TermCategory, number>>(TERM_CATEGORY_STATS);
+
+  const loadTerms = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await termApi.list();
+      const list = Array.isArray(res.data) ? res.data : [];
+      if (list.length > 0) {
+        const mapped: TermEntry[] = list.map((t: any, i: number) => ({
+          id: t.id ?? `term-${i}`,
+          term: String(t.term ?? t.name ?? '未命名术语'),
+          pinyin: String(t.pinyin ?? ''),
+          category: MSW_CATEGORY_MAP[String(t.category ?? '')] ?? 'anatomy',
+          modality: Array.isArray(t.modality) ? t.modality : [],
+          bodyPart: Array.isArray(t.bodyPart) ? t.bodyPart : [],
+          definition: String(t.definition ?? t.description ?? ''),
+          synonyms: Array.isArray(t.synonyms) ? t.synonyms : [],
+          relatedTerms: Array.isArray(t.relatedTerms) ? t.relatedTerms : [],
+          icd10: t.icd10 ? String(t.icd10) : undefined,
+          snomed: t.snomed ? String(t.snomed) : undefined,
+          usageCount: Number(t.usageCount ?? t.usage ?? 0),
+        }));
+        if (mapped.length > 0) {
+          setTerms(mapped);
+          setSelectedTermId(mapped[0]?.id ?? 't-001');
+          setGraphFocus(mapped[0]?.id ?? 't-001');
+          setTotalCount(mapped.length);
+          const stats = { ...TERM_CATEGORY_STATS } as Record<TermCategory, number>;
+          for (const c of TERM_CATEGORIES) stats[c.key] = mapped.filter(m => m.category === c.key).length;
+          setCategoryStats(stats);
+          setSource('api');
+        }
+      } else {
+        setSource('demo');
+        setApiError('termApi 暂不可用，当前展示内置演示词条');
+      }
+    } catch (e) {
+      setSource('demo');
+      setApiError(e instanceof Error ? e.message : '词条加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadTerms(); }, [loadTerms]);
 
   // 过滤
   const filteredTerms = useMemo(() => {
-    return FEATURED_TERMS.filter(t => {
+    return terms.filter(t => {
       if (filterCategory !== 'all' && t.category !== filterCategory) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -35,10 +101,10 @@ export default function TermSynonymGraphPage() {
       }
       return true;
     });
-  }, [search, filterCategory]);
+  }, [terms, search, filterCategory]);
 
-  const selected = FEATURED_TERMS.find(t => t.id === selectedTermId);
-  const focusTerm = FEATURED_TERMS.find(t => t.id === graphFocus) || FEATURED_TERMS[0];
+  const selected = terms.find(t => t.id === selectedTermId);
+  const focusTerm = terms.find(t => t.id === graphFocus) ?? terms[0] ?? FEATURED_TERMS[0];
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -48,9 +114,19 @@ export default function TermSynonymGraphPage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Network size={20} color="#7c3aed" /> 同义词图谱
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{
+              fontSize: 11, padding: '2px 8px', borderRadius: 10,
+              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              color: source === 'api' ? '#16a34a' : '#92400e',
+              border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+              fontWeight: 500,
+            }}>
+              {loading ? '同步中...' : source === 'api' ? '数据源: termApi 实时' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
-            {TOTAL_TERMS_COUNT} 词条 · 7 大分类 · 同义词图谱 · ICD-10 联动 · 拼音首字母搜索
+            {totalCount} 词条 · 7 大分类 · 同义词图谱 · ICD-10 联动 · 拼音首字母搜索
+            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
       </div>
@@ -68,7 +144,7 @@ export default function TermSynonymGraphPage() {
             }}
           >
             <div style={{ fontSize: 12, color: c.color, fontWeight: 700 }}>{c.label}</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{TERM_CATEGORY_STATS[c.key]}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{categoryStats[c.key]}</div>
           </div>
         ))}
       </div>
@@ -115,10 +191,13 @@ export default function TermSynonymGraphPage() {
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>@{t.pinyin} · {t.usageCount} 次</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>@{t.pinyin || '—'} · {t.usageCount} 次</div>
                 </div>
               );
             })}
+            {filteredTerms.length === 0 && (
+              <div style={{ padding: 30, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无匹配词条</div>
+            )}
           </div>
         </div>
 
@@ -135,11 +214,13 @@ export default function TermSynonymGraphPage() {
                 onChange={e => setGraphFocus(e.target.value)}
                 style={{ padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 12 }}
               >
-                {FEATURED_TERMS.map(t => <option key={t.id} value={t.id}>{t.term}</option>)}
+                {terms.map(t => <option key={t.id} value={t.id}>{t.term}</option>)}
               </select>
             </div>
           </div>
-          <SynonymGraph focusTerm={focusTerm} />
+          {focusTerm ? <SynonymGraph focusTerm={focusTerm} /> : (
+            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无词条</div>
+          )}
         </div>
 
         {/* 右：详情 */}
@@ -149,7 +230,7 @@ export default function TermSynonymGraphPage() {
               📚 标准术语详情
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selected.term}</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>@{selected.pinyin}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>@{selected.pinyin || '—'}</div>
 
             {selected.abbreviation && (
               <div style={{ marginBottom: 8, padding: 6, background: '#dbeafe', borderRadius: 4, fontSize: 12 }}>
@@ -159,7 +240,7 @@ export default function TermSynonymGraphPage() {
             )}
 
             <div style={{ marginBottom: 8, padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#1e293b', lineHeight: 1.6 }}>
-              <strong style={{ color: '#1e40af' }}>定义：</strong> {selected.definition}
+              <strong style={{ color: '#1e40af' }}>定义：</strong> {selected.definition || '—'}
             </div>
 
             {selected.exampleSentence && (

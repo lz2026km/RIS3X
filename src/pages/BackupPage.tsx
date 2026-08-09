@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
 import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
 import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { usePagination } from '../hooks/usePagination'
 
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
@@ -10,6 +11,7 @@ export default function BackupPage() {
   const [autoBackup, _setAutoBackup] = useState(true)
   const [schedule, _setSchedule] = useState('0 2 * * *')
   const [backupType, setBackupType] = useState<string | undefined>(undefined)
+  const { pageData, pagination } = usePagination(list, 10)
 
   const fetchList = async () => {
     setLoading(true)
@@ -114,7 +116,7 @@ export default function BackupPage() {
               key: 'list',
               label: <span><ClockCircleOutlined /> 备份记录</span>,
               children: (
-                <Table dataSource={list} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }} size="small" scroll={{ x: 'max-content' }}/>
+                <Table dataSource={pageData} columns={columns} rowKey="id" loading={loading} pagination={pagination} size="small" scroll={{ x: 'max-content' }}/>
               ),
             },
             {

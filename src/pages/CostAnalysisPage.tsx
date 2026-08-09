@@ -9,10 +9,11 @@ import {
 } from 'lucide-react'
 import {
   BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, LineChart, Line
+  LineChart, Line
 } from 'recharts'
 import { financeApi } from '../services/api/financeApi'
 import { statsApi } from '../services/api/statsApi'
+import { ChartContainer } from '../components/charts'
 import { CostFilter, CostOverview } from './cost'
 import { CostCard, SimplePieChart, SimpleBarChart, SimpleHorizontalBarChart } from './cost/CostChart'
 import {
@@ -629,7 +630,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 本院费用 vs 全国平均</div>
-            <ResponsiveContainer width="100%" height={280}>
+            <ChartContainer height={280} state={DRG_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无DRG对比数据">
               <ChartBar data={DRG_DATA.map(d => ({ name: d.code.slice(0, 7), 本院费用: d.cost / 10000, 全国平均: d.nationalAvgCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -639,7 +640,7 @@ export default function CostAnalysisPage() {
                 <Bar dataKey="本院费用" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="全国平均" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </ChartBar>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
@@ -704,7 +705,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度收支趋势</div>
-            <ResponsiveContainer width="100%" height={280}>
+            <ChartContainer height={280} state={BREAK_EVEN_DATA.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收支趋势数据">
               <ChartBar data={BREAK_EVEN_DATA.monthlyTrend.map(m => ({ month: m.month.slice(5), CT收入: m.ctRevenue / 10000, CT成本: m.ctCost / 10000, MR收入: m.mrRevenue / 10000, MR成本: m.mrCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -716,7 +717,7 @@ export default function CostAnalysisPage() {
                 <Bar dataKey="MR收入" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="MR成本" fill="#f59e0b" radius={[4, 4, 0, 0]} />
               </ChartBar>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
       )}
@@ -737,7 +738,7 @@ export default function CostAnalysisPage() {
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 支付方趋势(万元)</div>
-              <ResponsiveContainer width="100%" height={220}>
+              <ChartContainer height={220} state={INSURANCE_ALLOCATION.monthlyTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无支付方趋势数据">
                 <LineChart data={INSURANCE_ALLOCATION.monthlyTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: string) => v.slice(5)} />
@@ -748,7 +749,7 @@ export default function CostAnalysisPage() {
                   <Line type="monotone" dataKey="commercial" name="商保" stroke="#059669" strokeWidth={2} />
                   <Line type="monotone" dataKey="selfPay" name="自费" stroke="#d97706" strokeWidth={2} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         </div>
@@ -765,7 +766,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度预算 vs 实际</div>
-            <ResponsiveContainer width="100%" height={260}>
+            <ChartContainer height={260} state={BUDGET_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无预算数据">
               <ChartBar data={BUDGET_DATA.monthly.map(m => ({ month: m.month.slice(5), 预算: m.budget / 10000, 实际: m.actual / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -775,7 +776,7 @@ export default function CostAnalysisPage() {
                 <Bar dataKey="预算" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="实际" fill="#f59e0b" radius={[4, 4, 0, 0]} />
               </ChartBar>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -845,7 +846,7 @@ export default function CostAnalysisPage() {
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度损益趋势</div>
-              <ResponsiveContainer width="100%" height={280}>
+              <ChartContainer height={280} state={PL_DATA.monthly.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无损益趋势数据">
                 <ChartBar data={PL_DATA.monthly.map(m => ({ month: m.month.slice(5), 收入: m.revenue / 10000, 成本: m.cost / 10000, 毛利: m.grossProfit / 10000, 净利: m.netIncome / 10000 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -857,7 +858,7 @@ export default function CostAnalysisPage() {
                   <Bar dataKey="毛利" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="净利" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </ChartBar>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           </div>
         </div>

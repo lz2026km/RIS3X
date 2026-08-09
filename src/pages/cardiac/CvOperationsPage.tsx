@@ -34,7 +34,7 @@ type Protocol = {
 const PROTOCOLS: Protocol[] = [
   { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: '稳定性胸痛，疑似冠心病', activeCases: 4, lastUsed: '2026-06-16' },
   { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: '胸痛，排除 ACS', activeCases: 1, lastUsed: '2026-06-15' },
-  { id: 'P3', name: 'CMR - Cardiomyopathy', modality: 'CMR', indication: '扩张型/HCM/ARVC 检查', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P3', name: '心肌病', modality: 'CMR', indication: '扩张型/HCM/ARVC 检查', activeCases: 3, lastUsed: '2026-06-16' },
   { id: 'P4', name: 'CMR - Viability', modality: 'CMR', indication: '已知 CAD，既往心梗', activeCases: 2, lastUsed: '2026-06-14' },
   { id: 'P5', name: 'CMR - Myocarditis', modality: 'CMR', indication: '疑似心肌炎，肌钙蛋白升高', activeCases: 1, lastUsed: '2026-06-13' },
   { id: 'P6', name: 'Cath - Stable CAD', modality: 'Cath Lab', indication: '已知 CAD，分期 PCI', activeCases: 3, lastUsed: '2026-06-16' },
@@ -152,7 +152,7 @@ export default function CvOperationsPage() {
       {selectedTab === 'protocols' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 12, color: '#94a3b8' }}>数据源: 演示数据 (后端无 /cardiac/operations 端点)</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>协议</th>
@@ -175,14 +175,14 @@ export default function CvOperationsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 
       {selectedTab === 'workload' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
           <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>心血管医生工作量 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
                 <th style={{ padding: '8px 12px', textAlign: 'left' }}>心血管医生</th>
@@ -222,7 +222,7 @@ export default function CvOperationsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 
@@ -232,7 +232,7 @@ export default function CvOperationsPage() {
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FlaskConical size={16} /> 对比剂库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
             </h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>库存</th><th style={{ padding: '8px', textAlign: 'center' }}>补货点</th></tr></thead>
               <tbody>
                 {[
@@ -248,13 +248,13 @@ export default function CvOperationsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Package size={16} /> 负荷药物库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
             </h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>剂量</th><th style={{ padding: '8px', textAlign: 'center' }}>有效期</th></tr></thead>
               <tbody>
                 {[
@@ -270,7 +270,7 @@ export default function CvOperationsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
       )}

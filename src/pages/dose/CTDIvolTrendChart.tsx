@@ -104,6 +104,14 @@ export default function CTDIvolTrendChart() {
             CT设备7日CTDIvol趋势及法规阈值
           </div>
         </div>
+        <span
+          style={{
+            fontSize: 11, color: "#b45309", background: "#fef3c7",
+            border: "1px solid #fcd34d", borderRadius: 10, padding: "2px 10px",
+          }}
+        >
+          演示数据 · 未接入接口
+        </span>
         <div style={{ display: "flex", gap: 12 }}>
           <LineLegend color="#3b82f6" label="CT-1" />
           <LineLegend color="#8b5cf6" label="CT-2" />

@@ -302,6 +302,10 @@
   --size-sidebar-collapsed: 64px;
   --size-header: 56px;
   --size-footer: 48px;
+
+  /* 侧边栏宽度 (AppLayout 引用) */
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 60px;
   --size-modal-sm: 400px;
   --size-modal-md: 600px;
   --size-modal-lg: 800px;
@@ -610,7 +614,7 @@
 :root,
 [data-theme='light'] {
   --bg-primary: #f8fafc; --bg-secondary: #ffffff; --bg-card: #ffffff;
-  --bg-sidebar: #1a3a5c; --bg-header: #1e293b;
+  --bg-sidebar: var(--color-primary-950); --bg-header: #1e293b;
   --bg-hover: rgba(0, 0, 0, 0.04); --bg-elevated: #ffffff; --bg-deep: #f1f5f9;
   --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8;
   --text-sidebar: #ffffff; --text-header: #f1f5f9; --text-inverse: #ffffff;

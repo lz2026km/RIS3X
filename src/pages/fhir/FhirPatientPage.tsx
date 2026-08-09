@@ -35,7 +35,7 @@ export const FhirPatientPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('Patient 列表加载失败，使用演示数据')
+      message.warning('患者列表加载失败，使用演示数据')
       setPatients([
         { id: 'p1', resourceType: 'Patient', name: [{ family: '张', given: ['三'] }], gender: 'male', birthDate: '1985-06-15' },
         { id: 'p2', resourceType: 'Patient', name: [{ family: '李', given: ['四'] }], gender: 'female', birthDate: '1990-03-22' },
@@ -86,10 +86,10 @@ export const FhirPatientPage: React.FC = () => {
       }
       if (editingPatient?.id) {
         await fhirApi.updatePatient(editingPatient.id, body)
-        message.success('Patient 已更新')
+        message.success('患者已更新')
       } else {
         await fhirApi.createPatient(body)
-        message.success('Patient 已创建')
+        message.success('患者已创建')
       }
       setModalOpen(false)
       fetchPatients(page, search)
@@ -104,7 +104,7 @@ export const FhirPatientPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     const res = await fhirApi.deletePatient(id)
     if (res.success) {
-      message.success('Patient 已删除')
+      message.success('患者已删除')
       fetchPatients(page, search)
     } else {
       message.error('删除失败')
@@ -120,10 +120,10 @@ export const FhirPatientPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedPatient(res.data)
       } else {
-        message.warning(res.error?.message ?? 'Patient 详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? '患者详情加载失败，展示列表数据')
       }
     } catch {
-      message.warning('Patient 详情加载失败，展示列表数据')
+      message.warning('患者详情加载失败，展示列表数据')
     }
     setDetailLoading(false)
   }
@@ -191,7 +191,7 @@ export const FhirPatientPage: React.FC = () => {
         <Space size="small">
           <Button size="small" icon={<Eye size={12} />} onClick={() => handleDetail(r)}>详情</Button>
           <Button size="small" icon={<Edit size={12} />} onClick={() => handleEdit(r)}>编辑</Button>
-          <Popconfirm title="确认删除此 Patient?" onConfirm={() => handleDelete(r.id!)}>
+          <Popconfirm title="确认删除此患者?" onConfirm={() => handleDelete(r.id!)}>
             <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
           </Popconfirm>
         </Space>
@@ -203,7 +203,7 @@ export const FhirPatientPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Users size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Patient 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 患者管理</span>
         <Tag color="blue">FHIR R4</Tag>
         <Tag color="green">CRUD</Tag>
       </Space>
@@ -227,8 +227,8 @@ export const FhirPatientPage: React.FC = () => {
 
       <Card
         size="small"
-        title={`Patient 列表 (${total})`}
-        extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>新建 Patient</Button>}
+        title={`患者列表 (${total})`}
+        extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>新建患者</Button>}
       >
         <Table
           dataSource={patients.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
@@ -243,7 +243,7 @@ export const FhirPatientPage: React.FC = () => {
       </Card>
 
       <Modal
-        title={editingPatient ? '编辑 Patient' : '新建 Patient'}
+        title={editingPatient ? '编辑患者' : '新建患者'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -279,7 +279,7 @@ export const FhirPatientPage: React.FC = () => {
       </Modal>
 
       <Modal
-        title="Patient 详情"
+        title="患者详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={
@@ -290,7 +290,7 @@ export const FhirPatientPage: React.FC = () => {
               loading={everythingLoading}
               onClick={() => selectedPatient && handleEverything(selectedPatient)}
             >
-              360 视图 ($everything)
+               患者 360 视图 ($everything)
             </Button>
             <Button onClick={() => setDetailOpen(false)}>关闭</Button>
           </Space>
@@ -313,7 +313,7 @@ export const FhirPatientPage: React.FC = () => {
       </Modal>
 
       <Modal
-        title="Patient 360 视图 ($everything)"
+        title="患者 360 视图 ($everything)"
         open={everythingOpen}
         onCancel={() => setEverythingOpen(false)}
         footer={<Button onClick={() => setEverythingOpen(false)}>关闭</Button>}

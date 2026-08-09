@@ -7,9 +7,10 @@ import { deviceApi } from '../services/api/deviceApi'
 import { printApi } from '../services/api/printApi'
 import { Printer, Settings, FileText, Film, CheckCircle, XCircle, Search, Plus, X, Eye, Edit2, RefreshCw, Download, BarChart, PieChart, TrendingUp, AlertCircle, Info, Copy, Layers, Box, DollarSign, Monitor, Network, HardDrive, Cog, FileBarChart, ScrollText, Database, Zap, Timer, BarChart2, Activity, Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt, CreditCard, LayoutGrid, SlidersHorizontal, AlertTriangle, ClipboardList, ShieldAlert } from 'lucide-react'
 import {
-  BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   LineChart, Line, PieChart as RePieChart, Pie, Cell, AreaChart, Area
 } from 'recharts'
+import { ChartContainer } from '../components/charts'
 
 // ============================================================
 // 样式常量 - WIN10风格
@@ -1240,7 +1241,7 @@ export default function PrintManagementPage() {
       {/* 打印记录 */}
       <Card title="打印记录" icon={<FileBarChart size={16} />}>
         <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: C.bg }}>
                 <th style={{ padding: '8px 6px', textAlign: 'left', color: C.textMid, fontWeight: 500 }}>患者</th>
@@ -1268,7 +1269,7 @@ export default function PrintManagementPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </Card>
     </div>
@@ -1388,7 +1389,7 @@ export default function PrintManagementPage() {
       {/* 胶片使用量统计 */}
       <Card title="胶片使用量统计" icon={<BarChart2 size={16} />}>
         <div style={{ height: 180 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={180} state={filmUsageStats.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无胶片使用数据">
             <ReBarChart data={filmUsageStats.slice(-7)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -1401,7 +1402,7 @@ export default function PrintManagementPage() {
               <Bar dataKey="films10x12" name="10×12" fill={C.accent} stackId="a" />
               <Bar dataKey="films8x10" name="8×10" fill="#8b5cf6" stackId="a" />
             </ReBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
           {[{ label: '14×17', color: C.primary }, { label: '10×12', color: C.accent }, { label: '8×10', color: '#8b5cf6' }].map(item => (
@@ -1620,7 +1621,7 @@ export default function PrintManagementPage() {
         </div>
 
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
             <thead>
               <tr style={{ background: C.bg }}>
                 {['任务ID', '患者姓名', '检查类型', '胶片规格', '份数', '状态', '提交时间', '完成时间', '操作'].map(header => (
@@ -1710,7 +1711,7 @@ export default function PrintManagementPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </Card>
 
@@ -1768,7 +1769,7 @@ export default function PrintManagementPage() {
       {/* 打印计费 - 打印成本报表 */}
       <Card title="打印成本报表" icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200, marginBottom: 12 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={costReport.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印成本数据">
             <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -1781,7 +1782,7 @@ export default function PrintManagementPage() {
               <Bar dataKey="paperCost" name="纸张成本" fill={C.accent} stackId="a" />
               <Bar dataKey="inkCost" name="油墨成本" fill="#8b5cf6" stackId="a" />
             </ReBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
           {[
@@ -1911,7 +1912,7 @@ export default function PrintManagementPage() {
       {/* 打印机成本分析 */}
       <Card title="每台打印机成本分析" icon={<CreditCard size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: C.bg }}>
                 {['打印机', '胶片用量', '单张成本', '总成本', 'CT室', 'MR室', 'DR室'].map(h => (
@@ -1932,14 +1933,14 @@ export default function PrintManagementPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       </Card>
 
       {/* 月度成本趋势 */}
       <Card title="月度成本趋势" icon={<TrendingUp size={16} />}>
         <div style={{ height: 200 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={MONTHLY_COST_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度成本数据">
             <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -1950,7 +1951,7 @@ export default function PrintManagementPage() {
               <Bar dataKey="dr" name="DR" fill="#059669" stackId="a" />
               <Bar dataKey="other" name="其他" fill="#d97706" stackId="a" />
             </ReBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
           {[{ label: 'CT', color: '#7c3aed' }, { label: 'MR', color: '#2563eb' }, { label: 'DR', color: '#059669' }, { label: '其他', color: '#d97706' }].map(item => (
@@ -2296,7 +2297,7 @@ export default function PrintManagementPage() {
       {/* 打印量趋势 */}
       <Card title="打印量趋势" icon={<TrendingUp size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印趋势数据">
             <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2307,14 +2308,14 @@ export default function PrintManagementPage() {
               />
               <Area type="monotone" dataKey="prints" name="打印张数" stroke={C.primary} fill={C.primaryLighter} />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
 
       {/* 各设备打印量 */}
       <Card title="各设备打印量" icon={<Monitor size={16} />}>
         <div style={{ height: 200 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={devicePrintStats.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备打印数据">
             <ReBarChart data={devicePrintStats} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2325,7 +2326,7 @@ export default function PrintManagementPage() {
               />
               <Bar dataKey="printCount" name="打印次数" fill={C.primary} radius={[4, 4, 0, 0]} />
             </ReBarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
 
@@ -2333,7 +2334,7 @@ export default function PrintManagementPage() {
       <Card title="耗材成本分析" icon={<Box size={16} />}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ height: 200, flex: 1 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer height={200} state={filmDistData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无胶片分布数据">
               <RePieChart>
                 <Pie
                   data={filmDistData}
@@ -2354,7 +2355,7 @@ export default function PrintManagementPage() {
                   formatter={(value: number) => [`${value} 张`, '使用量']}
                 />
               </RePieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
             {CONSUMABLE_COSTS.map(item => (
@@ -2373,7 +2374,7 @@ export default function PrintManagementPage() {
       {/* 打印效率统计 */}
       <Card title="打印效率统计" icon={<Timer size={16} />}>
         <div style={{ height: 200 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={EFFICIENCY_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印效率数据">
             <LineChart data={EFFICIENCY_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="hour" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2389,14 +2390,14 @@ export default function PrintManagementPage() {
               <Line type="monotone" dataKey="avgTime" name="平均耗时" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="completed" name="完成数" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
 
       {/* 设备打印占比 */}
       <Card title="设备打印占比" icon={<PieChart size={16} />}>
         <div style={{ height: 200 }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer height={200} state={deviceDistData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备占比数据">
             <RePieChart>
               <Pie
                 data={deviceDistData}
@@ -2417,7 +2418,7 @@ export default function PrintManagementPage() {
                 formatter={(value: number) => [`${value} 次`, '打印次数']}
               />
             </RePieChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
     </div>

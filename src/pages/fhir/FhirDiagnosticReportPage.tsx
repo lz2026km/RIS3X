@@ -25,10 +25,10 @@ export const FhirDiagnosticReportPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedReport(res.data)
       } else {
-        message.warning(res.error?.message ?? 'DiagnosticReport 详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? '诊断报告详情加载失败，展示列表数据')
       }
     } catch {
-      message.warning('DiagnosticReport 详情加载失败，展示列表数据')
+      message.warning('诊断报告详情加载失败，展示列表数据')
     }
     setDetailLoading(false)
   }
@@ -43,7 +43,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('DiagnosticReport 列表加载失败，使用演示数据')
+      message.warning('诊断报告列表加载失败，使用演示数据')
       setReports([
         { id: 'dr1', resourceType: 'DiagnosticReport', status: 'final', code: { coding: [{ system: 'http://loinc.org', code: '24624-7', display: 'Chest X-Ray Report' }], text: '胸部X光报告' }, effectiveDateTime: '2026-01-15', issued: '2026-01-15T10:30:00Z', subject: { reference: 'Patient/p1' } },
         { id: 'dr2', resourceType: 'DiagnosticReport', status: 'preliminary', code: { coding: [{ system: 'http://loinc.org', code: '34565-2', display: 'CT Abdomen Report' }], text: '腹部CT报告' }, effectiveDateTime: '2026-01-16', issued: '2026-01-16T14:20:00Z', subject: { reference: 'Patient/p2' } },
@@ -140,7 +140,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
         </Form>
       </Card>
 
-      <Card size="small" title={`DiagnosticReport 列表 (${total})`}>
+      <Card size="small" title={`诊断报告列表 (${total})`}>
         <Table
           dataSource={reports.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
@@ -153,7 +153,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="DiagnosticReport 详情"
+        title="诊断报告详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}

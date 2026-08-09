@@ -12,6 +12,8 @@ import { newPagesHandlers } from './newPagesHandlers';
 // [v3.0.6.11-79] W1-A 文件管理 (upload-url / upload / upload-complete / download)
 import { filesHandlers } from './filesHandlers';
 import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
+// [G005 Wave1A P0-验证] 通知中心 handlers (unread/:userId 等) — 已接入 handlers 数组
+import { notificationsHandlers } from './notificationsHandlers';
 // [v3.0.6.11-79 W1-C] 合规文档库 7 端点 (CRUD + publish/archive)
 import { complianceDocsHandlers } from './complianceDocsHandlers';
 // [v3.0.6.11-60] 多租户 SaaS 基础: /api/v1/tenant/*
@@ -125,7 +127,7 @@ import { radiomicsHandlers } from './radiomicsHandlers';
 import { hl7Handlers } from './hl7Handlers';
 // [v3.0.6.11-75 W3-1] 影像 AI 质控 (qcImageAiApi: score/score-v2/results/stats)
 import { imageAiHandlers } from './imageAiHandlers';
-// [W3-2] AI 分检 (aiTriageApi: /ai-triage/*) + 跨科室治疗计划 (/treatment-plans/*)
+// [W3-2] AI 分检 (aiTriageApi: /triage/* [G005 Wave1A 路径对齐]) + 跨科室治疗计划 (/treatment-plans/*)
 import { aiTriageHandlers } from './aiTriageHandlers';
 import { treatmentPlanHandlers } from './treatmentPlanHandlers';
 // [v3.0.6.11-75 W3-1] 远程阅片 (remoteReadingApi: /remote-reading/*)
@@ -3809,6 +3811,9 @@ export const handlers = [
   ...doseHandlers,
   ...scheduleHandlers,
   ...notificationHandlers,
+  // [G005 Wave1A P0-验证] 通知中心独立 handlers (unread/history/stats/read/read-all/vapid/push-*)
+  // 此前未接入 handlers 数组 → /notifications/unread/:userId 等全部穿透 vite proxy (后端未启动 → 500)
+  ...notificationsHandlers,
   ...templateHandlers,
   ...dictionaryHandlers,
   ...safetyHandlers,

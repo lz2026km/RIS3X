@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TrendingUp, DollarSign, BarChart3, ArrowUpRight, ArrowDownRight, Monitor, Users, Building2, Download, Activity } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePie, Pie, Cell, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RePie, Pie, Cell, Legend } from 'recharts'
+import { financeApi } from '../../services/api/financeApi'
+import { ChartContainer } from '../../components/charts'
 
-const MONTHLY_DATA = [
+const DEMO_MONTHLY_DATA = [
   { month: '2025-07', revenue: 680, cost: 420, profit: 260, exams: 4200 },
   { month: '2025-08', revenue: 720, cost: 435, profit: 285, exams: 4450 },
   { month: '2025-09', revenue: 695, cost: 428, profit: 267, exams: 4300 },
@@ -15,14 +17,14 @@ const MONTHLY_DATA = [
   { month: '2026-04', revenue: 860, cost: 475, profit: 385, exams: 5300 },
 ]
 
-const MODALITY_DATA = [
+const DEMO_MODALITY_DATA = [
   { name: 'CT', revenue: 385, exams: 2500, color: '#3b82f6' },
   { name: 'MRI', revenue: 235, exams: 850, color: '#8b5cf6' },
   { name: 'DSA', revenue: 195, exams: 150, color: '#f59e0b' },
   { name: 'DR', revenue: 45, exams: 1800, color: '#22c55e' },
 ]
 
-const PAYER_DATA = [
+const DEMO_PAYER_DATA = [
   { name: '医保(城镇职工)', value: 516, color: '#3b82f6' },
   { name: '医保(城乡居民)', value: 172, color: '#8b5cf6' },
   { name: '商业保险', value: 98, color: '#059669' },
@@ -30,7 +32,7 @@ const PAYER_DATA = [
   { name: '公费/其他', value: 26, color: '#6b7280' },
 ]
 
-const DOCTOR_DATA = [
+const DEMO_DOCTOR_DATA = [
   { name: '张伟', revenue: 185, exams: 1120 },
   { name: '李娜', revenue: 168, exams: 980 },
   { name: '王建国', revenue: 152, exams: 890 },
@@ -38,21 +40,184 @@ const DOCTOR_DATA = [
   { name: '陈明', revenue: 115, exams: 680 },
 ]
 
+const MODALITY_COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#22c55e', '#059669', '#d97706']
+
+function toNumber(v: unknown): number {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : 0
+}
+
+// 从发票收费项目名推断设备类型
+function guessModality(examItem: string): string | null {
+  const s = String(examItem ?? '').toUpperCase()
+  if (s.includes('MR') || s.includes('磁共振')) return 'MRI'
+  if (s.includes('CT')) return 'CT'
+  if (s.includes('DSA') || s.includes('造影')) return 'DSA'
+  if (s.includes('MG') || s.includes('钼靶')) return 'MG'
+  if (s.includes('DR') || s.includes('X线') || s.includes('拍片')) return 'DR'
+  if (s.includes('US') || s.includes('超声')) return 'US'
+  return null
+}
+
 export default function RevenueAnalysisPage() {
   const [view, setView] = useState<'trend' | 'modality' | 'payer' | 'doctor'>('trend')
+  // [W2-A] financeApi 实时数据 (失败回退演示数据)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
+  const [monthlyData, setMonthlyData] = useState(DEMO_MONTHLY_DATA)
+  const [modalityData, setModalityData] = useState(DEMO_MODALITY_DATA)
+  const [payerData, setPayerData] = useState(DEMO_PAYER_DATA)
+  const [doctorData] = useState(DEMO_DOCTOR_DATA)
 
-  const latest = MONTHLY_DATA[MONTHLY_DATA.length - 1]
-  const previous = MONTHLY_DATA[MONTHLY_DATA.length - 3]
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      setLoading(true)
+      setError(null)
+      try {
+        const [revRes, invRes, costRes] = await Promise.allSettled([
+          financeApi.getRevenueAnalysis(),
+          financeApi.listInvoices(),
+          financeApi.getCostAccounting(),
+        ])
+        const revData = revRes.status === 'fulfilled' ? revRes.value.data : null
+        const invoices = Array.isArray(invRes.status === 'fulfilled' ? invRes.value.data : null)
+          ? (invRes as PromiseFulfilledResult<{ data: unknown[] }>).value.data
+          : []
+        const costObj = (costRes.status === 'fulfilled' ? costRes.value.data ?? {} : {}) as Record<string, unknown>
+
+        // 成本收入比 (用于成本列派生)
+        let costRatio = 0.6
+        const costRevenue = toNumber(costObj.totalRevenue)
+        const costTotal = toNumber(costObj.totalCost)
+        if (costRevenue > 0 && costTotal > 0) costRatio = costTotal / costRevenue
+
+        // 按月聚合发票 (真实收入)
+        const monthMap = new Map<string, { revenue: number; exams: number }>()
+        const modalityMap = new Map<string, { revenue: number; exams: number }>()
+        let insTotal = 0
+        let selfPayTotal = 0
+        let hasPayerData = false
+        for (const inv of invoices) {
+          const rec = (inv ?? {}) as Record<string, unknown>
+          const date = String(rec.examDate ?? rec.createdAt ?? '')
+          const month = date.slice(0, 7)
+          const amount = toNumber(rec.totalAmount)
+          if (month.length === 7) {
+            const cur = monthMap.get(month) ?? { revenue: 0, exams: 0 }
+            cur.revenue += amount
+            cur.exams += 1
+            monthMap.set(month, cur)
+          }
+          const mod = guessModality(String(rec.examItem ?? rec.examItemName ?? '')) ?? guessModality(String(rec.bodyPart ?? ''))
+          if (mod) {
+            const cur = modalityMap.get(mod) ?? { revenue: 0, exams: 0 }
+            cur.revenue += amount
+            cur.exams += 1
+            modalityMap.set(mod, cur)
+          }
+          if (rec.insuranceCovered != null) {
+            insTotal += toNumber(rec.insuranceCovered)
+            selfPayTotal += toNumber(rec.selfPayAmount ?? 0)
+            hasPayerData = true
+          }
+        }
+
+        // revenue-analysis 备用 (MSW 提供 daily/monthly)
+        const revObj = (revData ?? {}) as Record<string, unknown>
+        if (Array.isArray(revObj.monthly) && monthMap.size === 0) {
+          for (const m of revObj.monthly) {
+            const rec = (m ?? {}) as Record<string, unknown>
+            const month = String(rec.month ?? rec.date ?? '')
+            const amount = toNumber(rec.amount ?? rec.revenue)
+            if (month.length === 7) monthMap.set(month, { revenue: amount, exams: 0 })
+          }
+        }
+
+        if (monthMap.size > 0) {
+          const months = Array.from(monthMap.keys()).sort().slice(-10)
+          setMonthlyData(months.map(m => {
+            const revenue = Math.round((monthMap.get(m)?.revenue ?? 0) / 10000 * 10) / 10
+            const cost = Math.round(revenue * costRatio * 10) / 10
+            return { month: m, revenue, cost, profit: Math.round((revenue - cost) * 10) / 10, exams: monthMap.get(m)?.exams ?? 0 }
+          }))
+          setModalityData(Array.from(modalityMap.entries())
+            .sort((a, b) => b[1].revenue - a[1].revenue)
+            .slice(0, 6)
+            .map(([name, v], i) => ({
+              name,
+              revenue: Math.round(v.revenue / 10000 * 10) / 10,
+              exams: v.exams,
+              color: MODALITY_COLORS[i % MODALITY_COLORS.length] ?? '#3b82f6',
+            })))
+          if (hasPayerData && insTotal + selfPayTotal > 0) {
+            const totalPayer = insTotal + selfPayTotal
+            setPayerData([
+              { name: '医保统筹', value: Math.round(insTotal / 10000 * 10) / 10, color: '#3b82f6' },
+              { name: '个人自费', value: Math.round(selfPayTotal / 10000 * 10) / 10, color: '#d97706' },
+              { name: '其他', value: Math.max(Math.round((totalPayer * 0.05) / 10000 * 10) / 10, 0), color: '#6b7280' },
+            ])
+          }
+          if (!cancelled) setSource('api')
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '收入数据加载失败，已回退演示数据')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void load()
+    return () => { cancelled = true }
+  }, [])
+
+  const latest = monthlyData[monthlyData.length - 1] ?? { month: '', revenue: 0, cost: 0, profit: 0, exams: 0 }
+  const previous = monthlyData[monthlyData.length - 3] ?? latest
   const momRevenue = previous.revenue ? ((latest.revenue - previous.revenue) / previous.revenue * 100) : 0
   const momProfit = previous.profit ? ((latest.profit - previous.profit) / previous.profit * 100) : 0
   const momExams = previous.exams ? ((latest.exams - previous.exams) / previous.exams * 100) : 0
 
+  const handleExport = () => {
+    const rows = [
+      ['月份', '收入(万元)', '成本(万元)', '利润(万元)', '检查量'],
+      ...monthlyData.map(m => [m.month, String(m.revenue), String(m.cost), String(m.profit), String(m.exams)]),
+      [],
+      ['设备', '收入(万元)', '检查量'],
+      ...modalityData.map(m => [m.name, String(m.revenue), String(m.exams)]),
+    ]
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `收入分析报告_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>收入分析</span></div>
-        <button onClick={() => { const csv = '项目,数量,金额\nCT增强,1234,2345678\nMR增强,856,1987654\nDR,2345,876543\nDSA,123,567890\nMG,234,234567\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '收入分析报告.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>收入分析</span>
+          <span style={{
+            fontSize: 11, padding: '2px 8px', borderRadius: 10,
+            background: source === 'api' ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)',
+            color: source === 'api' ? '#4ade80' : '#fbbf24',
+            border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
+            fontWeight: 500,
+          }}>
+            {source === 'api' ? '数据源: financeApi 实时' : '演示数据(接口不可用)'}
+          </span>
+          {loading && <span style={{ fontSize: 12, color: '#93c5fd' }}>加载中...</span>}
+        </div>
+        <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
       </div>
+      {error && (
+        <div style={{ padding: '8px 24px', background: 'rgba(220,38,38,0.15)', color: '#fca5a5', fontSize: 12, borderBottom: '1px solid rgba(220,38,38,0.3)' }}>
+          {error}（已回退演示数据）
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
@@ -90,7 +255,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>次均收入(元)</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#8b5cf6', marginTop: 4 }}>{(latest.revenue * 10000 / latest.exams).toFixed(0)}</div>
+          <div style={{ fontSize: 26, fontWeight: 700, color: '#8b5cf6', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>人均创收能力</div>
         </div>
       </div>
@@ -108,9 +273,12 @@ export default function RevenueAnalysisPage() {
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
           {view === 'trend' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>月度收入/成本/利润趋势</div>
-              <ResponsiveContainer width="100%" height={320}>
-                <BarChart data={MONTHLY_DATA}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+                月度收入/成本/利润趋势
+                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? '发票按月聚合 · 成本按成本收入比派生' : '演示数据'}</span>
+              </div>
+<ChartContainer height={320} state={monthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度收入数据">
+  <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                   <XAxis dataKey="month" tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#8b949e', fontSize: 12 }} />
@@ -120,58 +288,58 @@ export default function RevenueAnalysisPage() {
                   <Bar dataKey="cost" name="成本(万元)" fill="#ef4444" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="profit" name="利润(万元)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           )}
           {view === 'modality' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>各设备收入占比</div>
-                <ResponsiveContainer width="100%" height={300}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>各设备收入占比 <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? '发票派生' : '演示数据'}</span></div>
+                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态收入数据">
                   <RePie>
-                    <Pie data={MODALITY_DATA} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
-                      {MODALITY_DATA.map(d => <Cell key={d.name} fill={d.color} />)}
+                    <Pie data={modalityData} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
+                      {modalityData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                   </RePie>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>各设备收入(万元)</div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={MODALITY_DATA} layout="vertical">
+                <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态收入数据">
+                  <BarChart data={modalityData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                     <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
                     <YAxis type="category" dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                    <Tooltip />
+                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                     <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
-                      {MODALITY_DATA.map(d => <Cell key={d.name} fill={d.color} />)}
+                      {modalityData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </div>
           )}
           {view === 'payer' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>支付方收入分布</div>
-                <ResponsiveContainer width="100%" height={300}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>支付方收入分布 <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? '医保/自费由发票派生' : '演示数据'}</span></div>
+                <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无支付方数据">
                   <RePie>
-                    <Pie data={PAYER_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
-                      {PAYER_DATA.map(d => <Cell key={d.name} fill={d.color} />)}
+                    <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
+                      {payerData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                   </RePie>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                {PAYER_DATA.map(d => (
+                {payerData.map(d => (
                   <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #21262d' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 2, background: d.color }} />
                     <span style={{ flex: 1, fontSize: 13 }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>¥{d.value}万</span>
-                    <span style={{ fontSize: 12, color: '#8b949e' }}>{((d.value / PAYER_DATA.reduce((s, x) => s + x.value, 0)) * 100).toFixed(1)}%</span>
+                    <span style={{ fontSize: 12, color: '#8b949e' }}>{((d.value / payerData.reduce((s, x) => s + x.value, 0)) * 100).toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -179,16 +347,19 @@ export default function RevenueAnalysisPage() {
           )}
           {view === 'doctor' && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>医生收入排行(万元)</div>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={DOCTOR_DATA} layout="vertical">
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+                医生收入排行(万元)
+                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>演示数据（无医生维度接口）</span>
+              </div>
+              <ChartContainer height={300} state={doctorData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医生收入数据">
+                <BarChart data={doctorData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
                   <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
                   <YAxis type="category" dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <Tooltip />
+                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                   <Bar dataKey="revenue" name="收入(万元)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           )}
         </div>

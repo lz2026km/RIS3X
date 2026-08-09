@@ -20,12 +20,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   LineChart,
   Line,
   ReferenceLine,
 } from "recharts";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { ChartContainer } from "../../components/charts";
 import type {
   DrlEntry,
   TodayDoseStats,
@@ -338,8 +338,8 @@ export default function DoseLiveMonitor() {
           {distributionData.length === 0 ? (
             <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>今日暂无检查记录</div>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={distributionData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+          <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量分布数据">
+            <BarChart data={distributionData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="bodyPart" tick={{ fontSize: 12, fill: "#94a3b8" }} />
                 <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -348,7 +348,7 @@ export default function DoseLiveMonitor() {
                 <Bar dataKey="avgDlp" fill="#3b82f6" name="平均DLP" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="drlDlp" fill="#f59e0b" name="DRL阈值" radius={[4, 4, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           )}
         </div>
 
@@ -416,8 +416,8 @@ export default function DoseLiveMonitor() {
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>加载中...</div>
             ) : cumulative ? (
               <>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart data={trendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+          <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+            <LineChart data={trendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} />
                     <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
@@ -426,7 +426,7 @@ export default function DoseLiveMonitor() {
                     <ReferenceLine y={cumulative.annualLimit / 12} stroke="#dc2626" strokeDasharray="5 5" label={{ value: "月均限额", fontSize: 11, fill: "#dc2626", position: "insideTopRight" }} />
                     <Line type="monotone" dataKey="totalDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="月度DLP" />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8, marginTop: 10 }}>
                   <MiniInfo label="30天累计 DLP" value={`${fmt(cumulative.totalDlp30d)} mGy·cm`} />
                   <MiniInfo label="年度累计 DLP" value={`${fmt(cumulative.totalDlp1y)} mGy·cm`} />
@@ -445,7 +445,7 @@ export default function DoseLiveMonitor() {
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>加载中...</div>
             ) : cumulative && cumulative.exams.length > 0 ? (
               <div style={{ maxHeight: 300, overflowY: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
                       <Th>日期</Th>
@@ -472,7 +472,7 @@ export default function DoseLiveMonitor() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               </div>
             ) : (
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>无记录</div>
@@ -503,7 +503,7 @@ export default function DoseLiveMonitor() {
           <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>暂无告警</div>
         ) : (
           <div style={{ maxHeight: 320, overflowY: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <Th>日期</Th>
@@ -554,7 +554,7 @@ export default function DoseLiveMonitor() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
       </div>
@@ -595,8 +595,8 @@ export default function DoseLiveMonitor() {
               <MiniInfo label="告警" value={`${stats.warningCount} 警 / ${stats.criticalCount} 危`} warn={stats.criticalCount > 0} />
             </div>
             {statsTrendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+          <ChartContainer height={200} state={statsTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无统计趋势数据">
+            <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
                   <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
@@ -605,7 +605,7 @@ export default function DoseLiveMonitor() {
                   <Line type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name="平均DLP" />
                   <Line type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name="平均CTDIvol" />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             ) : (
               <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 20 }}>
                 {statsLoading ? "统计中..." : "所选范围内暂无检查记录"}
@@ -626,7 +626,7 @@ export default function DoseLiveMonitor() {
           </span>
           <span style={{ fontSize: 11, color: "#94a3b8" }}>修改后点击保存，依据国家标准/自定义</span>
         </div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <Th>模态</Th>
@@ -682,7 +682,7 @@ export default function DoseLiveMonitor() {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );

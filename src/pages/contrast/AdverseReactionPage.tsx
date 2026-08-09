@@ -4,6 +4,8 @@ import { message } from 'antd'
 import { getAdverseReactionService } from '../../services/contrast'
 import type { AdverseReaction, ReactionType, ReactionSeverity, ReactionOutcome } from '../../services/contrast'
 import { createAdverseEvent } from '../../services/api/safetyApi'
+// [W1-B] 列表优先 deviceMgmtApi.listAdverseReactions (GET /device-mgmt/contrast/adverse-reactions), 失败回退本地演示
+import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
 
 const svc = getAdverseReactionService()
 
@@ -29,6 +31,36 @@ export default function AdverseReactionPage() {
 
   useEffect(() => {
     const run = async () => {
+      // [W1-B] 真实列表优先: /device-mgmt/contrast/adverse-reactions
+      try {
+        const res = await deviceMgmtApi.listAdverseReactions()
+        const raw = res.data as unknown
+        const items: any[] = Array.isArray(raw) ? raw : (raw as any)?.items ?? []
+        if (res.success && items.length > 0) {
+          setReactions(items.map((r: any) => ({
+            id: String(r.id ?? ''),
+            patientId: String(r.detail?.patientId ?? r.patientId ?? ''),
+            patientName: String(r.detail?.patientName ?? '未知患者'),
+            examId: String(r.detail?.examId ?? ''),
+            contrastName: String(r.detail?.contrastType ?? r.contrastType ?? '未知'),
+            batchId: String(r.detail?.batchId ?? ''),
+            reactionType: 'other' as ReactionType,
+            severity: (String(r.detail?.severity ?? r.severity ?? 'mild').toLowerCase().startsWith('sev') ? 'severe' : String(r.detail?.severity ?? r.severity ?? 'mild').toLowerCase().startsWith('mod') ? 'moderate' : 'mild') as ReactionSeverity,
+            symptoms: [],
+            description: String(r.detail?.reaction ?? r.reaction ?? r.description ?? ''),
+            occurredAt: String(r.detail?.administeredAt ?? r.administeredAt ?? r.createdAt ?? new Date().toISOString()),
+            reportedBy: String(r.detail?.reportedBy ?? 'system'),
+            action: '',
+            medicationGiven: '',
+            outcome: 'ongoing' as ReactionOutcome,
+            followUpNotes: String(r.detail?.notes ?? ''),
+            isReported: true,
+            createdAt: String(r.createdAt ?? new Date().toISOString()),
+          } as AdverseReaction)))
+          setLoading(false)
+          return
+        }
+      } catch { /* 回退本地演示 */ }
       const items = await svc.getReactions()
       setReactions(items)
       setLoading(false)
@@ -179,7 +211,27 @@ export default function AdverseReactionPage() {
                     {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>随访: {r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                       <button onClick={() => { openEdit(r); setShowForm(true) }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>编辑</button>
-                      {!r.isReported && <button onClick={() => { message.success('不良事件上报已提交'); setReactions(prev => prev.map(a => a.id === r.id ? {...a, isReported: true} : a)); }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
+                      {!r.isReported && <button onClick={() => {
+                        void (async () => {
+                          try {
+                            await createAdverseEvent({
+                              eventType: 'contrast-reaction',
+                              severity: r.severity === 'severe' ? 'severe' : r.severity === 'moderate' ? 'moderate' : 'minor',
+                              description: `对比剂不良反应: ${r.description}`,
+                              department: '放射科',
+                              reportedBy: r.reportedBy || 'current-user',
+                              patientId: r.patientId || undefined,
+                              patientName: r.patientName || undefined,
+                              actionsTaken: r.action ? [r.action] : undefined,
+                            })
+                            message.success('不良事件上报已提交 (POST /safety/adverse-events)')
+                          } catch (e) {
+                            message.error((e as Error)?.message || '上报失败')
+                            return
+                          }
+                          setReactions(prev => prev.map(a => a.id === r.id ? { ...a, isReported: true } : a))
+                        })()
+                      }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
                     </div>
                   </div>
                 )}

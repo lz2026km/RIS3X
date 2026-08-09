@@ -3,6 +3,7 @@ import { Card, Space, Tag, Button, Table, Tabs, Form, Select, Input, message, Al
 import { Send, Activity, History, Wifi, Server } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { PamMessagesResponse } from '../../services/api/integrationApi';
+import { usePagination } from '../../hooks/usePagination';
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 
@@ -15,6 +16,7 @@ export const PamPage: React.FC = () => {
   const [assignedLocation, setAssignedLocation] = useState('');
   const [ackResult, setAckResult] = useState<string | null>(null);
   const [messages, setMessages] = useState<PamMessagesResponse['entries']>([]);
+  const { pageData: msgPageData, pagination: msgPagination } = usePagination(messages, 10);
   const [listenerStatus, setListenerStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -119,7 +121,7 @@ export const PamPage: React.FC = () => {
             children: (
               <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>刷新</Button>}
                 title="PAM 消息记录">
-                <Table dataSource={messages} rowKey="messageId" pagination={{ pageSize: 10, showTotal: t => `共 ${t} 条` }}
+                <Table dataSource={msgPageData} rowKey="messageId" pagination={msgPagination}
                   columns={[
                     { title: '消息类型', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
                     { title: '患者 ID', dataIndex: ['message', 'patientId'], width: 140 },

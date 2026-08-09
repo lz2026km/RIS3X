@@ -25,10 +25,10 @@ export const FhirObservationPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedObs(res.data)
       } else {
-        message.warning(res.error?.message ?? 'Observation 详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? '观察记录详情加载失败，展示列表数据')
       }
     } catch {
-      message.warning('Observation 详情加载失败，展示列表数据')
+      message.warning('观察记录详情加载失败，展示列表数据')
     }
     setDetailLoading(false)
   }
@@ -43,7 +43,7 @@ export const FhirObservationPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('Observation 列表加载失败，使用演示数据')
+      message.warning('观察记录列表加载失败，使用演示数据')
       setObservations([
         { id: 'obs1', resourceType: 'Observation', status: 'final', code: { coding: [{ system: 'http://loinc.org', code: '8310-5', display: 'Body temperature' }], text: '体温' }, valueQuantity: { value: 36.5, unit: '°C' }, effectiveDateTime: '2026-01-15' },
         { id: 'obs2', resourceType: 'Observation', status: 'final', code: { coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }], text: '心率' }, valueQuantity: { value: 72, unit: 'bpm' }, effectiveDateTime: '2026-01-15' },
@@ -130,7 +130,7 @@ export const FhirObservationPage: React.FC = () => {
         </Form>
       </Card>
 
-      <Card size="small" title={`Observation 列表 (${total})`}>
+      <Card size="small" title={`观察记录列表 (${total})`}>
         <Table
           dataSource={observations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
@@ -143,7 +143,7 @@ export const FhirObservationPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="Observation 详情"
+        title="观察记录详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}

@@ -5,6 +5,25 @@ import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Progress, 
 import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
 import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
 import { fusionApi } from '../../services/api/fusionApi';
+import { usePagination } from '../../hooks/usePagination';
+
+function downloadBlob(content: string, filename: string, mime = 'text/csv;charset=utf-8'): void {
+  const blob = new Blob(['\uFEFF' + content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function studiesToCSV(rows: FusionStudy[]): string {
+  const header = ['患者', '设备', '融合评分', '发现数', 'AI告警', '状态', '日期'];
+  const lines = rows.map((s) => [
+    s.patient, s.modalities, Math.round(s.fusionScore * 100), s.findings, s.aiAlerts, s.status, s.date,
+  ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','));
+  return [header.join(','), ...lines].join('\n');
+}
 
 const INSIGHT_COLORS: Record<string, string> = {
   lesion: 'red', vessel: 'blue', measurement: 'green', classification: 'orange',
@@ -19,6 +38,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
   const [detail, setDetail] = useState<FusionStudy | null>(null);
+  const { pageData: studyPageData, pagination: studyPagination } = usePagination(studies, 8);
   // [W3-C] 切换图层: 真实状态切换 (叠加层显示/隐藏 + 图层模式轮换)
   const [layerVisible, setLayerVisible] = useState(true);
   const [layerMode, setLayerMode] = useState<'融合' | '差值' | '棋盘格'>('融合');
@@ -87,7 +107,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
         <Brain size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>多模态 AI 融合工作台</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="purple">Late Fusion</Tag>
+        <Tag color="purple">晚期融合</Tag>
         <Tag color="volcano">Cross-Attention</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>刷新</Button>
         <Button type="primary" size="small" icon={<PlayCircle size={12} />} loading={running} onClick={() => void handleRunFusion()}>运行融合</Button>
@@ -165,12 +185,12 @@ export const AiFusionWorkspacePage: React.FC = () => {
       <Card
         size="small"
         title={<Space><FileText size={14} />融合研究</Space>}
-        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => message.success('融合报告导出任务已创建')}>导出融合报告</Button></Space>}
+        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => { if (studies.length === 0) { message.warning('暂无融合研究可导出'); return } downloadBlob(studiesToCSV(studies), `融合报告_${new Date().toISOString().slice(0, 10)}.csv`); message.success(`已导出 ${studies.length} 条融合研究记录`) }}>导出融合报告</Button></Space>}
       >
         <Table
-          dataSource={studies}
+          dataSource={studyPageData}
           rowKey="id"
-          pagination={{ pageSize: 8, showSizeChanger: false }}
+          pagination={studyPagination}
           columns={[
             { title: '患者', dataIndex: 'patient' },
             { title: '设备', dataIndex: 'modalities' },
@@ -191,7 +211,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
                 <Space>
                   <Button size="small" icon={<Eye size={10} />} onClick={() => setDetail(r)}>查看</Button>
                   <Button size="small" icon={<Crosshair size={10} />} loading={running} onClick={() => void handleRegister(r)}>配准</Button>
-                  <Button size="small" icon={<Download size={10} />} onClick={() => message.success('影像数据下载中...')}>下载</Button>
+                  <Button size="small" icon={<Download size={10} />} onClick={() => downloadBlob(studiesToCSV([r]), `融合研究_${r.patient}_${r.id}.csv`)}>下载</Button>
                 </Space>
               ),
             },

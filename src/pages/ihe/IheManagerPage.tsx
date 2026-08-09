@@ -71,7 +71,7 @@ export const IheManagerPage: React.FC = () => {
       setDomainSaving(true)
       const res = await iheApi.setAffinityDomain(values)
       if (res.success) {
-        message.success('Affinity Domain 配置已保存')
+        message.success('归属域配置已保存')
         setDomain(res.data)
         setDomainDrawerOpen(false)
         fetchStatus()
@@ -91,7 +91,7 @@ export const IheManagerPage: React.FC = () => {
     try {
       const res = await iheApi.resetAffinityDomain()
       if (res.success) {
-        message.success('Affinity Domain 已重置为默认')
+        message.success('归属域已重置为默认')
         setDomain(res.data)
         fetchStatus()
       } else {
@@ -176,7 +176,7 @@ export const IheManagerPage: React.FC = () => {
       children: (
         <Card
           size="small"
-          title="Affinity Domain 配置"
+          title="归属域配置"
           extra={
             <Space>
               <Button size="small" icon={<Edit3 size={12} />} onClick={openDomainDrawer} disabled={!domain}>编辑</Button>
@@ -188,14 +188,14 @@ export const IheManagerPage: React.FC = () => {
         >
           {domain ? (
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="Home Community ID">{domain.homeCommunityId}</Descriptions.Item>
+              <Descriptions.Item label="归属社区 ID">{domain.homeCommunityId}</Descriptions.Item>
               <Descriptions.Item label="名称">{domain.name}</Descriptions.Item>
-              <Descriptions.Item label="Assigning Authority">{domain.assigningAuthorityId}</Descriptions.Item>
-              <Descriptions.Item label="Repository IDs">{domain.repositoryUniqueIds?.join(', ')}</Descriptions.Item>
-              <Descriptions.Item label="Registry Endpoint">{domain.registryEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="Repository Endpoint">{domain.repositoryEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="PIX Manager">{domain.pixManagerEndpoint || '-'}</Descriptions.Item>
-              <Descriptions.Item label="PDQ Supplier">{domain.pdqSupplierEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label="分配机构">{domain.assigningAuthorityId}</Descriptions.Item>
+              <Descriptions.Item label="仓库 ID 列表">{domain.repositoryUniqueIds?.join(', ')}</Descriptions.Item>
+              <Descriptions.Item label="注册端点">{domain.registryEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label="仓库端点">{domain.repositoryEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label="PIX 管理器">{domain.pixManagerEndpoint || '-'}</Descriptions.Item>
+              <Descriptions.Item label="PDQ 提供方">{domain.pdqSupplierEndpoint || '-'}</Descriptions.Item>
             </Descriptions>
           ) : <Empty description="加载中..." />}
         </Card>
@@ -208,7 +208,7 @@ export const IheManagerPage: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Card size="small" title="PIX 患者身份交叉引用">
             <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
-              跳转到 PIX 管理页面进行 Patient ID 跨域映射管理。
+              跳转到 PIX 管理页面进行患者 ID 跨域映射管理。
             </p>
             <Button type="primary" onClick={() => window.location.hash = '#/ihe/pix'}>前往 PIX 管理</Button>
           </Card>
@@ -217,7 +217,7 @@ export const IheManagerPage: React.FC = () => {
               <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}>
                 <Input placeholder="P000001" />
               </Form.Item>
-              <Form.Item label="Assigning Authority" name="assigningAuthority">
+              <Form.Item label="分配机构" name="assigningAuthority">
                 <Input placeholder="G005" />
               </Form.Item>
               <Form.Item label="姓名 (姓氏)" name="family">
@@ -232,11 +232,11 @@ export const IheManagerPage: React.FC = () => {
             </Form>
             {pixResult && (
               <Descriptions column={1} size="small" bordered style={{ marginTop: 16 }}>
-                <Descriptions.Item label="Transaction">{pixResult.transaction || '-'}</Descriptions.Item>
+                <Descriptions.Item label="事务">{pixResult.transaction || '-'}</Descriptions.Item>
                 <Descriptions.Item label="ACK">
                   <Tag color={pixResult.ack === 'AA' ? 'green' : pixResult.ack === 'AE' ? 'red' : 'orange'}>{pixResult.ack || '-'}</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Message ID">{pixResult.messageId || '-'}</Descriptions.Item>
+                <Descriptions.Item label="消息 ID">{pixResult.messageId || '-'}</Descriptions.Item>
               </Descriptions>
             )}
           </Card>
@@ -269,7 +269,7 @@ export const IheManagerPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
 
       <Drawer
-        title="编辑 Affinity Domain 配置"
+        title="编辑归属域配置"
         open={domainDrawerOpen}
         onClose={() => setDomainDrawerOpen(false)}
         width={520}
@@ -282,34 +282,34 @@ export const IheManagerPage: React.FC = () => {
         }
       >
         <Form form={domainForm} layout="vertical" size="small">
-          <Form.Item label="Home Community ID" name="homeCommunityId" rules={[{ required: true }]}>
+          <Form.Item label="归属社区 ID" name="homeCommunityId" rules={[{ required: true }]}>
             <Input placeholder="1.2.3.4.5.6.7.8.9" />
           </Form.Item>
           <Form.Item label="名称" name="name" rules={[{ required: true }]}>
             <Input placeholder="G005 医疗联盟" />
           </Form.Item>
           <Form.Item label="名称 (英文)" name="nameEn">
-            <Input placeholder="G005 Medical Alliance" />
+            <Input placeholder="G005 医疗联盟" />
           </Form.Item>
-          <Form.Item label="Assigning Authority ID" name="assigningAuthorityId" rules={[{ required: true }]}>
+          <Form.Item label="分配机构 ID" name="assigningAuthorityId" rules={[{ required: true }]}>
             <Input placeholder="G005" />
           </Form.Item>
-          <Form.Item label="Repository Unique IDs (逗号分隔)" name="repositoryUniqueIds" getValueFromEvent={(e) => e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)}>
+          <Form.Item label="仓库 ID 列表（逗号分隔）" name="repositoryUniqueIds" getValueFromEvent={(e) => e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean)}>
             <Input placeholder="1.2.3.4.5.6.7.8.9.1" />
           </Form.Item>
-          <Form.Item label="Registry Endpoint" name="registryEndpoint">
+          <Form.Item label="注册端点" name="registryEndpoint">
             <Input placeholder="https://registry.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="Repository Endpoint" name="repositoryEndpoint">
+          <Form.Item label="仓库端点" name="repositoryEndpoint">
             <Input placeholder="https://repository.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="PIX Manager Endpoint" name="pixManagerEndpoint">
+          <Form.Item label="PIX 管理器端点" name="pixManagerEndpoint">
             <Input placeholder="https://pix.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="PDQ Supplier Endpoint" name="pdqSupplierEndpoint">
+          <Form.Item label="PDQ 提供方端点" name="pdqSupplierEndpoint">
             <Input placeholder="https://pdq.g005.local:8443" />
           </Form.Item>
-          <Form.Item label="ATNA Endpoint" name="atnaEndpoint">
+          <Form.Item label="ATNA 端点" name="atnaEndpoint">
             <Input placeholder="https://atna.g005.local:8443" />
           </Form.Item>
         </Form>

@@ -25,10 +25,10 @@ export const FhirImagingStudyPage: React.FC = () => {
       if (res.success && res.data) {
         setSelectedStudy(res.data)
       } else {
-        message.warning(res.error?.message ?? 'ImagingStudy 详情加载失败，展示列表数据')
+        message.warning(res.error?.message ?? '影像检查详情加载失败，展示列表数据')
       }
     } catch {
-      message.warning('ImagingStudy 详情加载失败，展示列表数据')
+      message.warning('影像检查详情加载失败，展示列表数据')
     }
     setDetailLoading(false)
   }
@@ -43,7 +43,7 @@ export const FhirImagingStudyPage: React.FC = () => {
         setTotal(res.data.total || entries.length)
       }
     } catch {
-      message.warning('ImagingStudy 列表加载失败，使用演示数据')
+      message.warning('影像检查列表加载失败，使用演示数据')
       setStudies([
         { id: 'is1', resourceType: 'ImagingStudy', status: 'available', started: '2026-01-15T09:00:00Z', numberOfSeries: 3, numberOfInstances: 156, subject: { reference: 'Patient/p1' }, procedureCode: [{ coding: [{ code: 'US-ABD', display: '腹部超声' }] }] },
         { id: 'is2', resourceType: 'ImagingStudy', status: 'available', started: '2026-01-16T14:30:00Z', numberOfSeries: 5, numberOfInstances: 320, subject: { reference: 'Patient/p2' }, procedureCode: [{ coding: [{ code: 'CT-CHEST', display: '胸部CT' }] }] },
@@ -149,7 +149,7 @@ export const FhirImagingStudyPage: React.FC = () => {
         </Form>
       </Card>
 
-      <Card size="small" title={`ImagingStudy 列表 (${total})`}>
+      <Card size="small" title={`影像检查列表 (${total})`}>
         <Table
           dataSource={studies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
@@ -162,7 +162,7 @@ export const FhirImagingStudyPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="ImagingStudy 详情"
+        title="影像检查详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}

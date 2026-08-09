@@ -9,6 +9,7 @@ import {
   RecordDoseSchema,
   ReportAdverseReactionSchema,
   ReportDeviceFaultSchema,
+  SendInjectionCommandSchema,
   UpdateContrastInventorySchema,
   UpdateDeviceSchema,
   UpdateEquipmentLifecycleSchema,
@@ -67,6 +68,11 @@ export class DeviceMgmtController {
 
   @Get('contrast/injection')
   getInjectionWorkstation() { return this.svc.getInjectionWorkstation() }
+
+  // [W1-B] 注射指令下发: ContrastInjectionWorkstationPage 开始注射按钮
+  @Post('contrast/injection')
+  @HttpCode(HttpStatus.CREATED)
+  sendInjectionCommand(@Body(new ZodValidationPipe(SendInjectionCommandSchema)) body: Record<string, unknown>) { return this.svc.sendInjectionCommand(body) }
 
   @Get('contrast/inventory')
   getContrastInventory() { return this.svc.getContrastInventory() }

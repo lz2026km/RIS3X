@@ -30,7 +30,7 @@ const statsData = [
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
   subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
   // 统计卡片行
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
@@ -39,13 +39,13 @@ const s: Record<string, React.CSSProperties> = {
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden',
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
+  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
   // 功能区分区
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   // 任务管理
   taskGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   taskLeft: {},
@@ -266,6 +266,39 @@ const CancerScreenPage = () => {
       }
     } catch {
       antdMessage.error('更新服务暂不可用')
+    }
+  }
+
+  // [W1-B] 登记筛查: screeningApi.create (POST /screening/queue)
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [regForm, setRegForm] = useState({ patientId: '', patientName: '', age: 50, gender: '女', screenType: 'LDCT', screenDate: new Date().toISOString().split('T')[0] })
+  const [regSaving, setRegSaving] = useState(false)
+
+  const handleRegisterScreening = async () => {
+    if (!regForm.patientId.trim() || !regForm.patientName.trim()) { antdMessage.warning('请填写患者ID和姓名'); return }
+    setRegSaving(true)
+    try {
+      const res = await screeningApi.create({
+        patientId: regForm.patientId.trim(),
+        patientName: regForm.patientName.trim(),
+        age: Number(regForm.age) || 0,
+        gender: regForm.gender,
+        screenType: regForm.screenType,
+        screenDate: regForm.screenDate,
+        status: '已登记',
+      })
+      if (res.success && res.data) {
+        showToast(`已登记筛查: ${res.data.patientName} (${res.data.screenType})`, 'success')
+        setShowRegisterModal(false)
+        setRegForm({ patientId: '', patientName: '', age: 50, gender: '女', screenType: 'LDCT', screenDate: new Date().toISOString().split('T')[0] })
+        void loadQueue()
+      } else {
+        antdMessage.error(res.error?.message || '登记失败')
+      }
+    } catch {
+      antdMessage.error('登记服务暂不可用')
+    } finally {
+      setRegSaving(false)
     }
   }
 
@@ -887,6 +920,35 @@ const biRadsStats = [
         </div>
       )}
 
+      {/* [W1-B] 登记筛查 Modal: screeningApi.create */}
+      {showRegisterModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRegisterModal(false)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 480, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>登记筛查 (POST /screening/queue)</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div><div style={s.formLabel}>患者ID *</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientId} onChange={e => setRegForm({ ...regForm, patientId: e.target.value })} placeholder="如 P100006" /></div>
+              <div><div style={s.formLabel}>患者姓名 *</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientName} onChange={e => setRegForm({ ...regForm, patientName: e.target.value })} placeholder="请输入姓名" /></div>
+              <div><div style={s.formLabel}>年龄</div><input type="number" style={{ ...s.formSelect, width: '100%' }} value={regForm.age} onChange={e => setRegForm({ ...regForm, age: Number(e.target.value) })} /></div>
+              <div><div style={s.formLabel}>性别</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={regForm.gender} onChange={e => setRegForm({ ...regForm, gender: e.target.value })}>
+                  <option>女</option><option>男</option>
+                </select>
+              </div>
+              <div><div style={s.formLabel}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={regForm.screenType} onChange={e => setRegForm({ ...regForm, screenType: e.target.value })}>
+                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
+                </select>
+              </div>
+              <div><div style={s.formLabel}>筛查日期</div><input type="date" style={{ ...s.formSelect, width: '100%' }} value={regForm.screenDate} onChange={e => setRegForm({ ...regForm, screenDate: e.target.value })} /></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowRegisterModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={regSaving} onClick={() => void handleRegisterScreening()}>{regSaving ? '登记中...' : '确认登记'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 详情Modal */}
       {showDetailModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -929,6 +991,7 @@ const biRadsStats = [
               {['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => <option key={ty} value={ty}>{ty}</option>)}
             </select>
             <button style={{ ...s.btnPrimary, padding: '6px 14px' }} onClick={() => void loadQueue()}><Search size={13} /> 查询</button>
+            <button style={{ ...s.btnPrimary, padding: '6px 14px', background: '#059669' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> 登记筛查 (POST /screening/queue)</button>
           </div>
 
           {queueLoading ? (

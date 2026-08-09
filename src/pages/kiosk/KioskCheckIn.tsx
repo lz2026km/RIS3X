@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { message } from 'antd'
+import { message, Card } from 'antd'
 import { kioskApi, type KioskPatientDto, type KioskCheckInResultDto, type KioskTodayStatsDto } from '../../services/api/kioskApi'
 import { queueApi, type QueueCallDto } from '../../services/api/queueApi'
 
@@ -100,7 +100,7 @@ export default function KioskCheckIn() {
 
   return (
     <div style={s.container}>
-      <div style={s.card}>
+      <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {step === 'idle' && (
           <>
             <div style={s.title}>🏥 自助报到</div>
@@ -175,10 +175,10 @@ export default function KioskCheckIn() {
             <button style={{ ...s.btn, background: '#3b82f6', color: '#fff' }} onClick={handleReset}>完成</button>
           </>
         )}
-      </div>
+      </Card>
 
       {(step === 'idle' || step === 'result') && (
-        <div style={{ maxWidth: 520, width: '100%', marginTop: 16, background: '#1e293b', borderRadius: 12, padding: 16, border: '1px solid #334155' }}>
+        <Card bordered={false} style={{ maxWidth: 520, width: '100%', marginTop: 16, background: '#1e293b', borderRadius: 12, padding: 16, border: '1px solid #334155' }} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>📢 当前叫号队列</span>
             {queueLoading && <span style={{ fontSize: 11, color: '#64748b' }}>加载中...</span>}
@@ -195,7 +195,7 @@ export default function KioskCheckIn() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   )

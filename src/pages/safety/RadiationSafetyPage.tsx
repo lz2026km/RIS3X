@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ChartContainer } from '../../components/charts'
 import { Activity, CheckCircle, AlertTriangle, Shield, BarChart3, Download, Zap } from 'lucide-react'
 import {
   getDoseRecords, checkAlaraCompliance, getProtocolOptimizationSuggestions,
@@ -85,7 +86,7 @@ export default function RadiationSafetyPage() {
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={16} color="#3b82f6" />各设备剂量对比 (DLP)
               </div>
-              <ResponsiveContainer width="100%" height={240}>
+              <ChartContainer height={240} state={dlpData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量对比数据">
                 <BarChart data={dlpData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -95,13 +96,13 @@ export default function RadiationSafetyPage() {
                   <Bar dataKey="dlp" fill="#3b82f6" radius={[4, 4, 0, 0]} name="DLP" />
                   <Bar dataKey="ctDoseIndex" fill="#22c55e" radius={[4, 4, 0, 0]} name="CTDI" />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Shield size={16} color="#22c55e" />ALARA合规率
               </div>
-              <ResponsiveContainer width="100%" height={240}>
+              <ChartContainer height={240} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无合规率数据">
                 <BarChart data={complianceData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -109,13 +110,13 @@ export default function RadiationSafetyPage() {
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                   <Bar dataKey="rate" fill="#22c55e" radius={[4, 4, 0, 0]} name="合规率(%)" />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Activity size={16} color="#f59e0b" />各设备类型总剂量
               </div>
-              <ResponsiveContainer width="100%" height={240}>
+              <ChartContainer height={240} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备剂量数据">
                 <BarChart data={modalityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                   <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -123,7 +124,7 @@ export default function RadiationSafetyPage() {
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                   <Bar dataKey="dose" fill="#f59e0b" radius={[4, 4, 0, 0]} name="总剂量" />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>合规详情</div>
@@ -144,7 +145,7 @@ export default function RadiationSafetyPage() {
 
         {activeTab === 'records' && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查ID</th>
@@ -169,7 +170,7 @@ export default function RadiationSafetyPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 

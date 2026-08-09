@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Row, Col, Statistic, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
 import { Plus, Send, FileText, Activity as ActivityIcon, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { dentalApi } from '@/services/api/dentalApi';
+import { usePagination } from '@/hooks/usePagination';
 
 const { TextArea } = Input;
 
@@ -42,6 +43,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [accepting, setAccepting] = useState('');
   const [form] = Form.useForm();
+  const { pageData: referralPageData, pagination: referralPagination } = usePagination(referrals, 8);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -165,10 +167,10 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
       <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>发起转诊</Button>} size="small" title="转诊列表">
         <Spin spinning={loading}>
           <Table
-            dataSource={referrals}
+            dataSource={referralPageData}
             rowKey="id"
             columns={columns}
-            pagination={{ pageSize: 8, showSizeChanger: false }}
+            pagination={referralPagination}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无转诊记录" /> }}
           scroll={{ x: 'max-content' }}
           />

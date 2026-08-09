@@ -1275,7 +1275,7 @@ export default function ConsultationPage() {
             </h3>
 
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: LIGHT_BG }}>
                     <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>存档ID</th>
@@ -1378,7 +1378,7 @@ export default function ConsultationPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         </div>

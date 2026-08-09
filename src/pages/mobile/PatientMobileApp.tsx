@@ -4,6 +4,7 @@ import { pushService } from '../../services/mobile/push/PushService'
 import { wechatPay } from '../../services/wechatPay'
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto, type PortalImageStudyDto } from '../../services/api/patientPortalApi'
 import { reportApi } from '../../services/api/reportApi'
+import { Card } from 'antd'
 
 // ===== Types =====
 export interface MobileUser {
@@ -294,11 +295,11 @@ export default function PatientMobileApp() {
   const renderHome = () => (
     <>
       {/* Banner */}
-      <div style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }}>
+      <Card bordered={false} style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }} styles={{ body: { padding: 0 } }}>
         <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>欢迎回来</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: '4px 0' }}>{mobileUser.name}</div>
         <div style={{ fontSize: 12, color: '#64748b' }}>您有 {mobileReports.filter(r => r.status === 'ready').length} 份新报告可查看</div>
-      </div>
+      </Card>
 
       {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
@@ -316,7 +317,7 @@ export default function PatientMobileApp() {
       </div>
 
       {/* Recent Reports */}
-      <div style={s.card}>
+      <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>最近报告</div>
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
@@ -331,10 +332,10 @@ export default function PatientMobileApp() {
             <span style={s.badge(r.status)}>{r.status === 'ready' ? '已出报告' : '待出具'}</span>
           </div>
         ))}
-      </div>
+      </Card>
 
       {/* Notifications Preview */}
-      <div style={s.card}>
+      <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>消息</div>
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
@@ -348,12 +349,12 @@ export default function PatientMobileApp() {
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     </>
   )
 
   const renderReports = () => (
-    <div style={s.card}>
+    <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       {selectedReport ? (
         <div>
           <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: '#3b82f6', marginBottom: 12, padding: 0 }} onClick={() => setSelectedReport(null)}>
@@ -411,11 +412,11 @@ export default function PatientMobileApp() {
           ))}
         </>
       )}
-    </div>
+    </Card>
   )
 
   const renderNotifications = () => (
-    <div style={s.card}>
+    <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       <div style={s.cardTitle}>消息中心</div>
       {mobileNotifications.map(n => (
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
@@ -427,12 +428,12 @@ export default function PatientMobileApp() {
           </div>
         </div>
       ))}
-    </div>
+    </Card>
   )
 
   const renderProfile = () => (
     <div>
-      <div style={s.card}>
+      <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: '#dbeafe' }}>{mobileUser.avatar}</div>
           <div>
@@ -449,10 +450,10 @@ export default function PatientMobileApp() {
             <button onClick={() => setActiveTab('login')} style={{ marginLeft: 8, border: 'none', background: '#3b82f6', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
               去登录
             </button>
-          )}
+           )}
         </div>
-      </div>
-      <div style={s.card}>
+      </Card>
+      <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         {[
           { icon: '🔒', label: '账户安全' },
           { icon: '📱', label: '设备管理' },
@@ -465,12 +466,12 @@ export default function PatientMobileApp() {
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}
-      </div>
+      </Card>
     </div>
   )
 
   const renderLogin = () => (
-    <div style={s.card}>
+    <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Smartphone size={16} color="#1e40af" /> 手机号快捷登录
       </div>
@@ -538,7 +539,7 @@ export default function PatientMobileApp() {
       <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
         登录即表示同意《用户协议》和《隐私政策》
       </div>
-    </div>
+    </Card>
   )
 
   return (

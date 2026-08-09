@@ -17,6 +17,9 @@ import {
   Empty,
   Slider,
   message,
+  Popconfirm,
+  Descriptions,
+  Modal,
 } from "antd";
 import {
   CompressOutlined,
@@ -33,6 +36,7 @@ import type {
   DicomCompressTask,
 } from "../../services/api/dicomCompressApi";
 import { dicomCompressApi } from "../../services/api/dicomCompressApi";
+import { usePagination } from "../../hooks/usePagination";
 
 const { Title, Text } = Typography;
 
@@ -116,6 +120,13 @@ export default function DicomCompressPage() {
   const [loading, setLoading] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [polling, setPolling] = useState(false);
+  // [W1-B] 任务操作: batchCompress / cancelTask / deleteTask / getTask / getStats
+  const [batchLoading, setBatchLoading] = useState(false);
+  const [taskActionId, setTaskActionId] = useState<string>("");
+  const [taskStats, setTaskStats] = useState<{ totalTasks: number; completedTasks: number; failedTasks: number; totalSavedBytes: number; avgRatio: number } | null>(null);
+  const [taskDetail, setTaskDetail] = useState<DicomCompressTask | null>(null);
+  const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const { pageData: taskPageData, pagination: taskPagination } = usePagination(tasks, 8);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
@@ -159,6 +170,25 @@ export default function DicomCompressPage() {
     }
   }, []);
 
+  // [W1-B] 任务统计: GET /dicom/compress/stats
+  const loadTaskStats = useCallback(async () => {
+    try {
+      const res = await dicomCompressApi.getStats();
+      const d = (res.data ?? {}) as unknown as Record<string, unknown> | null;
+      if (d) {
+        setTaskStats({
+          totalTasks: Number(d.totalTasks ?? 0),
+          completedTasks: Number(d.completedTasks ?? 0),
+          failedTasks: Number(d.failedTasks ?? 0),
+          totalSavedBytes: Number(d.totalSavedBytes ?? 0),
+          avgRatio: Number(d.avgRatio ?? 0),
+        });
+      }
+    } catch (err) {
+      console.warn("[DicomCompress] load stats failed", err);
+    }
+  }, []);
+
   useEffect(() => {
     dicomCompressApi.getSyntaxes()
       .then(res => {
@@ -170,7 +200,8 @@ export default function DicomCompressPage() {
     loadInstances();
     loadTasks();
     loadRatios();
-  }, [loadInstances, loadTasks, loadRatios]);
+    loadTaskStats();
+  }, [loadInstances, loadTasks, loadRatios, loadTaskStats]);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) {
@@ -215,7 +246,86 @@ export default function DicomCompressPage() {
     loadInstances();
     loadTasks();
     loadRatios();
-  }, [loadInstances, loadTasks, loadRatios]);
+    loadTaskStats();
+  }, [loadInstances, loadTasks, loadRatios, loadTaskStats]);
+
+  // [W1-B] 批量压缩: POST /dicom/compress/batch (当前实例 + 前 4 个实例)
+  const handleBatchCompress = async () => {
+    const fileIds = [selectedFileId, ...instances.map(i => i.fileId).filter(f => f !== selectedFileId)].slice(0, 5);
+    setBatchLoading(true);
+    try {
+      const res = await dicomCompressApi.batchCompress({
+        fileIds,
+        transferSyntax: selectedSyntax,
+        quality: selectedLossy ? quality : undefined,
+      });
+      const data = res.data as DicomCompressTask[] | null;
+      if (Array.isArray(data)) {
+        messageApi.success(`已提交 ${data.length} 个批量压缩任务 (POST /dicom/compress/batch)`);
+        loadTasks();
+        loadRatios();
+        loadTaskStats();
+      } else {
+        messageApi.error("批量压缩响应异常");
+      }
+    } catch (err) {
+      console.warn("[DicomCompress] handleBatchCompress failed", err);
+      messageApi.error("批量压缩失败");
+    } finally {
+      setBatchLoading(false);
+    }
+  };
+
+  // [W1-B] 取消任务: POST /dicom/compress/tasks/:id/cancel
+  const handleCancelTask = async (task: DicomCompressTask) => {
+    setTaskActionId(task.id);
+    try {
+      const res = await dicomCompressApi.cancelTask(task.id);
+      if (res.success) {
+        messageApi.success(`任务 ${task.id} 已取消`);
+        loadTasks();
+      } else {
+        messageApi.error(res.error?.message ?? "取消失败");
+      }
+    } catch {
+      messageApi.error("取消失败");
+    } finally {
+      setTaskActionId("");
+    }
+  };
+
+  // [W1-B] 删除任务: DELETE /dicom/compress/tasks/:id
+  const handleDeleteTask = async (task: DicomCompressTask) => {
+    setTaskActionId(task.id);
+    try {
+      const res = await dicomCompressApi.deleteTask(task.id);
+      if (res.success) {
+        messageApi.success(`任务 ${task.id} 已删除`);
+        loadTasks();
+        loadRatios();
+        loadTaskStats();
+      } else {
+        messageApi.error((res.error as { message?: string })?.message ?? "删除失败");
+      }
+    } catch {
+      messageApi.error("删除失败");
+    } finally {
+      setTaskActionId("");
+    }
+  };
+
+  // [W1-B] 任务详情: GET /dicom/compress/tasks/:id
+  const handleViewTask = async (task: DicomCompressTask) => {
+    setTaskDetailOpen(true);
+    setTaskDetail(task);
+    try {
+      const res = await dicomCompressApi.getTask(task.id);
+      if (res.success && res.data) setTaskDetail(res.data as DicomCompressTask);
+      else messageApi.error(res.error?.message ?? "详情加载失败");
+    } catch {
+      messageApi.error("详情加载失败");
+    }
+  };
 
   const handleCompress = async () => {
     setLoading(true);
@@ -229,14 +339,14 @@ export default function DicomCompressPage() {
       });
       const data = res.data as DicomCompressTask | null;
       if (!data) {
-        messageApi.error("压缩请求失败 / Compress request failed");
+        messageApi.error("压缩请求失败");
         return;
       }
       setCurrentTask(data);
       startPolling(data.id);
     } catch (err) {
       console.warn("[DicomCompress] handleCompress failed", err);
-      messageApi.error("压缩请求失败 / Compress request failed");
+      messageApi.error("压缩请求失败");
     } finally {
       setLoading(false);
     }
@@ -249,17 +359,17 @@ export default function DicomCompressPage() {
       const res = await dicomCompressApi.decompress(currentTask?.id ?? selectedFileId);
       const data = res.data as DicomCompressTask | null;
       if (!data) {
-        messageApi.error("解压请求失败 / Decompress request failed");
+        messageApi.error("解压请求失败");
         return;
       }
       setCurrentTask(data);
       messageApi.success(
-        data.error ? "解压失败 / Decompress failed" : "解压完成 / Decompress done",
+        data.error ? "解压失败" : "解压完成",
       );
       loadTasks();
     } catch (err) {
       console.warn("[DicomCompress] handleDecompress failed", err);
-      messageApi.error("解压请求失败 / Decompress request failed");
+      messageApi.error("解压请求失败");
     } finally {
       setLoading(false);
     }
@@ -296,12 +406,12 @@ export default function DicomCompressPage() {
         });
         setCompareRows([...rows]);
       }
-      messageApi.success("全算法对比完成 / All algorithms compared");
+      messageApi.success("全算法对比完成");
       loadTasks();
       loadRatios();
     } catch (err) {
       console.warn("[DicomCompress] handleCompareAll failed", err);
-      messageApi.error("对比失败 / Compare failed");
+      messageApi.error("对比失败");
     } finally {
       setComparing(false);
     }
@@ -333,7 +443,7 @@ export default function DicomCompressPage() {
       messageApi.success(`已上传 ${file.name} (${formatBytes(file.size)})`);
     } catch (err) {
       console.warn("[DicomCompress] file read failed", err);
-      messageApi.error("文件读取失败 / File read failed");
+      messageApi.error("文件读取失败");
     }
   };
 
@@ -348,11 +458,11 @@ export default function DicomCompressPage() {
   ];
 
   const taskColumns = [
-    { title: "任务 ID / Task", dataIndex: "id", key: "id", width: 130 },
-    { title: "文件 / File", dataIndex: "fileId", key: "fileId", ellipsis: true },
-    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName", width: 220 },
+    { title: "任务 ID", dataIndex: "id", key: "id", width: 130 },
+    { title: "文件", dataIndex: "fileId", key: "fileId", ellipsis: true },
+    { title: "算法", dataIndex: "algorithmName", key: "algorithmName", width: 220 },
     {
-      title: "状态 / Status",
+      title: "状态",
       dataIndex: "status",
       key: "status",
       width: 110,
@@ -363,7 +473,7 @@ export default function DicomCompressPage() {
       ),
     },
     {
-      title: "进度 / Progress",
+      title: "进度",
       dataIndex: "progress",
       key: "progress",
       width: 140,
@@ -375,21 +485,21 @@ export default function DicomCompressPage() {
         ),
     },
     {
-      title: "原始 / Original",
+      title: "原始",
       dataIndex: "originalSize",
       key: "originalSize",
       width: 110,
       render: (v: number) => formatBytes(v),
     },
     {
-      title: "压缩后 / Compressed",
+      title: "压缩后",
       dataIndex: "compressedSize",
       key: "compressedSize",
       width: 110,
       render: (v: number | null) => formatBytes(v),
     },
     {
-      title: "压缩比 / Ratio",
+      title: "压缩比",
       dataIndex: "ratio",
       key: "ratio",
       width: 100,
@@ -403,59 +513,75 @@ export default function DicomCompressPage() {
         ),
     },
     {
-      title: "真实 / Real",
+      title: "真实",
       dataIndex: "simulated",
       key: "simulated",
       width: 90,
       render: (v: boolean | undefined) =>
         v ? <Tag color="gold">估算</Tag> : <Tag color="green">真实</Tag>,
     },
-    { title: "耗时 / Time", dataIndex: "elapsedMs", key: "elapsedMs", width: 90, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
+    { title: "耗时", dataIndex: "elapsedMs", key: "elapsedMs", width: 90, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
+    {
+      title: "操作",
+      key: "actions",
+      width: 160,
+      render: (_: unknown, row: DicomCompressTask) => (
+        <Space size={4}>
+          <Button size="small" onClick={() => void handleViewTask(row)}>详情</Button>
+          {(row.status === "pending" || row.status === "processing") && (
+            <Button size="small" danger loading={taskActionId === row.id} onClick={() => void handleCancelTask(row)}>取消</Button>
+          )}
+          <Popconfirm title="确认删除该任务?" onConfirm={() => void handleDeleteTask(row)}>
+            <Button size="small" type="text" danger loading={taskActionId === row.id}>删除</Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
   const compareColumns = [
-    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
+    { title: "算法", dataIndex: "algorithmName", key: "algorithmName" },
     {
-      title: "类型 / Type",
+      title: "类型",
       dataIndex: "lossless",
       key: "lossless",
       width: 100,
       render: (v: boolean) => <Tag color={v ? "green" : "red"}>{v ? "无损" : "有损"}</Tag>,
     },
-    { title: "原始 / Original", dataIndex: "originalSize", key: "originalSize", width: 110, render: (v: number) => formatBytes(v) },
-    { title: "压缩后 / Compressed", dataIndex: "compressedSize", key: "compressedSize", width: 110, render: (v: number | null) => formatBytes(v) },
+    { title: "原始", dataIndex: "originalSize", key: "originalSize", width: 110, render: (v: number) => formatBytes(v) },
+    { title: "压缩后", dataIndex: "compressedSize", key: "compressedSize", width: 110, render: (v: number | null) => formatBytes(v) },
     {
-      title: "压缩比 / Ratio",
+      title: "压缩比",
       dataIndex: "ratio",
       key: "ratio",
       width: 110,
       render: (v: number | null) => (v ? <Tag color={v > 3 ? "green" : "blue"}>{v.toFixed(2)}×</Tag> : "-"),
     },
     {
-      title: "节省 / Saved",
+      title: "节省",
       dataIndex: "savedPercent",
       key: "savedPercent",
       width: 110,
       render: (v: number | null) => (v !== null ? `${v}%` : "-"),
     },
-    { title: "耗时 / Time", dataIndex: "elapsedMs", key: "elapsedMs", width: 100, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
+    { title: "耗时", dataIndex: "elapsedMs", key: "elapsedMs", width: 100, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
   ];
 
   const ratioColumns = [
-    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
-    { title: "模态 / Modality", dataIndex: "modality", key: "modality", width: 100 },
-    { title: "次数 / Count", dataIndex: "count", key: "count", width: 90 },
-    { title: "平均压缩比 / Avg Ratio", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
-    { title: "平均节省 / Avg Saved", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
-    { title: "平均原始 / Avg Original", dataIndex: "avgOriginalSize", key: "avgOriginalSize", width: 120, render: (v: number) => formatBytes(v) },
+    { title: "算法", dataIndex: "algorithmName", key: "algorithmName" },
+    { title: "模态", dataIndex: "modality", key: "modality", width: 100 },
+    { title: "次数", dataIndex: "count", key: "count", width: 90 },
+    { title: "平均压缩比", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
+    { title: "平均节省", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
+    { title: "平均原始", dataIndex: "avgOriginalSize", key: "avgOriginalSize", width: 120, render: (v: number) => formatBytes(v) },
   ];
 
   const ratioModalityColumns = [
-    { title: "模态 / Modality", dataIndex: "modality", key: "modality" },
-    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
-    { title: "次数 / Count", dataIndex: "count", key: "count", width: 90 },
-    { title: "平均压缩比 / Avg Ratio", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
-    { title: "累计节省 / Saved", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
+    { title: "模态", dataIndex: "modality", key: "modality" },
+    { title: "算法", dataIndex: "algorithmName", key: "algorithmName" },
+    { title: "次数", dataIndex: "count", key: "count", width: 90 },
+    { title: "平均压缩比", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
+    { title: "累计节省", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
   ];
 
   const savedPercent =
@@ -468,7 +594,7 @@ export default function DicomCompressPage() {
       {contextHolder}
       <Title level={3}>
         <CompressOutlined style={{ marginRight: 8 }} />
-        DICOM 压缩工作台 / DICOM Compression Workbench
+        DICOM 压缩工作台
         <Text type="secondary" style={{ fontSize: 13, marginLeft: 12 }}>
           真实 JPEG2000/HTJ2K 对标: RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码
         </Text>
@@ -480,13 +606,13 @@ export default function DicomCompressPage() {
             title={
               <Space>
                 <FileOutlined />
-                源文件 / Source
+                源文件
               </Space>
             }
             variant="outlined"
           >
             <Space orientation="vertical" style={{ width: "100%" }}>
-              <Text strong>DICOM 实例 / Instance</Text>
+              <Text strong>DICOM 实例</Text>
               <Select
                 style={{ width: "100%" }}
                 value={selectedFileId}
@@ -516,7 +642,7 @@ export default function DicomCompressPage() {
                 onClick={() => fileInputRef.current?.click()}
                 block
               >
-                上传 .dcm 文件 / Upload DICOM file
+                上传 .dcm 文件
               </Button>
               {uploadName && (
                 <Alert
@@ -535,32 +661,32 @@ export default function DicomCompressPage() {
             title={
               <Space>
                 <ExperimentOutlined />
-                压缩参数 / Parameters
+                压缩参数
               </Space>
             }
             variant="outlined"
           >
             <Space orientation="vertical" style={{ width: "100%" }}>
               <div>
-                <Text strong>传输语法 / Transfer Syntax</Text>
+                <Text strong>传输语法</Text>
                 <Select
                   style={{ width: "100%", marginTop: 4 }}
                   value={selectedSyntax}
                   onChange={setSelectedSyntax}
                   options={syntaxes.map(s => ({
                     value: s.uid,
-                    label: `${s.name} (${s.lossy ? "有损 Lossy" : "无损 Lossless"})`,
+                    label: `${s.name} (${s.lossy ? "有损" : "无损"})`,
                   }))}
                 />
               </div>
               {selectedLossy && (
                 <div>
                   <Text strong>
-                    质量 / Quality: <Tag color="blue">{quality}</Tag>
+                    质量: <Tag color="blue">{quality}</Tag>
                   </Text>
                   <Slider min={1} max={100} value={quality} onChange={setQuality} />
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    质量越低压缩比越高 / Lower quality = higher ratio
+                    质量越低压缩比越高
                   </Text>
                 </div>
               )}
@@ -573,7 +699,7 @@ export default function DicomCompressPage() {
             title={
               <Space>
                 <ThunderboltOutlined />
-                执行 / Actions
+                执行
               </Space>
             }
             variant="outlined"
@@ -586,7 +712,15 @@ export default function DicomCompressPage() {
                 onClick={handleCompress}
                 block
               >
-                开始压缩 / Compress
+                开始压缩
+              </Button>
+              <Button
+                icon={<CompressOutlined />}
+                loading={batchLoading}
+                onClick={() => void handleBatchCompress()}
+                block
+              >
+                批量压缩 (最多5个)
               </Button>
               <Button
                 icon={<ExpandOutlined />}
@@ -594,7 +728,7 @@ export default function DicomCompressPage() {
                 onClick={handleDecompress}
                 block
               >
-                解压 / Decompress
+                解压
               </Button>
               <Button
                 icon={<BarChartOutlined />}
@@ -602,10 +736,10 @@ export default function DicomCompressPage() {
                 onClick={handleCompareAll}
                 block
               >
-                全部算法对比 / Compare All Algorithms
+                全部算法对比
               </Button>
               <Button icon={<ReloadOutlined />} onClick={refreshAll} block>
-                刷新任务与统计 / Refresh
+                刷新任务与统计
               </Button>
             </Space>
           </Card>
@@ -616,11 +750,11 @@ export default function DicomCompressPage() {
         title={
           <Space>
             <BarChartOutlined />
-            压缩结果 / Result
+            压缩结果
             {currentTask?.simulated === true && (
               <Tag color="gold">估算 (文件不可达时查表回退)</Tag>
             )}
-            {currentTask?.simulated === false && <Tag color="green">真实压缩 / Real</Tag>}
+            {currentTask?.simulated === false && <Tag color="green">真实压缩</Tag>}
           </Space>
         }
         variant="outlined"
@@ -630,28 +764,28 @@ export default function DicomCompressPage() {
           <div>
             <Row gutter={16}>
               <Col span={6}>
-                <Statistic title="任务 ID / Task" value={currentTask.id} styles={{ content: { fontSize: 14 } }} />
+                <Statistic title="任务 ID" value={currentTask.id} styles={{ content: { fontSize: 14 } }} />
               </Col>
               <Col span={6}>
                 <Statistic
-                  title="状态 / Status"
+                  title="状态"
                   value={currentTask.status === "done" ? "完成" : currentTask.status === "processing" ? "处理中" : currentTask.status}
                   valueStyle={{ color: currentTask.status === "done" ? "#52c41a" : undefined }}
                 />
               </Col>
               <Col span={6}>
-                <Statistic title="算法 / Algorithm" value={currentTask.algorithmName ?? currentTask.transferSyntax} styles={{ content: { fontSize: 13 } }} />
+                <Statistic title="算法" value={currentTask.algorithmName ?? currentTask.transferSyntax} styles={{ content: { fontSize: 13 } }} />
               </Col>
               <Col span={6}>
                 <Statistic
-                  title="模态 / Modality"
+                  title="模态"
                   value={currentTask.modality ?? "-"}
                 />
               </Col>
             </Row>
             {(currentTask.status === "pending" || currentTask.status === "processing") && (
               <div style={{ marginTop: 16 }}>
-                <Text>真实压缩进行中 / Compressing real pixel data...</Text>
+                <Text>真实压缩进行中...</Text>
                 <Progress percent={currentTask.progress} />
               </div>
             )}
@@ -660,41 +794,41 @@ export default function DicomCompressPage() {
                 <Row gutter={16} style={{ marginTop: 12 }}>
                   <Col span={4}>
                     <Statistic
-                      title="原始大小 / Original"
+                      title="原始大小"
                       value={formatBytes(currentTask.originalSize)}
                       prefix={<FileOutlined />}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
-                      title="压缩后 / Compressed"
+                      title="压缩后"
                       value={formatBytes(currentTask.compressedSize)}
                       prefix={<FileOutlined />}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
-                      title="真实压缩比 / Real Ratio"
+                      title="真实压缩比"
                       value={currentTask.ratio ? `${currentTask.ratio.toFixed(2)}×` : "-"}
                       valueStyle={{ color: "#2563eb", fontWeight: 600 }}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
-                      title="节省 / Saved"
+                      title="节省"
                       value={savedPercent !== null ? `${savedPercent}%` : "-"}
                       valueStyle={{ color: savedPercent !== null && savedPercent > 0 ? "#52c41a" : undefined }}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
-                      title="耗时 / Elapsed"
+                      title="耗时"
                       value={currentTask.elapsedMs !== undefined ? `${currentTask.elapsedMs} ms` : "-"}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
-                      title="类型 / Type"
+                      title="类型"
                       value={currentTask.lossless ? "无损" : "有损"}
                       valueStyle={{ color: currentTask.lossless ? "#52c41a" : "#fa541c" }}
                     />
@@ -706,17 +840,17 @@ export default function DicomCompressPage() {
                   style={{ marginTop: 12 }}
                   message={
                     currentTask.lossless
-                      ? "无损压缩: 解压后可 100% 还原原始像素 / Lossless: pixel-exact round-trip"
+                      ? "无损压缩: 解压后可 100% 还原原始像素"
                       : `有损压缩: 重建误差受量化步长限制 (quality=${currentTask.quality ?? "-"})`
                   }
                 />
               </div>
             )}
             {currentTask.status === "done" && currentTask.compressedSize === null && (
-              <Alert type="success" showIcon title="已完成 / Done" style={{ marginTop: 12 }} />
+              <Alert type="success" showIcon title="已完成" style={{ marginTop: 12 }} />
             )}
             {currentTask.status === "failed" && (
-              <Alert type="error" showIcon title={currentTask.error ?? "失败 / Failed"} style={{ marginTop: 12 }} />
+              <Alert type="error" showIcon title={currentTask.error ?? "失败"} style={{ marginTop: 12 }} />
             )}
             {currentTask.status === "done" && (
               <Button
@@ -724,12 +858,12 @@ export default function DicomCompressPage() {
                 style={{ marginTop: 12 }}
                 onClick={handleDecompress}
               >
-                解压验证 / Decompress to verify
+                解压验证
               </Button>
             )}
           </div>
         ) : (
-          <Empty description={polling ? "压缩中... / Compressing..." : "尚未压缩 / No task yet"} />
+          <Empty description={polling ? "压缩中..." : "尚未压缩"} />
         )}
       </Card>
 
@@ -739,23 +873,32 @@ export default function DicomCompressPage() {
         title={
           <Space>
             <FileOutlined />
-            任务列表 / Task Queue
-            {polling && <Tag color="processing">轮询中 / Polling</Tag>}
+            任务列表
+            {polling && <Tag color="processing">轮询中</Tag>}
           </Space>
         }
         variant="outlined"
       >
+        {taskStats && (
+          <Row gutter={16} style={{ marginBottom: 12 }}>
+            <Col span={5}><Statistic title="任务总数" value={taskStats.totalTasks} styles={{ content: { fontSize: 18 } }} /></Col>
+            <Col span={5}><Statistic title="已完成" value={taskStats.completedTasks} valueStyle={{ color: "#52c41a" }} styles={{ content: { fontSize: 18 } }} /></Col>
+            <Col span={5}><Statistic title="失败" value={taskStats.failedTasks} valueStyle={{ color: "#ff4d4f" }} styles={{ content: { fontSize: 18 } }} /></Col>
+            <Col span={5}><Statistic title="累计节省" value={formatBytes(taskStats.totalSavedBytes)} styles={{ content: { fontSize: 18 } }} /></Col>
+            <Col span={4}><Statistic title="平均压缩比" value={taskStats.avgRatio ? `${taskStats.avgRatio.toFixed(2)}×` : "-"} styles={{ content: { fontSize: 18 } }} /></Col>
+          </Row>
+        )}
         {tasks.length > 0 ? (
           <Table
-            dataSource={tasks}
+            dataSource={taskPageData}
             columns={taskColumns}
             rowKey="id"
             size="small"
-            pagination={{ pageSize: 8, showSizeChanger: false }}
+            pagination={taskPagination}
           scroll={{ x: 'max-content' }}
           />
         ) : (
-          <Empty description="暂无任务 / No tasks" />
+          <Empty description="暂无任务" />
         )}
       </Card>
 
@@ -767,7 +910,7 @@ export default function DicomCompressPage() {
             title={
               <Space>
                 <BarChartOutlined />
-                算法对比 / Algorithm Comparison
+                算法对比
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   {compareRows.length > 0 ? `${formatBytes(compareRows[0]?.originalSize)} 像素数据` : ""}
                 </Text>
@@ -776,7 +919,7 @@ export default function DicomCompressPage() {
             variant="outlined"
           >
             {comparing ? (
-              <Spin tip="对比中 / Comparing..." style={{ display: "block", padding: 32 }}>
+              <Spin tip="对比中..." style={{ display: "block", padding: 32 }}>
                 <div style={{ height: 60 }} />
               </Spin>
             ) : compareRows.length > 0 ? (
@@ -791,7 +934,7 @@ export default function DicomCompressPage() {
             title={
               <Space>
                 <BarChartOutlined />
-                压缩比统计 / Ratio Statistics
+                压缩比统计
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   共 {ratios.byAlgorithm.reduce((s, a) => s + a.count, 0)} 次任务, 节省 {formatBytes(ratios.totalSavedBytes)}, 平均 {ratios.avgRatio.toFixed(2)}×
                 </Text>
@@ -802,20 +945,53 @@ export default function DicomCompressPage() {
             {ratios.byAlgorithm.length > 0 ? (
               <>
                 <Text strong style={{ display: "block", marginBottom: 8 }}>
-                  按算法 / By Algorithm
+                  按算法
                 </Text>
                 <Table dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
                 <Text strong style={{ display: "block", margin: "16px 0 8px" }}>
-                  按模态 / By Modality
+                  按模态
                 </Text>
                 <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
               </>
             ) : (
-              <Empty description="暂无统计数据, 先执行一次压缩 / No stats yet" />
+              <Empty description="暂无统计数据，先执行一次压缩" />
             )}
           </Card>
         </Col>
       </Row>
+
+      {/* [W1-B] 任务详情: GET /dicom/compress/tasks/:id */}
+      <Modal
+        title={`任务详情 - ${taskDetail?.id ?? ""}`}
+        open={taskDetailOpen}
+        onCancel={() => setTaskDetailOpen(false)}
+        footer={<Button onClick={() => setTaskDetailOpen(false)}>关闭</Button>}
+        width={560}
+      >
+        {taskDetail ? (
+          <Descriptions bordered column={2} size="small">
+            <Descriptions.Item label="任务 ID"><Text code>{taskDetail.id}</Text></Descriptions.Item>
+            <Descriptions.Item label="文件">{taskDetail.fileId}</Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag color={statusColor[taskDetail.status] ?? "default"}>{taskDetail.status}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="进度">{taskDetail.progress}%</Descriptions.Item>
+            <Descriptions.Item label="算法">{taskDetail.algorithmName ?? taskDetail.transferSyntax}</Descriptions.Item>
+            <Descriptions.Item label="模态">{taskDetail.modality ?? "-"}</Descriptions.Item>
+            <Descriptions.Item label="原始">{formatBytes(taskDetail.originalSize)}</Descriptions.Item>
+            <Descriptions.Item label="压缩后">{formatBytes(taskDetail.compressedSize)}</Descriptions.Item>
+            <Descriptions.Item label="压缩比">{taskDetail.ratio ? `${taskDetail.ratio.toFixed(2)}×` : "-"}</Descriptions.Item>
+            <Descriptions.Item label="耗时">{taskDetail.elapsedMs !== undefined ? `${taskDetail.elapsedMs} ms` : "-"}</Descriptions.Item>
+            <Descriptions.Item label="类型">{taskDetail.lossless ? "无损" : "有损"}</Descriptions.Item>
+            <Descriptions.Item label="真实">{taskDetail.simulated ? "估算" : "真实"}</Descriptions.Item>
+            <Descriptions.Item label="创建">{taskDetail.createdAt}</Descriptions.Item>
+            <Descriptions.Item label="更新">{taskDetail.updatedAt}</Descriptions.Item>
+            {taskDetail.error && <Descriptions.Item label="错误" span={2}><Text type="danger">{taskDetail.error}</Text></Descriptions.Item>}
+          </Descriptions>
+        ) : (
+          <Empty description="加载中" />
+        )}
+      </Modal>
     </div>
   );
 }

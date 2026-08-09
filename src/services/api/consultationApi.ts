@@ -32,6 +32,15 @@ export interface ConsultationDto {
   participants?: string[]
 }
 
+export interface ConsultationCommentDto {
+  id: string
+  consultationId: string
+  author: string
+  content: string
+  createdAt: string
+  parentId?: string
+}
+
 export const consultationApi = {
   // MOCK_ONLY (后端无 controller, MSW 支撑) — 页面在用 (ConsultationPage/QCPage)
   list: (params?: { status?: string; priority?: string }) =>
@@ -64,6 +73,20 @@ export const consultationApi = {
   // MOCK_ONLY (后端无 controller, MSW 支撑) — 当前无页面引用
   cancel: (id: string) =>
     api.post<ConsultationDto>(`/consultations/${id}/cancel`),
+
+  // [G005 Wave2A] 会诊评论 (后端 Wave1A 已实现 /consultations/:id/comments)
+  listComments: (id: string) =>
+    api.get<ConsultationCommentDto[]>(`/consultations/${id}/comments`),
+
+  addComment: async (id: string, author: string, content: string) => {
+    const res = await api.post<ConsultationCommentDto>(`/consultations/${id}/comments`, { author, content })
+    return res
+  },
+
+  replyComment: async (id: string, commentId: string, author: string, content: string) => {
+    const res = await api.post<ConsultationCommentDto>(`/consultations/${id}/comments/${commentId}/reply`, { author, content })
+    return res
+  },
 
   // MOCK_ONLY (后端无 controller, MSW 支撑) — 当前无页面引用
   complete: (id: string, notes?: string) =>

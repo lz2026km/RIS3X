@@ -9,12 +9,13 @@ import {
   TrendingUp, UserPlus, Shield, Download, Zap, DollarSign
 } from 'lucide-react'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart as RePieChart, Pie, Cell, Legend
 } from 'recharts'
 import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { ChartContainer } from '../components/charts'
 import { formatDateObj } from '../utils/date';
 
 // ============================================================
@@ -1754,7 +1755,7 @@ export default function SchedulePage() {
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>
                   班次分布
                 </h4>
-                <ResponsiveContainer width="100%" height={260}>
+                <ChartContainer height={260} state={stats.shiftDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无班次分布数据">
                   <RePieChart>
                     <Pie
                       data={stats.shiftDistribution}
@@ -1772,7 +1773,7 @@ export default function SchedulePage() {
                     <Tooltip />
                     <Legend />
                   </RePieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
               
               {/* 设备利用率 */}
@@ -2137,7 +2138,7 @@ export default function SchedulePage() {
             {costTrend.length > 0 && (
               <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>月度人力成本趋势（单位：元）</h4>
-                <ResponsiveContainer width="100%" height={280}>
+                <ChartContainer height={280} state={costTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无成本趋势数据">
                   <BarChart data={costTrend}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -2148,7 +2149,7 @@ export default function SchedulePage() {
                     <Bar dataKey="overtime" name="加班成本" fill={C.warning} radius={[4, 4, 0, 0]} />
                     <Bar dataKey="differential" name="班次补贴" fill={C.accent} radius={[4, 4, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             )}
 

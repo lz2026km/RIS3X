@@ -3,6 +3,7 @@ import { message, Spin, Alert, Button } from "antd";
 import { Search, Download, Database, Eye, RefreshCw } from "lucide-react";
 import { cardiacSpecialtyApi } from "../../services/api/cardiacSpecialtyApi";
 import type { CardiacAnalysis } from "../../services/api/cardiacSpecialtyApi";
+import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 
 type CvModality = "CCTA" | "CMR" | "Echo" | "Cath" | "Vascular";
 type CvAnatomy =
@@ -94,24 +95,36 @@ export default function CvDatabasePage() {
   const [cases, setCases] = useState<CvCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // [W1-B] 数据源标注: real=cardiacAiApi / demo=cardiacSpecialtyApi 演示回退
+  const [dataSource, setDataSource] = useState<"real" | "demo">("demo");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await cardiacSpecialtyApi.getAnalyses();
-      if (res.success) {
-        const mapped = (Array.isArray(res.data) ? res.data : []).map(
-          mapAnalysisToCase,
-        );
-        setCases(mapped);
+      // [W1-B] 优先真实 cardiacAiApi (/ai-diagnosis/cardiac-ai), 空/失败回退演示
+      const real = await loadCardiacAiAnalyses();
+      let mapped: CvCase[] = [];
+      if (real) {
+        mapped = real.map(mapAnalysisToCase);
+        setDataSource("real");
       } else {
-        setError(res.error?.message ?? "加载失败");
-        setCases([]);
+        const res = await cardiacSpecialtyApi.getAnalyses();
+        if (res.success) {
+          mapped = (Array.isArray(res.data) ? res.data : []).map(
+            mapAnalysisToCase,
+          );
+          setDataSource("demo");
+        } else {
+          setError(res.error?.message ?? "加载失败");
+          setDataSource("demo");
+        }
       }
+      setCases(mapped);
     } catch (e) {
       setError((e as Error)?.message ?? "加载失败");
       setCases([]);
+      setDataSource("demo");
     } finally {
       setLoading(false);
     }
@@ -142,7 +155,7 @@ export default function CvDatabasePage() {
         <h1
           style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
         >
-          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', fontWeight: 400 }}>演示数据</span>
+          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'cardiacAiApi 实时' : '演示数据(回退)'}</span>
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           <Button

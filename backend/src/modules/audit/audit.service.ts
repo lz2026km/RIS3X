@@ -65,6 +65,40 @@ export class AuditService {
     return { total, last24h }
   }
 
+  // [G005 Wave1A P0] 审计聚合 (AuditCompliancePage 在用):
+  // 从 AuditLog 派生按操作类型/资源/用户分组的统计 + 总数/近24h/拒绝数
+  async aggregation() {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const [total, last24h, denied, rows] = await Promise.all([
+      this.prisma.auditLog.count({ where: { tenantId: currentTenantId() } }),
+      this.prisma.auditLog.count({
+        where: { tenantId: currentTenantId(), createdAt: { gte: since } },
+      }),
+      this.prisma.auditLog.count({
+        where: { tenantId: currentTenantId(), success: false },
+      }),
+      this.prisma.auditLog.findMany({
+        where: { tenantId: currentTenantId() },
+        select: { action: true, resource: true, userId: true },
+        orderBy: { createdAt: 'desc' },
+        take: 50000,
+      }),
+    ])
+    const byAction: Record<string, number> = {}
+    const byResource: Record<string, number> = {}
+    const userMap = new Map<string, number>()
+    for (const row of rows) {
+      byAction[row.action] = (byAction[row.action] ?? 0) + 1
+      byResource[row.resource] = (byResource[row.resource] ?? 0) + 1
+      const uid = row.userId ?? 'system'
+      userMap.set(uid, (userMap.get(uid) ?? 0) + 1)
+    }
+    const byUser = Array.from(userMap.entries())
+      .map(([userId, count]) => ({ userId, count }))
+      .sort((a, b) => b.count - a.count)
+    return { total, last24h, denied, byAction, byResource, byUser }
+  }
+
   // [W2-C] 审计记录详情 (AuditPage Drawer)
   async getById(id: string) {
     const row = await this.prisma.auditLog.findUnique({

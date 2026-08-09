@@ -16,6 +16,7 @@ import {
 import { Spin, Alert, Button, Select, Empty } from "antd";
 import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
 import type { CardiacAnalysis } from "@/services/api/cardiacSpecialtyApi";
+import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 
 const CADRADS_COLORS: Record<string, string> = {
   0: "#16a34a",
@@ -76,6 +77,8 @@ const CardiacSpecialtyPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string>("");
+  // [W1-B] 数据源标注: real=cardiacAiApi(/ai-diagnosis/cardiac-ai) / demo=cardiacSpecialtyApi 演示回退
+  const [dataSource, setDataSource] = useState<"real" | "demo">("demo");
   const tabs = [
     { key: "coronary" as const, label: "冠脉评估" },
     { key: "function" as const, label: "心功能分析" },
@@ -87,20 +90,30 @@ const CardiacSpecialtyPage = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await cardiacSpecialtyApi.getAnalyses();
-      if (res.success) {
-        const list = Array.isArray(res.data) ? res.data : [];
-        setAnalyses(list);
-        if (list.length > 0 && !list.some((a) => a.id === selectedId)) {
-          setSelectedId(list[0]!.id);
-        }
+      // [W1-B] 优先真实 cardiacAiApi, 空/失败回退演示 cardiacSpecialtyApi
+      const real = await loadCardiacAiAnalyses();
+      let list: CardiacAnalysis[] = [];
+      if (real) {
+        list = real;
+        setDataSource("real");
       } else {
-        setError(res.error?.message ?? "加载失败");
-        setAnalyses([]);
+        const res = await cardiacSpecialtyApi.getAnalyses();
+        if (res.success) {
+          list = Array.isArray(res.data) ? res.data : [];
+          setDataSource("demo");
+        } else {
+          setError(res.error?.message ?? "加载失败");
+          setDataSource("demo");
+        }
+      }
+      setAnalyses(list);
+      if (list.length > 0 && !list.some((a) => a.id === selectedId)) {
+        setSelectedId(list[0]!.id);
       }
     } catch (e) {
       setError((e as Error)?.message ?? "加载失败");
       setAnalyses([]);
+      setDataSource("demo");
     } finally {
       setLoading(false);
     }
@@ -193,14 +206,14 @@ const CardiacSpecialtyPage = () => {
             style={{
               fontSize: 20,
               fontWeight: 700,
-              color: "#1a3a5c",
+              color: "var(--color-primary-800)",
               margin: 0,
               display: "flex",
               alignItems: "center",
               gap: 8,
             }}
           >
-            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' }}>演示数据</span>
+            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}` }}>{dataSource === 'real' ? 'cardiacAiApi 实时' : '演示数据(回退)'}</span>
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
             Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学
@@ -320,7 +333,7 @@ const CardiacSpecialtyPage = () => {
               >
                 <k.icon size={20} color={k.color} />
               </div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: "#1a3a5c" }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: "var(--color-primary-800)" }}>
                 {k.value}
               </div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
@@ -372,7 +385,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
@@ -687,7 +700,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                 }}
               >
@@ -766,7 +779,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                 }}
               >
@@ -826,7 +839,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                   display: "flex",
                   alignItems: "center",
@@ -924,7 +937,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                 }}
               >
@@ -1022,7 +1035,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                 }}
               >
@@ -1101,7 +1114,7 @@ const CardiacSpecialtyPage = () => {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#1a3a5c",
+                  color: "var(--color-primary-800)",
                   marginBottom: 16,
                 }}
               >

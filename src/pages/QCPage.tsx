@@ -930,7 +930,7 @@ export default function QCPage() {
               ))}
             </div>
             {/* 排行榜表格 */}
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['排名', '医生姓名', '总分', '格式分(30%)', '准确分(50%)', '时效分(20%)', '报告数', '绩效等级'].map(h => (
@@ -981,7 +981,7 @@ export default function QCPage() {
                   )
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {/* 质控问题分布 */}
@@ -1101,7 +1101,7 @@ export default function QCPage() {
 
           {/* Report List */}
           <div style={{ background: WHITE, borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['报告ID', '患者姓名', '报告医生', '审核医生', '等级', '总分', '完整性', '准确性', '规范性', '及时性', '状态', '操作'].map(h => (
@@ -1143,7 +1143,7 @@ export default function QCPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
       )}
@@ -1167,7 +1167,7 @@ export default function QCPage() {
 
           {/* Image QC Table */}
           <div style={{ background: WHITE, borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['检查号', '患者', '设备', '影像评分', '主要问题', '状态', '操作'].map(h => (
@@ -1208,7 +1208,7 @@ export default function QCPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {/* Waste Film Analysis Chart */}
@@ -1273,7 +1273,7 @@ export default function QCPage() {
 
           {/* Timeout List */}
           <div style={{ background: WHITE, borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['检查号', '患者', '检查项目', '计划时间', '实际报告', '延迟(分钟)', '超时原因', '严重程度'].map(h => (
@@ -1306,7 +1306,7 @@ export default function QCPage() {
                   )
                 })}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {/* Reason Analysis & Suggestions */}
@@ -1455,7 +1455,7 @@ export default function QCPage() {
               >
                 <Plus size={14} />{t('qcdefect.newInspection')}</button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['抽检ID', '报告ID', '患者', '报告医生', '抽检医生', '抽检日期', '等级', '评分', '缺陷', '审核意见', '状态', '操作'].map(h => (
@@ -1504,7 +1504,7 @@ export default function QCPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {/* 抽检问题汇总与改进建议 */}
@@ -1864,7 +1864,7 @@ export default function QCPage() {
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Award size={16} color={ACCENT} />{t('qc.regionalRanking')}</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                       {['排名', '医疗机构', '综合评分', '图像质量', '报告质量', '时效性', '危急值报告', '趋势'].map(h => (
@@ -1919,7 +1919,7 @@ export default function QCPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               </div>
 
               {/* 雷达图对比 */}
@@ -2284,7 +2284,7 @@ export default function QCPage() {
                   >
                     <Plus size={14} />{t('qc.newRecord')}</button>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                       {['记录ID', '机构', '问题类型', '问题描述', '严重程度', '状态', '上报日期', '整改期限', '操作'].map(h => (
@@ -2318,7 +2318,7 @@ export default function QCPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               </div>
 
               {/* 整改统计 */}
@@ -2368,7 +2368,7 @@ export default function QCPage() {
                 <button onClick={handleRandomAssign} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Zap size={14} />{t('qc.randomAssign')}</button>
               </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                   {['案例ID', '患者', '原作者', '评审人', '盲ID', '状态', '操作'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
                 </tr></thead>
@@ -2389,7 +2389,7 @@ export default function QCPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
           {peerReviewTab === 'scoring' && (

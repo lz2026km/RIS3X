@@ -1289,6 +1289,39 @@ export default function NotificationCenter() {
     }
   }, [userId])
 
+  // [W1-B] 广播通知: notificationsApi.broadcast (POST /notifications/broadcast)
+  const [showBroadcast, setShowBroadcast] = useState(false)
+  const [bcForm, setBcForm] = useState({ type: 'SYSTEM' as NotificationDto['type'], severity: 'INFO' as NotificationDto['severity'], title: '', content: '', userIds: '' })
+  const [bcSaving, setBcSaving] = useState(false)
+
+  const handleBroadcast = async () => {
+    if (!bcForm.title.trim() || !bcForm.content.trim()) { setLoadError('请填写标题和内容'); return }
+    setBcSaving(true)
+    setLoadError(null)
+    try {
+      const userIds = bcForm.userIds.split(/[,，\s]+/).filter(Boolean)
+      const res = await notificationsApi.broadcast({
+        userIds: userIds.length > 0 ? userIds : ['current'],
+        type: bcForm.type,
+        severity: bcForm.severity,
+        title: bcForm.title.trim(),
+        content: bcForm.content.trim(),
+      })
+      if (res.success) {
+        setLoadError(null)
+        setShowBroadcast(false)
+        setBcForm({ type: 'SYSTEM', severity: 'INFO', title: '', content: '', userIds: '' })
+        void loadData()
+      } else {
+        setLoadError(res.error?.message ?? '广播发送失败')
+      }
+    } catch (e) {
+      setLoadError('广播发送失败: ' + ((e as Error)?.message ?? '未知错误'))
+    } finally {
+      setBcSaving(false)
+    }
+  }
+
   // 设置更新
   const handleSettingUpdate = useCallback((key: keyof NotificationSettings, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
@@ -1516,6 +1549,19 @@ export default function NotificationCenter() {
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
+            {isAdmin && (
+              <button
+                onClick={() => setShowBroadcast(true)}
+                style={{
+                  padding: '6px 12px', borderRadius: 6, border: `1px solid ${showBroadcast ? SUCCESS : '#e2e8f0'}`,
+                  background: showBroadcast ? `${SUCCESS}15` : WHITE, color: showBroadcast ? SUCCESS : GRAY,
+                  fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                }}
+              >
+                <Send size={14} />
+                广播通知
+              </button>
+            )}
             <button
               onClick={() => setShowDeliveryTracking(!showDeliveryTracking)}
               style={{
@@ -1667,6 +1713,55 @@ export default function NotificationCenter() {
           onClose={() => setShowDetailModal(false)}
           onMarkRead={handleMarkRead}
         />
+      )}
+
+      {/* [W1-B] 广播通知弹窗: POST /notifications/broadcast */}
+      {showBroadcast && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowBroadcast(false)}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>广播通知 (POST /notifications/broadcast)</div>
+              <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>标题 *</label>
+                <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder="通知标题"
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>内容 *</label>
+                <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder="通知内容"
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>类型</label>
+                  <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, background: WHITE, outline: 'none' }}>
+                    {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>严重级别</label>
+                  <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, background: WHITE, outline: 'none' }}>
+                    {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>接收用户ID (逗号分隔, 留空=全部)</label>
+                <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder="如 admin,doctor01 (留空广播全部)"
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? '发送中...' : '发送广播'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

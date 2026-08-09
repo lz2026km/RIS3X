@@ -4,6 +4,7 @@ import {
   Server, Shield, Plus, Trash2, Activity, Wifi, Clock, Terminal,
 } from "lucide-react";
 import { api } from "../../services/api/client";
+import { usePagination } from "../../hooks/usePagination";
 import dayjs from "dayjs";
 
 interface MllpStatus {
@@ -28,6 +29,7 @@ interface ConnectionLogEntry {
 export const MllpConfigPage: React.FC = () => {
   const [status, setStatus] = useState<MllpStatus | null>(null);
   const [logs, setLogs] = useState<ConnectionLogEntry[]>([]);
+  const { pageData: logPageData, pagination: logPagination } = usePagination(logs, 10);
   const [loading, setLoading] = useState({ status: false, logs: false });
 
   const fetchStatus = useCallback(async () => {
@@ -218,10 +220,10 @@ export const MllpConfigPage: React.FC = () => {
           size="small"
           rowKey="id"
           loading={loading.logs}
-          dataSource={logs}
+          dataSource={logPageData}
           columns={logColumns}
           scroll={{ x: "max-content" }}
-          pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+          pagination={logPagination}
           locale={{ emptyText: "暂无日志" }}
         />
       </Card>

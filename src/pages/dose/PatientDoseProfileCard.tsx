@@ -1,5 +1,6 @@
 import { User, Monitor, Calendar, Eye, FileText } from "lucide-react";
-import { getAlertBadge } from "./utils";
+import { message } from "antd";
+import { getAlertBadge, exportDoseDataToCSV } from "./utils";
 import type { PatientDoseRecord } from "./types";
 import { REGULATORY_THRESHOLDS } from "./constants";
 
@@ -252,10 +253,13 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           <Eye size={13} /> 查看详情
         </button>
         <button
-          onClick={() => message.success('CSV 导出任务已提交，请稍后查看')}
+          onClick={() => {
+            exportDoseDataToCSV([patient], `剂量记录_${patient.patientId}_${patient.patientName}.csv`);
+            message.success('已导出该患者剂量记录 CSV');
+          }}
           style={actionBtn("#f8fafc", "#334155")}
         >
-          <FileText size={13} /> 历史记录
+          <FileText size={13} /> 导出 CSV
         </button>
       </div>
     </div>

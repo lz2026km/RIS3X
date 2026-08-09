@@ -184,6 +184,14 @@ export const deviceMgmtHandlers = [
       data: { id: 'INJ-001', name: '高压注射器 1号', status: 'READY', lastCalibration: '2026-06-01' },
     });
   }),
+  // [W1-B] 注射指令下发: POST /device-mgmt/contrast/injection
+  http.post(`${API}/contrast/injection`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const newItem = { id: body.id || uuidv4(), action: 'SEND', resource: 'injection-command', detail: body, createdAt: new Date().toISOString() };
+    try { create('injectionCommands' as any, newItem); } catch {}
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
   http.get(`${API}/contrast/quality`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);

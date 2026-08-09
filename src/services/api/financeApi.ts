@@ -81,7 +81,8 @@ export const financeApi = {
   listInvoices: () =>
     api.get<InvoiceDto[]>('/finance/invoices'),
 
-  createInvoice: async (data: Partial<InvoiceDto>) => {
+  // [W1-B] 后端 POST /finance/invoices 实际接收 { patientId, chargeItemIds[], discount? }
+  createInvoice: async (data: Partial<InvoiceDto> & { chargeItemIds?: string[]; discount?: number }) => {
     const res = await api.post<InvoiceDto>('/finance/invoices', data)
     await invalidateApiCache('/finance/invoices')
     return res
