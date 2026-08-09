@@ -1,10 +1,10 @@
 // [v3.0.6.8-73] 术语服务器/数据字典
 // [v3.0.6.11-60] Batch 3: snomedApi 概念检索 + terminologyApi 映射/系统状态
-import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
-import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
+import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export const TerminologyServerPage: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -109,7 +109,7 @@ export const TerminologyServerPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadMeta()} loading={loading}>刷新</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void loadMeta()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void loadMeta()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={loading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -137,7 +137,7 @@ export const TerminologyServerPage: React.FC = () => {
           <Button size="small" icon={<BookMarked size={12} />} loading={searching} onClick={() => void doEncode()}>编码 (SNOMED)</Button>
           <Button size="small" onClick={() => { setResults([]); setQuery('') }}>清空</Button>
         </Space>
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           dataSource={results}
           rowKey="conceptId"
           pagination={false}
@@ -151,7 +151,7 @@ export const TerminologyServerPage: React.FC = () => {
             { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m === 'exact' ? '精确' : m === 'partial' ? '部分' : m}</Tag> },
             { title: '置信度', dataIndex: 'confidence', render: (c: number) => `${Math.round((c ?? 0) * 100)}%` },
           ]}
-        scroll={{ x: 'max-content' }}
+       
         />
       </Card>
 
@@ -162,7 +162,7 @@ export const TerminologyServerPage: React.FC = () => {
             title={<Space><Layers size={14} />跨系统映射</Space>}
             extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setMappingModal(true)}>新建映射</Button>}
           >
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               dataSource={mappings}
               rowKey="id"
               pagination={false}
@@ -181,13 +181,13 @@ export const TerminologyServerPage: React.FC = () => {
                   ),
                 },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Col>
         <Col xs={24} md={10}>
           <Card size="small" title={<Space><Globe size={14} />系统状态</Space>}>
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               dataSource={systems}
               rowKey="system"
               pagination={false}

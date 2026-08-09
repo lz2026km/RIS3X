@@ -1,13 +1,13 @@
 // [v3.0.6.11-54] Phase 2: 危急值告警 (真实列表 + 级别筛选 + 处理闭环)
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  criticalAlertApi, type CriticalAlert, type CriticalAlertStats,
+} from '../../services/api/criticalAlertApi'
 import {
   Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message,
   Modal, Input, Select, Alert, Spin, Badge, Empty, Progress,
 } from 'antd'
 import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock } from 'lucide-react'
-import {
-  criticalAlertApi, type CriticalAlert, type CriticalAlertStats,
-} from '../../services/api/criticalAlertApi'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -149,7 +149,7 @@ const CriticalAlertPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={refresh}>重试</Button>} />
+          action={<Button size="small" onClick={refresh}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

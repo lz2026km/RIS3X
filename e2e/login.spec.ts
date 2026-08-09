@@ -27,7 +27,7 @@ test.describe('登录功能', () => {
   test('用户登录和页面访问', async ({ page }) => {
     await page.goto(`${BASE}/login`, { waitUntil: 'networkidle', timeout: 30000 })
     await page.waitForTimeout(3000)
-    const title = await page.locator('h1').textContent()
+    const title = await page.locator('h1', { hasText: '登录' }).textContent()
     expect(title).toContain('登录')
 
     await page.selectOption('select', '主任')

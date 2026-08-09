@@ -1,4 +1,6 @@
-﻿// G005 放射科RIS系统 - 检查预约管理 v2.1.0
+﻿import { Card } from 'antd'
+import { PageHeader } from "../components/common/PageHeader";
+// G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -179,64 +181,58 @@ const STATUS_CONFIG: Record<
 > = {
   pending: {
     label: "待确认",
-    bg: "#fef9c3",
+    bg: "#f59e0b22",
     color: "#ca8a04",
     border: "#fef08a",
   },
   confirmed: {
     label: "已确认",
-    bg: "#d1fae5",
+    bg: "#22c55e22",
     color: "#059669",
     border: "#6ee7b7",
   },
   "checked-in": {
     label: "已到检",
-    bg: "#dbeafe",
-    color: "#2563eb",
+    bg: "#3b82f622", color: "#3b82f6",
     border: "#93c5fd",
   },
   checkedIn: {
     label: "已到检",
-    bg: "#dbeafe",
-    color: "#2563eb",
+    bg: "#3b82f622", color: "#3b82f6",
     border: "#93c5fd",
   },
   cancelled: {
     label: "已取消",
-    bg: "#f1f5f9",
-    color: "#64748b",
-    border: "#cbd5e1",
+    bg: "var(--bg-deep)", color: "var(--text-secondary)",
+    border: "var(--border-color)",
   },
   "no-show": {
     label: "违约",
-    bg: "#fee2e2",
-    color: "#dc2626",
+    bg: "#ef444422", color: "#ef4444",
     border: "#fca5a5",
   },
-  noShow: { label: "违约", bg: "#fee2e2", color: "#dc2626", border: "#fca5a5" },
+  noShow: { label: "违约", bg: "#ef444422", color: "#ef4444", border: "#fca5a5" },
   completed: {
     label: "已完成",
-    bg: "#ede9fe",
+    bg: "#8b5cf622",
     color: "#7c3aed",
     border: "#c4b5fd",
   },
   "in-progress": {
     label: "进行中",
-    bg: "#fef3c7",
-    color: "#d97706",
+    bg: "#f59e0b22", color: "#f59e0b",
     border: "#fcd34d",
   },
   rescheduled: {
     label: "已改期",
-    bg: "#fce7f3",
+    bg: "#ec489922",
     color: "#be185d",
     border: "#f9a8d4",
   },
   default: {
     label: "未知",
-    bg: "#f1f5f9",
-    color: "#64748b",
-    border: "#cbd5e1",
+    bg: "var(--bg-deep)", color: "var(--text-secondary)",
+    border: "var(--border-color)",
   },
 };
 const getStatusConfig = (status: string) =>
@@ -246,10 +242,10 @@ const PRIORITY_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  critical: { label: "危重", bg: "#fee2e2", color: "#dc2626" },
-  urgent: { label: "紧急", bg: "#fef3c7", color: "#d97706" },
-  normal: { label: "普通", bg: "#f1f5f9", color: "#64748b" },
-  default: { label: "普通", bg: "#f1f5f9", color: "#64748b" },
+  critical: { label: "危重", bg: "#ef444422", color: "#ef4444" },
+  urgent: { label: "紧急", bg: "#f59e0b22", color: "#f59e0b" },
+  normal: { label: "普通", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  default: { label: "普通", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getPriorityConfig = (priority: string) =>
   PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default!;
@@ -266,11 +262,11 @@ const REMINDER_STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  已发送: { label: "已发送", bg: "#dbeafe", color: "#1d4ed8" },
-  已确认: { label: "已确认", bg: "#d1fae5", color: "#059669" },
-  已改期: { label: "已改期", bg: "#fef3c7", color: "#d97706" },
-  已取消: { label: "已取消", bg: "#f1f5f9", color: "#64748b" },
-  default: { label: "未知", bg: "#f1f5f9", color: "#64748b" },
+  已发送: { label: "已发送", bg: "#3b82f622", color: "#1d4ed8" },
+  已确认: { label: "已确认", bg: "#22c55e22", color: "#059669" },
+  已改期: { label: "已改期", bg: "#f59e0b22", color: "#f59e0b" },
+  已取消: { label: "已取消", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  default: { label: "未知", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getReminderStatusConfig = (status: string) =>
   REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default!;
@@ -279,10 +275,10 @@ const RESCHEDULE_REASON_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  patient: { label: "患者主动", bg: "#dbeafe", color: "#1d4ed8" },
-  doctor: { label: "医生调整", bg: "#fef3c7", color: "#d97706" },
-  device: { label: "设备故障", bg: "#fee2e2", color: "#dc2626" },
-  default: { label: "其他", bg: "#f1f5f9", color: "#64748b" },
+  patient: { label: "患者主动", bg: "#3b82f622", color: "#1d4ed8" },
+  doctor: { label: "医生调整", bg: "#f59e0b22", color: "#f59e0b" },
+  device: { label: "设备故障", bg: "#ef444422", color: "#ef4444" },
+  default: { label: "其他", bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getRescheduleReasonConfig = (reason: string) =>
   RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default!;
@@ -875,7 +871,7 @@ export default function AppointmentPage() {
       style={{
         padding: 0,
         minHeight: "100vh",
-        background: "#f0f4f8",
+        background: "var(--bg-card)",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
@@ -886,7 +882,7 @@ export default function AppointmentPage() {
 
       {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
       {patientPreset && (
-        <div style={{ background: '#eff6ff', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
           <CalendarPlus size={16} />
           <span>已从患者详情进入: <b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}），预约表单已自动填充，直接选择检查项目即可提交。</span>
           <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#1e40af', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
@@ -913,25 +909,13 @@ export default function AppointmentPage() {
             margin: "0 auto",
           }}
         >
-          <div>
-            <h1
-              style={{
-                fontSize: 20,
-                fontWeight: 800,
-                color: primaryBlue,
-                margin: "0 0 4px",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <CalendarClock size={22} style={{ color: "#d97706" }} />
-              检查预约管理
-            </h1>
-            <p style={{ fontSize: 12, color: textGray, margin: 0 }}>
-              预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒
-            </p>
-          </div>
+          <PageHeader
+            variant="flex"
+            icon={<CalendarClock size={22} style={{ color: "#d97706" }} />}
+            title="检查预约管理"
+            subtitle="预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒"
+            style={{ marginBottom: 0 }}
+          />
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button
               onClick={() => {
@@ -1024,35 +1008,34 @@ export default function AppointmentPage() {
               value: todayStats.pending,
               icon: Clock,
               color: "#ca8a04",
-              bg: "#fef9c3",
+              bg: "#f59e0b22",
             },
             {
               label: "已确认",
               value: todayStats.confirmed,
               icon: CheckCircle,
               color: "#059669",
-              bg: "#d1fae5",
+              bg: "#22c55e22",
             },
             {
               label: "违约",
               value: todayStats.noShow,
               icon: XCircle,
-              color: "#dc2626",
-              bg: "#fee2e2",
+              color: "#ef4444", bg: "#ef444422",
             },
             {
               label: "平均等待",
               value: todayStats.avgWaitTime,
               icon: Clock,
               color: "#7c3aed",
-              bg: "#f5f3ff",
+              bg: "#8b5cf622",
             },
             {
               label: "使用率",
               value: `${todayStats.utilizationRate}%`,
               icon: BarChart3,
               color: "#0891b2",
-              bg: "#ecfeff",
+              bg: "#06b6d422",
             },
           ].map((stat, i) => (
             <div
@@ -1127,10 +1110,10 @@ export default function AppointmentPage() {
               filteredListAppointments={filteredListAppointments}
               statsData={[
                 { label: "今日预约", value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
-                { label: "已到检", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#d1fae5" },
-                { label: "待确认", value: appointments.filter(a => a.status === "pending").length, color: "#d97706", bg: "#fef3c7" },
-                { label: "违约", value: appointments.filter(a => a.status === "no-show").length, color: "#dc2626", bg: "#fee2e2" },
-                { label: "今日已约", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#ede9fe" },
+                { label: "已到检", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
+                { label: "待确认", value: appointments.filter(a => a.status === "pending").length, color: "#f59e0b", bg: "#f59e0b22" },
+                { label: "违约", value: appointments.filter(a => a.status === "no-show").length, color: "#ef4444", bg: "#ef444422" },
+                { label: "今日已约", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#8b5cf622" },
               ]}
             />
             {viewMode === "reminders" && (
@@ -1150,7 +1133,7 @@ export default function AppointmentPage() {
                     gap: 4,
                     padding: "10px 12px",
                     borderBottom: `1px solid ${borderGray}`,
-                    background: "#f8fafc",
+                    background: "var(--bg-card)",
                     flexWrap: "wrap",
                   }}
                 >
@@ -1183,7 +1166,7 @@ export default function AppointmentPage() {
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
-                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
                           {["患者", "电话", "检查项目", "检查时间", "提醒时间", "渠道", "状态", "响应时间"].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
@@ -1217,7 +1200,7 @@ export default function AppointmentPage() {
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
-                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
                           {["患者", "电话", "检查项目", "原时间", "新时间", "原因", "操作时间"].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
@@ -1250,7 +1233,7 @@ export default function AppointmentPage() {
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
                       <thead>
-                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
                           {["患者", "电话", "检查项目", "取消时间", "原因", "是否改约"].map((h) => (
                             <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
                           ))}
@@ -1358,7 +1341,7 @@ export default function AppointmentPage() {
                   {/* 全局说明 */}
                   <div
                     style={{
-                      background: "#fef9c3",
+                      background: "var(--color-warning-bg)",
                       borderRadius: 6,
                       padding: "8px 10px",
                       fontSize: 12,
@@ -1396,7 +1379,7 @@ export default function AppointmentPage() {
                       <div
                         key={rule.deviceId}
                         style={{
-                          background: "#f8fafc",
+                          background: "var(--bg-card)",
                           borderRadius: 8,
                           padding: 10,
                           border: `1px solid ${borderGray}`,
@@ -1841,7 +1824,7 @@ export default function AppointmentPage() {
                   </div>
                   <div
                     style={{
-                      background: "#f8fafc",
+                      background: "var(--bg-card)",
                       borderRadius: 6,
                       padding: "10px 12px",
                       textAlign: "left",
@@ -1997,7 +1980,7 @@ export default function AppointmentPage() {
                         borderRadius: 8,
                         border: `1px solid ${borderGray}`,
                         marginBottom: 6,
-                        background: "#fafbfc",
+                        background: "var(--bg-card)",
                       }}
                     >
                       <div
@@ -2044,13 +2027,13 @@ export default function AppointmentPage() {
                               : "普通"}
                         </span>
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                         {w.examItemName} · {w.modality}
                       </div>
                       <div
                         style={{
                           fontSize: 12,
-                          color: "#94a3b8",
+                          color: "var(--text-secondary)",
                           marginBottom: 4,
                         }}
                       >
@@ -2094,8 +2077,8 @@ export default function AppointmentPage() {
                           style={{
                             padding: "3px 10px",
                             borderRadius: 4,
-                            border: "1px solid #e2e8f0",
-                            background: "#fff",
+                            border: "1px solid var(--border-color)",
+                            background: "var(--bg-card)",
                             color: "#059669",
                             fontSize: 12,
                             fontWeight: 600,
@@ -2110,7 +2093,7 @@ export default function AppointmentPage() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "#94a3b8",
+                      color: "var(--text-secondary)",
                       textAlign: "center",
                       marginTop: 6,
                     }}
@@ -2180,7 +2163,7 @@ export default function AppointmentPage() {
                             style={{
                               fontSize: 12,
                               fontWeight: 600,
-                              color: "#334155",
+                              color: "var(--text-primary)",
                             }}
                           >
                             {device.name.split("（")[0]}
@@ -2240,15 +2223,13 @@ export default function AppointmentPage() {
                           label: "新建预约",
                           icon: Plus,
                           action: () => setShowForm(true),
-                          color: "#d97706",
-                          bg: "#fef3c7",
+                          color: "#f59e0b", bg: "#f59e0b22",
                         },
                         {
                           label: "批量导入",
                           icon: Upload,
                           action: () => setShowBatchImport(true),
-                          color: "#2563eb",
-                          bg: "#dbeafe",
+                          color: "#3b82f6", bg: "#3b82f622",
                         },
                         {
                           label: "预约规则",
@@ -2283,7 +2264,7 @@ export default function AppointmentPage() {
                             }, 2000);
                           },
                           color: "#059669",
-                          bg: "#d1fae5",
+                          bg: "#22c55e22",
                         },
                       ].map((item, i) => (
                         <button
@@ -2334,7 +2315,7 @@ export default function AppointmentPage() {
           }}
           onClick={() => setShowDetailModal(false)}
         >
-          <div
+          <Card bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -2345,7 +2326,7 @@ export default function AppointmentPage() {
               border: `1px solid ${borderGray}`,
             }}
             onClick={(e) => e.stopPropagation()}
-          >
+           styles={{ body: { padding: 0 } }}>
             <div
               style={{
                 padding: "14px 18px",
@@ -2386,7 +2367,7 @@ export default function AppointmentPage() {
               {/* 基本信息 */}
               <div
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--bg-card)",
                   borderRadius: 8,
                   padding: "10px 12px",
                   marginBottom: 14,
@@ -2498,7 +2479,7 @@ export default function AppointmentPage() {
                     <div
                       key={label}
                       style={{
-                        background: "#f8fafc",
+                        background: "var(--bg-card)",
                         borderRadius: 6,
                         padding: "5px 8px",
                         border: `1px solid ${borderGray}`,
@@ -2539,7 +2520,7 @@ export default function AppointmentPage() {
                   </div>
                   <div
                     style={{
-                      background: "#fef9c3",
+                      background: "var(--color-warning-bg)",
                       borderRadius: 6,
                       padding: "6px 10px",
                       fontSize: 12,
@@ -2570,7 +2551,7 @@ export default function AppointmentPage() {
                   </div>
                   <div
                     style={{
-                      background: "#f0f7ff",
+                      background: "var(--color-info-bg)",
                       borderRadius: 6,
                       padding: "6px 10px",
                       fontSize: 12,
@@ -2602,7 +2583,7 @@ export default function AppointmentPage() {
                     </div>
                     <div
                       style={{
-                        background: "#fee2e2",
+                        background: "var(--color-error-bg)",
                         borderRadius: 6,
                         padding: "6px 10px",
                         fontSize: 12,
@@ -2657,7 +2638,7 @@ export default function AppointmentPage() {
                       style={{
                         flex: 1,
                         padding: "8px",
-                        background: "#fee2e2",
+                        background: "var(--color-error-bg)",
                         color: "#dc2626",
                         border: "none",
                         borderRadius: 8,
@@ -2717,7 +2698,7 @@ export default function AppointmentPage() {
                   </div>
                 )}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -2741,7 +2722,7 @@ export default function AppointmentPage() {
             setCancelReason("");
           }}
         >
-          <div
+          <Card bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -2750,7 +2731,7 @@ export default function AppointmentPage() {
               border: `1px solid ${borderGray}`,
             }}
             onClick={(e) => e.stopPropagation()}
-          >
+           styles={{ body: { padding: 0 } }}>
             <div
               style={{
                 padding: "14px 18px",
@@ -2773,7 +2754,7 @@ export default function AppointmentPage() {
                 </div>
                 <div
                   style={{
-                    background: "#f8fafc",
+                    background: "var(--bg-card)",
                     borderRadius: 6,
                     padding: "8px 10px",
                     border: `1px solid ${borderGray}`,
@@ -2885,7 +2866,7 @@ export default function AppointmentPage() {
                 </button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -2906,7 +2887,7 @@ export default function AppointmentPage() {
           }}
           onClick={() => setConflictModal({ show: false, result: null })}
         >
-          <div
+          <Card bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -2914,7 +2895,7 @@ export default function AppointmentPage() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
             onClick={(e) => e.stopPropagation()}
-          >
+           styles={{ body: { padding: 0 } }}>
             <div
               style={{
                 padding: "14px 18px",
@@ -2941,7 +2922,7 @@ export default function AppointmentPage() {
                       key={c.id}
                       style={{
                         padding: "8px 10px",
-                        background: "#fee2e2",
+                        background: "var(--color-error-bg)",
                         borderRadius: 6,
                         marginBottom: 6,
                         border: "1px solid #fca5a5",
@@ -2970,7 +2951,7 @@ export default function AppointmentPage() {
               <div
                 style={{
                   padding: "10px 12px",
-                  background: "#fef3c7",
+                  background: "var(--color-warning-bg)",
                   borderRadius: 6,
                   border: "1px solid #fde68a",
                   fontSize: 12,
@@ -3023,7 +3004,7 @@ export default function AppointmentPage() {
                 </button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

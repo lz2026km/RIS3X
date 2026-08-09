@@ -1,4 +1,5 @@
 import React from "react";
+import { MOCK_REPORT_AUDIT } from "../../data/eyeImageQcMock";
 import { Card, Tag, Timeline, Space, Empty } from "antd";
 import {
   History,
@@ -8,7 +9,7 @@ import {
   AlertTriangle,
   RotateCcw,
 } from "lucide-react";
-import { MOCK_REPORT_AUDIT } from "../../data/eyeImageQcMock";
+import { Inbox } from 'lucide-react'
 
 const actionIcon: Record<string, React.ReactNode> = {
   created: <FileText size={14} />,
@@ -36,7 +37,7 @@ const ReportDraftPanel: React.FC<{ reportId: string }> = ({ reportId }) => {
   if (entries.length === 0)
     return (
       <Card size="small" title="报告历史">
-        <Empty description="暂无历史" />
+        <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无历史" />
       </Card>
     );
   return (

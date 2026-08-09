@@ -261,7 +261,7 @@ export const RealDicomViewerPage: React.FC = () => {
   const handleSave = useCallback(
     async (m: Omit<MeasurementItem, "id" | "createdAt" | "createdBy">) => {
       if (!studyId) {
-        message.warning("请先选择 Study");
+        message.warning("请先选择检查");
         return;
       }
       try {
@@ -593,7 +593,7 @@ export const RealDicomViewerPage: React.FC = () => {
         <div
           style={{
             width: 360,
-            background: "#fff",
+            background: "var(--bg-card)",
             borderLeft: "1px solid #1f1f1f",
             overflowY: "auto",
           }}
@@ -678,7 +678,7 @@ export const RealDicomViewerPage: React.FC = () => {
             right: 380,
             top: 80,
             width: 280,
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
@@ -710,7 +710,7 @@ export const RealDicomViewerPage: React.FC = () => {
             right: 380,
             top: 80,
             width: 280,
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
@@ -743,7 +743,7 @@ export const RealDicomViewerPage: React.FC = () => {
             right: 380,
             top: 80,
             width: 280,
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
@@ -788,7 +788,7 @@ export const RealDicomViewerPage: React.FC = () => {
             right: 380,
             top: 80,
             width: 300,
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             borderRadius: 8,
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",

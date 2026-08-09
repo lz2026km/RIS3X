@@ -118,13 +118,13 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* 左：评估项目 */}
-        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListChecks size={13} /> 评估项目
           </div>
           {assessment.evaluationItems.map(item => (
             <div key={item.key} style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
               {item.type === 'select' && item.options && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {item.options.map(opt => {
@@ -136,7 +136,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                         style={{
                           padding: '4px 10px', border: `1px solid ${selected ? '#3b82f6' : '#cbd5e1'}`,
                           borderRadius: 12, fontSize: 12, fontWeight: 600,
-                          background: selected ? '#dbeafe' : '#fff',
+                          background: selected ? 'var(--color-info-bg)' : 'var(--bg-card)',
                           color: selected ? '#1e40af' : '#475569',
                           cursor: 'pointer',
                         }}
@@ -154,12 +154,12 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                   onChange={e => setValues({ ...values, [item.key]: e.target.value })}
                   style={{
                     width: '100%', padding: '6px 10px',
-                    border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
+                    border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
                   }}
                 />
               )}
               {item.type === 'boolean' && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#475569' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
                   <input
                     type="checkbox"
                     checked={values[item.key] === true}
@@ -176,7 +176,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         {/* 右：分级选择 + 评估结果 */}
         <div>
           {/* 分级选择 */}
-          <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginBottom: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Award size={13} /> {assessment.category} 分级
             </div>
@@ -188,7 +188,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                   onClick={() => setSelectedGrade(g.value)}
                   style={{
                     width: '100%', padding: 10, marginBottom: 6,
-                    background: selected ? g.color : '#f8fafc',
+                    background: selected ? g.color : 'var(--bg-card)',
                     border: `2px solid ${selected ? g.color : '#e2e8f0'}`,
                     borderRadius: 6, textAlign: 'left', cursor: 'pointer',
                     transition: 'all 0.15s',
@@ -216,8 +216,8 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             <button
               onClick={() => setShowHistory(!showHistory)}
               style={{
-                flex: 1, padding: 10, border: '1px solid #cbd5e1', borderRadius: 6,
-                background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+                flex: 1, padding: 10, border: '1px solid var(--border-color)', borderRadius: 6,
+                background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
               }}
             >
@@ -242,10 +242,10 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
 
       {/* 历史 */}
       {showHistory && (
-        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginTop: 12 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={13} /> 历次评估记录
-            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
               {historySource === 'api' ? '（qcextApi 实时）' : '（演示数据）'}
             </span>
           </div>
@@ -253,11 +253,11 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             const gradeObj = assessment.grades.find(g => g.value === h.grade);
             return (
               <div key={i} style={{
-                padding: 10, marginBottom: 6, background: '#f8fafc', borderRadius: 4,
-                border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10,
+                padding: 10, marginBottom: 6, background: 'var(--bg-card)', borderRadius: 4,
+                border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                <div style={{ fontSize: 12, color: '#64748b', minWidth: 80 }}>{h.date}</div>
-                <div style={{ fontSize: 12, color: '#475569' }}>报告：{h.doctor}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', minWidth: 80 }}>{h.date}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>报告：{h.doctor}</div>
                 {gradeObj ? (
                   <span style={{
                     fontSize: 12, padding: '2px 8px', borderRadius: 10,
@@ -267,7 +267,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                 ) : (
                   <span style={{
                     fontSize: 12, padding: '2px 8px', borderRadius: 10,
-                    background: '#e0f2fe', color: '#0369a1', fontWeight: 600,
+                    background: 'var(--color-info-bg)', color: '#0369a1', fontWeight: 600,
                     marginLeft: 'auto',
                   }}>{h.grade}</span>
                 )}
@@ -275,7 +275,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             );
           })}
           {historyRows.length === 0 && (
-            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无评估记录</div>
+            <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>暂无评估记录</div>
           )}
         </div>
       )}

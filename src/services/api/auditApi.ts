@@ -6,7 +6,8 @@ export interface AuditEventDto {
   details?: string; ip?: string; userAgent?: string; status: 'SUCCESS' | 'FAILURE' | 'DENIED'; createdAt: string
 }
 export interface AuditQueryParams { page?: number; pageSize?: number; userId?: string; action?: string; resource?: string; status?: string; startDate?: string; endDate?: string; search?: string }
-export interface AuditAggregationDto { total: number; last24h: number; byAction: Record<string, number>; byResource: Record<string, number>; byUser: Array<{ userId: string; count: number }> }
+export interface AuditAggregationDto { total: number; last24h: number; denied?: number; byAction: Record<string, number>; byResource: Record<string, number>; byUser: Array<{ userId: string; count: number }> }
+export interface AuditStatsDto { total: number; last24h: number }
 
 export const auditApi = {
   list: (params?: AuditQueryParams) => {
@@ -15,6 +16,8 @@ export const auditApi = {
     return api.get<{ items: AuditEventDto[]; total: number; page: number; pageSize: number }>(`/audit${sp.toString() ? '?' + sp.toString() : ''}`)
   },
   getById: (id: string) => api.get<AuditEventDto>(`/audit/${encodeURIComponent(id)}`),
+  // [G005 Wave1A P0] 审计统计 (后端 GET /audit/stats → { total, last24h })
+  getStats: () => api.get<AuditStatsDto>('/audit/stats'),
   getAggregation: () => api.get<AuditAggregationDto>('/audit/aggregation'),
   // 导出 CSV: 后端 GET /audit/export 返回 text/csv, 以 blob 下载
   // [W1-B] 去重: 与 systemApi.auditApi.exportCsv 为同一后端端点(重复封装)。

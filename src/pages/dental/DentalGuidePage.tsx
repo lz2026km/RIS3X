@@ -125,7 +125,7 @@ export const DentalGuidePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -272,7 +272,7 @@ export const DentalGuidePage: React.FC = () => {
                           <div
                             style={{
                               fontSize: 11,
-                              color: "#999",
+                              color: "var(--text-secondary)",
                               marginTop: 4,
                             }}
                           >
@@ -382,7 +382,7 @@ export const DentalGuidePage: React.FC = () => {
                               <span style={{ fontSize: 12 }}>
                                 Ø{s.diameter} × {s.height}mm
                               </span>
-                              <span style={{ fontSize: 11, color: "#999" }}>
+                              <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                                 适配: {s.compatible?.slice(0, 2).join(", ")}...
                               </span>
                             </Space>

@@ -3,13 +3,14 @@
  * R3.WRITING 组 A:RECIST 1.1 / BI-RADS / PI-RADS / Lung-RADS / TI-RADS / CAD-RADS
  * 50 升级点:7+ 字段类型 / 必填校验 / 联动 / 分组 / 拖拽 / 默认值 / 单位 / 公式 / 上传 / 签名 / 评分 / 完成度环
  */
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import dayjs, { type Dayjs } from 'dayjs';
-import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload } from 'antd';
-import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText } from 'lucide-react';
 import { getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
 import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
 import type { StructuredTemplate, StructuredFieldDefinition, BiradsCategory, RecistResponse, PiradsScore } from '@types/R3/R3.WRITING';
+import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload } from 'antd';
+import dayjs, { type Dayjs } from 'dayjs';
+import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 
 const {  } = Input;
 
@@ -339,7 +340,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
               {t.label}
             </Space>
           ),
-          children: template ? renderTab(template) : <Empty />,
+          children: template ? renderTab(template) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />,
         }))}
       />
     </div>

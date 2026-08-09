@@ -26,19 +26,19 @@ const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 },
-  subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
+  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 },
-  statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
-  section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
-  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 },
-  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
+  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 },
+  td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-primary)' },
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
@@ -49,9 +49,9 @@ const badge = (bg: string, text: string): React.CSSProperties => ({
 });
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
-  <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8 }}>
-    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>{label}</div>
-    <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{value}</div>
+  <div style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
+    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2 }}>{label}</div>
+    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{value}</div>
   </div>
 );
 
@@ -153,10 +153,10 @@ const NeuroSpecialtyPage = () => {
           <h1 style={s.title}><Brain size={24} color="#dc2626" /> 神经专科</h1>
           <p style={s.subtitle}>神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-            <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#1e40af' }}>
+            <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: '#1e40af' }}>
               数据来源: /neuro/* API（MSW 演示数据）
             </span>
-            {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: '#fef2f2', color: '#dc2626' }}>{error}</span>}
+            {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: '#dc2626' }}>{error}</span>}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -170,15 +170,15 @@ const NeuroSpecialtyPage = () => {
       {/* KPI Row */}
       <div style={s.statsRow}>
         {[
-          { label: '今日扫描', value: stats?.todayScans ?? '15', unit: '例', icon: Activity, color: '#dc2626', bg: '#fef2f2' },
-          { label: '卒中检出', value: String(strokeCount), unit: '例', icon: Zap, color: '#1e40af', bg: '#eff6ff' },
-          { label: '肿瘤病例', value: String(tumorCount), unit: '例', icon: AlertTriangle, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: 'LVO 阳性', value: String(stats?.lvoPositive ?? 0), unit: '例', icon: Eye, color: '#ea580c', bg: '#fff7ed' },
-          { label: '待报告', value: String(stats?.pendingReports ?? 0), unit: '份', icon: FileText, color: '#16a34a', bg: '#f0fdf4' },
+          { label: '今日扫描', value: stats?.todayScans ?? '15', unit: '例', icon: Activity, color: '#dc2626', bg: '#ef444422' },
+          { label: '卒中检出', value: String(strokeCount), unit: '例', icon: Zap, color: '#1e40af', bg: '#3b82f622' },
+          { label: '肿瘤病例', value: String(tumorCount), unit: '例', icon: AlertTriangle, color: '#7c3aed', bg: '#8b5cf622' },
+          { label: 'LVO 阳性', value: String(stats?.lvoPositive ?? 0), unit: '例', icon: Eye, color: '#ea580c', bg: '#f9731622' },
+          { label: '待报告', value: String(stats?.pendingReports ?? 0), unit: '份', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
         ].map((k, i) => (
           <Card key={i} bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ ...s.statIcon, background: k.bg }}><k.icon size={20} color={k.color} /></div>
-            <div style={s.statValue}>{k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{k.unit}</span></div>
+            <div style={s.statValue}>{k.value}<span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-secondary)' }}>{k.unit}</span></div>
             <div style={s.statLabel}>{k.label}</div>
           </Card>
         ))}
@@ -193,14 +193,14 @@ const NeuroSpecialtyPage = () => {
           { key: 'stats', label: '统计分析' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as any)}
-            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#dc2626' : '#f1f5f9', color: tab === t.key ? '#fff' : '#64748b' }}>
+            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#dc2626' : 'var(--bg-card)', color: tab === t.key ? '#fff' : '#64748b' }}>
             {t.label}
           </button>
         ))}
       </div>
 
       {loading && (
-        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: '#64748b', fontSize: 13 }} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: 'var(--text-secondary)', fontSize: 13 }} styles={{ body: { padding: 0 } }}>
           <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 8 }} />
           正在加载神经专科数据...
         </Card>
@@ -211,8 +211,8 @@ const NeuroSpecialtyPage = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={s.sectionTitle}><Zap size={16} color="#dc2626" /> 脑卒中评估</div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: 8, padding: '4px 12px' }}>
-                <Search size={16} color="#64748b" />
+              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
+                <Search size={16} color="var(--text-secondary)" />
                 <input placeholder="搜索患者..." value={search} onChange={e => setSearch(e.target.value)}
                   style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: 8, fontSize: 13, width: 160 }} />
               </div>
@@ -229,7 +229,7 @@ const NeuroSpecialtyPage = () => {
                 {filtered.filter(r => r.type === 'stroke').map(r => (
                   <tr key={r.id}>
                     <td style={s.td}>{r.id}</td>
-                    <td style={{ ...s.td, fontWeight: 600 }}>{r.patientName}<br /><span style={{ fontSize: 11, color: '#94a3b8' }}>{r.age}y {r.gender}</span></td>
+                    <td style={{ ...s.td, fontWeight: 600 }}>{r.patientName}<br /><span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.age}y {r.gender}</span></td>
                     <td style={s.td}>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: STROKE_COLORS[r.subtype ?? 'ischemic'], color: '#fff' }}>
                         {r.subtype === 'ischemic' ? '缺血性' : r.subtype === 'hemorrhagic' ? '出血性' : r.subtype === 'subarachnoid' ? '蛛网膜下腔' : 'TIA'}
@@ -244,10 +244,10 @@ const NeuroSpecialtyPage = () => {
                     <td style={s.td}>{r.coreMl} ml</td>
                     <td style={s.td}>{r.penumbraMl} ml</td>
                     <td style={s.td}>
-                      <span style={badge(r.lvo ? '#fef2f2' : '#f0fdf4', r.lvo ? '阳性' : '阴性')}></span>
+                      <span style={badge(r.lvo ? 'var(--color-error-bg)' : 'var(--color-success-bg)', r.lvo ? '阳性' : '阴性')}></span>
                     </td>
                     <td style={s.td}>
-                      <button onClick={() => setDetailStudy(r)} style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
+                      <button onClick={() => setDetailStudy(r)} style={{ padding: '4px 10px', background: 'var(--color-error-bg)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
                         详情 <ChevronRight size={12} />
                       </button>
                     </td>
@@ -264,17 +264,17 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Brain size={16} color="#7c3aed" /> 脑肿瘤列表</div>
             {filtered.filter(r => r.type === 'tumor').map(r => (
-              <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #f8fafc' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: '#7c3aed' }}>{r.patientName[0]}</div>
+              <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border-light)' }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#8b5cf622', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: '#7c3aed' }}>{r.patientName[0]}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.id} · {r.modality}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.id} · {r.modality}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: TUMOR_COLORS[r.tumorType ?? 'other'], color: '#fff' }}>
                     {TUMOR_LABELS[r.tumorType ?? 'other'] ?? r.tumorType}
                   </span>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>分级 {r.grade} · {r.sizeMm}mm</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>分级 {r.grade} · {r.sizeMm}mm</div>
                 </div>
               </div>
             ))}
@@ -287,10 +287,10 @@ const NeuroSpecialtyPage = () => {
               return (
                 <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <span style={{ width: 50, fontSize: 12, fontWeight: 600 }}>分级 {g}</span>
-                  <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
+                  <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                     <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: TUMOR_GRADE_COLORS[['I', 'II', 'III', 'IV'].indexOf(g)], borderRadius: 4 }} />
                   </div>
-                  <span style={{ fontSize: 12, color: '#64748b', width: 30, textAlign: 'right' }}>{count}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', width: 30, textAlign: 'right' }}>{count}</span>
                 </div>
               );
             })}
@@ -313,16 +313,16 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><Eye size={16} color="#ca8a04" /> 癫痫评估</div>
             {filtered.filter(r => r.type === 'epilepsy').map(r => (
-              <div key={r.id} style={{ padding: 14, background: '#fefce8', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
+              <div key={r.id} style={{ padding: 14, background: 'var(--color-warning-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#ca8a04', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                  <div><span style={{ color: '#64748b' }}>病灶: </span><span style={{ fontWeight: 600 }}>{r.focus === 'mesial-temporal' ? '颞叶内侧' : '额叶'}</span></div>
-                  <div><span style={{ color: '#64748b' }}>MTS: </span><span style={{ fontWeight: 600, color: r.mts ? '#dc2626' : '#16a34a' }}>{r.mts ? '阳性' : '阴性'}</span></div>
-                  <div><span style={{ color: '#64748b' }}>不对称: </span><span style={{ fontWeight: 600 }}>{r.hippocampalAsymmetry}%</span></div>
-                  <div><span style={{ color: '#64748b' }}>EEG: </span><span style={{ fontWeight: 600 }}>左侧颞区放电</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>病灶: </span><span style={{ fontWeight: 600 }}>{r.focus === 'mesial-temporal' ? '颞叶内侧' : '额叶'}</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>MTS: </span><span style={{ fontWeight: 600, color: r.mts ? '#dc2626' : '#16a34a' }}>{r.mts ? '阳性' : '阴性'}</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>不对称: </span><span style={{ fontWeight: 600 }}>{r.hippocampalAsymmetry}%</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>EEG: </span><span style={{ fontWeight: 600 }}>左侧颞区放电</span></div>
                 </div>
               </div>
             ))}
@@ -330,16 +330,16 @@ const NeuroSpecialtyPage = () => {
           <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
             <div style={s.sectionTitle}><AlertTriangle size={16} color="#dc2626" /> 动脉瘤评估</div>
             {filtered.filter(r => r.type === 'aneurysm').map(r => (
-              <div key={r.id} style={{ padding: 14, background: '#fef2f2', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
+              <div key={r.id} style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#dc2626', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                  <div><span style={{ color: '#64748b' }}>位置: </span><span style={{ fontWeight: 600 }}>{r.location}</span></div>
-                  <div><span style={{ color: '#64748b' }}>大小: </span><span style={{ fontWeight: 600 }}>{r.sizeMm}mm</span></div>
-                  <div><span style={{ color: '#64748b' }}>瘤颈: </span><span style={{ fontWeight: 600 }}>{r.neckMm}mm</span></div>
-                  <div><span style={{ color: '#64748b' }}>风险: </span><span style={{ fontWeight: 600, color: r.ruptureRisk === 'moderate' ? '#ea580c' : r.ruptureRisk === 'low' ? '#16a34a' : '#dc2626' }}>{r.ruptureRisk === 'moderate' ? '中危' : r.ruptureRisk === 'low' ? '低危' : '高危'}</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>位置: </span><span style={{ fontWeight: 600 }}>{r.location}</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>大小: </span><span style={{ fontWeight: 600 }}>{r.sizeMm}mm</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>瘤颈: </span><span style={{ fontWeight: 600 }}>{r.neckMm}mm</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>风险: </span><span style={{ fontWeight: 600, color: r.ruptureRisk === 'moderate' ? '#ea580c' : r.ruptureRisk === 'low' ? '#16a34a' : '#dc2626' }}>{r.ruptureRisk === 'moderate' ? '中危' : r.ruptureRisk === 'low' ? '低危' : '高危'}</span></div>
                 </div>
               </div>
             ))}
@@ -355,7 +355,7 @@ const NeuroSpecialtyPage = () => {
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 3, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8' }} />
                 <span style={{ width: 80, fontSize: 13, fontWeight: 500 }}>{d.label}</span>
-                <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
+                <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                   <div style={{ height: '100%', width: `${d.pct}%`, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8', borderRadius: 4 }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 50, textAlign: 'right' }}>{d.count} ({d.pct}%)</span>
@@ -366,8 +366,8 @@ const NeuroSpecialtyPage = () => {
             <div style={s.sectionTitle}><TrendingUp size={16} color="#16a34a" /> 卒中治疗时间窗</div>
             {strokeWindows.map(t => (
               <div key={t.window} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <span style={{ width: 120, fontSize: 12, color: '#64748b' }}>{t.window}</span>
-                <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}>
+                <span style={{ width: 120, fontSize: 12, color: 'var(--text-secondary)' }}>{t.window}</span>
+                <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}>
                   <div style={{ height: '100%', width: `${Math.min(100, (t.count / Math.max(1, strokeWindows[0]?.count ?? 5)) * 100)}%`, background: t.color, borderRadius: 3 }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 30, textAlign: 'right' }}>{t.count}</span>
@@ -383,18 +383,18 @@ const NeuroSpecialtyPage = () => {
 
       {detailStudy && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailStudy(null)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border-light)' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Brain size={18} color="#dc2626" />病例详情
               </div>
-              <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-primary-800)' }}>{detailStudy.patientName}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{detailStudy.id} · {detailStudy.age}y {detailStudy.gender} · {detailStudy.modality ?? '-'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{detailStudy.id} · {detailStudy.age}y {detailStudy.gender} · {detailStudy.modality ?? '-'}</div>
                 </div>
                 <span style={{ alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: detailStudy.type === 'stroke' ? '#fef2f2' : detailStudy.type === 'tumor' ? '#f5f3ff' : '#fefce8', color: detailStudy.type === 'stroke' ? '#dc2626' : detailStudy.type === 'tumor' ? '#7c3aed' : '#ca8a04' }}>
                   {{ stroke: '脑卒中', tumor: '脑肿瘤', epilepsy: '癫痫', aneurysm: '动脉瘤' }[detailStudy.type] ?? detailStudy.type}
@@ -435,7 +435,7 @@ const NeuroSpecialtyPage = () => {
                   </>
                 )}
               </div>
-              <div style={{ marginTop: 16, padding: 12, background: '#f8fafc', borderRadius: 8, fontSize: 12, color: '#475569' }}>
+              <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
                 {detailStudy.findings ?? '暂无检查所见'}
               </div>
             </div>

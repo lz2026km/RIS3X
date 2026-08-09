@@ -179,6 +179,7 @@ export default function FileManagementPage() {
   return (
     <PageContainer>
       <PageHeader
+        icon={<FolderOpen size={20} color="#1e40af" />}
         title="文件管理"
         subtitle="文件上传 / 下载 · 预签名上传 · 校验和确认"
         actions={

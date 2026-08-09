@@ -1,6 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Form, Modal, message, Alert, Progress, Tooltip } from 'antd'
-import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye } from 'lucide-react'
+import { usePagination } from '../../hooks/usePagination'
 import { smartMwlApi, toSmartScoreInput, type SmartMwlItem } from '../../services/api/smartMwlApi'
 import {
   worklistSmartApi,
@@ -10,7 +8,10 @@ import {
   type SmartWeightConfig,
   type SmartScoreInput,
 } from '../../services/api/worklistSmartApi'
-import { usePagination } from '../../hooks/usePagination'
+import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Form, Modal, message, Alert, Progress, Tooltip } from 'antd'
+import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye } from 'lucide-react'
+
+import React, { useState, useEffect, useCallback } from 'react'
 
 const levelMeta: Record<string, { label: string; color: string }> = {
   critical: { label: '危急', color: 'red' },
@@ -36,7 +37,7 @@ const factorCell = (f: SmartFactorDetail | undefined, raw: React.ReactNode) => (
   <span>
     <span style={{ fontWeight: 500 }}>{raw ?? '—'}</span>
     {f && (
-      <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 2 }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
         {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}%权重
       </div>
     )}
@@ -160,7 +161,7 @@ const SmartMwlPage: React.FC = () => {
       render: (_: unknown, r: SmartRow) => (
         <Space orientation="vertical" size={0}>
           <span style={{ fontWeight: 500 }}>{r.item.patientName}</span>
-          <span style={{ color: '#8c8c8c', fontSize: 12 }}>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
             {r.item.gender ?? '-'} / {r.item.age ?? '-'}岁
           </span>
         </Space>
@@ -172,7 +173,7 @@ const SmartMwlPage: React.FC = () => {
       render: (_: unknown, r: SmartRow) => (
         <Space orientation="vertical" size={0}>
           <span>{r.item.examItem || r.item.modality}</span>
-          <span style={{ color: '#8c8c8c', fontSize: 12 }}>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
             {r.item.modality} · {r.item.bodyPart}
           </span>
         </Space>
@@ -249,7 +250,7 @@ const SmartMwlPage: React.FC = () => {
         <Tag color="purple">权重可配置</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="总检查数" value={total} prefix={<FileText size={16} />} /></Card></Col>
@@ -317,7 +318,7 @@ const SmartMwlPage: React.FC = () => {
                     <span style={{ width: 80 }}>{f.label}</span>
                   </Tooltip>
                   <Slider style={{ flex: 1 }} value={f.score * 100} disabled tooltip={{ formatter: () => `${f.label}得分 ${(f.score * 100).toFixed(0)}分` }} />
-                  <span style={{ width: 190, fontSize: 12, color: '#8c8c8c', textAlign: 'right' }}>
+                  <span style={{ width: 190, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
                     {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}% = {(f.contribution * 100).toFixed(1)}
                   </span>
                 </div>

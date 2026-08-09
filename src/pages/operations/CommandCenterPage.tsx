@@ -1,16 +1,24 @@
 // [v3.0.6.11-54] Phase 2: 全院运营指挥中心 (实时状态 + 事件流 + 趋势)
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { deviceApi } from '../../services/api/deviceApi';
+import { notificationsApi, type NotificationDto } from '../../services/api/notificationsApi';
+import { statsApi } from '../../services/api/statsApi';
 import {
   Card, Space, Tag, Button, Row, Col, Statistic, List, Alert, Badge,
   Progress, Spin, Empty, Typography,
 } from 'antd';
 import {
-  Activity, Bell, AlertTriangle, TrendingUp, Users, Camera, Monitor,
-  CheckCircle2, BarChart3, RefreshCw,
+  Activity,
+  Bell,
+  AlertTriangle,
+  TrendingUp,
+  Users,
+  Camera,
+  Monitor,
+  CheckCircle2,
+  BarChart3,
+  RefreshCw,
 } from 'lucide-react';
-import { statsApi } from '../../services/api/statsApi';
-import { notificationsApi, type NotificationDto } from '../../services/api/notificationsApi';
-import { deviceApi } from '../../services/api/deviceApi';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const { Text } = Typography;
 
@@ -88,7 +96,7 @@ export const CommandCenterPage: React.FC = () => {
   const maxTrend = Math.max(1, ...trend.map((t) => t.count));
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全院运营指挥中心 (Command Center)</span>
@@ -104,7 +112,7 @@ export const CommandCenterPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load(notifPage)}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load(notifPage)}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Spin spinning={loading && !dash}>
@@ -158,12 +166,12 @@ export const CommandCenterPage: React.FC = () => {
                 <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: 'auto' }} />
               ) : trend.map((t, i) => (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ fontSize: 10, color: '#64748b' }}>{t.count}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t.count}</div>
                   <div style={{
                     width: '70%', height: `${Math.max(6, (t.count / maxTrend) * 150)}px`,
                     background: '#2563eb', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
                   }} />
-                  <div style={{ fontSize: 10, color: '#999' }}>{t.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t.label}</div>
                 </div>
               ))}
             </div>

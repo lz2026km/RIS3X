@@ -3,13 +3,14 @@
  * 30 升级点:实时连接状态 / 报文流 / ACK / 解析 / 统计 / 帧可视化
  */
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Alert, InputNumber, Switch } from 'antd';
-import { Activity, Play, Square, RefreshCw, Server, Wifi, WifiOff, Send, Trash2, CheckCircle2, AlertCircle, FileText, Database, Zap } from 'lucide-react';
-import { getDefaultMllpServer, Hl7MllpServer } from '@services/integration/hl7/Hl7MllpServer';
-import { parse, validate, type Hl7ParsedMessage } from '@services/integration/hl7V2/Hl7V2Parser';
 import { HL7V2_SAMPLES } from '../../data/hl7v2Messages';
 import type { MllpServerStats, MllpConnection, MllpEvent } from '../../types/integration';
+import { getDefaultMllpServer, Hl7MllpServer } from '@services/integration/hl7/Hl7MllpServer';
+import { parse, validate, type Hl7ParsedMessage } from '@services/integration/hl7V2/Hl7V2Parser';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Alert, InputNumber, Switch } from 'antd';
+import { Activity, Play, Square, RefreshCw, Server, Wifi, WifiOff, Send, Trash2, CheckCircle2, AlertCircle, FileText, Database, Zap } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Inbox } from 'lucide-react'
 
 export const MllpMonitor: React.FC = () => {
   const [server, _setServer] = useState<Hl7MllpServer>(() => getDefaultMllpServer());
@@ -125,7 +126,7 @@ export const MllpMonitor: React.FC = () => {
       <div className="grid grid-cols-5 gap-3">
         <Card size="small" className="col-span-2 shadow-sm" title={<Space><Activity className="w-4 h-4" /><span>事件流</span><Tag>{events.length}</Tag></Space>}>
           <div className="space-y-1 max-h-[460px] overflow-y-auto">
-            {events.length === 0 ? <Empty description="暂无事件" /> : events.map((e, i) => (
+            {events.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无事件" /> : events.map((e, i) => (
               <div key={i} onClick={() => handleEventClick(e)} className={`p-1.5 border rounded cursor-pointer text-xs ${selectedEvent === e ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
                 <div className="flex items-center justify-between">
                   <Tag color={eventColor(e)}>{e.type.toUpperCase()}</Tag>
@@ -163,7 +164,7 @@ export const MllpMonitor: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                  ) : <Empty />,
+                  ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />,
                 },
                 {
                   key: 'meta', label: '元信息',
@@ -178,7 +179,7 @@ export const MllpMonitor: React.FC = () => {
                       <KV k="段数" v={String(selectedMessage.parsed.segments.length)} />
                       <KV k="患者" v={selectedMessage.parsed.patient ? '有' : '无'} />
                     </div>
-                  ) : <Empty />,
+                  ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />,
                 },
                 {
                   key: 'validate', label: '验证',
@@ -193,11 +194,11 @@ export const MllpMonitor: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                  ) : <Empty />,
+                  ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />,
                 },
               ]}
             />
-          ) : <Empty description="点击事件查看详情" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击事件查看详情" />}
         </Card>
       </div>
 
@@ -234,7 +235,7 @@ const KV: React.FC<{ k: string; v: string }> = ({ k, v }) => (
 );
 
 const ConnectionList: React.FC<{ list: MllpConnection[]; onDisconnect: (p: string) => void }> = ({ list, onDisconnect }) => {
-  if (list.length === 0) return <Empty description="暂无连接" />;
+  if (list.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无连接" />;
   return (
     <div className="space-y-1">
       {list.map((c) => (

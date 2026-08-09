@@ -1,4 +1,12 @@
-import { useMemo, useState } from "react";
+import { ProTable, type ProColumn } from "../../components/data/ProTable";
+import {
+  initialModalityDevices,
+  initialExamRooms,
+  initialUsers,
+} from "../../data/initialData";
+import { usePagination } from "../../hooks/usePagination";
+import type { RadiologyExam } from "../../types";
+import { displayExamStatus } from "../../utils/statusMaps";
 import { Button, Empty, Skeleton, Tag } from "antd";
 import {
   User,
@@ -15,48 +23,41 @@ import {
   UserCheck,
   AlertOctagon,
 } from "lucide-react";
-import {
-  initialModalityDevices,
-  initialExamRooms,
-  initialUsers,
-} from "../../data/initialData";
-import type { RadiologyExam } from "../../types";
-import { displayExamStatus } from "../../utils/statusMaps";
-import { ProTable, type ProColumn } from "../../components/data/ProTable";
-import { usePagination } from "../../hooks/usePagination";
+import { useMemo, useState } from "react";
+import { Inbox } from 'lucide-react'
 
 const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; order: number }
 > = {
-  SCHEDULED: { bg: "#dbeafe", color: "#2563eb", label: "已登记", order: 0 },
-  ARRIVED: { bg: "#ede9fe", color: "#7c3aed", label: "已报到", order: 1 },
-  IN_PROGRESS: { bg: "#fce7f3", color: "#db2777", label: "检查中", order: 2 },
-  COMPLETED: { bg: "#d1fae5", color: "#059669", label: "已完成", order: 3 },
-  CANCELLED: { bg: "#fee2e2", color: "#ef4444", label: "已取消", order: 8 },
-  已登记: { bg: "#dbeafe", color: "#2563eb", label: "已登记", order: 0 },
-  待检查: { bg: "#ede9fe", color: "#7c3aed", label: "待检查", order: 1 },
-  检查中: { bg: "#fce7f3", color: "#db2777", label: "检查中", order: 2 },
-  待报告: { bg: "#fef9c3", color: "#ca8a04", label: "待报告", order: 3 },
-  已报告: { bg: "#d1fae5", color: "#059669", label: "已报告", order: 4 },
-  已发布: { bg: "#ecfdf5", color: "#047857", label: "已发布", order: 5 },
-  published: { bg: "#ecfdf5", color: "#047857", label: "已发布", order: 5 },
-  submitted: { bg: "#d1fae5", color: "#059669", label: "已提交", order: 4.5 },
-  reviewed: { bg: "#ecfdf5", color: "#047857", label: "已审核", order: 5.5 },
-  inProgress: { bg: "#fce7f3", color: "#db2777", label: "检查中", order: 2 },
-  completed: { bg: "#d1fae5", color: "#059669", label: "已完成", order: 4.5 },
-  已暂停: { bg: "#fef3c7", color: "#f59e0b", label: "已暂停", order: 7 },
-  质控退回: { bg: "#fee2e2", color: "#ef4444", label: "质控退回", order: 8 },
+  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },
+  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到", order: 1 },
+  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
+  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成", order: 3 },
+  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消", order: 8 },
+  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },
+  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "待检查", order: 1 },
+  检查中: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
+  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告", order: 3 },
+  已报告: { bg: "#22c55e22", color: "#059669", label: "已报告", order: 4 },
+  已发布: { bg: "#22c55e22", color: "#047857", label: "已发布", order: 5 },
+  published: { bg: "#22c55e22", color: "#047857", label: "已发布", order: 5 },
+  submitted: { bg: "#22c55e22", color: "#059669", label: "已提交", order: 4.5 },
+  reviewed: { bg: "#22c55e22", color: "#047857", label: "已审核", order: 5.5 },
+  inProgress: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
+  completed: { bg: "#22c55e22", color: "#059669", label: "已完成", order: 4.5 },
+  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停", order: 7 },
+  质控退回: { bg: "#ef444422", color: "#ef4444", label: "质控退回", order: 8 },
 };
 
 const PRIORITY_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; order: number }
 > = {
-  普通: { bg: "#f1f5f9", color: "#64748b", label: "普通", order: 0 },
-  紧急: { bg: "#fef3c7", color: "#d97706", label: "紧急", order: 1 },
-  危重: { bg: "#fee2e2", color: "#dc2626", label: "危重", order: 2 },
-  会诊: { bg: "#ede9fe", color: "#7c3aed", label: "会诊", order: 3 },
+  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "普通", order: 0 },
+  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "紧急", order: 1 },
+  危重: { bg: "#ef444422", color: "#ef4444", label: "危重", order: 2 },
+  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "会诊", order: 3 },
 };
 
 const getDeviceById = (deviceId: string) =>
@@ -88,10 +89,10 @@ function calculatePriority(exam: RadiologyExam) {
   const typeScore = exam.patientType === "急诊" ? 25 : exam.patientType === "住院" ? 15 : 5;
   const partScore = ["头颅", "心脏", "血管"].includes(exam.bodyPart) ? 20 : 10;
   const score = ageScore + waitScore + typeScore + partScore;
-  if (score >= 70) return { score, color: "#dc2626", bg: "#fee2e2" };
-  if (score >= 45) return { score, color: "#d97706", bg: "#fef3c7" };
-  if (score >= 25) return { score, color: "#64748b", bg: "#f1f5f9" };
-  return { score, color: "#059669", bg: "#d1fae5" };
+  if (score >= 70) return { score, color: "#ef4444", bg: "#ef444422" };
+  if (score >= 45) return { score, color: "#f59e0b", bg: "#f59e0b22" };
+  if (score >= 25) return { score, color: "var(--text-secondary)", bg: "var(--bg-deep)" };
+  return { score, color: "#059669", bg: "#22c55e22" };
 }
 
 interface ListViewProps {
@@ -129,10 +130,10 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
           <img
             src={exam.thumbnailUrl}
             alt="缩略图"
-            style={{ width: 34, height: 26, objectFit: "cover", borderRadius: 4, border: "1px solid #e2e8f0" }}
+            style={{ width: 34, height: 26, objectFit: "cover", borderRadius: 4, border: "1px solid var(--border-color)" }}
           />
         ) : (
-          <ImageIcon size={12} color="#94a3b8" />
+          <ImageIcon size={12} color="var(--text-secondary)" />
         )}
         {exam.imagesAcquired > 0 ? `${exam.imagesAcquired}幅` : "-"}
       </span>
@@ -145,9 +146,9 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
             zIndex: 60,
             width: 160,
             padding: 10,
-            background: "#fff",
+            background: "var(--bg-card)",
             borderRadius: 10,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
           }}
         >
@@ -177,7 +178,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
               <span style={{ fontSize: 10, opacity: 0.7 }}>{exam.imagesAcquired || 0} 帧</span>
             </div>
           )}
-          <div style={{ marginTop: 8, fontSize: 11, color: "#64748b", textAlign: "center" }}>
+          <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-secondary)", textAlign: "center" }}>
             {exam.examItemName}
           </div>
         </div>
@@ -228,7 +229,7 @@ export function ListView({
       sorter: (a, b) => a.patientName.localeCompare(b.patientName, "zh-CN"),
       render: (value, exam) => (
         <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "#1e40af" }}>
-          <User size={12} color="#94a3b8" />
+          <User size={12} color="var(--text-secondary)" />
           {String(value)}
           {exam.priority === "危重" && <AlertTriangle size={12} color="#dc2626" />}
         </span>
@@ -250,8 +251,8 @@ export function ListView({
       sorter: (a, b) => a.examItemName.localeCompare(b.examItemName, "zh-CN"),
       render: (value, exam) => (
         <div>
-          <div style={{ fontWeight: 600, color: "#334155" }}>{String(value)}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#94a3b8", fontSize: 12 }}>
+          <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{String(value)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-secondary)", fontSize: 12 }}>
             <Scan size={10} /> {exam.modality} · {exam.bodyPart}
           </div>
         </div>
@@ -269,7 +270,7 @@ export function ListView({
         const device = getDeviceById(exam.deviceId ?? "");
         return (
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Monitor size={12} color="#94a3b8" />
+            <Monitor size={12} color="var(--text-secondary)" />
             {device?.name?.split("（")[0] || "-"}
           </span>
         );
@@ -282,7 +283,7 @@ export function ListView({
       width: 90,
       render: (value) => (
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <Radio size={11} color="#94a3b8" />
+          <Radio size={11} color="var(--text-secondary)" />
           {getRoomById(String(value ?? ""))?.roomNumber || "-"}
         </span>
       ),
@@ -303,7 +304,7 @@ export function ListView({
       onFilter: (value, record) => record.patientType === value,
       render: (value) => {
         const type = String(value);
-        const background = type === "急诊" ? "#fee2e2" : type === "住院" ? "#dbeafe" : "#f1f5f9";
+        const background = type === "急诊" ? "var(--color-error-bg)" : type === "住院" ? "var(--color-info-bg)" : "var(--bg-deep)";
         const color = type === "急诊" ? "#dc2626" : type === "住院" ? "#2563eb" : "#64748b";
         return <span style={{ background, color, padding: "3px 8px", borderRadius: 6, fontWeight: 600 }}>{type}</span>;
       },
@@ -319,7 +320,7 @@ export function ListView({
       filters: [...new Set(exams.map((exam) => exam.status))].map((value) => ({ text: displayExamStatus(value), value })),
       onFilter: (value, record) => record.status === value,
       render: (value) => {
-        const status = STATUS_CONFIG[String(value)] ?? { bg: "#f1f5f9", color: "#64748b", label: displayExamStatus(String(value)) };
+        const status = STATUS_CONFIG[String(value)] ?? { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: displayExamStatus(String(value)) };
         return <span style={{ background: status.bg, color: status.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{status.label}</span>;
       },
     },
@@ -358,7 +359,7 @@ export function ListView({
       searchable: true,
       render: (value, exam) => (
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <Stethoscope size={11} color="#94a3b8" />
+          <Stethoscope size={11} color="var(--text-secondary)" />
           {String(value || getDoctorById(exam.technologistId || "")?.name || "-")}
         </span>
       ),
@@ -371,7 +372,7 @@ export function ListView({
       searchable: true,
       render: (value, exam) => (
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <UserCheck size={11} color="#94a3b8" />
+          <UserCheck size={11} color="var(--text-secondary)" />
           <span style={{ color: exam.radiologistId ? "#1e40af" : "#94a3b8" }}>
             {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || "未分配"}
           </span>
@@ -479,7 +480,7 @@ export function ListView({
         onChange: (keys) => onSelect(new Set(keys.map(String))),
       }}
       locale={{
-        emptyText: <Empty description="暂无符合条件的检查记录" />,
+        emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无符合条件的检查记录" />,
       }}
       onRow={(exam) => ({
         onClick: () => onRowClick(exam),

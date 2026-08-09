@@ -3,12 +3,12 @@
  * 阶段 1.5 修复: 之前是 3 KPI + 占位文字
  * [W3-A] 数据源改为 regionalApi (/regional/sites*, MSW 演示数据, 后端待实现), 失败时回退 site.ts 静态数据
  */
-import { useMemo, useEffect, useState, useCallback } from "react";
-import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button } from "antd";
-import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
+import { usePagination } from "../hooks/usePagination";
 import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "../services/api/regionalApi";
 import { SITES, SYNC_EVENTS, ROUTING_RULES, type Site, type SyncEvent, type RoutingRule } from "../services/site";
-import { usePagination } from "../hooks/usePagination";
+import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button } from "antd";
+import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
+import { useMemo, useEffect, useState, useCallback } from "react";
 
 const {  Text } = Typography;
 
@@ -133,7 +133,7 @@ export default function MultiSiteDashboardPage() {
   ];
 
   return (
-    <div style={{ padding: 24, background: "#f1f5f9", minHeight: "calc(100vh - 56px)" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#1e40af 0%,#3b82f6 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <Space size={16}>
           <Globe size={36} color="#fff" />
@@ -146,7 +146,7 @@ export default function MultiSiteDashboardPage() {
         </Space>
       </Card>
 
-      {error && <Alert type="warning" showIcon message="加载失败，已回退到本地静态数据" description={error} action={<Button size="small" onClick={fetchAll}>重试</Button>} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message="加载失败，已回退到本地静态数据" description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
       {!error && usingFallback && <Alert type="info" showIcon message="数据来源：演示数据（接口未返回站点，回退本地 site.ts）" style={{ marginBottom: 16 }} />}
       {!error && !usingFallback && !loading && <Alert type="success" showIcon message="数据来源：/regional/sites（MSW 演示数据，后端待实现）" style={{ marginBottom: 16 }} />}
 
@@ -162,7 +162,7 @@ export default function MultiSiteDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><Network size={16} />站点列表 ({sites.length})<Tag color="green">{activeCount} 在线</Tag><Tag color="red">{offlineCount} 离线</Tag></Space>} extra={<Badge count={offlineCount} title="告警站点" />}>
-            <Table dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading} scroll={{ x: 'max-content' }}/>
+            <Table scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading}/>
           </Card>
         </Col>
         <Col span={8}>
@@ -191,7 +191,7 @@ export default function MultiSiteDashboardPage() {
               key: "events",
               label: <><Activity size={14} /> 同步事件 ({syncEvents.length})</>,
               children: (
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   dataSource={eventsPagination.pageData}
                   rowKey="id"
                   size="small"
@@ -206,7 +206,7 @@ export default function MultiSiteDashboardPage() {
                     { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const m = STATUS_SEV[s] || { color: "default" }; return <Tag color={m.color}>{s === "success" ? "成功" : s === "failed" ? "失败" : "等待"}</Tag>; } },
                     { title: "消息", dataIndex: "message", key: "msg", render: (m?: string) => m || "-" },
                   ]}
-                scroll={{ x: 'max-content' }}
+               
                 />
               ),
             },
@@ -214,7 +214,7 @@ export default function MultiSiteDashboardPage() {
               key: "rules",
               label: <><Shield size={14} /> 路由规则 ({routingRules.length})</>,
               children: (
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   dataSource={routingRules}
                   rowKey="id"
                   size="small"
@@ -228,7 +228,7 @@ export default function MultiSiteDashboardPage() {
                     { title: "匹配", dataIndex: "matchedCount", key: "mc", width: 100, render: (n: number) => n.toLocaleString() },
                     { title: "状态", dataIndex: "active", key: "act", width: 80, render: (a: boolean) => <Tag color={a ? "green" : "default"}>{a ? "启用" : "禁用"}</Tag> },
                   ]}
-                scroll={{ x: 'max-content' }}
+               
                 />
               ),
             },

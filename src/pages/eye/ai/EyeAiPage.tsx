@@ -393,7 +393,7 @@ const EyeAiPage: React.FC = () => {
                                 contentStyle={{
                                   fontSize: 12,
                                   borderRadius: 6,
-                                  border: "1px solid #e2e8f0",
+                                  border: "1px solid var(--border-color)",
                                 }}
                                 formatter={(v: number) => [`${v}%`, "采纳率"]}
                               />
@@ -446,7 +446,7 @@ const EyeAiPage: React.FC = () => {
                                 contentStyle={{
                                   fontSize: 12,
                                   borderRadius: 6,
-                                  border: "1px solid #e2e8f0",
+                                  border: "1px solid var(--border-color)",
                                 }}
                               />
                               <Legend wrapperStyle={{ fontSize: 11 }} />

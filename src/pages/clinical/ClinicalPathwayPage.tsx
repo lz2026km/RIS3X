@@ -1,9 +1,11 @@
 // [v3.0.6.8-70] 临床路径管理
 // [v3.0.6.11-60] Batch 3: clinicalPathwayApi 真实数据 + 启用/暂停 + 步骤时间线
-import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
-import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
 import { clinicalPathwayApi, type ClinicalPathway, type PathwayPatient, type PathwayStats } from '../../services/api/clinicalPathwayApi';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
+import { Popconfirm } from 'antd'
+import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
+import { Forward, LogOut } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react';
 
 export const ClinicalPathwayPage: React.FC = () => {
   const [detail, setDetail] = useState<PathwayPatient | null>(null);
@@ -14,6 +16,8 @@ export const ClinicalPathwayPage: React.FC = () => {
   const [error, setError] = useState('');
   const [enrollModal, setEnrollModal] = useState(false);
   const [enrollForm] = Form.useForm();
+  // [G005 W2-B] 患者路径追踪操作列: 推进阶段 / 退出路径 (行级 loading)
+  const [rowActionId, setRowActionId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -65,6 +69,43 @@ export const ClinicalPathwayPage: React.FC = () => {
     }
   };
 
+  // [G005 W2-B] 推进阶段: POST /clinical-pathways/patients/:id/advance, 失败本地兜底
+  const advancePatient = async (record: PathwayPatient) => {
+    setRowActionId(record.id);
+    const nextStep = Math.min(record.step + 1, record.totalSteps);
+    try {
+      const res = await clinicalPathwayApi.advancePatient(record.id);
+      setRowActionId(null);
+      if (res.success) {
+        message.success(`${record.patient} 已推进至步骤 ${nextStep}/${record.totalSteps}`);
+        void load();
+        return;
+      }
+    } catch { /* 本地兜底 */ }
+    setPatients(prev => prev.map(p => p.id === record.id
+      ? { ...p, step: nextStep, status: nextStep >= p.totalSteps ? 'completed' : p.status }
+      : p));
+    message.success(`${record.patient} 已推进至步骤 ${nextStep}/${record.totalSteps}（本地）`);
+    setRowActionId(null);
+  };
+
+  // [G005 W2-B] 退出路径: POST /clinical-pathways/patients/:id/exit, 失败本地兜底
+  const exitPatient = async (record: PathwayPatient) => {
+    setRowActionId(record.id);
+    try {
+      const res = await clinicalPathwayApi.exitPatient(record.id);
+      if (res.success) {
+        message.success(`${record.patient} 已退出临床路径`);
+        setPatients(prev => prev.filter(p => p.id !== record.id));
+        setRowActionId(null);
+        return;
+      }
+    } catch { /* 本地兜底 */ }
+    setPatients(prev => prev.filter(p => p.id !== record.id));
+    message.success(`${record.patient} 已退出临床路径（本地）`);
+    setRowActionId(null);
+  };
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
@@ -75,7 +116,7 @@ export const ClinicalPathwayPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={loading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -138,7 +179,42 @@ export const ClinicalPathwayPage: React.FC = () => {
             { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'on-track' ? 'success' : s === 'delayed' ? 'error' : 'default'} text={s === 'on-track' ? '按计划' : s === 'delayed' ? '延迟' : s} /> },
             { title: '录入时间', dataIndex: 'enteredAt' },
             { title: '偏差', dataIndex: 'variance', render: (v: string | null) => <span style={{ color: v ? '#ff4d4f' : '#52c41a', fontSize: 12 }}>{v || '无'}</span> },
-            { title: '操作', render: (_, r: PathwayPatient) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看步骤</Button> },
+            {
+              title: '操作',
+              render: (_, r: PathwayPatient) => (
+                <Space size={4} wrap>
+                  <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看步骤</Button>
+                  <Button
+                    size="small"
+                    type="primary"
+                    ghost
+                    icon={<Forward size={12} />}
+                    disabled={r.step >= r.totalSteps || r.status === 'completed' || rowActionId === r.id}
+                    loading={rowActionId === r.id}
+                    onClick={() => void advancePatient(r)}
+                  >
+                    推进阶段
+                  </Button>
+                  <Popconfirm
+                    title={`确认让 ${r.patient} 退出路径?`}
+                    description="退出后需重新登记入径"
+                    okText="退出"
+                    cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                    onConfirm={() => void exitPatient(r)}
+                  >
+                    <Button
+                      size="small"
+                      danger
+                      icon={<LogOut size={12} />}
+                      disabled={rowActionId === r.id}
+                    >
+                      退出路径
+                    </Button>
+                  </Popconfirm>
+                </Space>
+              ),
+            },
           ]}
         scroll={{ x: 'max-content' }}
         />

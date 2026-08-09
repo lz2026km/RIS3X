@@ -27,7 +27,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings, LayoutDashboard, Users, FileText, ShieldCheck, GitBranch, Printer, Sparkles, Network, UserCheck, BarChart3, DollarSign, FileSpreadsheet, Eye, LayoutGrid, Package } from "lucide-react";
+import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings, LayoutDashboard, Users, FileText, ShieldCheck, GitBranch, Printer, Sparkles, Network, UserCheck, BarChart3, DollarSign, FileSpreadsheet, Eye, LayoutGrid, Package, Stethoscope } from "lucide-react";
 import { Badge } from "antd";
 import {
   SIDEBAR_ITEMS,
@@ -338,6 +338,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   "nav.dataReport": <FileSpreadsheet size={12} />,
   "nav.eyeSpecialty": <Eye size={12} />,
   "nav.specialtyModules": <LayoutGrid size={12} />,
+  "nav.dentalSpecialty": <Stethoscope size={12} />,
   "nav.systemManage": <Settings size={12} />,
   "nav.equipmentMaterials": <Package size={12} />,
 };

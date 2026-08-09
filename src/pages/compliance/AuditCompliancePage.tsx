@@ -1,13 +1,19 @@
 // [v3.0.6.11-54] Phase 2: 审计合规中心 (真实审计事件 + 筛选 + 详情抽屉)
-import React, { useCallback, useEffect, useState } from 'react';
+import { auditApi, type AuditEventDto, type AuditAggregationDto } from '../../services/api/auditApi';
 import {
   Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Drawer,
   Form, Select, Input, message, Descriptions, Alert, Spin, Typography,
 } from 'antd';
 import {
-  Shield, FileSearch, UserCheck, AlertTriangle, Download, Filter,
+  Shield,
+  FileSearch,
+  UserCheck,
+  AlertTriangle,
+  Download,
+  Filter,
 } from 'lucide-react';
-import { auditApi, type AuditEventDto, type AuditAggregationDto } from '../../services/api/auditApi';
+import { RefreshCw } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react';
 
 const ACTION_COLOR: Record<string, string> = {
   CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'cyan', LOGOUT: 'cyan',
@@ -107,7 +113,7 @@ export const AuditCompliancePage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load(page)}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load(page)}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

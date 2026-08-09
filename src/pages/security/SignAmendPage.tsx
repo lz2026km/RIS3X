@@ -1,7 +1,7 @@
 // [v3.0.6.8-49] PR5: CA 签名 + 修订综合页面
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, Modal, Timeline, Table } from 'antd';
-import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp } from 'lucide-react';
+import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp, Send } from 'lucide-react';
 import { signApi, amendApi } from '@/services/api/signAmendApi';
 
 const { TextArea } = Input;
@@ -307,7 +307,7 @@ export const SignAmendPage: React.FC = () => {
             <Form.Item label="部门"><Input value={certModal.data.department} onChange={e => setCertModal({ ...certModal, data: { ...certModal.data, department: e.target.value } })} /></Form.Item>
             <Form.Item label="职称"><Input value={certModal.data.title} onChange={e => setCertModal({ ...certModal, data: { ...certModal.data, title: e.target.value } })} /></Form.Item>
             <Form.Item label="算法"><Select value={certModal.data.algorithm} onChange={v => setCertModal({ ...certModal, data: { ...certModal.data, algorithm: v } })} options={[{value:'SM2',label:'国密 SM2'},{value:'RSA-2048',label:'RSA-2048'},{value:'RSA-4096',label:'RSA-4096'},{value:'ECDSA-P256',label:'ECDSA-P256'}]} /></Form.Item>
-            <Button type="primary" block onClick={handleCertApply}>提交申请</Button>
+            <Button type="primary" block icon={<Send size={14} />} onClick={handleCertApply}>提交申请</Button>
           </Form>
         )}
         {certModal.type === 'revoke' && (

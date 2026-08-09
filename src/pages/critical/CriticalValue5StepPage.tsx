@@ -200,7 +200,7 @@ export default function CriticalValue5StepPage() {
                   <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', maxWidth: 80 }}>{step.description}</div>
                 </div>
                 {idx < STEP_CONFIG.length - 1 && (
-                  <div style={{ flex: 1, height: 2, background: '#e2e8f0', margin: '0 4px', marginBottom: 40 }} />
+                  <div style={{ flex: 1, height: 2, background: 'var(--border-color)', margin: '0 4px', marginBottom: 40 }} />
                 )}
               </React.Fragment>
             )

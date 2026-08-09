@@ -1,5 +1,5 @@
 
-import { X, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react'
+import { X, CheckCircle, AlertTriangle, RefreshCw, Printer } from 'lucide-react'
 import { PRIMARY, GRAY, DANGER, SUCCESS, WHITE, BG } from './reportUtils'
 
 export interface ReviewResultModalProps {
@@ -94,7 +94,7 @@ export function PrintModal({ show, title, message, onClose, onPrint }: PrintModa
         <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{message}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>打印</button>
+          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Printer size={13} />打印</button>
         </div>
       </div>
     </div>

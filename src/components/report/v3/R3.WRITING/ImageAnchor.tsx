@@ -3,12 +3,13 @@
  * R3.WRITING 组 D:关键图像与影像引用
  * 10 升级点:标记 / 测量 / 引用 / 缩略图 / 关键标识
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
-import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog } from 'lucide-react';
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
 import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
 import type { ImageAnchor } from '@types/R3/R3.WRITING';
+import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
+import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog , Type} from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from 'react';
 
 interface Props {
   reportId: string;
@@ -238,7 +239,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
               </>
             ) : (
               <div className="flex items-center justify-center h-full text-slate-500">
-                <Empty description="请选择左侧图像" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择左侧图像" />
               </div>
             )}
           </div>
@@ -246,7 +247,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           {/* 缩略图列 */}
           <div className="space-y-2 max-h-[360px] overflow-y-auto">
             {filtered.length === 0 ? (
-              <Empty description="暂无锚定" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无锚定" />
             ) : (
               filtered.map((a) => (
                 <div

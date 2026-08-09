@@ -20,11 +20,11 @@ const C = {
   accent: '#0891b2',       // cyan-600 核医学主题色
   accentLight: '#ecfeff',  // cyan-50
   white: '#ffffff',
-  background: '#f8fafc',
+  background: 'var(--bg-card)',
   text: '#1e293b',
   textMuted: '#64748b',
   textLight: '#94a3b8',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   success: '#059669',
   successBg: '#ecfdf5',
   warning: '#d97706',
@@ -91,7 +91,7 @@ const DRUG_DATA = [
   { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: '#3b82f6' },
   { name: '¹³¹I', consumption: 5800, unit: 'mCi', percent: 7, color: '#8b5cf6' },
   { name: '¹¹C-PIB', consumption: 3200, unit: 'mCi', percent: 4, color: '#22c55e' },
-  { name: '其他', consumption: 2430, unit: 'mCi', percent: 4, color: '#94a3b8' },
+  { name: '其他', consumption: 2430, unit: 'mCi', percent: 4, color: 'var(--text-secondary)' },
 ]
 
 // SUV统计数据
@@ -350,13 +350,13 @@ export default function NuclearStatsPage() {
     { key: 'suv', label: 'SUV统计', icon: <TrendingUp size={15} /> },
   ]
 
-  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!daily || daily.length === 0) {
     return (
-      <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无核医学统计数据</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>请选择其他月份或检查核医学设备联网状态</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请选择其他月份或检查核医学设备联网状态</div>
       </div>
     );
   }
@@ -427,10 +427,10 @@ export default function NuclearStatsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
             {[
               { label: '检查总数', value: totalExams.toLocaleString(), sub: `较上月 ${summary?.examMoM != null ? (summary.examMoM > 0 ? '+' : '') + summary.examMoM + '%' : '-7.6%'}`, icon: <Activity size={20} />, color: C.accent, bg: C.accentLight, trend: 'down' },
-              { label: '药物消耗', value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: '日均 2.76 Ci', icon: <Droplets size={20} />, color: '#3b82f6', bg: '#eff6ff', trend: 'up' },
-              { label: '设备利用率', value: `${avgUtilization}%`, sub: '目标 ≥80%', icon: <Gauge size={20} />, color: '#22c55e', bg: '#ecfdf5', trend: 'up' },
-              { label: '阳性率', value: `${avgPositive}%`, sub: '较上月 +1.0%', icon: <Target size={20} />, color: '#f59e0b', bg: '#fffbeb', trend: 'up' },
-              { label: '平均SUV', value: (suv?.avg ?? 0).toFixed(1), sub: `范围 ${suv?.min ?? 2.1}-${suv?.max ?? 12.8}`, icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#f5f3ff', trend: 'stable' },
+              { label: '药物消耗', value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: '日均 2.76 Ci', icon: <Droplets size={20} />, color: '#3b82f6', bg: '#3b82f622', trend: 'up' },
+              { label: '设备利用率', value: `${avgUtilization}%`, sub: '目标 ≥80%', icon: <Gauge size={20} />, color: '#22c55e', bg: '#22c55e22', trend: 'up' },
+              { label: '阳性率', value: `${avgPositive}%`, sub: '较上月 +1.0%', icon: <Target size={20} />, color: '#f59e0b', bg: '#f59e0b22', trend: 'up' },
+              { label: '平均SUV', value: (suv?.avg ?? 0).toFixed(1), sub: `范围 ${suv?.min ?? 2.1}-${suv?.max ?? 12.8}`, icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#8b5cf622', trend: 'stable' },
             ].map((card, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 16, borderTop: `3px solid ${card.color}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>

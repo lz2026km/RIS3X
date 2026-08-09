@@ -2,11 +2,12 @@
  * G005 放射RIS系统 v3.0.2 - 检查预约日历
  * 对标:RIS 预约管理 / 排班
  */
-import React, { useState, useMemo } from 'react'
+import dayjs from 'dayjs'
 import { Calendar, Badge, Modal, Form, Select, Input, DatePicker, TimePicker, Tag, Space, Button, Statistic, Row, Col, Card, Empty, message, Tooltip } from 'antd'
 import type { Dayjs } from 'dayjs'
 import { Calendar as CalIcon, Plus, Clock, MapPin, ListChecks } from 'lucide-react'
-import dayjs from 'dayjs'
+import React, { useState, useMemo } from 'react'
+import { Inbox } from 'lucide-react'
 
 export interface Appointment {
   id: string
@@ -202,7 +203,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             data-testid="apt-day-list"
           >
             {dayAppointments.length === 0 ? (
-              <Empty description="该日无预约" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该日无预约" />
             ) : (
               <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                 {dayAppointments

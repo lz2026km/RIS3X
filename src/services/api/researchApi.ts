@@ -1,7 +1,8 @@
-import { api, invalidateApiCacheByPrefix } from './client'
+﻿import { api, invalidateApiCacheByPrefix } from './client'
 
-// [G005 W1-C] MOCK_ONLY: 后端无 /research controller,
-// 全部 12 方法为前端演示接口 (ResearchPage 在用), 数据源为本地 fallback, 后端待实现。
+// [G005 Wave1B P1] 后端已实现 /research controller (research.module):
+// 12 端点全部真实, 数据源 = Report/Exam/ExportApproval/ReportQualityScore 派生 + seed 回退。
+// MSW 标注已更新: 页面走真实后端, mock 模式仍有 MSW 兜底。
 
 export interface ResearchProjectDto {
   id: string; code: string; name: string; leader: string; startDate: string
@@ -45,11 +46,9 @@ export interface DataQualityScoreDto {
 
 export const researchApi = {
   // ── Projects ──
-  // mock-only (后端无 /research)
   listProjects: () =>
     api.get<ResearchProjectDto[]>('/research/projects'),
 
-  // mock-only (后端无 /research)
   createProject: async (data: Partial<ResearchProjectDto>) => {
     const res = await api.post<ResearchProjectDto>('/research/projects', data)
     await invalidateApiCacheByPrefix('/research/projects')
@@ -57,16 +56,13 @@ export const researchApi = {
   },
 
   // ── Exam Records ──
-  // mock-only (后端无 /research)
   listExamRecords: () =>
     api.get<ExamRecordDto[]>('/research/exam-records'),
 
   // ── Labels ──
-  // mock-only (后端无 /research)
   listLabels: () =>
     api.get<ResearchLabelDto[]>('/research/labels'),
 
-  // mock-only (后端无 /research)
   createLabel: async (data: Partial<ResearchLabelDto>) => {
     const res = await api.post<ResearchLabelDto>('/research/labels', data)
     await invalidateApiCacheByPrefix('/research/labels')
@@ -74,16 +70,13 @@ export const researchApi = {
   },
 
   // ── Exports ──
-  // mock-only (后端无 /research)
   listExportRecords: () =>
     api.get<ExportRecordDto[]>('/research/exports'),
 
   // ── IRB ──
-  // mock-only (后端无 /research)
   listIRBSubmissions: () =>
     api.get<IRBSubmissionDto[]>('/research/irb'),
 
-  // mock-only (后端无 /research)
   createIRBSubmission: async (data: Partial<IRBSubmissionDto>) => {
     const res = await api.post<IRBSubmissionDto>('/research/irb', data)
     await invalidateApiCacheByPrefix('/research/irb')
@@ -91,11 +84,9 @@ export const researchApi = {
   },
 
   // ── Cohorts ──
-  // mock-only (后端无 /research)
   listCohorts: () =>
     api.get<CohortDefinitionDto[]>('/research/cohorts'),
 
-  // mock-only (后端无 /research)
   createCohort: async (data: Partial<CohortDefinitionDto>) => {
     const res = await api.post<CohortDefinitionDto>('/research/cohorts', data)
     await invalidateApiCacheByPrefix('/research/cohorts')
@@ -103,12 +94,10 @@ export const researchApi = {
   },
 
   // ── Export Audit ──
-  // mock-only (后端无 /research)
   listExportAudit: () =>
     api.get<ExportAuditDto[]>('/research/export-audit'),
 
   // ── Data Quality ──
-  // mock-only (后端无 /research)
   listQualityScores: () =>
     api.get<DataQualityScoreDto[]>('/research/quality-scores'),
 }

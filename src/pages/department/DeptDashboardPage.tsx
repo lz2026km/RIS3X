@@ -419,7 +419,7 @@ export default function DeptDashboardPage() {
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
-              <Table
+              <Table scroll={{ x: 'max-content' }}
                 rowKey="doctorName"
                 columns={rvuColumns}
                 dataSource={state.rvu}
@@ -447,13 +447,13 @@ export default function DeptDashboardPage() {
                 />
               }
             >
-              <Table
+              <Table scroll={{ x: 'max-content' }}
                 rowKey="deviceId"
                 columns={oeeColumns}
                 dataSource={state.oeeDevices}
                 pagination={false}
                 size="small"
-              scroll={{ x: 'max-content' }}
+             
               />
               <div style={{ marginTop: 12 }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>
@@ -519,7 +519,7 @@ export default function DeptDashboardPage() {
                       超时清单 (Top {state.sla.overdue.length})
                     </Text>
                   </Space>
-                  <Table
+                  <Table scroll={{ x: 'max-content' }}
                     rowKey="id"
                     columns={slaColumns}
                     dataSource={state.sla.overdue.slice(0, 5)}

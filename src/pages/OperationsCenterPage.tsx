@@ -30,11 +30,11 @@ const KPI_DATA = [
 
 const ROOMS = [
   { name: 'CT1室', status: '检查中', patient: '王建国', color: '#4ade80' },
-  { name: 'CT2室', status: '空闲', patient: '-', color: '#64748b' },
+  { name: 'CT2室', status: '空闲', patient: '-', color: 'var(--text-secondary)' },
   { name: 'MRI1室', status: '准备中', patient: '李秀英', color: '#fbbf24' },
   { name: 'MRI2室', status: '检查中', patient: '张志明', color: '#4ade80' },
   { name: 'X线室', status: '检查中', patient: '陈晓燕', color: '#4ade80' },
-  { name: '乳腺室', status: '空闲', patient: '-', color: '#64748b' },
+  { name: '乳腺室', status: '空闲', patient: '-', color: 'var(--text-secondary)' },
 ]
 
 const QUEUE_DATA = [
@@ -120,7 +120,7 @@ const PIE_COLORS = ['#3b82f6', '#4ade80', '#fbbf24', '#f97316', '#8b5cf6']
 // [W2-A] 检查室状态映射 (occupancyApi)
 const ROOM_STATUS_MAP: Record<string, { label: string; color: string }> = {
   occupied: { label: '检查中', color: '#4ade80' },
-  idle: { label: '空闲', color: '#64748b' },
+  idle: { label: '空闲', color: 'var(--text-secondary)' },
   disinfecting: { label: '消毒中', color: '#fbbf24' },
   fault: { label: '故障', color: '#ef4444' },
 }
@@ -164,7 +164,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   headerSub: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     marginTop: 2,
   },
   headerTime: {
@@ -198,7 +198,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   kpiLabel: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     marginBottom: 8,
   },
   kpiValue: {
@@ -210,7 +210,7 @@ const s: Record<string, React.CSSProperties> = {
   kpiUnit: {
     fontSize: 20,
     fontWeight: 400,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     marginLeft: 4,
   },
   kpiTrend: {
@@ -258,7 +258,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   callingLabel: {
     fontSize: 16,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     marginBottom: 12,
   },
   callingPatient: {
@@ -302,7 +302,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   roomStatus: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
   },
   // 柱状图
   barChart: {
@@ -326,7 +326,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   barLabel: {
     fontSize: 12,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
   },
   // 折线图区域
   lineChartArea: {
@@ -366,7 +366,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   pieLegendText: {
     fontSize: 13,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     flex: 1,
   },
   pieLegendValue: {
@@ -383,7 +383,7 @@ const s: Record<string, React.CSSProperties> = {
   th: {
     textAlign: 'left',
     padding: '10px 8px',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     fontWeight: 600,
     borderBottom: '1px solid rgba(71, 85, 105, 0.5)',
   },
@@ -430,7 +430,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   qualityLabel: {
     fontSize: 12,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     marginTop: 4,
   },
   // 进度条
@@ -441,7 +441,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     fontSize: 13,
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     marginBottom: 6,
   },
   progressBar: {
@@ -509,7 +509,7 @@ function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
       <div style={{ ...s.kpiTrend, color: trendColor }}>
         <TrendIcon size={16} />
         <span>{diff > 0 ? '+' : ''}{diff} ({percent}%)</span>
-        <span style={{ color: '#64748b', marginLeft: 4 }}>vs昨日</span>
+        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>vs昨日</span>
       </div>
     </div>
   )
@@ -609,7 +609,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
         <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">峰值</text>
       </svg>
       {/* X轴标签 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', padding: '0 5px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', padding: '0 5px' }}>
         <span>{data[0]?.hour}</span>
         <span>{data[Math.floor((data.length - 1) / 3)]?.hour}</span>
         <span>{data[Math.floor((data.length - 1) / 2)]?.hour}</span>
@@ -620,11 +620,11 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
       <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 3, background: '#4ade80', borderRadius: 2 }} />
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>今日</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 3, background: '#64748b', borderRadius: 2, borderBottom: '2px dashed #64748b' }} />
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>昨日</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>昨日</span>
         </div>
       </div>
     </div>
@@ -804,7 +804,7 @@ export default function OperationsCenterPage() {
       // ---- 检查室状态 (occupancyApi) ----
       if (occRooms.length > 0) {
         setRooms(occRooms.slice(0, 6).map((r: any) => {
-          const st = ROOM_STATUS_MAP[String(r.status)] || { label: String(r.status), color: '#64748b' }
+          const st = ROOM_STATUS_MAP[String(r.status)] || { label: String(r.status), color: 'var(--text-secondary)' }
           return { name: r.roomNo, status: st.label, patient: r.currentPatient || '-', color: st.color }
         }))
       }
@@ -925,12 +925,12 @@ export default function OperationsCenterPage() {
             </span>
           )}
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, color: '#64748b' }}>当前时间</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>当前时间</div>
             <div style={s.headerTime}>
               {currentTime.toLocaleTimeString('zh-CN', { hour12: false })}
             </div>
           </div>
-          <RefreshCw size={20} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => void loadDashboard()} />
+          <RefreshCw size={20} color="var(--text-secondary)" style={{ cursor: 'pointer' }} onClick={() => void loadDashboard()} />
         </div>
       </div>
 
@@ -981,7 +981,7 @@ export default function OperationsCenterPage() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>等待队列变化（过去1小时）</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>等待队列变化（过去1小时）</div>
             <QueueChart data={queueData} />
           </div>
         </div>
@@ -993,7 +993,7 @@ export default function OperationsCenterPage() {
             今日检查趋势
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#94a3b8' }}>{hourlyCaption}</span>
+            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{hourlyCaption}</span>
             <span style={{ fontSize: 12, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Zap size={14} /> {peakText}
             </span>
@@ -1003,19 +1003,19 @@ export default function OperationsCenterPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{todayTotal}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>今日总检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#3b82f6' }}>{yesterdayTotal}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>昨日总检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>昨日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{growthText}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>环比增长</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>环比增长</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#fbbf24' }}>{peakText.split('(')[0].replace('高峰日: ', '').trim()}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>高峰时段</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>高峰时段</div>
             </div>
           </div>
         </div>
@@ -1061,7 +1061,7 @@ export default function OperationsCenterPage() {
           </table>
 
           <div style={{ marginTop: 24 }}>
-            <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>检查项目分布</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>检查项目分布</div>
             <PieChartComponent data={projectData} />
           </div>
         </div>
@@ -1082,19 +1082,19 @@ export default function OperationsCenterPage() {
           </div>
           
           <div style={{ marginTop: 20, padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-            <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>今日概览</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>今日概览</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#4ade80' }}>{summaryOverview.adverse}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>不良事件</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>不良事件</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>{summaryOverview.normal}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>正常检查</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>正常检查</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>安全率</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>安全率</div>
               </div>
             </div>
           </div>
@@ -1115,12 +1115,12 @@ export default function OperationsCenterPage() {
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>平均检查时长(分钟)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>平均检查时长(分钟)</div>
             </div>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>报告及时率</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>报告及时率</div>
             </div>
           </div>
 
@@ -1162,9 +1162,9 @@ export default function OperationsCenterPage() {
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
             系统正常运行
           </span>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>数据更新: {new Date().toLocaleTimeString('zh-CN')} · 数据源: {dataSource === 'api' ? 'API 实时' : '演示数据'}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>数据更新: {new Date().toLocaleTimeString('zh-CN')} · 数据源: {dataSource === 'api' ? 'API 实时' : '演示数据'}</span>
         </div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
           G005 放射科RIS系统 v0.7.0 | 运营指挥中心
         </div>
       </div>

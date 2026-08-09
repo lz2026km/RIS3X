@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { usePagination } from '../../hooks/usePagination'
+import { dicomSrApi, type DicomSrTemplate } from '../../services/api/dicomApi'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, message, Popconfirm, Empty, Descriptions } from 'antd'
 import { FileText, Plus, Edit, Trash, RefreshCw, Eye } from 'lucide-react'
-import { dicomSrApi, type DicomSrTemplate } from '../../services/api/dicomApi'
-import { usePagination } from '../../hooks/usePagination'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 export const DicomSrTemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<DicomSrTemplate[]>([])
@@ -113,11 +114,11 @@ export const DicomSrTemplatePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 模板管理</span>
-        <Tag color="cyan">Structured Report</Tag>
+        <Tag color="cyan">结构化报告</Tag>
       </Space>
 
       <Card
@@ -154,7 +155,7 @@ export const DicomSrTemplatePage: React.FC = () => {
             <Input placeholder="结构化测量报告" />
           </Form.Item>
           <Form.Item name="labelEn" label="英文名称" rules={[{ required: true }]}>
-            <Input placeholder="Measurement Report" />
+            <Input placeholder="测量报告" />
           </Form.Item>
           <Form.Item name="tid" label="TID 模板标识" rules={[{ required: true }]}>
             <Input placeholder="TID 1500" />
@@ -180,7 +181,7 @@ export const DicomSrTemplatePage: React.FC = () => {
             <Descriptions.Item label="TID">{selectedTemplate.tid}</Descriptions.Item>
             <Descriptions.Item label="描述">{selectedTemplate.description}</Descriptions.Item>
           </Descriptions>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

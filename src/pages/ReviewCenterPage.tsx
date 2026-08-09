@@ -3,24 +3,25 @@
  * [v3.0.6.11-81] W2-B: 初核/终核待办接 reportApi.list (INITIAL_REVIEW/FINAL_REVIEW),
  *   Cosign 待办接 cosignApi.getPending/getStats; 失败回退演示数据
  */
-import React, { useState, useEffect } from 'react';
-import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge, Tag, Spin, Alert } from 'antd';
-import { ClipboardCheck, ShieldCheck, Award, BarChart3, FileText, Users, Clock, ListChecks } from 'lucide-react';
-import { InitialCheckList } from '../components/report/v3/R3.REVIEW/InitialCheckList';
-import { FinalCheckList } from '../components/report/v3/R3.REVIEW/FinalCheckList';
+import { PageContainer, PageHeader } from '../components/common';
 import { CosignSchedule } from '../components/report/v3/R3.REVIEW/CosignSchedule';
-import { ReviewCommentThread } from '../components/report/v3/R3.REVIEW/ReviewCommentThread';
+import { FinalCheckList } from '../components/report/v3/R3.REVIEW/FinalCheckList';
+import { InitialCheckList } from '../components/report/v3/R3.REVIEW/InitialCheckList';
 import { RejectTemplateModal } from '../components/report/v3/R3.REVIEW/RejectTemplateModal';
-import { ReviewWorkloadStats } from '../components/report/v3/R3.REVIEW/ReviewWorkloadStats';
-import { ReviewSLA } from '../components/report/v3/R3.REVIEW/ReviewSLA';
 import { ReviewAIHint } from '../components/report/v3/R3.REVIEW/ReviewAIHint';
+import { ReviewCommentThread } from '../components/report/v3/R3.REVIEW/ReviewCommentThread';
 import { ReviewerAssignment } from '../components/report/v3/R3.REVIEW/ReviewerAssignment';
 import { ReviewHistory } from '../components/report/v3/R3.REVIEW/ReviewHistory';
-import { reviewService } from '../services/review/reviewService';
-import { reportApi } from '../services/api/reportApi';
+import { ReviewSLA } from '../components/report/v3/R3.REVIEW/ReviewSLA';
+import { ReviewWorkloadStats } from '../components/report/v3/R3.REVIEW/ReviewWorkloadStats';
 import { coSignApi } from '../services/api/cosignApi';
+import { reportApi } from '../services/api/reportApi';
+import { reviewService } from '../services/review/reviewService';
 import type { ReviewTask, RejectCategory } from '../types/R3/R3.REVIEW';
-import { PageContainer, PageHeader } from '../components/common';
+import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge, Tag, Spin, Alert } from 'antd';
+import { ClipboardCheck, ShieldCheck, Award, BarChart3, FileText, Users, Clock, ListChecks } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
 
 const ReviewCenterPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('initial');
@@ -128,16 +129,16 @@ const ReviewCenterPage: React.FC = () => {
       {/* [W2-B] 真实化: 审核待办概览 (reportApi 状态过滤 + cosignApi) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
         {[
-          { label: '初核待审 (INITIAL_REVIEW)', value: summary.initial, icon: <ListChecks size={16} />, color: '#2563eb', bg: '#eff6ff' },
-          { label: '终核待审 (FINAL_REVIEW)', value: summary.final, icon: <ShieldCheck size={16} />, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: '双签待办 (cosign/pending)', value: summary.cosign, icon: <Award size={16} />, color: '#d97706', bg: '#fffbeb' },
-          { label: '双签按时率', value: summary.onTimeRate != null ? `${summary.onTimeRate}%` : '-', icon: <Clock size={16} />, color: '#059669', bg: '#ecfdf5' },
+          { label: '初核待审', value: summary.initial, icon: <ListChecks size={16} />, color: '#2563eb', bg: '#3b82f622' },
+          { label: '终核待审', value: summary.final, icon: <ShieldCheck size={16} />, color: '#7c3aed', bg: '#8b5cf622' },
+          { label: '双签待办', value: summary.cosign, icon: <Award size={16} />, color: '#d97706', bg: '#f59e0b22' },
+          { label: '双签按时率', value: summary.onTimeRate != null ? `${summary.onTimeRate}%` : '-', icon: <Clock size={16} />, color: '#059669', bg: '#22c55e22' },
         ].map(c => (
           <div key={c.label} style={{ background: c.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: c.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', color: c.color }}>{c.icon}</div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', lineHeight: 1.1 }}>{c.value}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{c.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>{c.value}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.label}</div>
             </div>
           </div>
         ))}
@@ -197,7 +198,7 @@ const ReviewCenterPage: React.FC = () => {
 
             <ReviewHistory reportId={selectedTask.reportId} />
           </Space>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Drawer>
 
       <RejectTemplateModal

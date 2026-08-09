@@ -19,15 +19,15 @@ type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
 type SignatureAlgorithm = 'RSA-SHA256' | 'SM2-SM3';
 
 const STATUS_CONFIG: Record<CertificateStatus, { label: string; color: string; bg: string; icon: any }> = {
-  valid:    { label: '有效', color: '#10b981', bg: '#d1fae5', icon: CheckCircle2 },
-  expiring: { label: '即将过期', color: '#f59e0b', bg: '#fef3c7', icon: AlertTriangle },
-  expired:  { label: '已过期', color: '#dc2626', bg: '#fee2e2', icon: XCircle },
-  revoked:  { label: '已吊销', color: '#7f1d1d', bg: '#fecaca', icon: XCircle },
+  valid:    { label: '有效', color: '#10b981', bg: '#22c55e22', icon: CheckCircle2 },
+  expiring: { label: '即将过期', color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
+  expired:  { label: '已过期', color: '#ef4444', bg: '#ef444422', icon: XCircle },
+  revoked:  { label: '已吊销', color: '#7f1d1d', bg: '#ef444422', icon: XCircle },
 };
 
 const ALGO_CONFIG: Record<SignatureAlgorithm, { label: string; color: string; bg: string; description: string }> = {
-  'RSA-SHA256': { label: 'RSA-SHA256', color: '#3b82f6', bg: '#dbeafe', description: '国际通用，2048 位密钥' },
-  'SM2-SM3':    { label: '国密 SM2-SM3', color: '#dc2626', bg: '#fee2e2', description: '中国国密标准，符合等保' },
+  'RSA-SHA256': { label: 'RSA-SHA256', color: '#3b82f6', bg: '#3b82f622', description: '国际通用，2048 位密钥' },
+  'SM2-SM3':    { label: '国密 SM2-SM3', color: '#ef4444', bg: '#ef444422', description: '中国国密标准，符合等保' },
 };
 
 export default function CASignaturePage() {
@@ -291,11 +291,11 @@ export default function CASignaturePage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stamp size={20} color="#7c3aed" /> CA 数字签名
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             RSA-SHA256 + 国密 SM2-SM3 · 证书链 · 时间戳 · 签名验证 · 区块链对接
           </p>
         </div>
@@ -303,32 +303,32 @@ export default function CASignaturePage() {
           <PermissionGate permission="report.sign">
             <button
               onClick={() => setShowUploadModal(true)}
-              style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <FileUp size={12} /> 上传证书
             </button>
           </PermissionGate>
           <button
             onClick={() => void openSignatures()}
-            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
             <FileSearch size={12} /> 签名历史
           </button>
           <button
             onClick={() => void openHistory()}
-            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
             <HistoryIcon size={12} /> 操作历史
           </button>
           <button
             onClick={() => { setVerifyResult(null); setVerifyForm({ reportId: '', verificationCode: '' }); setShowVerifyModal(true); }}
-            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#faf5ff', color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
           >
             <ShieldX size={12} /> 签名验签
           </button>
           <button
             onClick={() => navigate('/blockchain-proof')}
-            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
             区块链存证
           </button>
@@ -336,13 +336,13 @@ export default function CASignaturePage() {
       </div>
 
       {listError && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertTriangle size={12} /> {listError}
         </div>
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 14 }}>加载证书列表...</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)', fontSize: 14 }}>加载证书列表...</div>
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
@@ -353,17 +353,17 @@ export default function CASignaturePage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
-            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-              <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+              <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                   <div style={{ position: 'relative', flex: 1 }}>
-                    <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: '#94a3b8' }} />
+                    <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
                     <input
                       type="text"
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                       placeholder="搜索姓名/证书 ID..."
-                      style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                      style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
                     />
                   </div>
                 </div>
@@ -391,7 +391,7 @@ export default function CASignaturePage() {
                       key={c.id}
                       onClick={() => setSelectedCertId(c.id)}
                       style={{
-                        padding: 10, borderBottom: '1px solid #f1f5f9',
+                        padding: 10, borderBottom: '1px solid var(--border-light)',
                         background: isSelected ? '#faf5ff' : 'transparent',
                         borderLeft: isSelected ? '3px solid #7c3aed' : '3px solid transparent',
                         cursor: 'pointer',
@@ -404,17 +404,17 @@ export default function CASignaturePage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 12, fontWeight: 700,
                         }}>{c.holderName[0]}</div>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{c.holderName}</span>
-                        <span style={{ fontSize: 12, color: '#94a3b8' }}>· {c.holderTitle}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.holderName}</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>· {c.holderTitle}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4 }}>
                         <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: aConf.bg, color: aConf.color, fontWeight: 600 }}>{aConf.label}</span>
                         <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
                           <sConf.icon size={9} /> {sConf.label}
                         </span>
-                        <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'auto' }}>×{c.usageCount}</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>×{c.usageCount}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{c.certId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.certId}</div>
                     </div>
                   );
                 })}
@@ -423,16 +423,16 @@ export default function CASignaturePage() {
 
             {selectedCert && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>待签名报告 ID</div>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>待签名报告 ID</div>
                   <input
                     value={reportId}
                     onChange={(e) => setReportId(e.target.value)}
                     placeholder="请输入报告 ID（如 RPT-xxxx）"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
-                <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <div style={{
                       width: 56, height: 56, borderRadius: 12,
@@ -441,8 +441,8 @@ export default function CASignaturePage() {
                       fontSize: 24, fontWeight: 700,
                     }}>{selectedCert.holderName[0]}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{selectedCert.holderName}</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{selectedCert.holderTitle} · {selectedCert.holderIdNumber}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedCert.holderName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{selectedCert.holderTitle} · {selectedCert.holderIdNumber}</div>
                     </div>
                     <span style={{
                       fontSize: 12, padding: '3px 10px', borderRadius: 4,
@@ -460,14 +460,14 @@ export default function CASignaturePage() {
                     <InfoCell label="已签次数" value={String(selectedCert.usageCount)} color="#10b981" />
                   </div>
 
-                  <div style={{ marginBottom: 12, padding: 10, background: '#faf5ff', border: '1px solid #ddd6fe', borderRadius: 6 }}>
+                  <div style={{ marginBottom: 12, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6 }}>
                     <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>🔐 证书指纹 (SHA-256)</div>
                     <div style={{ fontSize: 12, color: '#5b21b6', fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: 1.4 }}>
                       {selectedCert.fingerprint}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
                     <PermissionGate permission="report.sign">
                       <button
                         onClick={handleSign}
@@ -490,7 +490,7 @@ export default function CASignaturePage() {
                         title={selectedCert.status === 'revoked' ? '该证书已吊销' : '吊销证书'}
                         style={{
                           padding: '10px 16px', border: '1px solid #fca5a5', borderRadius: 6,
-                          background: selectedCert.status === 'revoked' ? '#f1f5f9' : '#fff',
+                          background: selectedCert.status === 'revoked' ? 'var(--bg-card)' : 'var(--bg-card)',
                           color: selectedCert.status === 'revoked' ? '#94a3b8' : '#b91c1c',
                           fontSize: 12, cursor: selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer',
                           display: 'flex', alignItems: 'center', gap: 4,
@@ -520,25 +520,25 @@ export default function CASignaturePage() {
                         }
                       }}
                       disabled={!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
-                      style={{ padding: '10px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#94a3b8' : '#475569', fontSize: 12, cursor: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
+                      style={{ padding: '10px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#94a3b8' : '#475569', fontSize: 12, cursor: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
                     >
                       <RefreshCw size={12} /> 续期
                     </button>
                   </div>
 
                   {isSigning && (
-                    <div style={{ marginTop: 12, padding: 10, background: '#f0fdf4', borderRadius: 6 }}>
+                    <div style={{ marginTop: 12, padding: 10, background: 'var(--color-success-bg)', borderRadius: 6 }}>
                       <div style={{ fontSize: 12, color: '#047857', fontWeight: 600, marginBottom: 6 }}>
                         🔐 正在使用 {ALGO_CONFIG[selectedCert.algorithm].label} 算法签名...
                       </div>
-                      <div style={{ height: 6, background: '#bbf7d0', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: 6, background: 'var(--color-success-bg)', borderRadius: 3, overflow: 'hidden' }}>
                         <div style={{ width: `${signingProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #3b82f6)' }} />
                       </div>
                     </div>
                   )}
 
                   {showSignResult && !isSigning && (
-                    <div style={{ marginTop: 12, padding: 12, background: '#d1fae5', border: '1px solid #6ee7b7', borderRadius: 6 }}>
+                    <div style={{ marginTop: 12, padding: 12, background: 'var(--color-success-bg)', border: '1px solid #6ee7b7', borderRadius: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
                         <CheckCircle2 size={14} /> 签名成功
                       </div>
@@ -553,7 +553,7 @@ export default function CASignaturePage() {
                   )}
                 </div>
 
-                <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Key size={13} /> 证书链验证
                   </div>
@@ -565,14 +565,14 @@ export default function CASignaturePage() {
                     ].map((c, i) => (
                       <React.Fragment key={i}>
                         <div style={{
-                          flex: 1, padding: 10, background: '#f8fafc',
+                          flex: 1, padding: 10, background: 'var(--bg-card)',
                           border: `2px solid ${c.color}`, borderRadius: 6, textAlign: 'center',
                         }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.name}</div>
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{c.desc}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.desc}</div>
                           <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>✓ 已验证</div>
                         </div>
-                        {i < 2 && <ChevronRight size={14} color="#94a3b8" />}
+                        {i < 2 && <ChevronRight size={14} color="var(--text-secondary)" />}
                       </React.Fragment>
                     ))}
                   </div>
@@ -600,11 +600,11 @@ export default function CASignaturePage() {
             <label
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-                border: '1px dashed #cbd5e1', borderRadius: 6, cursor: 'pointer', background: '#fafafa',
+                border: '1px dashed var(--border-color)', borderRadius: 6, cursor: 'pointer', background: 'var(--bg-card)',
               }}
             >
               <FileUp size={14} color="#7c3aed" />
-              <span style={{ fontSize: 12, color: uploadFile ? '#1e293b' : '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 12, color: uploadFile ? 'var(--text-primary)' : '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {uploadFile ? uploadFile.name : '选择证书文件...'}
               </span>
               <input
@@ -669,7 +669,7 @@ export default function CASignaturePage() {
       >
         <div style={{ paddingTop: 8 }}>
           {selectedCert && (
-            <div style={{ marginBottom: 10, padding: 10, background: '#faf5ff', border: '1px solid #ddd6fe', borderRadius: 6, fontSize: 12 }}>
+            <div style={{ marginBottom: 10, padding: 10, background: '#8b5cf622', border: '1px solid var(--border-color)6fe', borderRadius: 6, fontSize: 12 }}>
               <div><b>持有者：</b>{selectedCert.holderName}（{selectedCert.holderTitle}）</div>
               <div><b>证书 ID：</b><span style={{ fontFamily: 'monospace' }}>{selectedCert.certId}</span></div>
               <div><b>当前状态：</b>{STATUS_CONFIG[selectedCert.status].label}</div>
@@ -710,7 +710,7 @@ export default function CASignaturePage() {
           {verifyResult && (
             <div style={{
               padding: 12, borderRadius: 6, fontSize: 12, lineHeight: 1.8,
-              background: verifyResult.valid ? '#f0fdf4' : '#fef2f2',
+              background: verifyResult.valid ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
               border: `1px solid ${verifyResult.valid ? '#6ee7b7' : '#fecaca'}`,
             }}>
               <div style={{ fontWeight: 700, color: verifyResult.valid ? '#047857' : '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -740,28 +740,28 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 480, overflow: 'auto', paddingTop: 8 }}>
           {signaturesLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 13 }}>加载签名历史...</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>加载签名历史...</div>
           ) : signatures.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 13 }}>暂无签名记录</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>暂无签名记录</div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr>
                   {['签名人', '报告 ID', '算法', '验证码', '签名时间'].map(h => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', background: '#f9fafb', borderBottom: '2px solid #e2e8f0', color: '#64748b' }}>{h}</th>
+                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {signatures.map(s => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td style={{ padding: '8px 10px', fontWeight: 600 }}>{s.holderName}</td>
                     <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{s.reportId}</td>
                     <td style={{ padding: '8px 10px' }}>
-                      <span style={{ padding: '1px 6px', borderRadius: 2, background: s.algorithm === 'SM2-SM3' ? '#fee2e2' : '#dbeafe', color: s.algorithm === 'SM2-SM3' ? '#b91c1c' : '#1d4ed8', fontWeight: 600 }}>{s.algorithm}</span>
+                      <span style={{ padding: '1px 6px', borderRadius: 2, background: s.algorithm === 'SM2-SM3' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: s.algorithm === 'SM2-SM3' ? '#b91c1c' : '#1d4ed8', fontWeight: 600 }}>{s.algorithm}</span>
                     </td>
                     <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{s.verificationCode}</td>
-                    <td style={{ padding: '8px 10px', color: '#64748b' }}>{new Date(s.signedAt).toLocaleString()}</td>
+                    <td style={{ padding: '8px 10px', color: 'var(--text-secondary)' }}>{new Date(s.signedAt).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -780,19 +780,19 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 8 }}>
           {historyLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 13 }}>加载操作历史...</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>加载操作历史...</div>
           ) : history.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 13 }}>暂无操作记录</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>暂无操作记录</div>
           ) : (
             <div>
               {history.map(h => {
                 const actionColor = h.action === 'REVOKE' ? '#dc2626' : h.action === 'UPLOAD' ? '#059669' : h.action === 'VERIFY' ? '#7c3aed' : '#2563eb';
                 return (
-                  <div key={h.id} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid #f1f5f9' }}>
+                  <div key={h.id} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid var(--border-light)' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, background: `${actionColor}15`, color: actionColor, fontSize: 11, fontWeight: 700, alignSelf: 'center' }}>{h.action}</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, color: '#1e293b' }}>{h.detail}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{h.operator} · {h.target} · {new Date(h.createdAt).toLocaleString()}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{h.detail}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{h.operator} · {h.target} · {new Date(h.createdAt).toLocaleString()}</div>
                     </div>
                   </div>
                 );
@@ -806,29 +806,29 @@ export default function CASignaturePage() {
 }
 
 const fieldLabelStyle: React.CSSProperties = {
-  fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4,
+  fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4,
 };
 
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
   fontSize: 12, outline: 'none', flex: 1,
 };
 
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => (
-  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: alert ? '#dc2626' : '#1e293b' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: alert ? '#dc2626' : 'var(--text-primary)' }}>{value}</div>
     </div>
   </div>
 );
 
 const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>
-    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
-    <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: color || 'var(--text-primary)', fontWeight: 600, marginTop: 1, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</div>
   </div>
 );

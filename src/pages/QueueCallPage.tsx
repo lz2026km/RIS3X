@@ -3,6 +3,7 @@
 // 检查室状态面板 + 叫号队列列表 + 呼叫/重呼/完成按钮 + 统计面板
 // 深蓝主色 #1e40af
 
+import { Card } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
 import { 
   Monitor, Clock, Users, Volume2, VolumeX, RefreshCw,
@@ -181,12 +182,12 @@ const styles: Record<string, React.CSSProperties> = {
     background: BG_CARD,
     borderRadius: 16,
     boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-color)',
     overflow: 'hidden',
   },
   cardHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #f1f5f9',
+    borderBottom: '1px solid var(--border-light)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -218,7 +219,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   roomCardActive: {
     border: `2px solid ${PRIMARY}`,
-    background: '#eff6ff',
+    background: 'var(--color-info-bg)',
   },
   roomCardHeader: {
     display: 'flex',
@@ -238,15 +239,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   roomStatusIdle: {
-    background: '#dcfce7',
+    background: 'var(--color-success-bg)',
     color: '#166534',
   },
   roomStatusBusy: {
-    background: '#fef3c7',
+    background: 'var(--color-warning-bg)',
     color: '#92400e',
   },
   roomStatusPause: {
-    background: '#fee2e2',
+    background: 'var(--color-error-bg)',
     color: '#991b1b',
   },
   roomInfo: {
@@ -265,7 +266,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 16,
     marginTop: 12,
     paddingTop: 12,
-    borderTop: '1px solid #e2e8f0',
+    borderTop: '1px solid var(--border-color)',
   },
   roomStat: {
     textAlign: 'center' as const,
@@ -363,12 +364,12 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     padding: '12px 16px',
-    borderBottom: '1px solid #f1f5f9',
+    borderBottom: '1px solid var(--border-light)',
     gap: 12,
     transition: 'background 0.15s ease',
   },
   queueItemHover: {
-    background: '#f8fafc',
+    background: 'var(--bg-card)',
   },
   queueNum: {
     fontSize: 16,
@@ -401,16 +402,16 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   queueTagEmergency: {
-    background: '#fee2e2',
+    background: 'var(--color-error-bg)',
     color: '#991b1b',
   },
   queueTagUrgent: {
-    background: '#fef3c7',
+    background: 'var(--color-warning-bg)',
     color: '#92400e',
   },
   queueTagNormal: {
     background: '#e2e8f0',
-    color: '#475569',
+    color: 'var(--text-secondary)',
   },
   queueWait: {
     fontSize: 12,
@@ -503,16 +504,16 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
   },
   priorityCritical: {
-    background: '#fee2e2',
+    background: 'var(--color-error-bg)',
     color: '#991b1b',
   },
   priorityUrgent: {
-    background: '#fef3c7',
+    background: 'var(--color-warning-bg)',
     color: '#92400e',
   },
   priorityNormal: {
     background: '#e2e8f0',
-    color: '#475569',
+    color: 'var(--text-secondary)',
   },
 
   // 患者类型标签
@@ -522,10 +523,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     fontWeight: 600,
   },
-  typeEmergency: { background: '#fee2e2', color: '#dc2626' },
-  typeInpatient: { background: '#dbeafe', color: '#2563eb' },
-  typeOutpatient: { background: '#dcfce7', color: '#16a34a' },
-  typeCheckup: { background: '#fef3c7', color: '#d97706' },
+  typeEmergency: { background: 'var(--color-error-bg)', color: '#dc2626' },
+  typeInpatient: { background: 'var(--color-info-bg)', color: '#2563eb' },
+  typeOutpatient: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  typeCheckup: { background: 'var(--color-warning-bg)', color: '#d97706' },
 
   // 状态标签
   statusBadge: {
@@ -534,35 +535,35 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     fontWeight: 600,
   },
-  statusWaiting: { background: '#e2e8f0', color: '#475569' },
-  statusCalled: { background: '#dbeafe', color: '#2563eb' },
-  statusExamining: { background: '#fef3c7', color: '#d97706' },
-  statusDone: { background: '#dcfce7', color: '#16a34a' },
-  statusSkipped: { background: '#f3e8ff', color: '#7c3aed' },
+  statusWaiting: { background: '#e2e8f0', color: 'var(--text-secondary)' },
+  statusCalled: { background: 'var(--color-info-bg)', color: '#2563eb' },
+  statusExamining: { background: 'var(--color-warning-bg)', color: '#d97706' },
+  statusDone: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  statusSkipped: { background: '#8b5cf622', color: '#7c3aed' },
 
   // 工具栏
   toolbar: {
     display: 'flex',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #f1f5f9',
-    background: '#fafafa',
+    borderBottom: '1px solid var(--border-light)',
+    background: 'var(--bg-card)',
   },
   searchInput: {
     flex: 1,
     padding: '8px 12px',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-color)',
     borderRadius: 8,
     fontSize: 13,
     outline: 'none',
   },
   filterSelect: {
     padding: '8px 12px',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-color)',
     borderRadius: 8,
     fontSize: 13,
     outline: 'none',
-    background: '#fff',
+    background: 'var(--bg-card)',
   },
 }
 
@@ -634,6 +635,32 @@ export default function QueueCallPage() {
   // [G005 W1-C] 检查室状态: 接入 queueApi.getRoomStatus (GET /queue/rooms, 后端 queue.controller)
   const [examRooms, setExamRooms] = useState<ExamRoomStatus[]>([])
   const [roomsFromApi, setRoomsFromApi] = useState(false)
+
+  // [G005 Wave1A P0] 房间明细: GET /queue/:roomId + GET /queue/:roomId/status (点击检查室卡片加载)
+  const [roomDetail, setRoomDetail] = useState<{ roomId: string; roomName: string; queue: any[] } | null>(null)
+  const [roomDetailStatus, setRoomDetailStatus] = useState<any | null>(null)
+  const [roomDetailLoading, setRoomDetailLoading] = useState(false)
+
+  // [G005 Wave1A P0] 选中房间 → 拉取房间队列与实时状态
+  useEffect(() => {
+    if (!selectedRoom) { setRoomDetail(null); setRoomDetailStatus(null); return }
+    let cancelled = false
+    setRoomDetailLoading(true)
+    setRoomDetail(null)
+    void (async () => {
+      try {
+        const [q, s] = await Promise.all([
+          queueApi.getRoomQueue(selectedRoom),
+          queueApi.getRoomStatusDetail(selectedRoom),
+        ])
+        if (cancelled) return
+        if (q.success && q.data) setRoomDetail(q.data as any)
+        if (s.success && s.data) setRoomDetailStatus(s.data)
+      } catch { /* 静默 */ }
+      if (!cancelled) setRoomDetailLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [selectedRoom])
 
   // 模拟检查室数据 (API 不可用时回退)
   const mockExamRooms: ExamRoomStatus[] = [
@@ -882,7 +909,7 @@ export default function QueueCallPage() {
                 <div 
                   key={item.id} 
                   style={styles.queueItem}
-                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
                   <div style={styles.queueNum}>{item.queueNum}</div>
@@ -963,12 +990,14 @@ export default function QueueCallPage() {
             <div style={{ ...styles.cardBody, padding: 12 }}>
               <div style={styles.roomGrid}>
                 {examRooms.map(room => (
-                  <div 
+                  <Card
                     key={room.id}
+                    bordered={false}
                     style={{
                       ...styles.roomCard,
                       ...(selectedRoom === room.id ? styles.roomCardActive : {})
                     }}
+                    styles={{ body: { padding: 0 } }}
                     onClick={() => setSelectedRoom(selectedRoom === room.id ? null : room.id)}
                   >
                     <div style={styles.roomCardHeader}>
@@ -994,9 +1023,50 @@ export default function QueueCallPage() {
                         <div style={styles.roomStatLabel}>候诊人数</div>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
+              {/* [G005 Wave1A P0] 房间明细: 房间队列 (GET /queue/:roomId) + 实时状态 (GET /queue/:roomId/status) */}
+              {selectedRoom && (
+                <div style={{ marginTop: 12, padding: 12, background: 'var(--color-info-bg)', borderRadius: 10, border: `1px solid ${PRIMARY_LIGHT}40` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>
+                      {roomDetail?.roomName ?? selectedRoom} 房间明细
+                    </span>
+                    <button
+                      style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 12, cursor: 'pointer' }}
+                      onClick={() => setSelectedRoom(null)}
+                    >
+                      关闭
+                    </button>
+                  </div>
+                  {roomDetailLoading ? (
+                    <div style={{ fontSize: 12, color: TEXT_MUTED }}>加载房间队列...</div>
+                  ) : (
+                    <>
+                      {roomDetailStatus && (
+                        <div style={{ display: 'flex', gap: 16, fontSize: 12, color: TEXT_MUTED, marginBottom: 8 }}>
+                          <span>状态: <b style={{ color: getRoomStatusStyle(roomDetailStatus.status) === styles.roomStatusBusy ? ACCENT_YELLOW : ACCENT_GREEN }}>{roomDetailStatus.status ?? '-'}</b></span>
+                          <span>当前患者: <b style={{ color: TEXT_DARK }}>{roomDetailStatus.currentPatient ?? '无'}</b></span>
+                          <span>候诊: <b style={{ color: TEXT_DARK }}>{roomDetailStatus.waitCount ?? 0}</b></span>
+                        </div>
+                      )}
+                      <div style={{ maxHeight: 220, overflowY: 'auto' as const }}>
+                        {(roomDetail?.queue ?? []).length === 0 ? (
+                          <div style={{ fontSize: 12, color: TEXT_MUTED }}>该房间暂无候诊队列</div>
+                        ) : (roomDetail?.queue ?? []).map((q: any, idx: number) => (
+                          <div key={q.id ?? idx} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: PRIMARY, width: 50 }}>{q.queueNum ?? '-'}</span>
+                            <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{q.patientName ?? '-'}</span>
+                            <span style={{ fontSize: 12, color: TEXT_MUTED }}>{q.examItemName ?? q.examItem ?? ''}</span>
+                            <span style={{ ...styles.statusBadge, ...getStatusStyle(q.status) }}>{q.status ?? '-'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -1010,30 +1080,30 @@ export default function QueueCallPage() {
             </div>
             <div style={styles.cardBody}>
               <div style={styles.statsGrid}>
-                <div style={styles.statCard}>
+                <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={{ ...styles.statValue, color: ACCENT_ORANGE }}>
                     {stats.totalWaiting}
                   </div>
                   <div style={styles.statLabel}>待检人数</div>
-                </div>
-                <div style={styles.statCard}>
+                </Card>
+                <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={{ ...styles.statValue, color: PRIMARY_LIGHT }}>
                     {stats.totalCalled}
                   </div>
                   <div style={styles.statLabel}>已呼叫</div>
-                </div>
-                <div style={styles.statCard}>
+                </Card>
+                <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={{ ...styles.statValue, color: ACCENT_GREEN }}>
                     {stats.totalCompleted}
                   </div>
                   <div style={styles.statLabel}>已完成</div>
-                </div>
-                <div style={styles.statCard}>
+                </Card>
+                <Card bordered={false} style={styles.statCard} styles={{ body: { padding: 0 } }}>
                   <div style={styles.statValue}>
                     {stats.avgWaitMinutes}
                   </div>
                   <div style={styles.statLabel}>平均等待(分钟)</div>
-                </div>
+                </Card>
               </div>
             </div>
           </div>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { fhirApi, type FhirImagingStudy } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, Modal, Descriptions, Tooltip, Badge } from 'antd'
 import { Layers, Search, RefreshCw, Eye } from 'lucide-react'
-import { fhirApi, type FhirImagingStudy } from '../../services/api/fhirApi'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const PAGE_SIZE = 10
 
@@ -116,7 +117,7 @@ export const FhirImagingStudyPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR ImagingStudy 管理</span>
@@ -176,13 +177,13 @@ export const FhirImagingStudyPage: React.FC = () => {
             <Descriptions.Item label="状态"><Tag color="green">{selectedStudy.status}</Tag></Descriptions.Item>
             <Descriptions.Item label="患者">{selectedStudy.subject?.reference || '-'}</Descriptions.Item>
             <Descriptions.Item label="开始时间">{selectedStudy.started ? new Date(selectedStudy.started).toLocaleString() : '-'}</Descriptions.Item>
-            <Descriptions.Item label="Series 数">{selectedStudy.numberOfSeries || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Instance 数">{selectedStudy.numberOfInstances || '-'}</Descriptions.Item>
+            <Descriptions.Item label="序列数">{selectedStudy.numberOfSeries || '-'}</Descriptions.Item>
+            <Descriptions.Item label="实例数">{selectedStudy.numberOfInstances || '-'}</Descriptions.Item>
             <Descriptions.Item label="检查代码" span={2}>{selectedStudy.procedureCode?.[0]?.coding?.[0]?.display || '-'}</Descriptions.Item>
             <Descriptions.Item label="位置">{selectedStudy.location?.reference || '-'}</Descriptions.Item>
             <Descriptions.Item label="原因">{selectedStudy.reasonCode?.[0]?.coding?.[0]?.display || '-'}</Descriptions.Item>
             {selectedStudy.series && selectedStudy.series.length > 0 && (
-              <Descriptions.Item label="Series 列表" span={2}>
+              <Descriptions.Item label="序列列表" span={2}>
                 <div style={{ maxHeight: 200, overflow: 'auto' }}>
                   {selectedStudy.series.map((s, i) => (
                     <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
@@ -195,7 +196,7 @@ export const FhirImagingStudyPage: React.FC = () => {
               </Descriptions.Item>
             )}
           </Descriptions>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

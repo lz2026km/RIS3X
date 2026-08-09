@@ -3,7 +3,19 @@
  *
  * 20 点: 阈值配置(4) + 评分历史(4) + 报告生成(4) + 奖励联动(4) + 模板评分(4)
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { scoringService } from '../../../../services/quality/scoringService';
+import type {
+  ScoringDimension,
+  ScoringDimensionKey,
+  ScoringDimensionCategory,
+  ThresholdConfig,
+  ScoreHistoryEntry,
+  BonusLinkage,
+  TemplateScoreRule,
+  ScoreTemplateResult,
+  ScoringThresholdConfig,
+  ScoringGrade,
+} from '../../../../types/R3/R3.QUALITY.SCORING';
 import {
   Card,
   Tag,
@@ -45,19 +57,8 @@ import {
   Eye,
   RefreshCw,
 } from 'lucide-react';
-import { scoringService } from '../../../../services/quality/scoringService';
-import type {
-  ScoringDimension,
-  ScoringDimensionKey,
-  ScoringDimensionCategory,
-  ThresholdConfig,
-  ScoreHistoryEntry,
-  BonusLinkage,
-  TemplateScoreRule,
-  ScoreTemplateResult,
-  ScoringThresholdConfig,
-  ScoringGrade,
-} from '../../../../types/R3/R3.QUALITY.SCORING';
+import React, { useEffect, useMemo, useState } from 'react';
+import { BarChart3 } from 'lucide-react'
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
@@ -700,7 +701,7 @@ const HistoryTab: React.FC = () => {
         </Row>
       </Card>
       <Card size="small" title={`评分历史 (${total} 条)`}>
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           rowKey="id"
           columns={columns}
           dataSource={history}
@@ -1128,7 +1129,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               style={{ marginTop: 12 }}
             />
             {result.details.length > 0 && (
-              <Table
+              <Table scroll={{ x: 'max-content' }}
                 size="small"
                 style={{ marginTop: 12 }}
                 rowKey="dimension"
@@ -1145,7 +1146,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             )}
           </div>
         )}
-        {!result && <Empty description="点击评分模板查看结果" style={{ marginTop: 24 }} />}
+        {!result && <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="点击评分模板查看结果" style={{ marginTop: 24 }} />}
       </Card>
       <Card size="small" title="模板列表" style={{ marginTop: 12 }}>
         <Row gutter={[12, 12]}>

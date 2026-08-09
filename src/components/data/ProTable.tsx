@@ -3,7 +3,8 @@
  * Phase T2-W4: ProTable / Statistic / Descriptions / Tabs / Collapse
  */
 
-import { useState, useMemo, type ReactNode } from 'react';
+import { SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useDebounce } from '@utils/performance';
 import {
   Table,
   Statistic as AntStatistic,
@@ -18,9 +19,9 @@ import {
   type TablePaginationConfig,
 } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-import { SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDebounce } from '@utils/performance';
+import { Inbox } from 'lucide-react'
 
 // ============= ProTable 业务封装(搜索 + 筛选 + 分页 + 导出) =============
 export const DEFAULT_TABLE_PAGE_SIZE = 20;
@@ -213,7 +214,7 @@ export function ProTable<T extends object = Record<string, unknown>>({
         rowSelection={rowSelection}
         scroll={{ x: 'max-content', ...scroll }}
         size={size}
-        locale={{ emptyText: <Empty description={t('common.noData')} />, ...locale }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('common.noData')} />, ...locale }}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] DEPRECATED (死代码清理): deptDashboardApi (/dept-dashboard, 0 页面引用)
+// 保留文件避免 import 断裂, 全部方法标记 MOCK_ONLY, 后续如需启用可从 stats 模块派生轻量 controller。
 // Department Dashboard (科室看板) API
 // Backend: /dept-dashboard/*
 

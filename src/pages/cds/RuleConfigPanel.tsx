@@ -66,11 +66,11 @@ export default function RuleConfigPanel() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader title={<><Sliders size={20} color="#3b82f6" /> {t("ruleConfigTitle")}</>} subtitle={t("ruleConfigSubtitle")} />
+      <PageHeader icon={<Sliders size={20} color="#3b82f6" />} title={t("ruleConfigTitle")} subtitle={t("ruleConfigSubtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20 }}>
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px" }}>{t("evalParams")}</h3>
+          <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 12px" }}>{t("evalParams")}</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 4 }}>{t("examType")}</label>
@@ -102,18 +102,18 @@ export default function RuleConfigPanel() {
 
             {results.length > 0 && (
               <div style={{ marginTop: 16 }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{t("evalResults")}</h4>
+                <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>{t("evalResults")}</h4>
                 {results.map((r, _i) => (
-                  <div key={r.ruleId} style={{ padding: "10px 12px", marginBottom: 8, background: r.triggered ? "#fefce8" : "#f8fafc", borderRadius: 6, border: "1px solid " + (r.triggered ? "#fef3c7" : "#e2e8f0") }}>
+                  <div key={r.ruleId} style={{ padding: "10px 12px", marginBottom: 8, background: r.triggered ? "var(--color-warning-bg)" : "var(--bg-card)", borderRadius: 6, border: "1px solid " + (r.triggered ? "var(--color-warning-border)" : "var(--border-color)") }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                       {severityIcon(r.severity)}
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{r.ruleName}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</span>
                       <span style={{ fontSize: 11, color: "#64748b", marginLeft: "auto" }}>{r.source}</span>
                     </div>
                     <div style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>{r.message}</div>
                     {r.suggestions.length > 0 && (
                       <div style={{ fontSize: 11, color: "#64748b" }}>
-                        {r.suggestions.map((s, si) => <span key={si} style={{ display: "inline-block", padding: "1px 6px", background: "#f1f5f9", borderRadius: 3, margin: "1px 2px" }}>{s}</span>)}
+                        {r.suggestions.map((s, si) => <span key={si} style={{ display: "inline-block", padding: "1px 6px", background: "var(--bg-card)", borderRadius: 3, margin: "1px 2px" }}>{s}</span>)}
                       </div>
                     )}
                   </div>
@@ -122,23 +122,23 @@ export default function RuleConfigPanel() {
             )}
           </div>
 
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <ArrowUpDown size={16} color="#8b5cf6" />{t("rulePriority")}
             </h3>
             {sortedRules.map((r, _i) => {
               const Icon = TYPE_ICONS[r.type] ?? BrainCircuit
               return (
-                <div key={r.ruleId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div key={r.ruleId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid var(--border-color)" }}>
                   <Icon size={16} color="#8b5cf6" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{r.ruleName}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</div>
                     <div style={{ fontSize: 11, color: "#64748b" }}>ID: {r.ruleId}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <button onClick={() => handlePriorityChange(r.ruleId, -1)} style={{ padding: "2px 6px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>-</button>
-                    <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{r.priority}</span>
-                    <button onClick={() => handlePriorityChange(r.ruleId, 1)} style={{ padding: "2px 6px", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>+</button>
+                    <button onClick={() => handlePriorityChange(r.ruleId, -1)} style={{ padding: "2px 6px", background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>-</button>
+                    <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{r.priority}</span>
+                    <button onClick={() => handlePriorityChange(r.ruleId, 1)} style={{ padding: "2px 6px", background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>+</button>
                   </div>
                 </div>
               )

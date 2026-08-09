@@ -8,26 +8,26 @@ import type { RadiologyExam } from '../../types'
 import { displayExamStatus } from '../../utils/statusMaps'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  'SCHEDULED': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
-  'ARRIVED': { bg: '#ede9fe', color: '#7c3aed', label: '已报到' },
-  'IN_PROGRESS': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
-  'COMPLETED': { bg: '#d1fae5', color: '#059669', label: '已完成' },
-  'CANCELLED': { bg: '#fee2e2', color: '#ef4444', label: '已取消' },
-  '已登记': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
-  '待检查': { bg: '#ede9fe', color: '#7c3aed', label: '待检查' },
-  '检查中': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
-  '待报告': { bg: '#fef9c3', color: '#ca8a04', label: '待报告' },
-  '已报告': { bg: '#d1fae5', color: '#059669', label: '已报告' },
-  '已发布': { bg: '#ecfdf5', color: '#047857', label: '已发布' },
-  '已暂停': { bg: '#fef3c7', color: '#f59e0b', label: '已暂停' },
-  '质控退回': { bg: '#fee2e2', color: '#ef4444', label: '质控退回' },
+  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
+  'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: '已报到' },
+  'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: '检查中' },
+  'COMPLETED': { bg: '#22c55e22', color: '#059669', label: '已完成' },
+  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: '已取消' },
+  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
+  '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: '待检查' },
+  '检查中': { bg: '#ec489922', color: '#db2777', label: '检查中' },
+  '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: '待报告' },
+  '已报告': { bg: '#22c55e22', color: '#059669', label: '已报告' },
+  '已发布': { bg: '#22c55e22', color: '#047857', label: '已发布' },
+  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: '已暂停' },
+  '质控退回': { bg: '#ef444422', color: '#ef4444', label: '质控退回' },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '普通': { bg: '#f1f5f9', color: '#64748b', label: '普通' },
-  '紧急': { bg: '#fef3c7', color: '#d97706', label: '紧急' },
-  '危重': { bg: '#fee2e2', color: '#dc2626', label: '危重' },
-  '会诊': { bg: '#ede9fe', color: '#7c3aed', label: '会诊' },
+  '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '普通' },
+  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: '紧急' },
+  '危重': { bg: '#ef444422', color: '#ef4444', label: '危重' },
+  '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: '会诊' },
 }
 
 const getDeviceById = (deviceId: string) => initialModalityDevices.find(d => d.id === deviceId)
@@ -72,10 +72,10 @@ const calculatePriority = (exam: RadiologyExam): PriorityScore => {
   const typeScore = exam.patientType === '急诊' ? 25 : exam.patientType === '住院' ? 15 : 5
   const partScore = exam.bodyPart === '头颅' || exam.bodyPart === '心脏' || exam.bodyPart === '血管' ? 20 : 10
   const totalScore = ageScore + waitScore + typeScore + partScore
-  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#dc2626', bg: '#fee2e2' }
-  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#d97706', bg: '#fef3c7' }
-  if (totalScore >= 25) return { level: '普通', score: totalScore, color: '#64748b', bg: '#f1f5f9' }
-  return { level: '低', score: totalScore, color: '#059669', bg: '#d1fae5' }
+  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#ef4444', bg: '#ef444422' }
+  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#f59e0b', bg: '#f59e0b22' }
+  if (totalScore >= 25) return { level: '普通', score: totalScore, color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
+  return { level: '低', score: totalScore, color: '#059669', bg: '#22c55e22' }
 }
 
 // ============================================================
@@ -106,7 +106,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
       {exams.map(exam => {
         const device = getDeviceById(exam.deviceId ?? '')
         const room = getRoomById(exam.roomId ?? '')
-        const sc = STATUS_CONFIG[exam.status] || { bg: '#f1f5f9', color: '#64748b', label: displayExamStatus(exam.status) }
+        const sc = STATUS_CONFIG[exam.status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: displayExamStatus(exam.status) }
         const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG['普通']!
         const isSelected = selectedIds.has(exam.id)
 
@@ -115,7 +115,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
             key={exam.id}
             onClick={() => onRowClick(exam)}
             style={{
-              background: '#fff',
+              background: 'var(--bg-card)',
               borderRadius: 12,
               border: isSelected ? '2px solid #1e40af' : '1px solid #e2e8f0',
               overflow: 'hidden',
@@ -146,7 +146,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-              borderBottom: '1px solid #f1f5f9',
+              borderBottom: '1px solid var(--border-light)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div
@@ -165,9 +165,9 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                     {exam.patientName}
                     {exam.priority === '危重' && <AlertTriangle size={14} style={{ color: '#dc2626' }} />}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {exam.gender} · {exam.age}岁 · <span style={{
-                      background: exam.patientType === '急诊' ? '#fee2e2' : exam.patientType === '住院' ? '#dbeafe' : '#f1f5f9',
+                      background: exam.patientType === '急诊' ? 'var(--color-error-bg)' : exam.patientType === '住院' ? 'var(--color-info-bg)' : 'var(--bg-deep)',
                       color: exam.patientType === '急诊' ? '#dc2626' : exam.patientType === '住院' ? '#2563eb' : '#64748b',
                       padding: '1px 6px',
                       borderRadius: 4,
@@ -205,12 +205,12 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
 
             <div style={{ padding: '12px 14px' }}>
               <div style={{
-                background: '#f8fafc',
+                background: 'var(--bg-card)',
                 borderRadius: 8,
                 padding: '10px 12px',
                 marginBottom: 10,
               }}>
-                <div style={{ fontWeight: 600, color: '#334155', fontSize: 13, marginBottom: 6 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13, marginBottom: 6 }}>
                   {exam.examItemName}
                 </div>
                 <div style={{
@@ -218,7 +218,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   gridTemplateColumns: '1fr 1fr',
                   gap: 6,
                   fontSize: 12,
-                  color: '#64748b',
+                  color: 'var(--text-secondary)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Monitor size={11} />
@@ -262,7 +262,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: 12,
-                color: '#64748b',
+                color: 'var(--text-secondary)',
               }}>
                 <span style={{ fontFamily: 'monospace' }}>{exam.accessionNumber}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -279,7 +279,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
           gridColumn: '1 / -1',
           padding: 60,
           textAlign: 'center',
-          color: '#94a3b8',
+          color: 'var(--text-secondary)',
         }}>
           <LayoutGrid size={48} style={{ margin: '0 auto 16px', display: 'block', opacity: 0.4 }} />
           <div style={{ fontSize: 14, fontWeight: 500 }}>暂无检查记录</div>

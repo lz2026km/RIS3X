@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Card } from 'antd'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 2,207 字符)
 // ============================================================
 // G005 放射科RIS系统 - 典型病例库 v1.0.0
@@ -26,12 +27,12 @@ const COLORS = {
   primaryLight: '#2563eb',
   primaryDark: '#172554',
   white: '#ffffff',
-  background: '#f1f5f9',
+  background: 'var(--bg-card)',
   backgroundLight: '#f8fafc',
   text: '#1e293b',
   textMuted: '#64748b',
   textLight: '#94a3b8',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   success: '#059669',
   successBg: '#ecfdf5',
   warning: '#d97706',
@@ -174,12 +175,12 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
   const getModalityIcon = (modality: string) => <Scan size={14} style={{ color: MODALITY_COLORS[modality] || '#64748b' }} />
 
   return (
-    <div onClick={() => onView(caseData)} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
+    <Card bordered={false} onClick={() => onView(caseData)} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
       style={{
         background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 16,
         cursor: 'pointer', transition: 'all 0.25s ease', transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
         boxShadow: isHovered ? '0 8px 24px rgba(0,0,0,0.12)' : '0 1px 4px rgba(0,0,0,0.06)',
-      }}>
+      }} styles={{ body: { padding: 0 } }}>
       {/* 顶部标签 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: `${MODALITY_COLORS[caseData.examType] || '#64748b'}18`, color: MODALITY_COLORS[caseData.examType] || '#64748b' }}>
@@ -244,7 +245,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
         </div>
         <div style={{ fontSize: 12, color: COLORS.textLight }}>{caseData.createdAt}</div>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -577,7 +578,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-      <div style={{ width: '90%', maxWidth: 700, maxHeight: '90vh', background: COLORS.white, borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <Card bordered={false} style={{ width: '90%', maxWidth: 700, maxHeight: '90vh', background: COLORS.white, borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }} styles={{ body: { padding: 0 } }}>
         <div style={{ padding: '16px 20px', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.primary, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>{t('addCaseFormTitle')}</h3>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, cursor: 'pointer' }}>
@@ -609,7 +610,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
           <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formCancel')}</button>
           <button onClick={handleSubmit} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formSave')}</button>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

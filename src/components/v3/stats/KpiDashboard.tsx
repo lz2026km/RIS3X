@@ -10,12 +10,13 @@
  *  - 设备使用率
  *  - 阳性率
  */
-import React, { useState, useMemo } from 'react'
-import { Card, Row, Col, Statistic, Space, Empty, Progress, Segmented } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
-import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'
+import { Card, Row, Col, Statistic, Space, Empty, Progress, Segmented } from 'antd'
+import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
+import { Inbox } from 'lucide-react'
 
 export interface KpiDataPoint {
   date: string
@@ -71,7 +72,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
     }
   }, [filtered])
 
-  if (!summary) return <Empty description="无数据" />
+  if (!summary) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无数据" />
 
   // 模态分布
   const modalityTotal = modalityBreakdown.reduce((s, m) => s + m.count, 0)

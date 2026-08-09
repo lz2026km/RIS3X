@@ -1,3 +1,4 @@
+import { Card } from 'antd'
 import { useState, useEffect } from 'react'
 import { Shield, FileText, CheckCircle, XCircle, AlertTriangle, Download } from 'lucide-react'
 import { complianceApi } from '../services/api/complianceApi'
@@ -9,7 +10,7 @@ const COLORS = {
   success: '#10b981',
   danger: '#ef4444',
   warning: '#f59e0b',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   textDark: '#1e293b',
   textMid: '#475569',
   textLight: '#94a3b8',
@@ -116,26 +117,26 @@ export default function CompliancePage() {
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
             {[
-              { label: '审计总数', value: reportStats?.totalAudits ?? '--', color: COLORS.primary, bg: '#eff6ff' },
-              { label: '通过', value: reportStats?.passed ?? '--', color: COLORS.success, bg: '#ecfdf5' },
-              { label: '未通过', value: reportStats?.failed ?? '--', color: COLORS.danger, bg: '#fef2f2' },
-              { label: '合规率', value: `${passedRate}%`, color: COLORS.warning, bg: '#fffbeb' },
+              { label: '审计总数', value: reportStats?.totalAudits ?? '--', color: COLORS.primary, bg: '#3b82f622' },
+              { label: '通过', value: reportStats?.passed ?? '--', color: COLORS.success, bg: '#22c55e22' },
+              { label: '未通过', value: reportStats?.failed ?? '--', color: COLORS.danger, bg: '#ef444422' },
+              { label: '合规率', value: `${passedRate}%`, color: COLORS.warning, bg: '#f59e0b22' },
             ].map(stat => (
-              <div key={stat.label} style={{ background: COLORS.white, borderRadius: 12, padding: '16px 20px', border: `1px solid ${COLORS.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <Card bordered={false} key={stat.label} style={{ background: COLORS.white, borderRadius: 12, padding: '16px 20px', border: `1px solid ${COLORS.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
                 <div style={{ fontSize: 26, fontWeight: 800, color: stat.color }}>{stat.value}</div>
                 <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>{stat.label}</div>
-              </div>
+              </Card>
             ))}
           </div>
 
-          <div style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, overflow: 'hidden' }}>
+          <Card bordered={false} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${COLORS.border}`, fontSize: 13, fontWeight: 700, color: COLORS.primary }}>
               审计明细 ({report.details.length})
             </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc' }}>
+                  <tr style={{ background: 'var(--bg-card)' }}>
                     {['模块', '检查项', '状态', '严重级别', '描述', '检查时间'].map(h => (
                       <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, color: COLORS.textDark, borderBottom: `2px solid ${COLORS.border}` }}>{h}</th>
                     ))}
@@ -164,14 +165,14 @@ export default function CompliancePage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {activeTab === 'docs' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
           {docs.map(doc => (
-            <div key={doc.id} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <Card bordered={false} key={doc.id} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: doc.status === 'CURRENT' ? '#ecfdf5' : doc.status === 'DRAFT' ? '#fffbeb' : '#f1f5f9', color: doc.status === 'CURRENT' ? COLORS.success : doc.status === 'DRAFT' ? COLORS.warning : COLORS.textLight }}>
                   {doc.status === 'CURRENT' ? '当前版本' : doc.status === 'DRAFT' ? '草稿' : '已归档'}
@@ -181,7 +182,7 @@ export default function CompliancePage() {
               <div style={{ fontSize: 15, fontWeight: 700, color: COLORS.textDark, marginBottom: 6 }}>{doc.title}</div>
               <div style={{ fontSize: 12, color: COLORS.textMid, marginBottom: 12 }}>{doc.category}</div>
               <div style={{ fontSize: 12, color: COLORS.textLight }}>更新于 {new Date(doc.updatedAt).toLocaleDateString('zh-CN')}</div>
-            </div>
+            </Card>
           ))}
           {docs.length === 0 && (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: COLORS.textLight }}>暂无合规文档</div>

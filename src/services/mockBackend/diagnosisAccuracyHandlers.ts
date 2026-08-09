@@ -1,5 +1,6 @@
 // [W3-A] /api/v1/diagnosis-accuracy MSW handlers
-// 后端暂未实现 → 本地演示数据 (页面标注"演示数据"来源)
+// [G005 Wave1B P1] 标注更新: 后端已实现 /diagnosis-accuracy 端点 (diagnosis-accuracy.module),
+// 本 handler 仅作为 mock 模式兜底演示数据。
 //   GET /diagnosis-accuracy
 import { http, HttpResponse, delay } from 'msw';
 import { DIAGNOSIS_ACCURACY_DATA } from '@data/knowledgeStatsMock';

@@ -28,8 +28,8 @@ import DepartmentFinanceSummary from './department/DepartmentFinanceSummary';
 
 const C = {
   primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
-  accent: "#0891b2", white: "#ffffff", bg: "#e8e8e8", bgLight: "#f1f5f9",
-  border: "#d1d5db", borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563",
+  accent: "#0891b2", white: "#ffffff", bg: "var(--bg-deep)", bgLight: "#f1f5f9",
+  border: "var(--border-color)", borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563",
   textLight: "#9ca3af", success: "#059669", successBg: "#d1fae5",
   warning: "#d97706", warningBg: "#fef3c7", danger: "#dc2626", dangerBg: "#fee2e2",
   info: "#2563eb", infoBg: "#dbeafe",
@@ -239,7 +239,7 @@ export default function DepartmentPage() {
   useEffect(() => { void loadDeptData(); }, [loadDeptData]);
 
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
-  const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f9fafb" };
+  const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" };
   const pB = { padding: 16 };
   const tb = (a) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
 
@@ -301,7 +301,7 @@ export default function DepartmentPage() {
         )}
         <span style={{ color: "#9ca3af" }}>同行评审区块为内置演示数据</span>
       </div>
-      <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "#f9fafb", overflowX: "auto", whiteSpace: "nowrap" }}>
+      <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "var(--bg-card)", overflowX: "auto", whiteSpace: "nowrap" }}>
         {[["staff","人员管理",Users],["performance","绩效统计",BarChart3],["attendance","考勤管理",Calendar],["config","科室配置",Settings],["org","组织架构",Users],["credentials","资质管理",Award],["kpi","KPI仪表盘",BarChart3],["review","同行评审",Eye]].map(([id,label,Icon]) => (
           <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
         ))}
@@ -328,7 +328,7 @@ export default function DepartmentPage() {
             <div style={panel}>
               <div style={pH}><span>班次时间配置</span></div>
               <div style={pB}>{SHIFTS.map((s) => (
-                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#f9fafb", borderRadius: 6, marginBottom: 8 }}>
+                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 8 }}>
                   <div style={{ width: 12, height: 12, borderRadius: 3, background: s.color }} /><div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 500, color: C.textDark }}>{s.name}</div><div style={{ fontSize: 12, color: C.textMid }}>{s.time}</div></div>
                 </div>
               ))}</div>
@@ -339,7 +339,7 @@ export default function DepartmentPage() {
               <div style={pH}><span>质控标准配置</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? 'API 实时' : '演示数据'} · 全部达标</span></div>
               <div style={pB}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr style={{ background: "#f9fafb" }}><th style={{ padding: "8px 10px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>指标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>目标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>当前</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>状态</th></tr></thead>
+                  <thead><tr style={{ background: "var(--bg-card)" }}><th style={{ padding: "8px 10px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>指标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>目标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>当前</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>状态</th></tr></thead>
                   <tbody>{qcStandards.map((qc) => (
                     <tr key={qc.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
                       <td style={{ padding: "8px 10px", color: C.textDark }}>{qc.item}</td>
@@ -354,7 +354,7 @@ export default function DepartmentPage() {
             <div style={panel}>
               <div style={pH}><span>危急值阈值配置</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? 'criticalExtApi 实时' : '演示数据'}</span></div>
               <div style={pB}>{criticalValues.map((cv) => (
-                <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#f9fafb", borderRadius: 6, marginBottom: 8, borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
+                <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 8, borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
                   <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality ? `${cv.modality} · ` : ''}阈值: {cv.threshold} · {cv.description}</div></div>
                   <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: cv.alertLevel === "critical" ? C.dangerBg : C.warningBg, color: cv.alertLevel === "critical" ? C.danger : C.warning }}>{cv.alertLevel === "critical" ? "危" : "急"}</span>
                 </div>

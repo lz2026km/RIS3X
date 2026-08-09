@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
 import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
 
 interface FollowUpPatient {
@@ -174,7 +175,7 @@ export default function FollowUpPage() {
 
   const pageStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: 'var(--bg-card)',
     padding: '24px'
   };
 
@@ -191,7 +192,7 @@ export default function FollowUpPage() {
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: '#666'
+    color: 'var(--text-secondary)'
   };
 
   const statsContainerStyle: React.CSSProperties = {
@@ -202,7 +203,7 @@ export default function FollowUpPage() {
   };
 
   const statCardStyle: React.CSSProperties = {
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '8px',
     padding: '20px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
@@ -216,7 +217,7 @@ export default function FollowUpPage() {
 
   const statLabelStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: '#666',
+    color: 'var(--text-secondary)',
     marginTop: '4px'
   };
 
@@ -229,7 +230,7 @@ export default function FollowUpPage() {
   const inputStyle: React.CSSProperties = {
     flex: 1,
     padding: '10px 16px',
-    border: '1px solid #d9d9d9',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     fontSize: '14px'
   };
@@ -248,7 +249,7 @@ export default function FollowUpPage() {
     display: 'flex',
     gap: '8px',
     marginBottom: '16px',
-    borderBottom: '1px solid #e8e8e8'
+    borderBottom: '1px solid var(--border-color)'
   };
 
   const tabStyle = (isActive: boolean): React.CSSProperties => ({
@@ -262,7 +263,7 @@ export default function FollowUpPage() {
   });
 
   const tableStyle: React.CSSProperties = {
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
@@ -276,13 +277,13 @@ export default function FollowUpPage() {
     };
     switch (status) {
       case '待随访':
-        return { ...baseStyle, backgroundColor: '#fffbe6', color: '#faad14' };
+        return { ...baseStyle, backgroundColor: 'var(--color-warning-bg)', color: '#faad14' };
       case '进行中':
-        return { ...baseStyle, backgroundColor: '#e6f7ff', color: '#1890ff' };
+        return { ...baseStyle, backgroundColor: 'var(--color-info-bg)', color: '#1890ff' };
       case '已完成':
-        return { ...baseStyle, backgroundColor: '#f6ffed', color: '#52c41a' };
+        return { ...baseStyle, backgroundColor: 'var(--color-success-bg)', color: '#52c41a' };
       case '逾期':
-        return { ...baseStyle, backgroundColor: '#fff2f0', color: '#ff4d4f' };
+        return { ...baseStyle, backgroundColor: 'var(--color-error-bg)', color: '#ff4d4f' };
       default:
         return baseStyle;
     }
@@ -300,7 +301,7 @@ export default function FollowUpPage() {
       borderRadius: '4px',
       fontSize: '12px',
       backgroundColor: colors[type] || '#e8e8e8',
-      color: '#333'
+      color: 'var(--text-secondary)'
     };
   };
 
@@ -328,7 +329,7 @@ export default function FollowUpPage() {
   };
 
   const modalStyle: React.CSSProperties = {
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '8px',
     padding: '24px',
     width: '500px',
@@ -349,14 +350,14 @@ export default function FollowUpPage() {
   const labelStyle: React.CSSProperties = {
     display: 'block',
     fontSize: '14px',
-    color: '#666',
+    color: 'var(--text-secondary)',
     marginBottom: '6px'
   };
 
   const selectStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 12px',
-    border: '1px solid #d9d9d9',
+    border: '1px solid var(--border-color)',
     borderRadius: '4px',
     fontSize: '14px'
   };
@@ -370,9 +371,9 @@ export default function FollowUpPage() {
 
   const cancelButtonStyle: React.CSSProperties = {
     padding: '10px 24px',
-    backgroundColor: '#fff',
-    color: '#666',
-    border: '1px solid #d9d9d9',
+    backgroundColor: 'var(--bg-card)',
+    color: 'var(--text-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px'
@@ -420,7 +421,7 @@ export default function FollowUpPage() {
       {dueList.length > 0 && (
         <div style={{
           marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
-          backgroundColor: '#fff7e6', border: '1px solid #ffd591',
+          backgroundColor: '#f9731622', border: '1px solid #ffd591',
           fontSize: '13px', color: '#ad6800'
         }}>
           <strong>⏰ 即将到期 ({dueList.length})：</strong>
@@ -431,14 +432,14 @@ export default function FollowUpPage() {
 
       {/* [W4-B] loading / error */}
       {loading && (
-        <div style={{ marginBottom: '16px', padding: '16px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+        <div style={{ marginBottom: '16px', padding: '16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px' }}>
           ⏳ 加载随访计划中...
         </div>
       )}
       {loadError && !loading && (
         <div style={{
           marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
-          backgroundColor: '#fff2f0', border: '1px solid #ffa39e',
+          backgroundColor: 'var(--color-error-bg)', border: '1px solid #ffa39e',
           fontSize: '13px', color: '#cf1322'
         }}>
           ⚠️ {loadError}
@@ -460,29 +461,29 @@ export default function FollowUpPage() {
       <div style={tableStyle}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ backgroundColor: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>患者信息</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>检查类型</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>随访类型</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>检查日期</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>随访日期</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>状态</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: '#666' }}>操作</th>
+            <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>患者信息</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>检查类型</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>随访类型</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>检查日期</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>随访日期</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>状态</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>操作</th>
             </tr>
           </thead>
           <tbody>
             {filteredList.map(item => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+              <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '12px 16px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>{item.patientName}</div>
-                  <div style={{ fontSize: '12px', color: '#999' }}>{item.patientId}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)' }}>{item.patientName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.patientId}</div>
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <span style={getExamTypeStyle(item.examType)}>{item.examType || '—'}</span>
                 </td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#333' }}>{item.followUpType || '—'}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>{item.examDate}</td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>{item.nextFollowUpDate}</td>
+                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.followUpType || '—'}</td>
+                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.examDate}</td>
+                <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--text-secondary)' }}>{item.nextFollowUpDate}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <span style={getStatusTagStyle(item.status)}>{item.status}</span>
                 </td>
@@ -502,9 +503,10 @@ export default function FollowUpPage() {
                     </button>
                   )}
                   <button
-                    style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f'}}
+                    style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4}}
                     onClick={() => handleDelete(item)}
                   >
+                    <Trash2 size={12} />
                     删除
                   </button>
                 </td>
@@ -521,12 +523,12 @@ export default function FollowUpPage() {
             
             <div style={formGroupStyle}>
               <label style={labelStyle}>患者姓名</label>
-              <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.patientName}</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.patientName}</div>
             </div>
             
             <div style={formGroupStyle}>
               <label style={labelStyle}>患者ID</label>
-              <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.patientId}</div>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.patientId}</div>
             </div>
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
@@ -537,19 +539,19 @@ export default function FollowUpPage() {
               
               <div style={formGroupStyle}>
                 <label style={labelStyle}>随访类型</label>
-                <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.followUpType || '—'}</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.followUpType || '—'}</div>
               </div>
             </div>
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>检查日期</label>
-                <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.examDate}</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.examDate}</div>
               </div>
               
               <div style={formGroupStyle}>
                 <label style={labelStyle}>随访日期</label>
-                <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.nextFollowUpDate}</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.nextFollowUpDate}</div>
               </div>
             </div>
 
@@ -576,9 +578,9 @@ export default function FollowUpPage() {
               <label style={labelStyle}>备注信息</label>
               <div style={{ 
                 fontSize: '14px', 
-                color: '#333',
+                color: 'var(--text-secondary)',
                 padding: '12px',
-                backgroundColor: '#fafafa',
+                backgroundColor: 'var(--bg-card)',
                 borderRadius: '4px',
                 minHeight: '60px'
               }}>

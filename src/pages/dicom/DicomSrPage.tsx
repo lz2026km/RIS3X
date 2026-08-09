@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented } from 'antd'
-import { FileText, Play, Eye, Copy, Download } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { dicomSrApi, type DicomSrTemplate, type DicomSrDocument } from '../../services/api/dicomApi'
+import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented } from 'antd'
+import { FileText, Play, Eye, Copy, Download } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Inbox } from 'lucide-react'
+import { PageHeader } from '../../components/common/PageHeader'
 
 const { TextArea } = Input
 const { Text } = Typography
@@ -71,12 +73,12 @@ export const DicomSrPage: React.FC = () => {
   const selectedTemplate = templates.find(t => t.id === templateId)
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 管理器</span>
-        <Tag color="cyan">TID 1500 / 2000</Tag>
-      </Space>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageHeader
+      icon={<FileText size={20} color="#2563eb" />}
+      title="DICOM SR 管理平台"
+      actions={<Tag color="cyan">TID 1500 / 2000</Tag>}
+    />
 
       <Card title={t('dicomSr.templateConfig') || '模板配置'} size="small" style={{ marginBottom: 16 }}>
         <Space orientation="vertical" style={{ width: '100%' }} size="middle">
@@ -89,8 +91,8 @@ export const DicomSrPage: React.FC = () => {
                 options={templates.length > 0
                   ? templates.map(t => ({ label: t.labelEn, value: t.id }))
                   : [
-                      { label: 'TID 1500 - Measurement Report', value: 'tid1500' },
-                      { label: 'TID 2000 - CAD Document SR', value: 'tid2000' },
+                      { label: 'TID 1500 - 测量报告', value: 'tid1500' },
+                      { label: 'TID 2000 - CAD 文档 SR', value: 'tid2000' },
                     ]
                 }
                 loading={loadingTemplates}
@@ -175,9 +177,9 @@ export const DicomSrPage: React.FC = () => {
           <div>
             <Descriptions size="small" column={2} style={{ marginBottom: 12 }}>
               <Descriptions.Item label="ID">{srDoc.id}</Descriptions.Item>
-              <Descriptions.Item label="Report ID">{srDoc.reportId}</Descriptions.Item>
+              <Descriptions.Item label="报告 ID">{srDoc.reportId}</Descriptions.Item>
               <Descriptions.Item label="TID">{srDoc.tid}</Descriptions.Item>
-              <Descriptions.Item label="SOP Instance UID">
+              <Descriptions.Item label="SOP 实例 UID">
                 <Text copyable style={{ fontSize: 12 }}>{srDoc.sopInstanceUID}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="状态">
@@ -201,7 +203,7 @@ export const DicomSrPage: React.FC = () => {
             </pre>
           </div>
         ) : (
-          <Empty description={t('dicomSr.noSr') || '尚未生成 SR'} />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dicomSr.noSr') || '尚未生成 SR'} />
         )}
       </Card>
     </div>

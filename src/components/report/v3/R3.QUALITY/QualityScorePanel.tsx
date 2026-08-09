@@ -3,7 +3,8 @@
  *
  * 60 点: 5 完整 + 5 准确 + 5 时效 = 15 维度评分
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { scoringService } from '../../../../services/quality/scoringService';
+import type { ScoringDimension, ScoringEvaluationResult, ScoringThresholdConfig, ScoringDimensionCategory, QualityScoreReport } from '../../../../types/R3/R3.QUALITY.SCORING';
 import {
   Card,
   Tag,
@@ -35,6 +36,7 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   RadarChart,
   Radar,
@@ -53,8 +55,7 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { scoringService } from '../../../../services/quality/scoringService';
-import type { ScoringDimension, ScoringEvaluationResult, ScoringThresholdConfig, ScoringDimensionCategory, QualityScoreReport } from '../../../../types/R3/R3.QUALITY.SCORING';
+import { Inbox } from 'lucide-react'
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,
@@ -219,7 +220,7 @@ export const QualityScorePanel: React.FC<{
   if (!score) {
     return (
       <Card data-testid="quality-score-panel" role="region" aria-label="15 维度评分">
-        <Empty description="暂无评分,请点击重新评分" />
+        <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无评分,请点击重新评分" />
       </Card>
     );
   }
@@ -537,7 +538,7 @@ export const QualityScorePanel: React.FC<{
             children: (
               <Card size="small" title={`评分证据 (${score.evidence.length} 条)`}>
                 {score.evidence.length === 0 ? (
-                  <Empty description="暂无证据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无证据" />
                 ) : (
                   score.evidence.map((e, i) => (
                     <div

@@ -1,7 +1,6 @@
 // [v3.0.6.8-35] PR 2: AI 报告书写页面
 // 眼科专病 STT + NLP 结构化提?+ AI 续写 + 多轮改写 + 反馈闭环
 // 对标: Nuance PowerScribe 360 眼科?/ Medisoft mediSIGHT
-import React, { useState, useCallback } from "react";
 import {
   Card,
   Space,
@@ -34,6 +33,8 @@ import {
   History,
   BookOpen,
 } from "lucide-react";
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback } from "react";
 
 const { TextArea } = Input;
 
@@ -254,7 +255,7 @@ export const AiReportWriterPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼科 AI 报告书写</span>
@@ -444,7 +445,7 @@ export const AiReportWriterPage: React.FC = () => {
             {busy ? (
               <div style={{ textAlign: "center", padding: 60 }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 16, color: "#666" }}>
+                <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
                   DeepSeek-Opthalmic 推理中...
                 </div>
               </div>
@@ -456,7 +457,7 @@ export const AiReportWriterPage: React.FC = () => {
                 style={{ fontSize: 14, lineHeight: 1.6, fontFamily: "inherit" }}
               />
             ) : (
-              <Empty description="点击 AI 续写 生成报告" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击 AI 续写 生成报告" />
             )}
           </Card>
 
@@ -494,7 +495,7 @@ export const AiReportWriterPage: React.FC = () => {
                   <Col span={24}>
                     <Divider style={{ margin: "4px 0" }} />
                     <div
-                      style={{ fontSize: 12, color: "#666", marginBottom: 4 }}
+                      style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}
                     >
                       诊断 (ICD-10):
                     </div>
@@ -558,13 +559,13 @@ export const AiReportWriterPage: React.FC = () => {
                       title={
                         <Space>
                           <Tag color="cyan">{item.condition}</Tag>
-                          <span style={{ fontSize: 12, color: "#999" }}>
+                          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                             {item.wordCount} 字
                           </span>
                         </Space>
                       }
                       description={
-                        <div style={{ fontSize: 11, color: "#999" }}>
+                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                           {new Date(item.generatedAt).toLocaleString("zh-CN")}
                         </div>
                       }
@@ -618,7 +619,7 @@ export const AiReportWriterPage: React.FC = () => {
             </div>
           </>
         ) : (
-          <Empty description="暂无术语库" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无术语库" />
         )}
       </Modal>
     </div>

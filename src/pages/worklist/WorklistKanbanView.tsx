@@ -6,26 +6,26 @@ import { smartWorklistEngine } from '../../services/worklist/SmartWorklistEngine
 import type { PriorityScore as AIPriorityScore } from '../../types/workflow'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  'SCHEDULED': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
-  'ARRIVED': { bg: '#ede9fe', color: '#7c3aed', label: '已报到' },
-  'IN_PROGRESS': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
-  'COMPLETED': { bg: '#d1fae5', color: '#059669', label: '已完成' },
-  'CANCELLED': { bg: '#fee2e2', color: '#ef4444', label: '已取消' },
-  '已登记': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
-  '待检查': { bg: '#ede9fe', color: '#7c3aed', label: '待检查' },
-  '检查中': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
-  '待报告': { bg: '#fef9c3', color: '#ca8a04', label: '待报告' },
-  '已报告': { bg: '#d1fae5', color: '#059669', label: '已报告' },
-  '已发布': { bg: '#ecfdf5', color: '#047857', label: '已发布' },
-  '已暂停': { bg: '#fef3c7', color: '#f59e0b', label: '已暂停' },
-  '质控退回': { bg: '#fee2e2', color: '#ef4444', label: '质控退回' },
+  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
+  'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: '已报到' },
+  'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: '检查中' },
+  'COMPLETED': { bg: '#22c55e22', color: '#059669', label: '已完成' },
+  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: '已取消' },
+  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: '已登记' },
+  '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: '待检查' },
+  '检查中': { bg: '#ec489922', color: '#db2777', label: '检查中' },
+  '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: '待报告' },
+  '已报告': { bg: '#22c55e22', color: '#059669', label: '已报告' },
+  '已发布': { bg: '#22c55e22', color: '#047857', label: '已发布' },
+  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: '已暂停' },
+  '质控退回': { bg: '#ef444422', color: '#ef4444', label: '质控退回' },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '普通': { bg: '#f1f5f9', color: '#64748b', label: '普通' },
-  '紧急': { bg: '#fef3c7', color: '#d97706', label: '紧急' },
-  '危重': { bg: '#fee2e2', color: '#dc2626', label: '危重' },
-  '会诊': { bg: '#ede9fe', color: '#7c3aed', label: '会诊' },
+  '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '普通' },
+  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: '紧急' },
+  '危重': { bg: '#ef444422', color: '#ef4444', label: '危重' },
+  '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: '会诊' },
 }
 
 const KANBAN_COLUMNS = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
@@ -71,10 +71,10 @@ const calculatePriority = (exam: RadiologyExam): PriorityScore => {
   const typeScore = exam.patientType === '急诊' ? 25 : exam.patientType === '住院' ? 15 : 5
   const partScore = exam.bodyPart === '头颅' || exam.bodyPart === '心脏' || exam.bodyPart === '血管' ? 20 : 10
   const totalScore = ageScore + waitScore + typeScore + partScore
-  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#dc2626', bg: '#fee2e2' }
-  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#d97706', bg: '#fef3c7' }
-  if (totalScore >= 25) return { level: '普通', score: totalScore, color: '#64748b', bg: '#f1f5f9' }
-  return { level: '低', score: totalScore, color: '#059669', bg: '#d1fae5' }
+  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#ef4444', bg: '#ef444422' }
+  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#f59e0b', bg: '#f59e0b22' }
+  if (totalScore >= 25) return { level: '普通', score: totalScore, color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
+  return { level: '低', score: totalScore, color: '#059669', bg: '#22c55e22' }
 }
 
 interface KanbanCardProps {
@@ -105,12 +105,12 @@ const KanbanCard = React.memo(function KanbanCard({
       onDragEnd={onDragEnd}
       onClick={() => onRowClick(exam)}
       style={{
-        background: '#fff',
+        background: 'var(--bg-card)',
         borderRadius: 8,
         padding: '10px 12px',
         marginBottom: 8,
         cursor: 'move',
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--border-color)',
         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
         opacity: isDragging ? 0.5 : 1,
         transition: 'all 0.15s',
@@ -149,7 +149,7 @@ const KanbanCard = React.memo(function KanbanCard({
         <Move size={12} style={{ color: '#cbd5e1', flexShrink: 0 }} />
       </div>
 
-      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
         {exam.examItemName}
       </div>
 
@@ -158,7 +158,7 @@ const KanbanCard = React.memo(function KanbanCard({
         alignItems: 'center',
         gap: 8,
         fontSize: 12,
-        color: '#94a3b8',
+        color: 'var(--text-secondary)',
       }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Monitor size={10} />
@@ -177,7 +177,7 @@ const KanbanCard = React.memo(function KanbanCard({
           const smart = smartScore
           const smartLevel = smart ? smart.level : null
           const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
-          const smartBg = smartLevel === 'critical' ? '#fee2e2' : smartLevel === 'urgent' ? '#fef3c7' : smartLevel === 'normal' ? '#f1f5f9' : '#d1fae5'
+          const smartBg = smartLevel === 'critical' ? 'var(--color-error-bg)' : smartLevel === 'urgent' ? 'var(--color-warning-bg)' : smartLevel === 'normal' ? 'var(--bg-deep)' : 'var(--color-success-bg)'
           const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
           return (
             <>
@@ -273,7 +273,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
     }}>
       {KANBAN_COLUMNS.map(status => {
         const columnExams = getColumnExams(status)
-        const sc = STATUS_CONFIG[status] || { bg: '#f1f5f9', color: '#64748b', label: status }
+        const sc = STATUS_CONFIG[status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: status }
         const isOver = dragOverColumn === status
 
         return (
@@ -283,7 +283,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
             onDragLeave={handleDragLeave}
             onDrop={e => handleDrop(e, status)}
             style={{
-              background: isOver ? '#f0f7ff' : '#f8fafc',
+              background: isOver ? 'var(--color-info-bg)' : 'var(--bg-card)',
               borderRadius: 10,
               padding: 12,
               minHeight: 400,
@@ -297,13 +297,13 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
               alignItems: 'center',
               marginBottom: 12,
               padding: '8px 10px',
-              background: '#fff',
+              background: 'var(--bg-card)',
               borderRadius: 8,
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border-color)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: sc.color }} />
-                <span style={{ fontWeight: 600, color: '#334155', fontSize: 12 }}>{status}</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 12 }}>{status}</span>
               </div>
               <div style={{ background: sc.bg, color: sc.color, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                 {columnExams.length}

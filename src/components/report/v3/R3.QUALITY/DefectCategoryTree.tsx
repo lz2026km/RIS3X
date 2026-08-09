@@ -3,7 +3,9 @@
  *
  * 15 点: 6 大分类 / 24 子类 / 层级 / 标签 / 严重度联动
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
+import { defectService } from '../../../../services/quality/defectService';
+import type { DefectCategory, DefectDetail, DefectTreeNode } from '../../../../types/R3/R3.DEFECT';
 import {
   Card,
   Tag,
@@ -26,9 +28,8 @@ import {
   ChevronRight,
   Activity,
 } from 'lucide-react';
-import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
-import { defectService } from '../../../../services/quality/defectService';
-import type { DefectCategory, DefectDetail, DefectTreeNode } from '../../../../types/R3/R3.DEFECT';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SearchX } from 'lucide-react'
 
 interface TreeDatum {
   key: string;
@@ -252,7 +253,7 @@ export const DefectCategoryTree: React.FC<{
             }
           >
             {filteredTree.length === 0 ? (
-              <Empty description="无匹配分类" />
+              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配分类" />
             ) : (
               <Tree
                 showIcon

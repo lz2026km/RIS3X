@@ -3,7 +3,7 @@
  * statsApi.getWorkload (v3.0.6.11-73 已补端点) 真实数据 → 医生 × 时段热力格 + 院区热力图
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, RefreshCw } from 'lucide-react'
 import { Spin, Alert, Button, Card, Tag, Space } from 'antd'
 import WorkloadHeatmap from '../components/worklist/WorkloadHeatmap'
 import { WorkloadBalancer } from '../services/worklist/WorkloadBalancer'
@@ -67,11 +67,11 @@ function intensityColor(intensity: number): string {
 }
 
 const KpiCard: React.FC<{ label: string; value: string; unit: string; color: string }> = ({ label, value, unit, color }) => (
-  <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+  <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
     <div style={{ width: 8, height: 36, background: color, borderRadius: 4 }} />
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{value} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>{unit}</span></div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>{value} <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{unit}</span></div>
     </div>
   </div>
 )
@@ -157,7 +157,7 @@ export default function WorkloadHeatmapPage() {
   const avgTime = workload.length > 0 ? Math.round(workload.reduce((s, d) => s + (d.avgTime ?? 0), 0) / workload.length) : 0
 
   return (
-    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <header style={{ background: 'linear-gradient(135deg,#0891b2 0%,#06b6d4 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <BarChart3 size={20} />
@@ -168,7 +168,7 @@ export default function WorkloadHeatmapPage() {
         </div>
         <Space>
           <Tag color="cyan" style={{ marginInlineEnd: 0 }}>v3.0.6.11-75</Tag>
-          <Button size="small" onClick={() => void load()}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
         </Space>
       </header>
 
@@ -198,11 +198,11 @@ export default function WorkloadHeatmapPage() {
             <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr>
-                  <th style={{ padding: 6, background: '#f8fafc', color: '#475569', minWidth: 130, textAlign: 'left' }}>医生</th>
+                  <th style={{ padding: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', minWidth: 130, textAlign: 'left' }}>医生</th>
                   {HOUR_SLOTS.map((h) => (
-                    <th key={h} style={{ padding: 6, background: '#f8fafc', color: '#475569', minWidth: 36, textAlign: 'center' }}>{h}:00</th>
+                    <th key={h} style={{ padding: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', minWidth: 36, textAlign: 'center' }}>{h}:00</th>
                   ))}
-                  <th style={{ padding: 6, background: '#f8fafc', color: '#475569', minWidth: 70, textAlign: 'center' }}>总量</th>
+                  <th style={{ padding: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', minWidth: 70, textAlign: 'center' }}>总量</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +210,7 @@ export default function WorkloadHeatmapPage() {
                   <tr key={doctor.doctorId ?? doctor.doctorName}>
                     <td style={{ padding: 4, color: '#1e40af', fontWeight: 600 }}>
                       <div>{doctor.doctorName}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>{doctor.department ?? ''} · 报告 {doctor.reportCount ?? 0}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{doctor.department ?? ''} · 报告 {doctor.reportCount ?? 0}</div>
                     </td>
                     {hourly.map((c) => {
                       const intensity = c.load / max
@@ -229,7 +229,7 @@ export default function WorkloadHeatmapPage() {
                 ))}
               </tbody>
             </table>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 12, color: '#475569' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
               <span>低</span>
               {[0.1, 0.3, 0.5, 0.7, 0.95].map((v) => (
                 <span key={v} style={{ width: 24, height: 12, background: intensityColor(v), display: 'inline-block', borderRadius: 2 }} />
@@ -244,10 +244,10 @@ export default function WorkloadHeatmapPage() {
 
       <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {sites.map((s) => (
-          <div key={s.siteId} style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0' }}>
+          <div key={s.siteId} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, border: '1px solid var(--border-color)' }}>
             <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 13 }}>{s.siteName}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>容量评分 {s.capacityScore}</div>
-            <div style={{ fontSize: 12, color: '#475569', marginTop: 6 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>容量评分 {s.capacityScore}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
               利用率 {s.utilizationPct}% · 报告 {s.pendingReports} · 医生 {s.doctors}
             </div>
           </div>

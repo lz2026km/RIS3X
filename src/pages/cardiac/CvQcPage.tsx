@@ -75,9 +75,9 @@ const MODALITY_QC: ModalityQc[] = [
 ]
 
 const STATUS_CONFIG = {
-  pass: { icon: CheckCircle2, color: '#16a34a', bg: '#dcfce7' },
-  warning: { icon: AlertTriangle, color: '#d97706', bg: '#fef3c7' },
-  fail: { icon: XCircle, color: '#dc2626', bg: '#fee2e2' },
+  pass: { icon: CheckCircle2, color: 'var(--color-success)', bg: 'var(--color-success-bg)' },
+  warning: { icon: AlertTriangle, color: 'var(--color-warning)', bg: 'var(--color-warning-bg)' },
+  fail: { icon: XCircle, color: 'var(--color-error)', bg: 'var(--color-error-bg)' },
 }
 
 export default function CvQcPage() {
@@ -129,7 +129,7 @@ export default function CvQcPage() {
           <td>${metric.label}</td>
           <td style="text-align:center">${metric.current}</td>
           <td style="text-align:center">${metric.target}</td>
-          <td style="text-align:center"><span style="color:${STATUS_CONFIG[metric.status].color};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
+          <td style="text-align:center"><span style="color:${metric.status === 'pass' ? '#16a34a' : metric.status === 'warning' ? '#d97706' : '#dc2626'};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
         </tr>`).join('')).join('')
       const html = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>心血管质控报告</title>
         <style>body{font-family:SimSun,serif;padding:32px;color:#111}h1{font-size:20px}h2{font-size:15px;margin-top:20px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border:1px solid #555;padding:6px 10px;font-size:13px}th{background:#eee}.summary{display:flex;gap:16px;margin:12px 0}.box{flex:1;border:1px solid #ccc;border-radius:6px;padding:12px;text-align:center}.num{font-size:22px;font-weight:700}@media print{body{margin:0}}</style></head><body>
@@ -160,21 +160,21 @@ export default function CvQcPage() {
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
         <Shield size={24} /> CV 质量控制仪表盘
-        <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706', padding: '2px 8px', borderRadius: 10 }}>
+        <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
           {source === 'api' ? '数据源: /qc-ext/dashboard' : '演示数据(接口不可用)'}
         </span>
       </h1>
 
-      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', color: '#dc2626', borderRadius: 6, fontSize: 12 }}>{error}</div>}
+      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
-        <div style={{ padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
-          <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, textTransform: 'uppercase' }}>整体质控通过率</div>
+        <div style={{ padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
+          <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>整体质控通过率</div>
           <div style={{ fontSize: 28, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
           <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
-          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? '#eff6ff' : '#fff', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid #e2e8f0', cursor: 'pointer' }}>
+          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid var(--border-color)', cursor: 'pointer' }}>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modality}</div>
             <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} 通过, {m.metrics.filter(x => x.status === 'fail').length} 失败</div>
@@ -183,13 +183,13 @@ export default function CvQcPage() {
       </div>
 
       <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-        <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 600, fontSize: 14 }}>
+        <div style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>
           {MODALITY_QC[activeModality]?.modality ?? ''} — 详细指标
           <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>演示数据</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '10px 16px', textAlign: 'left' }}>指标</th>
               <th style={{ padding: '10px 16px', textAlign: 'center' }}>当前</th>
               <th style={{ padding: '10px 16px', textAlign: 'center' }}>目标</th>
@@ -201,7 +201,7 @@ export default function CvQcPage() {
               const s = STATUS_CONFIG[m.status]
               const Icon = s.icon
               return (
-                <tr key={m.label} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <tr key={m.label} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <ClipboardCheck size={16} color="#64748b" /> {m.label}
                   </td>

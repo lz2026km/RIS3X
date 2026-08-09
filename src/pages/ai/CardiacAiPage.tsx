@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
+import type { CardiacAiResult } from "../../services/api/cardiacAiApi";
 import {
   Card,
   Table,
@@ -13,8 +14,7 @@ import {
   message,
 } from "antd";
 import { HeartPulse, RefreshCw, Cpu } from "lucide-react";
-import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
-import type { CardiacAiResult } from "../../services/api/cardiacAiApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const cadRadsColor: Record<string, string> = {
   "0": "green",
@@ -169,8 +169,7 @@ const CardiacAiPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

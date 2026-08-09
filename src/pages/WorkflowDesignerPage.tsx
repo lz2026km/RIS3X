@@ -28,7 +28,7 @@ function DraggableStep({ type }: { type: StepType }) {
     marginBottom: 8,
     borderRadius: 6,
     border: `1px solid ${type.color}40`,
-    background: isDragging ? `${type.color}20` : '#fff',
+    background: isDragging ? `${type.color}20` : 'var(--bg-card)',
     cursor: 'grab',
     display: 'flex',
     alignItems: 'center',
@@ -55,7 +55,7 @@ function DropZone({ children }: { children: React.ReactNode }) {
     <div
       ref={setNodeRef}
       style={{
-        flex: 1, minHeight: 400, background: isOver ? '#f0f9ff' : '#fafafa',
+        flex: 1, minHeight: 400, background: isOver ? 'var(--color-info-bg)' : 'var(--bg-primary)',
         border: `2px dashed ${isOver ? '#3b82f6' : '#e2e8f0'}`,
         borderRadius: 8, padding: 16, position: 'relative', transition: 'background 0.2s',
       }}
@@ -220,7 +220,7 @@ export default function WorkflowDesignerPage() {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
+      <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)' }}>
         <header style={{ background: 'linear-gradient(135deg,#1e40af 0%,#3b82f6 100%)', color: '#fff', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Layers size={20} />
           <div style={{ flex: 1 }}>
@@ -249,30 +249,30 @@ export default function WorkflowDesignerPage() {
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>保存</Button>
         </header>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-          <aside style={{ width: 200, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 16, overflowY: 'auto' }}>
+          <aside style={{ width: 200, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 16, overflowY: 'auto' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>步骤类型</div>
             {STEP_TYPES.map(t => <DraggableStep key={t.key} type={t} />)}
           </aside>
           <main style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>画布 — 从左侧拖入步骤</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>画布 — 从左侧拖入步骤</div>
             <DropZone>
               {canvasNodes.map(n => <CanvasNodeItem key={n.id} node={n} onRemove={removeNode} />)}
             </DropZone>
           </main>
-          <aside style={{ width: 280, background: '#fff', borderLeft: '1px solid #e2e8f0', padding: 16, overflowY: 'auto' }}>
+          <aside style={{ width: 280, background: 'var(--bg-card)', borderLeft: '1px solid var(--border-color)', padding: 16, overflowY: 'auto' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>属性面板</div>
             {selectedNode ? (
               <div style={{ fontSize: 13 }}>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>名称</label><Input size="small" value={selectedNode.label} onChange={e => setCanvasNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, label: e.target.value } : n))} /></div>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>类型</label><Tag color={STEP_TYPES.find(s => s.key === selectedNode.type)?.color}>{STEP_TYPES.find(s => s.key === selectedNode.type)?.label}</Tag></div>
-                <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>坐标</label><span style={{ color: '#6b7280' }}>({selectedNode.x}, {selectedNode.y})</span></div>
+                <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>坐标</label><span style={{ color: 'var(--text-secondary)' }}>({selectedNode.x}, {selectedNode.y})</span></div>
               </div>
             ) : (
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>点击画布中的节点编辑属性</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>点击画布中的节点编辑属性</div>
             )}
           </aside>
         </div>
-        <div style={{ borderTop: '1px solid #e2e8f0', background: '#fff', padding: '12px 24px' }}>
+        <div style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', padding: '12px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />步骤列表</div>
             <Button size="small" icon={<Plus size={14} />} onClick={() => setShowNewStep(true)}>新建步骤</Button>

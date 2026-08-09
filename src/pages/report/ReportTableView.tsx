@@ -11,11 +11,11 @@ const PRIMARY = '#1e40af'
 const DANGER = '#dc2626'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; border: string }> = {
-  待审核: { bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },
-  已审核: { bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
-  已发布: { bg: '#d1fae5', color: '#047857', border: '#6ee7b7' },
-  已修改: { bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
-  已退回: { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
+  待审核: { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '#c4b5fd' },
+  已审核: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'var(--color-info-border)' },
+  已发布: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'var(--color-success-border)' },
+  已修改: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: 'var(--color-warning-border)' },
+  已退回: { bg: 'var(--color-error-bg)', color: 'var(--color-error)', border: 'var(--color-error-border)' },
   ...REPORT_STATUS_META,
 }
 
@@ -32,7 +32,7 @@ function highlightAnomalies(text: string | undefined): ReactNode {
   let match: RegExpExecArray | null
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index))
-    parts.push(<span key={match.index} style={{ background: '#fee2e2', color: DANGER, fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
+    parts.push(<span key={match.index} style={{ background: 'var(--color-error-bg)', color: DANGER, fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
     lastIndex = regex.lastIndex
   }
   if (lastIndex < text.length) parts.push(text.slice(lastIndex))
@@ -45,7 +45,7 @@ function QualityBadge({ score }: { score?: number }) {
   const [showTooltip, setShowTooltip] = useState(false)
   if (score === undefined || score === null) return <span style={{ color: '#cbd5e1', fontSize: 12 }}>-</span>
   const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626'
-  const background = score >= 80 ? '#d1fae5' : score >= 60 ? '#fef3c7' : '#fee2e2'
+  const background = score >= 80 ? 'var(--color-success-bg)' : score >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)'
   const label = score >= 80 ? '优秀' : score >= 60 ? '良好' : '待改进'
   return (
     <span style={{ position: 'relative', display: 'inline-block' }} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
@@ -117,9 +117,9 @@ export default function ReportTableView({
       sorter: (a, b) => a.patientName.localeCompare(b.patientName, 'zh-CN'),
       render: (value, report) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 32, height: 32, borderRadius: '50%', background: '#eff6ff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color={PRIMARY} /></span>
+          <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-info-bg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color={PRIMARY} /></span>
           <span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, color: '#1e293b' }}>{String(value)} {report.criticalFinding && <Zap size={11} color={DANGER} />}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--text-primary)' }}>{String(value)} {report.criticalFinding && <Zap size={11} color={DANGER} />}</span>
             <span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.gender} · {report.age}岁 · {report.patientType}</span>
           </span>
         </span>
@@ -132,7 +132,7 @@ export default function ReportTableView({
       width: 180,
       searchable: true,
       sorter: (a, b) => a.examItemName.localeCompare(b.examItemName, 'zh-CN'),
-      render: (value, report) => <span><span style={{ display: 'block', fontWeight: 500, color: '#334155' }}>{String(value)}</span><span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.modality} · {report.bodyPart}</span></span>,
+      render: (value, report) => <span><span style={{ display: 'block', fontWeight: 500, color: 'var(--text-secondary)' }}>{String(value)}</span><span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.modality} · {report.bodyPart}</span></span>,
     },
     {
       title: '状态',
@@ -240,15 +240,15 @@ export default function ReportTableView({
           if (expanded !== (expandedId === report.id)) onToggleExpand(report.id)
         },
         expandedRowRender: (report) => (
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, background: '#fafbfc' }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 10 }}>
               <div>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>检查所见</div>
-                <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, background: '#fff', borderRadius: 6, padding: '6px 10px', border: '1px solid #e2e8f0', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || '(未填写)'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || '(未填写)'}</div>
               </div>
               <div>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>诊断意见</div>
-                <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, background: '#fff', borderRadius: 6, padding: '6px 10px', border: '1px solid #e2e8f0', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || '(未填写)'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || '(未填写)'}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 12, color: '#64748b' }}>

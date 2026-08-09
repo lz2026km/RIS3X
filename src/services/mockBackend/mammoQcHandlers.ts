@@ -1,5 +1,6 @@
 // [W3-A] /api/v1/mammo-qc MSW handlers
-// 后端暂未实现 /mammo-qc 端点 → 本地演示数据 (页面标注"演示数据"来源)
+// [G005 Wave1B P1] 标注更新: 后端已实现 /mammo-qc 端点 (mammo-qc.module),
+// 本 handler 仅作为 mock 模式兜底演示数据。
 //   GET /mammo-qc/overview · GET /mammo-qc/records
 import { http, HttpResponse, delay } from 'msw';
 

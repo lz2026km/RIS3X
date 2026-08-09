@@ -155,9 +155,9 @@ export const SmartAuthPage: React.FC = () => {
       if (res.success && res.data) {
         setIntrospect(res.data);
         if (res.data.active) {
-          message.success("Token 校验通过 (active)");
+          message.success("Token 校验通过");
         } else {
-          message.warning("Token 已失效 (inactive)");
+          message.warning("Token 已失效");
         }
       } else {
         setError(res.error?.message ?? "Introspect 失败");
@@ -189,7 +189,7 @@ export const SmartAuthPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <ShieldCheck size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR SMART 授权</span>
@@ -233,7 +233,7 @@ export const SmartAuthPage: React.FC = () => {
               <Form.Item label="回调地址" name="redirectUri" rules={[{ required: true }]}>
                 <Input placeholder="https://app.g005.local/callback" />
               </Form.Item>
-              <Form.Item label="患者 (patient context)" name="patientId">
+              <Form.Item label="患者上下文" name="patientId">
                 <Select
                   placeholder="选择患者 (可选)"
                   allowClear
@@ -301,19 +301,19 @@ export const SmartAuthPage: React.FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label="token_type">{tokenInfo.tokenType}</Descriptions.Item>
             <Descriptions.Item label="expires_in">{tokenInfo.expiresIn}s</Descriptions.Item>
-            <Descriptions.Item label="scope">{tokenInfo.scope}</Descriptions.Item>
+            <Descriptions.Item label="授权范围">{tokenInfo.scope}</Descriptions.Item>
             <Descriptions.Item label="患者上下文">{tokenInfo.patient || "-"}</Descriptions.Item>
           </Descriptions>
         )}
 
         {introspect && (
           <Descriptions column={2} size="small" bordered style={{ marginTop: 16 }}>
-            <Descriptions.Item label="active">
+            <Descriptions.Item label="状态">
               <Tag color={introspect.active ? "green" : "red"}>{String(introspect.active)}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="sub">{introspect.sub || "-"}</Descriptions.Item>
-            <Descriptions.Item label="scope">{introspect.scope || "-"}</Descriptions.Item>
-            <Descriptions.Item label="exp">
+            <Descriptions.Item label="主体">{introspect.sub || "-"}</Descriptions.Item>
+            <Descriptions.Item label="授权范围">{introspect.scope || "-"}</Descriptions.Item>
+            <Descriptions.Item label="过期时间">
               {introspect.exp ? new Date(introspect.exp * 1000).toLocaleString() : "-"}
             </Descriptions.Item>
           </Descriptions>

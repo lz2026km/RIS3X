@@ -3,12 +3,13 @@
  * R3.INTEGRATION 组 B:DICOM SR
  * 20 升级点:完整 DataSet / TID2000/2010 / C-STORE 发送
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
-import { Database, Download, CheckCircle2, Copy, Send, Layers, Server, Braces, Plus } from 'lucide-react';
 import { DICOM_SR_DOCUMENTS_MOCK, DICOM_SR_MOCK } from '@data/reportIntegrationMock';
 import { generateDicomSr, downloadDicomSr, sendDicomSr, dumpDicomSr, validateDicomSr } from '@services/integration/dicomSrService';
 import type { DicomSrDocument } from '@types/R3/R3.INTEGRATION';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
+import { Database, Download, CheckCircle2, Copy, Send, Layers, Server, Braces, Plus } from 'lucide-react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Inbox } from 'lucide-react'
 
 interface Props {
   reportId?: string;
@@ -242,7 +243,7 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
                 },
               ]}
             />
-          ) : <Empty description="请选择 SR 文档" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 SR 文档" />}
         </Card>
       </div>
 

@@ -314,12 +314,12 @@ function AETitleConfigPanel() {
           border: `1px solid ${C.border}`, maxHeight: 520, overflowY: 'auto'
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Shield size={14} style={{ color: C.accent }} /> AE Title 列表（{AE_TITLE_CONFIGS.length}）
+            <Shield size={14} style={{ color: C.accent }} /> 应用实体名列表（{AE_TITLE_CONFIGS.length}）
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {AE_TITLE_CONFIGS.map(ae => (
               <div key={ae.id} style={{
-                background: '#f8fafc', borderRadius: 8, padding: '10px 12px',
+                background: 'var(--bg-card)', borderRadius: 8, padding: '10px 12px',
                 border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'all 0.15s'
               }}>
                 {editingId === ae.id ? (
@@ -380,7 +380,7 @@ function AETitleConfigPanel() {
           border: `1px solid ${C.border}`
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Settings2 size={14} style={{ color: C.accent }} /> AE Title 配置概览
+            <Settings2 size={14} style={{ color: C.accent }} /> 应用实体名配置概览
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
             {[
@@ -402,11 +402,11 @@ function AETitleConfigPanel() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
               'C-ECHO失败：检查网络连通性',
-              '关联失败：确认AE Title唯一性',
+              '关联失败：确认应用实体名唯一性',
               '传输超时：调整PDV大小',
               '连接拒绝：检查端口号/ACL',
             ].map((hint, i) => (
-              <div key={i} style={{ fontSize: 12.5, color: C.textMid, padding: '6px 8px', background: '#f8fafc', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div key={i} style={{ fontSize: 12.5, color: C.textMid, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertCircle size={10} color={C.warning} /> {hint}
               </div>
             ))}
@@ -460,7 +460,7 @@ function QATestPlannerPanel() {
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+                <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
                   {['设备', '测试项目', '频率', '上次结果', '上次日期', '下次日期', '7次趋势'].map(h => (
                     <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                   ))}
@@ -517,7 +517,7 @@ function QATestPlannerPanel() {
               return (
                 <div key={day} style={{
                   minHeight: 44, borderRadius: 8, padding: 4,
-                  background: dayTests.length > 0 ? `${C.warning}10` : '#f8fafc',
+                  background: dayTests.length > 0 ? `${C.warning}10` : 'var(--bg-card)',
                   border: `1px solid ${dayTests.length > 0 ? `${C.warning}30` : C.border}`,
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1
                 }}>
@@ -573,7 +573,7 @@ function QATestPlannerPanel() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 12, padding: '8px 12px', background: '#f8fafc', borderRadius: 8 }}>
+            <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
               <span style={{ fontSize: 12.5, color: C.textMid }}>总体合格率: <strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
             </div>
           </div>
@@ -1018,7 +1018,7 @@ export default function DevicePage() {
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
                 {['排名', '设备名称', '类型', '今日检查', '等待人数', '平均等待'].map(h => (
                   <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
                 ))}
@@ -1173,7 +1173,7 @@ export default function DevicePage() {
 
       <MaintenanceHistoryTable records={maintHistory} />
       {maintPlansLoading && (
-        <div style={{ padding: '8px 12px', marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ padding: '8px 12px', marginBottom: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
           ⏳ 正在从 API 加载保养计划...
         </div>
       )}
@@ -1342,7 +1342,7 @@ export default function DevicePage() {
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
                 {['故障代码', '分类', '描述', '严重级别', 'MTBF(天)', '发生次数', '涉及设备'].map(h => (
                   <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                 ))}
@@ -1374,7 +1374,7 @@ export default function DevicePage() {
             </tbody>
           </table></div>
         </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: '#f8fafc', borderRadius: 8 }}>
+        <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
           <span style={{ fontSize: 12.5, color: C.textMid }}>平均MTBF: <strong style={{ color: C.info }}>{Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length)}天</strong></span>
           <span style={{ fontSize: 12.5, color: C.textMid }}>总故障次数: <strong style={{ color: C.danger }}>{FAULT_CODES.reduce((s, f) => s + f.count, 0)}次</strong></span>
           <span style={{ fontSize: 12.5, color: C.textMid }}>严重故障占比: <strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
@@ -1506,7 +1506,7 @@ export default function DevicePage() {
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
                 {['设备名称', '故障次数', '停机时长', '损失金额', 'MTBF', '故障描述'].map(h => (
                   <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
                 ))}
@@ -1536,7 +1536,7 @@ export default function DevicePage() {
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
                 {['设备', '购置成本', '年收入', '年维保', '年其他', '年利润', '折旧方式', '年折旧', 'ROI', '回收期'].map(h => (
                   <th key={h} style={{ padding: '8px 8px', textAlign: 'center', fontWeight: 700, color: C.primary }}>{h}</th>
                 ))}
@@ -1572,7 +1572,7 @@ export default function DevicePage() {
             </tbody>
           </table></div>
         </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: '#f8fafc', borderRadius: 8 }}>
+        <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
           <span style={{ fontSize: 12, color: C.textMid }}>平均ROI: <strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
           <span style={{ fontSize: 12, color: C.textMid }}>最短回收期: <strong style={{ color: C.info }}>{Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1)}年</strong></span>
           <span style={{ fontSize: 12, color: C.textMid }}>总投资: <strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
@@ -1707,12 +1707,12 @@ export default function DevicePage() {
   return (
     <div style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
       {loading && (
-        <div style={{ padding: 8, margin: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+        <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
           ⏳ 正在从 API 加载设备统计...
         </div>
       )}
       {loadError && !loading && (
-        <div style={{ padding: 8, margin: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+        <div style={{ padding: 8, margin: 12, background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
           ⚠️ {loadError}
         </div>
       )}

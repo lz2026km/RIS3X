@@ -1,11 +1,12 @@
 /**
  * G005 RIS v3.0.5.1 - R3.REVIEW.001 InitialCheckList 初核清单
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { List, Tag, Space, Button, Empty, Input, Select, Statistic, Row, Col, Tooltip, message } from 'antd';
-import { Eye, AlertTriangle, Search, FileText, Filter, Clock, User, AlertCircle, ListChecks, Sparkles, ChevronRight } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { ReviewTask, ReviewStage, ReviewFilter } from '../../../types/R3/R3.REVIEW';
+import { List, Tag, Space, Button, Empty, Input, Select, Statistic, Row, Col, Tooltip, message } from 'antd';
+import { Eye, AlertTriangle, Search, FileText, Filter, Clock, User, AlertCircle, ListChecks, Sparkles, ChevronRight } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Inbox } from 'lucide-react'
 
 const STAGE_META: Record<ReviewStage, { color: string; label: string; bg: string }> = {
   initial: { color: '#f59e0b', label: '初审', bg: '#fef3c7' },
@@ -224,7 +225,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
       <List
         loading={loading}
         dataSource={tasks}
-        locale={{ emptyText: <Empty description="无初核任务" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无初核任务" /> }}
         style={{
           background: '#fff',
           borderRadius: 8,

@@ -103,6 +103,9 @@ export const srReportApi = {
     if (!res.success) return res
     return { ...res, data: (res.data ?? []).filter((d) => d.studyInstanceUid === studyUid) }
   },
+
+  // [G005 Wave1A P0] 下载 SR 文档 (后端 GET /dicom-sr/:id/download, application/dicom Blob)
+  download: (id: string) => srDocumentApi.downloadDocument(id),
 }
 
 // ────────────────────────────────────────────────────────────────────────────

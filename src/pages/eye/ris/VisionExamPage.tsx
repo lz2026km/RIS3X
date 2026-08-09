@@ -1,12 +1,12 @@
 // [W3-2] 视力检查: eyeApi 记录 CRUD + 视力表 (Snellen) 录入 + 历史记录
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Row, Col, Tag, Table, Button, Space, Select, message, Alert, Spin, Empty, Segmented, Popconfirm } from 'antd';
-import { Eye, Save, History, RefreshCw, Trash2 } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import VisionAcuityInput from '@/components/eye/VisionAcuityInput';
-import { toAllNotations, visionGrade } from '@/services/eye/visionConverter';
-import { eyeApi } from '@/services/api/eyeApi';
 import { usePagination } from '@/hooks/usePagination';
+import { eyeApi } from '@/services/api/eyeApi';
+import { toAllNotations, visionGrade } from '@/services/eye/visionConverter';
+import { Card, Row, Col, Tag, Table, Button, Space, Select, message, Alert, Spin, Empty, Segmented, Popconfirm } from 'antd';
+import { Eye, Save, History, RefreshCw, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface VisionRecord {
   id: string;
@@ -126,7 +126,7 @@ const VisionExamPage: React.FC = () => {
   ];
 
   const historyColumns = [
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 140, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
+    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 140, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
     { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 80 },
     { title: '裸眼 OD/OS', key: 'ucva', width: 110, render: (_: unknown, r: VisionRecord) => <span>{r.odUcva ?? '-'} / {r.osUcva ?? '-'}</span> },
     { title: '矫正 OD/OS', key: 'bcva', width: 110, render: (_: unknown, r: VisionRecord) => <span>{r.odBcva ?? '-'} / {r.osBcva ?? '-'}</span> },
@@ -138,7 +138,7 @@ const VisionExamPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
+    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <Eye className="v4-icon" style={{ width: 24, height: 24, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>视力检查</span>
@@ -148,7 +148,7 @@ const VisionExamPage: React.FC = () => {
         <Tag color="cyan">Snellen / 小数 / 5分 / LogMAR</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Card size="small" title={<Space><Eye size={14} />当前患者</Space>} extra={<Space><Segmented size="small" value={distance} onChange={(v) => setDistance(v as string)} options={[{ label: '远视力', value: 'far' }, { label: '近视力', value: 'near' }]} /><Segmented size="small" value={notation} onChange={(v) => setNotation(v as string)} options={[{ label: '小数', value: 'decimal' }, { label: 'Snellen', value: 'snellen' }]} /></Space>} style={{ marginBottom: 12 }}>
         <Row gutter={12} align="middle">

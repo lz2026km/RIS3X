@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { olapApi } from "../../services/api";
 import {
   Card,
   Row,
@@ -15,6 +15,7 @@ import {
   Empty,
   message,
 } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   Clock,
   TrendingUp,
@@ -26,8 +27,8 @@ import {
   Activity,
   RefreshCw,
 } from "lucide-react";
-import type { ColumnsType } from "antd/es/table";
-import { olapApi } from "../../services/api";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Inbox } from 'lucide-react'
 
 interface ModalityTatRow {
   modality: string;
@@ -364,8 +365,7 @@ export default function TatDashboardPage() {
             showIcon
             style={{ marginBottom: 16 }}
             title={error}
-            action={
-              <Button size="small" onClick={() => void load()}>
+            action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
                 重试
               </Button>
             }
@@ -469,7 +469,7 @@ export default function TatDashboardPage() {
                 }
               >
                 {modalityRows.length === 0 ? (
-                  <Empty description="暂无数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
                 ) : (
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -547,7 +547,7 @@ export default function TatDashboardPage() {
                 }
               >
                 {filteredDoctorRows.length === 0 ? (
-                  <Empty description="暂无数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
                 ) : (
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -643,7 +643,7 @@ export default function TatDashboardPage() {
               size="small"
               pagination={false}
               scroll={{ x: 700 }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
             />
           </Card>
         </Spin>

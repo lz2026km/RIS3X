@@ -2,9 +2,10 @@
  * G005 放射RIS系统 v3.0.2 - 用户角色权限管理
  * 对标:RBAC / NIST 800-53 AC
  */
-import React, { useState, useMemo } from 'react'
 import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert } from 'antd'
 import { Shield, User, Lock, Edit, Trash2, Plus, CheckCircle, XCircle, KeyRound } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Inbox } from 'lucide-react'
 
 export type Role = 'ADMIN' | 'DIRECTOR' | 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'REGISTRAR' | 'AUDITOR'
 
@@ -203,7 +204,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
           },
         ]}
         scroll={{ x: 1100 }}
-        locale={{ emptyText: <Empty description="无用户" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无用户" /> }}
       />
 
       <Modal

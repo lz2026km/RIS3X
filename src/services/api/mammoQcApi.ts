@@ -1,8 +1,8 @@
 import { api } from './client'
 
 // 乳腺影像质量管理 (Mammography QC) API
-// 后端暂未实现 /mammo-qc 端点 → MSW mammoQcHandlers 支撑,
-// 响应带 source 信封: 'database' 真实聚合 / 'demo' 演示数据(MSW)
+// [G005 Wave1B P1] 后端已实现 /mammo-qc 端点 (mammo-qc.module, Exam MG/TOM 派生 + seed 回退),
+// MSW 标注已更新; 响应带 source 信封: 'database' 真实聚合 / 'demo' 演示数据
 
 export interface MammoQcRecord {
   id: string

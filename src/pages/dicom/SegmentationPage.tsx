@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { invalidateApiCache } from '../../services/api/client'
+import { segmentationApi, type SegmentationResultDto, type SegmentationTarget, type QuantifyResultDto, type SegmentationHistoryItemDto, type MaskSliceDto } from '../../services/api/segmentationApi'
+import { volumeApi, type VolumeSeriesDto, type VolumeSegmentationDto } from '../../services/api/volumeApi'
+import { decodeInt16Base64, applyWWL } from './volumeReal'
 import {
   Card, Row, Col, Select, InputNumber, Button, Tag, Statistic, Spin, message, Table, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal,
 } from 'antd'
 import { Box, Activity, History, Scan, PenLine, Trash2 } from 'lucide-react'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts'
-import { volumeApi, type VolumeSeriesDto, type VolumeSegmentationDto } from '../../services/api/volumeApi'
-import { segmentationApi, type SegmentationResultDto, type SegmentationTarget, type QuantifyResultDto, type SegmentationHistoryItemDto, type MaskSliceDto } from '../../services/api/segmentationApi'
-import { invalidateApiCache } from '../../services/api/client'
-import { decodeInt16Base64, applyWWL } from './volumeReal'
 
 const MANUAL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#2563eb', '#722ed1']
 
@@ -508,7 +509,7 @@ const SegmentationPage: React.FC = () => {
                     <div style={{ height: 320, position: 'relative' }}>
                       {result.jobId ? (
                         <OverlayCanvas jobId={result.jobId} plane={plane} index={centerIndex} mask={centerMask} color={overlayColor} ww={ww} wl={wl} />
-                      ) : <Empty description="合成模式无底层切片" />}
+                      ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="合成模式无底层切片" />}
                     </div>
                     <Space style={{ marginTop: 6 }} size="large">
                       <span style={{ fontSize: 11 }}>WW <Slider style={{ width: 120, display: 'inline-block' }} min={1} max={4000} value={ww} onChange={setWw} /></span>

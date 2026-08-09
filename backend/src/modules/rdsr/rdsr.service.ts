@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, Optional } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { PrismaService } from '../../prisma/prisma.service'
+import { CriticalAlertService } from '../critical-alert/critical-alert.service'
 
 export interface RdsrParseRequest {
   dicomJson?: Record<string, unknown>
@@ -32,6 +33,49 @@ export interface DrlEntry {
   ctdivolDrl: number
   dlpDrl: number
   source: string
+  /** 年龄段: adult 成人 (默认) / child 儿童; 未指定按成人阈值 */
+  ageGroup?: 'adult' | 'child'
+}
+
+export interface DrlCheckRecordInput {
+  patientId?: string
+  patientName?: string
+  modality: string
+  bodyPart: string
+  ctdivol?: number
+  dlp?: number
+  ssde?: number
+  examDate?: string
+  age?: number
+  ageGroup?: 'adult' | 'child'
+}
+
+export interface DrlCheckResult {
+  id: string
+  patientId?: string | null
+  patientName?: string | null
+  modality: string
+  bodyPart: string
+  ctdivol: number
+  dlp: number
+  ssde?: number
+  examDate: string
+  ageGroup: 'adult' | 'child'
+  level: 'warning' | 'critical'
+  ctdivolDrl: number
+  dlpDrl: number
+  exceededBy: { ctdivol: number; dlp: number }
+  reason: string
+  criticalAlertId?: string
+}
+
+export interface DrlCheckSummary {
+  checked: number
+  overLimitCount: number
+  warningCount: number
+  criticalCount: number
+  generatedAlertCount: number
+  overLimit: DrlCheckResult[]
 }
 
 export interface RdsrStats {
@@ -113,6 +157,7 @@ export interface DrlUpsertInput {
   ctdivolDrl?: number
   dlpDrl?: number
   source?: string
+  ageGroup?: 'adult' | 'child'
 }
 
 interface StoredDoseRecord {
@@ -136,6 +181,13 @@ const DRL_DATA: DrlEntry[] = [
   { modality: 'CT', bodyPart: '腹部', ctdivolDrl: 25, dlpDrl: 800, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '盆腔', ctdivolDrl: 20, dlpDrl: 600, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '腰椎', ctdivolDrl: 40, dlpDrl: 700, source: '国家DRLs 2023' },
+]
+
+// 儿童 (年龄 < 15) DRL 默认值: 常见成人 DRL 的 60-75%
+const CHILD_DRL_DATA: DrlEntry[] = [
+  { modality: 'CT', bodyPart: '头部', ctdivolDrl: 40, dlpDrl: 700, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '胸部', ctdivolDrl: 12, dlpDrl: 400, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '腹部', ctdivolDrl: 20, dlpDrl: 600, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
 ]
 
 const ANNUAL_DLP_LIMIT = 5000
@@ -201,7 +253,10 @@ export class RdsrService {
   private drlLoaded = false
   private ackMap: Map<string, string> = new Map()
 
-  constructor(private readonly prisma?: PrismaService) {}
+  constructor(
+    private readonly prisma?: PrismaService,
+    @Optional() private readonly criticalAlert?: CriticalAlertService,
+  ) {}
 
   private async ensureDrlOverrides(): Promise<void> {
     if (this.drlLoaded) return
@@ -231,9 +286,13 @@ export class RdsrService {
     }
   }
 
-  private async findDrl(modality: string, bodyPart: string): Promise<DrlEntry | undefined> {
+  private async findDrl(modality: string, bodyPart: string, ageGroup: 'adult' | 'child' = 'adult'): Promise<DrlEntry | undefined> {
     await this.ensureDrlOverrides()
-    return this.drlOverrideMap.get(`${modality}:${bodyPart}`) ?? DRL_DATA.find((d) => d.modality === modality && d.bodyPart === bodyPart)
+    const key = ageGroup === 'child' ? `${modality}:${bodyPart}:child` : `${modality}:${bodyPart}`
+    const override = this.drlOverrideMap.get(key)
+    if (override) return override
+    if (ageGroup === 'child') return CHILD_DRL_DATA.find((d) => d.modality === modality && d.bodyPart === bodyPart)
+    return DRL_DATA.find((d) => d.modality === modality && d.bodyPart === bodyPart)
   }
 
   private async levelFor(record: StoredDoseRecord): Promise<'normal' | 'warning' | 'critical'> {
@@ -351,10 +410,12 @@ export class RdsrService {
     return this.toResult(record, level)
   }
 
-  async getDrls(modality?: string, bodyPart?: string): Promise<DrlEntry[]> {
+  async getDrls(modality?: string, bodyPart?: string, ageGroup?: 'adult' | 'child'): Promise<DrlEntry[]> {
     await this.ensureDrlOverrides()
-    let data = DRL_DATA.map((d) => this.drlOverrideMap.get(`${d.modality}:${d.bodyPart}`) ?? d)
+    const base = ageGroup === 'child' ? CHILD_DRL_DATA : DRL_DATA
+    let data = base.map((d) => this.drlOverrideMap.get(`${d.modality}:${d.bodyPart}${ageGroup === 'child' ? ':child' : ''}`) ?? d)
     for (const override of this.drlOverrideMap.values()) {
+      if (override.ageGroup && override.ageGroup !== ageGroup) continue
       if (!data.some((d) => d.modality === override.modality && d.bodyPart === override.bodyPart)) {
         data.push(override)
       }
@@ -367,8 +428,9 @@ export class RdsrService {
   async setDrl(input: DrlUpsertInput): Promise<DrlEntry[]> {
     await this.ensureDrlOverrides()
     const modality = input.modality ?? 'CT'
-    const key = `${modality}:${input.bodyPart}`
-    const base = DRL_DATA.find((d) => d.modality === modality && d.bodyPart === input.bodyPart)
+    const ageGroup = input.ageGroup ?? 'adult'
+    const key = ageGroup === 'child' ? `${modality}:${input.bodyPart}:child` : `${modality}:${input.bodyPart}`
+    const base = (ageGroup === 'child' ? CHILD_DRL_DATA : DRL_DATA).find((d) => d.modality === modality && d.bodyPart === input.bodyPart)
     const current = this.drlOverrideMap.get(key)
     const entry: DrlEntry = {
       modality,
@@ -376,10 +438,82 @@ export class RdsrService {
       ctdivolDrl: input.ctdivolDrl ?? current?.ctdivolDrl ?? base?.ctdivolDrl ?? 0,
       dlpDrl: input.dlpDrl ?? current?.dlpDrl ?? base?.dlpDrl ?? 0,
       source: input.source ?? current?.source ?? '自定义',
+      ageGroup: ageGroup === 'child' ? 'child' : undefined,
     }
     this.drlOverrideMap.set(key, entry)
     await this.persistDrlOverrides()
     return this.getDrls()
+  }
+
+  /**
+   * DRL 告警检查: 对比实例剂量 vs 阈值 (按模态/部位/年龄段), 返回超限列表。
+   * critical (超阈值 150%) 时同步生成危急值告警 (CriticalAlertService), 完成告警闭环。
+   */
+  async check(records: DrlCheckRecordInput[]): Promise<DrlCheckSummary> {
+    const overLimit: DrlCheckResult[] = []
+    let generatedAlertCount = 0
+    for (const rec of records) {
+      const ageGroup = rec.ageGroup ?? (rec.age !== undefined ? (rec.age < 15 ? 'child' : 'adult') : 'adult')
+      const drl = await this.findDrl(rec.modality, rec.bodyPart, ageGroup)
+      if (!drl) continue
+      const ctdivol = rec.ctdivol ?? 0
+      const dlp = rec.dlp ?? 0
+      const overCtdi = ctdivol > drl.ctdivolDrl
+      const overDlp = dlp > drl.dlpDrl
+      if (!overCtdi && !overDlp) continue
+      const level: 'warning' | 'critical' = ctdivol > drl.ctdivolDrl * 1.5 || dlp > drl.dlpDrl * 1.5 ? 'critical' : 'warning'
+      let criticalAlertId: string | undefined
+      if (level === 'critical' && this.criticalAlert) {
+        try {
+          const alert = await this.criticalAlert.create({
+            level: 'critical',
+            patientId: rec.patientId,
+            patientName: rec.patientName ?? '未知患者',
+            modality: rec.modality,
+            title: '辐射剂量严重超 DRL',
+            description: `${rec.modality}/${rec.bodyPart} 实测 CTDIvol ${ctdivol}mGy、DLP ${dlp}mGy·cm, 超过 DRL ${drl.ctdivolDrl}/${drl.dlpDrl} 的 150%, 需立即剂量复核`,
+          })
+          criticalAlertId = alert.id
+          generatedAlertCount += 1
+        } catch {
+          // 危急值告警创建失败不阻断检查
+        }
+      }
+      const exceededBy = {
+        ctdivol: drl.ctdivolDrl > 0 ? +(((ctdivol - drl.ctdivolDrl) / drl.ctdivolDrl) * 100).toFixed(0) : 0,
+        dlp: drl.dlpDrl > 0 ? +(((dlp - drl.dlpDrl) / drl.dlpDrl) * 100).toFixed(0) : 0,
+      }
+      const ageLabel = ageGroup === 'child' ? '儿童' : '成人'
+      const reason = level === 'critical'
+        ? `超过 ${ageLabel} DRL ${drl.ctdivolDrl}/${drl.dlpDrl} 的 150%`
+        : `超过 ${ageLabel} DRL ${drl.ctdivolDrl}/${drl.dlpDrl}`
+      overLimit.push({
+        id: uuid(),
+        patientId: rec.patientId ?? null,
+        patientName: rec.patientName ?? null,
+        modality: rec.modality,
+        bodyPart: rec.bodyPart,
+        ctdivol,
+        dlp,
+        ssde: rec.ssde,
+        examDate: rec.examDate ?? isoDate(new Date()),
+        ageGroup,
+        level,
+        ctdivolDrl: drl.ctdivolDrl,
+        dlpDrl: drl.dlpDrl,
+        exceededBy,
+        reason,
+        criticalAlertId,
+      })
+    }
+    return {
+      checked: records.length,
+      overLimitCount: overLimit.length,
+      warningCount: overLimit.filter((o) => o.level === 'warning').length,
+      criticalCount: overLimit.filter((o) => o.level === 'critical').length,
+      generatedAlertCount,
+      overLimit,
+    }
   }
 
   async getTodayStats(): Promise<TodayDoseStats> {

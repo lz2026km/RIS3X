@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 
 // ============================================================
@@ -82,6 +82,54 @@ export interface PacsTestResult {
   latencyMs: number
   serverId: string
 }
+
+// [G005 Wave1B P1] pacsAdminApi 4 组扩展: servers / storage-groups / associations / stats
+export interface PacsServer {
+  id: string
+  name: string
+  hostname: string
+  port: number
+  aeTitle: string
+  status: 'online' | 'offline' | 'error'
+  lastHeartbeat: string
+  storageBytes: number
+  studyCount: number
+  seriesCount: number
+}
+
+export interface PacsAssociation {
+  id: string
+  localAe: string
+  remoteAe: string
+  remoteHost: string
+  remotePort: number
+  status: 'connected' | 'disconnected' | 'failed'
+  lastActivity: string
+  requestCount: number
+  errorCount: number
+}
+
+export interface PacsAdminStats {
+  totalServers: number
+  onlineServers: number
+  totalStorageBytes: number
+  usedStorageBytes: number
+  totalStudies: number
+  totalAssociations: number
+  activeAssociations: number
+  dailyTransferBytes: number
+}
+
+const SEED_ASSOCIATIONS: PacsAssociation[] = [
+  { id: 'AS-001', localAe: 'G005RIS_PACS', remoteAe: 'GE_REV_CT1', remoteHost: 'ge-ct1.local', remotePort: 11112, status: 'connected', lastActivity: '2026-08-08 08:32', requestCount: 1240, errorCount: 3 },
+  { id: 'AS-002', localAe: 'G005RIS_PACS', remoteAe: 'SIEMENS_MR1', remoteHost: 'siemens-mr1.local', remotePort: 11112, status: 'connected', lastActivity: '2026-08-08 08:28', requestCount: 860, errorCount: 1 },
+  { id: 'AS-003', localAe: 'G005RIS_PACS', remoteAe: 'VNA_ARCHIVE', remoteHost: 'vna-01.local', remotePort: 11112, status: 'connected', lastActivity: '2026-08-08 08:10', requestCount: 3200, errorCount: 5 },
+  { id: 'AS-004', localAe: 'G005RIS_PACS', remoteAe: 'DICOM_PRINTER', remoteHost: 'printer-01.local', remotePort: 104, status: 'disconnected', lastActivity: '2026-08-07 22:40', requestCount: 120, errorCount: 18 },
+  { id: 'AS-005', localAe: 'G005RIS_PACS', remoteAe: 'REMOTE_SITE', remoteHost: 'remote.example.com', remotePort: 11112, status: 'failed', lastActivity: '2026-08-06 15:22', requestCount: 45, errorCount: 32 },
+]
+
+const memServers: PacsServer[] = []
+const memStorageGroups: PacsStorageGroup[] = []
 
 // 确定性 seed 数据 (无 Math.random)
 const SEED_STORAGE: PacsStorageGroup[] = [
@@ -326,6 +374,127 @@ export class PacsAdminService {
   cleanupStorage(): { ok: boolean; freedBytes: number; deletedCount: number; durationMs: number } {
     const day = new Date().getDate()
     return { ok: true, freedBytes: (150 + day * 13) * 1024 ** 3, deletedCount: 30 + day, durationMs: 2400 + day * 17 }
+  }
+
+  // ===== [Wave1B P1] servers / storage-groups / associations / stats =====
+
+  // GET /pacs-admin/servers — 内存 + Device 节点派生 DICOM 服务器
+  async listServers(params: { status?: string; page?: number; pageSize?: number } = {}): Promise<PacsServer[]> {
+    const nodes = await this.listNodes()
+    const derived: PacsServer[] = nodes.map((n) => ({
+      id: n.id,
+      name: n.name,
+      hostname: n.hostname,
+      port: n.port,
+      aeTitle: n.aeTitle,
+      status: n.status,
+      lastHeartbeat: n.lastHeartbeat,
+      storageBytes: (40 + (n.studyCount % 80) * 5) * 1024 ** 3,
+      studyCount: n.studyCount,
+      seriesCount: n.studyCount * 3,
+    }))
+    let all = [...memServers, ...derived]
+    if (params.status) all = all.filter((s) => s.status === params.status)
+    const page = params.page ?? 1
+    const pageSize = params.pageSize ?? 50
+    return all.slice((page - 1) * pageSize, page * pageSize)
+  }
+
+  async getServer(id: string): Promise<PacsServer> {
+    const list = await this.listServers({})
+    const found = list.find((s) => s.id === id)
+    if (!found) throw new NotFoundException(`PACS server ${id} not found`)
+    return found
+  }
+
+  createServer(dto: Partial<PacsServer>): PacsServer {
+    const server: PacsServer = {
+      id: dto.id ?? `PS-${Date.now().toString(36)}`,
+      name: dto.name ?? '未命名服务器',
+      hostname: dto.hostname ?? 'localhost',
+      port: dto.port ?? 104,
+      aeTitle: dto.aeTitle ?? 'G005RIS_PACS',
+      status: 'online',
+      lastHeartbeat: new Date().toISOString(),
+      storageBytes: 0,
+      studyCount: 0,
+      seriesCount: 0,
+    }
+    memServers.unshift(server)
+    return server
+  }
+
+  updateServer(id: string, dto: Partial<PacsServer>): PacsServer {
+    const existing = memServers.find((s) => s.id === id)
+    if (!existing) {
+      const server = this.createServer({ ...dto, id })
+      Object.assign(server, dto, { id })
+      return server
+    }
+    Object.assign(existing, dto, { id })
+    return existing
+  }
+
+  deleteServer(id: string): void {
+    const idx = memServers.findIndex((s) => s.id === id)
+    if (idx !== -1) memServers.splice(idx, 1)
+    // Device 派生服务器删除视为 no-op (只移除内存记录)
+  }
+
+  // POST /pacs-admin/servers/:id/test — 复用 testNode
+  async testServer(id: string): Promise<PacsTestResult> {
+    return this.testNode(id)
+  }
+
+  // GET /pacs-admin/storage-groups — 内存 + seed 存储组 (复用 listStorage)
+  async listStorageGroups(params: { status?: string } = {}): Promise<PacsStorageGroup[]> {
+    const groups = [...memStorageGroups, ...(await this.listStorage())]
+    return params.status ? groups.filter((g) => g.status === params.status) : groups
+  }
+
+  createStorageGroup(dto: Partial<PacsStorageGroup>): PacsStorageGroup {
+    const group: PacsStorageGroup = {
+      id: dto.id ?? `SG-${Date.now().toString(36)}`,
+      name: dto.name ?? '未命名存储组',
+      path: dto.path ?? '/mnt/pacs/custom',
+      totalBytes: dto.totalBytes ?? 0,
+      usedBytes: 0,
+      studyCount: 0,
+      status: 'active',
+    }
+    memStorageGroups.unshift(group)
+    return group
+  }
+
+  deleteStorageGroup(id: string): void {
+    const idx = memStorageGroups.findIndex((g) => g.id === id)
+    if (idx !== -1) memStorageGroups.splice(idx, 1)
+    else if (!SEED_STORAGE.some((g) => g.id === id)) throw new NotFoundException(`Storage group ${id} not found`)
+  }
+
+  // GET /pacs-admin/associations — 确定性 seed
+  listAssociations(params: { status?: string } = {}): PacsAssociation[] {
+    const list = SEED_ASSOCIATIONS.map((a) => ({ ...a }))
+    return params.status ? list.filter((a) => a.status === params.status) : list
+  }
+
+  // GET /pacs-admin/stats — 服务器/存储/关联汇总
+  async getStats(): Promise<PacsAdminStats> {
+    const [servers, groups, associations] = await Promise.all([
+      this.listServers({}),
+      this.listStorageGroups({}),
+      Promise.resolve(this.listAssociations({})),
+    ])
+    return {
+      totalServers: servers.length,
+      onlineServers: servers.filter((s) => s.status === 'online').length,
+      totalStorageBytes: groups.reduce((s, g) => s + g.totalBytes, 0),
+      usedStorageBytes: groups.reduce((s, g) => s + g.usedBytes, 0),
+      totalStudies: servers.reduce((s, x) => s + x.studyCount, 0),
+      totalAssociations: associations.length,
+      activeAssociations: associations.filter((a) => a.status === 'connected').length,
+      dailyTransferBytes: 86 * 1024 ** 3,
+    }
   }
 
   // POST /pacs-admin/nodes/:id/sync — 触发同步 (确定性结果)

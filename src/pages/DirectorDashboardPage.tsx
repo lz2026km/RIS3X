@@ -325,12 +325,12 @@ const DirectorDashboardPage: React.FC = () => {
   const styles = {
     container: {
       minHeight: '100vh',
-      backgroundColor: '#f1f5f9',
+      backgroundColor: 'var(--bg-card)',
       padding: '24px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     } as React.CSSProperties,
     header: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
       marginBottom: '24px',
@@ -340,12 +340,12 @@ const DirectorDashboardPage: React.FC = () => {
     headerTitle: {
       fontSize: '24px',
       fontWeight: '600',
-      color: '#1e293b',
+      color: 'var(--text-primary)',
       marginBottom: '8px',
     } as React.CSSProperties,
     headerSubtitle: {
       fontSize: '14px',
-      color: '#64748b',
+      color: 'var(--text-secondary)',
     } as React.CSSProperties,
     statsGrid: {
       display: 'grid',
@@ -354,7 +354,7 @@ const DirectorDashboardPage: React.FC = () => {
       marginBottom: '24px',
     } as React.CSSProperties,
     statCard: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '20px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -368,30 +368,30 @@ const DirectorDashboardPage: React.FC = () => {
     } as React.CSSProperties,
     statLabel: {
       fontSize: '13px',
-      color: '#64748b',
+      color: 'var(--text-secondary)',
       marginBottom: '8px',
     } as React.CSSProperties,
     statSub: {
       fontSize: '12px',
-      color: '#94a3b8',
+      color: 'var(--text-secondary)',
     } as React.CSSProperties,
     tabContainer: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       overflow: 'hidden',
     } as React.CSSProperties,
     tabHeader: {
       display: 'flex',
-      borderBottom: '1px solid #e2e8f0',
-      backgroundColor: '#f8fafc',
+      borderBottom: '1px solid var(--border-color)',
+      backgroundColor: 'var(--bg-card)',
     } as React.CSSProperties,
     tabButton: (active: boolean) => ({
       padding: '14px 24px',
       fontSize: '14px',
       fontWeight: active ? '600' : '500',
       color: active ? '#1e40af' : '#64748b',
-      backgroundColor: active ? '#ffffff' : 'transparent',
+      backgroundColor: active ? 'var(--bg-card)' : 'transparent',
       border: 'none',
       borderBottom: active ? '2px solid #1e40af' : '2px solid transparent',
       cursor: 'pointer',
@@ -403,10 +403,10 @@ const DirectorDashboardPage: React.FC = () => {
     sectionTitle: {
       fontSize: '16px',
       fontWeight: '600',
-      color: '#1e293b',
+      color: 'var(--text-primary)',
       marginBottom: '16px',
       paddingBottom: '8px',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: '1px solid var(--border-color)',
     } as React.CSSProperties,
     table: {
       width: '100%',
@@ -416,15 +416,15 @@ const DirectorDashboardPage: React.FC = () => {
     th: {
       padding: '12px',
       textAlign: 'left' as const,
-      backgroundColor: '#f8fafc',
-      color: '#64748b',
+      backgroundColor: 'var(--bg-card)',
+      color: 'var(--text-secondary)',
       fontWeight: '600',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: '1px solid var(--border-color)',
     } as React.CSSProperties,
     td: {
       padding: '12px',
-      borderBottom: '1px solid #e2e8f0',
-      color: '#1e293b',
+      borderBottom: '1px solid var(--border-color)',
+      color: 'var(--text-primary)',
     } as React.CSSProperties,
     badge: (color: string) => ({
       display: 'inline-flex',
@@ -467,7 +467,7 @@ const DirectorDashboardPage: React.FC = () => {
       alignItems: 'center',
       gap: '8px',
       padding: '12px 16px',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '8px',
       minWidth: '180px',
     } as React.CSSProperties,
@@ -520,9 +520,9 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 排名奖励
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return { emoji: '🥇', text: '金牌', bg: '#fef3c7', color: '#92400e' };
-    if (rank === 2) return { emoji: '🥈', text: '银牌', bg: '#f3f4f6', color: '#4b5563' };
-    if (rank === 3) return { emoji: '🥉', text: '铜牌', bg: '#fed7aa', color: '#9a3412' };
+    if (rank === 1) return { emoji: '🥇', text: '金牌', bg: '#f59e0b22', color: '#92400e' };
+    if (rank === 2) return { emoji: '🥈', text: '银牌', bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
+    if (rank === 3) return { emoji: '🥉', text: '铜牌', bg: '#f9731622', color: '#9a3412' };
     return null;
   };
 
@@ -556,10 +556,10 @@ const DirectorDashboardPage: React.FC = () => {
                         <span>{rank.emoji}</span>
                       </span>
                     ) : (
-                      <span style={{ color: '#94a3b8', fontWeight: '500' }}>{idx + 1}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                     )}
                   </td>
-                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : '#1e293b' }}>
+                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
                     {doc.name}
                   </td>
                   <td style={styles.td}>{doc.title}</td>
@@ -574,7 +574,7 @@ const DirectorDashboardPage: React.FC = () => {
                   <td style={styles.td}>
                     <span style={{
                       padding: '4px 8px',
-                      backgroundColor: totalScore > 92 ? '#dcfce7' : '#fef3c7',
+                      backgroundColor: totalScore > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                       color: totalScore > 92 ? '#166534' : '#92400e',
                       borderRadius: '4px',
                       fontWeight: '600',
@@ -611,10 +611,10 @@ const DirectorDashboardPage: React.FC = () => {
                     {rank ? (
                       <span style={styles.badge(rank.bg)}>{rank.emoji}</span>
                     ) : (
-                      <span style={{ color: '#94a3b8', fontWeight: '500' }}>{idx + 1}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                     )}
                   </td>
-                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : '#1e293b' }}>
+                  <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
                     {tech.name}
                   </td>
                   <td style={styles.td}>{tech.title}</td>
@@ -660,22 +660,22 @@ const DirectorDashboardPage: React.FC = () => {
                   {device.utilization}%
                 </div>
               </div>
-              <div style={{ marginTop: '8px', fontSize: '11px', color: '#64748b' }}>
+              <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
                 {device.name.length > 10 ? device.name.substring(0, 8) + '..' : device.name}
               </div>
             </div>
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '12px' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '2px' }}></span>
             优良 (&gt;85%)
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#eab308', borderRadius: '2px' }}></span>
             正常 (70-85%)
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#ef4444', borderRadius: '2px' }}></span>
             偏低 (&lt;70%)
           </span>
@@ -710,7 +710,7 @@ const DirectorDashboardPage: React.FC = () => {
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontSize: '11px',
-                      backgroundColor: device.fullRate > 85 ? '#dcfce7' : '#fef3c7',
+                      backgroundColor: device.fullRate > 85 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                       color: device.fullRate > 85 ? '#166534' : '#92400e',
                     }}>
                       {device.fullRate > 85 ? '繁忙' : '可预约'}
@@ -746,7 +746,7 @@ const DirectorDashboardPage: React.FC = () => {
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontSize: '11px',
-                      backgroundColor: device.faultRate > 2 ? '#fee2e2' : device.faultRate > 1 ? '#fef3c7' : '#dcfce7',
+                      backgroundColor: device.faultRate > 2 ? 'var(--color-error-bg)' : device.faultRate > 1 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
                       color: device.faultRate > 2 ? '#991b1b' : device.faultRate > 1 ? '#92400e' : '#166534',
                     }}>
                       {device.faultRate > 2 ? '高' : device.faultRate > 1 ? '中' : '低'}
@@ -793,16 +793,16 @@ const DirectorDashboardPage: React.FC = () => {
                       {rank ? (
                         <span style={styles.badge(rank.bg)}>{rank.emoji}</span>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontWeight: '500' }}>{idx + 1}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>{idx + 1}</span>
                       )}
                     </td>
-                    <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : '#1e293b' }}>
+                    <td style={{ ...styles.td, fontWeight: '600', color: rank ? '#92400e' : 'var(--text-primary)' }}>
                       {doc.name}
                     </td>
                     <td style={styles.td}>
                       <span style={{
                         padding: '4px 12px',
-                        backgroundColor: doc.totalScore > 92 ? '#dcfce7' : '#fef3c7',
+                        backgroundColor: doc.totalScore > 92 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                         color: doc.totalScore > 92 ? '#166534' : '#92400e',
                         borderRadius: '4px',
                         fontWeight: '700',
@@ -814,19 +814,19 @@ const DirectorDashboardPage: React.FC = () => {
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#3b82f6')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e40af' }}>{doc.formatScore}</div>
-                        <div style={{ fontSize: '10px', color: '#64748b' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
                       </div>
                     </td>
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#10b981')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#059669' }}>{doc.diagScore}</div>
-                        <div style={{ fontSize: '10px', color: '#64748b' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
                       </div>
                     </td>
                     <td style={styles.td}>
                       <div style={styles.scoreItem('#f59e0b')}>
                         <div style={{ fontSize: '16px', fontWeight: '700', color: '#d97706' }}>{doc.timeScore}</div>
-                        <div style={{ fontSize: '10px', color: '#64748b' }}>分</div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>分</div>
                       </div>
                     </td>
                     <td style={styles.td}>
@@ -849,17 +849,17 @@ const DirectorDashboardPage: React.FC = () => {
           {qcIssues.map((issue) => (
             <div key={issue.type} style={{
               padding: '16px',
-              backgroundColor: '#f8fafc',
+              backgroundColor: 'var(--bg-card)',
               borderRadius: '8px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border-color)',
               textAlign: 'center' as const,
             }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e40af' }}>{issue.count}</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{issue.type}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{issue.type}</div>
               <div style={{
                 marginTop: '8px',
                 padding: '2px 8px',
-                backgroundColor: issue.rate > 3 ? '#fee2e2' : '#fef3c7',
+                backgroundColor: issue.rate > 3 ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
                 color: issue.rate > 3 ? '#991b1b' : '#92400e',
                 borderRadius: '4px',
                 fontSize: '11px',
@@ -923,7 +923,7 @@ const DirectorDashboardPage: React.FC = () => {
                 );
               })}
             </svg>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: '#94a3b8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
               <span>第1天</span>
               <span>第10天</span>
               <span>第20天</span>
@@ -940,40 +940,40 @@ const DirectorDashboardPage: React.FC = () => {
                 <div key={item.name} style={styles.pieItem}>
                   <div style={styles.pieColor(colors[idx])} />
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{item.name}</div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>¥{(item.amount / 10000).toFixed(0)}万 ({item.percent}%)</div>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.name}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>¥{(item.amount / 10000).toFixed(0)}万 ({item.percent}%)</div>
                   </div>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: '16px', textAlign: 'center' as const, fontSize: '14px', color: '#64748b' }}>
+            <div style={{ marginTop: '16px', textAlign: 'center' as const, fontSize: '14px', color: 'var(--text-secondary)' }}>
               总收入: <span style={{ fontWeight: '700', color: '#1e40af' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}万元</span>
             </div>
           </div>
 
           <div>
             <div style={styles.sectionTitle}>🏥 卫材成本统计</div>
-            <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ display: 'grid', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-                  <span style={{ color: '#64748b' }}>造影剂</span>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>¥{materialCost.contrastAgent.toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>造影剂</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.contrastAgent.toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-                  <span style={{ color: '#64748b' }}>胶片</span>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>¥{materialCost.film.toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>胶片</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.film.toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-                  <span style={{ color: '#64748b' }}>注射器</span>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>¥{materialCost.syringe.toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>注射器</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.syringe.toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-                  <span style={{ color: '#64748b' }}>针头</span>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>¥{materialCost.needle.toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>针头</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.needle.toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-                  <span style={{ color: '#64748b' }}>其他耗材</span>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>¥{materialCost.other.toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>其他耗材</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>¥{materialCost.other.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#1e40af', borderRadius: '6px', marginTop: '4px' }}>
                   <span style={{ fontWeight: '600', color: '#ffffff' }}>总计成本</span>
@@ -987,12 +987,12 @@ const DirectorDashboardPage: React.FC = () => {
     );
   };
 
-  if (loading) return <div role="status" data-testid="director-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="director-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (!dataAvailable) {
     return (
-      <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无主任驾驶舱数据</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>请等待今日检查量与审核数据汇总后刷新</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请等待今日检查量与审核数据汇总后刷新</div>
       </div>
     );
   }
@@ -1010,18 +1010,18 @@ const DirectorDashboardPage: React.FC = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {live && (
-              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#dcfce7', color: '#166534' }}>
+              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: 'var(--color-success-bg)', color: '#166534' }}>
                 statsApi / biApi 实时
               </span>
             )}
             {!live && (
-              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#fef3c7', color: '#92400e' }}>
+              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: 'var(--color-warning-bg)', color: '#92400e' }}>
                 演示数据
               </span>
             )}
             <button
               onClick={() => void load()}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               🔄 刷新
             </button>
@@ -1030,13 +1030,13 @@ const DirectorDashboardPage: React.FC = () => {
       </div>
 
       {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: 16 }}>
           {error}
           <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
       )}
       {fallbackBlocks.length > 0 && (
-        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
           以下区块为演示数据: {fallbackBlocks.join(' / ')}
         </div>
       )}

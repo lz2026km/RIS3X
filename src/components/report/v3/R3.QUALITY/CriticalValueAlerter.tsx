@@ -3,7 +3,10 @@
  * 危急值告警中心 (30 点)
  * 功能:自动危急值检测 / 多渠道通知 / 响应追踪 / 闭环 / 统计
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { criticalValueService } from '../../../../services/quality/criticalValueService';
+import type { CriticalEvent, CriticalStatus, CriticalLevel, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
+import { SmsSender } from '../../../critical/SmsSender';
+import { VoiceCallButton } from '../../../critical/VoiceCallButton';
 import {
   Card,
   Tag,
@@ -27,10 +30,8 @@ import {
   Divider,
 } from 'antd';
 import { AlertOctagon, Bell, Phone, MessageSquare, Smartphone, CheckCircle2, Clock, PhoneCall, Send, Mail, Search, RefreshCw, Activity, TrendingUp, Zap, X, Stethoscope } from 'lucide-react';
-import { criticalValueService } from '../../../../services/quality/criticalValueService';
-import { SmsSender } from '../../../critical/SmsSender';
-import { VoiceCallButton } from '../../../critical/VoiceCallButton';
-import type { CriticalEvent, CriticalStatus, CriticalLevel, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
+import { BellOff } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react';
 
 const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: string; icon: React.ReactNode }> = {
   pending: { color: '#dc2626', label: '待通报', bg: '#fee2e2', icon: <PhoneCall size={12} /> },
@@ -443,7 +444,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       <List
         loading={loading}
         dataSource={filtered}
-        locale={{ emptyText: <Empty description="无危急值事件" /> }}
+        locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="无危急值事件" /> }}
         style={{
           background: '#fff',
           borderRadius: 8,

@@ -1,25 +1,23 @@
 /**
  * G005 RIS v3.0.6.11-60 - Auto-hanging 自动布局协议管理 (对标 GE/Siemens/Fujifilm)
  * 协议列表 + 新建/编辑 (布局网格可视化) + 匹配测试 (选检查→预览布局)
+ * [G005 v3.0.6.11-85 Wave 4B (G-17)] 布局模板/匹配规则抽取到 src/constants/hangingProtocols.ts
+ * 与阅片工作流 (DicomViewerPro 挂片协议下拉/自动挂片) 共享; 本页保持独立 + 「应用到阅片」入口
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Card, Table, Button, Modal, Form, Input, InputNumber, Select, Radio, Switch, Tag, Space, message, Popconfirm, Typography, Alert,
 } from 'antd'
-import { Plus, RefreshCw, LayoutGrid, Search, Sparkles } from 'lucide-react'
+import { Plus, RefreshCw, LayoutGrid, Search, Sparkles, Trash2, MonitorPlay } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { hangingApi, type HangingProtocol, type HangingMatchResult, type HangingLayout } from '../../services/api/hangingApi'
 import { usePagination } from '../../hooks/usePagination'
+import { LAYOUT_PRESETS, layoutKey, HANGING_PROTOCOL_PRESETS, matchHangingProtocols } from '../../constants/hangingProtocols'
 
 const { Title, Text } = Typography
 
 const MODALITIES = ['CT', 'MR', 'DR', 'DX', 'MG', 'US', 'NM', 'PT', 'XA']
 const BODY_PARTS = ['HEAD', 'CHEST', 'ABDOMEN', 'PELVIS', 'SPINE', 'NECK', 'KNEE', 'CARDIAC', 'BREAST', 'EXTREMITY', 'WHOLE BODY']
-const LAYOUT_PRESETS: { label: string; layout: HangingLayout }[] = [
-  { label: '1 × 1', layout: { rows: 1, cols: 1, seriesOrder: [] } },
-  { label: '1 × 2', layout: { rows: 1, cols: 2, seriesOrder: [] } },
-  { label: '2 × 2', layout: { rows: 2, cols: 2, seriesOrder: [] } },
-  { label: '2 × 3', layout: { rows: 2, cols: 3, seriesOrder: [] } },
-]
 
 function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?: (string | undefined)[] }) {
   const items = cells ?? Array.from({ length: rows * cols }, () => undefined)
@@ -30,10 +28,10 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
         display: 'grid',
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
         gap: 6,
-        border: '1px solid #d9d9d9',
+        border: '1px solid var(--border-color)',
         borderRadius: 8,
         padding: 8,
-        background: '#fafafa',
+        background: 'var(--bg-card)',
         minWidth: 260,
       }}
     >
@@ -41,8 +39,8 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
         <div
           key={i}
           style={{
-            border: `1px dashed ${label ? '#2563eb' : '#d9d9d9'}`,
-            background: label ? '#e6f4ff' : '#fff',
+            border: `1px dashed ${label ? '#2563eb' : 'var(--border-color)'}`,
+            background: label ? 'var(--color-info-bg)' : 'var(--bg-card)',
             borderRadius: 6,
             height: 44,
             display: 'flex',
@@ -63,9 +61,8 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
   )
 }
 
-const layoutKey = (l: HangingLayout) => `${l.rows}x${l.cols}`
-
 const HangingProtocolPage: React.FC = () => {
+  const navigate = useNavigate()
   const [protocols, setProtocols] = useState<HangingProtocol[]>([])
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
@@ -76,6 +73,8 @@ const HangingProtocolPage: React.FC = () => {
   const [form] = Form.useForm()
   const [matchForm] = Form.useForm()
   const { pageData: protocolPageData, pagination: protocolPagination } = usePagination(protocols, 10)
+  // [G005 Wave 4B] 阅片侧自动匹配示例 (CT 胸部)
+  const ctChestTop = useMemo(() => matchHangingProtocols('CT', 'CHEST')[0], [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -218,7 +217,7 @@ const HangingProtocolPage: React.FC = () => {
         <Space>
           <Button size="small" onClick={() => openEdit(r)}>编辑</Button>
           <Popconfirm title="确认删除该协议?" onConfirm={() => handleDelete(r.id)}>
-            <Button size="small" danger>删除</Button>
+            <Button size="small" danger icon={<Trash2 size={12} />}>删除</Button>
           </Popconfirm>
         </Space>
       ),
@@ -226,17 +225,42 @@ const HangingProtocolPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} align="center">
         <LayoutGrid size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>自动布局协议管理</Title>
         <Tag color="geekblue">对标 GE / Siemens / Fujifilm</Tag>
       </Space>
 
+      {/* [G005 Wave 4B] 应用到阅片入口说明 */}
+      <Alert
+        style={{ marginBottom: 16 }}
+        type="info"
+        showIcon
+        icon={<MonitorPlay size={14} />}
+        message="应用到阅片"
+        description={
+          <Space direction="vertical" size={4}>
+            <span>
+              阅片工作流已接入本页协议规则: DICOM 专业版查看器 (/dicom-viewer) 提供「挂片协议」下拉 (按当前检查模态/部位自动匹配高亮) 与「自动挂片」按钮, 应用后按协议布局 (1×1/1×2/2×1/2×2) 分屏并分配序列。
+            </span>
+            <span>
+              内置预设有 {HANGING_PROTOCOL_PRESETS.length} 套 (布局模板: {LAYOUT_PRESETS.map((p) => `${p.layout.rows}×${p.layout.cols}`).join(' / ')}), 与后端协议共同参与匹配 (优先级高的优先)。
+            </span>
+            {ctChestTop && (
+              <span>自动匹配示例 (CT + 胸部): <Tag color="blue">{ctChestTop.name}</Tag> {ctChestTop.layout.rows}×{ctChestTop.layout.cols} {ctChestTop.layout.seriesOrder.join(' / ')}</span>
+            )}
+            <Button size="small" type="primary" icon={<MonitorPlay size={12} />} onClick={() => navigate('/dicom-viewer')}>
+              打开专业版查看器
+            </Button>
+          </Space>
+        }
+      />
+
       <Card
         size="small"
         style={{ marginBottom: 16 }}
-        title={<Space><RefreshCw size={14} />协议列表</Space>}
+        title={<Space><RefreshCw size={14} />协议列表 ({protocols.length})</Space>}
         extra={
           <Space>
             <Button icon={<Search size={14} />} onClick={() => setMatchModalOpen(true)}>匹配测试</Button>

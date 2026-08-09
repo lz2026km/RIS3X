@@ -125,7 +125,7 @@ export const ReviewCheckPage: React.FC = () => {
         <Shield size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>初核 · 终核 · 复审</span>
         <Tag color="cyan">W1-B (v3.0.6.11-81) 真实状态机</Tag>
-        <Tag color="green">reports INITIAL/FINAL/CO_SIGN_REVIEW</Tag>
+        <Tag color="green">报告 初核/终核/双签</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -137,7 +137,7 @@ export const ReviewCheckPage: React.FC = () => {
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 初核 */}
-        <Tabs.TabPane tab={<span><FileSearch size={14} /> 初核 (INITIAL_REVIEW)</span>} key="initial">
+        <Tabs.TabPane tab={<span><FileSearch size={14} /> 初核</span>} key="initial">
           <Card
             title={`初核任务 (${filteredInitial.length})`}
             size="small"
@@ -160,7 +160,7 @@ export const ReviewCheckPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               size="small"
               dataSource={filteredInitial}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
@@ -181,13 +181,13 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Tabs.TabPane>
 
         {/* 终核 */}
-        <Tabs.TabPane tab={<span><FileCheck size={14} /> 终核 (FINAL_REVIEW)</span>} key="final">
+        <Tabs.TabPane tab={<span><FileCheck size={14} /> 终核</span>} key="final">
           <Card
             title={`终核任务 (${finalItems.length})`}
             size="small"
@@ -197,7 +197,7 @@ export const ReviewCheckPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               size="small"
               dataSource={finalItems}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
@@ -217,19 +217,19 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Tabs.TabPane>
 
         {/* 复审 */}
-        <Tabs.TabPane tab={<span><Shield size={14} /> 复审 (CO_SIGN_REVIEW)</span>} key="review">
+        <Tabs.TabPane tab={<span><Shield size={14} /> 复审</span>} key="review">
           <Card
             title="复审任务"
             size="small"
             extra={<Button icon={<RefreshCw size={12} />} onClick={loadReviews}>刷新</Button>}
           >
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               size="small"
               dataSource={reviews}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
@@ -249,7 +249,7 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Tabs.TabPane>

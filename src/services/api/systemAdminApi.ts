@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] 系统管理 API — users/roles 后端已实现 (system-admin.module, User 表派生只读);
+// configs 走 system-storage.controller (Wave1A 已实现)。MSW 标注已更新。
 export interface SystemUserDto {
   id: string
   name: string

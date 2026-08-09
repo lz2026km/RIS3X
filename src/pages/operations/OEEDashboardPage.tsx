@@ -1,11 +1,11 @@
 // [G005 W1-1] OEE 看板 - 接入后端 /oee/list|detail|trend|stats
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
-import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { ChartContainer } from '../../components/charts'
 import { oeeApi } from '../../services/api';
-import type { OeeDeviceMetric, OeePoint, OeeDeviceDetail, OeeStats } from '../../services/api';
+import { OeeDeviceDetail, OeeDeviceMetric, OeePoint, OeeStats } from '../../services/api'
+import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
+import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
 
@@ -14,7 +14,7 @@ const PIE_COLORS = ['#ff4d4f', '#faad14', '#2563eb', '#722ed1'];
 const trendIcon = (t: string) => {
   if (t === 'up') return <TrendingUp size={14} color={COLORS.green} />;
   if (t === 'down') return <TrendingDown size={14} color={COLORS.red} />;
-  return <Minus size={14} color="#999" />;
+  return <Minus size={14} color="var(--text-secondary)" />;
 };
 
 const oeeColor = (v: number) => (v < 60 ? COLORS.red : v < 85 ? COLORS.yellow : COLORS.green);
@@ -103,7 +103,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (loading && devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description="加载中..." />
       </div>
     );
@@ -111,7 +111,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
@@ -127,7 +127,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
@@ -136,15 +136,15 @@ export const OEEDashboardPage: React.FC = () => {
           </Space>
           <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新</Button>
         </Space>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 20, textAlign: 'center' }}>
-          <Empty description="暂无设备 OEE 数据" image={<Inbox size={48} color="#94a3b8" />} />
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
+          <Empty description="暂无设备 OEE 数据" image={<Inbox size={48} color="var(--text-secondary)" />} />
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <Gauge size={20} color={COLORS.blue} />
@@ -177,7 +177,7 @@ export const OEEDashboardPage: React.FC = () => {
         <Col span={16}>
           <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />OEE 趋势{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {trendData.length === 0 ? (
-              <Empty description="暂无趋势数据" style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description="暂无趋势数据" style={{ padding: 40 }} />
             ) : (
               <ChartContainer height={260}>
                 <LineChart data={trendData}>
@@ -197,7 +197,7 @@ export const OEEDashboardPage: React.FC = () => {
         <Col span={8}>
           <Card size="small" title={<Space><Activity size={14} color={COLORS.blue} />低 OEE 原因分析{selectedDevice ? ` - ${selectedDevice}` : ''}</Space>}>
             {causeData.length === 0 ? (
-              <Empty description="暂无原因数据" style={{ padding: 40 }} />
+              <Empty image={<BarChart3 size={56} style={{opacity:0.4}}/>} description="暂无原因数据" style={{ padding: 40 }} />
             ) : (
               <ChartContainer height={260}>
                 <PieChart>

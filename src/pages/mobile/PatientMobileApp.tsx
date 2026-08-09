@@ -40,7 +40,7 @@ export interface MobileNotification {
 
 // ===== Styles =====
 const s = {
-  wrapper: { maxWidth: 380, margin: '0 auto', background: '#f8fafc', minHeight: 700, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', fontFamily: '-apple-system, sans-serif' },
+  wrapper: { maxWidth: 380, margin: '0 auto', background: 'var(--bg-primary)', minHeight: 700, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #1e40af, #3b82f6)', color: '#fff', padding: '20px 16px 16px' },
   headerTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   userRow: { display: 'flex', alignItems: 'center', gap: 10 },
@@ -48,18 +48,18 @@ const s = {
   userName: { fontSize: 16, fontWeight: 700 },
   verifiedBadge: { fontSize: 12, background: '#059669', padding: '2px 6px', borderRadius: 8, color: '#fff' },
   content: { padding: 16 },
-  card: { background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' },
-  cardTitle: { fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid var(--border-color)' },
+  cardTitle: { fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 },
   badge: (status: string) => ({
     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-    background: status === 'ready' ? '#dcfce7' : '#fef9c3',
-    color: status === 'ready' ? '#166534' : '#854d0e',
+    background: status === 'ready' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+    color: status === 'ready' ? 'var(--color-success)' : 'var(--color-warning)',
   }),
   tab: (active: boolean) => ({
     flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer',
     color: active ? '#1e40af' : '#94a3b8', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent',
   }),
-  nav: { display: 'flex', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '6px 0' },
+  nav: { display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' },
   navItem: (active: boolean) => ({
     flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 12, color: active ? '#1e40af' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
   }),
@@ -308,7 +308,7 @@ export default function PatientMobileApp() {
           { icon: '🖼️', label: '影像查看', tab: 'reports' as const },
           { icon: '🔔', label: '消息中心', tab: 'notifications' as const },
         ].map(action => (
-          <div key={action.label} style={{ background: '#fff', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid #e2e8f0', cursor: 'pointer' }}
+          <div key={action.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
             onClick={() => setActiveTab(action.tab)}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{action.icon}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{action.label}</div>
@@ -344,7 +344,7 @@ export default function PatientMobileApp() {
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', marginTop: 4, flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{n.body}</div>
             </div>
           </div>
@@ -360,9 +360,9 @@ export default function PatientMobileApp() {
           <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: '#3b82f6', marginBottom: 12, padding: 0 }} onClick={() => setSelectedReport(null)}>
             ← 返回列表
           </button>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selectedReport.examType}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedReport.examType}</div>
           <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
-          <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8, fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 16 }}>
+          <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -401,7 +401,7 @@ export default function PatientMobileApp() {
           {mobileReports.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -420,7 +420,7 @@ export default function PatientMobileApp() {
       <div style={s.cardTitle}>消息中心</div>
       {mobileNotifications.map(n => (
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? '#e2e8f0' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{n.body}</div>
@@ -435,9 +435,9 @@ export default function PatientMobileApp() {
     <div>
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: '#dbeafe' }}>{mobileUser.avatar}</div>
+          <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: 'var(--color-info-bg)' }}>{mobileUser.avatar}</div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{mobileUser.name}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{mobileUser.name}</div>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{mobileUser.phone}</div>
           </div>
         </div>
@@ -462,7 +462,7 @@ export default function PatientMobileApp() {
         ].map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid #f1f5f9' : 'none', cursor: 'pointer' }}>
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontSize: 13, color: '#334155', flex: 1 }}>{item.label}</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}>{item.label}</span>
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}

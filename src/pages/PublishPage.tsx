@@ -75,12 +75,12 @@ export default function PublishPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', minHeight: '100vh', background: 'var(--bg-card)' }}>
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1e40af', margin: 0 }}>
           报告发布管理
         </h1>
-        <p style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
           已签发报告需录入质量分(≥ {MIN_QUALITY_SCORE})后逐条确认发布,防止误操作批量上发布队列。
         </p>
       </div>
@@ -89,7 +89,7 @@ export default function PublishPage() {
         <div
           role="alert"
           style={{
-            marginBottom: 12, padding: '8px 14px', background: '#fee2e2',
+            marginBottom: 12, padding: '8px 14px', background: 'var(--color-error-bg)',
             border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 6, fontSize: 13,
           }}
         >
@@ -97,14 +97,14 @@ export default function PublishPage() {
         </div>
       )}
 
-      {loading && <div style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>加载中...</div>}
+      {loading && <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>加载中...</div>}
 
       {!loading && reports.length === 0 && (
         <div
           data-testid="publish-empty"
           style={{
-            textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 14,
-            background: '#fff', borderRadius: 8, border: '1px dashed #cbd5e1',
+            textAlign: 'center', padding: 60, color: 'var(--text-secondary)', fontSize: 14,
+            background: 'var(--bg-card)', borderRadius: 8, border: '1px dashed var(--border-color)',
           }}
         >
           暂无待发布的已签发报告
@@ -121,17 +121,17 @@ export default function PublishPage() {
             data-testid={`publish-row-${r.id}`}
             style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '16px 20px', marginBottom: 12, background: '#fff', borderRadius: 8,
+              padding: '16px 20px', marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8,
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)', gap: 16,
             }}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, color: '#1e293b' }}>{r.patientName}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
                 {r.modality} · {r.bodyPart} · {r.reportId}
               </div>
             </div>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#475569' }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
               质量分(≥ {MIN_QUALITY_SCORE})
               <input
                 type="number"
@@ -141,8 +141,8 @@ export default function PublishPage() {
                 data-testid={`publish-score-${r.id}`}
                 onChange={(e) => setQualityScores((prev) => ({ ...prev, [r.id]: e.target.value }))}
                 style={{
-                  width: 96, padding: '6px 8px', border: '1px solid #cbd5e1',
-                  borderRadius: 4, fontSize: 13, color: '#0f172a',
+                  width: 96, padding: '6px 8px', border: '1px solid var(--border-color)',
+                  borderRadius: 4, fontSize: 13, color: 'var(--text-primary)',
                 }}
                 placeholder="0-100"
               />
@@ -174,9 +174,9 @@ export default function PublishPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
           }}
         >
-          <div style={{ background: '#fff', borderRadius: 8, padding: 24, width: 420, maxWidth: '90%' }}>
-            <h2 style={{ margin: 0, fontSize: 16, color: '#1e293b' }}>确认发布报告</h2>
-            <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginTop: 12 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 420, maxWidth: '90%' }}>
+            <h2 style={{ margin: 0, fontSize: 16, color: 'var(--text-primary)' }}>确认发布报告</h2>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12 }}>
               报告号 <strong>{confirming.report.reportId}</strong> · 患者 <strong>{confirming.report.patientName}</strong>
               <br />
               质量分 <strong>{confirming.score}</strong> 已通过阈值校验,确认发布到队列?
@@ -185,7 +185,7 @@ export default function PublishPage() {
               <button
                 onClick={() => setConfirming(null)}
                 style={{
-                  padding: '6px 14px', background: '#e2e8f0', color: '#1e293b',
+                  padding: '6px 14px', background: '#e2e8f0', color: 'var(--text-primary)',
                   border: 'none', borderRadius: 4, fontSize: 13, cursor: 'pointer',
                 }}
               >

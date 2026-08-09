@@ -4,12 +4,13 @@
  * - 每模块 JSON 编辑 + 保存 (PUT /system/clinical-config/:module)
  * - 保留摘要 (summary) 只读展示
  */
-import React, { useEffect, useMemo, useState } from "react";
-import { Card, Tabs, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert, Button, Input, Spin, message } from 'antd';
-import { Sliders, Database, Save, RotateCcw, CloudDownload } from "lucide-react";
+import { PageContainer, PageHeader } from "@/components/common";
 import { listModules, getConfig, getBootError, type ModuleKey } from "@/config/clinicalConfig/bootstrap";
 import { clinicalConfigApi } from "@/services/api/systemApi";
-import { PageContainer, PageHeader } from "@/components/common";
+import { Card, Tabs, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert, Button, Input, Spin, message } from 'antd';
+import { Sliders, Database, Save, RotateCcw, CloudDownload } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Inbox } from 'lucide-react'
 
 const { Text } = Typography;
 
@@ -196,19 +197,19 @@ const ClinicalConfigCenter: React.FC = () => {
 
             {serverConfig === undefined ? (
               <Spin tip="正在从后端加载配置…" style={{ display: "block", padding: 24 }}>
-                <Empty description="加载中" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="加载中" />
               </Spin>
             ) : (
               <>
                 {data === null ? (
-                  <Empty description="此模块暂未加载,请等待启动加载完成" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="此模块暂未加载,请等待启动加载完成" />
                 ) : sample !== null && sample !== undefined ? (
                   <Card size="small" title="摘要 (示例)">
                     <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                       {JSON.stringify(sample, null, 2)}
                     </pre>
                   </Card>
-                ) : <Empty description="无数据" />}
+                ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无数据" />}
 
                 <Card
                   size="small"

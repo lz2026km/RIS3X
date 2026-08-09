@@ -1,6 +1,5 @@
 // [v3.0.6.8-44] PR 11: 视光中心闭环 (OK ?角膜塑形?离焦?复查)
 // 对标: 视光中心 (近视防控闭环)
-import React, { useState, useEffect } from "react";
 import {
   Card,
   Space,
@@ -30,6 +29,8 @@ import {
   GraduationCap,
   Heart,
 } from "lucide-react";
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from "react";
 
 export const OptometryClosedLoopPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("screening");
@@ -181,7 +182,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -265,7 +266,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: 12,
-                          color: "#666",
+                          color: "var(--text-secondary)",
                           marginBottom: 8,
                           fontWeight: 600,
                         }}
@@ -354,7 +355,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                           <div
                             style={{
                               fontSize: 12,
-                              color: "#666",
+                              color: "var(--text-secondary)",
                               marginBottom: 4,
                             }}
                           >
@@ -378,7 +379,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         </Col>
                       </Row>
                     ) : (
-                      <Empty description="点击开始筛查" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击开始筛查" />
                     )}
                   </Card>
                 </Col>
@@ -424,7 +425,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         />
                       </Col>
                       <Col span={8}>
-                        <div style={{ fontSize: 12, color: "#666" }}>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                           干预效果
                         </div>
                         <div
@@ -469,7 +470,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     </Row>
                   </>
                 ) : (
-                  <Empty description="点击刷新数据" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击刷新数据" />
                 )}
               </Card>
             ),
@@ -551,7 +552,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         <div>成本: ¥{orthoOrder.cost.total}</div>
                         <div>预计到货: {orthoOrder.estimatedDelivery}</div>
                         <Divider style={{ margin: "4px 0" }} />
-                        <div style={{ fontSize: 12, color: "#666" }}>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                           随访计划: {orthoOrder.followupSchedule.join(" / ")}
                         </div>
                       </Card>

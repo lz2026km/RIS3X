@@ -204,12 +204,12 @@ export const Scan3DViewerPage: React.FC = () => {
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <div style={{ width: 260, background: '#0f172a', padding: 12, overflow: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600 }}>扫描记录</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>扫描记录</span>
             <Button size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
           </div>
           {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 8, fontSize: 12 }} />}
           <Spin spinning={listLoading}>
-            {scans.length === 0 && !listLoading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span style={{ color: '#64748b' }}>暂无扫描记录</span>} />}
+            {scans.length === 0 && !listLoading && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<span style={{ color: 'var(--text-secondary)' }}>暂无扫描记录</span>} />}
             {scans.map(s => (
               <div
                 key={s.id}
@@ -227,10 +227,10 @@ export const Scan3DViewerPage: React.FC = () => {
                   <b style={{ color: '#e2e8f0', fontSize: 13 }}>{s.patientName}</b>
                   <Badge status={s.status === 'archived' ? 'default' : 'processing'} />
                 </div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                   {s.id} · {s.scanType ?? s.modality}
                 </div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                   {s.acquisitionDate ? s.acquisitionDate.slice(0, 10) : '-'} · {s.deviceModel ?? ''}
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const Scan3DViewerPage: React.FC = () => {
         <div style={{ flex: 1, position: 'relative' }}>
           <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
           {loading && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#888' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: 'var(--text-secondary)' }}>
               <div style={{ textAlign: 'center' }}>
                 <Spin size="large" />
                 <div style={{ marginTop: 16 }}>3D 模型加载中...</div>
@@ -248,7 +248,7 @@ export const Scan3DViewerPage: React.FC = () => {
             </div>
           )}
           {!study && !loading && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#64748b' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: 'var(--text-secondary)' }}>
               请在左侧选择扫描记录
             </div>
           )}

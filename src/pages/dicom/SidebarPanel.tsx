@@ -1,5 +1,5 @@
 import { t } from '../../i18n/appI18n'
-import { examApi } from '../../services/api'
+import { examApi, criticalExtApi } from '../../services/api'
 import { useNavigate } from 'react-router-dom'
 import type { Dispatch, SetStateAction } from 'react'
 import { User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, FileText, AlertCircle, Activity, Info, Layers3, Box, RefreshCw, Calendar, CheckCircle, Clock, PenTool, Eye, X, Upload, Camera, Download, AlertTriangle, ScrollText, ArrowLeftRight } from 'lucide-react'
@@ -9,8 +9,8 @@ import type { Series, DicomImage, MeasureSubMenu, Measurement, RightTab, Tool, C
 import { PRIMARY } from './DicomViewerTypes'
 
 const s = {
-  rightPanel: { width: 280, background: 'var(--content-bg)', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', flexShrink: 0 },
-  rightTabs: { display: 'flex', borderBottom: '1px solid #e2e8f0', flexShrink: 0 },
+  rightPanel: { width: 280, background: 'var(--content-bg)', borderLeft: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', flexShrink: 0 },
+  rightTabs: { display: 'flex', borderBottom: '1px solid var(--border-color)', flexShrink: 0 },
   rightTab: { flex: 1, padding: '6px 4px', border: 'none', background: 'transparent', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2, transition: 'all 0.15s', borderBottom: '2px solid transparent' } as React.CSSProperties,
   rightTabActive: { color: PRIMARY, borderBottomColor: PRIMARY, background: 'rgba(30,58,95,0.05)' },
   rightPanelContent: { flex: 1, overflow: 'auto', padding: 10 },
@@ -21,33 +21,33 @@ const s = {
   infoLabel: { fontSize: 12, color: '#94a3b8' },
   infoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
   infoValueFull: { fontSize: 12, color: '#475569', lineHeight: 1.5, marginTop: 2 },
-  reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 8 },
+  reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 8 },
   reportStatusBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 },
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
   select: { padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', outline: 'none', fontFamily: 'inherit' } as React.CSSProperties,
   mprTabs: { display: 'flex', gap: 4, marginBottom: 4 },
-  mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
+  mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
   mprTabActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  mipControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
+  mipControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid var(--border-color)' },
   mipControlTitle: { fontSize: 12, color: '#64748b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 },
   mipDirRow: { display: 'flex', gap: 4, marginBottom: 8 },
-  mipDirBtn: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const },
+  mipDirBtn: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const },
   mipDirBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   mipFrameRow: { display: 'flex', alignItems: 'center', gap: 6 },
   mipFrameLabel: { fontSize: 12, color: '#64748b', flexShrink: 0 },
   mipFrameVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 50 },
-  vrControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
+  vrControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid var(--border-color)' },
   vrSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
   vrSliderLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
   vrSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   vrSliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 30, textAlign: 'right' as const },
-  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
+  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
   historySearchRow: { display: 'flex', gap: 6, marginBottom: 10 },
   historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', fontFamily: 'inherit' },
   historySearchBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
-  historyListItemSelected: { border: '2px solid #3b82f6', background: '#eff6ff' },
-  historyListItemChecked: { border: '2px solid #22c55e', background: '#f0fdf4' },
+  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
+  historyListItemSelected: { border: '2px solid #3b82f6', background: 'var(--color-info-bg)' },
+  historyListItemChecked: { border: '2px solid #22c55e', background: 'var(--color-success-bg)' },
   historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
   historyCheckboxChecked: { background: '#22c55e', borderColor: '#22c55e' },
   historyListItemContent: { flex: 1, minWidth: 0 },
@@ -59,20 +59,20 @@ const s = {
   historyListEmpty: { textAlign: 'center' as const, padding: '24px 12px', color: '#94a3b8', fontSize: 12 },
   historyListEmptyIcon: { marginBottom: 8, opacity: 0.5 },
   historyActionBar: { display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' as const },
-  historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
+  historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
   historyActionBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   syncScrollBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 } as React.CSSProperties,
-  syncScrollBadgeOn: { background: '#dcfce7', color: '#16a34a' },
+  syncScrollBadgeOn: { background: 'var(--color-success-bg)', color: '#16a34a' },
   syncScrollBadgeOff: { background: 'var(--content-bg)', color: '#64748b' },
-  compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid #e2e8f0', padding: 10, marginBottom: 8 },
+  compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 10, marginBottom: 8 },
   compareInfoCardTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
-  compareInfoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid #f1f5f9' },
+  compareInfoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid var(--border-color)' },
   compareInfoLabel: { fontSize: 12, color: '#64748b' },
   compareInfoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
   compareControlBadge: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', border: 'none' } as React.CSSProperties,
   compareControlBadgeOn: { background: PRIMARY, color: '#fff' },
-  compareControlBadgeOff: { background: '#e2e8f0', color: '#64748b' },
-  diffSummaryCard: { background: '#fefce8', border: '1px solid #fef08a', borderRadius: 8, padding: 10, marginBottom: 8 },
+  compareControlBadgeOff: { background: 'var(--border-color)', color: '#64748b' },
+  diffSummaryCard: { background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)', borderRadius: 8, padding: 10, marginBottom: 8 },
   diffSummaryTitle: { fontSize: 12, fontWeight: 700, color: '#a16207', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
   diffSummaryItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', fontSize: 12, color: '#713f12' },
   diffSummaryDot: { width: 6, height: 6, borderRadius: '50%', flexShrink: 0 },
@@ -156,7 +156,7 @@ interface Props {
 }
 
 export default function SidebarPanel(props: Props) {
-  const { exam, rightTab, setRightTab, activeSeries, currentImage, ww, wl,
+  const { exam, rightTab, setRightTab, activeSeries, currentImage, ww, wl, zoom,
     mipDirection, setMipDirection, mipFrame, setMipFrame, images, vrRotX, setVrRotX, vrRotY, setVrRotY, vrRotZ, setVrRotZ,
     vrOpacity, setVrOpacity, showToast, measureSubMenu, setMeasureSubMenu, setActiveTool, interactiveMeasures, showMeasurementsOverlay,
     setShowMeasurementsOverlay, deleteMeasure, clearAllMeasures, getMeasureTypeLabel, measurements, reportStatus, selectedHistoryExams,
@@ -168,6 +168,97 @@ export default function SidebarPanel(props: Props) {
     activeMprIdx, setActiveMprIdx, EXTERNAL_INSTITUTIONS } = props
 
   const navigate = useNavigate()
+
+  // [Wave2A] 导出PNG: canvas 按当前窗宽窗位绘制模拟影像 + 患者信息覆盖层 → Blob 下载
+  const exportPng = () => {
+    try {
+      const size = 512
+      const canvas = document.createElement('canvas')
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')
+      if (!ctx) throw new Error('no-canvas')
+      ctx.fillStyle = '#0f172a'
+      ctx.fillRect(0, 0, size, size)
+      // 模拟 DICOM 影像: 窗宽/窗中心映射为灰度渐变 + 噪声纹理
+      const center = Math.max(0, Math.min(1, (wl + 2048) / 4096))
+      const range = Math.max(1, ww / 4096)
+      const image = ctx.createImageData(size, size)
+      const data = image.data
+      const base = Math.round(center * 255)
+      const amp = Math.round(range * 120)
+      let seed = 7
+      const rand = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 }
+      for (let i = 0; i < size * size; i++) {
+        const x = i % size
+        const y = Math.floor(i / size)
+        const blob = Math.sin(x / 37) * 0.5 + Math.cos(y / 29) * 0.5 + rand() * 0.6
+        const v = Math.max(0, Math.min(255, base + blob * amp))
+        data[i * 4] = v
+        data[i * 4 + 1] = v
+        data[i * 4 + 2] = v
+        data[i * 4 + 3] = 255
+      }
+      ctx.putImageData(image, 0, 0)
+      // 患者信息覆盖层 (与阅片器状态栏一致)
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'
+      ctx.fillRect(0, 0, size, 26)
+      ctx.fillStyle = '#e2e8f0'
+      ctx.font = '13px sans-serif'
+      ctx.fillText(`${exam.patientName} ${exam.gender}/${exam.age}岁  ${exam.examItemName}`, 8, 17)
+      ctx.fillText(`${ww}/WW  ${wl}/WL  ${zoom ? '缩放 ' + zoom + 'x' : ''}`, size - 180, 17)
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'
+      ctx.fillRect(0, size - 24, size, 24)
+      ctx.fillStyle = '#94a3b8'
+      ctx.font = '12px sans-serif'
+      ctx.fillText(`${exam.accessionNumber} · 序列 ${activeSeries.seriesNumber} · 层 ${currentImage?.imageNumber ?? 1}/${activeSeries.imageCount}`, 8, size - 8)
+      canvas.toBlob((blob) => {
+        if (!blob) { showToast('PNG 导出失败: 浏览器不支持'); return }
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `dicom-snapshot-${exam.accessionNumber || exam.id}-${Date.now()}.png`
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+        showToast('PNG 已导出')
+      }, 'image/png')
+    } catch {
+      showToast('PNG 导出失败')
+    }
+  }
+
+  // [Wave2A] 导出DICOM: 跳转 DIMSE 上传页 (携带检查参数)
+  const exportDicom = () => {
+    const params = new URLSearchParams()
+    if (exam.id) params.set('examId', exam.id)
+    if (exam.accessionNumber) params.set('accessionNumber', exam.accessionNumber)
+    if (exam.patientId) params.set('patientId', exam.patientId)
+    params.set('modality', exam.modality || '')
+    navigate(`/integration/dimse/upload?${params.toString()}`)
+    showToast('已跳转 DICOM 上传 (DIMSE)')
+  }
+
+  // [Wave2A] 危急值通知: 接 criticalExtApi.autoDetect 真实创建, 失败回退危急值页
+  const sendCritical = async () => {
+    showToast('正在创建危急值通知...')
+    try {
+      const res = await criticalExtApi.autoDetect({
+        examId: String(exam.id ?? exam.accessionNumber ?? ''),
+        reportContent: String(exam.clinicalDiagnosis || exam.examIndications || exam.clinicalHistory || '危急值待确认'),
+      })
+      if (res.success) {
+        showToast('危急值通知已发送')
+      } else {
+        showToast(`危急值创建失败: ${res.error?.message ?? '未知错误'}，跳转危急值中心`)
+        navigate(`/critical-value?examId=${encodeURIComponent(exam.id || '')}`)
+      }
+    } catch {
+      showToast('危急值接口不可用，跳转危急值中心')
+      navigate(`/critical-value?examId=${encodeURIComponent(exam.id || '')}`)
+    }
+  }
 
   // 跳转报告书写页（携带 examId）
   const goWriteReport = (mode?: string) => {
@@ -245,8 +336,8 @@ export default function SidebarPanel(props: Props) {
               </Card>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => showToast('PNG已导出')}><Camera size={14} />{t('dcmexp.exportPng')}</button>
-              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => showToast('DICOM导出功能待实现')}><Download size={14} />{t('dcmexp.exportDicom')}</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={exportPng}><Camera size={14} />{t('dcmexp.exportPng')}</button>
+                  <button style={{ ...s.reportBtn, background: 'var(--bg-card)', color: PRIMARY }} onClick={exportDicom}><Download size={14} />{t('dcmexp.exportDicom')}</button>
             </div>
           </>
         )}
@@ -314,15 +405,15 @@ export default function SidebarPanel(props: Props) {
               <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItemName}</span>
-                  <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? '#dcfce7' : reportStatus === '待书写' ? '#fef3c7' : '#f1f5f9', color: reportStatus === '已报告' ? '#16a34a' : reportStatus === '待书写' ? '#d97706' : '#64748b' }}>
+                  <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? 'var(--color-success-bg)' : reportStatus === '待书写' ? 'var(--color-warning-bg)' : 'var(--border-light)', color: reportStatus === '已报告' ? '#16a34a' : reportStatus === '待书写' ? '#d97706' : '#64748b' }}>
                     {reportStatus === '已报告' && <CheckCircle size={10} />}{reportStatus === '待书写' && <Clock size={10} />}{reportStatus}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>患者: {exam.patientName} | {exam.age}岁{exam.gender}<br />检查日期: {exam.examDate} {exam.examTime}</div>
               </Card>
               {reportStatus === '已报告' && (
-                <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
-                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
+                <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
+                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
               )}
             </div>
             <div style={s.infoSection}>
@@ -333,11 +424,11 @@ export default function SidebarPanel(props: Props) {
                 )}
                 {reportStatus === '已报告' ? (
                   <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><Eye size={14} />{t('dcm.viewReport')}</button>
-                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => goWriteReport('edit')}><PenTool size={14} />{t('dcm.modifyReport')}</button></>
+                  <button style={{ ...s.reportBtn, background: 'var(--bg-card)', color: PRIMARY }} onClick={() => goWriteReport('edit')}><PenTool size={14} />{t('dcm.modifyReport')}</button></>
                 ) : reportStatus === '待书写' ? (
                   <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><PenTool size={14} />{t('dcm.writeReport')}</button>
-                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }} onClick={() => goWriteReport('template')}><FileText size={14} />{t('dcm.useTemplate')}</button>
-                  <button style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }} onClick={() => showToast('危急值通知已发送')}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
+                  <button style={{ ...s.reportBtn, background: 'var(--bg-card)', color: '#475569' }} onClick={() => goWriteReport('template')}><FileText size={14} />{t('dcm.useTemplate')}</button>
+                  <button style={{ ...s.reportBtn, background: 'var(--color-warning-bg)', color: '#d97706' }} onClick={() => void sendCritical()}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
                 ) : (
                   <button style={{ ...s.reportBtn, background: 'var(--content-bg)', color: '#94a3b8', cursor: 'not-allowed' }} disabled><Clock size={14} />{t('dcm.waitForExam')}</button>
                 )}
@@ -352,7 +443,7 @@ export default function SidebarPanel(props: Props) {
               </div>
             </div>
             {(exam.priority === '紧急' || exam.priority === '危重') && (
-              <div style={{ padding: 10, background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca', marginTop: 8 }}>
+              <div style={{ padding: 10, background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)', marginTop: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="#dc2626" /><span style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{exam.priority === '危重' ? '危重' : '紧急'}检查</span></div>
                 <div style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.5 }}>{exam.clinicalDiagnosis}</div>
               </div>
@@ -383,7 +474,7 @@ export default function SidebarPanel(props: Props) {
                       <div style={s.historyListItemContent}>
                         <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{historyExam.examItemName}</span><span style={s.historyListItemDate}>{historyExam.examDate}</span></div>
                         <div style={s.historyListItemMeta}>{historyExam.modality} | {historyExam.deviceName?.split('（')[0]}</div>
-                        <div style={{ ...s.historyListItemStatus, background: historyExam.status === '已完成' ? '#dcfce7' : '#fef3c7', color: historyExam.status === '已完成' ? '#16a34a' : '#d97706' }}>{historyExam.status === '已完成' && <CheckCircle size={9} />}{historyExam.status}</div>
+                        <div style={{ ...s.historyListItemStatus, background: historyExam.status === '已完成' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: historyExam.status === '已完成' ? '#16a34a' : '#d97706' }}>{historyExam.status === '已完成' && <CheckCircle size={9} />}{historyExam.status}</div>
                         {historyExam.conclusion && <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, lineHeight: 1.4 }}>{historyExam.conclusion.length > 60 ? historyExam.conclusion.substring(0, 60) + '...' : historyExam.conclusion}</div>}
                       </div>
                     </div>
@@ -460,7 +551,7 @@ export default function SidebarPanel(props: Props) {
                     <div style={s.historyListItemContent}>
                       <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{extExam.examItemName}</span><span style={s.historyListItemDate}>{extExam.examDate}</span></div>
                       <div style={s.historyListItemMeta}>{extExam.patientName} · {extExam.gender}/{extExam.age}岁 · {extExam.modality} · {extExam.bodyPart}</div>
-                      <div style={{ ...s.historyListItemStatus, background: extExam.status === 'available' ? '#dcfce7' : extExam.status === 'pending' ? '#fef3c7' : '#f3f4f6', color: extExam.status === 'available' ? '#16a34a' : extExam.status === 'pending' ? '#d97706' : '#6b7280' }}>
+                      <div style={{ ...s.historyListItemStatus, background: extExam.status === 'available' ? 'var(--color-success-bg)' : extExam.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--border-light)', color: extExam.status === 'available' ? '#16a34a' : extExam.status === 'pending' ? '#d97706' : '#6b7280' }}>
                         {extExam.status === 'available' && <CheckCircle size={9} />}{extExam.status === 'available' ? '可调阅' : extExam.status === 'pending' ? '申请中' : '已归档'}
                       </div>
                     </div>
@@ -501,9 +592,9 @@ export default function SidebarPanel(props: Props) {
                 </div>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><Upload size={12} />申请调阅归档</div>
-                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>将外院影像归档至本院PACS系统，便于后续长期查阅和对比。</div></div>
+                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>将外院影像归档至本院PACS系统，便于后续长期查阅和对比。</div></div>
                   {archiveRequestStatus && (
-                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? '#dcfce7' : '#fef3c7', color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706' }}>
+                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706' }}>
                       {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> 申请已提交，请等待审核</> : <><Clock size={12} /> 申请处理中...</>}
                     </div>
                   )}

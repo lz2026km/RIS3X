@@ -97,6 +97,54 @@ export default function OperationLogPage() {
     })
   }, [allLogs, searchText, actionFilter, moduleFilter, userFilter, sourceFilter, dateFrom, dateTo, quickTimeFilter])
 
+  // [Wave2A] 真实 CSV 导出 (当前筛选数据 Blob 下载)
+  const exportLogsCsv = useCallback(() => {
+    const header = ['操作ID', '用户', '部门', '动作', '模块', '目标', '目标ID', '患者ID', '报告ID', 'IP', '时间', '合规等级']
+    const rows = filteredLogs.map((log) => [
+      log.id, log.userName, log.department ?? '', log.action, log.module,
+      log.targetDesc, log.targetId, log.patientId ?? '', log.reportId ?? '',
+      log.ipAddress, log.timestamp, log.complianceLevel ?? '',
+    ])
+    const csv = [header, ...rows]
+      .map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+      .join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `操作日志-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    showToast(`CSV已导出 (${rows.length} 条)`)
+  }, [filteredLogs])
+
+  // [Wave2A] PDF 导出: 无 PDF 依赖库 → 简化文本版报告 (标注)
+  const exportLogsPdf = useCallback(() => {
+    const lines: string[] = []
+    lines.push(`=== 放射科操作日志合规报告 (简化文本版) ===`)
+    lines.push(`生成时间: ${new Date().toLocaleString('zh-CN')}`)
+    lines.push(`筛选范围: ${actionFilter === '全部' ? '全部' : '动作 ' + actionFilter} / ${moduleFilter === '全部' ? '全部模块' : '模块 ' + moduleFilter}`)
+    lines.push(`记录数: ${filteredLogs.length}`)
+    lines.push('')
+    filteredLogs.slice(0, 200).forEach((log) => {
+      lines.push(`[${log.timestamp}] ${log.userName} (${log.department ?? '无部门'}) · ${log.action} · ${log.module} · ${log.targetDesc} · ${log.ipAddress}`)
+    })
+    lines.push('')
+    lines.push('注: 本报告为纯文本简化版, 正式 PDF 版需接入报告引擎后生成。')
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `操作日志合规报告-${new Date().toISOString().slice(0, 10)}.txt`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    showToast(`PDF已导出 (简化文本版, ${filteredLogs.length} 条)`)
+  }, [filteredLogs, actionFilter, moduleFilter])
+
   const hipaaFilteredLogs = useMemo(() => {
     return allLogs.filter(log => {
       if (!HIPAA_ACTION_TYPES.includes(log.action) && log.action !== '全部') {
@@ -315,7 +363,7 @@ export default function OperationLogPage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部导航 */}
       <div style={{
-        background: WHITE, borderBottom: '1px solid #e2e8f0', padding: '14px 24px',
+        background: WHITE, borderBottom: '1px solid var(--border-color)', padding: '14px 24px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -331,7 +379,7 @@ export default function OperationLogPage() {
             disabled={isExporting}
             style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? '#cbd5e1' : SUCCESS}`,
-              background: isExporting ? '#f1f5f9' : `${SUCCESS}10`, color: isExporting ? '#94a3b8' : SUCCESS,
+              background: isExporting ? 'var(--bg-card)' : `${SUCCESS}10`, color: isExporting ? '#94a3b8' : SUCCESS,
               fontSize: 12, fontWeight: 600, cursor: isExporting ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
             }}
@@ -371,7 +419,7 @@ export default function OperationLogPage() {
 
         {/* 快捷时间筛选 + Tab切换 */}
         <div style={{
-          background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0',
+          background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)',
           marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -445,7 +493,7 @@ export default function OperationLogPage() {
             {viewTab === 'logs' && <StatisticsCharts logs={filteredLogs} />}
             {viewTab === 'duration' && <DurationAnalysisView logs={filteredLogs} />}
             {viewTab === 'heatmap' && (
-              <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Activity size={16} />用户活跃时段热力图
                 </div>
@@ -475,7 +523,7 @@ export default function OperationLogPage() {
                 {/* HIPAA分页 */}
                 <div style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 16px', background: WHITE, borderTop: '1px solid #e2e8f0',
+                  padding: '12px 16px', background: WHITE, borderTop: '1px solid var(--border-color)',
                   marginTop: -1,
                 }}>
                   <div style={{ fontSize: 12, color: GRAY }}>
@@ -487,15 +535,15 @@ export default function OperationLogPage() {
                       <select
                         value={hipaaPageSize}
                         onChange={e => { setHipaaPageSize(Number(e.target.value)); setHipaaCurrentPage(1) }}
-                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12 }}
+                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12 }}
                       >
                         {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                       <span style={{ fontSize: 12, color: GRAY }}>条</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: hipaaCurrentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
                     </div>
                     <span style={{ fontSize: 12, color: GRAY }}>第 {hipaaCurrentPage} / {hipaaTotalPages} 页</span>
                   </div>
@@ -520,21 +568,21 @@ export default function OperationLogPage() {
             />
           ) : (
             <div style={{
-              background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+              background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}>
               <div style={{ padding: 20 }}>
                 <TimelineView logs={paginatedLogs} onViewDetail={setSelectedLog} />
                 <div style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 0', borderTop: '1px solid #e2e8f0', marginTop: 16,
+                  padding: '12px 0', borderTop: '1px solid var(--border-color)', marginTop: 16,
                 }}>
                   <div style={{ fontSize: 12, color: GRAY }}>
                     显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
                   </div>
                 </div>
               </div>
@@ -563,13 +611,13 @@ export default function OperationLogPage() {
 
       {/* 实时日志流 */}
       {liveTab === 'stream' && (
-        <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', margin: '0 20px 16px', overflow: 'hidden' }}>
+        <div style={{ background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', margin: '0 20px 16px', overflow: 'hidden' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', color: WHITE }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Radio size={16} color="#22c55e" />
               <span style={{ fontWeight: 600, fontSize: 13 }}>实时日志流</span>
               <span style={{ background: '#22c55e', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>5s轮询</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>5s轮询</span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#334155', color: WHITE, fontSize: 12, outline: 'none' }}>
@@ -585,11 +633,11 @@ export default function OperationLogPage() {
               const levelColor = log.action.includes('删除') || log.action.includes('驳回') ? '#ef4444' : log.action.includes('导出') || log.action.includes('修改') ? '#f59e0b' : log.action.includes('登录') ? '#7c3aed' : '#3b82f6'
               return (
                 <div key={log.id} style={{ padding: '4px 12px', display: 'flex', gap: 12, borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                  <span style={{ color: '#64748b', minWidth: 80 }}>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                  <span style={{ color: 'var(--text-secondary)', minWidth: 80 }}>{new Date(log.timestamp).toLocaleTimeString()}</span>
                   <span style={{ color: levelColor, fontWeight: 600, minWidth: 70 }}>[{log.action}]</span>
                   <span style={{ color: '#22c55e', minWidth: 60 }}>{log.userName}</span>
-                  <span style={{ color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.targetDesc}</span>
-                  <span style={{ color: '#64748b', minWidth: 100 }}>{log.ipAddress}</span>
+                  <span style={{ color: 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.targetDesc}</span>
+                  <span style={{ color: 'var(--text-secondary)', minWidth: 100 }}>{log.ipAddress}</span>
                 </div>
               )
             })}
@@ -602,53 +650,53 @@ export default function OperationLogPage() {
         <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '异常事件数', value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#fee2e2' },
-              { label: '高危异常', value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: '#ede9fe' },
-              { label: '非工作时间', value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: '#fef3c7' },
-              { label: '批量导出/删除', value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: '#fed7aa' },
+              { label: '异常事件数', value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
+              { label: '高危异常', value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: '#8b5cf622' },
+              { label: '非工作时间', value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: '#f59e0b22' },
+              { label: '批量导出/删除', value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: '#f9731622' },
             ].map(card => (
-              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
                 <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <thead><tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
                 {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
               </tr></thead>
               <tbody>
                 {anomalyScores.filter(s => s.score >= 50).slice(0, 10).map((s, idx) => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{s.userName}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{s.action}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: s.score >= 70 ? '#fee2e2' : '#fef3c7', color: s.score >= 70 ? DANGER : WARNING }}>{s.score}</span>
+                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: s.score >= 70 ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.score >= 70 ? DANGER : WARNING }}>{s.score}</span>
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{s.reason}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{s.reason}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{new Date(s.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table></div>
             {anomalyScores.filter(s => s.score >= 70).length > 0 && (
-              <div style={{ marginTop: 12, padding: '10px 14px', background: '#fee2e2', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--color-error-bg)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} color={DANGER} />
                 <span style={{ fontSize: 12, color: '#991b1b' }}>检测到 {anomalyScores.filter(s => s.score >= 70).length} 例高危异常，建议立即审查</span>
               </div>
             )}
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常趋势</h3>
             <ResponsiveContainer width='100%' height={200}>
               <AreaChart data={anomalyTrend}>
-                <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                 <XAxis dataKey='month' tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Area type='monotone' dataKey='count' stroke={DANGER} fill='#fee2e2' strokeWidth={2} name='异常次数' />
+                <Area type='monotone' dataKey='count' stroke={DANGER} fill='#ef444422' strokeWidth={2} name='异常次数' />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -658,7 +706,7 @@ export default function OperationLogPage() {
       {/* 会话追踪 */}
       {liveTab === 'session' && (
         <div style={{ margin: '0 20px 16px', display: 'flex', gap: 16 }}>
-          <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16 }}>
+          <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>选择用户</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {sessionUsers.map(name => (
@@ -673,7 +721,7 @@ export default function OperationLogPage() {
               ))}
             </div>
           </div>
-          <div style={{ flex: 1, background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16 }}>
+          <div style={{ flex: 1, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
             {selectedSessionUser ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -687,15 +735,15 @@ export default function OperationLogPage() {
                     <div key={log.id} style={{ display: 'flex', gap: 12, paddingBottom: 12 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
                         <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 4, border: '2px solid #e2e8f0' }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 4, border: '2px solid var(--border-color)' }} />
                         {idx < sessionLogs.length - 1 && <div style={{ width: 2, height: '100%', background: '#e2e8f0' }} />}
                       </div>
-                      <div style={{ flex: 1, padding: '8px 12px', background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 4 }}>
+                      <div style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', marginBottom: 4 }}>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
                           <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${ACTION_COLORS[log.action] || ACCENT}20`, color: ACTION_COLORS[log.action] || ACCENT }}>{log.action}</span>
                           <span style={{ fontSize: 12, color: GRAY }}>{log.module}</span>
                         </div>
-                        <div style={{ fontSize: 12, color: '#334155' }}>{log.targetDesc}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{log.targetDesc}</div>
                         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
                           <Globe size={10} style={{ verticalAlign: 'middle' }} /> {log.ipAddress}
                           {log.department && <> · {log.department}</>}
@@ -718,7 +766,7 @@ export default function OperationLogPage() {
       {/* 合规报告 */}
       {liveTab === 'complianceReports' && (
         <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <FileBarChart size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>合规报告模板</span>
@@ -739,16 +787,16 @@ export default function OperationLogPage() {
               {generatingReport ? <Loader2 size={14} /> : <FileText size={14} />}
               {generatingReport ? '生成中...' : '生成报告'}
             </button>
-            <button onClick={() => { showToast('CSV已导出') }} style={{
+            <button onClick={exportLogsCsv} style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid #059669`, background: `${SUCCESS}10`,
               color: SUCCESS, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
             }}><FileSpreadsheet size={14} />导出CSV</button>
-            <button onClick={() => { showToast('PDF已导出') }} style={{
+            <button onClick={exportLogsPdf} style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid #dc2626`, background: `${DANGER}10`,
               color: DANGER, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
             }}><FileJson size={14} />导出PDF</button>
           </div>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>
               {reportSchedule === 'daily' ? '日' : reportSchedule === 'weekly' ? '周' : '月'}度合规报告摘要
             </h3>
@@ -758,13 +806,13 @@ export default function OperationLogPage() {
                 { label: '合规操作', value: Math.round(filteredLogs.length * 0.92), color: SUCCESS },
                 { label: '告警操作', value: Math.round(filteredLogs.length * 0.08), color: WARNING },
               ].map(card => (
-                <div key={card.label} style={{ background: '#f8fafc', borderRadius: 8, padding: '14px', textAlign: 'center' }}>
+                <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: card.color }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{card.label}</div>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 16, background: '#f0fdf4', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ marginTop: 16, background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Shield size={16} color={SUCCESS} />
               <span style={{ fontSize: 12, color: '#065f46' }}>HIPAA / GDPR / 等保 合规要求已满足，报告已就绪</span>
             </div>
@@ -775,7 +823,7 @@ export default function OperationLogPage() {
       {/* 区块链存证 */}
       {liveTab === 'blockchain' && (
         <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Fingerprint size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>区块链日志存证</span>
@@ -791,31 +839,31 @@ export default function OperationLogPage() {
             }}><Shield size={14} />验证完整性</button>
           </div>
           {verifyResult && (
-            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyResult.includes('通过') ? '#d1fae5' : '#fee2e2', color: verifyResult.includes('通过') ? SUCCESS : DANGER, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyResult.includes('通过') ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyResult.includes('通过') ? SUCCESS : DANGER, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               {verifyResult.includes('通过') ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
               {verifyResult}
             </div>
           )}
-          <div style={{ background: WHITE, borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px', padding: '10px 14px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 12, fontWeight: 700, color: GRAY }}>
+          <div style={{ background: WHITE, borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px', padding: '10px 14px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: GRAY }}>
               <div>日志ID</div><div>用户</div><div>区块哈希</div><div>前一哈希</div><div>验证</div>
             </div>
             {blockchainData.slice(0, 10).map(b => (
               <div key={b.id} style={{
                 display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px',
-                padding: '8px 14px', borderBottom: '1px solid #f1f5f9',
+                padding: '8px 14px', borderBottom: '1px solid var(--border-light)',
                 fontSize: 12, alignItems: 'center',
                 background: b.verified ? 'transparent' : '#fef2f2',
               }}>
                 <div style={{ color: PRIMARY }}>{b.id.slice(0, 8)}</div>
                 <div style={{ color: GRAY }}>{b.userName}</div>
-                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.blockHash.slice(0, 20)}...</div>
-                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.previousHash.slice(0, 20)}...</div>
+                <div style={{ fontFamily: 'monospace', color: 'var(--text-secondary)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.blockHash.slice(0, 20)}...</div>
+                <div style={{ fontFamily: 'monospace', color: 'var(--text-secondary)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.previousHash.slice(0, 20)}...</div>
                 <div style={{ textAlign: 'center' }}>{b.verified ? <CheckCircle size={12} color={SUCCESS} /> : <X size={12} color={DANGER} />}</div>
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8, padding: '8px 14px', background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ display: 'flex', gap: 8, padding: '8px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
             <GitBranch size={14} color={GRAY} />
             <span style={{ fontSize: 12, color: GRAY }}>区块链高度: {blockchainData.length} · 最新区块: {new Date().toISOString().slice(0, 10)} · 哈希算法: SHA-256</span>
           </div>

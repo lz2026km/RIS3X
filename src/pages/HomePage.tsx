@@ -43,25 +43,26 @@ import { ChartContainer } from '../components/charts'
 // 样式常量
 // ============================================================
 const COLORS = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
-  primaryDark: '#172554',
-  white: '#ffffff',
-  background: '#f1f5f9',
-  text: '#1e293b',
-  textMuted: '#64748b',
-  textLight: '#94a3b8',
-  border: '#e2e8f0',
-  success: '#059669',
-  successBg: '#ecfdf5',
-  warning: '#d97706',
-  warningBg: '#fffbeb',
-  danger: '#dc2626',
-  dangerBg: '#fef2f2',
-  info: '#2563eb',
-  infoBg: '#eff6ff',
-  purple: '#7c3aed',
-  purpleBg: '#f5f3ff',
+  // 主题化: 全部指向 design-system 主题变量, 浅色/深色/高对比自动跟随 (data-theme)
+  primary: 'var(--color-accent)',
+  primaryLight: 'var(--color-primary-600)',
+  primaryDark: 'var(--color-primary-800)',
+  white: '#ffffff', // 仅用于品牌渐变/警示色背景上的文字
+  background: 'var(--bg-deep)', // 次级面板底色
+  text: 'var(--text-primary)',
+  textMuted: 'var(--text-secondary)',
+  textLight: 'var(--text-muted)',
+  border: 'var(--border-color)',
+  success: 'var(--color-success)',
+  successBg: 'var(--color-success-bg)',
+  warning: 'var(--color-warning)',
+  warningBg: 'var(--color-warning-bg)',
+  danger: 'var(--color-error)',
+  dangerBg: 'var(--color-error-bg)',
+  info: 'var(--color-info)',
+  infoBg: 'var(--color-info-bg)',
+  purple: 'var(--color-modality-mr)',
+  purpleBg: 'rgba(139, 92, 246, 0.12)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
@@ -76,7 +77,7 @@ const MODALITY_COLORS: Record<string, string> = {
 
 // 通用卡片样式
 const cardStyle: React.CSSProperties = {
-  background: COLORS.white,
+  background: 'var(--bg-card)',
   borderRadius: 12,
   padding: 20,
   boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
@@ -232,7 +233,7 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
       onClick={onClick}
       aria-label={label}
       style={{
-        background: COLORS.white,
+        background: 'var(--bg-card)',
         borderRadius: 12,
         padding: '16px 12px',
         boxShadow: hovered ? '0 8px 24px rgba(0,0,0,0.1)' : '0 1px 4px rgba(0,0,0,0.06)',
@@ -300,16 +301,16 @@ const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
   const getStatusConfig = () => {
     switch (status) {
       case '使用中':
-        return { color: '#3b82f6', bg: '#dbeafe', label: '使用中' }
+        return { color: '#3b82f6', bg: '#3b82f622', label: '使用中' }
       case '空闲':
-        return { color: '#22c55e', bg: '#dcfce7', label: '空闲' }
+        return { color: '#22c55e', bg: '#22c55e22', label: '空闲' }
       case '维护中':
       case '维修中':
-        return { color: '#f59e0b', bg: '#fef3c7', label: '维护中' }
+        return { color: '#f59e0b', bg: '#f59e0b22', label: '维护中' }
       case '故障':
-        return { color: '#ef4444', bg: '#fee2e2', label: '故障' }
+        return { color: '#ef4444', bg: '#ef444422', label: '故障' }
       default:
-        return { color: '#94a3b8', bg: '#f1f5f9', label: '未知' }
+        return { color: '#94a3b8', bg: '#94a3b824', label: '未知' }
     }
   }
 
@@ -561,7 +562,7 @@ const HomePage: FC = () => {
     <div style={{
       ...cardStyle,
       marginBottom: 24,
-      background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryLight} 100%)`,
+      background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)',
       border: 'none',
       padding: 0,
       overflow: 'hidden',
@@ -870,7 +871,7 @@ const HomePage: FC = () => {
           icon={<ListChecks size={24} />}
           label="检查工作列表"
           color={MODALITY_COLORS['CT']!}
-          bg="#eff6ff"
+          bg="#3b82f622"
           badge="12"
           badgeColor={COLORS.info}
           onClick={() => navigate('/worklist')}
@@ -879,7 +880,7 @@ const HomePage: FC = () => {
           icon={<FileText size={24} />}
           label="书写报告"
           color={MODALITY_COLORS['MR']!}
-          bg="#f5f3ff"
+          bg="#8b5cf622"
           badge="8"
           badgeColor={COLORS.purple}
           onClick={() => navigate('/write-report')}
@@ -911,14 +912,14 @@ const HomePage: FC = () => {
           icon={<CalendarClock size={24} />}
           label="预约管理"
           color={MODALITY_COLORS['DSA']!}
-          bg="#fff7ed"
+          bg="#f59e0b22"
           onClick={() => navigate('/appointments')}
         />
         <QuickActionButton
           icon={<BookOpen size={24} />}
           label="报告管理"
           color={MODALITY_COLORS['MG']!}
-          bg="#fdf2f8"
+          bg="#ec489922"
           onClick={() => navigate('/reports')}
         />
         <QuickActionButton
@@ -948,7 +949,7 @@ const HomePage: FC = () => {
         sub={`较昨日 +${Math.round(stats.today.exams * 0.08)}`}
         icon={<Scan size={24} />}
         color={MODALITY_COLORS['CT']!}
-        bg="#eff6ff"
+        bg="#3b82f622"
         trend={8}
       />
       <StatCard
@@ -957,7 +958,7 @@ const HomePage: FC = () => {
         sub={`占今日 ${Math.round(stats.today.pending / stats.today.exams * 100)}%`}
         icon={<Clock3 size={24} />}
         color={MODALITY_COLORS['MR']!}
-        bg="#f5f3ff"
+        bg="#8b5cf622"
         trend={-3}
       />
       <StatCard
@@ -1073,6 +1074,8 @@ const HomePage: FC = () => {
               contentStyle={{
                 borderRadius: 8,
                 border: `1px solid ${COLORS.border}`,
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
                 fontSize: 12,
               }}
               formatter={(value: number) => [`${value} 例`, '']}
@@ -1080,10 +1083,10 @@ const HomePage: FC = () => {
             <Line
               type="monotone"
               dataKey="today"
-              stroke="#3b82f6"
+              stroke="var(--color-primary-500)"
               strokeWidth={2.5}
-              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, fill: '#3b82f6' }}
+              dot={{ fill: 'var(--color-primary-500)', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: 'var(--color-primary-500)' }}
               name="今日"
             />
             <Line
@@ -1130,13 +1133,15 @@ const HomePage: FC = () => {
               contentStyle={{
                 borderRadius: 8,
                 border: `1px solid ${COLORS.border}`,
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
                 fontSize: 12,
               }}
             />
             <Legend
               iconSize={10}
               iconType="circle"
-              wrapperStyle={{ fontSize: 12 }}
+              wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }}
             />
             <Bar dataKey="CT" name="CT" fill={MODALITY_COLORS['CT']} radius={[4, 4, 0, 0]} />
             <Bar dataKey="MR" name="MR" fill={MODALITY_COLORS['MR']} radius={[4, 4, 0, 0]} />
@@ -1160,8 +1165,8 @@ const HomePage: FC = () => {
         <div style={{ display: 'flex', gap: 12 }}>
           <span style={{
             ...badgeStyle,
-            background: '#dbeafe',
-            color: '#2563eb',
+            background: '#3b82f622',
+            color: 'var(--color-info)',
           }}>
             <div style={{
               width: 6,
@@ -1173,8 +1178,8 @@ const HomePage: FC = () => {
           </span>
           <span style={{
             ...badgeStyle,
-            background: '#dcfce7',
-            color: '#16a34a',
+            background: '#22c55e22',
+            color: 'var(--color-success)',
           }}>
             <div style={{
               width: 6,
@@ -1186,8 +1191,8 @@ const HomePage: FC = () => {
           </span>
           <span style={{
             ...badgeStyle,
-            background: '#fef3c7',
-            color: '#d97706',
+            background: '#f59e0b22',
+            color: 'var(--color-warning)',
           }}>
             <div style={{
               width: 6,
@@ -1208,7 +1213,7 @@ const HomePage: FC = () => {
         marginBottom: 16,
       }}>
         <div style={{
-          background: '#f8fafc',
+          background: 'var(--bg-deep)',
           borderRadius: 10,
           padding: '14px 16px',
           display: 'flex',
@@ -1219,7 +1224,7 @@ const HomePage: FC = () => {
             width: 44,
             height: 44,
             borderRadius: 10,
-            background: '#dbeafe',
+            background: '#3b82f622',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1244,7 +1249,7 @@ const HomePage: FC = () => {
         </div>
 
         <div style={{
-          background: '#f8fafc',
+          background: 'var(--bg-deep)',
           borderRadius: 10,
           padding: '14px 16px',
           display: 'flex',
@@ -1255,7 +1260,7 @@ const HomePage: FC = () => {
             width: 44,
             height: 44,
             borderRadius: 10,
-            background: '#dcfce7',
+            background: '#22c55e22',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1280,7 +1285,7 @@ const HomePage: FC = () => {
         </div>
 
         <div style={{
-          background: '#f8fafc',
+          background: 'var(--bg-deep)',
           borderRadius: 10,
           padding: '14px 16px',
           display: 'flex',
@@ -1291,7 +1296,7 @@ const HomePage: FC = () => {
             width: 44,
             height: 44,
             borderRadius: 10,
-            background: '#fef3c7',
+            background: '#f59e0b22',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1421,7 +1426,7 @@ const HomePage: FC = () => {
               padding: '14px 0',
               borderBottom: index < pendingExams.length - 1 ? `1px solid ${COLORS.border}` : 'none',
               background: exam.priority === '危重' || exam.priority === '紧急'
-                ? `${COLORS.dangerBg}50`
+                ? 'rgba(239, 68, 68, 0.08)'
                 : 'transparent',
               margin: exam.priority === '危重' || exam.priority === '紧急'
                 ? '0 -8px'
@@ -1558,11 +1563,11 @@ const HomePage: FC = () => {
     <div style={{
       ...cardStyle,
       border: `2px solid ${COLORS.danger}`,
-      background: COLORS.white,
+      background: 'var(--bg-card)',
     }}>
       <div style={{
         ...headerStyle,
-        borderBottom: `2px solid ${COLORS.danger}20`,
+        borderBottom: `2px solid rgba(239, 68, 68, 0.15)`,
         marginBottom: 16,
         paddingBottom: 12,
       }}>
@@ -1615,9 +1620,9 @@ const HomePage: FC = () => {
               style={{
                 padding: '16px',
                 marginBottom: index < criticalPending.length - 1 ? 12 : 0,
-                background: `${COLORS.danger}05`,
+                background: 'rgba(239, 68, 68, 0.05)',
                 borderRadius: 10,
-                border: `1px solid ${COLORS.danger}15`,
+                border: '1px solid rgba(239, 68, 68, 0.15)',
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -1693,7 +1698,7 @@ const HomePage: FC = () => {
                 color: COLORS.text,
                 lineHeight: 1.6,
                 padding: '10px 12px',
-                background: COLORS.white,
+                background: 'var(--bg-card)',
                 borderRadius: 6,
                 marginBottom: 10,
                 border: `1px solid ${COLORS.border}`,
@@ -1738,7 +1743,7 @@ const HomePage: FC = () => {
             padding: '8px 24px',
             borderRadius: 8,
             border: `1px solid ${COLORS.danger}`,
-            background: COLORS.white,
+            background: 'var(--bg-card)',
             color: COLORS.danger,
             fontSize: 12,
             fontWeight: 600,
@@ -1821,14 +1826,14 @@ const HomePage: FC = () => {
               gap: 6,
               marginBottom: 12,
               padding: '8px 12px',
-              background: '#fef3c7',
+              background: '#f59e0b22',
               borderRadius: 8,
             }}>
-              <Clock size={14} color="#d97706" />
+              <Clock size={14} style={{ color: 'var(--color-warning)' }} />
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#92400e',
+                color: 'var(--color-warning)',
               }}>
                 上午班 (08:00-12:00)
               </span>
@@ -1898,14 +1903,14 @@ const HomePage: FC = () => {
               gap: 6,
               marginBottom: 12,
               padding: '8px 12px',
-              background: '#dbeafe',
+              background: '#3b82f622',
               borderRadius: 8,
             }}>
-              <Clock size={14} color="#2563eb" />
+              <Clock size={14} style={{ color: 'var(--color-accent)' }} />
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#1e40af',
+                color: 'var(--color-accent)',
               }}>
                 下午班 (14:00-18:00)
               </span>
@@ -2239,6 +2244,8 @@ const HomePage: FC = () => {
             contentStyle={{
               borderRadius: 8,
               border: `1px solid ${COLORS.border}`,
+              background: 'var(--bg-card)',
+              color: 'var(--text-primary)',
               fontSize: 12,
             }}
           />

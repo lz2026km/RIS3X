@@ -29,6 +29,16 @@ export interface CriticalAlertQueryParams {
   pageSize?: number
 }
 
+export interface CreateCriticalAlertDto {
+  level?: string
+  patientId?: string
+  patientName?: string
+  studyId?: string
+  modality?: string
+  title?: string
+  description?: string
+}
+
 export interface AcknowledgeAlertDto {
   comment?: string
 }
@@ -48,6 +58,12 @@ export interface CriticalAlertStats {
 }
 
 export const criticalAlertApi = {
+  create: async (dto: CreateCriticalAlertDto) => {
+    const res = await api.post<CriticalAlert>('/critical-alert', dto)
+    await invalidateApiCache('/critical-alert/alerts')
+    return res
+  },
+
   listAlerts: (params?: CriticalAlertQueryParams) =>
     api.get<CriticalAlert[]>(`/critical-alert/alerts?${new URLSearchParams(params ?? {}).toString()}`),
 

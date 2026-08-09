@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
 import { Search, Calendar, Bell, UserCheck, Syringe, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
-import { appointmentApi, type AppointmentDto, mobileApi, type TodaySummary, type CriticalValueItem } from '../../../services/api'
+import { appointmentApi, type AppointmentDto, examApi, mobileApi, type TodaySummary, type CriticalValueItem } from '../../../services/api'
 
 export interface NurseAppointment {
   id: string
@@ -28,20 +28,20 @@ export interface MedicationRecord {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  waiting: { bg: '#fef3c7', color: '#d97706', label: '等候中' },
-  'in-progress': { bg: '#dbeafe', color: '#2563eb', label: '检查中' },
-  completed: { bg: '#d1fae5', color: '#059669', label: '已完成' },
-  cancelled: { bg: '#f1f5f9', color: '#94a3b8', label: '已取消' },
+  waiting: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', label: '等候中' },
+  'in-progress': { bg: 'var(--color-info-bg)', color: 'var(--color-info)', label: '检查中' },
+  completed: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', label: '已完成' },
+  cancelled: { bg: 'var(--bg-card)', color: 'var(--text-secondary)', label: '已取消' },
 }
 
 const s = {
-  container: { maxWidth: 420, margin: '0 auto', background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
+  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
-  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid #e2e8f0' },
+  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
   tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#7c3aed' : '#94a3b8', borderBottom: active ? '2px solid #7c3aed' : '2px solid transparent' }),
-  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
 }
 
 export default function NurseMobileWorkstation() {
@@ -127,13 +127,50 @@ export default function NurseMobileWorkstation() {
     return true
   })
 
-  const handleCheckIn = useCallback((id: string) => {
-    message.success(`签到患者: ${id}`)
+  // [Wave2A] 签到 → POST /worklist/:id/checkin (MSW 支撑; 后端 queue 为房间叫号模块, 无患者签到端点)
+  const [checkingInId, setCheckingInId] = useState<string | null>(null)
+  const handleCheckIn = useCallback(async (id: string) => {
+    setCheckingInId(id)
+    try {
+      const res = await examApi.checkIn(id)
+      if (res.success) {
+        setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'in-progress' as const } : a))
+        message.success(`签到成功: ${id}，患者已进入候检流程`)
+      } else {
+        message.error(res.error?.message ?? '签到失败')
+      }
+    } catch {
+      message.error('签到失败: 网络错误')
+    } finally {
+      setCheckingInId(null)
+    }
   }, [])
 
-  const handleMedication = useCallback((id: string) => {
-    message.success(`记录用药: ${id}`)
-  }, [])
+  // [Wave2A] 用药记录: 后端无用药端点 → 本地记录 (localStorage 持久化) + 标注
+  const [medRecords, setMedRecords] = useState<MedicationRecord[]>(() => {
+    try {
+      const raw = localStorage.getItem('ris_nurse_med_records')
+      return raw ? JSON.parse(raw) as MedicationRecord[] : []
+    } catch { return [] }
+  })
+  const handleMedication = useCallback((id: string, med = '造影剂 (碘普罗胺 350mgI/ml)', dosage = '1 支') => {
+    const patient = appointments.find(a => a.id === id)
+    const record: MedicationRecord = {
+      id: `MED-${Date.now()}`,
+      patientName: patient?.patientName ?? id,
+      medication: med,
+      dosage,
+      route: '静脉注射',
+      administeredAt: new Date().toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      administeredBy: '当前护士',
+    }
+    setMedRecords(prev => {
+      const next = [record, ...prev].slice(0, 50)
+      try { localStorage.setItem('ris_nurse_med_records', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+    message.success(`用药已记录 (本地): ${record.patientName} - ${med} ${dosage} · 后端用药端点待接入`)
+  }, [appointments])
 
   return (
     <div style={s.container}>
@@ -142,10 +179,10 @@ export default function NurseMobileWorkstation() {
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 护理工作台</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
           {[
-            { value: appointments.filter(a => a.status === 'waiting').length, label: '等候', bg: '#fef3c7', color: '#d97706' },
-            { value: appointments.filter(a => a.status === 'in-progress').length, label: '检查中', bg: '#dbeafe', color: '#2563eb' },
-            { value: summary.criticalValues, label: '危急值', bg: '#fee2e2', color: '#dc2626' },
-            { value: summary.examsToday, label: '今日检查', bg: '#ede9fe', color: '#7c3aed' },
+            { value: appointments.filter(a => a.status === 'waiting').length, label: '等候', bg: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
+            { value: appointments.filter(a => a.status === 'in-progress').length, label: '检查中', bg: 'var(--color-info-bg)', color: 'var(--color-info)' },
+            { value: summary.criticalValues, label: '危急值', bg: 'var(--color-error-bg)', color: 'var(--color-error)' },
+            { value: summary.examsToday, label: '今日检查', bg: 'rgba(124,58,237,0.12)', color: '#7c3aed' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -156,14 +193,14 @@ export default function NurseMobileWorkstation() {
       </div>
 
       {usingMock && (
-        <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
+        <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
           ⚠ 危急值接口不可用，当前展示离线演示数据
         </div>
       )}
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者..." style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者..." style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Bell size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
@@ -181,7 +218,7 @@ export default function NurseMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'waiting', label: '等候中' }, { key: 'in-progress', label: '检查中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#7c3aed' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#7c3aed' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -189,7 +226,7 @@ export default function NurseMobileWorkstation() {
 
           <div style={{ marginTop: 4 }}>
             {filtered.map(item => {
-              const sc = STATUS_CONFIG[item.status] ?? { bg: '#f1f5f9', color: '#94a3b8', label: '未知' }
+              const sc = STATUS_CONFIG[item.status] ?? { bg: 'var(--bg-card)', color: 'var(--text-secondary)', label: '未知' }
               return (
                 <div key={item.id} style={s.listItem}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: sc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -197,8 +234,8 @@ export default function NurseMobileWorkstation() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
-                      {item.contrastRequired && <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#fee2e2', color: '#dc2626' }}>造影</span>}
+                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
+                      {item.contrastRequired && <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: 'var(--color-error)' }}>造影</span>}
                     </div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
                       <span>{item.gender}/{item.age}岁</span>
@@ -210,8 +247,8 @@ export default function NurseMobileWorkstation() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>
                     {item.status === 'waiting' && (
-                      <button onClick={() => handleCheckIn(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                        签到
+                      <button onClick={() => handleCheckIn(item.id)} disabled={checkingInId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: checkingInId === item.id ? 0.6 : 1 }}>
+                        {checkingInId === item.id ? '签到中...' : '签到'}
                       </button>
                     )}
                     {item.contrastRequired && item.status === 'waiting' && (
@@ -228,15 +265,15 @@ export default function NurseMobileWorkstation() {
       ) : tab === 'critical' ? (
         <div style={{ padding: 16 }}>
           {criticals.map(c => (
-            <div key={c.id} style={{ background: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? '#fca5a5' : '#fcd34d'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
+            <div key={c.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{c.patientName}</span>
-                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? '#fee2e2' : '#fef3c7', color: c.severity === 'CRITICAL' ? '#dc2626' : '#d97706' }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
+                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'CRITICAL' ? 'var(--color-error)' : 'var(--color-warning)' }}>
                   {c.severity === 'CRITICAL' ? '危急' : c.severity === 'URGENT' ? '紧急' : c.severity}
                 </span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#334155', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{c.createdAt ? new Date(c.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''} · {c.notifiedTo ?? '未通知'}</span>
                 {isAcked(c) ? (
@@ -259,29 +296,46 @@ export default function NurseMobileWorkstation() {
         </div>
       ) : (
         <div style={{ padding: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Syringe size={16} color="#7c3aed" /> 造影剂/用药记录
+              <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8' }}>本地记录 · 后端用药端点待接入</span>
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
-                <div key={item.id} style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{item.patientName} - {item.examItem}</div>
+                <div key={item.id} style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName} - {item.examItem}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                     {item.contrastRequired && <span>需要使用造影剂: {item.medications.join(', ')}</span>}
                     {!item.contrastRequired && <span>无需造影剂</span>}
                   </div>
-                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: '#fff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     记录用药
                   </button>
                 </div>
               ))}
+              {appointments.filter(a => a.contrastRequired || a.medications.length > 0).length === 0 && medRecords.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 12 }}>暂无待用药患者</div>
+              )}
             </div>
           </div>
+          {medRecords.length > 0 && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>今日用药记录 ({medRecords.length})</div>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {medRecords.map(r => (
+                  <div key={r.id} style={{ padding: '10px 12px', background: 'rgba(124,58,237,0.12)', borderRadius: 8, fontSize: 12 }}>
+                    <div style={{ fontWeight: 600, color: '#4c1d95' }}>{r.patientName} · {r.medication} {r.dosage}</div>
+                    <div style={{ color: '#7c3aed', marginTop: 2 }}>{r.route} · {r.administeredAt} · {r.administeredBy}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '6px 0' }}>
+      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' }}>
         {[
           { key: 'queue', icon: Calendar, label: '队列' },
           { key: 'meds', icon: Syringe, label: '用药' },

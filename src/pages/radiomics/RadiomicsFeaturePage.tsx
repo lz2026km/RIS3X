@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
 import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty } from 'antd'
 import { Activity, Search, RefreshCw, Download, BarChart3 } from 'lucide-react'
-import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
+import { Inbox } from 'lucide-react'
+import { useState } from 'react'
 
 export const RadiomicsFeaturePage: React.FC = () => {
   const [instanceId, setInstanceId] = useState('')
@@ -16,7 +17,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   const fetchFeatures = async () => {
     if (!instanceId.trim()) {
-      message.warning('请输入 Instance ID')
+      message.warning('请输入实例 ID')
       return
     }
     setLoading(true)
@@ -46,7 +47,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
   const handleExtract = async () => {
     if (!instanceId.trim()) {
-      message.warning('请输入 Instance ID')
+      message.warning('请输入实例 ID')
       return
     }
     const coords = roiCoords.split(',').map(Number)
@@ -73,7 +74,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
   const handleCompare = async () => {
     const ids = compareIds.split(',').map(s => s.trim()).filter(Boolean)
     if (ids.length < 2) {
-      message.warning('请输入至少 2 个 Instance ID (逗号分隔)')
+      message.warning('请输入至少 2 个实例 ID (逗号分隔)')
       return
     }
     setComparing(true)
@@ -206,7 +207,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
       {features.length === 0 && compareResults.length === 0 && !loading && (
         <Card>
-          <Empty description="请输入 Instance ID 并加载特征" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请输入实例 ID 并加载特征" />
         </Card>
       )}
     </div>

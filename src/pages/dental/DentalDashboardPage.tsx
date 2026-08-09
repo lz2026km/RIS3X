@@ -1,9 +1,9 @@
 // [v3.0.6.11-60] Batch 3: 口腔运营仪表板 (dentalApi 真实数据 + loading/error)
-import React, { useCallback, useEffect, useState } from 'react';
+import { dentalApi } from '../../services/api/dentalApi';
+import { DentalPageLayout, EmptyState } from './DentalShared';
 import { Card, Button, Row, Col, Statistic, Space, Alert, Tag, Spin, Empty, List, Table, message } from 'antd';
 import { RefreshCw, Calendar, Users, Scan, TrendingUp, Activity, Stethoscope } from 'lucide-react';
-import { DentalPageLayout, EmptyState } from './DentalShared';
-import { dentalApi } from '../../services/api/dentalApi';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface DentalStats {
   todayPatients?: number;
@@ -48,7 +48,7 @@ export const DentalDashboardPage: React.FC = () => {
   }, [load]);
 
   if (loading && !stats) {
-    return (<DentalPageLayout header={{ title: '口腔运营仪表板' }}><div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}><Spin /> 加载中...</div></DentalPageLayout>);
+    return (<DentalPageLayout header={{ title: '口腔运营仪表板' }}><div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}><Spin /> 加载中...</div></DentalPageLayout>);
   }
   if (!stats && !loading) {
     return (<DentalPageLayout header={{ title: '口腔运营仪表板' }}><EmptyState tip="暂无统计数据" onCreate={() => void load()} createLabel="重新加载" /></DentalPageLayout>);
@@ -68,7 +68,7 @@ export const DentalDashboardPage: React.FC = () => {
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={loading}>
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
@@ -108,7 +108,7 @@ export const DentalDashboardPage: React.FC = () => {
                     <Space>
                       <Tag color="blue">{a.dentistName ?? a.dentist ?? '医生'}</Tag>
                       <span>{a.patientName ?? a.patient ?? '患者'}</span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>{a.scheduledAt ?? a.time ?? ''}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.scheduledAt ?? a.time ?? ''}</span>
                     </Space>
                     <Tag color={a.state === 'SCHEDULED' ? 'processing' : 'success'}>{a.state ?? a.status ?? 'SCHEDULED'}</Tag>
                   </List.Item>

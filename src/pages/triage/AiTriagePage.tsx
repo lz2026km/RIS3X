@@ -1,9 +1,9 @@
 // [W3-2] AI 智能分检: 真实 API (aiTriageApi) + loading/error + 紧急度排序 + 详情
-import React, { useState, useEffect, useCallback } from 'react'
+import { usePagination } from '../../hooks/usePagination'
+import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
 import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Alert, Empty, Tooltip, Segmented } from 'antd'
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
-import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
-import { usePagination } from '../../hooks/usePagination'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const levelColor: Record<string, string> = { CRITICAL: 'red', URGENT: 'orange', SEMI_URGENT: 'gold', ROUTINE: 'green' }
 const levelLabel: Record<string, string> = { CRITICAL: '危急', URGENT: '紧急', SEMI_URGENT: '半紧急', ROUTINE: '常规' }
@@ -147,7 +147,7 @@ const AiTriagePage: React.FC = () => {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, margin: 0 }}>AI 智能分检</h1><Tag color="purple">AI 辅助诊断</Tag>
       </div>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="总分检数" value={stats.total ?? items.length} prefix={<FileText size={16} />} /></Card></Col>
         <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title="危急" value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} styles={{ content: { color: '#cf1322' } }} prefix={<AlertTriangle size={16} />} /></Card></Col>

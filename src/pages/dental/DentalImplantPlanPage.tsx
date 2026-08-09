@@ -1,9 +1,9 @@
 // [W3-2] 种植计划: dentalApi.listImplantPlans3d 真实列表 + 新建/编辑 + 状态流转 (规划/已批准/已实施)
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge } from 'antd';
-import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
+import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge } from 'antd';
+import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const { TextArea } = Input;
 
@@ -102,7 +102,7 @@ export const DentalImplantPlanPage: React.FC = () => {
 
   return (
     <DentalPageLayout header={{ title: '种植规划', tags: [<Tag key='b' color='blue'>Straumann/Nobel 对标</Tag>, <Tag key='s' color='green'>4 大品牌 / 12 型号</Tag>] }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}><Card size="small"><Statistic title="规划总数" value={display.length} prefix={<Plus size={12} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="待种植" value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
@@ -138,7 +138,7 @@ export const DentalImplantPlanPage: React.FC = () => {
                     >
                       <List.Item.Meta
                         title={<span><Tag color='blue'>FDI {t.toothNo}</Tag>{t.patientName} - {t.type} <Tag color={meta.color}>{meta.label}</Tag></span>}
-                        description={<span style={{ fontSize: 12, color: '#999' }}>{t.diagnosis || '-'} | {t.plan || '-'} | 门诊¥{t.cost ?? 0} | {t.entryPoint ? `植入位点 (${t.entryPoint.x}, ${t.entryPoint.y}, ${t.entryPoint.z})` : ''}</span>}
+                        description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.diagnosis || '-'} | {t.plan || '-'} | 门诊¥{t.cost ?? 0} | {t.entryPoint ? `植入位点 (${t.entryPoint.x}, ${t.entryPoint.y}, ${t.entryPoint.z})` : ''}</span>}
                       />
                     </List.Item>
                   );
@@ -150,9 +150,9 @@ export const DentalImplantPlanPage: React.FC = () => {
         <Col span={8}>
           <Card size="small" title="种植体库 (4 品牌 12 型号)">
             {[{ name: 'Straumann BLT', tag: 'RC', desc: '4.1×8/10/12mm · 4.8×10/12mm' }, { name: 'Nobel Active', tag: 'NP', desc: '3.5×10/13mm · 4.3×10/13mm' }, { name: 'Nobel CC', tag: 'RP', desc: '3.5×8/10mm · 4.3×10/12mm' }, { name: 'Straumann BLX', tag: 'RB', desc: '3.75×8/10/12/14mm · 4.5×10/12mm' }].map((b, i) => (
-              <div key={i} style={{ marginBottom: 8, padding: 8, background: '#fafafa', borderRadius: 4 }}>
+              <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><b>{b.name}</b><Tag color={['blue', 'purple', 'cyan', 'green'][i]}>{b.tag}</Tag></div>
-                <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{b.desc}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{b.desc}</div>
               </div>
             ))}
           </Card>
@@ -160,7 +160,7 @@ export const DentalImplantPlanPage: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>A 类骨 (D1/D2)</span><Tag color='green'>42%</Tag></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>B 类骨 (D3)</span><Tag color='blue'>38%</Tag></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>C 类骨 (D4)</span><Tag color='orange'>20%</Tag></div>
-            <div style={{ fontSize: 11, color: '#999', marginTop: 6 }}>基于术后随访数据 · 1 年成功率 98.5%</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>基于术后随访数据 · 1 年成功率 98.5%</div>
           </Card>
         </Col>
       </Row>

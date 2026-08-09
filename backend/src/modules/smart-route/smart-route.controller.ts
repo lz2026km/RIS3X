@@ -12,6 +12,13 @@ const AssignSchema = z.object({
   modality: z.string().min(1),
   bodyPart: z.string().min(1),
   patientStatus: z.string().min(1),
+  doctorId: z.string().min(1).optional(),
+})
+
+const RecommendSchema = z.object({
+  modality: z.string().min(1),
+  bodyPart: z.string().min(1),
+  patientStatus: z.string().min(1),
 })
 
 const RoutingRuleSchema = z.object({
@@ -35,7 +42,12 @@ export class SmartRouteController {
 
   @Post('assign')
   assign(@Body(new ZodValidationPipe(AssignSchema)) body: z.infer<typeof AssignSchema>) {
-    return this.service.assign(body.studyId, body.patientName, body.modality, body.bodyPart, body.patientStatus)
+    return this.service.assign(body.studyId, body.patientName, body.modality, body.bodyPart, body.patientStatus, body.doctorId)
+  }
+
+  @Post('recommend')
+  recommend(@Body(new ZodValidationPipe(RecommendSchema)) body: z.infer<typeof RecommendSchema>) {
+    return this.service.recommend(body)
   }
 
   @Get('rules')

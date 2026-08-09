@@ -362,7 +362,7 @@ export default function CriticalValuePage() {
   }
 
   return (
-    <div data-testid="critical-value-page" style={{ padding: 24, background: '#f1f5f9', minHeight: '100vh' }}>
+    <div data-testid="critical-value-page" style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       {loading && <LoadingBanner message="正在从 API 加载危急值数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>
@@ -376,7 +376,7 @@ export default function CriticalValuePage() {
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>规则配置</button>
           <button onClick={() => navigate('/critical-value-stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>统计大屏</button>
-          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>8 大分类评估</button>
+          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>8 大分类评估</button>
         </div>
       </div>
 

@@ -66,7 +66,7 @@ export const TransferToFollowUpModal = ({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 480,
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 16,
           boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
           overflow: "hidden",
@@ -75,7 +75,7 @@ export const TransferToFollowUpModal = ({
         <div
           style={{
             padding: "20px 24px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-color)",
             background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
             display: "flex",
             alignItems: "center",
@@ -116,7 +116,7 @@ export const TransferToFollowUpModal = ({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#334155",
+                color: "var(--text-primary)",
                 marginBottom: 6,
               }}
             >
@@ -124,10 +124,10 @@ export const TransferToFollowUpModal = ({
             </div>
             <div
               style={{
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 10,
                 padding: 14,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 display: "grid",
                 gridTemplateColumns: "repeat(2, 1fr)",
                 gap: 10,
@@ -151,13 +151,13 @@ export const TransferToFollowUpModal = ({
               </div>
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>设备</span>
-                <div style={{ fontSize: 13, color: "#334155" }}>
+                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
                   {cv.modality}
                 </div>
               </div>
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>状态</span>
-                <div style={{ fontSize: 13, color: "#334155" }}>
+                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
                   {cv.status}
                 </div>
               </div>
@@ -168,7 +168,7 @@ export const TransferToFollowUpModal = ({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#334155",
+                color: "var(--text-primary)",
                 marginBottom: 6,
               }}
             >
@@ -182,7 +182,7 @@ export const TransferToFollowUpModal = ({
                 width: "100%",
                 padding: "10px 14px",
                 borderRadius: 8,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 fontSize: 14,
                 outline: "none",
                 boxSizing: "border-box",
@@ -191,10 +191,10 @@ export const TransferToFollowUpModal = ({
           </div>
           <div
             style={{
-              background: "#fffbeb",
+              background: "var(--color-warning-bg)",
               borderRadius: 10,
               padding: 14,
-              border: "1px solid #fde68a",
+              border: "1px solid var(--color-warning-border)",
               marginBottom: 20,
             }}
           >
@@ -222,8 +222,8 @@ export const TransferToFollowUpModal = ({
                 flex: 1,
                 padding: "12px 20px",
                 borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                background: "#fff",
+                border: "1px solid var(--border-color)",
+                background: "var(--bg-card)",
                 color: "#64748b",
                 fontSize: 13,
                 fontWeight: 600,
@@ -318,10 +318,10 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
             <div
               key={record.id}
               style={{
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 10,
                 padding: 14,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
               }}
             >
               <div
@@ -334,12 +334,12 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                     borderRadius: 10,
                     background:
                       record.type === "电话回访"
-                        ? "#fee2e2"
+                        ? "var(--color-error-bg)"
                         : record.type === "短信确认"
-                          ? "#eff6ff"
+                          ? "var(--color-info-bg)"
                           : record.type === "现场走访"
-                            ? "#fef3c7"
-                            : "#f0fdf4",
+                            ? "var(--color-warning-bg)"
+                            : "var(--color-success-bg)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -386,12 +386,12 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                         fontWeight: 600,
                         background:
                           record.result === "已回复"
-                            ? "#d1fae5"
+                            ? "var(--color-success-bg)"
                             : record.result === "无响应"
-                              ? "#fee2e2"
+                              ? "var(--color-error-bg)"
                               : record.result === "转接成功"
-                                ? "#eff6ff"
-                                : "#fef3c7",
+                                ? "var(--color-info-bg)"
+                                : "var(--color-warning-bg)",
                         color:
                           record.result === "已回复"
                             ? "#059669"
@@ -406,7 +406,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                     </span>
                   </div>
                   <div
-                    style={{ fontSize: 12, color: "#334155", lineHeight: 1.5 }}
+                    style={{ fontSize: 12, color: "var(--text-primary)", lineHeight: 1.5 }}
                   >
                     {record.content}
                   </div>
@@ -469,8 +469,8 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
             gap: 6,
             padding: "6px 12px",
             borderRadius: 6,
-            border: "1px solid #e2e8f0",
-            background: "#fff",
+            border: "1px solid var(--border-color)",
+            background: "var(--bg-card)",
             color: "#64748b",
             fontSize: 12,
             fontWeight: 600,
@@ -491,9 +491,9 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
                 alignItems: "center",
                 gap: 12,
                 padding: 12,
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 8,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 cursor: "pointer",
               }}
             >
@@ -502,7 +502,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
                   width: 40,
                   height: 40,
                   borderRadius: 8,
-                  background: doc.type.includes("pdf") ? "#fee2e2" : "#dbeafe",
+                  background: doc.type.includes("pdf") ? "var(--color-error-bg)" : "var(--color-info-bg)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -533,9 +533,9 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
           style={{
             textAlign: "center",
             padding: "32px 16px",
-            background: "#f8fafc",
+            background: "var(--bg-card)",
             borderRadius: 10,
-            border: "1px dashed #e2e8f0",
+            border: "1px dashed var(--border-color)",
           }}
         >
           <FileText size={32} style={{ color: "#cbd5e1", marginBottom: 8 }} />

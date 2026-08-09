@@ -299,4 +299,77 @@ describe('RdsrService', () => {
       expect(r.dlp).toBe(600)
     })
   })
+
+  describe('check', () => {
+    it('returns zeros when no records are provided', async () => {      const result = await svc.check([])
+      expect(result.checked).toBe(0)
+      expect(result.overLimitCount).toBe(0)
+      expect(result.overLimit).toEqual([])
+      expect(result.generatedAlertCount).toBe(0)
+    })
+
+    it('lists only over-DRL records with exceededBy and reason', async () => {
+      const result = await svc.check([
+        { modality: 'CT', bodyPart: '胸部', ctdivol: 18, dlp: 700, patientName: '张三' },
+        { modality: 'CT', bodyPart: '胸部', ctdivol: 10, dlp: 300, patientName: '李四' },
+      ])
+      expect(result.checked).toBe(2)
+      expect(result.overLimitCount).toBe(1)
+      expect(result.overLimit[0].patientName).toBe('张三')
+      expect(result.overLimit[0].level).toBe('warning')
+      expect(result.overLimit[0].ctdivolDrl).toBe(15)
+      expect(result.overLimit[0].dlpDrl).toBe(500)
+      expect(result.overLimit[0].exceededBy.dlp).toBeGreaterThan(0)
+      expect(result.overLimit[0].reason).toContain('DRL')
+    })
+
+    it('marks records above 150% of DRL as critical', async () => {
+      const result = await svc.check([
+        { modality: 'CT', bodyPart: '胸部', ctdivol: 40, dlp: 2000, patientName: '王五' },
+      ])
+      expect(result.criticalCount).toBe(1)
+      expect(result.overLimit[0].level).toBe('critical')
+      expect(result.overLimit[0].reason).toContain('150%')
+      expect(result.overLimit[0].criticalAlertId).toBeUndefined()
+    })
+
+    it('applies child DRL thresholds when age < 15', async () => {
+      const child = await svc.check([
+        { modality: 'CT', bodyPart: '头部', ctdivol: 50, dlp: 800, age: 8, patientName: '儿童患者' },
+      ])
+      expect(child.overLimit).toHaveLength(1)
+      expect(child.overLimit[0].ageGroup).toBe('child')
+      expect(child.overLimit[0].ctdivolDrl).toBe(40)
+
+      const adult = await svc.check([
+        { modality: 'CT', bodyPart: '头部', ctdivol: 50, dlp: 800, age: 40, patientName: '成人患者' },
+      ])
+      expect(adult.overLimit).toHaveLength(0)
+    })
+
+    it('creates critical alert when CriticalAlertService is injected', async () => {
+      const alertService = {
+        create: jest.fn().mockResolvedValue({ id: 'CA-GEN-1' }),
+      }
+      const withAlerts = new (RdsrService as any)(undefined, alertService)
+      const result = await withAlerts.check([
+        { modality: 'CT', bodyPart: '胸部', ctdivol: 40, dlp: 2000, patientName: '赵六', patientId: 'P-X' },
+      ])
+      expect(result.generatedAlertCount).toBe(1)
+      expect(result.overLimit[0].criticalAlertId).toBe('CA-GEN-1')
+      expect(alertService.create).toHaveBeenCalledWith(expect.objectContaining({ level: 'critical', patientName: '赵六' }))
+    })
+
+    it('does not fail when critical alert creation throws', async () => {
+      const alertService = {
+        create: jest.fn().mockRejectedValue(new Error('alert service down')),
+      }
+      const withAlerts = new (RdsrService as any)(undefined, alertService)
+      const result = await withAlerts.check([
+        { modality: 'CT', bodyPart: '胸部', ctdivol: 40, dlp: 2000, patientName: '钱七' },
+      ])
+      expect(result.generatedAlertCount).toBe(0)
+      expect(result.overLimit[0].level).toBe('critical')
+    })
+  })
 })

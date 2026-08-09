@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Save, Send } from "lucide-react";
 import { message } from "antd";
 import {
   regionalApi,
@@ -181,8 +182,8 @@ const ApplicationList: React.FC = () => {
               >
                 取消
               </button>
-              <button style={styles.primaryBtn} onClick={handleSubmit}>
-                提交申请
+              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
+                <Send size={14} />提交申请
               </button>
             </div>
           </div>
@@ -440,8 +441,8 @@ const ConsultationRequests: React.FC = () => {
               >
                 取消
               </button>
-              <button style={styles.primaryBtn} onClick={handleSubmit}>
-                提交
+              <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
+                <Send size={14} />提交
               </button>
             </div>
           </div>
@@ -645,7 +646,7 @@ const CrossInstitutionQuery: React.FC = () => {
               style={{
                 display: "block",
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 marginBottom: 4,
               }}
             >
@@ -677,7 +678,7 @@ const CrossInstitutionQuery: React.FC = () => {
               style={{
                 display: "block",
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 marginBottom: 4,
               }}
             >
@@ -705,7 +706,7 @@ const CrossInstitutionQuery: React.FC = () => {
               style={{
                 display: "block",
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 marginBottom: 4,
               }}
             >
@@ -747,7 +748,7 @@ const CrossInstitutionQuery: React.FC = () => {
       </div>
       {queried && (
         <div>
-          <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
             查询结果: {results.length} 条检查记录 (来自{" "}
             {institutions.find((i) => i.id === selectedInstitution)?.name})
           </div>
@@ -810,7 +811,7 @@ const CrossInstitutionQuery: React.FC = () => {
                             }}
                           />
                         </div>
-                        <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                           {retrieveProgress}%
                         </span>
                       </div>
@@ -923,7 +924,7 @@ const XDSIntegration: React.FC = () => {
               style={{
                 display: "block",
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 marginBottom: 4,
               }}
             >
@@ -963,7 +964,7 @@ const XDSIntegration: React.FC = () => {
             style={{
               padding: "8px 20px",
               background: "#0f172a",
-              color: "#94a3b8",
+              color: "var(--text-secondary)",
               border: "1px solid #334155",
               borderRadius: 6,
               cursor: "pointer",
@@ -996,7 +997,7 @@ const XDSIntegration: React.FC = () => {
       </div>
       {queried && (
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
             文档条目: {docs.length} 条
           </div>
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
@@ -1143,12 +1144,12 @@ const RegionalSharing: React.FC = () => {
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>区域影像共享</h3>
-        <span style={{ fontSize: 13, color: "#94a3b8" }}>
+        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
           医联体成员机构影像工作量与质量统计{loading ? " (加载中...)" : ` (${items.length} 条)`}
         </span>
       </div>
       {loading ? (
-        <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>加载中...</div>
       ) : (
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
@@ -1311,7 +1312,7 @@ const DepartmentSchedule: React.FC = () => {
         </select>
       </div>
       {loading ? (
-        <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>加载中...</div>
       ) : (
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
@@ -1403,7 +1404,7 @@ const DepartmentSchedule: React.FC = () => {
             </div>
             <div style={styles.modalActions}>
               <button style={styles.cancelBtn} onClick={() => setEditing(null)}>取消</button>
-              <button style={styles.primaryBtn} onClick={handleSave}>保存</button>
+              <button style={styles.primaryBtn} onClick={handleSave}><Save size={14} />保存</button>
             </div>
           </div>
         </div>
@@ -1461,7 +1462,7 @@ const IntegrationStatus: React.FC = () => {
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>区域集成状态</h3>
-        <span style={{ fontSize: 13, color: "#94a3b8" }}>
+        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
           FHIR / IHE XDS-I / HL7 MLLP 通道健康检查{loading ? " (加载中...)" : ""}
         </span>
       </div>
@@ -1481,19 +1482,19 @@ const IntegrationStatus: React.FC = () => {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: "#f1f5f9" }}>{d.name}</div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{d.desc}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>{d.desc}</div>
                 </div>
                 <span
                   style={{
                     ...styles.badge,
                     background: statusColor(st?.status),
-                    color: "#0f172a",
+                    color: "var(--text-primary)",
                   }}
                 >
                   {statusLabel(st?.status)}
                 </span>
               </div>
-              <div style={{ fontSize: 13, color: "#94a3b8" }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
                 上次同步: {st?.lastSync ? new Date(st.lastSync).toLocaleString("zh-CN") : "—"}
               </div>
               {st?.error && <div style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>{st.error}</div>}
@@ -1592,7 +1593,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#3b82f6",
     margin: "0 0 8px 0",
   },
-  subtitle: { fontSize: "14px", color: "#94a3b8", margin: 0 },
+  subtitle: { fontSize: "14px", color: "var(--text-secondary)", margin: 0 },
   tabContainer: {
     display: "flex",
     gap: "8px",
@@ -1605,7 +1606,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "12px 24px",
     background: "transparent",
     border: "none",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     fontSize: "14px",
     fontWeight: "500",
     cursor: "pointer",
@@ -1643,7 +1644,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "12px 16px",
     textAlign: "left",
     fontWeight: "600",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     borderBottom: "1px solid #334155",
     whiteSpace: "nowrap" as const,
   },
@@ -1706,7 +1707,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "block",
     fontSize: "14px",
     fontWeight: "500",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     marginBottom: "6px",
   },
   input: {
@@ -1750,7 +1751,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   cancelBtn: {
     padding: "10px 20px",
     background: "transparent",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     border: "1px solid #334155",
     borderRadius: "8px",
     fontSize: "14px",
@@ -1760,7 +1761,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   toolBtn: {
     padding: "8px 16px",
     background: "#0f172a",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     border: "1px solid #334155",
     borderRadius: "6px",
     fontSize: "13px",
@@ -1808,13 +1809,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "16px",
     justifyContent: "center",
     fontSize: "11px",
-    color: "#64748b",
+    color: "var(--text-secondary)",
   },
   viewerInfo: {
     display: "flex",
     justifyContent: "space-between",
     fontSize: "13px",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
   },
 };
 

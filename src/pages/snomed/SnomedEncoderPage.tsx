@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import { snomedApi, type SnomedCode } from '../../services/api/snomedApi'
 import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, Row, Col, Statistic, Empty } from 'antd'
 import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp, Clipboard } from 'lucide-react'
-import { snomedApi, type SnomedCode } from '../../services/api/snomedApi'
+import React, { useState, useCallback } from 'react'
+import { SearchX } from 'lucide-react'
 
 const { Text, Title, TextArea: _AntTextArea } = Typography
 
@@ -272,7 +273,7 @@ const SnomedEncoderPage: React.FC = () => {
                 ))}
               </div>
             ) : searchQ && !searchLoading ? (
-              <Empty description="未找到匹配的 SNOMED CT 术语" style={{ padding: 24 }} />
+              <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到匹配的 SNOMED CT 术语" style={{ padding: 24 }} />
             ) : null}
           </Card>
         </Col>
@@ -302,7 +303,7 @@ const SnomedEncoderPage: React.FC = () => {
 
       {codes.length === 0 && !loading && text && (
         <Card style={{ marginTop: 16, textAlign: 'center', padding: 40 }}>
-          <Empty description="未匹配到 SNOMED CT 编码" />
+          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未匹配到 SNOMED CT 编码" />
         </Card>
       )}
     </div>

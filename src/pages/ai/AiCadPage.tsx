@@ -1,24 +1,33 @@
 // [v3.0.6.11-54] Phase 2: AI CAD 聚合页 (肺结节/乳腺/骨折/心脏 + 统计卡片)
 // [v3.0.6.11-75] W1-2: 接入真实 cadApi (POST /ai/cad/detect, GET /ai/cad/result/:instanceId)
 // [v3.0.6.11-80] W2-A: 准确率分析 Tab (POST /ai-diagnosis/accuracy 各模型 + GET /ai-diagnosis/trend 30 天趋势)
-import React, { useCallback, useEffect, useState } from 'react'
-import {
-  Card, Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress,
-  Input, Table, Empty,
-} from 'antd'
-import {
-  Cpu, RefreshCw, Activity, Target, CheckCircle2, TrendingUp, ScanSearch, Crosshair, BarChart3, Gauge,
-} from 'lucide-react'
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts'
 import LungCadPage from './LungCadPage'
 import BreastCadPage from './BreastCadPage'
 import FractureCadPage from './FractureCadPage'
 import CardiacAiPage from './CardiacAiPage'
 import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPoint } from '../../services/api/aiDiagnosisApi'
 import { cadApi } from '../../services/api/cadApi'
-import type { CadResult } from '../../services/api/cadApi'
+import { CadResult } from '../../services/api/cadApi'
+import {
+  Card, Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress,
+  Input, Table, Empty,
+} from 'antd'
+import {
+  Cpu,
+  RefreshCw,
+  Activity,
+  Target,
+  CheckCircle2,
+  TrendingUp,
+  ScanSearch,
+  Crosshair,
+  BarChart3,
+  Gauge,
+} from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts'
 
 const SAMPLE_INSTANCES = ['inst-2000', 'inst-2001', 'inst-2002', 'inst-2003']
 
@@ -109,7 +118,7 @@ const AccuracyPanel: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Spin spinning={loading && !overall && trend.length === 0}>
@@ -236,7 +245,7 @@ const AiCadPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           message={error}
-          action={<Button size="small" onClick={() => void loadStats()}>重试</Button>}
+          action={<Button size="small" onClick={() => void loadStats()}><RefreshCw size={14} /> 重试</Button>}
         />
       )}
 
@@ -378,7 +387,7 @@ const CadDetectPanel: React.FC = () => {
       <Card size="small" title={<Space><ScanSearch size={16} color="#2563eb" />CAD 实时检测</Space>}>
         <Space wrap style={{ marginBottom: 12 }}>
           <Input
-            placeholder="输入 DICOM 实例 ID (SOP Instance UID)"
+            placeholder="输入 DICOM 实例 ID (SOP 实例 UID)"
             value={instanceId}
             onChange={(e) => setInstanceId(e.target.value)}
             onPressEnter={() => void runDetect(instanceId)}
@@ -405,7 +414,7 @@ const CadDetectPanel: React.FC = () => {
               <Col span={8}><Statistic title="最高置信度" value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
               <Col span={8}><Statistic title="检测时间" value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
             </Row>
-            <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false} scroll={{ x: 'max-content' }}/>
+            <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false}/>
             {current.heatmapUrl && (
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
                 热力图: <code>{current.heatmapUrl}</code>
@@ -418,7 +427,7 @@ const CadDetectPanel: React.FC = () => {
         {history.length === 0 && !detecting ? (
           <Empty description="尚未执行检测" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             rowKey="instanceId"
             size="small"
             loading={detecting && history.length === 0}
@@ -432,7 +441,7 @@ const CadDetectPanel: React.FC = () => {
                 title: '操作',
                 key: 'action',
                 render: (_: unknown, r: CadResult) => (
-                  <Button size="small" type="link" loading={loadingDetail} onClick={() => void viewDetail(r.instanceId)}>查看详情 (getResult)</Button>
+                  <Button size="small" type="link" loading={loadingDetail} onClick={() => void viewDetail(r.instanceId)}>查看详情</Button>
                 ),
               },
             ]}
@@ -449,7 +458,7 @@ const CadDetectPanel: React.FC = () => {
                 <span style={{ fontSize: 12, color: '#64748b' }}>检测于 {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
                 {detail.simulated && <Tag color="gold">模拟回退</Tag>}
               </Space>
-              <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false} scroll={{ x: 'max-content' }}/>
+              <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false}/>
             </>
           ) : (
             <Empty description="点击上方记录的“查看详情”加载真实结果" image={Empty.PRESENTED_IMAGE_SIMPLE} />

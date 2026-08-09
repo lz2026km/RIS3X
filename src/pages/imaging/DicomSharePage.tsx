@@ -2,13 +2,14 @@
  * G005 v3.0.6.11-75 W3-1 - DICOM 影像共享页
  * shareApi 真实数据: 共享记录列表 + 创建共享(选检查+有效期+密码) + 链接复制 + loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react'
+import dayjs from 'dayjs'
+import { shareApi, type ShareRecord, type ShareStats } from '../../services/api/shareApi'
 import {
   Card, Space, Tag, Button, Table, Select, Row, Col, Statistic, message, Modal, Form, Input, DatePicker, Spin, Alert, Empty, Popconfirm, Typography, Descriptions,
 } from 'antd'
 import { Share2, Send, Download, Link2, Trash2, Eye } from 'lucide-react'
-import dayjs from 'dayjs'
-import { shareApi, type ShareRecord, type ShareStats } from '../../services/api/shareApi'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Inbox, RefreshCw } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -179,7 +180,7 @@ const DicomSharePage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -189,11 +190,11 @@ const DicomSharePage: React.FC = () => {
         <Col span={6}><Card size="small"><Statistic title="传输总量" value={stats?.totalSizeMb ?? 0} suffix="MB" loading={loading} /></Card></Col>
       </Row>
 
-      <Card size="small" title="传输记录" extra={<Button size="small" onClick={() => void load()}>刷新</Button>}>
+      <Card size="small" title="传输记录" extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
         ) : shares.length === 0 ? (
-          <Empty description="暂无共享记录" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无共享记录" />
         ) : (
           <Table dataSource={shares} rowKey="id" columns={columns} pagination={{ current: sharePage, pageSize: 10, total: shares.length, onChange: setSharePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 1200 }} />
         )}
@@ -241,7 +242,7 @@ const DicomSharePage: React.FC = () => {
             <Descriptions.Item label="创建时间" span={2}>{detailShare.createdAt}</Descriptions.Item>
           </Descriptions>
         ) : (
-          <Empty description="未加载到详情" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="未加载到详情" />
         )}
       </Modal>
     </div>

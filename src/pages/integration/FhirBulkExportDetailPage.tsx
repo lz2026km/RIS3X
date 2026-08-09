@@ -98,7 +98,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出详情</span>
@@ -132,7 +132,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
             key: f.type,
             label: <Space><Tag color="blue">{f.type}</Tag>NDJSON 内容预览</Space>,
             children: previews[f.type] ? (
-              <pre style={{ fontSize: 11, maxHeight: 400, overflow: 'auto', background: '#f5f5f5', padding: 8, borderRadius: 4, margin: 0 }}>
+              <pre style={{ fontSize: 11, maxHeight: 400, overflow: 'auto', background: 'var(--bg-card)', padding: 8, borderRadius: 4, margin: 0 }}>
                 {previews[f.type]}
               </pre>
             ) : (

@@ -2,9 +2,10 @@
  * G005 放射RIS系统 v3.0.2 - 患者档案 360 视图
  * 对标:飞利浦 IntelliSpace / 卫宁 HIS 患者主索引(MPI)
  */
-import React, { useState, useMemo } from 'react'
 import { Card, Tabs, Tag, Space, Button, Statistic, Row, Col, Empty, Timeline, Avatar, List } from 'antd'
 import { User, Calendar, FileText, AlertOctagon, ImageIcon, Phone, MapPin, IdCard, Shield } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Inbox } from 'lucide-react'
 
 export interface PatientProfile {
   id: string
@@ -158,7 +159,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                 <Col span={16}>
                   <Card size="small" title="就诊时间轴" data-testid="patient-timeline">
                     {timeline.length === 0 ? (
-                      <Empty description="无就诊记录" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无就诊记录" />
                     ) : (
                       <Timeline
                         items={timeline.map((e) => ({
@@ -233,7 +234,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                     </List.Item>
                   )
                 }}
-                locale={{ emptyText: <Empty description="无检查" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无检查" /> }}
               />
             ),
           },
@@ -269,7 +270,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                     />
                   </List.Item>
                 )}
-                locale={{ emptyText: <Empty description="无报告" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无报告" /> }}
               />
             ),
           },

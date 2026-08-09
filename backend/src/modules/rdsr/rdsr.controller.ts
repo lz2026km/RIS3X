@@ -13,7 +13,25 @@ const DrlUpsertSchema = z.object({
   ctdivolDrl: z.number().positive().optional(),
   dlpDrl: z.number().positive().optional(),
   source: z.string().optional(),
+  ageGroup: z.enum(['adult', 'child']).optional(),
 }).refine((value) => value.ctdivolDrl !== undefined || value.dlpDrl !== undefined, { message: 'ctdivolDrl or dlpDrl is required' })
+
+const DrlCheckRecordSchema = z.object({
+  patientId: z.string().optional(),
+  patientName: z.string().optional(),
+  modality: z.string().min(1),
+  bodyPart: z.string().min(1),
+  ctdivol: z.number().nonnegative().optional(),
+  dlp: z.number().nonnegative().optional(),
+  ssde: z.number().nonnegative().optional(),
+  examDate: z.string().optional(),
+  age: z.number().int().nonnegative().optional(),
+  ageGroup: z.enum(['adult', 'child']).optional(),
+})
+
+const DrlCheckSchema = z.object({
+  records: z.array(DrlCheckRecordSchema),
+})
 
 @ApiTags('rdsr')
 @ApiBearerAuth()
@@ -28,18 +46,23 @@ export class RdsrController {
   }
 
   @Get('drl')
-  getDrl(@Query('modality') modality?: string, @Query('bodyPart') bodyPart?: string) {
-    return this.svc.getDrls(modality, bodyPart)
+  getDrl(@Query('modality') modality?: string, @Query('bodyPart') bodyPart?: string, @Query('ageGroup') ageGroup?: 'adult' | 'child') {
+    return this.svc.getDrls(modality, bodyPart, ageGroup)
   }
 
   @Get('drls')
-  getDrls(@Query('modality') modality?: string, @Query('bodyPart') bodyPart?: string) {
-    return this.svc.getDrls(modality, bodyPart)
+  getDrls(@Query('modality') modality?: string, @Query('bodyPart') bodyPart?: string, @Query('ageGroup') ageGroup?: 'adult' | 'child') {
+    return this.svc.getDrls(modality, bodyPart, ageGroup)
   }
 
   @Post('drl')
-  setDrl(@Body(new ZodValidationPipe(DrlUpsertSchema)) body: { bodyPart: string; modality?: string; ctdivolDrl?: number; dlpDrl?: number; source?: string }) {
+  setDrl(@Body(new ZodValidationPipe(DrlUpsertSchema)) body: { bodyPart: string; modality?: string; ctdivolDrl?: number; dlpDrl?: number; source?: string; ageGroup?: 'adult' | 'child' }) {
     return this.svc.setDrl(body)
+  }
+
+  @Post('check')
+  check(@Body(new ZodValidationPipe(DrlCheckSchema)) body: { records: { patientId?: string; patientName?: string; modality: string; bodyPart: string; ctdivol?: number; dlp?: number; ssde?: number; examDate?: string; age?: number; ageGroup?: 'adult' | 'child' }[] }) {
+    return this.svc.check(body.records)
   }
 
   @Get('today')

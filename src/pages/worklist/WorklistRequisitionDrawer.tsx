@@ -107,12 +107,12 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
             onClick={onClose}
             style={{
               padding: "8px 16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               borderRadius: 8,
-              background: "#fff",
+              background: "var(--bg-card)",
               fontSize: 12,
               fontWeight: 600,
-              color: "#64748b",
+              color: "var(--text-secondary)",
               cursor: "pointer",
             }}
           >
@@ -140,10 +140,10 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
         </>
       }
     >
-      <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ textAlign: "center", padding: "14px 16px", background: "#f8fafc", borderBottom: "1px solid #cbd5e1" }}>
+      <div style={{ border: "1px solid var(--border-color)", borderRadius: 10, overflow: "hidden" }}>
+        <div style={{ textAlign: "center", padding: "14px 16px", background: "var(--bg-card)", borderBottom: "1px solid var(--border-color)" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af", letterSpacing: 4 }}>放射科检查申请单</div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
             申请单号: {exam.accessionNumber || exam.id}
           </div>
         </div>
@@ -153,15 +153,15 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
           ["性别 / 年龄", `${exam.gender} / ${exam.age}岁`],
           ["患者类型", exam.patientType],
         ].map(([label, value]) => (
-          <div key={label} style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
-            <div style={{ width: 130, padding: "10px 12px", background: "#f8fafc", fontSize: 12, color: "#475569", fontWeight: 600, flexShrink: 0 }}>{label}</div>
-            <div style={{ padding: "10px 12px", fontSize: 13, color: "#334155" }}>{String(value ?? "-")}</div>
+          <div key={label} style={{ display: "flex", borderBottom: "1px solid var(--border-light)" }}>
+            <div style={{ width: 130, padding: "10px 12px", background: "var(--bg-card)", fontSize: 12, color: "var(--text-secondary)", fontWeight: 600, flexShrink: 0 }}>{label}</div>
+            <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-primary)" }}>{String(value ?? "-")}</div>
           </div>
         ))}
       </div>
 
       <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "20px 0 10px" }}>检查信息</div>
-      <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ border: "1px solid var(--border-color)", borderRadius: 10, overflow: "hidden" }}>
         {[
           ["检查项目", exam.examItemName],
           ["检查部位", `${exam.modality} · ${exam.bodyPart}`],
@@ -169,15 +169,15 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
           ["检查时间", exam.examTime || "-"],
           ["优先级", exam.priority],
         ].map(([label, value]) => (
-          <div key={label} style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
-            <div style={{ width: 130, padding: "10px 12px", background: "#f8fafc", fontSize: 12, color: "#475569", fontWeight: 600, flexShrink: 0 }}>{label}</div>
-            <div style={{ padding: "10px 12px", fontSize: 13, color: "#334155" }}>{String(value ?? "-")}</div>
+          <div key={label} style={{ display: "flex", borderBottom: "1px solid var(--border-light)" }}>
+            <div style={{ width: 130, padding: "10px 12px", background: "var(--bg-card)", fontSize: 12, color: "var(--text-secondary)", fontWeight: 600, flexShrink: 0 }}>{label}</div>
+            <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-primary)" }}>{String(value ?? "-")}</div>
           </div>
         ))}
       </div>
 
       <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "20px 0 10px" }}>临床信息</div>
-      <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ border: "1px solid var(--border-color)", borderRadius: 10, overflow: "hidden" }}>
         {[
           ["申请医生", exam.referringDoctorName || getDoctorName(exam.referringDoctorId)],
           ["申请科室", exam.referringDoctorDept || "-"],
@@ -185,9 +185,9 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
           ["病史摘要", exam.clinicalHistory || "-"],
           ["检查指征", exam.examIndications || "-"],
         ].map(([label, value]) => (
-          <div key={label} style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
-            <div style={{ width: 130, padding: "10px 12px", background: "#f8fafc", fontSize: 12, color: "#475569", fontWeight: 600, flexShrink: 0 }}>{label}</div>
-            <div style={{ padding: "10px 12px", fontSize: 13, color: "#334155" }}>{String(value ?? "-")}</div>
+          <div key={label} style={{ display: "flex", borderBottom: "1px solid var(--border-light)" }}>
+            <div style={{ width: 130, padding: "10px 12px", background: "var(--bg-card)", fontSize: 12, color: "var(--text-secondary)", fontWeight: 600, flexShrink: 0 }}>{label}</div>
+            <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-primary)" }}>{String(value ?? "-")}</div>
           </div>
         ))}
       </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Card, Form, Input, Select, Button, Space, Typography, DatePicker, message, Tabs, Drawer, Descriptions } from 'antd'
 import { CalendarClock, Send, Eye, Code } from 'lucide-react'
 import { hl7Api } from '../../services/api/hl7Api'
+import { PageHeader } from '../../components/common/PageHeader'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -102,10 +103,7 @@ const Hl7SiuPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Space style={{ marginBottom: 16 }}>
-        <CalendarClock size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>HL7 SIU^S12 排班消息</span>
-      </Space>
+    <PageHeader icon={<CalendarClock size={20} color="#2563eb" />} title="HL7 SIU^S12 排队信息" />
       <Tabs items={[
         { key: 'generate', label: <span><Code size={14} /> 生成消息</span>, children: (
           <Card>

@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Slider, Empty, Progress } from 'antd'
-import { Layers, Play, Search } from 'lucide-react'
 import {
   fusionV2Api,
   type FusionV2SeriesItem,
   type FusionV2RegisterResult,
   type FusionV2RenderResult,
 } from '../../services/api/fusionV2Api'
+import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Slider, Empty, Progress } from 'antd'
+import { Layers, Play, Search } from 'lucide-react'
+import { Inbox } from 'lucide-react'
+import { useState } from 'react'
 
 export const FusionManagerPage: React.FC = () => {
   const [patientId, setPatientId] = useState('')
@@ -207,7 +208,7 @@ export const FusionManagerPage: React.FC = () => {
 
       {series.length === 0 && !loading && (
         <Card>
-          <Empty description="请输入患者 ID 并加载序列" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请输入患者 ID 并加载序列" />
         </Card>
       )}
     </div>

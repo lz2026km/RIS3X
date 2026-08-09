@@ -12,7 +12,26 @@
  *  - Cosign temp auth      (临时授权)
  *  - Batch Cosign          (批量签)
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { cosignService } from '../../../../services/review/cosignService';
+import type {
+  CosignCalendarEntry,
+  CosignRecord,
+  EmergencyCosign,
+  MultiSignConfig,
+  SignConflict,
+  SuperiorAssignRule,
+  CosignSLAConfig,
+  CosignSkipConfig,
+  TemporaryAuth,
+  BatchCosignRequest,
+  CosignDashboardKPI,
+  CosignSLAMetric,
+  ConflictResolution,
+  SkipReason,
+  TemporaryAuthScope,
+  CosignStatus,
+} from '../../../../types/R3/R3.COSIGN';
+import type { Reviewer } from '../../../../types/R3/R3.REVIEW';
 import {
   Card,
   Tag,
@@ -59,26 +78,8 @@ import {
   TrendingUp,
   Activity,
 } from 'lucide-react';
-import { cosignService } from '../../../../services/review/cosignService';
-import type {
-  CosignCalendarEntry,
-  CosignRecord,
-  EmergencyCosign,
-  MultiSignConfig,
-  SignConflict,
-  SuperiorAssignRule,
-  CosignSLAConfig,
-  CosignSkipConfig,
-  TemporaryAuth,
-  BatchCosignRequest,
-  CosignDashboardKPI,
-  CosignSLAMetric,
-  ConflictResolution,
-  SkipReason,
-  TemporaryAuthScope,
-  CosignStatus,
-} from '../../../../types/R3/R3.COSIGN';
-import type { Reviewer } from '../../../../types/R3/R3.REVIEW';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Inbox } from 'lucide-react'
 
 const SHIFT_META: Record<string, { color: string; label: string; bg: string }> = {
   morning: { color: '#f59e0b', label: '上午 (08-12)', bg: '#fef3c7' },
@@ -458,7 +459,7 @@ export const CosignSchedule: React.FC = () => {
                         style={{ marginTop: 8, maxHeight: 320, overflowY: 'auto' }}
                         size="small"
                         dataSource={daySchedules}
-                        locale={{ emptyText: <Empty description="当日无排班" /> }}
+                        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="当日无排班" /> }}
                         renderItem={(s) => {
                           const sm: { color: string; label: string; bg: string } = SHIFT_META[s.shiftType] ?? { color: '#64748b', label: '未知', bg: '#f1f5f9' };
                           return (
@@ -528,7 +529,7 @@ export const CosignSchedule: React.FC = () => {
                     title={`默认 SLA: ${slaConfig.defaultMinutes}m · 警告 ${slaConfig.warnMinutes}m · 超时升级到 ${slaConfig.escalateToRole ?? 'director'}`}
                   />
                 )}
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="recordId"
                   dataSource={slaMetrics}
@@ -567,7 +568,7 @@ export const CosignSchedule: React.FC = () => {
             label: <Space><AlertTriangle size={14} />签冲突</Space>,
             children: (
               <Card size="small" title={<Space><AlertTriangle size={14} color="#dc2626" />签冲突列表</Space>}>
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="id"
                   dataSource={conflicts}
@@ -684,7 +685,7 @@ export const CosignSchedule: React.FC = () => {
                   showIcon
                   title={`跳过功能 ${skipConfig.enabled ? '已启用' : '已停用'} · 需 ${skipConfig.authorizedRoles.join('/')} 授权 · 审计等级 ${skipConfig.auditLevel}`}
                 />
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="id"
                   dataSource={skipConfig.conditions}
@@ -730,7 +731,7 @@ export const CosignSchedule: React.FC = () => {
             label: <Space><Key size={14} />临时授权</Space>,
             children: (
               <Card size="small" title={<Space><Key size={14} />临时授权列表</Space>} extra={<Button size="small" icon={<Plus size={12} />} onClick={() => setTempAuthModal(true)}>新增授权</Button>}>
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="id"
                   dataSource={tempAuths}

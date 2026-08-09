@@ -1,9 +1,9 @@
 // [W3-2] 报告模板管理: templatesApi 真实 CRUD (列表/新建/编辑/删除) + 分类筛选 + 使用统计 + 智能片段
-import React, { useState, useEffect, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePagination';
+import { templatesApi } from '@/services/api/templatesApi';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Typography, Modal, Form, Input, Select, Switch, Popconfirm, message, Alert, Empty, Spin, Segmented, Progress } from 'antd';
 import { FileText, Copy, Plus, Edit3, Layout, Layers, RefreshCw, Trash2, BarChart3 } from 'lucide-react';
-import { templatesApi } from '@/services/api/templatesApi';
-import { usePagination } from '@/hooks/usePagination';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const { TextArea } = Input;
 
@@ -225,7 +225,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Layout size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>报告模板管理</span>
@@ -233,7 +233,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
         <Tag color="blue">智能片段</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { void load(); void loadSnippets(); }}>刷新</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="模板" value={templates.length} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="片段" value={snippets.length} /></Card></Col>
@@ -256,20 +256,20 @@ export const ReportTemplateManagerPage: React.FC = () => {
         title={<Space><FileText size={14} />报告模板 <Tag>{templates.length}</Tag></Space>}
       >
         <Spin spinning={loading}>
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             dataSource={templatePageData}
             rowKey="id"
             pagination={templatePagination}
             columns={columns}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无模板, 点击新建模板创建" /> }}
-          scroll={{ x: 'max-content' }}
+         
           />
         </Spin>
       </Card>
       <Card size="small" title={<Space><Layers size={14} />智能片段 <Tag>{snippets.length}</Tag></Space>} style={{ marginTop: 16 }} extra={<Button icon={<Plus size={12} />} onClick={() => setSnippetModal(true)}>新建片段</Button>}>
         <Spin spinning={snippetLoading}>
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             dataSource={snippetPageData}
             rowKey="id"
             pagination={snippetPagination}
@@ -283,7 +283,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
               { title: '操作', key: 'actions', width: 90, render: (_: unknown, s: Snippet) => <Popconfirm title="删除该片段?" onConfirm={() => void handleSnippetDelete(s)}><Button size="small" danger icon={<Trash2 size={10} />} /></Popconfirm> },
             ]}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无智能片段" /> }}
-          scroll={{ x: 'max-content' }}
+         
           />
         </Spin>
       </Card>

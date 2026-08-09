@@ -1,7 +1,8 @@
 // [v3.0.6.8-53] 牙位图页?(FDI 编号 32 ?
-import React, { useState, useEffect } from "react";
 import { Card, Space, Tag, Row, Col, Empty, Tooltip } from "antd";
 import { Activity, Stethoscope } from "lucide-react";
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from "react";
 
 export const ToothChartPage: React.FC = () => {
   const [patientId] = useState("P100000");
@@ -36,7 +37,7 @@ export const ToothChartPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)" }}>
       <Space style={{ marginBottom: 16 }}>
         <Stethoscope size={20} color="#2563eb" />
         <Activity size={20} />
@@ -62,7 +63,7 @@ export const ToothChartPage: React.FC = () => {
                     style={{
                       writingMode: "vertical-lr",
                       marginRight: 8,
-                      color: "#999",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     上颌
@@ -73,7 +74,7 @@ export const ToothChartPage: React.FC = () => {
                     style={{
                       writingMode: "vertical-lr",
                       marginRight: 8,
-                      color: "#999",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     下颌
@@ -166,7 +167,7 @@ export const ToothChartPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Empty description="点击牙位查看详情" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击牙位查看详情" />
             )}
           </Card>
         </Col>

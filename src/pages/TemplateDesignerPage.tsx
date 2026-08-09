@@ -145,7 +145,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "snippet",
     label: "短语",
     icon: FileText,
-    color: "#64748b",
+    color: "var(--text-secondary)",
     description: "报告整段",
     category: "special",
   },
@@ -175,7 +175,7 @@ const PRESET_SECTIONS = [
   { id: "sec-impression", name: "诊断意见", order: 2, color: "#7c3aed" },
   { id: "sec-rec", name: "建议", order: 3, color: "#0891b2" },
   { id: "sec-comp", name: "对比", order: 4, color: "#f59e0b" },
-  { id: "sec-tech", name: "检查技术", order: 5, color: "#475569" },
+  { id: "sec-tech", name: "检查技术", order: 5, color: "var(--text-secondary)" },
 ];
 
 const PRESET_CATEGORIES = [
@@ -525,7 +525,7 @@ export default function TemplateDesignerPage() {
       <div
         style={{
           background: "var(--bg-card)",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--border-color)",
           padding: "10px 16px",
           display: "flex",
           alignItems: "center",
@@ -540,7 +540,7 @@ export default function TemplateDesignerPage() {
               padding: 4,
               border: "none",
               background: "transparent",
-              color: "#64748b",
+              color: "var(--text-secondary)",
               cursor: "pointer",
             }}
           >
@@ -574,7 +574,7 @@ export default function TemplateDesignerPage() {
             <div
               style={{
                 fontSize: 12,
-                color: "#64748b",
+                color: "var(--text-secondary)",
                 marginTop: 2,
                 display: "flex",
                 alignItems: "center",
@@ -602,10 +602,10 @@ export default function TemplateDesignerPage() {
             onClick={() => setPreviewMode(!previewMode)}
             style={{
               padding: "4px 10px",
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--border-color)",
               borderRadius: 6,
-              background: previewMode ? "#dbeafe" : "#fff",
-              color: "#475569",
+              background: previewMode ? "var(--color-info-bg)" : "var(--bg-card)",
+              color: "var(--text-secondary)",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",
@@ -639,10 +639,10 @@ export default function TemplateDesignerPage() {
             }}
             style={{
               padding: "4px 10px",
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--border-color)",
               borderRadius: 6,
               background: "var(--bg-card)",
-              color: "#475569",
+              color: "var(--text-secondary)",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",
@@ -656,10 +656,10 @@ export default function TemplateDesignerPage() {
             onClick={() => setIsFullscreen(!isFullscreen)}
             style={{
               padding: 4,
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--border-color)",
               borderRadius: 6,
               background: "var(--bg-card)",
-              color: "#64748b",
+              color: "var(--text-secondary)",
               cursor: "pointer",
             }}
             title={isFullscreen ? "退出全屏" : "全屏"}
@@ -725,7 +725,7 @@ export default function TemplateDesignerPage() {
         <div
           style={{
             background: "var(--bg-card)",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-color)",
             padding: "8px 16px",
             display: "flex",
             flexWrap: "wrap",
@@ -831,7 +831,7 @@ export default function TemplateDesignerPage() {
             style={{
               width: 240,
               background: "var(--bg-card)",
-              borderRight: "1px solid #e2e8f0",
+              borderRight: "1px solid var(--border-color)",
               display: "flex",
               flexDirection: "column",
               flexShrink: 0,
@@ -840,7 +840,7 @@ export default function TemplateDesignerPage() {
             <div
               style={{
                 padding: "8px 12px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
                 fontSize: 12,
                 fontWeight: 700,
                 color: "#1e40af",
@@ -862,7 +862,7 @@ export default function TemplateDesignerPage() {
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#64748b",
+                        color: "var(--text-secondary)",
                         marginBottom: 4,
                         textTransform: "uppercase",
                         letterSpacing: 1,
@@ -894,11 +894,11 @@ export default function TemplateDesignerPage() {
                             e.currentTarget.style.borderColor = meta.color;
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "#f8fafc";
-                            e.currentTarget.style.borderColor = `${meta.color}30`;
+e.currentTarget.style.background = "var(--bg-card)";
+e.currentTarget.style.borderColor = `${meta.color}30`;
                           }}
                         >
-                          <GripVertical size={11} color="#94a3b8" />
+                          <GripVertical size={11} color="var(--text-secondary)" />
                           <div
                             style={{
                               width: 22,
@@ -924,7 +924,7 @@ export default function TemplateDesignerPage() {
                             >
                               {meta.label}
                             </div>
-                            <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                               {meta.description}
                             </div>
                           </div>
@@ -938,7 +938,7 @@ export default function TemplateDesignerPage() {
                 style={{
                   marginTop: 16,
                   padding: 8,
-                  background: "#fef3c7",
+                  background: "var(--color-warning-bg)",
                   border: "1px solid #fcd34d",
                   borderRadius: 6,
                   fontSize: 12,
@@ -1006,7 +1006,7 @@ export default function TemplateDesignerPage() {
                       >
                         {section.name}
                       </span>
-                      <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                         ({section.fields.length} 字段)
                       </span>
                     </div>
@@ -1036,11 +1036,11 @@ export default function TemplateDesignerPage() {
                         style={{
                           padding: 20,
                           textAlign: "center",
-                          color: "#94a3b8",
+                          color: "var(--text-secondary)",
                           fontSize: 12,
                           background: "var(--content-bg)",
                           borderRadius: 4,
-                          border: "1px dashed #cbd5e1",
+                          border: "1px dashed var(--border-color)",
                         }}
                       >
                         📦 拖拽字段到此处添加
@@ -1069,7 +1069,7 @@ export default function TemplateDesignerPage() {
                               marginBottom: 4,
                               background: isSelected
                                 ? `${typeMeta?.color}15`
-                                : "#f8fafc",
+                                : "var(--bg-card)",
                               border: `1px solid ${isSelected ? typeMeta?.color : "#e2e8f0"}`,
                               borderRadius: 4,
                               cursor: "pointer",
@@ -1080,14 +1080,14 @@ export default function TemplateDesignerPage() {
                             }}
                             onMouseEnter={(e) => {
                               if (!isSelected)
-                                e.currentTarget.style.background = "#f1f5f9";
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isSelected)
-                                e.currentTarget.style.background = "#f8fafc";
-                            }}
+e.currentTarget.style.background = "var(--bg-card)";
+}}
+onMouseLeave={(e) => {
+if (!isSelected)
+e.currentTarget.style.background = "var(--bg-card)";
+}}
                           >
-                            <GripVertical size={11} color="#94a3b8" />
+                            <GripVertical size={11} color="var(--text-secondary)" />
                             <div
                               style={{
                                 width: 24,
@@ -1125,7 +1125,7 @@ export default function TemplateDesignerPage() {
                                 </span>
                                 {field.unit && (
                                   <span
-                                    style={{ fontSize: 12, color: "#94a3b8" }}
+                                    style={{ fontSize: 12, color: "var(--text-secondary)" }}
                                   >
                                     ({field.unit})
                                   </span>
@@ -1135,7 +1135,7 @@ export default function TemplateDesignerPage() {
                                     style={{
                                       fontSize: 12,
                                       padding: "0 4px",
-                                      background: "#dbeafe",
+                                      background: "var(--color-info-bg)",
                                       color: "#1e40af",
                                       borderRadius: 3,
                                     }}
@@ -1148,7 +1148,7 @@ export default function TemplateDesignerPage() {
                                     style={{
                                       fontSize: 12,
                                       padding: "0 4px",
-                                      background: "#fef3c7",
+                                      background: "var(--color-warning-bg)",
                                       color: "#92400e",
                                       borderRadius: 3,
                                     }}
@@ -1161,7 +1161,7 @@ export default function TemplateDesignerPage() {
                                     style={{
                                       fontSize: 12,
                                       padding: "0 4px",
-                                      background: "#dcfce7",
+                                      background: "var(--color-success-bg)",
                                       color: "#16a34a",
                                       borderRadius: 3,
                                     }}
@@ -1173,7 +1173,7 @@ export default function TemplateDesignerPage() {
                               <div
                                 style={{
                                   fontSize: 12,
-                                  color: "#64748b",
+                                  color: "var(--text-secondary)",
                                   marginTop: 1,
                                 }}
                               >
@@ -1209,9 +1209,9 @@ export default function TemplateDesignerPage() {
                   padding: 10,
                   marginTop: 4,
                   background: "var(--bg-card)",
-                  border: "2px dashed #cbd5e1",
+                  border: "2px dashed var(--border-color)",
                   borderRadius: 8,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
@@ -1231,7 +1231,7 @@ export default function TemplateDesignerPage() {
             style={{
               width: 340,
               background: "var(--bg-card)",
-              borderLeft: "1px solid #e2e8f0",
+              borderLeft: "1px solid var(--border-color)",
               display: "flex",
               flexDirection: "column",
               flexShrink: 0,
@@ -1242,7 +1242,7 @@ export default function TemplateDesignerPage() {
                 display: "flex",
                 gap: 2,
                 padding: "6px 8px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
                 background: "var(--content-bg)",
               }}
             >
@@ -1301,7 +1301,7 @@ export default function TemplateDesignerPage() {
                     <div
                       style={{
                         textAlign: "center",
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         padding: 30,
                         fontSize: 12,
                       }}
@@ -1384,7 +1384,7 @@ export default function TemplateDesignerPage() {
                     <div
                       style={{
                         textAlign: "center",
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         padding: 20,
                         fontSize: 12,
                         background: "var(--content-bg)",
@@ -1408,7 +1408,7 @@ export default function TemplateDesignerPage() {
                       <div
                         key={rule.id}
                         style={{
-                          background: "#fffbeb",
+                          background: "var(--color-warning-bg)",
                           border: "1px solid #fcd34d",
                           borderRadius: 6,
                           padding: 10,
@@ -1460,7 +1460,7 @@ export default function TemplateDesignerPage() {
                               fontSize: 12,
                             }}
                           >
-                            <span style={{ color: "#64748b", fontSize: 12 }}>
+                            <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
                               如果
                             </span>
                             <select
@@ -1472,7 +1472,7 @@ export default function TemplateDesignerPage() {
                               }
                               style={{
                                 padding: "2px 4px",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 borderRadius: 3,
                                 fontSize: 12,
                                 flex: 1,
@@ -1503,7 +1503,7 @@ export default function TemplateDesignerPage() {
                               }
                               style={{
                                 padding: "2px 4px",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 borderRadius: 3,
                                 fontSize: 12,
                                 flex: 1,
@@ -1525,7 +1525,7 @@ export default function TemplateDesignerPage() {
                               placeholder="值"
                               style={{
                                 padding: "2px 4px",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 borderRadius: 3,
                                 fontSize: 12,
                                 width: 80,
@@ -1540,7 +1540,7 @@ export default function TemplateDesignerPage() {
                               fontSize: 12,
                             }}
                           >
-                            <span style={{ color: "#64748b", fontSize: 12 }}>
+                            <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
                               则
                             </span>
                             <select
@@ -1553,7 +1553,7 @@ export default function TemplateDesignerPage() {
                               }
                               style={{
                                 padding: "2px 4px",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 borderRadius: 3,
                                 fontSize: 12,
                               }}
@@ -1571,7 +1571,7 @@ export default function TemplateDesignerPage() {
                               }
                               style={{
                                 padding: "2px 4px",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 borderRadius: 3,
                                 fontSize: 12,
                                 flex: 1,
@@ -1594,7 +1594,7 @@ export default function TemplateDesignerPage() {
                     style={{
                       marginTop: 8,
                       fontSize: 12,
-                      color: "#94a3b8",
+                      color: "var(--text-secondary)",
                       lineHeight: 1.4,
                     }}
                   >
@@ -1626,7 +1626,7 @@ export default function TemplateDesignerPage() {
                   </div>
                   <div
                     style={{
-                      background: "#ecfeff",
+                      background: "#06b6d422",
                       border: "1px solid #0891b2",
                       borderRadius: 6,
                       padding: "8px 10px",
@@ -1687,7 +1687,7 @@ export default function TemplateDesignerPage() {
                     <label
                       style={{
                         fontSize: 12,
-                        color: "#64748b",
+                        color: "var(--text-secondary)",
                         fontWeight: 600,
                         marginBottom: 3,
                         display: "block",
@@ -1701,7 +1701,7 @@ export default function TemplateDesignerPage() {
                       style={{
                         width: "100%",
                         padding: "6px 8px",
-                        border: "1px solid #e2e8f0",
+                        border: "1px solid var(--border-color)",
                         borderRadius: 4,
                         fontSize: 12,
                         color: "var(--text-primary)",
@@ -1730,8 +1730,8 @@ export default function TemplateDesignerPage() {
                               padding: "6px 8px",
                               textAlign: "left",
                               fontWeight: 600,
-                              color: "#64748b",
-                              borderBottom: "1px solid #e2e8f0",
+                              color: "var(--text-secondary)",
+                              borderBottom: "1px solid var(--border-color)",
                             }}
                           >
                             字段
@@ -1741,8 +1741,8 @@ export default function TemplateDesignerPage() {
                               padding: "6px 8px",
                               textAlign: "left",
                               fontWeight: 600,
-                              color: "#64748b",
-                              borderBottom: "1px solid #e2e8f0",
+                              color: "var(--text-secondary)",
+                              borderBottom: "1px solid var(--border-color)",
                             }}
                           >
                             SR模板
@@ -1752,8 +1752,8 @@ export default function TemplateDesignerPage() {
                               padding: "6px 8px",
                               textAlign: "left",
                               fontWeight: 600,
-                              color: "#64748b",
-                              borderBottom: "1px solid #e2e8f0",
+                              color: "var(--text-secondary)",
+                              borderBottom: "1px solid var(--border-color)",
                             }}
                           >
                             状态
@@ -1763,8 +1763,8 @@ export default function TemplateDesignerPage() {
                               padding: "6px 8px",
                               textAlign: "center",
                               fontWeight: 600,
-                              color: "#64748b",
-                              borderBottom: "1px solid #e2e8f0",
+                              color: "var(--text-secondary)",
+                              borderBottom: "1px solid var(--border-color)",
                             }}
                           >
                             操作
@@ -1779,7 +1779,7 @@ export default function TemplateDesignerPage() {
                           return (
                             <tr
                               key={f.id}
-                              style={{ borderBottom: "1px solid #f1f5f9" }}
+                              style={{ borderBottom: "1px solid var(--border-light)" }}
                             >
                               <td style={{ padding: "6px 8px" }}>
                                 <span
@@ -1807,7 +1807,7 @@ export default function TemplateDesignerPage() {
                                     }
                                     style={{
                                       padding: "2px 4px",
-                                      border: "1px solid #e2e8f0",
+                                      border: "1px solid var(--border-color)",
                                       borderRadius: 3,
                                       fontSize: 12,
                                       width: "100%",
@@ -1835,8 +1835,8 @@ export default function TemplateDesignerPage() {
                                       fontWeight: 600,
                                       background:
                                         mapping.complianceStatus === "compliant"
-                                          ? "#dcfce7"
-                                          : "#fef3c7",
+                                          ? "var(--color-success-bg)"
+                                          : "var(--color-warning-bg)",
                                       color:
                                         mapping.complianceStatus === "compliant"
                                           ? "#16a34a"
@@ -1849,7 +1849,7 @@ export default function TemplateDesignerPage() {
                                   </span>
                                 ) : (
                                   <span
-                                    style={{ color: "#94a3b8", fontSize: 12 }}
+                                    style={{ color: "var(--text-secondary)", fontSize: 12 }}
                                   >
                                     —
                                   </span>
@@ -1885,7 +1885,7 @@ export default function TemplateDesignerPage() {
                     <div
                       style={{
                         textAlign: "center",
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         padding: 16,
                         fontSize: 12,
                       }}
@@ -1897,7 +1897,7 @@ export default function TemplateDesignerPage() {
                     style={{
                       marginTop: 8,
                       fontSize: 12,
-                      color: "#94a3b8",
+                      color: "var(--text-secondary)",
                       lineHeight: 1.4,
                     }}
                   >
@@ -1911,7 +1911,7 @@ export default function TemplateDesignerPage() {
             <div
               style={{
                 padding: 10,
-                borderTop: "1px solid #e2e8f0",
+                borderTop: "1px solid var(--border-color)",
                 background: "var(--content-bg)",
                 display: "flex",
                 flexDirection: "column",
@@ -2000,7 +2000,7 @@ export default function TemplateDesignerPage() {
 
 const inputStyle: React.CSSProperties = {
   padding: "4px 8px",
-  border: "1px solid #cbd5e1",
+  border: "1px solid var(--border-color)",
   borderRadius: 4,
   fontSize: 12,
   outline: "none",
@@ -2008,7 +2008,7 @@ const inputStyle: React.CSSProperties = {
 };
 const selectStyle: React.CSSProperties = {
   padding: "4px 8px",
-  border: "1px solid #cbd5e1",
+  border: "1px solid var(--border-color)",
   borderRadius: 4,
   fontSize: 12,
   outline: "none",
@@ -2020,7 +2020,7 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   children,
 }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-    <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>
+    <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 600 }}>
       {label}:
     </span>
     {children}
@@ -2104,7 +2104,7 @@ const FieldPropertyPanel: React.FC<{
           alignItems: "center",
           gap: 6,
           fontSize: 12,
-          color: "#475569",
+          color: "var(--text-secondary)",
         }}
       >
         <input
@@ -2297,7 +2297,7 @@ const PropRow: React.FC<{ label: string; children: React.ReactNode }> = ({
     <div
       style={{
         fontSize: 12,
-        color: "#64748b",
+        color: "var(--text-secondary)",
         fontWeight: 600,
         marginBottom: 3,
       }}
@@ -2337,7 +2337,7 @@ const PreviewCanvas: React.FC<{
       }}
     >
       <h2 style={{ margin: 0, fontSize: 18, color: "#1e40af" }}>{meta.name}</h2>
-      <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>
     </div>
@@ -2354,7 +2354,7 @@ const PreviewCanvas: React.FC<{
         >
           {section.name}{" "}
           {section.fields.length > 0 && (
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               ({section.fields.length} 项)
             </span>
           )}
@@ -2374,10 +2374,10 @@ const PreviewCanvas: React.FC<{
               {field.required && <span style={{ color: "#dc2626" }}>*</span>}
               {field.fieldLabel}
               {field.unit && (
-                <span style={{ color: "#94a3b8" }}> ({field.unit})</span>
+                <span style={{ color: "var(--text-secondary)" }}> ({field.unit})</span>
               )}
             </span>
-            <span style={{ color: "#94a3b8", marginLeft: 8, fontSize: 12 }}>
+            <span style={{ color: "var(--text-secondary)", marginLeft: 8, fontSize: 12 }}>
               [{field.dataType}]
             </span>
           </div>

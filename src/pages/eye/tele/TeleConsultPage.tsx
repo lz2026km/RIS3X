@@ -1,6 +1,5 @@
 // [v3.0.6.8-41] PR 8: 远程眼科 (WebRTC) + 视光中心闭环
 // 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK?角膜塑形?
-import React, { useState, useEffect } from "react";
 import {
   Card,
   Space,
@@ -38,6 +37,8 @@ import {
   Send,
   Layers,
 } from "lucide-react";
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from "react";
 
 export const TeleConsultPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tele");
@@ -233,7 +234,7 @@ export const TeleConsultPage: React.FC = () => {
   }, [recording]);
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <Video size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -391,7 +392,7 @@ export const TeleConsultPage: React.FC = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         flexDirection: "column",
-                        color: "#888",
+                        color: "var(--text-secondary)",
                         position: "relative",
                       }}
                     >
@@ -404,15 +405,15 @@ export const TeleConsultPage: React.FC = () => {
                           <div style={{ marginTop: 16, fontSize: 14 }}>
                             会诊 {session.sessionId}
                           </div>
-                          <div style={{ fontSize: 12, color: "#666" }}>
+                          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                             患者{session.patientId} | {session.mode} |{" "}
                             {session.participants.length} 参与方
                           </div>
                         </>
                       ) : (
                         <>
-                          <MonitorSmartphone size={64} color="#444" />
-                          <div style={{ marginTop: 16, color: "#666" }}>
+                          <MonitorSmartphone size={64} color="var(--text-secondary)" />
+                          <div style={{ marginTop: 16, color: "var(--text-secondary)" }}>
                             点击"建立会诊"启动 WebRTC 会诊
                           </div>
                         </>
@@ -487,7 +488,7 @@ export const TeleConsultPage: React.FC = () => {
                         showIcon
                       />
                       <div
-                        style={{ marginTop: 8, fontSize: 13, color: "#666" }}
+                        style={{ marginTop: 8, fontSize: 13, color: "var(--text-secondary)" }}
                       >
                         专家: {consult.specialistId}
                         <br />
@@ -516,7 +517,7 @@ export const TeleConsultPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: 12,
-                          color: "#666",
+                          color: "var(--text-secondary)",
                           marginBottom: 8,
                           fontWeight: 600,
                         }}
@@ -560,7 +561,7 @@ export const TeleConsultPage: React.FC = () => {
                       <div
                         style={{
                           fontSize: 12,
-                          color: "#666",
+                          color: "var(--text-secondary)",
                           marginBottom: 8,
                           fontWeight: 600,
                         }}
@@ -681,7 +682,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                       </Row>
                     ) : (
-                      <Empty description="点击保存验光处方" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击保存验光处方" />
                     )}
                   </Card>
 

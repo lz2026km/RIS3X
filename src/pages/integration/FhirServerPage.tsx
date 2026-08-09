@@ -68,7 +68,7 @@ export const FhirServerPage: React.FC = () => {
   const resourceTypes = ['Patient', 'Observation', 'DiagnosticReport', 'Practitioner', 'ImagingStudy', 'Bundle'];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Server 集成</span>
@@ -78,25 +78,25 @@ export const FhirServerPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="CapabilityStatement" value="1" /></Card></Col>
+        <Col span={4}><Card><Statistic title="能力声明" value="1" /></Card></Col>
         <Col span={4}><Card><Statistic title="资源类型" value="5" /></Card></Col>
         <Col span={4}><Card><Statistic title="交互" value="4" suffix="种" /></Card></Col>
-        <Col span={4}><Card><Statistic title="OAuth2" value="SMART" /></Card></Col>
+        <Col span={4}><Card><Statistic title="OAuth2 授权" value="SMART" /></Card></Col>
       </Row>
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
-          { key:'capability', label:'CapabilityStatement', children:
-            capability ? <Card size="small" title={<Space>FHIR {capability.fhirVersion} Server Capabilities <Tag color="orange">静态声明（FHIR 规范文档, 非接口数据）</Tag></Space>}>
+          { key:'capability', label:'能力声明', children:
+            capability ? <Card size="small" title={<Space>FHIR {capability.fhirVersion} 服务器能力声明 <Tag color="orange">静态声明（FHIR 规范文档, 非接口数据）</Tag></Space>}>
               <Descriptions column={2} size="small">
                 <Descriptions.Item label="状态"><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="发布者">{capability.publisher}</Descriptions.Item>
                 <Descriptions.Item label="交互">{capability.rest[0].interaction.join(', ')}</Descriptions.Item>
-                <Descriptions.Item label="安全">{capability.rest[0].security.cors ? 'CORS + SMART OAuth2' : '无'}</Descriptions.Item>
+                <Descriptions.Item label="安全">{capability.rest[0].security.cors ? 'CORS + SMART OAuth2 授权' : '无'}</Descriptions.Item>
               </Descriptions>
               <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>资源类型:</div>
               {capability.rest[0].resource.map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
-              <Alert type="info" showIcon style={{ marginTop: 12 }} message="CapabilityStatement 依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。" />
+              <Alert type="info" showIcon style={{ marginTop: 12 }} message="能力声明依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。" />
             </Card> : null
           },
           { key:'browse', label:'资源浏览器', children:
@@ -128,7 +128,7 @@ export const FhirServerPage: React.FC = () => {
                 <div style={{fontSize:11,color:'#999',marginTop:4}}>FHIR 查询语法: _count / _sort / name:contains / birthdate=gt2020</div>
               </Card>
               {queryResult && <Card size="small" title="查询结果">
-                <pre style={{fontSize:12,maxHeight:400,overflow:'auto',background:'#f5f5f5',padding:8,borderRadius:4}}>
+                <pre style={{fontSize:12,maxHeight:400,overflow:'auto',background:'var(--bg-card)',padding:8,borderRadius:4}}>
                   {JSON.stringify(queryResult, null, 2).slice(0, 2000)}
                 </pre>
               </Card>}

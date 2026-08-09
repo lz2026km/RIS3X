@@ -29,7 +29,7 @@ const TopographyPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -57,14 +57,14 @@ const TopographyPage: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                       flexDirection: "column",
                     }}
                   >
                     <Map size={32} />
                     <span style={{ fontSize: 12, marginTop: 4 }}>{name}</span>
                     <div
-                      style={{ fontSize: 12, color: "#475569", marginTop: 4 }}
+                      style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}
                     >
                       {name === "轴向图"
                         ? "SimK 43.1@178°/44.6@88°"
@@ -138,7 +138,7 @@ const TopographyPage: React.FC = () => {
                     value={s.value}
                     styles={{ content: {  fontSize: 16, color: s.color  } }}
                   />
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{s.note}</div>
                 </Col>
               ))}
             </Row>
@@ -157,7 +157,7 @@ const TopographyPage: React.FC = () => {
             </div>
           </Card>
           <Card size="small" title="解读" style={{ marginTop: 8 }}>
-            <div style={{ fontSize: 12, lineHeight: 1.8, color: "#475569" }}>
+            <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
               • 角膜形态对称,规则散光
               <br />• SimK 差 1.5D 规则散光
               <br />• 最薄点位于中央偏颞

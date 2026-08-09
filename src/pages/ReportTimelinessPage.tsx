@@ -135,16 +135,16 @@ export default function ReportTimelinessPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Clock size={20} color="#1e40af" /> 报告及时率监控
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             急诊5min / 加急30min / 普通24h · 实时超时预警 · 智能调度
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4, background: '#fff', borderRadius: 6, padding: 3, border: '1px solid #cbd5e1' }}>
+          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
             {(['today', 'week', 'month'] as const).map(p => (
               <button
                 key={p}
@@ -164,7 +164,7 @@ export default function ReportTimelinessPage() {
             onClick={() => setAutoRefresh(!autoRefresh)}
             style={{
               padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              background: autoRefresh ? '#10b981' : '#fff',
+              background: autoRefresh ? '#10b981' : 'var(--bg-card)',
               color: autoRefresh ? '#fff' : '#475569',
               border: '1px solid ' + (autoRefresh ? '#10b981' : '#cbd5e1'),
               display: 'flex', alignItems: 'center', gap: 4,
@@ -175,7 +175,7 @@ export default function ReportTimelinessPage() {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 4,
             fontSize: 12, fontWeight: 600,
-            background: loading ? '#f1f5f9' : dataSource === 'api' ? '#ecfdf5' : '#fffbeb',
+            background: loading ? 'var(--bg-card)' : dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
             color: loading ? '#64748b' : dataSource === 'api' ? '#059669' : '#d97706',
             border: '1px solid ' + (dataSource === 'api' ? '#a7f3d0' : '#fde68a'),
           }}>
@@ -186,7 +186,7 @@ export default function ReportTimelinessPage() {
             <button
               onClick={() => void loadData()}
               title={apiError}
-              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#fff', color: '#dc2626', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: '#dc2626', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <AlertTriangle size={12} /> 重试
             </button>
@@ -204,23 +204,23 @@ export default function ReportTimelinessPage() {
 
       {/* 优先级及时率 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按优先级 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>{dataSource === 'api' ? 'biApi TAT 桶分布' : 'TAT 监控'}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? 'biApi TAT 桶分布' : 'TAT 监控'}</span>
           </div>
           {priorityData.map(p => (
             <div key={p.priority} style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <PriorityBadge priority={p.priority} />
-                  <span style={{ fontSize: 12, color: '#475569' }}>目标 {p.target}min · 已发 {p.onTime}单</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>目标 {p.target}min · 已发 {p.onTime}单</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: p.rate >= 90 ? '#10b981' : p.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{p.rate}%</span>
                 </div>
               </div>
-              <div style={{ height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: p.rate + '%',
@@ -232,21 +232,21 @@ export default function ReportTimelinessPage() {
           ))}
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按设备 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>演示数据</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>演示数据</span>
           </div>
           {t.onTimeByModality.map(m => (
             <div key={m.modality} style={{ marginBottom: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 4, background: modalityColor(m.modality) }} />
-                  <span style={{ fontSize: 12, color: '#475569' }}>{m.modality} · {m.onTime}/{m.target}单</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.modality} · {m.onTime}/{m.target}单</span>
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{m.rate}%</span>
               </div>
-              <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ height: 6, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: m.rate + '%',
@@ -259,7 +259,7 @@ export default function ReportTimelinessPage() {
       </div>
 
       {/* 7日趋势 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginBottom: 12 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>近 7 日及时率趋势</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
@@ -280,7 +280,7 @@ export default function ReportTimelinessPage() {
                   borderRadius: '4px 4px 0 0',
                   transition: 'all 0.3s',
                 }} />
-                <div style={{ fontSize: 12, color: '#64748b' }}>{p.date}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{p.date}</div>
               </div>
             );
           })}
@@ -288,11 +288,11 @@ export default function ReportTimelinessPage() {
       </div>
 
       {/* 超时工单 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> 超时工单实时列表
-            <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8', marginLeft: 6 }}>演示数据 (biApi 无超时工单明细端点)</span>
+            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>演示数据 (biApi 无超时工单明细端点)</span>
           </div>
           <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
             {reminding ? '催办中...' : '一键催办'}
@@ -300,7 +300,7 @@ export default function ReportTimelinessPage() {
         </div>
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+            <tr style={{ background: 'var(--color-error-bg)', borderBottom: '1px solid #fecaca' }}>
               <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>报告ID</th>
               <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>患者</th>
               <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>责任医生</th>
@@ -313,10 +313,10 @@ export default function ReportTimelinessPage() {
               <tr key={o.reportId} style={{ borderBottom: '1px solid #fee2e2' }}>
                 <td style={{ padding: 8, fontFamily: 'monospace', color: '#7f1d1d' }}>{o.reportId}</td>
                 <td style={{ padding: 8 }}><User size={10} /> {o.patientName}</td>
-                <td style={{ padding: 8, color: '#475569' }}>{o.doctor}</td>
+                <td style={{ padding: 8, color: 'var(--text-secondary)' }}>{o.doctor}</td>
                 <td style={{ padding: 8, textAlign: 'right', color: o.minutes > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{o.minutes} min</td>
                 <td style={{ padding: 8, textAlign: 'center' }}>
-                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: '#fff', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
+                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
                     催办
                   </button>
                   <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
@@ -337,9 +337,9 @@ export default function ReportTimelinessPage() {
 // ============================================================
 function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, alert }: any) {
   return (
-    <div style={{ background: '#fff', borderRadius: 8, padding: 14, border: '1px solid ' + (alert ? '#fecaca' : '#e2e8f0') }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid ' + (alert ? '#fecaca' : '#e2e8f0') }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 12 }}>
           <Icon size={12} /> {label}
         </div>
         {trend && (
@@ -357,11 +357,11 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
 
 function PriorityBadge({ priority }: { priority: string }) {
   const map: any = {
-    '急诊': { bg: '#fee2e2', color: '#dc2626' },
-    '加急': { bg: '#fef3c7', color: '#d97706' },
-    '普通': { bg: '#dbeafe', color: '#1e40af' },
+    '急诊': { bg: '#ef444422', color: '#ef4444' },
+    '加急': { bg: '#f59e0b22', color: '#f59e0b' },
+    '普通': { bg: '#3b82f622', color: '#1e40af' },
   };
-  const s = map[priority] || { bg: '#f1f5f9', color: '#475569' };
+  const s = map[priority] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
   return (
     <span style={{ padding: '2px 6px', background: s.bg, color: s.color, borderRadius: 3, fontSize: 12, fontWeight: 700 }}>
       {priority}

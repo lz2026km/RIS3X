@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { ChartContainer } from '../../components/charts'
-import { ShieldAlert, AlertTriangle, CheckCircle, Plus, BarChart3, Target } from 'lucide-react'
+import { ShieldAlert, AlertTriangle, CheckCircle, Plus, BarChart3, Target, Send } from 'lucide-react'
 import {
   getRiskItems, createRiskItem, updateRiskItem,
   type RiskItem, type RiskLevel, type RiskCategory,
@@ -116,7 +116,7 @@ export default function RiskManagementPage() {
             </div>
             <textarea style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 60, marginBottom: 12 }} placeholder="风险描述" value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer' }}>提交</button>
+              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#e11d48', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />提交</button>
               <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer' }}>取消</button>
             </div>
           </div>

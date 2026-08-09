@@ -136,6 +136,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         pagination={false}
         size="small"
         bordered
+        scroll={{ x: 'max-content' }}
       />
 
       <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>

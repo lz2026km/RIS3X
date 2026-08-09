@@ -2,13 +2,14 @@
  * G005 v3.0.6.11-75 W3-1 - 造影剂库存管理页
  * deviceMgmtApi.getContrastInventory 真实数据 + 入库/出库 + 低库存/过期告警 + loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react'
+import dayjs from 'dayjs'
+import { deviceMgmtApi, type ContrastInventory } from '../../services/api/deviceMgmtApi'
 import {
   Card, Table, Tag, Space, Typography, Row, Col, Statistic, Button, Modal, Form, Input, InputNumber, Select, DatePicker, Alert, Spin, Empty, message,
 } from 'antd'
 import { Package, Plus, MinusCircle, Archive, Search, RefreshCw, PackagePlus } from 'lucide-react'
-import dayjs from 'dayjs'
-import { deviceMgmtApi, type ContrastInventory } from '../../services/api/deviceMgmtApi'
+import React, { useCallback, useEffect, useState } from 'react'
+import { AlertTriangle, Inbox } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -169,7 +170,7 @@ const ContrastInventoryPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', border: 'none' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <Space>
@@ -189,7 +190,7 @@ const ContrastInventoryPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="库存加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       {(lowItems.length > 0 || expiredItems.length > 0) && !error && (
@@ -227,7 +228,7 @@ const ContrastInventoryPage: React.FC = () => {
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
         ) : filtered.length === 0 ? (
-          <Empty description={error ? '加载失败' : '暂无库存数据'} />
+          <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? '加载失败' : '暂无库存数据'} />
         ) : (
           <Table rowKey="id" dataSource={filtered} columns={columns} pagination={false} size="small" scroll={{ x: 900 }} />
         )}
@@ -274,9 +275,9 @@ const ContrastInventoryPage: React.FC = () => {
 
       <Modal title="出入库记录" open={logOpen} onCancel={() => setLogOpen(false)} footer={null} width={560}>
         {logs.length === 0 ? (
-          <Empty description="暂无出入库操作记录" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无出入库操作记录" />
         ) : (
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             rowKey="id" size="small" pagination={false}
             dataSource={logs}
             columns={[
@@ -286,7 +287,7 @@ const ContrastInventoryPage: React.FC = () => {
               { title: '数量', dataIndex: 'quantity', width: 100, render: (v: number, r: StockLog) => <span style={{ fontWeight: 600, color: r.action === 'in' ? '#16a34a' : '#dc2626' }}>{r.action === 'in' ? '+' : '-'}{v} ml</span> },
               { title: '操作人', dataIndex: 'operator', width: 100 },
             ]}
-          scroll={{ x: 'max-content' }}
+         
           />
         )}
       </Modal>

@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { Save, Printer } from "lucide-react";
+import { PageHeader } from "../components/common/PageHeader";
 
 // ============================================================================
 // Types
@@ -850,8 +852,8 @@ const AIStructuredReportPage: React.FC = () => {
       display: "flex",
       flexDirection: "column" as const,
       minHeight: "100vh",
-      backgroundColor: "#f8fafc",
-      color: "#1e293b",
+      backgroundColor: "var(--bg-card)",
+      color: "var(--text-primary)",
       fontFamily:
         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     },
@@ -889,15 +891,15 @@ const AIStructuredReportPage: React.FC = () => {
     },
     leftPanel: {
       width: "300px",
-      backgroundColor: "#ffffff",
-      borderRight: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      borderRight: "1px solid var(--border-color)",
       display: "flex",
       flexDirection: "column" as const,
       overflow: "hidden",
     },
     panelHeader: {
       padding: "16px",
-      borderBottom: "1px solid #e2e8f0",
+      borderBottom: "1px solid var(--border-color)",
     },
     specialtyTabs: {
       display: "grid",
@@ -907,8 +909,8 @@ const AIStructuredReportPage: React.FC = () => {
     specialtyTab: {
       padding: "10px 12px",
       backgroundColor: "transparent",
-      color: "#64748b",
-      border: "1px solid #e2e8f0",
+      color: "var(--text-secondary)",
+      border: "1px solid var(--border-color)",
       borderRadius: "6px",
       fontSize: "13px",
       cursor: "pointer",
@@ -928,8 +930,8 @@ const AIStructuredReportPage: React.FC = () => {
     templateItem: {
       padding: "12px 16px",
       marginBottom: "8px",
-      backgroundColor: "#f8fafc",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      border: "1px solid var(--border-color)",
       borderRadius: "8px",
       cursor: "pointer",
       transition: "all 0.2s",
@@ -951,7 +953,7 @@ const AIStructuredReportPage: React.FC = () => {
     },
     section: {
       marginBottom: "24px",
-      backgroundColor: "#ffffff",
+      backgroundColor: "var(--bg-card)",
       borderRadius: "12px",
       padding: "20px",
       boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
@@ -967,7 +969,7 @@ const AIStructuredReportPage: React.FC = () => {
     sectionSubtitle: {
       fontSize: "14px",
       fontWeight: 600,
-      color: "#334155",
+      color: "var(--text-primary)",
       marginBottom: "12px",
       marginTop: "16px",
     },
@@ -987,35 +989,35 @@ const AIStructuredReportPage: React.FC = () => {
     },
     label: {
       fontSize: "12px",
-      color: "#64748b",
+      color: "var(--text-secondary)",
       marginBottom: "4px",
       fontWeight: 500,
     },
     input: {
       padding: "10px 12px",
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      border: "1px solid var(--border-color)",
       borderRadius: "6px",
-      color: "#1e293b",
+      color: "var(--text-primary)",
       fontSize: "14px",
       outline: "none",
       transition: "border-color 0.2s",
     },
     select: {
       padding: "10px 12px",
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      border: "1px solid var(--border-color)",
       borderRadius: "6px",
-      color: "#1e293b",
+      color: "var(--text-primary)",
       fontSize: "14px",
       outline: "none",
     },
     textarea: {
       padding: "12px",
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      border: "1px solid var(--border-color)",
       borderRadius: "6px",
-      color: "#1e293b",
+      color: "var(--text-primary)",
       fontSize: "14px",
       outline: "none",
       resize: "vertical" as const,
@@ -1024,8 +1026,8 @@ const AIStructuredReportPage: React.FC = () => {
     },
     diagnosisCard: {
       padding: "12px",
-      backgroundColor: "#f8fafc",
-      border: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      border: "1px solid var(--border-color)",
       borderRadius: "8px",
       marginBottom: "12px",
     },
@@ -1042,7 +1044,7 @@ const AIStructuredReportPage: React.FC = () => {
     },
     removeButton: {
       padding: "4px 8px",
-      backgroundColor: "#fee2e2",
+      backgroundColor: "var(--color-error-bg)",
       color: "#dc2626",
       border: "none",
       borderRadius: "4px",
@@ -1051,7 +1053,7 @@ const AIStructuredReportPage: React.FC = () => {
     },
     addButton: {
       padding: "10px 16px",
-      backgroundColor: "#eff6ff",
+      backgroundColor: "var(--color-info-bg)",
       color: "#1e40af",
       border: "1px dashed #1e40af",
       borderRadius: "6px",
@@ -1065,8 +1067,8 @@ const AIStructuredReportPage: React.FC = () => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "16px 24px",
-      backgroundColor: "#ffffff",
-      borderTop: "1px solid #e2e8f0",
+      backgroundColor: "var(--bg-card)",
+      borderTop: "1px solid var(--border-color)",
       boxShadow: "0 -2px 4px rgba(0,0,0,0.05)",
     },
     buttonGroup: {
@@ -1087,8 +1089,8 @@ const AIStructuredReportPage: React.FC = () => {
       color: "white",
     },
     buttonSecondary: {
-      backgroundColor: "#f1f5f9",
-      color: "#334155",
+      backgroundColor: "var(--bg-card)",
+      color: "var(--text-primary)",
     },
     buttonOutline: {
       backgroundColor: "transparent",
@@ -1110,7 +1112,7 @@ const AIStructuredReportPage: React.FC = () => {
     previewModal: {
       width: "900px",
       maxHeight: "90vh",
-      backgroundColor: "#ffffff",
+      backgroundColor: "var(--bg-card)",
       borderRadius: "12px",
       overflow: "hidden",
     },
@@ -1149,7 +1151,7 @@ const AIStructuredReportPage: React.FC = () => {
     specialtySection: {
       marginTop: "16px",
       padding: "16px",
-      backgroundColor: "#eff6ff",
+      backgroundColor: "var(--color-info-bg)",
       borderRadius: "8px",
       border: "1px solid #bfdbfe",
     },
@@ -1225,7 +1227,7 @@ const AIStructuredReportPage: React.FC = () => {
             <div
               style={{
                 fontSize: "12px",
-                color: "#64748b",
+                color: "var(--text-secondary)",
                 marginBottom: "8px",
               }}
             >
@@ -1262,7 +1264,7 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.formSection}>
             {/* Patient Info */}
             <section style={styles.section}>
-              <h2 style={styles.sectionTitle}>患者信息</h2>
+              <PageHeader variant="inline" title="患者信息" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
@@ -1367,7 +1369,7 @@ const AIStructuredReportPage: React.FC = () => {
             {/* WS/T 500-2016 三段式报告 */}
             {/* Finding Section */}
             <section style={styles.section}>
-              <h2 style={styles.sectionTitle}>检查所见（Finding）</h2>
+              <PageHeader variant="inline" title="检查所见（Finding）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
@@ -1475,15 +1477,11 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Specialty Data */}
             <section style={styles.section}>
-              <h2 style={styles.sectionTitle}>
-                {activeSpecialtyTab === "ct"
-                  ? "CT专科字段"
-                  : activeSpecialtyTab === "mr"
-                    ? "MR专科字段"
-                    : activeSpecialtyTab === "dxr"
-                      ? "DXR专科字段"
-                      : "乳腺专科字段"}
-              </h2>
+              <PageHeader
+                variant="inline"
+                title={activeSpecialtyTab === "ct" ? "CT专科字段" : activeSpecialtyTab === "mr" ? "MR专科字段" : activeSpecialtyTab === "dxr" ? "DXR专科字段" : "乳腺专科字段"}
+                style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }}
+              />
 
               {activeSpecialtyTab === "ct" && (
                 <div style={styles.formGrid}>
@@ -1710,7 +1708,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Impression Section */}
             <section style={styles.section}>
-              <h2 style={styles.sectionTitle}>诊断意见（Impression）</h2>
+              <PageHeader variant="inline" title="诊断意见（Impression）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
 
               <div style={styles.sectionSubtitle}>诊断结论（支持多诊断）</div>
               {formData.impression.diagnoses.map((diag, index) => (
@@ -1774,7 +1772,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Recommendation Section */}
             <section style={styles.section}>
-              <h2 style={styles.sectionTitle}>建议（Recommendation）</h2>
+              <PageHeader variant="inline" title="建议（Recommendation）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>进一步检查建议</label>
@@ -1831,16 +1829,16 @@ const AIStructuredReportPage: React.FC = () => {
                 预览
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary }}
+                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
                 onClick={handleSubmit}
               >
-                保存报告
+                <Save size={14} /> 保存报告
               </button>
               <button
-                style={{ ...styles.button, ...styles.buttonPrimary }}
+                style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
                 onClick={handlePrint}
               >
-                打印
+                <Printer size={14} /> 打印
               </button>
             </div>
           </div>

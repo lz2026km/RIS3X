@@ -6,7 +6,7 @@ import {
   Plus, X, Check, Search, RefreshCw, AlertCircle, CheckCircle,
   Trash2, ArrowRightLeft, BarChart3,
   CalendarDays, CalendarClock, Sun, Moon, Sunset, Coffee,
-  TrendingUp, UserPlus, Shield, Download, Zap, DollarSign
+  TrendingUp, UserPlus, Shield, Download, Zap, DollarSign, Save, Send
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -24,25 +24,25 @@ import { formatDateObj } from '../utils/date';
 const C = {
   primary: '#1e40af',       // 深蓝主色
   primaryLight: '#3b82f6',  // 浅蓝
-  primaryLighter: '#dbeafe', // 更浅蓝
+  primaryLighter: 'var(--color-info-bg)', // 更浅蓝
   accent: '#0891b2',        // 青色辅色
   accentLight: '#06b6d4',
   white: '#ffffff',
-  bg: '#e8e8e8',            // 浅灰背景
-  bgLight: '#f5f5f5',
-  border: '#d4d4d4',
+  bg: 'var(--bg-deep)',            // 浅灰背景
+  bgLight: 'var(--content-bg)',
+  border: 'var(--border-color)',
   borderLight: '#e5e5e5',
-  textDark: '#1f2937',
-  textMid: '#4b5563',
-  textLight: '#9ca3af',
+  textDark: 'var(--text-primary)',
+  textMid: 'var(--text-secondary)',
+  textLight: 'var(--text-muted)',
   success: '#059669',
-  successLight: '#d1fae5',
+  successLight: 'var(--color-success-bg)',
   warning: '#d97706',
-  warningLight: '#fef3c7',
+  warningLight: 'var(--color-warning-bg)',
   danger: '#dc2626',
-  dangerLight: '#fee2e2',
+  dangerLight: 'var(--color-error-bg)',
   info: '#2563eb',
-  infoLight: '#dbeafe',
+  infoLight: 'var(--color-info-bg)',
 }
 
 // ============================================================
@@ -174,11 +174,11 @@ interface CostTrend {
 
 // 班次类型配置
 const SHIFT_CONFIG: Record<ShiftType, { label: string; color: string; bg: string; icon: React.ReactNode; time: string }> = {
-  morning: { label: '上午班', color: '#f59e0b', bg: '#fef3c7', icon: <Sun size={14} />, time: '08:00-12:00' },
-  afternoon: { label: '下午班', color: '#3b82f6', bg: '#dbeafe', icon: <Sunset size={14} />, time: '14:00-18:00' },
-  night: { label: '夜班', color: '#3b82f6', bg: '#dbeafe', icon: <Moon size={14} />, time: '18:00-次日08:00' },
-  fullday: { label: '全天班', color: '#059669', bg: '#d1fae5', icon: <Clock size={14} />, time: '08:00-18:00' },
-  off: { label: '休息', color: '#6b7280', bg: '#f3f4f6', icon: <Coffee size={14} />, time: '休息' },
+  morning: { label: '上午班', color: '#f59e0b', bg: '#f59e0b22', icon: <Sun size={14} />, time: '08:00-12:00' },
+  afternoon: { label: '下午班', color: '#3b82f6', bg: '#3b82f622', icon: <Sunset size={14} />, time: '14:00-18:00' },
+  night: { label: '夜班', color: '#3b82f6', bg: '#3b82f622', icon: <Moon size={14} />, time: '18:00-次日08:00' },
+  fullday: { label: '全天班', color: '#059669', bg: '#22c55e22', icon: <Clock size={14} />, time: '08:00-18:00' },
+  off: { label: '休息', color: 'var(--text-secondary)', bg: 'var(--bg-deep)', icon: <Coffee size={14} />, time: '休息' },
 }
 
 // 设备类型配置
@@ -492,7 +492,7 @@ const generateScheduleStats = (schedules: ScheduleRecord[]) => {
     { name: '下午班', value: schedules.filter(s => s.shift === 'afternoon').length, color: '#3b82f6' },
     { name: '夜班', value: schedules.filter(s => s.shift === 'night').length, color: '#3b82f6' },
     { name: '全天班', value: schedules.filter(s => s.shift === 'fullday').length, color: '#059669' },
-    { name: '休息', value: schedules.filter(s => s.shift === 'off').length, color: '#6b7280' },
+    { name: '休息', value: schedules.filter(s => s.shift === 'off').length, color: 'var(--text-secondary)' },
   ]
 
   return { staffStats, modalityUtilization, shiftDistribution }
@@ -514,7 +514,7 @@ function TabBtn({ label, active, onClick, icon }: { label: string; active: boole
         padding: '8px 16px',
         border: 'none',
         borderBottom: active ? `2px solid ${C.primary}` : '2px solid transparent',
-        background: active ? C.white : 'transparent',
+        background: active ? 'var(--bg-card)' : 'transparent',
         color: active ? C.primary : C.textMid,
         cursor: 'pointer',
         fontSize: 14,
@@ -577,7 +577,7 @@ function StatusBadge({ status }: { status: SwapRequest['status'] }) {
 
 /** 设备类型标签 */
 function ModalityBadge({ modality }: { modality: string }) {
-  const config = MODALITY_CONFIG[modality] || { label: modality, color: '#6b7280' }
+  const config = MODALITY_CONFIG[modality] || { label: modality, color: 'var(--text-secondary)' }
   return (
     <span style={{
       padding: '2px 8px',
@@ -1045,7 +1045,7 @@ export default function SchedulePage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: 8,
         padding: '16px 20px',
         marginBottom: 16,
@@ -1083,7 +1083,7 @@ export default function SchedulePage() {
       
       {/* 标签页 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: '8px 8px 0 0',
         padding: '0 20px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -1148,7 +1148,7 @@ export default function SchedulePage() {
       
       {/* 主内容区 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: '0 0 8px 8px',
         padding: 20,
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -1262,7 +1262,7 @@ export default function SchedulePage() {
                       const bgColor = dateType.isHoliday ? C.dangerLight 
                         : dateType.isAdjustment ? C.successLight 
                         : dateType.isWeekend ? C.bgLight 
-                        : C.white
+                        : 'var(--bg-card)'
                       
                       return (
                         <th key={i} style={{
@@ -1287,7 +1287,7 @@ export default function SchedulePage() {
                 <tbody>
                   {(selectedStaff === 'all' ? STAFF_LIST : STAFF_LIST.filter(s => s.id === selectedStaff)).map((staff, staffIdx) => (
                     <tr key={staff.id} style={{ 
-                      background: staffIdx % 2 === 0 ? C.white : C.bgLight,
+                      background: staffIdx % 2 === 0 ? 'var(--bg-card)' : C.bgLight,
                     }}>
                       <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                         <div style={{ fontWeight: 500, color: C.textDark }}>{staff.name}</div>
@@ -1302,7 +1302,7 @@ export default function SchedulePage() {
                         const bgColor = dateType.isHoliday ? C.dangerLight + '50'
                           : dateType.isAdjustment ? C.successLight + '50'
                           : dateType.isWeekend && !dateType.isAdjustment ? C.bgLight
-                          : C.white
+                          : 'var(--bg-card)'
                         
                         return (
                           <td key={dayIdx} style={{
@@ -1405,7 +1405,7 @@ export default function SchedulePage() {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '8px 12px',
-                      background: C.white,
+                      background: 'var(--bg-card)',
                       borderRadius: 4,
                       border: `1px solid ${C.border}`,
                     }}>
@@ -1466,7 +1466,7 @@ export default function SchedulePage() {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '8px 12px',
-                      background: C.white,
+                      background: 'var(--bg-card)',
                       borderRadius: 4,
                       border: `1px solid ${C.border}`,
                     }}>
@@ -1540,7 +1540,7 @@ export default function SchedulePage() {
               ].map(stat => (
                 <div key={stat.label} style={{
                   padding: 16,
-                  background: C.white,
+                  background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
                   textAlign: 'center',
@@ -1556,7 +1556,7 @@ export default function SchedulePage() {
               {swapRequests.map(request => (
                 <div key={request.id} style={{
                   padding: 16,
-                  background: C.white,
+                  background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
                   borderLeft: `4px solid ${
@@ -1662,7 +1662,7 @@ export default function SchedulePage() {
               ].map(stat => (
                 <div key={stat.label} style={{
                   padding: 16,
-                  background: C.white,
+                  background: 'var(--bg-card)',
                   borderRadius: 8,
                   border: `1px solid ${C.border}`,
                   display: 'flex',
@@ -1706,7 +1706,7 @@ export default function SchedulePage() {
                       display: 'flex',
                       alignItems: 'center',
                       padding: '10px 12px',
-                      background: C.white,
+                      background: 'var(--bg-card)',
                       borderRadius: 6,
                       marginBottom: 8,
                       gap: 12,
@@ -1791,7 +1791,7 @@ export default function SchedulePage() {
                   {stats.modalityUtilization.map(mod => (
                     <div key={mod.modality} style={{
                       padding: 16,
-                      background: C.white,
+                      background: 'var(--bg-card)',
                       borderRadius: 8,
                       textAlign: 'center',
                     }}>
@@ -1847,7 +1847,7 @@ export default function SchedulePage() {
               <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>员工技能矩阵</h4>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {STAFF_LIST.slice(0, 10).map(s => (
-                  <div key={s.id} style={{ padding: '8px 12px', background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                  <div key={s.id} style={{ padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
                       {(STAFF_SKILLS[s.id] || []).join(' · ') || '无认证'}
@@ -1880,7 +1880,7 @@ export default function SchedulePage() {
                   </thead>
                   <tbody>
                     {autoResult[0]?.map((cand, si) => (
-                      <tr key={cand.staffId} style={{ background: si % 2 === 0 ? C.white : C.bgLight }}>
+                      <tr key={cand.staffId} style={{ background: si % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
                         <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                           <div style={{ fontWeight: 500, color: C.textDark }}>{cand.staffName}</div>
                           <div style={{ fontSize: 12, color: C.textLight }}>评分 {cand.skillScore.toFixed(0)}</div>
@@ -1947,7 +1947,7 @@ export default function SchedulePage() {
                     {tpl.pattern.slice(0, 6).map((p, i) => {
                       const staff = STAFF_LIST.find(s => s.id === p.staffId)
                       return (
-                        <span key={i} style={{ padding: '2px 6px', background: C.white, borderRadius: 4, fontSize: 12, border: `1px solid ${C.borderLight}` }}>
+                        <span key={i} style={{ padding: '2px 6px', background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, border: `1px solid ${C.borderLight}` }}>
                           {staff?.name || p.staffId}:{SHIFT_CONFIG[p.shift]?.label?.slice(0, 2) || p.shift}
                         </span>
                       )
@@ -1977,7 +1977,7 @@ export default function SchedulePage() {
               <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>请假余额</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                 {leaveBalances.slice(0, 8).map(lb => (
-                  <div key={lb.staffId} style={{ padding: 12, background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                  <div key={lb.staffId} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
                       <span>年假 {lb.annualUsed}/{lb.annualTotal}</span>
@@ -1994,7 +1994,7 @@ export default function SchedulePage() {
               {leaveRequests.map(lr => {
                 const statusCfg = { pending: { label: '待审批', color: C.warning, bg: C.warningLight }, approved: { label: '已批准', color: C.success, bg: C.successLight }, rejected: { label: '已驳回', color: C.danger, bg: C.dangerLight } }[lr.status]
                 return (
-                  <div key={lr.id} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
+                  <div key={lr.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -2082,7 +2082,7 @@ export default function SchedulePage() {
                         <div style={{ fontSize: 12, color: C.success, fontStyle: 'italic' }}>未发现违规</div>
                       ) : (
                         section.data.slice(0, 5).map((v, i) => (
-                          <div key={i} style={{ padding: '6px 8px', background: C.white, borderRadius: 4, marginBottom: 4, fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
+                          <div key={i} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4, marginBottom: 4, fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
                             <span style={{ fontWeight: 500, color: C.textDark }}>{v.staffName}</span> · {v.date}<br />
                             {v.detail}
                           </div>
@@ -2122,7 +2122,7 @@ export default function SchedulePage() {
                 { label: '平均班次成本', value: costData.length > 0 ? `¥${Math.round(costData.reduce((s, c) => s + c.totalCost, 0) / costData.length)}` : '-', color: C.info, icon: Clock },
                 { label: '月度趋势', value: `${costTrend.length}个月`, color: C.accent, icon: Calendar },
               ].map(stat => (
-                <div key={stat.label} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={stat.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 8, background: stat.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
                     <stat.icon size={20} />
                   </div>
@@ -2160,7 +2160,7 @@ export default function SchedulePage() {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
-                      <tr style={{ background: C.white }}>
+                      <tr style={{ background: 'var(--bg-card)' }}>
                         <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>姓名</th>
                         <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>常规时数</th>
                         <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>加班时数</th>
@@ -2172,7 +2172,7 @@ export default function SchedulePage() {
                     </thead>
                     <tbody>
                       {costData.map((c, i) => (
-                        <tr key={c.staffId} style={{ background: i % 2 === 0 ? C.white : C.bgLight }}>
+                        <tr key={c.staffId} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
                           <td style={{ padding: '8px 12px', borderBottom: `1px solid ${C.borderLight}`, fontWeight: 500, color: C.textDark }}>{c.staffName}</td>
                           <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.textMid }}>{c.regularHours}h</td>
                           <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.warning }}>{c.overtimeHours}h</td>
@@ -2206,7 +2206,7 @@ export default function SchedulePage() {
           zIndex: 1000,
         }}>
           <div style={{
-            background: C.white,
+            background: 'var(--bg-card)',
             borderRadius: 12,
             padding: 24,
             width: 480,
@@ -2223,7 +2223,7 @@ export default function SchedulePage() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {swapError && <div style={{ color: '#dc2626', fontSize: 13, padding: '8px 12px', background: '#fee2e2', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
+              {swapError && <div style={{ color: '#dc2626', fontSize: 13, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
               {/* 申请人 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
@@ -2435,7 +2435,7 @@ export default function SchedulePage() {
           zIndex: 1000,
         }}>
           <div style={{
-            background: C.white,
+            background: 'var(--bg-card)',
             borderRadius: 12,
             padding: 24,
             width: 400,
@@ -2552,7 +2552,7 @@ export default function SchedulePage() {
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
-          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 420 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新建班次模板</h3>
               <button onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -2575,7 +2575,7 @@ export default function SchedulePage() {
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
-                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>保存模板</button>
+                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />保存模板</button>
               </div>
             </div>
           </div>
@@ -2588,7 +2588,7 @@ export default function SchedulePage() {
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
-          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 460 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新请假申请</h3>
               <button onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -2635,7 +2635,7 @@ export default function SchedulePage() {
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
-                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>提交申请</button>
+                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />提交申请</button>
               </div>
             </div>
           </div>

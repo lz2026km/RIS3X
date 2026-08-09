@@ -14,6 +14,9 @@ import {
   StatsEnvelope,
   TopDeviceRow,
   TopModalityRow,
+  ForecastPoint,
+  UtilizationData,
+  AccuracyData,
 } from './stats.service'
 
 // stats 端点真实化 (v3.0.6.11-73 P1): 从 Prisma 真实聚合 + 确定性 seed 回退
@@ -82,5 +85,24 @@ export class StatsController {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
     res.setHeader('Content-Disposition', `attachment; filename="stats-daily-${new Date().toISOString().slice(0, 10)}.csv"`)
     res.send(csv)
+  }
+
+  // [G005 Wave1B P1] 3 扩展: forecast / utilization / accuracy (analyticsApi)
+  @Get('forecast')
+  @ApiQuery({ name: 'department', required: false, description: '科室过滤 (预留)' })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  getForecast(@Query('department') department?: string, @Query('startDate') startDate?: string, @Query('endDate') endDate?: string): Promise<ForecastPoint[]> {
+    return this.service.getForecast({ department, startDate, endDate })
+  }
+
+  @Get('utilization')
+  getUtilization(): Promise<UtilizationData> {
+    return this.service.getUtilization()
+  }
+
+  @Get('accuracy')
+  getAccuracy(): Promise<AccuracyData> {
+    return this.service.getAccuracy()
   }
 }

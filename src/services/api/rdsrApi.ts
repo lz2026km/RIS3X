@@ -22,6 +22,48 @@ export interface DrlEntry {
   ctdivolDrl: number
   dlpDrl: number
   source: string
+  ageGroup?: 'adult' | 'child'
+}
+
+export interface DrlCheckRecordInput {
+  patientId?: string
+  patientName?: string
+  modality: string
+  bodyPart: string
+  ctdivol?: number
+  dlp?: number
+  ssde?: number
+  examDate?: string
+  age?: number
+  ageGroup?: 'adult' | 'child'
+}
+
+export interface DrlCheckResult {
+  id: string
+  patientId?: string | null
+  patientName?: string | null
+  modality: string
+  bodyPart: string
+  ctdivol: number
+  dlp: number
+  ssde?: number
+  examDate: string
+  ageGroup: 'adult' | 'child'
+  level: 'warning' | 'critical'
+  ctdivolDrl: number
+  dlpDrl: number
+  exceededBy: { ctdivol: number; dlp: number }
+  reason: string
+  criticalAlertId?: string
+}
+
+export interface DrlCheckSummary {
+  checked: number
+  overLimitCount: number
+  warningCount: number
+  criticalCount: number
+  generatedAlertCount: number
+  overLimit: DrlCheckResult[]
 }
 
 export interface RdsrStats {
@@ -103,6 +145,7 @@ export interface DrlUpsertPayload {
   ctdivolDrl?: number
   dlpDrl?: number
   source?: string
+  ageGroup?: 'adult' | 'child'
 }
 
 const withQuery = (
@@ -123,11 +166,14 @@ export const rdsrApi = {
   parse: (dicomJson?: Record<string, unknown>, modality?: string, extra?: { patientId?: string; patientName?: string; examDate?: string }) =>
     api.post<RdsrResult>("/rdsr/parse", { dicomJson, modality, ...extra }),
 
-  getDrls: (modality?: string, bodyPart?: string) =>
-    api.get<DrlEntry[]>(withQuery("/rdsr/drl", { modality, bodyPart })),
+  getDrls: (modality?: string, bodyPart?: string, ageGroup?: "adult" | "child") =>
+    api.get<DrlEntry[]>(withQuery("/rdsr/drl", { modality, bodyPart, ageGroup })),
 
   updateDrl: (payload: DrlUpsertPayload) =>
     api.post<DrlEntry[]>("/rdsr/drl", payload),
+
+  check: (records: DrlCheckRecordInput[]) =>
+    api.post<DrlCheckSummary>("/rdsr/check", { records }),
 
   getStats: (dateFrom?: string, dateTo?: string, modality?: string) =>
     api.get<RdsrStats>(withQuery("/rdsr/stats", { dateFrom, dateTo, modality })),

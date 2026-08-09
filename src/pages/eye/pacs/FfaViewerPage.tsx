@@ -57,7 +57,7 @@ const FfaViewerPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -90,14 +90,14 @@ const FfaViewerPage: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                       flexDirection: "column",
                       fontSize: 12,
                     }}
                   >
                     <Image size={36} />
                     <span style={{ marginTop: 4 }}>{p.name}</span>
-                    <span style={{ color: "#475569" }}>{p.desc}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{p.desc}</span>
                   </div>
                 </Col>
               ))}
@@ -130,7 +130,7 @@ const FfaViewerPage: React.FC = () => {
                     suffix={s.suffix || ""}
                     styles={{ content: {  fontSize: 16  } }}
                   />
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{s.note}</div>
                 </Col>
               ))}
             </Row>

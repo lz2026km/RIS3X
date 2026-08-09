@@ -5,12 +5,6 @@
  * Tab2 影像相似: 影像特征 (32-bin 强度直方图 + 统计 + 纹理 + 形态) 余弦相似检索
  * Tab3 融合检索: 文本分 + 影像分加权融合
  */
-import React, { useState, useCallback, useEffect } from 'react'
-import {
-  Card, Input, Select, Button, Tag, Space, Row, Col, Typography, Progress,
-  Empty, Spin, Alert, Modal, message, Descriptions, Divider, Tabs,
-} from 'antd'
-import { Search, Brain, Image as ImageIcon, Layers, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react'
 import {
   similarCaseApi,
   type SimilarCaseResult,
@@ -18,6 +12,13 @@ import {
   type ImageSeriesItem,
   type HybridSearchResult,
 } from '../../services/api'
+import {
+  Card, Input, Select, Button, Tag, Space, Row, Col, Typography, Progress,
+  Empty, Spin, Alert, Modal, message, Descriptions, Divider, Tabs,
+} from 'antd'
+import { Search, Brain, Image as ImageIcon, Layers, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react'
+import React, { useState, useCallback, useEffect } from 'react'
+import { SearchX } from 'lucide-react'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -142,7 +143,7 @@ function ImageSearchTab() {
           <div style={{ marginTop: 12 }}><Text type="secondary">正在提取影像特征并检索…</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty description="未找到相似影像,请更换检查" style={{ padding: 40 }} /> : <Empty description="选择检查后开始影像级相似检索" style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="未找到相似影像,请更换检查" style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="选择检查后开始影像级相似检索" style={{ padding: 40 }} />
       ) : (
         <>
           <div style={{ marginBottom: 12 }}>
@@ -297,7 +298,7 @@ function HybridSearchTab() {
           <div style={{ marginTop: 12 }}><Text type="secondary">正在融合检索 (文本 + 影像特征)…</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty description="未找到匹配结果,请调整输入" style={{ padding: 40 }} /> : <Empty description="输入报告文本/选检查后开始融合检索" style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="未找到匹配结果,请调整输入" style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="输入报告文本/选检查后开始融合检索" style={{ padding: 40 }} />
       ) : (
         <>
           <div style={{ marginBottom: 12 }}>
@@ -485,7 +486,7 @@ const SimilarCasePage: React.FC = () => {
           <div style={{ marginTop: 12 }}><Text type="secondary">正在检索相似病例…</Text></div>
         </div>
       ) : results.length === 0 ? (
-        searched ? <Empty description="未找到相似病例,请调整报告文本或筛选条件" style={{ padding: 40 }} /> : <Empty description="输入报告文本后开始检索" style={{ padding: 40 }} />
+        searched ? <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="未找到相似病例,请调整报告文本或筛选条件" style={{ padding: 40 }} /> : <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="输入报告文本后开始检索" style={{ padding: 40 }} />
       ) : (
         <>
           <div style={{ marginBottom: 12 }}>

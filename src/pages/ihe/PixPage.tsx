@@ -176,13 +176,13 @@ export const PixPage: React.FC = () => {
       const res = await iheApi.pixQuery(body);
       if (res.success) {
         setQueryResult(res.data);
-        message.success("PIX Query 完成");
+        message.success("PIX 查询完成");
       } else {
-        message.error("PIX Query 失败");
+        message.error("PIX 查询失败");
       }
     } catch (err) {
-      console.warn("[PixPage] PIX Query 服务不可用，已使用演示数据", err);
-      message.warning("PIX Query 服务不可用，已使用演示数据");
+      console.warn("[PixPage] PIX 查询服务不可用，已使用演示数据", err);
+      message.warning("PIX 查询服务不可用，已使用演示数据");
       const mockPid = qv.patientId || "P001";
       const mockSrc = qv.sourceDomain || "HOSPITAL_A";
       const domains = (qv.targetDomains || "HOSPITAL_B")
@@ -302,7 +302,7 @@ export const PixPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <Fingerprint size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>PIX 主索引管理</span>
@@ -391,13 +391,13 @@ export const PixPage: React.FC = () => {
             label: (
               <span>
                 <Search size={14} style={{ marginRight: 4 }} />
-                PIX Query
+                PIX 查询
               </span>
             ),
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="PIX Query (ITI-9)">
+                  <Card size="small" title="PIX 查询 (ITI-9)">
                     <Form form={queryForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
@@ -442,7 +442,7 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`查询结果 (${queryResult.count} 条)`}
                     >
-                      <Table
+                      <Table scroll={{ x: 'max-content' }}
                         dataSource={queryResult.results}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={false}
@@ -467,24 +467,24 @@ export const PixPage: React.FC = () => {
             label: (
               <span>
                 <Users size={14} style={{ marginRight: 4 }} />
-                PIX Mapping
+                PIX 映射
               </span>
             ),
             children: (
               <Card
                 size="small"
-                title="PIX Identifier Mapping"
+                title="PIX 标识符映射"
                 extra={
                   <Button
                     type="primary"
                     icon={<Plus size={14} />}
                     onClick={() => setMappingModal(true)}
                   >
-                    新增 Mapping
+                    新增映射
                   </Button>
                 }
               >
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   dataSource={mappings}
                   rowKey="id"
                   pagination={false}
@@ -533,7 +533,7 @@ export const PixPage: React.FC = () => {
                 <Col span={10}>
                   <Card
                     size="small"
-                    title="Patient Demographics Query (ITI-21)"
+                    title="患者人口学查询 (ITI-21)"
                   >
                     <Form form={pdqForm} layout="vertical" size="small">
                       <Form.Item name="patientId" label="患者 ID">
@@ -581,7 +581,7 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`PDQ 结果 (${pdqResults.length})`}
                     >
-                      <Table
+                      <Table scroll={{ x: 'max-content' }}
                         dataSource={pdqResults}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={false}
@@ -618,7 +618,7 @@ export const PixPage: React.FC = () => {
                             ),
                           },
                         ]}
-                      scroll={{ x: 'max-content' }}
+                     
                       />
                     </Card>
                   )}
@@ -630,7 +630,7 @@ export const PixPage: React.FC = () => {
       />
 
       <Modal
-        title="新增 PIX Mapping"
+        title="新增 PIX 映射"
         open={mappingModal}
         onCancel={() => setMappingModal(false)}
         onOk={handleAddMapping}

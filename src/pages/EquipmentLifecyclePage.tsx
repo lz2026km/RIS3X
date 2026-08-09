@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react'
 import {
   Monitor, Package, Wrench, AlertTriangle, Search, Plus,
-  X, Trash2, Download, Edit, CheckCircle, Clock, XCircle
+  X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save
 } from 'lucide-react'
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
 import { Card } from 'antd'
+import { PageHeader } from '../components/common/PageHeader'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -40,60 +41,60 @@ const s: Record<string, React.CSSProperties> = {
   title: { fontSize: 22, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 24 },
   // 统计卡片区
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginBottom: 24 },
-  statCard: { background: '#fff', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
-  statLabel: { fontSize: 13, color: '#64748b', marginBottom: 8 },
+  statCard: { background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  statLabel: { fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 },
   statValue: { fontSize: 28, fontWeight: 700, color: 'var(--color-primary-800)' },
-  statSub: { fontSize: 12, color: '#94a3b8', marginTop: 4 },
+  statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statGreen: { color: '#16a34a' },
   statOrange: { color: '#d97706' },
   statRed: { color: '#dc2626' },
   statBlue: { color: '#2563eb' },
   // 操作区
   toolbar: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' as const, alignItems: 'center' },
-  searchBox: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 14px', flex: '0 0 280px' },
+  searchBox: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 14px', flex: '0 0 280px' },
   searchInput: { border: 'none', outline: 'none', fontSize: 15, flex: 1, background: 'transparent' },
-  select: { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 14, outline: 'none' },
+  select: { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontSize: 14, outline: 'none' },
   btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
   btnPrimary: { background: 'var(--color-primary-700)', color: '#fff' },
   btnSuccess: { background: '#16a34a', color: '#fff' },
   btnWarning: { background: '#d97706', color: '#fff' },
   btnDanger: { background: '#dc2626', color: '#fff' },
-  btnGhost: { background: '#f1f5f9', color: '#475569' },
+  btnGhost: { background: 'var(--bg-card)', color: 'var(--text-secondary)' },
   // 表格
-  table: { width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 10, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
-  th: { background: '#f8fafc', padding: '12px 16px', textAlign: 'left' as const, fontSize: 14, fontWeight: 600, color: '#475569', borderBottom: '2px solid #e2e8f0' },
-  td: { padding: '12px 16px', fontSize: 14, color: '#334155', borderBottom: '1px solid #f1f5f9' },
+  table: { width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
+  th: { background: 'var(--bg-card)', padding: '12px 16px', textAlign: 'left' as const, fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '2px solid var(--border-color)' },
+  td: { padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)' },
   // 状态标签
   badge: { padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
-  badgeGreen: { background: '#dcfce7', color: '#16a34a' },
-  badgeBlue: { background: '#dbeafe', color: '#2563eb' },
-  badgeOrange: { background: '#fef3c7', color: '#d97706' },
-  badgeGray: { background: '#f1f5f9', color: '#64748b' },
-  badgeRed: { background: '#fee2e2', color: '#dc2626' },
+  badgeGreen: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  badgeBlue: { background: 'var(--color-info-bg)', color: '#2563eb' },
+  badgeOrange: { background: 'var(--color-warning-bg)', color: '#d97706' },
+  badgeGray: { background: 'var(--bg-card)', color: 'var(--text-secondary)' },
+  badgeRed: { background: 'var(--color-error-bg)', color: '#dc2626' },
   // 详情弹窗
   modal: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  modalContent: { background: '#fff', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
+  modalContent: { background: 'var(--bg-card)', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
   modalTitle: { fontSize: 18, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 20 },
   detailGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 },
-  detailItem: { padding: '10px 14px', background: '#f8fafc', borderRadius: 8 },
-  detailLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
+  detailItem: { padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 },
+  detailLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
   detailValue: { fontSize: 15, fontWeight: 600, color: 'var(--color-primary-800)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid #e2e8f0' },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid var(--border-color)' },
   progressBar: { height: 8, borderRadius: 4, background: '#e2e8f0', overflow: 'hidden', marginTop: 6 },
   progressFill: { height: '100%', borderRadius: 4, transition: 'width 0.5s' },
-  costRow: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 14 },
+  costRow: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: 14 },
   // 维保计划
-  maintAlert: { background: '#fff', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: 24 },
+  maintAlert: { background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: 24 },
   alertTitle: { fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 },
   alertGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
-  alertCard: { padding: '14px 16px', borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  alertCard: { padding: '14px 16px', borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   alertName: { fontSize: 14, fontWeight: 600, color: 'var(--color-primary-800)' },
   alertDate: { fontSize: 12, color: '#dc2626', fontWeight: 600, marginTop: 4 },
   // 标签页
-  tabs: { display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid #e2e8f0' },
-  tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 15, fontWeight: 600, color: '#64748b', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
+  tabs: { display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid var(--border-color)' },
+  tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 15, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
   tabActive: { color: 'var(--color-primary-800)', borderBottomColor: 'var(--color-primary-800)' },
-  empty: { textAlign: 'center' as const, padding: 40, color: '#94a3b8', fontSize: 15 },
+  empty: { textAlign: 'center' as const, padding: 40, color: 'var(--text-secondary)', fontSize: 15 },
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -151,7 +152,7 @@ export default function EquipmentLifecyclePage() {
 
   return (
     <div style={s.root}>
-      <div style={s.title}>放射科设备全生命周期管理</div>
+      <PageHeader title="放射科设备全生命周期管理" style={{ marginBottom: 24 }} />
 
       {/* 标签页 */}
       <div style={s.tabs}>
@@ -213,7 +214,7 @@ export default function EquipmentLifecyclePage() {
                     <div key={d.id} style={s.alertCard}>
                       <div>
                         <div style={s.alertName}>{d.name}</div>
-                        <div style={{ fontSize: 13, color: '#64748b' }}>{d.id} · {d.dept}</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.id} · {d.dept}</div>
                         <div style={s.alertDate}>还剩 {days} 天</div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
@@ -230,7 +231,7 @@ export default function EquipmentLifecyclePage() {
           {/* 工具栏 */}
           <div style={s.toolbar}>
             <div style={s.searchBox}>
-              <Search size={16} color="#94a3b8" />
+              <Search size={16} color="var(--text-secondary)" />
               <input style={s.searchInput} placeholder="搜索设备名称/型号/编号" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <select style={s.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
@@ -261,7 +262,7 @@ export default function EquipmentLifecyclePage() {
               )}
               {filtered.map(d => (
                 <tr key={d.id} style={{ background: d.status === '已报废' ? '#f8fafc' : '#fff' }}>
-                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: '#64748b' }}>{d.id}</span></td>
+                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)' }}>{d.id}</span></td>
                   <td style={s.td}><span style={{ fontWeight: 600 }}>{d.name}</span></td>
                   <td style={s.td}>{d.model}</td>
                   <td style={s.td}>{d.dept}</td>
@@ -279,7 +280,7 @@ export default function EquipmentLifecyclePage() {
                       <div style={{ width: 80 }}>
                         <ProgressBar value={d.deptRate} color={d.deptRate >= 80 ? '#16a34a' : d.deptRate >= 50 ? '#d97706' : '#94a3b8'} />
                       </div>
-                      <span style={{ fontSize: 13, color: '#64748b' }}>{d.deptRate}%</span>
+                      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.deptRate}%</span>
                     </div>
                   </td>
                   <td style={s.td}>
@@ -309,7 +310,7 @@ export default function EquipmentLifecyclePage() {
               <Clock size={18} color="#2563eb" />
               未来90天维保日历
             </div>
-            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 12 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
               2026年5月—7月维保计划（共 {mockDevices.filter(d => d.status !== '已报废').length} 台设备需维保）
             </div>
             <div style={{ overflowX: "auto" }}><table style={s.table}>
@@ -375,7 +376,7 @@ export default function EquipmentLifecyclePage() {
                 return (
                   <tr key={i}>
                     <td style={s.td}>{r.date}</td>
-                    <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: '#64748b' }}>{r.device}</span></td>
+                    <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)' }}>{r.device}</span></td>
                     <td style={s.td}>{dev?.name || r.device}</td>
                     <td style={s.td}><StatusBadge status={r.type === '故障维修' ? '维保中' : '在用'} /></td>
                     <td style={s.td}>{r.cost > 0 ? `¥${r.cost.toLocaleString()}` : '-'}</td>
@@ -394,7 +395,7 @@ export default function EquipmentLifecyclePage() {
             </tbody>
           </table></div>
           {/* 成本汇总 */}
-          <Card bordered={false} style={{ marginTop: 24, background: '#fff', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} styles={{ body: { padding: 0 } }}>
+          <Card bordered={false} style={{ marginTop: 24, background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>维保成本汇总</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
               {[
@@ -403,8 +404,8 @@ export default function EquipmentLifecyclePage() {
                 { label: '设备总价值', value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: '维保费用占设备比', value: `${Math.round(maintenanceRecords.reduce((s, r) => s + r.cost, 0) / totalValue * 100)}%`, color: '#d97706' },
               ].map(item => (
-                <div key={item.label} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, textAlign: 'center' as const }}>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{item.label}</div>
+                <div key={item.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' as const }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>
                 </div>
               ))}
@@ -484,14 +485,14 @@ export default function EquipmentLifecyclePage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {['设备名称', '设备型号', '序列号', '厂商', '购置日期', '使用科室', '采购金额'].map(field => (
                 <div key={field} style={s.detailItem}>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{field}</div>
-                  <input style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: '#fff' }} placeholder={`请输入${field}`} />
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field}</div>
+                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} placeholder={`请输入${field}`} />
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowAdd(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowAdd(false)}>保存设备</button>
+              <button style={{ ...s.btn, ...s.btnSuccess, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setShowAdd(false)}><Save size={14} />保存设备</button>
             </div>
           </div>
         </div>
@@ -505,11 +506,11 @@ export default function EquipmentLifecyclePage() {
               <AlertTriangle size={28} color="#dc2626" />
               <div style={s.modalTitle}>确认报废设备</div>
             </div>
-            <div style={{ fontSize: 15, color: '#334155', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, color: 'var(--text-primary)', marginBottom: 20 }}>
               确定要报废以下设备吗？报废后设备将从在用列表移除。<br />
               <strong>{deviceToScrap.name}</strong>（{deviceToScrap.id}）
             </div>
-            <div style={{ padding: 14, background: '#fee2e2', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 20 }}>
+            <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 20 }}>
               报废后设备将进入待处理状态，相关维保记录将保留存档。
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
@@ -538,15 +539,15 @@ export default function EquipmentLifecyclePage() {
                 { label: '负责人', placeholder: '请输入负责人姓名' },
               ].map(field => (
                 <div key={field.label} style={s.detailItem}>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{field.label}</div>
-                  <input style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: '#fff' }} placeholder={field.placeholder} />
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
+                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} placeholder={field.placeholder} />
                 </div>
               ))}
             </div>
             <div style={{ marginTop: 8 }}>
               <div style={s.detailItem}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>备注说明</div>
-                <textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: '#fff', minHeight: 60, resize: 'vertical' }} placeholder="请输入备注说明" />
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>备注说明</div>
+                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} placeholder="请输入备注说明" />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>

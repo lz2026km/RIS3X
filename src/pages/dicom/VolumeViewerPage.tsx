@@ -1,8 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Card, Space, Tag, Button, Row, Col, Select, Tabs, Empty, message, Slider } from 'antd'
-import { Box, Activity, List } from 'lucide-react'
 import VolumeRenderer from '../../components/v3/dicom/VolumeRenderer'
-import { useTranslation } from 'react-i18next'
 import { dicomWebApi } from '../../services/api/dicomApi'
 import { volumeApi } from '../../services/api/volumeApi'
 import {
@@ -11,6 +7,11 @@ import {
   applyWWL,
   drawImageDataCentered,
 } from './volumeReal'
+import { Card, Space, Tag, Button, Row, Col, Select, Tabs, Empty, message, Slider } from 'antd'
+import { Box, Activity, List } from 'lucide-react'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface SeriesInfo {
   seriesUID: string
@@ -165,7 +166,7 @@ const VolumeViewerPage: React.FC = () => {
 
   const renderTabContent = (kind: 'mip' | 'mpr' | 'vr') => {
     if (jobSource !== 'real' || !jobId) {
-      return <Empty description={jobSource === 'synthetic' ? '当前为合成模式,重建后可用' : '重建后可用真实体数据'} />
+      return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={jobSource === 'synthetic' ? '当前为合成模式,重建后可用' : '重建后可用真实体数据'} />
     }
     return <RealSlicePanel jobId={jobId} kind={kind} totalSlices={volumeDims?.z ?? 20} />
   }

@@ -8,7 +8,7 @@ import {
   Circle as CircleIcon, Flame, Droplets, Wind,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
-import { examApi } from '../services/api'
+import { examApi, printApi } from '../services/api'
 import { similarCaseApi } from '../services/api/similarCaseApi'
 import type { SimilarCaseResult } from '../services/api/similarCaseApi'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -219,6 +219,10 @@ export default function DicomViewerPage() {
   const [archiveRequestStatus, setArchiveRequestStatus] = useState<string | null>(null)
 
   const [showPrintPreview, setShowPrintPreview] = useState(false)
+  // [Wave2A] 胶片打印参数 (确认打印 → printApi.createJob)
+  const [printFilmSpec, setPrintFilmSpec] = useState<'14x17' | '10x12' | '8x10'>('14x17')
+  const [printCopies, setPrintCopies] = useState(1)
+  const [printSubmitting, setPrintSubmitting] = useState(false)
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
 
@@ -369,6 +373,33 @@ export default function DicomViewerPage() {
   const exportMeasurements = (_format: string) => {
     const report = interactiveMeasures.map(m => `${m.label || m.type}: ${m.value}${m.unit}`).join('\n')
     navigator.clipboard.writeText(report || '暂无测量数据'); showToast('测量报告已复制到剪贴板')
+  }
+
+  // [Wave2A] 确认打印 → printApi.createJob 真实创建打印任务
+  const handleConfirmPrint = async () => {
+    setPrintSubmitting(true)
+    try {
+      const res = await printApi.createJob({
+        patientId: exam.patientId,
+        patientName: exam.patientName,
+        modality: exam.modality,
+        studyType: exam.examItemName,
+        filmSpec: printFilmSpec,
+        copies: printCopies,
+        status: 'queued',
+        submitTime: new Date().toISOString(),
+      })
+      if (res.success) {
+        showToast(`打印任务已创建: ${res.data?.id ?? ''} (${printFilmSpec} × ${printCopies} 份)`)
+        setShowPrintPreview(false)
+      } else {
+        showToast(res.error?.message ?? '打印任务创建失败')
+      }
+    } catch {
+      showToast('打印服务暂不可用')
+    } finally {
+      setPrintSubmitting(false)
+    }
   }
 
   const lookSimilarExams = async () => {
@@ -529,7 +560,7 @@ export default function DicomViewerPage() {
           footer={
             <>
               <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => { showToast('正在发送打印任务...'); setShowPrintPreview(false) }}><Printer size={14} />确认打印</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', opacity: printSubmitting ? 0.6 : 1 }} disabled={printSubmitting} onClick={() => void handleConfirmPrint()}><Printer size={14} />{printSubmitting ? '提交中...' : '确认打印'}</button>
             </>
           }
         >
@@ -545,6 +576,20 @@ export default function DicomViewerPage() {
               <span>Patient: {exam.patientName} | {exam.patientId}</span>
               <span>{exam.examItemName} | {exam.deviceName?.split('（')[0]}</span>
             </div>
+          </div>
+          <div style={{ display: 'flex', gap: 16, padding: '12px 0 0', fontSize: 13 }}>
+            <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+              胶片尺寸:
+              <select value={printFilmSpec} onChange={e => setPrintFilmSpec(e.target.value as typeof printFilmSpec)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }}>
+                <option value="14x17">14×17 英寸</option>
+                <option value="10x12">10×12 英寸</option>
+                <option value="8x10">8×10 英寸</option>
+              </select>
+            </label>
+            <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+              份数:
+              <input type="number" min={1} max={5} value={printCopies} onChange={e => setPrintCopies(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} style={{ width: 60, padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }} />
+            </label>
           </div>
         </AppModal>
 
@@ -608,7 +653,7 @@ export default function DicomViewerPage() {
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {exam.patientName} · {exam.examItemName}
           </span>
-          <span>Accession: {exam.accessionNumber}</span>
+          <span>检查号: {exam.accessionNumber}</span>
           <span>设备: {exam.deviceName?.split('（')[0]}</span>
           <span style={{ color: '#3b82f6' }}>窗口: {ww}/{wl}</span>
           <span style={{ color: '#22c55e' }}>缩放: {zoom}%</span>

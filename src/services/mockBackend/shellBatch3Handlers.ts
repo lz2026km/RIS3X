@@ -1,5 +1,7 @@
 // [v3.0.6.11-60] Batch 3: 壳页面真实化 - MSW handlers
 // 覆盖: /ai/fusion-workspace, /pacs-admin, /snomed, /terminology,
+// [G005 Wave1B P1] 标注更新: pacs-admin (servers/storage-groups/associations/stats) 与
+// /terminology/* 后端均已实现 (pacs-admin.module / terminology.module), 以下 handler 仅作 mock 兜底。
 //       /clinical-pathways, /consent-education, /dental/ai-findings, /critical/value5step
 import { http, HttpResponse, delay } from 'msw';
 import { list, create, update, remove } from './store';
@@ -304,6 +306,24 @@ export const shellBatch3Handlers = [
     await delay(delayMs());
     const p = PATHWAY_PATIENTS.find((x) => x.id === params.id) ?? PATHWAY_PATIENTS[0];
     return HttpResponse.json(ok(p?.steps ?? []));
+  }),
+  // [G005 W2-B] 患者路径追踪: 推进阶段 / 退出路径 (前端操作列真实化)
+  http.post(`${API_BASE}/clinical-pathways/patients/:id/advance`, async ({ params }) => {
+    await delay(delayMs());
+    const p = PATHWAY_PATIENTS.find((x) => x.id === params.id);
+    if (!p) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '患者未在路径内' } }, { status: 404 });
+    if (p.step < p.totalSteps) {
+      p.step += 1;
+      if (p.step >= p.totalSteps) p.status = 'completed';
+    }
+    return HttpResponse.json(ok(p));
+  }),
+  http.post(`${API_BASE}/clinical-pathways/patients/:id/exit`, async ({ params }) => {
+    await delay(delayMs());
+    const idx = PATHWAY_PATIENTS.findIndex((x) => x.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '患者未在路径内' } }, { status: 404 });
+    PATHWAY_PATIENTS.splice(idx, 1);
+    return HttpResponse.json(ok({ deleted: true }));
   }),
   http.post(`${API_BASE}/clinical-pathways/:id/toggle`, async ({ params, request }) => {
     await delay(delayMs());

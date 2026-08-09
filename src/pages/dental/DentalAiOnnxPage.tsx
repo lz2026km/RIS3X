@@ -130,7 +130,7 @@ export const DentalAiOnnxPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Brain size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 AI ONNX 推理引擎</span>
@@ -173,7 +173,7 @@ export const DentalAiOnnxPage: React.FC = () => {
                 )} />
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+              <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-secondary)' }}>
                 <Scan size={48} />
                 <div style={{ marginTop: 12 }}>左侧上传图片并运行推理</div>
               </div>

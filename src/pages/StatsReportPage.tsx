@@ -33,7 +33,7 @@ const COLORS = {
   cardWhite: '#ffffff',
   textDark: '#1f2937',
   textMuted: '#6b7280',
-  border: '#e5e7eb',
+  border: 'var(--border-color)',
   // 设备颜色
   ct: '#3b82f6',
   mri: '#8b5cf6',
@@ -160,7 +160,7 @@ const styles = {
     borderRadius: '10px',
     padding: '18px 20px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
@@ -209,7 +209,7 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '10px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
   },
   tab: {
     padding: '10px 20px',
@@ -239,7 +239,7 @@ const styles = {
     padding: '16px 20px',
     borderRadius: '10px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
   },
   toolbarLeft: {
     display: 'flex',
@@ -254,7 +254,7 @@ const styles = {
   searchInput: {
     padding: '8px 12px',
     borderRadius: '6px',
-    border: '1px solid #d1d5db',
+    border: '1px solid var(--border-color)',
     fontSize: '13px',
     width: '240px',
     outline: 'none',
@@ -262,7 +262,7 @@ const styles = {
   selectInput: {
     padding: '8px 12px',
     borderRadius: '6px',
-    border: '1px solid #d1d5db',
+    border: '1px solid var(--border-color)',
     fontSize: '13px',
     outline: 'none',
     backgroundColor: 'white',
@@ -289,7 +289,7 @@ const styles = {
   },
   buttonOutline: {
     backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
+    border: '1px solid var(--border-color)',
     color: COLORS.textDark,
   },
   // 表格卡片
@@ -297,12 +297,12 @@ const styles = {
     backgroundColor: COLORS.cardWhite,
     borderRadius: '10px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     overflow: 'hidden',
   },
   tableHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -319,7 +319,7 @@ const styles = {
     borderCollapse: 'collapse',
   },
   tableHead: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: 'var(--bg-card)',
   },
   th: {
     padding: '12px 16px',
@@ -327,17 +327,17 @@ const styles = {
     fontSize: '13px',
     fontWeight: 600,
     color: COLORS.textMuted,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
     whiteSpace: 'nowrap' as const,
   },
   td: {
     padding: '12px 16px',
     fontSize: '13px',
-    borderBottom: '1px solid #f1f5f9',
+    borderBottom: '1px solid var(--border-light)',
     color: COLORS.textDark,
   },
   trHover: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: 'var(--bg-card)',
   },
   // 标签样式
   badge: {
@@ -350,7 +350,7 @@ const styles = {
     gap: '4px',
   },
   badgePrimary: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: 'var(--color-info-bg)',
     color: '#1e40af',
   },
   badgeSuccess: {
@@ -371,7 +371,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px 20px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid var(--border-color)',
   },
   paginationInfo: {
     fontSize: '13px',
@@ -384,7 +384,7 @@ const styles = {
   pageButton: {
     padding: '6px 12px',
     borderRadius: '6px',
-    border: '1px solid #d1d5db',
+    border: '1px solid var(--border-color)',
     backgroundColor: 'white',
     cursor: 'pointer',
     fontSize: '13px',
@@ -419,7 +419,7 @@ const styles = {
   },
   modalHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -879,9 +879,9 @@ export default function StatsReportPage() {
       return data.map((item: any, index) => (
         <tr 
           key={item.deviceId} 
-          style={selectedRows.includes(item.deviceId) ? { backgroundColor: '#eff6ff' } : index % 2 === 0 ? {} : { backgroundColor: '#fafafa' }}
-          onMouseEnter={(e) => !selectedRows.includes(item.deviceId) && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-          onMouseLeave={(e) => selectedRows.includes(item.deviceId) ? (e.currentTarget.style.backgroundColor = '#eff6ff') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
+          style={selectedRows.includes(item.deviceId) ? { backgroundColor: 'var(--color-info-bg)' } : index % 2 === 0 ? {} : { backgroundColor: 'var(--bg-card)' }}
+          onMouseEnter={(e) => !selectedRows.includes(item.deviceId) && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={(e) => selectedRows.includes(item.deviceId) ? (e.currentTarget.style.backgroundColor = 'var(--color-info-bg)') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
         >
           <td style={styles.td}>
             <input 
@@ -916,7 +916,7 @@ export default function StatsReportPage() {
           <td style={styles.td}>
             {item.utilizationRate > 0 ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '100px', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '100px', height: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div style={{ width: `${item.utilizationRate}%`, height: '100%', backgroundColor: item.utilizationRate > 90 ? COLORS.success : item.utilizationRate > 75 ? COLORS.warning : COLORS.danger }} />
                 </div>
                 <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{item.utilizationRate}%</span>
@@ -931,9 +931,9 @@ export default function StatsReportPage() {
       return data.map((item: any, index) => (
         <tr 
           key={item.doctorId} 
-          style={selectedRows.includes(item.doctorId) ? { backgroundColor: '#eff6ff' } : index % 2 === 0 ? {} : { backgroundColor: '#fafafa' }}
-          onMouseEnter={(e) => !selectedRows.includes(item.doctorId) && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-          onMouseLeave={(e) => selectedRows.includes(item.doctorId) ? (e.currentTarget.style.backgroundColor = '#eff6ff') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
+          style={selectedRows.includes(item.doctorId) ? { backgroundColor: 'var(--color-info-bg)' } : index % 2 === 0 ? {} : { backgroundColor: 'var(--bg-card)' }}
+          onMouseEnter={(e) => !selectedRows.includes(item.doctorId) && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={(e) => selectedRows.includes(item.doctorId) ? (e.currentTarget.style.backgroundColor = 'var(--color-info-bg)') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
         >
           <td style={styles.td}>
             <input 
@@ -974,7 +974,7 @@ export default function StatsReportPage() {
           <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + '分钟' : '—'}</td>
           <td style={styles.td}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '80px', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: '80px', height: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${item.accuracy}%`, height: '100%', backgroundColor: item.accuracy > 98 ? COLORS.success : item.accuracy > 95 ? COLORS.warning : COLORS.danger }} />
               </div>
               <span style={{ fontSize: '12px', fontWeight: 500, color: item.accuracy > 98 ? COLORS.success : item.accuracy > 95 ? COLORS.warning : COLORS.danger }}>{item.accuracy}%</span>
@@ -986,9 +986,9 @@ export default function StatsReportPage() {
       return data.map((item: any, index) => (
         <tr 
           key={item.date} 
-          style={selectedRows.includes(item.date) ? { backgroundColor: '#eff6ff' } : index % 2 === 0 ? {} : { backgroundColor: '#fafafa' }}
-          onMouseEnter={(e) => !selectedRows.includes(item.date) && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-          onMouseLeave={(e) => selectedRows.includes(item.date) ? (e.currentTarget.style.backgroundColor = '#eff6ff') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
+          style={selectedRows.includes(item.date) ? { backgroundColor: 'var(--color-info-bg)' } : index % 2 === 0 ? {} : { backgroundColor: 'var(--bg-card)' }}
+          onMouseEnter={(e) => !selectedRows.includes(item.date) && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={(e) => selectedRows.includes(item.date) ? (e.currentTarget.style.backgroundColor = 'var(--color-info-bg)') : (e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'transparent' : '#fafafa')}
         >
           <td style={styles.td}>
             <input 
@@ -1145,7 +1145,7 @@ export default function StatsReportPage() {
           <button 
             style={{ ...styles.tab, ...(activeTab === 'device' ? styles.tabActive : {}) }}
             onClick={() => { setActiveTab('device'); setCurrentPage(1); setSelectedRows([]); }}
-            onMouseEnter={(e) => activeTab !== 'device' && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+            onMouseEnter={(e) => activeTab !== 'device' && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
             onMouseLeave={(e) => activeTab !== 'device' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <Monitor size={16} />
@@ -1154,7 +1154,7 @@ export default function StatsReportPage() {
           <button 
             style={{ ...styles.tab, ...(activeTab === 'doctor' ? styles.tabActive : {}) }}
             onClick={() => { setActiveTab('doctor'); setCurrentPage(1); setSelectedRows([]); }}
-            onMouseEnter={(e) => activeTab !== 'doctor' && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+            onMouseEnter={(e) => activeTab !== 'doctor' && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
             onMouseLeave={(e) => activeTab !== 'doctor' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <User size={16} />
@@ -1163,7 +1163,7 @@ export default function StatsReportPage() {
           <button 
             style={{ ...styles.tab, ...(activeTab === 'date' ? styles.tabActive : {}) }}
             onClick={() => { setActiveTab('date'); setCurrentPage(1); setSelectedRows([]); }}
-            onMouseEnter={(e) => activeTab !== 'date' && (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+            onMouseEnter={(e) => activeTab !== 'date' && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
             onMouseLeave={(e) => activeTab !== 'date' && (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <Calendar size={16} />
@@ -1354,7 +1354,7 @@ export default function StatsReportPage() {
           </table>
 
           {isLive && (
-            <div style={{ padding: '8px 16px', fontSize: 12, color: COLORS.textMuted, borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
+            <div style={{ padding: '8px 16px', fontSize: 12, color: COLORS.textMuted, borderTop: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
               * 收入按 400元/例 估算; 报告/危急数值来自 statsApi 趋势聚合; 设备利用率由 DEVICE_MASTER 停机率推导 + biApi OEE 补充; 设备检查量为 stats.topDevices 近30天聚合
             </div>
           )}
@@ -1497,9 +1497,9 @@ export default function StatsReportPage() {
               
               <div style={{ 
                 padding: '16px', 
-                backgroundColor: '#f8fafc', 
+                backgroundColor: 'var(--bg-card)', 
                 borderRadius: '8px',
-                border: '1px solid #e5e7eb'
+                border: '1px solid var(--border-color)'
               }}>
                 <div style={{ fontSize: '13px', color: COLORS.textMuted, marginBottom: '8px' }}>
                   导出预览

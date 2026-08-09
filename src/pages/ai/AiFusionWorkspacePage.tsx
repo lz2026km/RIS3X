@@ -1,11 +1,11 @@
 // [v3.0.6.8-76] 多模态AI融合工作台
 // [v3.0.6.11-60] Batch 3: 增强 - loading/error + 融合研究列表 + AI 洞察卡片 + 操作
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
-import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
+import { usePagination } from '../../hooks/usePagination';
 import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
 import { fusionApi } from '../../services/api/fusionApi';
-import { usePagination } from '../../hooks/usePagination';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
+import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 function downloadBlob(content: string, filename: string, mime = 'text/csv;charset=utf-8'): void {
   const blob = new Blob(['\uFEFF' + content], { type: mime });
@@ -114,7 +114,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
         {loading && <Spin size="small" />}
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={initialLoading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>

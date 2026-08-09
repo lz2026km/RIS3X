@@ -1,9 +1,9 @@
 // [W3-2] Phase C: 口腔-放射融合 (转诊 CRUD + 统一报告 + 融合查看器) — 真实 API (dentalApi)
-import React, { useState, useEffect, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePagination';
+import { dentalApi } from '@/services/api/dentalApi';
 import { Card, Space, Tag, Button, Table, Row, Col, Statistic, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
 import { Plus, Send, FileText, Activity as ActivityIcon, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { dentalApi } from '@/services/api/dentalApi';
-import { usePagination } from '@/hooks/usePagination';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const { TextArea } = Input;
 
@@ -132,7 +132,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     { title: '来源', dataIndex: 'source', key: 'source', width: 90, render: (s: string) => <Tag color="blue">{s}</Tag> },
     { title: '目标', dataIndex: 'target', key: 'target', width: 90, render: (s: string) => <Tag color="purple">{s}</Tag> },
     { title: '原因', dataIndex: 'reason', key: 'reason', ellipsis: true },
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 130, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
+    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 130, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
     { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (s: string) => <Tag color={STATUS_META[s]?.color ?? 'default'}>{STATUS_META[s]?.label ?? s}</Tag> },
     {
       title: '操作', key: 'actions', width: 140,
@@ -149,7 +149,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Send size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>跨科室转诊</span>
@@ -157,7 +157,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         <Tag color="purple">口腔↔放射</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="转诊总数" value={referrals.length} /></Card></Col>
         <Col span={6}><Card><Statistic title="待转诊" value={referrals.filter(r => r.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
@@ -229,7 +229,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>统一 CBCT 报告</span>
@@ -248,12 +248,12 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   style={{
                     padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
                     border: selected?.id === r.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
-                    background: selected?.id === r.id ? '#e6f4ff' : '#fff',
+                    background: selected?.id === r.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName}</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{r.id} · {r.acquisitionDate?.slice(0, 10) ?? '-'}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.deviceModel ?? ''}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.id} · {r.acquisitionDate?.slice(0, 10) ?? '-'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.deviceModel ?? ''}</div>
                 </div>
               ))}
             </Spin>
@@ -273,7 +273,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                         <Descriptions.Item label="扫描类型">{selected.scanType ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label="指征">{selected.indications ?? '-'}</Descriptions.Item>
                       </Descriptions>
-                      <div style={{ marginTop: 12, color: '#666', fontSize: 13 }}>
+                      <div style={{ marginTop: 12, color: 'var(--text-secondary)', fontSize: 13 }}>
                         36 位远中根根尖周低密度影; 16 位腭侧牙周膜间隙增宽
                       </div>
                       <Tag color="blue" style={{ marginTop: 8 }}>慢性根尖周炎 (36)</Tag>
@@ -282,7 +282,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   </Col>
                   <Col span={12}>
                     <Card size="small" title="放射科报告">
-                      <div style={{ marginBottom: 8, color: '#666', fontSize: 13 }}>CBCT 示右侧上颌窦黏膜增厚; 36 根尖区骨密度降低</div>
+                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 13 }}>CBCT 示右侧上颌窦黏膜增厚; 36 根尖区骨密度降低</div>
                       {selected.aiAnalysis && (
                         <div style={{ marginBottom: 8 }}>
                           <Tag color="purple">龋齿检出: {selected.aiAnalysis.cariesDetected ?? 0}</Tag>
@@ -292,7 +292,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                       )}
                       <Tag color="purple">慢性根尖周炎伴骨吸收</Tag>
                       <Tag color="orange" style={{ marginLeft: 4 }}>右侧上颌窦炎</Tag>
-                      <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
+                      <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
                         AI 置信度: {selected.aiAnalysis?.confidence ? `${Math.round(selected.aiAnalysis.confidence * 100)}%` : '-'} · 模型: {selected.aiAnalysis?.modelVersion ?? '-'}
                       </div>
                     </Card>
@@ -342,7 +342,7 @@ export const DentalRadFusionPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <ActivityIcon size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔-放射融合查看器</span>
@@ -364,11 +364,11 @@ export const DentalRadFusionPage: React.FC = () => {
                       style={{
                         padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
                         border: selected?.id === s.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
-                        background: selected?.id === s.id ? '#e6f4ff' : '#fff',
+                        background: selected?.id === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       }}
                     >
                       <div style={{ fontSize: 13, fontWeight: 600 }}>{s.patientName}</div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>{s.scanType ?? s.modality} · {s.acquisitionDate?.slice(0, 10) ?? '-'}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.scanType ?? s.modality} · {s.acquisitionDate?.slice(0, 10) ?? '-'}</div>
                     </div>
                   ))}
                 </Spin>
@@ -376,7 +376,7 @@ export const DentalRadFusionPage: React.FC = () => {
             </Col>
             <Col span={9}>
               <Card size="small" title="口腔全景片 (Panoramic)">
-                <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', flexDirection: 'column' }}>
+                <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <ActivityIcon size={24} />
                   <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} 全景片` : '全景片模拟'}</div>
                 </div>
@@ -384,7 +384,7 @@ export const DentalRadFusionPage: React.FC = () => {
             </Col>
             <Col span={9}>
               <Card size="small" title="放射头颅侧位 (Ceph)">
-                <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', flexDirection: 'column' }}>
+                <div style={{ height: 250, background: '#1a1a2e', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
                   <FileText size={24} />
                   <div style={{ marginTop: 8 }}>{selected ? `${selected.patientName} 侧位片` : '侧位片模拟'}</div>
                 </div>
@@ -394,7 +394,7 @@ export const DentalRadFusionPage: React.FC = () => {
         },
         { key: 'overlay', label: '叠加融合', children:
           <Card size="small" title={selected ? `CBCT + 口扫 3D 叠加融合 (${selected.patientName})` : 'CBCT + 口扫 3D 叠加融合 (WebGL)'}>
-            <div style={{ height: 300, background: '#0a0a1a', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', flexDirection: 'column' }}>
+            <div style={{ height: 300, background: '#0a0a1a', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexDirection: 'column' }}>
               <ActivityIcon size={28} />
               <div style={{ marginTop: 8 }}>CBCT + 口扫 3D 叠加融合 (WebGL)</div>
               {selected && <Tag color="cyan" style={{ marginTop: 8 }}>{selected.id}</Tag>}

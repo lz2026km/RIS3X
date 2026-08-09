@@ -1,9 +1,10 @@
 /**
  * G005 放射RIS系统 v3.0.2 - 系统配置 / 设备管理
  */
-import React, { useState, useMemo } from 'react'
 import { Card, Table, Tag, Space, Button, Modal, Form, Input, Select, Statistic, Row, Col, message, Empty, Switch } from 'antd'
 import { Cpu, Wifi, WifiOff, Settings, Plus, Edit, Trash2, Power, Activity, MapPin } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Inbox } from 'lucide-react'
 
 export type DeviceModality = 'CT' | 'MR' | 'DR' | 'US' | 'MG' | 'DSA' | 'PETCT'
 export type DeviceState = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE' | 'BUSY' | 'IDLE'
@@ -157,7 +158,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
           },
         ]}
         scroll={{ x: 1300 }}
-        locale={{ emptyText: <Empty description="无设备" /> }}
+        locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无设备" /> }}
       />
 
       <Modal

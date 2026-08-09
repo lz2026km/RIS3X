@@ -272,7 +272,7 @@ export const DentalImplant3DPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -402,7 +402,7 @@ export const DentalImplant3DPage: React.FC = () => {
                       text={STATUS_META[p.status]?.label ?? p.status}
                     />
                   </Space>
-                  <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
                     {p.model} | 神距: {p.distanceToNerve}mm | 骨密度:{" "}
                     {p.boneDensityAtApex}HU | {p.createdAt?.slice(0, 10)}
                   </div>
@@ -416,7 +416,7 @@ export const DentalImplant3DPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回列表
@@ -614,7 +614,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   strokeColor={safe ? "#52c41a" : "#ff4d4f"}
                   style={{ marginTop: 8 }}
                 />
-                <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                   安全阈值: ≥2mm
                 </div>
                 <Divider style={{ margin: "6px 0" }} />
@@ -652,11 +652,11 @@ export const DentalImplant3DPage: React.FC = () => {
                           flex: 1,
                           textAlign: "center",
                           padding: 4,
-                          background: "#f0f5ff",
+                          background: "var(--color-info-bg)",
                           borderRadius: 4,
                         }}
                       >
-                        <div style={{ fontSize: 10, color: "#999" }}>
+                        <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>
                           {m.region}
                         </div>
                         <div style={{ fontWeight: 600, fontSize: 13 }}>
@@ -674,7 +674,7 @@ export const DentalImplant3DPage: React.FC = () => {
                   strokeColor="#722ed1"
                   style={{ marginTop: 4 }}
                 />
-                <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
                   平均 {boneData?.averageHU || 750} HU
                 </div>
               </Card>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Tabs, Slider, Select, Switch, Radio, Button, Divider } from 'antd';
-import { SettingOutlined } from "@ant-design/icons";
+import { Settings } from "lucide-react";
 import { useAppTheme, type ThemeMode } from "../Provider";
 import {
   SHORTCUT_LIST,
@@ -85,8 +85,9 @@ export function SettingsPanel({
         }}
       >
         {trigger ?? (
-          <SettingOutlined
-            style={{ fontSize: 18, color: "var(--text-secondary)" }}
+          <Settings
+            size={18}
+            style={{ color: "var(--text-secondary)" }}
           />
         )}
       </div>

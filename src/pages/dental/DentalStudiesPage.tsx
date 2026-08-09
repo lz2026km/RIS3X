@@ -38,7 +38,7 @@ export const DentalStudiesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔影像中心</span>
@@ -88,7 +88,7 @@ export const DentalStudiesPage: React.FC = () => {
                     width: 60, height: 50, borderRadius: 4,
                     background: s.thumbnail || '#f0f0f0',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#999', fontSize: 10,
+                    color: 'var(--text-secondary)', fontSize: 10,
                   }}>
                     {s.modality === 'CBCT' ? '3D' : s.modality === 'Panoramic' ? '全景' : s.modality === 'Scan' ? '3D' : '2D'}
                   </div>
@@ -101,7 +101,7 @@ export const DentalStudiesPage: React.FC = () => {
                   </Space>
                 }
                 description={
-                  <Space style={{ fontSize: 11, color: '#999' }}>
+                  <Space style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                     <span>{s.deviceModel}</span>
                     <span>|</span>
                     <span>{s.fieldOfView}</span>

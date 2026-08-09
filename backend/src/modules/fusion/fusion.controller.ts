@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
@@ -52,5 +52,24 @@ export class FusionController {
   @ApiOperation({ summary: 'Query multi-modal series for a patient' })
   getSeries(@Param('patientId') patientId: string) {
     return this.svc.getSeries(patientId)
+  }
+
+  // [G005 Wave1B P1] fusionApi 3 端点: list / registration/:id / DELETE :id
+  @Get()
+  @ApiOperation({ summary: '融合记录列表 (内存注册记录 + FusionJob 派生)' })
+  list(@Query('patientId') patientId?: string, @Query('status') status?: string) {
+    return this.svc.list({ patientId, status })
+  }
+
+  @Get('registration/:id')
+  @ApiOperation({ summary: '融合注册记录详情' })
+  getRegistration(@Param('id') id: string) {
+    return this.svc.getRegistration(id)
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: '删除融合注册记录' })
+  delete(@Param('id') id: string) {
+    return this.svc.delete(id)
   }
 }

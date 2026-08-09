@@ -1,6 +1,7 @@
 import { api } from './client'
 
-// [W3-B] 典型病例库 API — 后端暂无专用端点, 走 MSW (source: 'demo')
+// [G005 Wave1B P1] 典型病例库 API — 后端已实现 /typical-cases controller
+// (Report 派生 + seed 回退 + 内存 CRUD, typical-cases.module), MSW 标注已更新。
 // 页面在 API 失败时回退内置演示数据并标注。
 
 export interface TypicalCaseStats {

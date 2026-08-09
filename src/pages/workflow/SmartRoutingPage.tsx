@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import {
-  Card, Table, Button, Tag, Space, Switch, InputNumber, Input, Modal, Form, Select,
-  Row, Col, Statistic, Tabs, message, Alert, Progress,
-} from 'antd'
-import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route } from 'lucide-react'
+import { usePagination } from '../../hooks/usePagination'
 import {
   smartRouteApi,
   type SmartRouteRule,
   type SmartRouteAssignment,
   type DoctorQualification,
 } from '../../services/api/smartRouteApi'
-import { usePagination } from '../../hooks/usePagination'
+import {
+  Card, Table, Button, Tag, Space, Switch, InputNumber, Input, Modal, Form, Select,
+  Row, Col, Statistic, Tabs, message, Alert, Progress,
+} from 'antd'
+import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const stageMeta: Record<string, { label: string; color: string }> = {
   qualification: { label: '资质匹配', color: 'blue' },
@@ -173,7 +173,7 @@ const SmartRoutingPage: React.FC = () => {
         <Tag color="purple">资质匹配 → 负载均衡 → 优先级</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="路由规则" value={rules.length} prefix={<GitBranch size={16} />} /></Card></Col>

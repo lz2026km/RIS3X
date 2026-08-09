@@ -44,7 +44,7 @@ const OctAngiographyPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -77,7 +77,7 @@ const OctAngiographyPage: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                       fontSize: 12,
                       flexDirection: "column",
                     }}
@@ -90,7 +90,7 @@ const OctAngiographyPage: React.FC = () => {
                       fontSize: 12,
                       textAlign: "center",
                       marginTop: 4,
-                      color: "#94a3b8",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {layer}
@@ -126,7 +126,7 @@ const OctAngiographyPage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#64748b",
+                color: "var(--text-secondary)",
                 flexDirection: "column",
               }}
             >

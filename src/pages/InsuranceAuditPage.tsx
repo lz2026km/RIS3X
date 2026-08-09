@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
 import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../services/api/datareportApi";
 import { insuranceApi } from "../services/api/insuranceApi";
+import { PageHeader } from "../components/common/PageHeader";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { VOUCHER_DATA } from '../data/initialData';
@@ -2303,7 +2304,7 @@ const deptUsageData = [
   { name: "消化内科", value: 12, amount: 59.0, color: "#22c55e" },
   { name: "肿瘤科", value: 10, amount: 49.2, color: "#3b82f6" },
   { name: "血管外科", value: 8, amount: 39.4, color: "#8b5cf6" },
-  { name: "其他科室", value: 17, amount: 83.6, color: "#64748b" },
+  { name: "其他科室", value: 17, amount: 83.6, color: "var(--text-secondary)" },
 ];
 
 // 基金监控KPI
@@ -2479,20 +2480,20 @@ const styles: Record<string, React.CSSProperties> = {
   },
   kpiLabel: {
     fontSize: 13,
-    color: "#64748b",
+    color: "var(--text-secondary)",
     marginTop: 2,
   },
   tabs: {
     display: "flex",
     gap: 0,
-    borderBottom: "2px solid #e2e8f0",
+    borderBottom: "2px solid var(--border-color)",
     marginBottom: 20,
   },
   tab: {
     padding: "12px 24px",
     fontSize: 15,
     fontWeight: 600,
-    color: "#64748b",
+    color: "var(--text-secondary)",
     background: "none",
     border: "none",
     borderBottom: "3px solid transparent",
@@ -2518,7 +2519,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: 8,
     background: "var(--content-bg)",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-color)",
     borderRadius: 8,
     padding: "8px 14px",
     flex: 1,
@@ -2533,7 +2534,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   select: {
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-color)",
     borderRadius: 8,
     padding: "8px 14px",
     fontSize: 14,
@@ -2552,7 +2553,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     padding: "16px 18px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-    border: "1px solid #f1f5f9",
+    border: "1px solid var(--border-light)",
   },
   cardHeader: {
     display: "flex",
@@ -2567,7 +2568,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardPatientId: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
     marginTop: 2,
   },
   cardTag: {
@@ -2583,10 +2584,10 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 8,
     marginBottom: 8,
     fontSize: 13,
-    color: "#475569",
+    color: "var(--text-secondary)",
   },
   cardDrug: {
-    background: "#f0fdf4",
+    background: "var(--color-success-bg)",
     border: "1px solid #bbf7d0",
     borderRadius: 8,
     padding: "10px 14px",
@@ -2607,7 +2608,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     padding: "2px 8px",
     borderRadius: 4,
-    background: "#eff6ff",
+    background: "var(--color-info-bg)",
     color: "#2563eb",
     marginTop: 4,
     display: "inline-block",
@@ -2615,7 +2616,7 @@ const styles: Record<string, React.CSSProperties> = {
   cardRestriction: {
     fontSize: 12,
     color: "#dc2626",
-    background: "#fef2f2",
+    background: "var(--color-error-bg)",
     border: "1px solid #fecaca",
     borderRadius: 6,
     padding: "6px 10px",
@@ -2642,12 +2643,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "12px 16px",
     textAlign: "left" as const,
     fontWeight: 600,
-    color: "#475569",
-    borderBottom: "1px solid #e2e8f0",
+    color: "var(--text-secondary)",
+    borderBottom: "1px solid var(--border-color)",
   },
   td: {
     padding: "12px 16px",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--border-light)",
     color: "var(--text-secondary)",
   },
   badge: {
@@ -2660,15 +2661,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   badgeSuccess: {
-    background: "#dcfce7",
+    background: "var(--color-success-bg)",
     color: "#166534",
   },
   badgeDanger: {
-    background: "#fee2e2",
+    background: "var(--color-error-bg)",
     color: "#dc2626",
   },
   badgeWarning: {
-    background: "#fef3c7",
+    background: "var(--color-warning-bg)",
     color: "#d97706",
   },
   btnGroup: {
@@ -2701,8 +2702,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   btnOutline: {
     background: "transparent",
-    border: "1px solid #e2e8f0",
-    color: "#475569",
+    border: "1px solid var(--border-color)",
+    color: "var(--text-secondary)",
   },
   statsGrid: {
     display: "grid",
@@ -2718,7 +2719,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   statTitle: {
     fontSize: 13,
-    color: "#64748b",
+    color: "var(--text-secondary)",
     marginBottom: 8,
   },
   statValue: {
@@ -2762,20 +2763,20 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px 12px",
     textAlign: "left" as const,
     fontWeight: 600,
-    color: "#475569",
-    borderBottom: "1px solid #e2e8f0",
+    color: "var(--text-secondary)",
+    borderBottom: "1px solid var(--border-color)",
     fontSize: 13,
   },
   drugTd: {
     padding: "10px 12px",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--border-light)",
     color: "var(--text-secondary)",
     fontSize: 13,
   },
   emptyState: {
     textAlign: "center",
     padding: "40px 20px",
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
   },
   voucherCard: {
     background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
@@ -2837,7 +2838,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#fff",
   },
   voucherFilterInactive: {
-    background: "#f0f9ff",
+    background: "var(--color-info-bg)",
     color: "#3b82f6",
     border: "1px solid #dbeafe",
   },
@@ -2849,7 +2850,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #dbeafe",
   },
   voucherTh: {
-    background: "#f0f9ff",
+    background: "var(--color-info-bg)",
     padding: "12px 16px",
     textAlign: "left" as const,
     fontWeight: 600,
@@ -2859,7 +2860,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   voucherTd: {
     padding: "12px 16px",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--border-light)",
     color: "var(--text-secondary)",
     fontSize: 13,
   },
@@ -2877,11 +2878,11 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px 20px",
-    borderTop: "1px solid #e2e8f0",
+    borderTop: "1px solid var(--border-color)",
   },
   pageInfo: {
     fontSize: 14,
-    color: "#64748b",
+    color: "var(--text-secondary)",
   },
   pageButtons: {
     display: "flex",
@@ -2894,7 +2895,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 36,
     height: 36,
     borderRadius: 8,
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-color)",
     background: "var(--bg-card)",
     cursor: "pointer",
     transition: "all 0.2s",
@@ -2954,7 +2955,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   modalText: {
     fontSize: 14,
-    color: "#475569",
+    color: "var(--text-secondary)",
     marginBottom: 20,
   },
   modalActions: {
@@ -3012,7 +3013,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   fundKpiLabel: {
     fontSize: 13,
-    color: "#64748b",
+    color: "var(--text-secondary)",
     marginTop: 2,
   },
   fundChartRow: {
@@ -3045,7 +3046,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "flex-start",
     gap: 12,
     padding: "12px 0",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--border-light)",
   },
   violationItemLast: {
     borderBottom: "none",
@@ -3074,24 +3075,24 @@ const styles: Record<string, React.CSSProperties> = {
   },
   violationTime: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: "var(--text-secondary)",
   },
   violationDesc: {
     fontSize: 12,
-    color: "#64748b",
+    color: "var(--text-secondary)",
   },
   balanceWarningNormal: {
-    background: "#dcfce7",
+    background: "var(--color-success-bg)",
     color: "#166534",
     border: "1px solid #bbf7d0",
   },
   balanceWarningWarning: {
-    background: "#fef3c7",
+    background: "var(--color-warning-bg)",
     color: "#d97706",
     border: "1px solid #fecaca",
   },
   balanceWarningCritical: {
-    background: "#fee2e2",
+    background: "var(--color-error-bg)",
     color: "#dc2626",
     border: "1px solid #fecaca",
   },
@@ -3153,9 +3154,9 @@ const urgencyColor: Record<string, string> = {
 
 // 结果颜色
 const resultColors: Record<string, { bg: string; text: string }> = {
-  通过: { bg: "#dcfce7", text: "#166534" },
-  拒绝: { bg: "#fee2e2", text: "#dc2626" },
-  补充资料: { bg: "#fef3c7", text: "#d97706" },
+  通过: { bg: "#22c55e22", text: "#166534" },
+  拒绝: { bg: "#ef444422", text: "#dc2626" },
+  补充资料: { bg: "#f59e0b22", text: "#d97706" },
 };
 
 // 结果图标
@@ -3205,7 +3206,7 @@ const PendingAuditCard: React.FC<{
     <div style={styles.cardRow}>
       <FileText size={14} />
       <span>{audit.examItem}</span>
-      <span style={{ marginLeft: "auto", color: "#94a3b8" }}>
+      <span style={{ marginLeft: "auto", color: "var(--text-secondary)" }}>
         {audit.submitDept}
       </span>
     </div>
@@ -3229,7 +3230,7 @@ const PendingAuditCard: React.FC<{
       {audit.restriction}
     </div>
 
-    <div style={{ fontSize: 13, color: "#475569", marginBottom: 12 }}>
+    <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>
       <Stethoscope size={12} style={{ marginRight: 6 }} />
       {audit.reason}
     </div>
@@ -3861,24 +3862,15 @@ export default function InsuranceAuditPage() {
 
   return (
     <div style={styles.root}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>
-          <ShieldCheck
-            size={22}
-            style={{
-              marginRight: 10,
-              verticalAlign: "middle",
-              color: "#1e40af",
-            }}
-          />
-          {t("title")}
-        </h2>
-      </div>
+      <PageHeader
+        icon={<ShieldCheck size={22} style={{ color: "#1e40af" }} />}
+        title={t("title")}
+      />
 
       {/* KPI 卡片 */}
       <div style={styles.kpiRow}>
         <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "#dbeafe" }}>
+          <div style={{ ...styles.kpiIcon, background: "var(--color-info-bg)" }}>
             <ClipboardList size={22} color="#1e40af" />
           </div>
           <div>
@@ -3887,7 +3879,7 @@ export default function InsuranceAuditPage() {
           </div>
         </div>
         <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "#dcfce7" }}>
+          <div style={{ ...styles.kpiIcon, background: "var(--color-success-bg)" }}>
             <CheckCircle size={22} color="#16a34a" />
           </div>
           <div>
@@ -3896,7 +3888,7 @@ export default function InsuranceAuditPage() {
           </div>
         </div>
         <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "#fef3c7" }}>
+          <div style={{ ...styles.kpiIcon, background: "var(--color-warning-bg)" }}>
             <Activity size={22} color="#d97706" />
           </div>
           <div>
@@ -3905,7 +3897,7 @@ export default function InsuranceAuditPage() {
           </div>
         </div>
         <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "#f3e8ff" }}>
+          <div style={{ ...styles.kpiIcon, background: "#8b5cf622" }}>
             <Clock size={22} color="#9333ea" />
           </div>
           <div>
@@ -3924,7 +3916,7 @@ export default function InsuranceAuditPage() {
             <DollarSign size={20} style={{ color: "#16a34a" }} />
             医保基金监控
           </h3>
-          <span style={{ fontSize: 12, color: "#64748b" }}>
+          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             数据更新于 2026-05-27 12:00
           </span>
         </div>
@@ -3932,7 +3924,7 @@ export default function InsuranceAuditPage() {
         {/* 基金监控KPI */}
         <div style={styles.fundKpiRow}>
           <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "#dcfce7" }}>
+            <div style={{ ...styles.fundKpiIcon, background: "var(--color-success-bg)" }}>
               <Percent size={22} color="#16a34a" />
             </div>
             <div>
@@ -3971,7 +3963,7 @@ export default function InsuranceAuditPage() {
             </div>
           </div>
           <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "#fee2e2" }}>
+            <div style={{ ...styles.fundKpiIcon, background: "var(--color-error-bg)" }}>
               <AlertOctagon size={22} color="#dc2626" />
             </div>
             <div>
@@ -3982,7 +3974,7 @@ export default function InsuranceAuditPage() {
             </div>
           </div>
           <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "#dbeafe" }}>
+            <div style={{ ...styles.fundKpiIcon, background: "var(--color-info-bg)" }}>
               <TrendingUp size={22} color="#1e40af" />
             </div>
             <div>
@@ -4022,7 +4014,7 @@ export default function InsuranceAuditPage() {
                   formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
                   contentStyle={{
                     borderRadius: 8,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color)",
                   }}
                 />
                 <Area
@@ -4080,7 +4072,7 @@ export default function InsuranceAuditPage() {
                     formatter={(value: number) => [`${value}%`, "占比"]}
                     contentStyle={{
                       borderRadius: 8,
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid var(--border-color)",
                     }}
                   />
                 </PieChart>
@@ -4105,7 +4097,7 @@ export default function InsuranceAuditPage() {
                         flexShrink: 0,
                       }}
                     />
-                    <div style={{ flex: 1, fontSize: 12, color: "#475569" }}>
+                    <div style={{ flex: 1, fontSize: 12, color: "var(--text-secondary)" }}>
                       {dept.name}
                     </div>
                     <div
@@ -4153,7 +4145,7 @@ export default function InsuranceAuditPage() {
                   formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
                   contentStyle={{
                     borderRadius: 8,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color)",
                   }}
                 />
                 <Bar
@@ -4189,7 +4181,7 @@ export default function InsuranceAuditPage() {
                   marginLeft: 8,
                   fontSize: 12,
                   fontWeight: 400,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                 }}
               >
                 共 {violationAlerts.length} 条
@@ -4205,7 +4197,7 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   <div
-                    style={{ ...styles.violationIcon, background: "#fee2e2" }}
+                    style={{ ...styles.violationIcon, background: "var(--color-error-bg)" }}
                   >
                     <AlertOctagon size={16} color="#dc2626" />
                   </div>
@@ -4263,7 +4255,7 @@ export default function InsuranceAuditPage() {
               />
               <Tooltip
                 formatter={(value: number) => [`${value}%`, "通过率"]}
-                contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0" }}
+                contentStyle={{ borderRadius: 8, border: "1px solid var(--border-color)" }}
               />
               <Area
                 type="monotone"
@@ -4317,7 +4309,7 @@ export default function InsuranceAuditPage() {
         <>
           <div style={styles.toolbar}>
             <div style={styles.searchBox}>
-              <Search size={16} color="#94a3b8" />
+              <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
                 placeholder={t("searchPlaceholder")}
@@ -4389,7 +4381,7 @@ export default function InsuranceAuditPage() {
                 aria-hidden
               />
               <div>{t("noPending")}</div>
-              <div style={{ fontSize: 12, marginTop: 4, color: "#94a3b8" }}>
+              <div style={{ fontSize: 12, marginTop: 4, color: "var(--text-secondary)" }}>
                 暂无数据
               </div>
             </div>
@@ -4484,7 +4476,7 @@ export default function InsuranceAuditPage() {
         <>
           <div style={styles.toolbar}>
             <div style={styles.searchBox}>
-              <Search size={16} color="#94a3b8" />
+              <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
                 placeholder={t("searchPlaceholder")}
@@ -4605,21 +4597,21 @@ export default function InsuranceAuditPage() {
             <div style={styles.statCard}>
               <div style={styles.statTitle}>CT增强审核</div>
               <div style={styles.statValue}>158</div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                 占比 48.5%
               </div>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>MRI增强审核</div>
               <div style={styles.statValue}>98</div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                 占比 30.1%
               </div>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>DSA抗凝审核</div>
               <div style={styles.statValue}>70</div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                 占比 21.5%
               </div>
             </div>
@@ -4636,7 +4628,7 @@ export default function InsuranceAuditPage() {
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div
-                  style={{ fontSize: 13, color: "#64748b", marginBottom: 8 }}
+                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
                 >
                   通过率
                 </div>
@@ -4668,7 +4660,7 @@ export default function InsuranceAuditPage() {
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div
-                  style={{ fontSize: 13, color: "#64748b", marginBottom: 8 }}
+                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
                 >
                   拒绝率
                 </div>
@@ -4700,7 +4692,7 @@ export default function InsuranceAuditPage() {
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div
-                  style={{ fontSize: 13, color: "#64748b", marginBottom: 8 }}
+                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
                 >
                   补充资料率
                 </div>
@@ -4753,7 +4745,7 @@ export default function InsuranceAuditPage() {
                   key={i}
                   style={{ display: "flex", alignItems: "center", gap: 12 }}
                 >
-                  <div style={{ width: 24, fontSize: 13, color: "#64748b" }}>
+                  <div style={{ width: 24, fontSize: 13, color: "var(--text-secondary)" }}>
                     {i + 1}
                   </div>
                   <div style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)" }}>
@@ -4837,7 +4829,7 @@ export default function InsuranceAuditPage() {
           {/* 工具栏 */}
           <div style={styles.voucherToolbar}>
             <div style={styles.searchBox}>
-              <Search size={16} color="#94a3b8" />
+              <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
                 placeholder="搜索患者姓名、ID、凭证ID、关联审核ID..."
@@ -4947,7 +4939,7 @@ export default function InsuranceAuditPage() {
             style={{
               textAlign: "center",
               padding: "16px",
-              color: "#64748b",
+              color: "var(--text-secondary)",
               fontSize: 13,
             }}
           >
@@ -4965,7 +4957,7 @@ export default function InsuranceAuditPage() {
               background: WHITE,
               borderRadius: 10,
               padding: 16,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -5025,7 +5017,7 @@ export default function InsuranceAuditPage() {
             style={{
               background: WHITE,
               borderRadius: 12,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               overflow: "hidden",
             }}
           >
@@ -5034,7 +5026,7 @@ export default function InsuranceAuditPage() {
                 display: "flex",
                 gap: 6,
                 padding: "12px 16px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
               }}
             >
               {["全部", "待提交", "已提交", "已支付", "被拒"].map((s) => (
@@ -5061,7 +5053,7 @@ export default function InsuranceAuditPage() {
                 <tr
                   style={{
                     background: "var(--content-bg)",
-                    borderBottom: "1px solid #e2e8f0",
+                    borderBottom: "1px solid var(--border-color)",
                   }}
                 >
                   {[
@@ -5101,7 +5093,7 @@ export default function InsuranceAuditPage() {
                     <tr
                       key={c.id}
                       style={{
-                        borderBottom: "1px solid #e2e8f0",
+                        borderBottom: "1px solid var(--border-color)",
                         background: idx % 2 === 0 ? WHITE : "#fafbfc",
                       }}
                     >
@@ -5221,7 +5213,7 @@ export default function InsuranceAuditPage() {
               background: WHITE,
               borderRadius: 12,
               padding: 20,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
             }}
           >
             <h3
@@ -5239,7 +5231,7 @@ export default function InsuranceAuditPage() {
                 <tr
                   style={{
                     background: "var(--content-bg)",
-                    borderBottom: "1px solid #e2e8f0",
+                    borderBottom: "1px solid var(--border-color)",
                   }}
                 >
                   <th
@@ -5293,7 +5285,7 @@ export default function InsuranceAuditPage() {
                   <tr
                     key={m.icd10}
                     style={{
-                      borderBottom: "1px solid #e2e8f0",
+                      borderBottom: "1px solid var(--border-color)",
                       background: idx % 2 === 0 ? WHITE : "#fafbfc",
                     }}
                   >
@@ -5359,7 +5351,7 @@ export default function InsuranceAuditPage() {
                 value: denialData.length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
-                bg: "#fee2e2",
+                bg: "#ef444422",
               },
               {
                 label: "待申诉",
@@ -5367,7 +5359,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <AlertTriangle size={18} />,
                 color: WARNING,
-                bg: "#fef3c7",
+                bg: "#f59e0b22",
               },
               {
                 label: "申诉中",
@@ -5375,7 +5367,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <Loader2 size={18} />,
                 color: ACCENT,
-                bg: "#eff6ff",
+                bg: "#3b82f622",
               },
               {
                 label: "已通过",
@@ -5383,7 +5375,7 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#d1fae5",
+                bg: "#22c55e22",
               },
             ].map((card) => (
               <div
@@ -5392,7 +5384,7 @@ export default function InsuranceAuditPage() {
                   background: WHITE,
                   borderRadius: 10,
                   padding: "14px 16px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
@@ -5429,14 +5421,14 @@ export default function InsuranceAuditPage() {
               style={{
                 background: WHITE,
                 borderRadius: 12,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 overflow: "hidden",
               }}
             >
               <div
                 style={{
                   padding: "12px 16px",
-                  borderBottom: "1px solid #e2e8f0",
+                  borderBottom: "1px solid var(--border-color)",
                   display: "flex",
                   gap: 6,
                 }}
@@ -5465,7 +5457,7 @@ export default function InsuranceAuditPage() {
                   <tr
                     style={{
                       background: "var(--content-bg)",
-                      borderBottom: "1px solid #e2e8f0",
+                      borderBottom: "1px solid var(--border-color)",
                     }}
                   >
                     {[
@@ -5502,7 +5494,7 @@ export default function InsuranceAuditPage() {
                       <tr
                         key={d.id}
                         style={{
-                          borderBottom: "1px solid #e2e8f0",
+                          borderBottom: "1px solid var(--border-color)",
                           background: idx % 2 === 0 ? WHITE : "#fafbfc",
                         }}
                       >
@@ -5539,7 +5531,7 @@ export default function InsuranceAuditPage() {
                             padding: "10px 12px",
                             textAlign: "center",
                             fontSize: 12,
-                            color: "#475569",
+                            color: "var(--text-secondary)",
                           }}
                         >
                           {d.description}
@@ -5598,7 +5590,7 @@ export default function InsuranceAuditPage() {
                                 marginLeft: 6,
                                 padding: "2px 8px",
                                 borderRadius: 4,
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 background: WHITE,
                                 color: ACCENT,
                                 fontSize: 12,
@@ -5619,7 +5611,7 @@ export default function InsuranceAuditPage() {
                 background: WHITE,
                 borderRadius: 12,
                 padding: 16,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
               }}
             >
               <h3
@@ -5706,14 +5698,14 @@ export default function InsuranceAuditPage() {
                 value: preAuthData.length,
                 icon: <ClipboardList size={18} />,
                 color: ACCENT,
-                bg: "#eff6ff",
+                bg: "#3b82f622",
               },
               {
                 label: "待审批",
                 value: preAuthData.filter((p) => p.status === "pending").length,
                 icon: <Clock size={18} />,
                 color: WARNING,
-                bg: "#fef3c7",
+                bg: "#f59e0b22",
               },
               {
                 label: "已批准",
@@ -5721,14 +5713,14 @@ export default function InsuranceAuditPage() {
                   .length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#d1fae5",
+                bg: "#22c55e22",
               },
               {
                 label: "已拒绝",
                 value: preAuthData.filter((p) => p.status === "denied").length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
-                bg: "#fee2e2",
+                bg: "#ef444422",
               },
             ].map((card) => (
               <div
@@ -5737,7 +5729,7 @@ export default function InsuranceAuditPage() {
                   background: WHITE,
                   borderRadius: 10,
                   padding: "14px 16px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
@@ -5772,7 +5764,7 @@ export default function InsuranceAuditPage() {
               background: WHITE,
               borderRadius: 10,
               padding: 12,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -6039,21 +6031,21 @@ export default function InsuranceAuditPage() {
                 value: drgData.length,
                 icon: <BarChart3 size={18} />,
                 color: ACCENT,
-                bg: "#eff6ff",
+                bg: "#3b82f622",
               },
               {
                 label: "有效验证",
                 value: drgData.filter((d) => d.validationScore >= 80).length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
-                bg: "#d1fae5",
+                bg: "#22c55e22",
               },
               {
                 label: "异常病例",
                 value: drgData.filter((d) => d.outlier).length,
                 icon: <AlertTriangle size={18} />,
                 color: WARNING,
-                bg: "#fef3c7",
+                bg: "#f59e0b22",
               },
               {
                 label: "平均校验分",
@@ -6063,7 +6055,7 @@ export default function InsuranceAuditPage() {
                 ),
                 icon: <Target size={18} />,
                 color: "#8b5cf6",
-                bg: "#ede9fe",
+                bg: "#8b5cf622",
               },
             ].map((card) => (
               <div
@@ -6072,7 +6064,7 @@ export default function InsuranceAuditPage() {
                   background: WHITE,
                   borderRadius: 10,
                   padding: "14px 16px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
@@ -6106,7 +6098,7 @@ export default function InsuranceAuditPage() {
             style={{
               background: WHITE,
               borderRadius: 12,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               overflow: "hidden",
             }}
           >
@@ -6115,7 +6107,7 @@ export default function InsuranceAuditPage() {
                 <tr
                   style={{
                     background: "var(--content-bg)",
-                    borderBottom: "1px solid #e2e8f0",
+                    borderBottom: "1px solid var(--border-color)",
                   }}
                 >
                   {[
@@ -6159,7 +6151,7 @@ export default function InsuranceAuditPage() {
                     <tr
                       key={d.id}
                       style={{
-                        borderBottom: "1px solid #e2e8f0",
+                        borderBottom: "1px solid var(--border-color)",
                         background: idx % 2 === 0 ? WHITE : "#fafbfc",
                       }}
                     >
@@ -6259,7 +6251,7 @@ export default function InsuranceAuditPage() {
               background: WHITE,
               borderRadius: 12,
               padding: 20,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
             }}
           >
             <h3
@@ -6286,7 +6278,7 @@ export default function InsuranceAuditPage() {
                     background: "var(--content-bg)",
                     borderRadius: 8,
                     padding: 12,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color)",
                   }}
                 >
                   <div
@@ -6297,7 +6289,7 @@ export default function InsuranceAuditPage() {
                   <div style={{ fontSize: 12, color: GRAY }}>
                     ICD: {m.icdStart}-{m.icdEnd}
                   </div>
-                  <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                     {m.category}
                   </div>
                 </div>
@@ -6377,7 +6369,7 @@ export default function InsuranceAuditPage() {
                   <span
                     style={{
                       ...styles.cardCategory,
-                      background: "#eff6ff",
+                      background: "var(--color-info-bg)",
                       color: "#1e40af",
                     }}
                   >
@@ -6407,7 +6399,7 @@ export default function InsuranceAuditPage() {
                   </PermissionGate>
                 </div>
               </div>
-              <div style={{ fontSize: 13, color: "#475569", marginBottom: 8 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
                 <Pill size={12} style={{ marginRight: 6 }} />
                 <strong>药品:</strong> {rule.drugName}
               </div>
@@ -6415,7 +6407,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   fontSize: 12,
                   padding: "8px 12px",
-                  background: "#fef3c7",
+                  background: "var(--color-warning-bg)",
                   borderRadius: 6,
                   color: "#92400e",
                   marginBottom: 8,
@@ -6424,7 +6416,7 @@ export default function InsuranceAuditPage() {
                 <ShieldCheck size={12} style={{ marginRight: 6 }} />
                 {rule.insuranceRequirement}
               </div>
-              <div style={{ fontSize: 12, color: "#64748b" }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 {rule.description}
               </div>
             </div>
@@ -6505,7 +6497,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           ...styles.drugTd,
                           fontSize: 12,
-                          color: "#64748b",
+                          color: "var(--text-secondary)",
                         }}
                       >
                         {drug.notes}
@@ -6552,7 +6544,7 @@ export default function InsuranceAuditPage() {
               保险审计详情
             </div>
             {auditDetailLoading ? (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
                 详情加载中...
               </div>
             ) : auditDetail ? (
@@ -6566,35 +6558,35 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   <div>
-                    <span style={{ color: "#64748b" }}>审核编号：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>审核编号：</span>
                     <b>{auditDetail.id ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>患者：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>患者：</span>
                     <b>{auditDetail.patientName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>患者编号：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>患者编号：</span>
                     <b>{auditDetail.patientId ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>检查类型：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>检查类型：</span>
                     <b>{auditDetail.examType ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>药品：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>药品：</span>
                     <b>{auditDetail.drugName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>药品类别：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>药品类别：</span>
                     <b>{auditDetail.drugCategory ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>提交时间：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>提交时间：</span>
                     <b>{auditDetail.submitTime || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>状态：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>状态：</span>
                     <span
                       style={{
                         ...styles.badge,
@@ -6614,11 +6606,11 @@ export default function InsuranceAuditPage() {
                     </span>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>审核人：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>审核人：</span>
                     <b>{auditDetail.auditor || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "#64748b" }}>审核时间：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>审核时间：</span>
                     <b>{auditDetail.auditTime || "-"}</b>
                   </div>
                 </div>
@@ -6627,7 +6619,7 @@ export default function InsuranceAuditPage() {
                     style={{
                       marginTop: 14,
                       padding: 12,
-                      background: "#f9fafb",
+                      background: "var(--bg-card)",
                       borderRadius: 8,
                       fontSize: 13,
                     }}
@@ -6635,14 +6627,14 @@ export default function InsuranceAuditPage() {
                     <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
                       审核结果：{auditDetail.result || "-"}
                     </div>
-                    <div style={{ color: "#475569", lineHeight: 1.7 }}>
+                    <div style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
                       原因说明：{auditDetail.reason || "-"}
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
                 未找到该审计记录
               </div>
             )}
@@ -6676,7 +6668,7 @@ export default function InsuranceAuditPage() {
               placeholder="请输入拒绝原因（必填，将同步至医保平台）"
               rows={3}
               style={{
-                width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e2e8f0",
+                width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)",
                 fontSize: 13, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12, resize: "vertical",
               }}
             />

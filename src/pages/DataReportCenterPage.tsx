@@ -1,24 +1,41 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import dayjs from 'dayjs'
+import { Chart } from '../components/chart/Chart'
+import { ProTable } from '../components/data/ProTable'
+import { ProColumn } from '../components/data/ProTable'
+import { generateMockReportData } from '../data/mockReportData'
+import { reportDefinitions } from '../data/reportDefinitions'
+import { ReportDefinition } from '../data/reportDefinitions'
+import { invalidateApiCacheByPrefix } from '../services/api/client'
+import { datareportApi } from '../services/api/datareportApi'
+import { generateReportInsight } from '../services/reportAiInsight'
 import {
   Layout, Typography, Input, Select, DatePicker, Button, Card,
   Tag, message, Tooltip, Space, Switch,
   Menu, Collapse, Empty, Spin,
 } from 'antd'
-import dayjs from 'dayjs'
 import {
-  BarChart3, TrendingUp,
-  FileText, AlertTriangle, ShieldCheck, Monitor, Users, Award,
+  BarChart3,
+  TrendingUp,
+  FileText,
+  AlertTriangle,
+  ShieldCheck,
+  Monitor,
+  Users,
+  Award,
   Search,
-  RefreshCw, Table2, Maximize2, Minimize2,
-  Download, FileSpreadsheet, Lightbulb, Star, StarOff, Database,
+  RefreshCw,
+  Table2,
+  Maximize2,
+  Minimize2,
+  Download,
+  FileSpreadsheet,
+  Lightbulb,
+  Star,
+  StarOff,
+  Database,
 } from 'lucide-react'
-import { Chart } from '../components/chart/Chart'
-import { ProTable } from '../components/data/ProTable'
-import type { ProColumn } from '../components/data/ProTable'
-import { reportDefinitions } from '../data/reportDefinitions'
-import type { ReportDefinition } from '../data/reportDefinitions'
-import { generateMockReportData } from '../data/mockReportData'
-import { generateReportInsight } from '../services/reportAiInsight'
+import { Inbox } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 
 const { Header, Sider, Content } = Layout
 const { Title, Text } = Typography
@@ -95,36 +112,72 @@ export default function DataReportCenterPage() {
 
   const [olapData, setOlapData] = useState<Record<string, unknown>[] | null>(null)
   const [olapLoading, setOlapLoading] = useState(false)
+  // [G005 W2-B] 刷新真实化: datareportApi 快照 (dataReportApi 对应方法重拉)
+  const [apiSnapshot, setApiSnapshot] = useState<{ reports: number; trends: number } | null>(null)
 
-  useEffect(() => {
-    if (!currentReport) return
+  const loadOlap = useCallback(async () => {
     setOlapLoading(true)
     setOlapData(null)
     const startDate = dateRange[0]?.format('YYYY-MM-DD') || '2026-01-01'
     const endDate = dateRange[1]?.format('YYYY-MM-DD') || '2026-12-31'
-    fetch('/api/v1/olap/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dimensions: ['date', 'modality'],
-        measures: ['exam_count', 'exam_revenue'],
-        filters: [
-          { dimension: 'date', operator: 'between', value: [startDate, endDate] },
-        ],
-        granularity: granularity,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.rows?.length > 0) {
-          setOlapData(data.rows)
-        } else {
-          setOlapData(null)
-        }
+    try {
+      const r = await fetch('/api/v1/olap/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dimensions: ['date', 'modality'],
+          measures: ['exam_count', 'exam_revenue'],
+          filters: [
+            { dimension: 'date', operator: 'between', value: [startDate, endDate] },
+          ],
+          granularity: granularity,
+        }),
       })
-      .catch(() => setOlapData(null))
-      .finally(() => setOlapLoading(false))
-  }, [currentReport?.id, dateRange, granularity])
+      const data = await r.json()
+      if (data?.rows?.length > 0) {
+        setOlapData(data.rows)
+      } else {
+        setOlapData(null)
+      }
+    } catch {
+      setOlapData(null)
+    } finally {
+      setOlapLoading(false)
+    }
+  }, [dateRange, granularity])
+
+  // [G005 W2-B] 刷新真实化: datareportApi 快照 (listDataReports + getMonthlyTrends)
+  const loadApiSnapshot = useCallback(async () => {
+    const [reportsRes, trendsRes] = await Promise.allSettled([
+      datareportApi.listDataReports(),
+      datareportApi.getMonthlyTrends(),
+    ])
+    const reports = reportsRes.status === 'fulfilled' && reportsRes.value.success && Array.isArray(reportsRes.value.data)
+      ? reportsRes.value.data.length
+      : 0
+    const trends = trendsRes.status === 'fulfilled' && trendsRes.value.success && Array.isArray(trendsRes.value.data)
+      ? trendsRes.value.data.length
+      : 0
+    setApiSnapshot({ reports, trends })
+  }, [])
+
+  useEffect(() => {
+    if (!currentReport) return
+    void loadOlap()
+  }, [currentReport, loadOlap])
+
+  useEffect(() => {
+    void loadApiSnapshot()
+  }, [loadApiSnapshot])
+
+  // [G005 W2-B] 刷新: 失效 datareportApi 内存缓存 → 重拉 OLAP + datareportApi 快照
+  const handleRefresh = useCallback(async () => {
+    setLoading(true)
+    await invalidateApiCacheByPrefix('/data-report')
+    await Promise.all([loadOlap(), loadApiSnapshot()])
+    setLoading(false)
+    message.success('数据已重新拉取')
+  }, [loadOlap, loadApiSnapshot])
 
   const chartData = useMemo(() => {
     if (!currentReport) return []
@@ -238,7 +291,7 @@ export default function DataReportCenterPage() {
     <Layout
       style={{
         minHeight: '100vh',
-        background: '#f1f5f9',
+        background: 'var(--bg-card)',
         position: fullscreen ? 'fixed' : 'relative',
         inset: fullscreen ? 0 : undefined,
         zIndex: fullscreen ? 1000 : undefined,
@@ -263,6 +316,11 @@ export default function DataReportCenterPage() {
           <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
             {reportDefinitions.length}种报表 · 三甲医院RIS系统
           </Text>
+          {apiSnapshot && (
+            <Tag color="green" style={{ fontSize: 11, margin: 0 }}>
+              datareportApi 接口: {apiSnapshot.reports} 条报表 · {apiSnapshot.trends} 条月度趋势
+            </Tag>
+          )}
         </Space>
         <Space size={8}>
           <RangePicker
@@ -284,7 +342,8 @@ export default function DataReportCenterPage() {
             <Button
               size="small"
               icon={<RefreshCw size={14} />}
-              onClick={() => { setLoading(true); setTimeout(() => setLoading(false), 500) }}
+              onClick={() => void handleRefresh()}
+              loading={loading || olapLoading}
               style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)' }}
             />
           </Tooltip>
@@ -298,19 +357,19 @@ export default function DataReportCenterPage() {
           </Tooltip>
         </Space>
       </Header>
-      <Layout style={{ flex: 1, background: '#f1f5f9' }}>
+      <Layout style={{ flex: 1, background: 'var(--bg-card)' }}>
         <Sider
           width={280}
           style={{
-            background: '#fff',
-            borderRight: '1px solid #e2e8f0',
+            background: 'var(--bg-card)',
+            borderRight: '1px solid var(--border-color)',
             overflow: 'auto',
             height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)',
           }}
         >
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
             <Input
-              prefix={<Search size={14} style={{ color: '#94a3b8' }} />}
+              prefix={<Search size={14} style={{ color: 'var(--text-secondary)' }} />}
               placeholder="搜索报表名称..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -319,8 +378,8 @@ export default function DataReportCenterPage() {
             />
           </div>
           {favoriteDefs.length > 0 && (
-            <div style={{ padding: '8px 16px', borderBottom: '1px solid #e2e8f0' }}>
-              <Text strong style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)' }}>
+              <Text strong style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Star size={12} /> 收藏报表 ({favoriteDefs.length})
               </Text>
               <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -347,7 +406,7 @@ export default function DataReportCenterPage() {
               items={treeData.map((cat) => ({
                 key: cat.key,
                 label: (
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
                     {cat.title}
                     <Tag style={{ marginLeft: 6, fontSize: 10 }}>{cat.children?.length || 0}</Tag>
                   </span>
@@ -379,7 +438,7 @@ export default function DataReportCenterPage() {
                               {favorites.has(child.key as string) ? (
                                 <Star size={12} fill="#f59e0b" color="#f59e0b" />
                               ) : (
-                                <StarOff size={12} color="#94a3b8" />
+                                <StarOff size={12} color="var(--text-secondary)" />
                               )}
                             </span>
                           </Tooltip>
@@ -411,12 +470,12 @@ export default function DataReportCenterPage() {
                         {favorites.has(currentReport.id) ? (
                           <Star size={16} fill="#f59e0b" color="#f59e0b" />
                         ) : (
-                          <StarOff size={16} color="#94a3b8" />
+                          <StarOff size={16} color="var(--text-secondary)" />
                         )}
                       </span>
                     </Tooltip>
                   </Space>
-                  <Text style={{ color: '#64748b', fontSize: 12, display: 'block', marginTop: 2 }}>
+                  <Text style={{ color: 'var(--text-secondary)', fontSize: 12, display: 'block', marginTop: 2 }}>
                     {currentReport.description}
                   </Text>
                 </div>
@@ -465,7 +524,7 @@ export default function DataReportCenterPage() {
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
                   >
                     {showInsight ? (
-                      <div style={{ fontSize: 13, lineHeight: 1.8, color: '#334155', padding: '4px 0' }}>
+                      <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: '4px 0' }}>
                         {insightText || (
                           <Text type="secondary">暂无数据，无法生成洞察分析。</Text>
                         )}
@@ -507,7 +566,7 @@ export default function DataReportCenterPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <Empty description="请从左侧选择报表" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请从左侧选择报表" />
             </div>
           )}
         </Content>

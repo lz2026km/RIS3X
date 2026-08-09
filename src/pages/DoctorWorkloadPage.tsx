@@ -86,13 +86,13 @@ export default function DoctorWorkloadPage() {
 
   const selected = doctors.find(d => d.doctorId === selectedDoctorId);
 
-  if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (doctors.length === 0) {
     return (
-      <div data-testid="workload-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="workload-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无医生工作量数据</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>系统尚未同步本月报告产出,请联系管理员</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>系统尚未同步本月报告产出,请联系管理员</div>
       </div>
     );
   }
@@ -102,19 +102,19 @@ export default function DoctorWorkloadPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> 医生工作量统计
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
-            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706' }}>
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? '#16a34a' : '#d97706' }}>
               {source === 'api' ? '数据源: /stats/workload' : '演示数据(接口不可用)'}
             </span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             6 大维度：数量 / 质量 / 时效 / 危急值 / 会诊 / 设备 · 排行 / 趋势
             {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 4, background: '#fff', borderRadius: 6, padding: 3, border: '1px solid #cbd5e1' }}>
+        <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
           {([
             { key: 'ranking', label: '综合排行' },
             { key: 'totalReports', label: '报告数量' },
@@ -148,16 +148,16 @@ export default function DoctorWorkloadPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', gap: 12 }}>
         {/* 左：排行列表 */}
-        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: '#94a3b8' }} />
+              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="搜索医生姓名..."
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function DoctorWorkloadPage() {
                   key={d.doctorId}
                   onClick={() => setSelectedDoctorId(d.doctorId)}
                   style={{
-                    padding: 10, borderBottom: '1px solid #f1f5f9',
+                    padding: 10, borderBottom: '1px solid var(--border-light)',
                     background: isSelected ? '#faf5ff' : 'transparent',
                     borderLeft: isSelected ? '3px solid #7c3aed' : '3px solid transparent',
                     cursor: 'pointer',
@@ -185,14 +185,14 @@ export default function DoctorWorkloadPage() {
                   }}>{d.ranking}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{d.doctorName}</span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>· {d.doctorTitle}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{d.doctorName}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>· {d.doctorTitle}</span>
                       <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: d.trend === 'up' ? '#10b981' : d.trend === 'down' ? '#dc2626' : '#94a3b8' }}>
                         {d.trend === 'up' ? <ArrowUpRight size={9} /> : d.trend === 'down' ? <ArrowDownRight size={9} /> : <Minus size={9} />}
                         {d.trendValue}%
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: '#475569' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                       <div><strong style={{ color: '#1e40af' }}>{d.totalReports}</strong> 份</div>
                       <div><strong style={{ color: '#10b981' }}>{d.qualityScore}</strong> 分</div>
                       <div><strong style={{ color: '#7c3aed' }}>{d.avgSignTime}m</strong> 签</div>
@@ -208,7 +208,7 @@ export default function DoctorWorkloadPage() {
         {selected && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* 头部 */}
-            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 16, border: '1px solid #ddd6fe' }}>
+            <div style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)6fe' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
@@ -217,11 +217,11 @@ export default function DoctorWorkloadPage() {
                   fontSize: 24, fontWeight: 700,
                 }}>#{selected.ranking}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{selected.doctorName}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{selected.doctorTitle}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.doctorName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{selected.doctorTitle}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>综合排名</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>综合排名</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>#{selected.ranking}</div>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function DoctorWorkloadPage() {
             </div>
 
             {/* 设备分布 */}
-            <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Database size={13} /> 检查设备分布
               </div>
@@ -255,8 +255,8 @@ export default function DoctorWorkloadPage() {
                   return (
                     <div key={mod} style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: 12, color: colors[mod], fontWeight: 600 }}>{mod}</div>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{count}</div>
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{pct.toFixed(1)}%</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{count}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{pct.toFixed(1)}%</div>
                     </div>
                   );
                 })}
@@ -273,13 +273,13 @@ export default function DoctorWorkloadPage() {
 // KPI
 // ============================================================
 const Kpi: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
     </div>
   </div>
 );
@@ -288,14 +288,14 @@ const Kpi: React.FC<{ icon: any; label: string; value: number | string; color: s
 // 大字 KPI
 // ============================================================
 const BigKpi: React.FC<{ icon: any; label: string; value: number | string; sub: string; color: string }> = ({ icon: Icon, label, value, sub, color }) => (
-  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
       <Icon size={12} color={color} />
-      <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
     </div>
     <div>
       <span style={{ fontSize: 22, fontWeight: 700, color }}>{value}</span>
-      <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>{sub}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{sub}</span>
     </div>
   </div>
 );

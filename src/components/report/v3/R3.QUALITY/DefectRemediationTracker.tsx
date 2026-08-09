@@ -3,7 +3,9 @@
  *
  * 15 点: 整改追踪 / 闭环 / PDCA / 缺陷率分析 / 逾期告警 / 提醒
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { defectService } from '../../../../services/quality/defectService';
+import type { DefectSeverityLevel } from '../../../../types/R3/R3.DEFECT';
+import type { DefectRemediation } from '../../../../types/R3/R3.QUALITY';
 import {
   Card,
   Tag,
@@ -37,9 +39,8 @@ import {
   RotateCcw,
   ShieldCheck,
 } from 'lucide-react';
-import { defectService } from '../../../../services/quality/defectService';
-import type { DefectSeverityLevel } from '../../../../types/R3/R3.DEFECT';
-import type { DefectRemediation } from '../../../../types/R3/R3.QUALITY';
+import { Inbox, Map } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react';
 
 const STATUS_META: Record<
   DefectRemediation['status'],
@@ -265,7 +266,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <List
               loading={loading}
               dataSource={filtered}
-              locale={{ emptyText: <Empty description="无整改任务" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无整改任务" /> }}
               style={{
                 background: '#fafafa',
                 borderRadius: 6,
@@ -461,7 +462,7 @@ export const DefectRemediationTracker: React.FC = () => {
                   );
                 })}
               {Object.keys(defectRateByCategory).length === 0 && (
-                <Empty description="无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无数据" />
               )}
             </Space>
           </Card>

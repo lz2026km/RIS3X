@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useState, type ReactNode } from "react";
 import { Result, Button, Typography, Space, Alert } from "antd";
-import { ReloadOutlined, BugOutlined } from "@ant-design/icons";
+import { RotateCw, Bug } from "lucide-react";
 import { loadAll, getBootError, reloadModule, listModules } from "@/config/clinicalConfig/bootstrap";
 
 const { Paragraph, Text } = Typography;
@@ -52,11 +52,11 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
     <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#fff2f0", padding: 24 }}>
       <Result
         status="error"
-        icon={<BugOutlined />}
+        icon={<Bug size={48} />}
         title="临床配置加载失败"
         subTitle="应用启动失败：clinicalConfig 模块加载或校验未通过"
         extra={[
-          <Button key="retry" type="primary" icon={<ReloadOutlined />} onClick={onRetry}>
+          <Button key="retry" type="primary" icon={<RotateCw />} onClick={onRetry}>
             重试
           </Button>,
         ]}

@@ -3,21 +3,33 @@
  * 归档统计卡 + 对象列表 (类型筛选/搜索/WORM 标记/下载/删除/锁定)
  * 上传非 DICOM 内容 Modal + 对象详情 Drawer + 患者归档视图 (全生命周期时间线)
  */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { usePagination } from '../hooks/usePagination'
+import { invalidateApiCache } from '../services/api/client'
+import {
+  vnaApi, type VnaObject, type VnaObjectType, type VnaStats, type VnaStudy, type PatientArchive,
+} from '../services/api/vnaApi'
+import { UploadOutlined } from '@ant-design/icons'
 import {
   Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, Modal, Popconfirm,
   Row, Select, Space, Statistic, Table, Tabs, Tag, Timeline, Typography, Upload, message,
 } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
 import {
-  Archive, Download, FileText, HardDrive, Image as ImageIcon, Lock, LockOpen, Plus,
-  RefreshCw, Search, ShieldCheck, User, Database as DatabaseIcon,
+  Archive,
+  Download,
+  FileText,
+  HardDrive,
+  Image as ImageIcon,
+  Lock,
+  LockOpen,
+  Plus,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  User,
+  Database as DatabaseIcon,
 } from 'lucide-react'
-import {
-  vnaApi, type VnaObject, type VnaObjectType, type VnaStats, type VnaStudy, type PatientArchive,
-} from '../services/api/vnaApi'
-import { invalidateApiCache } from '../services/api/client'
-import { usePagination } from '../hooks/usePagination'
+import { Inbox, Trash2 } from 'lucide-react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const { Text } = Typography
 
@@ -302,7 +314,7 @@ const VNADashboardPage: React.FC = () => {
           okButtonProps={{ danger: true }}
           onConfirm={() => void handleDelete(obj)}
         >
-          <Button size="small" type="link" danger>删除</Button>
+          <Button size="small" type="link" danger icon={<Trash2 size={12} />}>删除</Button>
         </Popconfirm>
       )}
     </Space>
@@ -329,7 +341,7 @@ const VNADashboardPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f1f5f9', minHeight: 'calc(100vh - 56px)' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#a855f7 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
         <Space size={16}>
           <Archive size={36} color="#fff" />
@@ -383,16 +395,16 @@ const VNADashboardPage: React.FC = () => {
                         style={{ width: 240 }}
                         allowClear
                         prefix={<Search size={14} />}
-                        placeholder="搜索名称 / 描述 / Study UID"
+                        placeholder="搜索名称 / 描述 / 检查 UID"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onPressEnter={() => void loadObjects()}
                       />
-                      <Button type="primary" onClick={() => void loadObjects()}>查询</Button>
+                      <Button type="primary" icon={<Search size={14} />} onClick={() => void loadObjects()}>查询</Button>
                     </Space>
                     <Text type="secondary" data-testid="vna-objects-count">共 {objects.length} 个对象</Text>
                   </Space>
-                  <Table
+                  <Table scroll={{ x: 'max-content' }}
                     data-testid="vna-objects-table"
                     dataSource={objectPageData}
                     rowKey="id"
@@ -400,7 +412,7 @@ const VNADashboardPage: React.FC = () => {
                     loading={loading}
                     columns={objectColumns}
                     pagination={objectPagination}
-                  scroll={{ x: 'max-content' }}
+                 
                   />
                 </>
               ),
@@ -409,7 +421,7 @@ const VNADashboardPage: React.FC = () => {
               key: 'studies',
               label: `DICOM 检查归档 (${studies.length})`,
               children: (
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                   data-testid="vna-studies-table"
                   dataSource={studyPageData}
                   rowKey="studyUid"
@@ -417,14 +429,14 @@ const VNADashboardPage: React.FC = () => {
                   loading={studiesLoading}
                   pagination={studyPagination}
                   columns={[
-                    { title: 'Study UID', dataIndex: 'studyUid', key: 'uid', width: 260, ellipsis: true },
+                    { title: '检查 UID', dataIndex: 'studyUid', key: 'uid', width: 260, ellipsis: true },
                     { title: '模态', dataIndex: 'modality', key: 'mod', width: 80, render: (v: string) => <Tag color="blue">{v}</Tag> },
                     { title: '描述', dataIndex: 'studyDescription', key: 'desc', ellipsis: true },
                     { title: '序列数', dataIndex: 'seriesCount', key: 'series', width: 90 },
                     { title: '实例数', dataIndex: 'instanceCount', key: 'inst', width: 90 },
                     { title: '归档时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
                   ]}
-                scroll={{ x: 'max-content' }}
+               
                 />
               ),
             },
@@ -445,7 +457,7 @@ const VNADashboardPage: React.FC = () => {
                     <Button type="primary" loading={patientLoading} onClick={() => void handleQueryPatient()}>查看全生命周期归档</Button>
                   </Space>
                   {!patientArchive ? (
-                    <Empty description="输入患者 ID 查看其全部归档对象 (DICOM 检查 + 非 DICOM 文档/图像)" style={{ padding: 32 }} />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="输入患者 ID 查看其全部归档对象 (DICOM 检查 + 非 DICOM 文档/图像)" style={{ padding: 32 }} />
                   ) : (
                     <>
                       <Alert
@@ -458,7 +470,7 @@ const VNADashboardPage: React.FC = () => {
                       <Row gutter={16}>
                         <Col span={14}>
                           <Card size="small" title="对象列表">
-                            <Table
+                            <Table scroll={{ x: 'max-content' }}
                               dataSource={patientArchive.objects}
                               rowKey="id"
                               size="small"
@@ -470,7 +482,7 @@ const VNADashboardPage: React.FC = () => {
                                 { title: '归档时间', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => formatDate(v) },
                                 { title: '操作', key: 'ops', width: 180, render: (_: unknown, r: VnaObject) => actionRender(r) },
                               ]}
-                            scroll={{ x: 'max-content' }}
+                           
                             />
                           </Card>
                         </Col>
@@ -483,8 +495,8 @@ const VNADashboardPage: React.FC = () => {
                                 content: (
                                   <div>
                                     <div style={{ fontWeight: 600 }}>{item.title}</div>
-                                    <div style={{ fontSize: 12, color: '#64748b' }}>{item.description}</div>
-                                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{formatDate(item.time)}</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.description}</div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{formatDate(item.time)}</div>
                                     {item.object && (
                                       <Space size={4} style={{ marginTop: 4 }}>
                                         <Button size="small" type="link" onClick={() => void openDetail(item.object!)}>查看</Button>
@@ -530,7 +542,7 @@ const VNADashboardPage: React.FC = () => {
               ]}
             />
           </Form.Item>
-          <Form.Item name="studyUid" label="关联 Study UID (可选)">
+          <Form.Item name="studyUid" label="关联检查 UID (可选)">
             <Input placeholder="关联 DICOM 检查, 如 1.2.840.10008..." />
           </Form.Item>
           <Form.Item name="name" label="对象名称 (不填则用文件名)">
@@ -579,7 +591,7 @@ const VNADashboardPage: React.FC = () => {
                 <Tag color={detail.objectType === 'image' ? 'cyan' : 'orange'}>{TYPE_LABEL[detail.objectType]}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="患者 ID">{detail.patientId ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="Study UID">{detail.studyUid ?? '-'}</Descriptions.Item>
+              <Descriptions.Item label="检查 UID">{detail.studyUid ?? '-'}</Descriptions.Item>
               <Descriptions.Item label="MIME 类型">{detail.mimeType}</Descriptions.Item>
               <Descriptions.Item label="大小">{formatSize(detail.size)}</Descriptions.Item>
               <Descriptions.Item label="描述">{detail.description || '-'}</Descriptions.Item>
@@ -600,9 +612,9 @@ const VNADashboardPage: React.FC = () => {
               <Text strong>内容预览</Text>
               <div
                 style={{
-                  marginTop: 8, border: '1px dashed #d9d9d9', borderRadius: 8, padding: 12,
+                  marginTop: 8, border: '1px dashed var(--border-color)', borderRadius: 8, padding: 12,
                   minHeight: 160, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: '#fafafa',
+                  background: 'var(--bg-card)',
                 }}
                 data-testid="vna-object-preview"
               >

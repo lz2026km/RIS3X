@@ -291,7 +291,7 @@ export const CaseLibraryPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <BookOpen size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼科教学病例库</span>
@@ -463,7 +463,7 @@ export const CaseLibraryPage: React.FC = () => {
                                 </Space>
                               }
                               description={
-                                <span style={{ fontSize: 11, color: "#999" }}>
+                                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                                   ID: {c.id || c.reportId} |{" "}
                                   {c.chiefComplaint || "常规检查"}
                                 </span>
@@ -597,7 +597,7 @@ export const CaseLibraryPage: React.FC = () => {
                                 {srExportResult && (
                                   <div style={{ marginTop: 12, fontSize: 12 }}>
                                     <div>
-                                      SOP Instance UID:{" "}
+                                      SOP 实例 UID:{" "}
                                       <code>
                                         {srExportResult.sopInstanceUID}
                                       </code>
@@ -643,7 +643,7 @@ export const CaseLibraryPage: React.FC = () => {
                                           key={i}
                                           style={{
                                             fontSize: 12,
-                                            color: "#666",
+                                            color: "var(--text-secondary)",
                                           }}
                                         >
                                           • {a}
@@ -679,7 +679,7 @@ export const CaseLibraryPage: React.FC = () => {
                         percent={Math.round((p.completed / p.total) * 100)}
                       />
                       <div
-                        style={{ fontSize: 12, color: "#666", marginTop: 8 }}
+                        style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}
                       >
                         {p.completed} / {p.total} 标注
                       </div>

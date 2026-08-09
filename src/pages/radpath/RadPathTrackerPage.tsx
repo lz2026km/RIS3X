@@ -51,7 +51,7 @@ export default function RadPathTrackerPage() {
     <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0 }}>Rad-Path 一致性追踪</h1>
+        <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>Rad-Path 一致性追踪</h1>
       </div>
 
       {/* KPI */}
@@ -71,24 +71,24 @@ export default function RadPathTrackerPage() {
           <Search size={14} /> {loading ? '查询中...' : '查询'}
         </button>
       </div>
-      {error && <div style={{ padding: 10, background: '#fef2f2', color: '#dc2626', borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{error}</div>}
+      {error && <div style={{ padding: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{error}</div>}
 
       {/* 记录表格 */}
       {record && (
-        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: 16 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead><tr style={{ background: '#f8fafc', color: '#64748b', fontWeight: 600 }}>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>报告ID</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>病理ID</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>患者</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>模态/部位</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>影像所见</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>病理结果</th>
-              <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>一致性</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>备注</th>
+            <thead><tr style={{ background: 'var(--bg-card)', color: '#64748b', fontWeight: 600 }}>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>报告ID</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>病理ID</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>患者</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>模态/部位</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>影像所见</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>病理结果</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>一致性</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>备注</th>
             </tr></thead>
             <tbody>
-              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 12 }}>{record.reportId}</td>
                 <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 12 }}>{record.pathologyId}</td>
                 <td style={{ padding: '10px 12px' }}>{record.report.patient.name}</td>
@@ -111,14 +111,14 @@ export default function RadPathTrackerPage() {
       {/* 统计仪表盘 */}
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <TrendingUp size={13} /> 一致性趋势
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '0 4px' }}>
               {stats.trend.map(t => (
                 <div key={t.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  <div style={{ width: '100%', background: '#f1f5f9', borderRadius: '4px 4px 0 0', position: 'relative', height: 100 }}>
+                  <div style={{ width: '100%', background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', position: 'relative', height: 100 }}>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${(t.rate / maxRate) * 100}%`, background: '#8b5cf6', borderRadius: '4px 4px 0 0', transition: 'height 0.3s' }} />
                   </div>
                   <span style={{ fontSize: 10, color: '#64748b', transform: 'rotate(-30deg)', whiteSpace: 'nowrap' }}>{t.month.slice(5)}</span>
@@ -128,7 +128,7 @@ export default function RadPathTrackerPage() {
             </div>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={13} /> 一致性分布
             </div>
@@ -170,7 +170,7 @@ export default function RadPathTrackerPage() {
                   <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12 }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />
                     <span style={{ color: '#64748b', flex: 1 }}>{s.label}</span>
-                    <strong style={{ color: '#1e293b' }}>{s.count}</strong>
+                    <strong style={{ color: 'var(--text-primary)' }}>{s.count}</strong>
                     <span style={{ color: '#94a3b8' }}>({total > 0 ? (s.count / total * 100).toFixed(1) : 0}%)</span>
                   </div>
                 ))}
@@ -189,7 +189,7 @@ export default function RadPathTrackerPage() {
 }
 
 const KpiCard: React.FC<{ icon: any; label: string; value: string | number; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: '#fff', padding: 14, borderRadius: 8, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+  <div style={{ background: 'var(--bg-card)', padding: 14, borderRadius: 8, border: '1px solid var(--border-color)', textAlign: 'center' }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' }}>
       <Icon size={18} />
     </div>

@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import {
   AlertTriangle, CheckCircle, XCircle, Plus, Search,
-  Activity, BarChart3, ShieldAlert,
+  Activity, BarChart3, ShieldAlert, Send,
 } from 'lucide-react'
 import {
   getAdverseEvents, getAdverseEventTrend, createAdverseEvent,
@@ -123,7 +123,7 @@ export default function AdverseEventPage() {
             <textarea style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 80, marginBottom: 12 }} placeholder="事件描述" value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
             <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} placeholder="促成因素（逗号分隔）" value={(formData.contributingFactors ?? []).join(', ')} onChange={e => setFormData({ ...formData, contributingFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer' }}>提交</button>
+              <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />提交</button>
               <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer' }}>取消</button>
             </div>
           </div>

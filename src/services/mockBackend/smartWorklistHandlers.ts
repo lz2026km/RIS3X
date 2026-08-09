@@ -126,11 +126,11 @@ const DEFAULT_RULES = [
 ];
 
 const DEFAULT_QUALIFICATIONS = [
-  { doctorId: 'doc-001', name: 'Dr. Wang', subspecialty: '胸部影像', modality: ['CT', 'DX'], bodyParts: ['Chest', '胸部'], qualifications: ['CT 高级资质', '胸部亚专科'], currentLoad: 3, maxLoad: 10, priority: 1 },
-  { doctorId: 'doc-002', name: 'Dr. Li', subspecialty: '神经影像', modality: ['MR', 'CT'], bodyParts: ['Brain', '头部', '头颅'], qualifications: ['MR 神经专科', '造影资质'], currentLoad: 2, maxLoad: 8, priority: 2 },
-  { doctorId: 'doc-003', name: 'Dr. Zhang', subspecialty: '急诊影像', modality: ['CT', 'DX'], bodyParts: ['Any'], qualifications: ['急诊资质', '危急值处理'], currentLoad: 5, maxLoad: 5, priority: 0 },
-  { doctorId: 'doc-004', name: 'Dr. Liu', subspecialty: '腹部影像', modality: ['MR', 'CT', 'US'], bodyParts: ['Abdomen', '腹部'], qualifications: ['腹部亚专科'], currentLoad: 6, maxLoad: 12, priority: 3 },
-  { doctorId: 'doc-005', name: 'Dr. Chen', subspecialty: '骨科影像', modality: ['DX', 'CT'], bodyParts: ['Any'], qualifications: ['骨科亚专科'], currentLoad: 4, maxLoad: 20, priority: 4 },
+  { doctorId: 'doc-001', name: 'Dr. Wang', subspecialty: '胸部影像', modality: ['CT', 'DX'], bodyParts: ['Chest', '胸部'], qualifications: ['CT 高级资质', '胸部亚专科'], currentLoad: 3, maxLoad: 10, priority: 1, accuracy: 0.94 },
+  { doctorId: 'doc-002', name: 'Dr. Li', subspecialty: '神经影像', modality: ['MR', 'CT'], bodyParts: ['Brain', '头部', '头颅'], qualifications: ['MR 神经专科', '造影资质'], currentLoad: 2, maxLoad: 8, priority: 2, accuracy: 0.97 },
+  { doctorId: 'doc-003', name: 'Dr. Zhang', subspecialty: '急诊影像', modality: ['CT', 'DX'], bodyParts: ['Any'], qualifications: ['急诊资质', '危急值处理'], currentLoad: 5, maxLoad: 5, priority: 0, accuracy: 0.88 },
+  { doctorId: 'doc-004', name: 'Dr. Liu', subspecialty: '腹部影像', modality: ['MR', 'CT', 'US'], bodyParts: ['Abdomen', '腹部'], qualifications: ['腹部亚专科'], currentLoad: 6, maxLoad: 12, priority: 3, accuracy: 0.92 },
+  { doctorId: 'doc-005', name: 'Dr. Chen', subspecialty: '骨科影像', modality: ['DX', 'CT'], bodyParts: ['Any'], qualifications: ['骨科亚专科'], currentLoad: 4, maxLoad: 20, priority: 4, accuracy: 0.9 },
 ];
 
 let routeRules = DEFAULT_RULES.map((r) => ({ ...r }));
@@ -140,36 +140,76 @@ const assignments = [
   { id: 'as-002', studyId: 'STU002', patientName: 'Li Si', modality: 'MR', assignedTo: 'Dr. Li', ruleName: 'MR Brain - Specialist', assignedAt: '2026-07-10T09:00:00Z', stage: 'qualification', qualification: '神经影像', reason: '资质匹配' },
 ];
 
-function routeAssign(body: { studyId: string; patientName: string; modality: string; bodyPart: string; patientStatus: string }) {
+interface Recommendation {
+  doctorId: string;
+  name: string;
+  subspecialty: string;
+  qualified: boolean;
+  matchScore: number;
+  currentLoad: number;
+  maxLoad: number;
+  accuracy: number;
+  composite: number;
+  reasons: string[];
+}
+
+function buildRecommendations(modality: string, bodyPart: string): Recommendation[] {
+  const recs: Recommendation[] = qualifications.map((q) => {
+    const exactBodyPart = q.bodyParts.includes(bodyPart);
+    const anyBodyPart = q.bodyParts.includes('Any');
+    const modalityMatch = q.modality.includes(modality);
+    const matchScore = modalityMatch && exactBodyPart ? 1 : modalityMatch && anyBodyPart ? 0.8 : modalityMatch ? 0.5 : 0;
+    const loadScore = q.maxLoad <= 0 ? 0 : Math.max(0, 1 - q.currentLoad / q.maxLoad);
+    const composite = +(0.5 * matchScore + 0.3 * loadScore + 0.2 * q.accuracy).toFixed(3);
+    const reasons: string[] = [];
+    if (matchScore >= 1) reasons.push(`资质匹配: 模态+亚专科精确匹配(${q.subspecialty})`);
+    else if (matchScore >= 0.8) reasons.push(`通用资质匹配: 可接诊任意部位(${q.subspecialty})`);
+    else if (matchScore >= 0.5) reasons.push(`仅模态匹配(${q.subspecialty}), 亚专科需复核`);
+    else reasons.push('无匹配资质');
+    reasons.push(q.currentLoad < q.maxLoad ? `负载 ${q.currentLoad}/${q.maxLoad}, 可接诊` : `负载已满 ${q.currentLoad}/${q.maxLoad}, 不建议接诊`);
+    reasons.push(`历史准确率 ${Math.round(q.accuracy * 100)}分`);
+    return { doctorId: q.doctorId, name: q.name, subspecialty: q.subspecialty, qualified: matchScore > 0, matchScore, currentLoad: q.currentLoad, maxLoad: q.maxLoad, accuracy: q.accuracy, composite, reasons };
+  });
+  recs.sort((a, b) => b.composite - a.composite || b.matchScore - a.matchScore || a.currentLoad - b.currentLoad);
+  return recs;
+}
+
+function routeAssign(body: { studyId: string; patientName: string; modality: string; bodyPart: string; patientStatus: string; doctorId?: string }) {
   const matched = routeRules
     .filter((r) => r.enabled && (r.modality === body.modality || r.modality === 'Any') && (r.bodyPart === body.bodyPart || r.bodyPart === 'Any') && (r.patientStatus === body.patientStatus || r.patientStatus === 'Any'))
     .sort((a, b) => a.priority - b.priority);
   const rule =
     matched[0] ?? routeRules[0] ?? { id: 'rr-000', name: '默认规则', modality: 'Any', bodyPart: 'Any', patientStatus: 'Any', maxLoad: 10, priority: 9, enabled: true };
 
-  const byBodyPart = qualifications.filter((q) => q.modality.includes(body.modality) && (q.bodyParts.includes(body.bodyPart) || q.bodyParts.includes('Any')));
-  const byModalityOnly = qualifications.filter((q) => q.modality.includes(body.modality) && !byBodyPart.includes(q));
-  const qualified = byBodyPart.length > 0 ? byBodyPart : byModalityOnly;
-  const available = qualified.filter((q) => q.currentLoad < q.maxLoad);
-  const pool = available.length > 0 ? available : qualified;
-
-  let doctor: (typeof qualifications)[number] | undefined;
+  const ranked = buildRecommendations(body.modality, body.bodyPart);
+  const qualified = ranked.filter((r) => r.qualified);
+  let doctor: Recommendation | undefined;
   let stage: 'qualification' | 'load-balance' | 'priority' | 'fallback' = 'fallback';
   let reason = '无匹配资质,按规则兜底分配';
-  if (pool.length > 0) {
-    const sorted = [...pool].sort((a, b) => a.currentLoad - b.currentLoad || a.priority - b.priority);
-    const pick = sorted[0];
-    if (pick) {
-      doctor = pick;
-      pick.currentLoad += 1;
-      if (available.length > 0) {
+  if (body.doctorId) {
+    const forced = ranked.find((r) => r.doctorId === body.doctorId);
+    if (forced && forced.matchScore >= 0.8) {
+      doctor = forced;
+      stage = 'qualification';
+      reason = `资质匹配(${doctor.subspecialty})→按推荐指定分配,推荐分${Math.round(doctor.composite * 100)}`;
+    }
+  }
+  if (!doctor && qualified.length > 0) {
+    const top = qualified[0];
+    if (top) {
+      doctor = top;
+      if (doctor.currentLoad < doctor.maxLoad) {
         stage = 'load-balance';
-        reason = `资质匹配(${pick.subspecialty})→负载均衡(${pick.currentLoad - 1}/${pick.maxLoad})`;
+        reason = `资质匹配(${doctor.subspecialty})→负载均衡(${doctor.currentLoad}/${doctor.maxLoad})→历史准确率${Math.round(doctor.accuracy * 100)}%`;
       } else {
         stage = 'priority';
-        reason = `资质匹配(${pick.subspecialty})→满载,按优先级(${pick.priority})`;
+        reason = `资质匹配(${doctor.subspecialty})→满载,按优先级兜底`;
       }
     }
+  }
+  if (doctor) {
+    const base = qualifications.find((q) => q.doctorId === doctor!.doctorId);
+    if (base) base.currentLoad += 1;
   }
 
   const assignment = {
@@ -257,8 +297,14 @@ export const smartWorklistHandlers = [
 
   http.post(`${API_BASE}/smart-route/assign`, async ({ request }) => {
     await delay(150);
-    const body = (await request.json()) as { studyId: string; patientName: string; modality: string; bodyPart: string; patientStatus: string };
+    const body = (await request.json()) as { studyId: string; patientName: string; modality: string; bodyPart: string; patientStatus: string; doctorId?: string };
     return HttpResponse.json({ success: true, data: routeAssign(body) });
+  }),
+
+  http.post(`${API_BASE}/smart-route/recommend`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { modality: string; bodyPart: string; patientStatus: string };
+    return HttpResponse.json({ success: true, data: buildRecommendations(body.modality, body.bodyPart) });
   }),
 
   http.get(`${API_BASE}/smart-route/history`, async () => {

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { fhirApi, type FhirDiagnosticReport } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, Modal, Descriptions, Tooltip } from 'antd'
 import { FileText, Search, RefreshCw, Eye } from 'lucide-react'
-import { fhirApi, type FhirDiagnosticReport } from '../../services/api/fhirApi'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const PAGE_SIZE = 10
 
@@ -111,7 +112,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR DiagnosticReport 管理</span>
@@ -176,7 +177,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
               {selectedReport.presentedForm?.length ? `${selectedReport.presentedForm.length} 个附件` : '-'}
             </Descriptions.Item>
           </Descriptions>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

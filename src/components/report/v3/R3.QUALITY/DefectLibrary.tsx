@@ -3,7 +3,10 @@
  *
  * 20 点: 缺陷分类 / 缺陷模板 / 缺陷记录 / 缺陷统计 / 严重度分级
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
+import { defectService } from '../../../../services/quality/defectService';
+import type { DefectDetail, DefectSeverityLevel, DefectStatus, DefectFilter } from '../../../../types/R3/R3.DEFECT';
+import type { DefectCategoryCode } from '../../../../types/R3/R3.QUALITY';
 import {
   Card,
   Tag,
@@ -37,10 +40,8 @@ import {
   Star,
   Activity,
 } from 'lucide-react';
-import { defectService } from '../../../../services/quality/defectService';
-import type { DefectDetail, DefectSeverityLevel, DefectStatus, DefectFilter } from '../../../../types/R3/R3.DEFECT';
-import type { DefectCategoryCode } from '../../../../types/R3/R3.QUALITY';
-import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Inbox, SearchX } from 'lucide-react'
 
 const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string; rank: number }> = {
   minor: { color: 'gold', label: '轻微', rank: 1 },
@@ -320,7 +321,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         <List
           loading={loading}
           dataSource={defects}
-          locale={{ emptyText: <Empty description="无匹配缺陷" /> }}
+          locale={{ emptyText: <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配缺陷" /> }}
           style={{
             background: '#fff',
             borderRadius: 8,
@@ -433,7 +434,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                   extra={<Tag color="cyan">{items.length} 模板</Tag>}
                 >
                   {items.length === 0 ? (
-                    <Empty description="该分类暂无模板" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分类暂无模板" />
                   ) : (
                     <Space orientation="vertical" style={{ width: '100%' }} size={6}>
                       {items.map((d) => (

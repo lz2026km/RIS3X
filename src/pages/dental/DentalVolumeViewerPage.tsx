@@ -94,7 +94,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
 
   if (mode === 'list') {
     return (
-      <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
@@ -111,7 +111,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
               <Card size="small" hoverable onClick={() => handleSelect(s)} style={{cursor:'pointer'}}>
                 <Tag color="purple">CBCT</Tag>
                 <div style={{fontSize:13,fontWeight:600}}>{s.patientName}</div>
-                <div style={{fontSize:11,color:'#999'}}>{s.device} | {s.fov} | {s.slices}层</div>
+                <div style={{fontSize:11,color:'var(--text-secondary)'}}>{s.device} | {s.fov} | {s.slices}层</div>
                 <Badge status={s.status==='processed'?'success':'processing'} text={s.status} />
               </Card>
             </Col>
@@ -122,7 +122,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14}/>} onClick={()=>setMode('list')}>返回</Button>
         <span style={{fontSize:16,fontWeight:600}}>CBCT 体渲染 - {current?.patientName}</span>
@@ -131,7 +131,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
       </Space>
       <Row gutter={12}>
         <Col span={12}>
-          <Card size="small" title={<Space><Layers size={14}/>体绘制 (Volume Rendering)</Space>}
+          <Card size="small" title={<Space><Layers size={14}/>体绘制</Space>}
             extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); fetch(`/api/v1/dental/volume/presets/${v}/apply`);}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
             <canvas ref={canvasRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
             <Row gutter={8} style={{marginTop:8}}>
@@ -141,13 +141,13 @@ export const DentalVolumeViewerPage: React.FC = () => {
             </Row>
             <Slider value={sliceIdx} min={0} max={current?.slices||400} onChange={setSliceIdx} />
           </Card>
-          <Card size="small" title={<Space><Crosshair size={14}/>曲断重建 (Curve MPR)</Space>} style={{marginTop:8}}
+          <Card size="small" title={<Space><Crosshair size={14}/>曲断重建</Space>} style={{marginTop:8}}
             extra={<Button size="small" icon={<Eye size={10}/>} onClick={()=>setShowCurved(!showCurved)}>{showCurved?'隐藏':'显示'}</Button>}>
             {showCurved ? (
-              <div style={{height:120,background:'#1a1a2e',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',color:'#666'}}>
+              <div style={{height:120,background:'#1a1a2e',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-secondary)'}}>
                 <div style={{textAlign:'center'}}><div>沿牙弓展开曲线重建</div><div style={{fontSize:11,marginTop:4}}>152mm × 256px  |  已展开</div></div>
               </div>
-            ):<div style={{textAlign:'center',padding:20,color:'#999',fontSize:12}}>点击「显示」查看曲断重建</div>}
+            ):<div style={{textAlign:'center',padding:20,color:'var(--text-secondary)',fontSize:12}}>点击「显示」查看曲断重建</div>}
           </Card>
         </Col>
         <Col span={12}>
@@ -159,7 +159,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
                     <Col span={12} key={p.id}>
                       <Card size="small" hoverable onClick={()=>{setActivePreset(p.id);}} style={{cursor:'pointer',borderColor:activePreset===p.id?'#2563eb':'#d9d9d9'}}>
                         <div style={{fontWeight:600}}>{p.name}</div>
-                        <div style={{fontSize:11,color:'#999'}}>WW {p.ww} WC {p.wc}</div>
+                        <div style={{fontSize:11,color:'var(--text-secondary)'}}>WW {p.ww} WC {p.wc}</div>
                         <Progress percent={p.id==='bone'?90:p.id==='soft'?40:p.id==='airway'?70:80} size="small" strokeColor={p.id==='nerve'?'#ff4d4f':'#2563eb'} />
                       </Card>
                     </Col>

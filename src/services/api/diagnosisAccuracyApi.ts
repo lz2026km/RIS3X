@@ -1,8 +1,9 @@
 import { api } from './client'
 
 // 诊断符合率 (Diagnosis Accuracy) API
-// 后端暂未实现 /diagnosis-accuracy 端点 → MSW diagnosisAccuracyHandlers 支撑,
-// 响应带 source 信封: 'database' 真实聚合 / 'demo' 演示数据(MSW)
+// [G005 Wave1B P1] 后端已实现 /diagnosis-accuracy 端点 (diagnosis-accuracy.module,
+// Report 审核结果派生 + seed 回退), MSW 标注已更新;
+// 响应带 source 信封: 'database' 真实聚合 / 'demo' 演示数据
 
 export interface DiagnosisAccuracyDto {
   period: string

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { fhirApi, type FhirPatient } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, DatePicker, message, Popconfirm, Descriptions, Empty, Tooltip } from 'antd'
 import { Users, Plus, Edit, Trash, Search, RefreshCw, Eye } from 'lucide-react'
-import { fhirApi, type FhirPatient } from '../../services/api/fhirApi'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Inbox } from 'lucide-react'
 
 const {  } = DatePicker
 
@@ -200,7 +201,7 @@ export const FhirPatientPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Users size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 患者管理</span>
@@ -309,7 +310,7 @@ export const FhirPatientPage: React.FC = () => {
             <Descriptions.Item label="电话">{selectedPatient.telecom?.[0]?.value || '-'}</Descriptions.Item>
             <Descriptions.Item label="地址" span={2}>{selectedPatient.address?.[0]?.city || '-'}</Descriptions.Item>
           </Descriptions>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
 
       <Modal
@@ -322,7 +323,7 @@ export const FhirPatientPage: React.FC = () => {
         {everythingLoading ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载患者全部资源...</div>
         ) : everythingEntries.length === 0 ? (
-          <Empty description="暂无关联资源" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无关联资源" />
         ) : (
           <Table
             dataSource={everythingEntries}

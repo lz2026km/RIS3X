@@ -23,18 +23,18 @@ const CATEGORY_CONFIG: Record<
   string,
   { label: string; color: string; bg: string }
 > = {
-  neuro: { label: "神经", color: "#7c3aed", bg: "#ede9fe" },
-  cardio: { label: "心血管", color: "#dc2626", bg: "#fee2e2" },
-  pulmo: { label: "胸部", color: "#0891b2", bg: "#cffafe" },
-  abdomen: { label: "腹部", color: "#f59e0b", bg: "#fef3c7" },
-  trauma: { label: "创伤", color: "#7f1d1d", bg: "#fecaca" },
-  vascular: { label: "血管", color: "#3b82f6", bg: "#dbeafe" },
-  contrast: { label: "造影剂", color: "#a855f7", bg: "#f3e8ff" },
+  neuro: { label: "神经", color: "#7c3aed", bg: "#8b5cf622" },
+  cardio: { label: "心血管", color: "#ef4444", bg: "#ef444422" },
+  pulmo: { label: "胸部", color: "#0891b2", bg: "#06b6d422" },
+  abdomen: { label: "腹部", color: "#f59e0b", bg: "#f59e0b22" },
+  trauma: { label: "创伤", color: "#7f1d1d", bg: "#ef444422" },
+  vascular: { label: "血管", color: "#3b82f6", bg: "#3b82f622" },
+  contrast: { label: "造影剂", color: "#a855f7", bg: "#8b5cf622" },
 };
 
 const SEVERITY_CONFIG = {
-  high: { label: "高级", color: "#f59e0b", bg: "#fef3c7" },
-  critical: { label: "危急", color: "#dc2626", bg: "#fee2e2" },
+  high: { label: "高级", color: "#f59e0b", bg: "#f59e0b22" },
+  critical: { label: "危急", color: "#ef4444", bg: "#ef444422" },
 };
 
 const CHANNEL_ICONS: Record<string, any> = {
@@ -221,7 +221,7 @@ export default function CriticalValueRulePage() {
           <h1
             style={{
               fontSize: 22,
-              color: "#1e293b",
+              color: "var(--text-primary)",
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -247,14 +247,14 @@ export default function CriticalValueRulePage() {
                 padding: "2px 8px",
                 borderRadius: 10,
                 fontWeight: 600,
-                background: source === 'api' ? '#dcfce7' : '#fef3c7',
+                background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                 color: source === 'api' ? '#16a34a' : '#d97706',
               }}
             >
               {source === 'api' ? '数据源: /critical-ext/rules' : '演示数据(接口不可用)'}
             </span>
           </h1>
-          <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0" }}>
+          <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
             {ruleList.length} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 +
             人工标识
             {loading && " · 加载中..."}
@@ -266,10 +266,10 @@ export default function CriticalValueRulePage() {
             onClick={() => navigate("/critical-value-stats")}
             style={{
               padding: "6px 12px",
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--border-color)",
               borderRadius: 6,
-              background: "#fff",
-              color: "#475569",
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",
@@ -283,10 +283,10 @@ export default function CriticalValueRulePage() {
             onClick={() => navigate("/critical-value")}
             style={{
               padding: "6px 12px",
-              border: "1px solid #cbd5e1",
+              border: "1px solid var(--border-color)",
               borderRadius: 6,
-              background: "#fff",
-              color: "#475569",
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
               fontSize: 12,
               cursor: "pointer",
             }}
@@ -345,14 +345,14 @@ export default function CriticalValueRulePage() {
         {/* 左：规则列表 */}
         <div
           style={{
-            background: "#fff",
+            background: "var(--bg-card)",
             borderRadius: 8,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             overflow: "hidden",
           }}
         >
           <div
-            style={{ padding: "8px 12px", borderBottom: "1px solid #e2e8f0" }}
+            style={{ padding: "8px 12px", borderBottom: "1px solid var(--border-color)" }}
           >
             <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
               <div style={{ position: "relative", flex: 1 }}>
@@ -362,7 +362,7 @@ export default function CriticalValueRulePage() {
                     position: "absolute",
                     left: 8,
                     top: 8,
-                    color: "#94a3b8",
+                    color: "var(--text-secondary)",
                   }}
                 />
                 <input
@@ -373,7 +373,7 @@ export default function CriticalValueRulePage() {
                   style={{
                     width: "100%",
                     padding: "5px 8px 5px 26px",
-                    border: "1px solid #cbd5e1",
+                    border: "1px solid var(--border-color)",
                     borderRadius: 4,
                     fontSize: 12,
                     outline: "none",
@@ -390,7 +390,7 @@ export default function CriticalValueRulePage() {
                 <option value="high">高级</option>
               </select>
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               <strong style={{ color: "#7c2d12" }}>
                 {filteredRules.length}
               </strong>{" "}
@@ -408,7 +408,7 @@ export default function CriticalValueRulePage() {
                   onClick={() => setSelectedRuleId(r.id)}
                   style={{
                     padding: 10,
-                    borderBottom: "1px solid #f1f5f9",
+                    borderBottom: "1px solid var(--border-light)",
                     background: isSelected ? "#fef2f2" : "transparent",
                     borderLeft: isSelected
                       ? `3px solid ${sConf.color}`
@@ -451,7 +451,7 @@ export default function CriticalValueRulePage() {
                     <span
                       style={{
                         fontSize: 12,
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         marginLeft: "auto",
                       }}
                     >
@@ -462,7 +462,7 @@ export default function CriticalValueRulePage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      color: "#1e293b",
+                      color: "var(--text-primary)",
                       marginBottom: 2,
                     }}
                   >
@@ -471,7 +471,7 @@ export default function CriticalValueRulePage() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                       display: "flex",
                       gap: 6,
                       alignItems: "center",
@@ -498,10 +498,10 @@ export default function CriticalValueRulePage() {
         {selectedRule && (
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 8,
               padding: 16,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
             }}
           >
             {/* 头部 */}
@@ -529,11 +529,11 @@ export default function CriticalValueRulePage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div
-                  style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}
+                  style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}
                 >
                   {selectedRule.name}
                 </div>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                   编码：{selectedRule.code}
                 </div>
               </div>
@@ -581,7 +581,7 @@ export default function CriticalValueRulePage() {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontWeight: 600,
                   marginBottom: 4,
                 }}
@@ -596,7 +596,7 @@ export default function CriticalValueRulePage() {
                       fontSize: 12,
                       padding: "2px 8px",
                       borderRadius: 10,
-                      background: "#dbeafe",
+                      background: "var(--color-info-bg)",
                       color: "#1e40af",
                       fontWeight: 600,
                     }}
@@ -612,7 +612,7 @@ export default function CriticalValueRulePage() {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontWeight: 600,
                   marginBottom: 4,
                 }}
@@ -627,7 +627,7 @@ export default function CriticalValueRulePage() {
                       fontSize: 12,
                       padding: "2px 8px",
                       borderRadius: 10,
-                      background: "#fee2e2",
+                      background: "var(--color-error-bg)",
                       color: "#b91c1c",
                       fontWeight: 600,
                       fontFamily: "monospace",
@@ -644,21 +644,21 @@ export default function CriticalValueRulePage() {
               style={{
                 marginBottom: 12,
                 padding: 10,
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 6,
               }}
             >
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontWeight: 600,
                   marginBottom: 4,
                 }}
               >
                 触发所见模式
               </div>
-              <div style={{ fontSize: 12, color: "#1e293b" }}>
+              <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
                 {selectedRule.findings}
               </div>
             </div>
@@ -668,7 +668,7 @@ export default function CriticalValueRulePage() {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   fontWeight: 600,
                   marginBottom: 4,
                 }}
@@ -684,7 +684,7 @@ export default function CriticalValueRulePage() {
                       style={{
                         padding: "4px 10px",
                         borderRadius: 6,
-                        background: "#f0fdf4",
+                        background: "var(--color-success-bg)",
                         border: "1px solid #bbf7d0",
                         display: "flex",
                         alignItems: "center",
@@ -706,7 +706,7 @@ export default function CriticalValueRulePage() {
               style={{
                 marginBottom: 12,
                 padding: 10,
-                background: "#fef3c7",
+                background: "var(--color-warning-bg)",
                 border: "1px solid #fcd34d",
                 borderRadius: 6,
               }}
@@ -731,7 +731,7 @@ export default function CriticalValueRulePage() {
               style={{
                 marginBottom: 12,
                 padding: 8,
-                background: "#eff6ff",
+                background: "var(--color-info-bg)",
                 borderRadius: 4,
                 fontSize: 12,
                 color: "#1e40af",
@@ -746,17 +746,17 @@ export default function CriticalValueRulePage() {
                 display: "flex",
                 gap: 8,
                 paddingTop: 12,
-                borderTop: "1px solid #e2e8f0",
+                borderTop: "1px solid var(--border-color)",
               }}
             >
               <button
                 onClick={() => openEditRule(selectedRule)}
                 style={{
                   padding: "5px 10px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 4,
-                  background: "#fff",
-                  color: "#475569",
+                  background: "var(--bg-card)",
+                  color: "var(--text-secondary)",
                   fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
@@ -770,10 +770,10 @@ export default function CriticalValueRulePage() {
                 onClick={() => setRuleTriggers(selectedRule)}
                 style={{
                   padding: "5px 10px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 4,
-                  background: "#fff",
-                  color: "#475569",
+                  background: "var(--bg-card)",
+                  color: "var(--text-secondary)",
                   fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
@@ -812,7 +812,7 @@ export default function CriticalValueRulePage() {
                   padding: "5px 10px",
                   border: "1px solid #dc2626",
                   borderRadius: 4,
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   color: "#dc2626",
                   fontSize: 12,
                   cursor: "pointer",
@@ -839,7 +839,7 @@ export default function CriticalValueRulePage() {
             : ""
         }
         icon={<Edit2 size={18} />}
-        iconBg="#dbeafe"
+        iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
         size="md"
         footer={
@@ -848,9 +848,9 @@ export default function CriticalValueRulePage() {
               onClick={() => setRuleEdit(null)}
               style={{
                 padding: "8px 18px",
-                border: "1px solid #e2e8f0",
-                background: "#fff",
-                color: "#64748b",
+                border: "1px solid var(--border-color)",
+                background: "var(--bg-card)",
+                color: "var(--text-secondary)",
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: 600,
@@ -888,7 +888,7 @@ export default function CriticalValueRulePage() {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#334155",
+                  color: "var(--text-primary)",
                   marginBottom: 4,
                   display: "block",
                 }}
@@ -905,7 +905,7 @@ export default function CriticalValueRulePage() {
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: 6,
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-color)",
                   fontSize: 13,
                   outline: "none",
                   boxSizing: "border-box",
@@ -925,7 +925,7 @@ export default function CriticalValueRulePage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "var(--text-primary)",
                     marginBottom: 4,
                     display: "block",
                   }}
@@ -950,7 +950,7 @@ export default function CriticalValueRulePage() {
                     width: "100%",
                     padding: "8px 12px",
                     borderRadius: 6,
-                    border: "1px solid #cbd5e1",
+                    border: "1px solid var(--border-color)",
                     fontSize: 13,
                     outline: "none",
                     boxSizing: "border-box",
@@ -963,7 +963,7 @@ export default function CriticalValueRulePage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "var(--text-primary)",
                     marginBottom: 4,
                     display: "block",
                   }}
@@ -983,7 +983,7 @@ export default function CriticalValueRulePage() {
                     width: "100%",
                     padding: "8px 12px",
                     borderRadius: 6,
-                    border: "1px solid #cbd5e1",
+                    border: "1px solid var(--border-color)",
                     fontSize: 13,
                     outline: "none",
                     boxSizing: "border-box",
@@ -1000,7 +1000,7 @@ export default function CriticalValueRulePage() {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#334155",
+                  color: "var(--text-primary)",
                   marginBottom: 4,
                   display: "block",
                 }}
@@ -1018,7 +1018,7 @@ export default function CriticalValueRulePage() {
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: 6,
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-color)",
                   fontSize: 13,
                   outline: "none",
                   resize: "vertical",
@@ -1029,19 +1029,19 @@ export default function CriticalValueRulePage() {
             </div>
             <div
               style={{
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 6,
                 padding: 10,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 fontSize: 12,
-                color: "#475569",
+                color: "var(--text-secondary)",
               }}
             >
               <div>
                 触发关键字：
                 <code
                   style={{
-                    background: "#fff",
+                    background: "var(--bg-card)",
                     padding: "1px 6px",
                     borderRadius: 3,
                   }}
@@ -1067,7 +1067,7 @@ export default function CriticalValueRulePage() {
         title="触发记录"
         subtitle={ruleTriggers?.name}
         icon={<Activity size={18} />}
-        iconBg="#dcfce7"
+        iconBg="var(--color-success-bg)"
         iconColor="#15803d"
         width={680}
       >
@@ -1075,17 +1075,17 @@ export default function CriticalValueRulePage() {
           <div>
             <div
               style={{
-                background: "#f8fafc",
+                background: "var(--bg-card)",
                 borderRadius: 8,
                 padding: 12,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 marginBottom: 12,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
                 {ruleTriggers.name}
               </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                 编码 {ruleTriggers.code} · 响应时限{" "}
                 {ruleTriggers.responseDeadline}m
               </div>
@@ -1095,11 +1095,11 @@ export default function CriticalValueRulePage() {
                 key={i}
                 style={{
                   padding: 10,
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
-                  color: "#334155",
-                  background: "#fff",
+                  color: "var(--text-primary)",
+                  background: "var(--bg-card)",
                   marginBottom: 6,
                 }}
               >
@@ -1107,12 +1107,12 @@ export default function CriticalValueRulePage() {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   <span>触发 #{i + 1}</span>
-                  <span style={{ fontFamily: "monospace", color: "#94a3b8" }}>
+                  <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
                     2026-05-{(i + 1).toString().padStart(2, "0")} 0{i + 1}:
                     {(i * 7) % 60}
                   </span>
                 </div>
-                <div style={{ color: "#64748b", marginTop: 4 }}>
+                <div style={{ color: "var(--text-secondary)", marginTop: 4 }}>
                   患者：测试 {String.fromCharCode(0x41 + i)} · 设备：
                   {ruleTriggers.modality[i % ruleTriggers.modality.length]} ·
                   通报渠道：
@@ -1132,7 +1132,7 @@ export default function CriticalValueRulePage() {
         onClose={() => setSaveDialog((s) => ({ ...s, open: false }))}
         title="保存成功"
         icon={<CheckCircle size={18} />}
-        iconBg="#dcfce7"
+        iconBg="var(--color-success-bg)"
         iconColor="#15803d"
         width={420}
         footer={
@@ -1153,10 +1153,10 @@ export default function CriticalValueRulePage() {
           </button>
         }
       >
-        <div style={{ fontSize: 13, color: "#334155", padding: "4px 0" }}>
+        <div style={{ fontSize: 13, color: "var(--text-primary)", padding: "4px 0" }}>
           {saveDialog.message}
         </div>
-        <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
           规则配置已保存至系统,变更将立即生效。
         </div>
       </AppModal>
@@ -1203,7 +1203,7 @@ export default function CriticalValueRulePage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: "4px 8px",
-  border: "1px solid #cbd5e1",
+  border: "1px solid var(--border-color)",
   borderRadius: 4,
   fontSize: 12,
   outline: "none",
@@ -1222,10 +1222,10 @@ const KpiCard: React.FC<{
 }> = ({ icon: Icon, label, value, color, alert, good }) => (
   <div
     style={{
-      background: "#fff",
+      background: "var(--bg-card)",
       padding: 12,
       borderRadius: 8,
-      border: "1px solid #e2e8f0",
+      border: "1px solid var(--border-color)",
       display: "flex",
       alignItems: "center",
       gap: 10,
@@ -1246,12 +1246,12 @@ const KpiCard: React.FC<{
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
       <div
         style={{
           fontSize: 18,
           fontWeight: 700,
-          color: good ? "#10b981" : alert ? "#dc2626" : "#1e293b",
+          color: good ? "#10b981" : alert ? "#dc2626" : "var(--text-primary)",
         }}
       >
         {value}
@@ -1269,11 +1269,11 @@ const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({
   color,
 }) => (
   <div>
-    <div style={{ fontSize: 12, color: "#94a3b8" }}>{label}</div>
+    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
     <div
       style={{
         fontSize: 12,
-        color: color || "#1e293b",
+        color: color || "var(--text-primary)",
         fontWeight: 600,
         marginTop: 1,
       }}

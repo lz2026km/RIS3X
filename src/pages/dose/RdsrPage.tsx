@@ -46,7 +46,7 @@ export default function RdsrPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader title={<><Radio size={20} color="#3b82f6" /> {t("title")}</>} subtitle={t("subtitle")} />
+      <PageHeader icon={<Radio size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
           <button onClick={() => setActiveTab("parse")} style={{ padding: "6px 16px", background: activeTab === "parse" ? "#1e40af" : "#fff", color: activeTab === "parse" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "parse" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>

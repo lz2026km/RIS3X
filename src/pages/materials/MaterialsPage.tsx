@@ -12,7 +12,7 @@ export const MaterialsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('iol');
   // IOL
   const [iols, setIols] = useState<any[]>([]);
-  const [iolModal, setIolModal] = useState<{ type: 'in' | 'out' | null; data: any }>({ type: null, data: {} });
+  const [iolModal, setIolModal] = useState<{ type: 'in' | 'out' | 'transfer' | 'adjust' | null; data: any }>({ type: null, data: {} });
   const [iolFilter, setIolFilter] = useState({ type: '', status: '' });
   const [lowStock, setLowStock] = useState<any[]>([]);
   const [expiring, setExpiring] = useState<any[]>([]);
@@ -21,6 +21,9 @@ export const MaterialsPage: React.FC = () => {
   const [lenses, setLenses] = useState<any[]>([]);
   const [lensModal, setLensModal] = useState<{ type: 'create' | 'update' | 'fitting' | null; data: any }>({ type: null, data: {} });
   const [lensFilter, setLensFilter] = useState({ type: '', brand: '' });
+
+  // [G005 Wave1A P0] OK 镜设计 (POST /eye/optometry/ok-lens/design)
+  const [okDesignModal, setOkDesignModal] = useState<{ open: boolean; data: any; submitting: boolean }>({ open: false, data: {}, submitting: false });
 
   // 加载
   const loadIols = async () => {
@@ -45,7 +48,7 @@ export const MaterialsPage: React.FC = () => {
 
   // IOL 操作
   const handleIolInStock = async () => {
-    if (!iolModal.data.barcode) return message.warning('请填写条码');
+    if (!iolModal.data.barcode) { message.warning('请填写条码'); return; }
     try {
       const r = await iolApi.inStock(iolModal.data);
       if (r.success) { message.success('入库成功'); setIolModal({ type: null, data: {} }); loadIols(); }
@@ -60,9 +63,54 @@ export const MaterialsPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
+  // [G005 Wave1A P0] IOL 调拨 (POST /eye/iol/inventory/:id/transfer)
+  const handleIolTransfer = async () => {
+    if (!iolModal.data.id || !iolModal.data.toLocation) { message.warning('请填写目标库位'); return; }
+    try {
+      const r = await iolApi.transfer(iolModal.data.id, { fromLocation: iolModal.data.stockLocation || '', toLocation: iolModal.data.toLocation });
+      if (r.success) { message.success('调拨成功'); setIolModal({ type: null, data: {} }); loadIols(); }
+    } catch (e: any) { message.error(e.message); }
+  };
+
+  // [G005 Wave1A P0] IOL 库存调整 (POST /eye/iol/inventory/:id/adjust)
+  const handleIolAdjust = async () => {
+    if (!iolModal.data.id) return;
+    const delta = Number(iolModal.data.deltaQty) || 0;
+    if (delta === 0) { message.warning('请填写调整数量 (正数盘盈/负数盘亏)'); return; }
+    try {
+      const r = await iolApi.adjust(iolModal.data.id, { deltaQty: delta, reason: iolModal.data.adjustReason || '盘点' });
+      if (r.success) { message.success('库存调整成功'); setIolModal({ type: null, data: {} }); loadIols(); }
+    } catch (e: any) { message.error(e.message); }
+  };
+
+  // [G005 Wave1A P0] OK 镜设计 (POST /eye/optometry/ok-lens/design)
+  const handleOkDesign = async () => {
+    setOkDesignModal(prev => ({ ...prev, submitting: true }));
+    try {
+      const r = await contactLensApi.okLensDesign({
+        patientId: okDesignModal.data.patientId,
+        k1: Number(okDesignModal.data.k1) || 42,
+        k2: Number(okDesignModal.data.k2) || 42,
+        kAxis: Number(okDesignModal.data.kAxis) || 0,
+        targetReduction: Number(okDesignModal.data.targetReduction) || 3,
+        brand: okDesignModal.data.brand,
+      });
+      if (r.success) {
+        message.success(`OK 镜设计完成: BC ${r.data.baseCurve} / 直径 ${r.data.diameter} / 反转弧 ${r.data.returnZone}`);
+        setOkDesignModal({ open: false, data: {}, submitting: false });
+      } else {
+        message.error(r.error?.message ?? 'OK 镜设计失败');
+        setOkDesignModal(prev => ({ ...prev, submitting: false }));
+      }
+    } catch (e: any) {
+      message.error(e.message ?? 'OK 镜设计失败');
+      setOkDesignModal(prev => ({ ...prev, submitting: false }));
+    }
+  };
+
   // 接触镜
   const handleLensSave = async () => {
-    if (!lensModal.data.brand || !lensModal.data.bc) return message.warning('请填写品牌和基弧');
+    if (!lensModal.data.brand || !lensModal.data.bc) { message.warning('请填写品牌和基弧'); return; }
     try {
       let r;
       if (lensModal.type === 'create') r = await contactLensApi.create(lensModal.data);
@@ -153,7 +201,11 @@ export const MaterialsPage: React.FC = () => {
                 {
                   title: '操作',
                   render: (_, i) => (
-                    <Button type="link" size="small" onClick={() => setIolModal({ type: 'out', data: { ...i, reason: '手术植入' } })}>出库</Button>
+                    <Space size={0}>
+                      <Button type="link" size="small" onClick={() => setIolModal({ type: 'out', data: { ...i, reason: '手术植入' } })}>出库</Button>
+                      <Button type="link" size="small" onClick={() => setIolModal({ type: 'transfer', data: { ...i } })}>调拨</Button>
+                      <Button type="link" size="small" onClick={() => setIolModal({ type: 'adjust', data: { ...i } })}>调整</Button>
+                    </Space>
                   ),
                 },
               ]}
@@ -197,6 +249,7 @@ export const MaterialsPage: React.FC = () => {
                   { value: 'Hybrid', label: '混合' },
                 ]} />
                 <Input.Search size="small" placeholder="品牌" value={lensFilter.brand} onChange={e => setLensFilter({ ...lensFilter, brand: e.target.value })} style={{ width: 140 }} />
+                <Button size="small" icon={<Edit3 size={12} />} onClick={() => setOkDesignModal({ open: true, data: {}, submitting: false })}>OK 镜设计</Button>
                 <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setLensModal({ type: 'create', data: { type: 'RGP', stock: 0, trialLens: false } })}>新增</Button>
               </Space>
             }
@@ -232,12 +285,12 @@ export const MaterialsPage: React.FC = () => {
         </Tabs.TabPane>
       </Tabs>
 
-      {/* IOL 入库/出库 Modal */}
+      {/* IOL 入库/出库/调拨/调整 Modal */}
       <Modal
-        title={iolModal.type === 'in' ? 'IOL 入库' : 'IOL 出库'}
+        title={iolModal.type === 'in' ? 'IOL 入库' : iolModal.type === 'out' ? 'IOL 出库' : iolModal.type === 'transfer' ? 'IOL 调拨' : 'IOL 库存调整'}
         open={!!iolModal.type}
         onCancel={() => setIolModal({ type: null, data: {} })}
-        onOk={iolModal.type === 'in' ? handleIolInStock : handleIolOutStock}
+        onOk={iolModal.type === 'in' ? handleIolInStock : iolModal.type === 'out' ? handleIolOutStock : iolModal.type === 'transfer' ? handleIolTransfer : handleIolAdjust}
         width={500}
       >
         {iolModal.type === 'in' ? (
@@ -255,6 +308,18 @@ export const MaterialsPage: React.FC = () => {
               <Col span={12}><Form.Item label="单价 (¥)"><InputNumber value={iolModal.data.unitPrice} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, unitPrice: v } })} style={{ width: '100%' }} /></Form.Item></Col>
             </Row>
           </Form>
+        ) : iolModal.type === 'transfer' ? (
+          <div>
+            <Alert title={`调拨: ${iolModal.data.model} (${iolModal.data.power}D)`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Form.Item label="当前库位"><Input value={iolModal.data.stockLocation} disabled /></Form.Item>
+            <Form.Item label="目标库位"><Input value={iolModal.data.toLocation} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, toLocation: e.target.value } })} placeholder="如: B-03" /></Form.Item>
+          </div>
+        ) : iolModal.type === 'adjust' ? (
+          <div>
+            <Alert title={`库存调整: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Form.Item label="调整数量 (正数盘盈 / 负数盘亏)"><InputNumber value={iolModal.data.deltaQty} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, deltaQty: v } })} style={{ width: '100%' }} /></Form.Item>
+            <Form.Item label="调整原因"><Input value={iolModal.data.adjustReason} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, adjustReason: e.target.value } })} placeholder="盘点 / 报损 / 校准" /></Form.Item>
+          </div>
         ) : (
           <div>
             <Alert title={`出库: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
@@ -301,6 +366,31 @@ export const MaterialsPage: React.FC = () => {
             </Row>
           </Form>
         )}
+      </Modal>
+
+      {/* [G005 Wave1A P0] OK 镜设计 Modal (POST /eye/optometry/ok-lens/design) */}
+      <Modal
+        title="OK 镜 (角膜塑形镜) 设计"
+        open={okDesignModal.open}
+        onCancel={() => setOkDesignModal({ open: false, data: {}, submitting: false })}
+        onOk={() => void handleOkDesign()}
+        okText="生成设计"
+        cancelText="取消"
+        confirmLoading={okDesignModal.submitting}
+        width={460}
+      >
+        <Form layout="vertical" size="small">
+          <Form.Item label="患者 ID" required><Input value={okDesignModal.data.patientId} onChange={e => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, patientId: e.target.value } })} placeholder="P000001" /></Form.Item>
+          <Row gutter={8}>
+            <Col span={8}><Form.Item label="K1 (D)"><InputNumber value={okDesignModal.data.k1} onChange={v => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, k1: v } })} defaultValue={42} step={0.25} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={8}><Form.Item label="K2 (D)"><InputNumber value={okDesignModal.data.k2} onChange={v => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, k2: v } })} defaultValue={42} step={0.25} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={8}><Form.Item label="K 轴位"><InputNumber value={okDesignModal.data.kAxis} onChange={v => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, kAxis: v } })} defaultValue={0} style={{ width: '100%' }} /></Form.Item></Col>
+          </Row>
+          <Row gutter={8}>
+            <Col span={12}><Form.Item label="目标降幅 (D)"><InputNumber value={okDesignModal.data.targetReduction} onChange={v => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, targetReduction: v } })} defaultValue={3} step={0.25} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item label="品牌"><Select value={okDesignModal.data.brand} onChange={v => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, brand: v } })} allowClear options={['CRT', 'DreamLens', 'Euclid'].map(b => ({ value: b, label: b }))} /></Form.Item></Col>
+          </Row>
+        </Form>
       </Modal>
     </div>
   );

@@ -2,16 +2,6 @@
  * G005 RIS v3.0.5.1 - R3.REVIEW FINAL CHECK 终核清单
  * 80 点 (15+ 检查项 / 临床一致性 / 终评 / 双驳回 / 笔记 / 工作量 / 既往 / 多签 / 急诊 / 工作流)
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Card, Tabs, Tag, Space, Button, Empty, Input, Select, Row, Col, Statistic, message,
-  Modal, Progress, List, Descriptions, Timeline, Form, Switch, Alert, Divider, Avatar, Radio, Popconfirm,
-} from 'antd';
-import {
-  ShieldCheck, Search, FileText, Clock, AlertTriangle, CheckCircle2, XCircle, User,
-  Stethoscope, GitCompareArrows, PenLine, Award, Zap, Phone, Settings2,
-  Activity, Bell, RotateCcw, ClipboardCheck, CircleSlash, Timer, BarChart3, MessageSquare, Pin, PinOff, ListChecks,
-} from 'lucide-react';
 import { finalCheckService } from '../../../../services/review/finalCheckService';
 import type { ReviewTask, ReviewFilter } from '../../../../types/R3/R3.REVIEW';
 import type {
@@ -20,6 +10,40 @@ import type {
   PriorReportComparison, FinalMultiSignatureRequest, EmergencyReviewRequest, FinalCheckWorkflowConfig,
   FinalRejectTarget, EmergencyChannel,
 } from '../../../../types/R3/R3.REVIEW.FINAL';
+import {
+  Card, Tabs, Tag, Space, Button, Empty, Input, Select, Row, Col, Statistic, message,
+  Modal, Progress, List, Descriptions, Timeline, Form, Switch, Alert, Divider, Avatar, Radio, Popconfirm,
+} from 'antd';
+import {
+  ShieldCheck,
+  Search,
+  FileText,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  User,
+  Stethoscope,
+  GitCompareArrows,
+  PenLine,
+  Award,
+  Zap,
+  Phone,
+  Settings2,
+  Activity,
+  Bell,
+  RotateCcw,
+  ClipboardCheck,
+  CircleSlash,
+  Timer,
+  BarChart3,
+  MessageSquare,
+  Pin,
+  PinOff,
+  ListChecks,
+} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Inbox } from 'lucide-react'
 
 const CATEGORY_META: Record<FinalCheckCategory, { color: string; label: string }> = {
   demographics: { color: 'blue', label: '人口学' },
@@ -293,7 +317,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const renderChecklist = () => (
     <div data-testid="final-checklist-items" role="region" aria-label="终核检查项">
       {checklist.length === 0 ? (
-        <Empty description="暂无检查项" />
+        <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无检查项" />
       ) : (
         <List
           dataSource={checklist}
@@ -362,7 +386,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderConsistency = () => (
     <div data-testid="final-checklist-consistency" role="region" aria-label="临床一致性">
-      {!consistency ? <Empty description="暂无一致性数据" /> : (
+      {!consistency ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无一致性数据" /> : (
         <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small">
             <Row gutter={12}>
@@ -491,7 +515,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             )}
           </Card>
         ) : (
-          <Empty description="尚无评分,完成检查项后自动计分" />
+          <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="尚无评分,完成检查项后自动计分" />
         )}
         {rubric && (
           <Card size="small" title={`评分细则 ${rubric.version}`}>
@@ -517,7 +541,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       <Space style={{ marginBottom: 8 }}>
         <Button type="primary" size="small" icon={<PenLine size={12} />} onClick={() => setNoteOpen(true)}>添加笔记</Button>
       </Space>
-      {notes.length === 0 ? <Empty description="暂无终审笔记" /> : (
+      {notes.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无终审笔记" /> : (
         <List
           dataSource={notes}
           renderItem={(n) => (
@@ -604,7 +628,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderPrior = () => (
     <div data-testid="final-checklist-prior" role="region" aria-label="既往报告对比">
-      {!prior ? <Empty description="无既往同部位报告" /> : (
+      {!prior ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无既往同部位报告" /> : (
         <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small" title={
             <Space>
@@ -658,7 +682,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       <Space style={{ marginBottom: 8 }}>
         <Button type="primary" size="small" icon={<Award size={12} />} onClick={() => setMsOpen(true)}>发起多签</Button>
       </Space>
-      {multiSigs.length === 0 ? <Empty description="暂无多签任务" /> : (
+      {multiSigs.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无多签任务" /> : (
         <List
           dataSource={multiSigs}
           renderItem={(m) => (
@@ -700,7 +724,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       <Space style={{ marginBottom: 8 }}>
         <Button danger size="small" icon={<Phone size={12} />} onClick={() => setEmOpen(true)}>触发急诊通道</Button>
       </Space>
-      {emergencies.length === 0 ? <Empty description="暂无急诊任务" /> : (
+      {emergencies.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无急诊任务" /> : (
         <List
           dataSource={emergencies}
           renderItem={(e) => (
@@ -738,7 +762,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderWorkflow = () => (
     <div data-testid="final-checklist-workflow" role="region" aria-label="工作流配置">
-      {!config ? <Empty description="暂无工作流配置" /> : (
+      {!config ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无工作流配置" /> : (
         <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small" title={
             <Space>
@@ -861,7 +885,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           <List
             loading={loading}
             dataSource={tasks}
-            locale={{ emptyText: <Empty description="无终核任务" /> }}
+            locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无终核任务" /> }}
             style={{ background: '#fff', borderRadius: 8, padding: 4 }}
             renderItem={(t) => {
               const priConf = PRIORITY_META[t.priority] ?? PRIORITY_META.routine!;
@@ -909,7 +933,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         </Col>
         <Col span={16}>
           {!activeList ? (
-            <Empty description="请选择左侧任务" style={{ marginTop: 80 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择左侧任务" style={{ marginTop: 80 }} />
           ) : (
             <Card
               size="small"

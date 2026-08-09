@@ -3,12 +3,13 @@
  * R3.DIST 组 D:患者端推送/查看
  * 10 升级点
  */
-import React, { useState, useMemo, useCallback } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
-import { Globe, Eye, Plus, Link2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { PATIENT_PORTAL_LINKS_MOCK } from '@data/reportDistributionMock';
 import { createPatientLink, revokePatientLink, listPatientViews } from '@services/distribution/distributionService';
 import type { PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang } from '@types/R3/R3.DIST';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Globe, Eye, Plus, Link2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Inbox } from 'lucide-react'
 
 interface Props {
   reportId?: string;
@@ -144,7 +145,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
             ))}
           </div>
         ) : (
-          <Empty description="暂无患者链接" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无患者链接" />
         )}
       </Card>
 
@@ -192,7 +193,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
             { title: '语言', dataIndex: 'language', key: 'language' },
             { title: '停留', dataIndex: 'durationSec', key: 'durationSec', render: (n) => `${n}s` },
           ]} />
-        ) : <Empty description="暂无查看记录" />}
+        ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无查看记录" />}
       </Modal>
     </div>
   );

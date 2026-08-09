@@ -1,7 +1,24 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
+
+// [G005 Wave1B P1] OLAP 4 扩展: cubes / drill-down / chart / export-csv
+export interface OlapCubeDef {
+  id: string
+  name: string
+  dimensions: string[]
+  measures: string[]
+  lastUpdated: string
+}
+
+export interface OlapQueryResult {
+  columns: Array<{ key: string; name: string; type: string }>
+  rows: Record<string, unknown>[]
+  total: number
+  query: OLAPQuery
+  generatedAt: string
+}
 
 export interface MetricDef {
   id: string; name: string; dimension: string; aggregation: string; format: string; unit?: string; description: string
@@ -12,9 +29,9 @@ export interface DimensionDef {
 interface OLAPFilter {
   dimension: string; operator: string; value?: unknown
 }
-interface OLAPQuery {
+export interface OLAPQuery {
   dimensions: string[]; measures: string[]; filters?: OLAPFilter[]
-  granularity?: string; orderBy?: { dimension: string; direction: string }[]
+  granularity?: string; orderBy?: { dimension: string; direction: string }[] | string
   limit?: number; offset?: number
 }
 
@@ -122,6 +139,16 @@ const DIMENSIONS: DimensionDef[] = [
   { id: 'report_state', name: '报告状态', type: 'categorical', description: '报告当前状态' },
 ]
 
+// 预定义 Cube 定义 (确定性)
+const CUBES: OlapCubeDef[] = [
+  { id: 'exam', name: '检查分析立方体', dimensions: ['date', 'modality', 'device', 'body_part', 'age_group', 'gender', 'patient_type'], measures: ['exam_count', 'exam_revenue', 'exam_cost', 'avg_exam_time', 'positive_rate', 'emergency_ratio', 'inpatient_ratio'], lastUpdated: '2026-08-08T02:00:00Z' },
+  { id: 'report', name: '报告效率立方体', dimensions: ['date', 'doctor', 'department', 'modality', 'report_state'], measures: ['report_count', 'avg_report_time', 'report_revision_count', 'report_timely_rate', 'quality_score_avg', 'quality_excellent_rate', 'quality_pass_rate'], lastUpdated: '2026-08-08T02:00:00Z' },
+  { id: 'quality', name: '质控评分立方体', dimensions: ['date', 'doctor', 'department', 'modality'], measures: ['quality_score_avg', 'quality_excellent_rate', 'quality_pass_rate'], lastUpdated: '2026-08-08T02:00:00Z' },
+  { id: 'critical', name: '危急值立方体', dimensions: ['date', 'modality', 'department'], measures: ['critical_count', 'critical_response_time', 'critical_notification_rate'], lastUpdated: '2026-08-08T02:00:00Z' },
+  { id: 'device', name: '设备运营立方体', dimensions: ['date', 'device', 'modality'], measures: ['device_usage_rate', 'device_daily_exams', 'device_maintenance_count', 'appointment_count', 'appointment_no_show_rate'], lastUpdated: '2026-08-08T02:00:00Z' },
+  { id: 'appointment', name: '预约服务立方体', dimensions: ['date', 'modality', 'device'], measures: ['appointment_count', 'appointment_no_show', 'appointment_no_show_rate', 'avg_wait_time'], lastUpdated: '2026-08-08T02:00:00Z' },
+]
+
 interface CacheEntry {
   data: unknown
   expiresAt: number
@@ -137,12 +164,70 @@ export class OlapService {
     return { metrics: METRICS, dimensions: DIMENSIONS }
   }
 
-  async executeQuery(query: OLAPQuery) {
+  // [Wave1B] GET /olap/cubes — 预定义立方体列表
+  listCubes(): OlapCubeDef[] {
+    return CUBES.map((c) => ({ ...c }))
+  }
+
+  // [Wave1B] POST /olap/drill-down — 在指定维度值上钻取 (追加等值过滤后执行查询)
+  async drillDown(dto: { cube: string; dimension: string; value: string; measures?: string[] }) {
+    const cube = CUBES.find((c) => c.id === dto.cube)
+    const dims: string[] = []
+    const measures: string[] = (dto.measures && dto.measures.length > 0) ? dto.measures : (cube?.measures.slice(0, 3) ?? ['exam_count'])
+    const dimension = dto.dimension
+    if (cube && cube.dimensions.includes(dimension)) dims.push(dimension)
+    else if (DIMENSIONS.some((d) => d.id === dimension)) dims.push(dimension)
+    else dims.push('modality')
+    const result = await this.executeQuery({
+      dimensions: dims,
+      measures,
+      filters: dto.dimension && dto.value !== undefined && dto.value !== ''
+        ? [{ dimension: dto.dimension, operator: 'eq', value: dto.value }]
+        : undefined,
+      limit: 50,
+    })
+    return { ...result, cube: dto.cube, drillDown: { dimension: dto.dimension, value: dto.value } }
+  }
+
+  // [Wave1B] POST /olap/chart — 图表数据 (labels = 首维度, datasets = 每个 measure)
+  async chartData(query: OLAPQuery) {
+    const result = await this.executeQuery(query)
+    const rows = result.rows as Record<string, unknown>[]
+    const dim = query.dimensions[0] ?? 'date'
+    const labels = rows.map((r) => String(r[dim] ?? ''))
+    const datasets = query.measures.map((m) => ({
+      label: METRICS.find((mm) => mm.id === m)?.name ?? m,
+      values: rows.map((r) => Number(r[m] ?? 0)),
+      type: METRICS.find((mm) => mm.id === m)?.format ?? 'number',
+    }))
+    return { labels, datasets }
+  }
+
+  // [Wave1B] POST /olap/export/csv — 查询结果导出 CSV (含 BOM)
+  async exportCsv(query: OLAPQuery): Promise<string> {
+    const result = await this.executeQuery(query)
+    const rows = result.rows as Record<string, unknown>[]
+    const cols = [...query.dimensions, ...query.measures]
+    const esc = (v: unknown): string => {
+      const s = String(v ?? '')
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const lines = [cols.map(esc).join(',')]
+    for (const r of rows) lines.push(cols.map((c) => esc(r[c])).join(','))
+    return '\uFEFF' + lines.join('\r\n')
+  }
+
+  async executeQuery(query: OLAPQuery): Promise<OlapQueryResult> {
     const tenantId = getCurrentTenantId()
+    // 兼容字符串 orderBy ("dimension desc") → 对象数组
+    if (typeof query.orderBy === 'string') {
+      const [dimension, direction] = query.orderBy.trim().split(/\s+/)
+      query.orderBy = dimension ? [{ dimension, direction: (direction ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc' }] : undefined
+    }
     const cacheKey = JSON.stringify({ tenantId, query })
     const cached = this.cache.get(cacheKey)
     if (cached && cached.expiresAt > Date.now()) {
-      return cached.data
+      return cached.data as OlapQueryResult
     }
 
     const rows = (await this.prisma.$queryRaw(this.buildSQL(query, tenantId))) as Record<string, unknown>[]
@@ -271,9 +356,10 @@ export class OlapService {
     }
 
     let orderByClause: Prisma.Sql = Prisma.empty
-    if (query.orderBy && query.orderBy.length > 0) {
+    const orderByList = query.orderBy as Array<{ dimension: string; direction: string }> | undefined
+    if (orderByList && orderByList.length > 0) {
       const parts: Prisma.Sql[] = []
-      for (const o of query.orderBy) {
+      for (const o of orderByList) {
         const dir = o.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
         const col = DIMENSION_COLUMN_MAP[o.dimension]
         if (!col) continue

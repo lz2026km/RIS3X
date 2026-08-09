@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Card } from 'antd'
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
@@ -39,7 +40,7 @@ const COLORS = {
   cardWhite: '#ffffff',     // 白色卡片
   textDark: '#1f2937',      // 深色文字
   textMuted: '#6b7280',     // 灰色文字
-  border: '#d1d5db',        // 边框色
+  border: 'var(--border-color)',        // 边框色
   ct: '#3b82f6',           // CT颜色
   mri: '#8b5cf6',          // MRI颜色
   dr: '#10b981',           // DR颜色
@@ -92,7 +93,7 @@ const styles = {
     minWidth: 'min(180px, 100%)',
     flex: 1,
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
   },
   statLabel: {
     fontSize: '12px',
@@ -131,7 +132,7 @@ const styles = {
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column' as const,
     overflow: 'hidden',
@@ -142,7 +143,7 @@ const styles = {
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column' as const,
     overflow: 'hidden',
@@ -154,7 +155,7 @@ const styles = {
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column' as const,
     overflow: 'hidden',
@@ -165,7 +166,7 @@ const styles = {
     borderRadius: '8px',
     margin: '0 24px 20px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
+    border: '1px solid var(--border-color)',
     overflow: 'hidden',
   },
   // Tab 标签
@@ -173,8 +174,8 @@ const styles = {
     display: 'flex',
     gap: '4px',
     padding: '12px 16px',
-    borderBottom: '1px solid #e5e7eb',
-    backgroundColor: '#f9fafb',
+    borderBottom: '1px solid var(--border-color)',
+    backgroundColor: 'var(--bg-card)',
     flexWrap: 'wrap' as const,
   },
   tab: {
@@ -207,7 +208,7 @@ const styles = {
     gap: '10px',
   },
   listItemActive: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: 'var(--color-info-bg)',
     borderLeft: `3px solid ${COLORS.primary}`,
   },
   // 表格样式
@@ -219,15 +220,15 @@ const styles = {
   th: {
     padding: '10px 12px',
     textAlign: 'left' as const,
-    backgroundColor: '#f9fafb',
-    borderBottom: '2px solid #e5e7eb',
+    backgroundColor: 'var(--bg-card)',
+    borderBottom: '2px solid var(--border-color)',
     fontWeight: 600,
     color: COLORS.textDark,
     whiteSpace: 'nowrap' as const,
   },
   td: {
     padding: '10px 12px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
   },
   // 按钮样式
   button: {
@@ -273,7 +274,7 @@ const styles = {
   input: {
     padding: '8px 12px',
     borderRadius: '6px',
-    border: '1px solid #d1d5db',
+    border: '1px solid var(--border-color)',
     fontSize: '13px',
     outline: 'none',
     transition: 'border-color 0.2s',
@@ -302,7 +303,7 @@ const styles = {
   },
   modalHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -314,7 +315,7 @@ const styles = {
   },
   modalFooter: {
     padding: '16px 20px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid var(--border-color)',
     display: 'flex',
     justifyContent: 'flex-end',
     gap: '10px',
@@ -343,8 +344,8 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '12px 16px',
-    borderTop: '1px solid #e5e7eb',
-    backgroundColor: '#f9fafb',
+    borderTop: '1px solid var(--border-color)',
+    backgroundColor: 'var(--bg-card)',
   },
   // 空状态
   emptyState: {
@@ -358,20 +359,20 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     padding: '8px 12px',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '6px',
     margin: '12px',
   },
   // 面板头部
   panelHeader: {
     padding: '14px 16px',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid var(--border-color)',
     fontWeight: 600,
     fontSize: '14px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'var(--bg-card)',
   },
   panelBody: {
     flex: 1,
@@ -385,7 +386,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '8px',
     margin: '12px',
   },
@@ -667,14 +668,14 @@ const scheduledReports: ScheduledReportConfig[] = [
 // ============ 工具函数 ============
 const getStatusBadge = (status: string) => {
   const statusMap: Record<string, { bg: string; color: string; label: string }> = {
-    '待上报': { bg: '#fef3c7', color: '#d97706', label: '待上报' },
-    '已上报': { bg: '#dbeafe', color: '#2563eb', label: '已上报' },
-    '已确认': { bg: '#d1fae5', color: '#16a34a', label: '已确认' },
-    '已驳回': { bg: '#fee2e2', color: '#dc2626', label: '已驳回' },
-    '待审核': { bg: '#fef3c7', color: '#d97706', label: '待审核' },
-    '已通过': { bg: '#d1fae5', color: '#16a34a', label: '已通过' },
+    '待上报': { bg: '#f59e0b22', color: '#f59e0b', label: '待上报' },
+    '已上报': { bg: '#3b82f622', color: '#3b82f6', label: '已上报' },
+    '已确认': { bg: '#22c55e22', color: '#16a34a', label: '已确认' },
+    '已驳回': { bg: '#ef444422', color: '#ef4444', label: '已驳回' },
+    '待审核': { bg: '#f59e0b22', color: '#f59e0b', label: '待审核' },
+    '已通过': { bg: '#22c55e22', color: '#16a34a', label: '已通过' },
   }
-  const style = statusMap[status] || { bg: '#f3f4f6', color: '#6b7280', label: status }
+  const style = statusMap[status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: status }
   return (
     <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, backgroundColor: style.bg, color: style.color }}>
       {style.label}
@@ -719,17 +720,17 @@ const FHIRReportPanel = () => {
   }
 
   const fhirTabs = [
-    { key: 'report', label: 'DiagnosticReport' },
-    { key: 'observation', label: 'Observation' },
-    { key: 'bundle', label: 'FHIR Bundle' },
+    { key: 'report', label: '诊断报告' },
+    { key: 'observation', label: '观察' },
+    { key: 'bundle', label: 'FHIR 资源包' },
     { key: 'export', label: 'FHIR导出' },
   ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* FHIR信息头 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
           <FileJson size={18} color={COLORS.primary} /> FHIR R4 标准化报告
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
@@ -741,7 +742,7 @@ const FHIRReportPanel = () => {
       </div>
 
       {/* Tab切换 */}
-      <div style={{ display: 'flex', gap: 4, background: '#f9fafb', padding: 4, borderRadius: 8, width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', padding: 4, borderRadius: 8, width: 'fit-content' }}>
         {fhirTabs.map(t => (
           <button key={t.key} onClick={() => setFhirView(t.key as any)}
             style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: fhirView === t.key ? COLORS.primary : 'transparent', color: fhirView === t.key ? '#fff' : COLORS.textMuted }}>
@@ -767,14 +768,14 @@ const FHIRReportPanel = () => {
         </div>
       )}
       {fhirView === 'export' && (
-        <div style={{ background: '#fff', borderRadius: 8, padding: 20, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', marginBottom: 8 }}>导出FHIR Bundle</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>将生成符合FHIR R4标准的Bundle资源包，包含DiagnosticReport和Observation资源</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>导出 FHIR 资源包</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>将生成符合 FHIR R4 标准的 Bundle 资源包，包含诊断报告和观察资源</div>
           <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <Download size={16} /> 导出FHIR Bundle (JSON)
+            <Download size={16} /> 导出 FHIR 资源包 (JSON)
           </button>
-          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> FHIR Bundle导出成功</div>}
+          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> FHIR 资源包导出成功</div>}
         </div>
       )}
     </div>
@@ -799,7 +800,7 @@ const MultiRegulatorPanel = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Globe size={18} color={COLORS.primary} /> 监管机构配置
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -814,11 +815,11 @@ const MultiRegulatorPanel = () => {
         {regulatorTargets.map(reg => {
           const subStatus = submissions.find(s => s.targetId === reg.id)
           return (
-            <div key={reg.id} style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+            <div key={reg.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{reg.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{reg.name}</div>
                   <div style={{ fontSize: 12, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
                 </div>
                 <div style={{
@@ -841,7 +842,7 @@ const MultiRegulatorPanel = () => {
 
       {/* 提交状态 */}
       {batchStatus === 'done' && (
-        <div style={{ padding: '12px 16px', background: '#d1fae5', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#16a34a' }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#16a34a' }}>
           <CheckCircle size={14} /> 批量提交完成：{regulatorTargets.filter(t => t.status === 'online').length}个监管机构数据已成功提交
         </div>
       )}
@@ -856,7 +857,7 @@ const PreSubmissionValidation = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* 验证评分 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 20, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
         <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto 12px' }}>
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
@@ -866,19 +867,19 @@ const PreSubmissionValidation = () => {
             <span style={{ fontSize: 28, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
           </div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937' }}>验证评分</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>验证评分</div>
         <div style={{ fontSize: 12, color: COLORS.textMuted }}>基于 {validationChecks.length} 项校验规则</div>
       </div>
 
       {/* 校验明细 */}
-      <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 600, fontSize: 14 }}>数据质量校验明细</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>数据质量校验明细</div>
         <div style={{ padding: 8 }}>
           {validationChecks.map(check => (
             <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? '#f9fafb' : check.status === 'warning' ? '#fffbeb' : '#fef2f2' }}>
               {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#1f2937' }}>{check.field}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{check.field}</div>
                 <div style={{ fontSize: 12, color: COLORS.textMuted }}>{check.message}</div>
               </div>
               <span style={{
@@ -894,9 +895,9 @@ const PreSubmissionValidation = () => {
       </div>
 
       {score < 100 && (
-        <div style={{ padding: '12px 16px', background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
           <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
-          <div style={{ fontSize: 12, color: '#1f2937' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
             <strong>数据质量提示：</strong>{validationChecks.filter(v => v.status !== 'pass').length}项校验未通过，建议修正后再提交。
           </div>
         </div>
@@ -911,22 +912,22 @@ const SubmissionAuditTrail = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={16} color={COLORS.primary} /> 提交历史记录
         </div>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#f9fafb' }}>
+              <tr style={{ background: 'var(--bg-card)' }}>
                 {['报告类型', '提交时间', '目标机构', '状态', '签名指纹', '回执编号', '版本'].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid #e5e7eb', fontWeight: 600, color: '#1f2937', whiteSpace: 'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {submissionHistory.map((s, i) => (
-                <tr key={s.id} style={{ borderBottom: '1px solid #e5e7eb', background: i % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
+                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
                   onClick={() => setSelectedSubmission(s)}>
                   <td style={{ padding: '10px 12px', fontWeight: 600 }}>{s.reportType}</td>
                   <td style={{ padding: '10px 12px', color: COLORS.textMuted }}>{s.submittedAt}</td>
@@ -950,9 +951,9 @@ const SubmissionAuditTrail = () => {
 
       {/* 数字签名详情 */}
       {selectedSubmission && (
-        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Fingerprint size={16} color={COLORS.primary} /> 签名详情
             </div>
             <button onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
@@ -968,19 +969,19 @@ const SubmissionAuditTrail = () => {
 
       {/* 统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>总提交次数</div>
         </div>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>成功次数</div>
         </div>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>失败次数</div>
         </div>
-        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted }}>修正版本数</div>
         </div>
@@ -1042,7 +1043,7 @@ const ScheduledReportsPanel = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Calendar size={18} color={COLORS.primary} /> 自动报告计划
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1051,7 +1052,7 @@ const ScheduledReportsPanel = () => {
       </div>
 
       {schedules.map(s => (
-        <div key={s.id} style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+        <div key={s.id} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
@@ -1060,7 +1061,7 @@ const ScheduledReportsPanel = () => {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.enabled ? COLORS.primary : COLORS.textMuted
               }}><FileText size={18} /></div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{s.name}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{s.name}</div>
                 <div style={{ fontSize: 12, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
               </div>
             </div>
@@ -1073,7 +1074,7 @@ const ScheduledReportsPanel = () => {
                 }}>
                   <span style={{
                     position: 'absolute', content: '', height: 18, width: 18, borderRadius: '50%', left: s.enabled ? 20 : 2, top: 2,
-                    backgroundColor: '#fff', transition: '0.3s'
+                    backgroundColor: 'var(--bg-card)', transition: '0.3s'
                   }} />
                 </span>
               </label>
@@ -1081,15 +1082,15 @@ const ScheduledReportsPanel = () => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
-            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>上次执行</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
             </div>
-            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>下次执行</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.nextRun}</div>
             </div>
-            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>收件人</div>
               <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>{s.recipients.length}人</div>
             </div>
@@ -1098,7 +1099,7 @@ const ScheduledReportsPanel = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', gap: 4 }}>
               {s.recipients.map((r, idx) => (
-                <span key={idx} style={{ padding: '2px 8px', background: '#eff6ff', color: COLORS.primary, borderRadius: 4, fontSize: 12 }}>{r}</span>
+                <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: COLORS.primary, borderRadius: 4, fontSize: 12 }}>{r}</span>
               ))}
             </div>
             <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
@@ -1110,57 +1111,57 @@ const ScheduledReportsPanel = () => {
       ))}
 
       {/* 失败重试逻辑 */}
-      <div style={{ padding: '12px 16px', background: '#fef3c7', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+      <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
-        <div style={{ fontSize: 12, color: '#1f2937' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
           <strong>自动重试：</strong>提交失败时将自动重试最多3次，间隔5分钟。当前无待重试任务。
         </div>
       </div>
 
       {showCreateModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #e5e7eb' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> 新建自动报告计划</div>
-              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 18, padding: 4 }}>×</button>
+          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> 新建自动报告计划</div>
+              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>计划名称 *</label>
-                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder="如: 月度国家数据报告上报" style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>计划名称 *</label>
+                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder="如: 月度国家数据报告上报" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>报告类型</label>
-                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>报告类型</label>
+                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     {['国家数据报告', '科室数据报告', '影像质量报告', '剂量监测报告'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>执行频率</label>
-                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>执行频率</label>
+                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     {Object.entries(scheduleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>导出格式</label>
-                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>导出格式</label>
+                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     {['PDF', 'CSV', 'Excel', 'XML'].map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>收件人（逗号分隔）</label>
-                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder="如: a@h.cn, b@h.cn" style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>收件人（逗号分隔）</label>
+                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder="如: a@h.cn, b@h.cn" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', color: '#6b7280', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>取消</button>
                 <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? '创建中...' : '创建计划'}</button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>
@@ -1457,12 +1458,12 @@ export default function NationalReportPage() {
 
       {/* [W2-B] 加载/错误提示 */}
       {loadError && (
-        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertTriangle size={14} /> {loadError}
         </div>
       )}
       {loading && (
-        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
           <RefreshCw size={14} /> 数据加载中...
         </div>
       )}
@@ -1562,7 +1563,7 @@ export default function NationalReportPage() {
           </div>
 
           {/* 月度趋势图 */}
-          <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb' }}>
+          <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>检查量趋势</div>
             <div style={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={160}>
@@ -1703,7 +1704,7 @@ export default function NationalReportPage() {
                       <td style={styles.td}>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                           {(item.commonIssues || []).slice(0, 2).map((issue, idx) => (
-                            <span key={idx} style={{ padding: '2px 6px', background: '#fef3c7', color: '#d97706', borderRadius: '4px', fontSize: '10px' }}>{issue}</span>
+                            <span key={idx} style={{ padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: '4px', fontSize: '10px' }}>{issue}</span>
                           ))}
                         </div>
                       </td>
@@ -1819,7 +1820,7 @@ export default function NationalReportPage() {
           </div>
 
           {/* 上报进度 */}
-          <div style={{ ...styles.panelHeader, borderTop: '1px solid #e5e7eb' }}>
+          <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
             <span>本期上报进度</span>
             <Globe size={14} />
           </div>
@@ -1842,14 +1843,14 @@ export default function NationalReportPage() {
           </div>
 
           {/* 最新上报动态 */}
-          <div style={{ ...styles.panelHeader, borderTop: '1px solid #e5e7eb' }}>
+          <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
             <span>最新上报动态</span>
             <Activity size={14} />
           </div>
           <div style={{ ...styles.panelBody, padding: '12px' }}>
             {reportLogs.slice(0, 3).map(item => (
               <div key={item.id} style={{ display: 'flex', gap: '10px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={14} color={COLORS.primary} />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -1861,7 +1862,7 @@ export default function NationalReportPage() {
           </div>
 
           {/* 快捷操作 */}
-          <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb' }}>
+          <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>快捷操作</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('exam')}>
@@ -1957,13 +1958,13 @@ export default function NationalReportPage() {
                     )}
                   </div>
                   {(detailItem.commonIssues?.length > 0 || detailItem.improvementMeasures?.length > 0) && (
-                    <div style={{ marginTop: 16, padding: 12, background: '#f9fafb', borderRadius: 8, fontSize: 13 }}>
+                    <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}>
                       {detailItem.commonIssues?.length > 0 && (
                         <div style={{ marginBottom: 8 }}>
                           <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>常见问题</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.commonIssues.map((issue: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 4, fontSize: 12 }}>{issue}</span>
+                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 4, fontSize: 12 }}>{issue}</span>
                             ))}
                           </div>
                         </div>
@@ -1973,7 +1974,7 @@ export default function NationalReportPage() {
                           <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 4 }}>改进措施</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.improvementMeasures.map((m: string, idx: number) => (
-                              <span key={idx} style={{ padding: '2px 8px', background: '#dcfce7', color: '#16a34a', borderRadius: 4, fontSize: 12 }}>{m}</span>
+                              <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 4, fontSize: 12 }}>{m}</span>
                             ))}
                           </div>
                         </div>
@@ -1984,7 +1985,7 @@ export default function NationalReportPage() {
               )}
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: '#f3f4f6', color: COLORS.textDark }} onClick={() => setDetailOpen(false)}>
+              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setDetailOpen(false)}>
                 关闭
               </button>
             </div>
@@ -2087,7 +2088,7 @@ export default function NationalReportPage() {
               )}
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: '#f3f4f6', color: COLORS.textDark }} onClick={() => setCreateOpen(false)}>
+              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setCreateOpen(false)}>
                 取消
               </button>
               <button style={{ ...styles.button, ...styles.buttonPrimary }} disabled={creating} onClick={() => void handleCreate()}>
@@ -2107,7 +2108,7 @@ export default function NationalReportPage() {
               <X size={18} style={{ cursor: 'pointer' }} onClick={() => setShowSubmitModal(false)} />
             </div>
             <div style={styles.modalBody}>
-              <div style={{ marginBottom: '16px', padding: '16px', background: '#f9fafb', borderRadius: '8px' }}>
+              <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px' }}>
                 <div style={{ fontSize: '13px', marginBottom: '8px' }}>
                   <strong>上报类型：</strong>
                   {submitType === 'exam' ? '检查统计数据' : submitType === 'dose' ? '辐射剂量数据' : '报告质量数据'}
@@ -2127,7 +2128,7 @@ export default function NationalReportPage() {
               </div>
             </div>
             <div style={styles.modalFooter}>
-              <button style={{ ...styles.button, background: '#f3f4f6', color: COLORS.textDark }} onClick={() => setShowSubmitModal(false)}>
+              <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setShowSubmitModal(false)}>
                 取消
               </button>
               <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => void handleSubmitReport()}>

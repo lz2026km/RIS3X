@@ -2,15 +2,16 @@
  * G005 v3.0.6.11-75 W3-1 - 远程阅片页
  * remoteReadingApi 会话列表 + 分配检查 + 状态流转 + loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react'
+import { examApi } from '../../services/api/examApi'
+import { remoteReadingApi, type RemoteReadingSession, type RemoteReadingStats } from '../../services/api/remoteReadingApi'
+import type { ExamDto } from '../../types/dto'
 import {
   Card, Table, Tag, Space, Typography, Row, Col, Statistic, Button, Tabs, Select,
   Modal, Form, Input, Alert, Spin, Empty, Tooltip, message,
 } from 'antd'
 import { Globe, Send, CheckCircle, Clock, UserPlus, PlayCircle, Undo2 } from 'lucide-react'
-import { remoteReadingApi, type RemoteReadingSession, type RemoteReadingStats } from '../../services/api/remoteReadingApi'
-import { examApi } from '../../services/api/examApi'
-import type { ExamDto } from '../../types/dto'
+import React, { useCallback, useEffect, useState } from 'react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -221,7 +222,7 @@ const RemoteReadingPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -246,12 +247,12 @@ const RemoteReadingPage: React.FC = () => {
             ]}
           />
         }
-        extra={<Button size="small" onClick={() => void load()}>刷新</Button>}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>}
       >
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
         ) : sessions.length === 0 ? (
-          <Empty description={error ? '加载失败' : '暂无远程阅片任务'} />
+          <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? '加载失败' : '暂无远程阅片任务'} />
         ) : (
           <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
         )}

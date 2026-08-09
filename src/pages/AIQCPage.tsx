@@ -362,7 +362,7 @@ export default function AIQCPage() {
           onClick={() => navigate('/ai-report-draft')}
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 4,
-            background: '#fff', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >

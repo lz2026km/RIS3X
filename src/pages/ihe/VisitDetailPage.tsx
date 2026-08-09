@@ -50,7 +50,7 @@ export const VisitDetailPage: React.FC = () => {
   const currentIdx = visit ? (STATE_MAP[visit.status as keyof typeof STATE_MAP] ?? 0) : 0;
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>Visit 生命周期</span>
@@ -99,7 +99,7 @@ export const VisitDetailPage: React.FC = () => {
                 { title: '消息类型', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">ADT^{t}</Tag> },
                 { title: '时间戳', dataIndex: 'timestamp' },
                 { title: '内容', dataIndex: 'content', render: (c: string) => (
-                  <span style={{ fontFamily: 'monospace', fontSize: 11, background: '#f5f5f5', padding: '2px 6px', borderRadius: 3 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 3 }}>
                     {c.slice(0, 50)}{c.length > 50 ? '...' : ''}
                   </span>
                 )},

@@ -79,6 +79,7 @@ export const exportApprovalApi = {
 // v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)
 //   修复前: client BASE=/api/v1 + path=/api/v1/olap/... => /api/v1/api/v1/olap/... 不匹配 MSW
 //   修复后: client BASE=/api/v1 + path=/olap/...        => /api/v1/olap/... 匹配 MSW (olapHandlers.ts)
+// [G005 Wave1B P1] olapApi.query/metadata 后端真实 (olap.controller)
 export const olapApi = {
   query: (dto: OlapQueryDto) =>
     api.post<any>('/olap/query', dto),
@@ -87,6 +88,7 @@ export const olapApi = {
     api.get<OlapMetadataDto>('/olap/metadata'),
 }
 
+// [G005 Wave1B P1] analyticsStatsApi — forecast/utilization/accuracy 后端已补 (stats.controller, Wave1B)
 export const analyticsStatsApi = {
   getDashboard: () =>
     api.get<StatsDashboardDto>('/stats/dashboard'),

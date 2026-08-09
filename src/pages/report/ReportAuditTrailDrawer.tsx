@@ -1,11 +1,12 @@
 // [G005 W2-C] 报告审计轨迹 Drawer
 // reportApi.auditTrail → 修订历史 (事件时间线) 展示
-import { useEffect, useState } from 'react'
+import { reportApi } from '../../services/api'
+import type { RadiologyReport } from '../../types'
+import { PRIMARY, GRAY } from './reportUtils'
 import { Drawer, Empty, Spin, Tag } from 'antd'
 import { History, User, Clock } from 'lucide-react'
-import type { RadiologyReport } from '../../types'
-import { reportApi } from '../../services/api'
-import { PRIMARY, GRAY } from './reportUtils'
+import { useEffect, useState } from 'react'
+import { Inbox } from 'lucide-react'
 
 export interface AuditTrailEvent {
   id?: string
@@ -87,7 +88,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
       <Spin spinning={!loaded}>
         {failed && <div style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{failed}</div>}
         {loaded && events.length === 0 && !failed ? (
-          <Empty description="暂无修订记录" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无修订记录" />
         ) : (
           <div style={{ position: 'relative', paddingLeft: 20 }}>
             {events.map((e, i) => (
@@ -95,12 +96,12 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
                 <div style={{
                   position: 'absolute', left: -20, top: 4, width: 10, height: 10, borderRadius: '50%',
                   background: STATE_COLORS[(e.toState ?? '').toUpperCase()] ?? '#94a3b8',
-                  border: '2px solid #fff', boxShadow: '0 0 0 1px #e2e8f0',
+                  border: '2px solid var(--bg-card)', boxShadow: '0 0 0 1px var(--border-color)',
                 }} />
                 {i < events.length - 1 && (
-                  <div style={{ position: 'absolute', left: -16, top: 16, bottom: 0, width: 1, background: '#e2e8f0' }} />
+                  <div style={{ position: 'absolute', left: -16, top: 16, bottom: 0, width: 1, background: 'var(--border-color)' }} />
                 )}
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {e.action || `${e.fromState ?? '?'} → ${e.toState ?? '?'}`}
                 </div>
                 <div style={{ fontSize: 12, color: GRAY, marginTop: 2, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -115,7 +116,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
                   </div>
                 )}
                 {e.reason && (
-                  <div style={{ marginTop: 4, fontSize: 12, color: '#64748b', background: '#f8fafc', padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <div style={{ marginTop: 4, fontSize: 12, color: '#64748b', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                     原因: {e.reason}
                   </div>
                 )}

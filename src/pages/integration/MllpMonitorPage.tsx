@@ -2,16 +2,17 @@
  * G005 v3.0.6.11-75 W3-1 - MLLP 监控页
  * hl7Api 真实端点: 服务状态 + 连接日志 + 消息档案; 30s 轮询; loading/error
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { MllpMonitor } from '../../components/integration/MllpMonitor';
+import { usePagination } from '../../hooks/usePagination';
+import { hl7Api } from '../../services/api/integrationApi';
+import { ConnectionLogEntry, Hl7ArchiveRecord, MllpStatus } from '../../services/api/integrationApi'
 import {
   Card, Space, Tag, Button, Row, Col, Statistic, Table, Alert, Spin, Tabs, Select, Empty, message, Badge,
 } from 'antd';
 import { Activity, Server, BookOpen, Cpu, Network, Play, Square, RefreshCw } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { hl7Api } from '../../services/api/integrationApi';
-import type { MllpStatus, Hl7ArchiveRecord, ConnectionLogEntry } from '../../services/api/integrationApi';
-import { MllpMonitor } from '../../components/integration/MllpMonitor';
-import { usePagination } from '../../hooks/usePagination';
+import { BellOff } from 'lucide-react'
 
 const POLL_MS = 30_000;
 
@@ -107,7 +108,7 @@ const MllpMonitorPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void fetchAll()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={[12, 12]}>
@@ -185,7 +186,7 @@ const MllpMonitorPage: React.FC = () => {
                   }>
                     {loading ? (
                       <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
-                    ) : archive.length === 0 ? <Empty description="暂无 HL7 消息档案" /> : (
+                    ) : archive.length === 0 ? <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="暂无 HL7 消息档案" /> : (
                       <Table
                         rowKey="id" size="small"
                         dataSource={archivePagination.pageData}
@@ -214,7 +215,7 @@ const MllpMonitorPage: React.FC = () => {
 };
 
 const DividerCustom: React.FC<{ label: string }> = ({ label }) => (
-  <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, borderBottom: '1px solid #f1f5f9', paddingBottom: 4 }}>{label}</div>
+  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: 4 }}>{label}</div>
 );
 
 export default MllpMonitorPage;

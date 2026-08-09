@@ -131,7 +131,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
       <div
         style={{
           padding: 16,
-          background: "#f8fafc",
+          background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
         }}
       >
@@ -194,22 +194,22 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         onClose={() => setShowVoiceDialog(false)}
         title="语音输入 (Demo)"
         icon={<Mic size={18} />}
-        iconBg="#dbeafe"
+        iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
         size="sm"
       >
-        <div style={{ fontSize: 13, color: "#334155" }}>
+        <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
           请说出您要录入的所见内容,系统会自动转换为文本并填入当前编辑区域。
         </div>
         <div
           style={{
             marginTop: 12,
             padding: 12,
-            background: "#f8fafc",
+            background: "var(--bg-card)",
             borderRadius: 6,
-            border: "1px dashed #cbd5e1",
+            border: "1px dashed var(--border-color)",
             fontSize: 12,
-            color: "#64748b",
+            color: "var(--text-secondary)",
             textAlign: "center",
           }}
         >
@@ -221,7 +221,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         onClose={() => setShowAiDialog(false)}
         title="AI 辅助所见 (Demo)"
         icon={<Brain size={18} />}
-        iconBg="#fef3c7"
+        iconBg="var(--color-warning-bg)"
         iconColor="#b45309"
         size="md"
         footer={
@@ -246,7 +246,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </>
         }
       >
-        <div style={{ fontSize: 13, color: "#334155" }}>
+        <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
           基于当前影像数据, AI 建议:
         </div>
         <ul
@@ -254,7 +254,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             marginTop: 8,
             paddingLeft: 18,
             fontSize: 12,
-            color: "#475569",
+            color: "var(--text-secondary)",
             lineHeight: 1.8,
           }}
         >
@@ -268,7 +268,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         onClose={() => setSignModal(false)}
         title="数字签名 (Demo)"
         icon={<Stamp size={18} />}
-        iconBg="#dcfce7"
+        iconBg="var(--color-success-bg)"
         iconColor="#15803d"
         size="sm"
         footer={
@@ -289,7 +289,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </button>
         }
       >
-        <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.8 }}>
+        <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
             <strong>签名医生:</strong> 张明远 主任医师
           </div>
@@ -307,7 +307,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         onClose={() => setPrintModal(false)}
         title="打印 (Demo)"
         icon={<Printer size={18} />}
-        iconBg="#dbeafe"
+        iconBg="var(--color-info-bg)"
         iconColor="#1e40af"
         size="sm"
         footer={
@@ -317,9 +317,9 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               onClick={() => setPrintModal(false)}
               style={{
                 padding: "6px 14px",
-                border: "1px solid #e2e8f0",
-                background: "#fff",
-                color: "#64748b",
+                border: "1px solid var(--border-color)",
+                background: "var(--bg-card)",
+                color: "var(--text-secondary)",
                 borderRadius: 6,
                 fontSize: 12,
                 fontWeight: 600,
@@ -346,7 +346,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </>
         }
       >
-        <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.8 }}>
+        <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
             <strong>打印机:</strong> DryView 8700
           </div>
@@ -369,7 +369,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               onChange={setTemplateId}
             />
             {template && (
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                 {template.sections.length} 段 ·{" "}
                 {template.sections.filter((s) => s.required).length} 必填 · 版本{" "}
                 {template.version}
@@ -441,7 +441,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              color: "#64748b",
+                              color: "var(--text-secondary)",
                               fontSize: 12,
                             }}
                           >
@@ -490,7 +490,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 justifyContent: "space-between",
                 marginTop: 8,
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
               }}
             >
               <span>
@@ -678,14 +678,14 @@ const EyeReportWritePage: React.FC = () => {
       <div
         style={{
           padding: 16,
-          background: "#f8fafc",
+          background: "var(--bg-card)",
           minHeight: "calc(100vh - 56px)",
           display: "flex",
           alignItems: "center",
           gap: 12,
           marginBottom: 12,
           flexWrap: "wrap",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--border-color)",
         }}
       >
         <FileText size={24} color="#2563eb" />

@@ -91,6 +91,26 @@ export interface TopModalityRow {
   count: number
 }
 
+// [G005 Wave1B P1] stats 3 扩展: forecast / utilization / accuracy
+export interface ForecastPoint {
+  date: string
+  actual: number | null
+  forecast: number | null
+  upper: number | null
+  lower: number | null
+}
+
+export interface UtilizationData {
+  current: number
+  target: number
+  max: number
+}
+
+export interface AccuracyData {
+  value: number
+  previous: number
+}
+
 const DOCTORS = [
   { id: 'D001', name: '张医生', department: '放射科' },
   { id: 'D002', name: '李医生', department: '放射科' },
@@ -765,5 +785,87 @@ export class StatsService {
     const d = daily.data
     lines.push([d.date, d.examCount, d.reportCount, d.criticalCount, d.cosignCount ?? 0, d.avgTAT ?? '', d.defectCount ?? '', d.qcAvgScore ?? ''].join(','))
     return '\uFEFF' + lines.join('\r\n')
+  }
+
+  // [G005 Wave1B P1] GET /stats/forecast — 历史 14 天 + 线性外推 14 天 (检查量)
+  async getForecast(params: { department?: string; startDate?: string; endDate?: string } = {}): Promise<ForecastPoint[]> {
+    const trend = await this.getTrend(14)
+    const actual = trend.data.map((p) => ({ date: p.date, examCount: p.examCount }))
+    // 线性回归: y = a + b*x (x = 天数下标)
+    const n = actual.length
+    const sumX = (n * (n - 1)) / 2
+    const sumY = actual.reduce((s, p) => s + p.examCount, 0)
+    let sumXY = 0
+    let sumXX = 0
+    actual.forEach((p, i) => {
+      sumXY += i * p.examCount
+      sumXX += i * i
+    })
+    const denom = n * sumXX - sumX * sumX
+    const b = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0
+    const a = denom !== 0 ? (sumY - b * sumX) / n : sumY / Math.max(1, n)
+    const points: ForecastPoint[] = []
+    const base = new Date()
+    base.setDate(base.getDate() - 13)
+    for (let i = 0; i < 28; i++) {
+      const d = new Date(base)
+      d.setDate(base.getDate() + i)
+      const dateStr = isoDate(d)
+      const isPast = i < 14
+      const value = isPast ? actual[i]?.examCount ?? null : Math.max(0, Math.round(a + b * i))
+      points.push({
+        date: dateStr,
+        actual: isPast ? value : null,
+        forecast: isPast ? null : value,
+        upper: isPast ? null : value === null ? null : Math.round(value * 1.15),
+        lower: isPast ? null : value === null ? null : Math.round(value * 0.85),
+      })
+    }
+    return points
+  }
+
+  // [G005 Wave1B P1] GET /stats/utilization — 设备利用率 (todayUsageMin/480 汇总)
+  async getUtilization(): Promise<UtilizationData> {
+    try {
+      const devices = await this.prisma.device.findMany({
+        select: { todayUsageMin: true, state: true },
+      })
+      const active = devices.filter((d) => d.state === 'IDLE' || d.state === 'IN_USE')
+      if (active.length > 0) {
+        const used = active.reduce((s, d) => s + (d.todayUsageMin ?? 0), 0)
+        const capacity = active.length * 480
+        const current = capacity > 0 ? Math.round((used / capacity) * 1000) / 10 : 0
+        return { current, target: 85, max: 100 }
+      }
+    } catch (err) {
+      this.logger.warn(`[Stats] utilization DB query failed, fallback to seed: ${(err as Error).message}`)
+    }
+    const day = dateSeed()
+    return { current: 62 + (day % 21), target: 85, max: 100 }
+  }
+
+  // [G005 Wave1B P1] GET /stats/accuracy — 报告准确率 (质控评分合格率, 环比上期)
+  async getAccuracy(): Promise<AccuracyData> {
+    try {
+      const rows = await this.prisma.reportQualityScore.findMany({
+        select: { totalScore: true, evaluatedAt: true },
+        orderBy: { evaluatedAt: 'desc' },
+        take: 400,
+      })
+      if (rows.length > 0) {
+        const since = new Date(Date.now() - 30 * 86400000)
+        const currentRows = rows.filter((r) => r.evaluatedAt >= since)
+        const previousRows = rows.filter((r) => r.evaluatedAt < since)
+        const rate = (list: typeof rows) =>
+          list.length > 0 ? Math.round((list.filter((r) => r.totalScore >= 60).length / list.length) * 1000) / 10 : 0
+        const value = rate(currentRows)
+        const previous = rate(previousRows) || value
+        if (value > 0) return { value, previous }
+      }
+    } catch (err) {
+      this.logger.warn(`[Stats] accuracy DB query failed, fallback to seed: ${(err as Error).message}`)
+    }
+    const day = dateSeed()
+    return { value: 95 + (day % 4), previous: 93 + (day % 3) }
   }
 }

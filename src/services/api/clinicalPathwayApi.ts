@@ -46,4 +46,11 @@ export const clinicalPathwayApi = {
 
   enrollPatient: (data: { patientName: string; pathwayName: string }) =>
     api.post<PathwayPatient>('/clinical-pathways/enroll', data),
+
+  // [G005 W2-B] 患者路径追踪: 推进阶段 / 退出路径 (页面操作列, 后端暂无端点时前端本地兜底)
+  advancePatient: (id: string) =>
+    api.post<PathwayPatient>(`/clinical-pathways/patients/${id}/advance`),
+
+  exitPatient: (id: string) =>
+    api.post<{ deleted: boolean }>(`/clinical-pathways/patients/${id}/exit`),
 }

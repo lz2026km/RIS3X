@@ -411,10 +411,16 @@ export interface CrossModalSearchResult {
   thumbnail?: string
 }
 
+// [G005 Wave1B P1] 路径对齐: /dicom/cross-modal-search* → 真实后端 /cross-modal/* (cross-modal.controller)
+// 原 GET /dicom/cross-modal-search 仅有 MSW 支撑; 后端真实端点为 POST /cross-modal/search、POST /cross-modal/similar。
 export const crossModalSearchApi = {
   search: (params: { query: string; modality?: string; limit?: number }) =>
-    api.get<CrossModalSearchResult[]>(`/dicom/cross-modal-search?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+    api.post<CrossModalSearchResult[]>('/cross-modal/search', {
+      query: params.query,
+      ...(params.modality ? { modalities: [params.modality] } : {}),
+      limit: params.limit,
+    }),
 
   findSimilar: (id: string, limit?: number) =>
-    api.get<CrossModalSearchResult[]>(`/dicom/cross-modal-search/${encodeURIComponent(id)}/similar?limit=${limit ?? 5}`),
+    api.post<CrossModalSearchResult[]>('/cross-modal/similar', { imageId: id, limit }),
 }

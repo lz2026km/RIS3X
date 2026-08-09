@@ -1,9 +1,9 @@
 // [W3-2] OCT 查看器: 检查列表 (eyeApi.getStudies) + Canvas 断层图渲染 (简化) + 测量
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, Row, Col, Tag, Spin, Empty, Button, Space, Segmented, Select, message, Alert, Descriptions } from 'antd';
-import { Activity, RefreshCw, Ruler, Layers } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import { eyeApi } from '@/services/api/eyeApi';
+import { Card, Row, Col, Tag, Spin, Empty, Button, Space, Segmented, Select, message, Alert, Descriptions } from 'antd';
+import { Activity, RefreshCw, Ruler, Layers } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 interface OctStudy {
   id: string;
@@ -163,7 +163,7 @@ const OctViewerPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
+    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <Activity className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>OCT 专用查看器</span>
@@ -172,7 +172,7 @@ const OctViewerPage: React.FC = () => {
         <Tag color="blue">Macular Cube 512×128</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Row gutter={12}>
         <Col span={5}>
@@ -203,12 +203,12 @@ const OctViewerPage: React.FC = () => {
                       borderRadius: 6,
                       cursor: 'pointer',
                       border: selectedId === s.id ? '1.5px solid #0891b2' : '1px solid #e2e8f0',
-                      background: selectedId === s.id ? '#ecfeff' : '#fff',
+                      background: selectedId === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     }}
                   >
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{s.patientName} <Tag style={{ margin: 0, fontSize: 10 }}>{s.eyeSide}</Tag></div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>{s.id} · {s.studyDate ? s.studyDate.slice(0, 10) : '-'}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.images?.length ?? 0} 帧影像 · {s.device ?? ''}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.id} · {s.studyDate ? s.studyDate.slice(0, 10) : '-'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.images?.length ?? 0} 帧影像 · {s.device ?? ''}</div>
                   </div>
                 ))}
               </div>
@@ -235,7 +235,7 @@ const OctViewerPage: React.FC = () => {
               <>
                 <OctCanvas width={560} height={220} seed={study.id} />
                 {measureMode === 'distance' && <div style={{ marginTop: 8 }}><Alert type="info" showIcon message="测量工具已启用: 点击影像上的两点即可测量距离 (简化演示)" style={{ fontSize: 12 }} /></div>}
-                <div style={{ marginTop: 10, fontSize: 12, color: '#475569' }}>
+                <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)' }}>
                   <div>扫描模式: Macular Cube 512×128</div>
                   <div>中心凹厚度: <b>{study.measurements?.centralRetinalThickness ?? (etdrsData[0]?.od ?? '-')}μm</b></div>
                   <div>RNFL 平均厚度: <b>{study.measurements?.avgRnfThickness ?? '-'}μm</b></div>
@@ -243,7 +243,7 @@ const OctViewerPage: React.FC = () => {
                   <div>脉络膜厚度: <b>{study.measurements?.choroidalThickness ?? '-'}μm</b></div>
                 </div>
                 {study.report && (
-                  <div style={{ marginTop: 10, padding: 8, background: '#f1f5f9', borderRadius: 6, fontSize: 12, color: '#475569' }}>
+                  <div style={{ marginTop: 10, padding: 8, background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
                     <b>AI 描述: </b>{study.report}
                   </div>
                 )}
@@ -258,12 +258,12 @@ const OctViewerPage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
               {etdrsData.map((e, i) => (
                 <div key={e.key} style={{
-                  padding: 6, background: '#f1f5f9', borderRadius: 6, textAlign: 'center',
+                  padding: 6, background: 'var(--bg-card)', borderRadius: 6, textAlign: 'center',
                   fontSize: 11, border: i === 0 ? '2px solid #0891b2' : '1px solid #e2e8f0',
                 }}>
-                  <div style={{ color: '#64748b', fontSize: 11 }}>{e.zone}</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{e.od}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>OS {e.os}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{e.zone}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{e.od}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>OS {e.os}</div>
                 </div>
               ))}
             </div>
@@ -278,7 +278,7 @@ const OctViewerPage: React.FC = () => {
                 <Descriptions.Item label="GCIPL 平均">{study.measurements.gciplAvg ?? '-'} μm</Descriptions.Item>
               </Descriptions>
             ) : (
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无测量数据</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>暂无测量数据</div>
             )}
           </Card>
         </Col>

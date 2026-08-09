@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { aiPlatformApi } from "../../services/api/aiPlatformApi";
+import { AiPlatformModel, AiPlatformStats } from '../../services/api/aiPlatformApi'
 import {
   Card,
   Table,
@@ -28,11 +29,7 @@ import {
   Zap,
   RefreshCw,
 } from "lucide-react";
-import { aiPlatformApi } from "../../services/api/aiPlatformApi";
-import type {
-  AiPlatformModel,
-  AiPlatformStats,
-} from "../../services/api/aiPlatformApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const statusLabel: Record<string, string> = {
   active: "已连接",
@@ -282,8 +279,7 @@ const ThirdPartyAiPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

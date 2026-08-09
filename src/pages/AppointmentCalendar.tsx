@@ -5,7 +5,7 @@ import { initialModalityDevices } from '../data/initialData'
 const primaryBlue = '#1e40af'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
-const whiteBg = '#ffffff'
+const whiteBg = 'var(--bg-card)'
 const lightBlue = '#e8f0f8'
 
 interface Appointment {
@@ -60,7 +60,7 @@ export default function AppointmentCalendar(props: Props) {
 
       <div style={{ background: whiteBg, borderRadius: 10, padding: '12px 16px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4, background: '#e8f0f8', borderRadius: 6, padding: 1 }}>
+          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 1 }}>
             {(['calendar', 'list', 'reminders'] as const).map(mode => (
               <button key={mode} onClick={() => setViewMode(mode)} style={{ padding: '6px 12px', background: viewMode === mode ? whiteBg : 'transparent', color: viewMode === mode ? primaryBlue : textGray, border: 'none', borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {mode === 'calendar' ? <CalendarDays size={13} /> : mode === 'list' ? <List size={13} /> : <Bell size={13} />}
@@ -72,7 +72,7 @@ export default function AppointmentCalendar(props: Props) {
             <button onClick={() => setShowWaitlist(!showWaitlist)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: showWaitlist ? lightBlue : 'transparent', color: primaryBlue, display: 'flex', alignItems: 'center', gap: 4 }}>等候名单</button>
           </div>
           {viewMode === 'calendar' && (
-            <div style={{ display: 'flex', background: '#e8f0f8', borderRadius: 6, padding: 1 }}>
+            <div style={{ display: 'flex', background: 'var(--bg-card)', borderRadius: 6, padding: 1 }}>
               {(['day', 'week', 'month'] as const).map(v => (
                 <button key={v} onClick={() => setCalendarSubView(v)} style={{ padding: '3px 10px', background: calendarSubView === v ? whiteBg : 'transparent', color: calendarSubView === v ? primaryBlue : textGray, border: 'none', borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{v === 'day' ? '日' : v === 'week' ? '周' : '月'}</button>
               ))}
@@ -85,7 +85,7 @@ export default function AppointmentCalendar(props: Props) {
               {initialModalityDevices.filter((d: any) => d.status !== '维护中').map((d: any) => <option key={d.id} value={d.id}>{d.name.split('（')[0]} · {d.modality}</option>)}
             </select>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', border: `1px solid ${borderGray}`, borderRadius: 6, padding: '4px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg-card)', border: `1px solid ${borderGray}`, borderRadius: 6, padding: '4px 10px' }}>
             <Search size={13} style={{ color: textGray }} />
             <input type="text" placeholder="搜索患者/电话/项目…" value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', background: 'transparent', fontSize: 12, outline: 'none', color: primaryBlue, width: 140 }} />
           </div>
@@ -102,7 +102,7 @@ export default function AppointmentCalendar(props: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: lightBlue, borderBottom: `1px solid ${borderGray}` }}>
             {weekDates.map((d, i) => {
               const isToday = formatDate(d) === formatDate(new Date())
-              return (<div key={i} style={{ padding: '8px 4px', textAlign: 'center', borderRight: i < 6 ? `1px solid ${borderGray}` : 'none', background: isToday ? '#dbeafe' : 'transparent' }}>
+              return (<div key={i} style={{ padding: '8px 4px', textAlign: 'center', borderRight: i < 6 ? `1px solid ${borderGray}` : 'none', background: isToday ? 'var(--color-info-bg)' : 'transparent' }}>
                 <div style={{ fontSize: 11, color: textGray }}>{['日', '一', '二', '三', '四', '五', '六'][d.getDay()]}</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: isToday ? '#2563eb' : primaryBlue }}>{d.getDate()}</div>
               </div>)
@@ -163,7 +163,7 @@ export default function AppointmentCalendar(props: Props) {
               const dateStr = formatDate(d)
               const isToday = dateStr === formatDate(new Date())
               const dayApts = appointments.filter(a => a.examDate === dateStr && a.status !== 'cancelled')
-              return (<div key={i} style={{ minHeight: 60, border: `1px solid ${borderGray}`, padding: 2, background: isToday ? '#dbeafe' : d.getMonth() !== currentWeekStart.getMonth() ? '#f8fafc' : 'transparent' }}>
+              return (<div key={i} style={{ minHeight: 60, border: `1px solid ${borderGray}`, padding: 2, background: isToday ? 'var(--color-info-bg)' : d.getMonth() !== currentWeekStart.getMonth() ? 'var(--bg-card)' : 'transparent' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: isToday ? '#2563eb' : d.getMonth() !== currentWeekStart.getMonth() ? '#cbd5e1' : primaryBlue }}>{d.getDate()}</div>
                 {dayApts.slice(0, 2).map(apt => <div key={apt.id} style={{ fontSize: 12, padding: '1px 3px', borderRadius: 3, background: getStatusConfig(apt.status).bg, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{apt.patientName}</div>)}
                 {dayApts.length > 2 && <div style={{ fontSize: 12, color: textGray }}>+{dayApts.length - 2}</div>}
@@ -175,13 +175,13 @@ export default function AppointmentCalendar(props: Props) {
 
       {viewMode === 'list' && (
         <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
-          <div style={{ padding: '10px 14px', background: '#f8fafc', borderBottom: `1px solid ${borderGray}`, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ padding: '10px 14px', background: 'var(--bg-card)', borderBottom: `1px solid ${borderGray}`, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: textGray }}>共 {filteredListAppointments.length} 条记录</span>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${borderGray}` }}>
+                <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${borderGray}` }}>
                   {['患者', '性别/年龄', '检查项目', '检查日期', '时段', '设备', '状态', '优先级', '操作'].map(h => <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: textGray, whiteSpace: 'nowrap' }}>{h}</th>)}
                 </tr>
               </thead>

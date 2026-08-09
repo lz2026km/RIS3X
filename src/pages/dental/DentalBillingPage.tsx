@@ -88,7 +88,7 @@ export const DentalBillingPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <DollarSign size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>收费/划价/医保</span>
@@ -119,7 +119,7 @@ export const DentalBillingPage: React.FC = () => {
               <Col span={8}>
                 <Card size="small" title="已选项目">
                   {newInvoice.items.map((item:any,i:number)=>(
-                    <div key={i} style={{padding:'4px 0',borderBottom:'1px solid #f0f0f0',display:'flex',justifyContent:'space-between'}}>
+                    <div key={i} style={{padding:'4px 0',borderBottom:'1px solid var(--border-color)',display:'flex',justifyContent:'space-between'}}>
                       <span><Tag>{item.code}</Tag>{item.name}</span>
                       <Space><InputNumber size="small" value={item.qty} min={1} max={10} style={{width:60}} onChange={v=>{const items=[...newInvoice.items];items[i]={...items[i],qty:v||1};setNewInvoice({...newInvoice,items});}} />
                       <span style={{fontWeight:600}}>¥{item.unitPrice * (item.qty||1)}</span>
@@ -142,7 +142,7 @@ export const DentalBillingPage: React.FC = () => {
                     const d=await r.json();if(d.success)message.info(`医保报销: ¥${d.data.insuranceCover}, 自付: ¥${d.data.selfPay}`);
                   }}>医保预核验</Button>
                   <Divider style={{margin:'8px 0'}} />
-                  <div style={{fontSize:12,color:'#666'}}>
+                  <div style={{fontSize:12,color:'var(--text-secondary)'}}>
                     <div>年度医保余额: 查询中...</div>
                     <Progress percent={0} size="small" />
                     <div>补充医疗余额: 查询中...</div>
@@ -174,7 +174,7 @@ export const DentalBillingPage: React.FC = () => {
         okText={`确认收费 ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
           <div style={{fontSize:36,fontWeight:700,color:'#2563eb'}}>¥{currentInvoice?.selfPay || 0}</div>
-          <div style={{color:'#999',marginBottom:16}}>收现金额</div>
+          <div style={{color:'var(--text-secondary)',marginBottom:16}}>收现金额</div>
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>
       </Modal>

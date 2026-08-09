@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import { v3AiPlatformApi } from '../../services/api/v3Api'
 import { Card, Input, Button, Space, Tag, Typography, message, Row, Col, Statistic, Spin, Divider, Empty, Progress } from 'antd'
 import { Shield, CheckCircle, AlertTriangle, FileText, Brain, ThumbsUp } from 'lucide-react'
-import { v3AiPlatformApi } from '../../services/api/v3Api'
+import React, { useState, useCallback } from 'react'
+import { Inbox } from 'lucide-react'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -173,7 +174,7 @@ const AiReviewPage: React.FC = () => {
             </>
           ) : (
             <Card style={{ textAlign: 'center', padding: 60 }}>
-              <Empty description="输入报告文本后点击开始审核" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="输入报告文本后点击开始审核" />
             </Card>
           )}
         </Col>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { stowRsApi } from "../../services/api/stowRsApi";
+import { StowRsStoredInstance } from '../../services/api/stowRsApi'
 import {
   Card,
   Table,
@@ -15,8 +16,7 @@ import {
   Typography,
 } from "antd";
 import { UploadCloud, CheckCircle, Database, RefreshCw } from "lucide-react";
-import { stowRsApi } from "../../services/api/stowRsApi";
-import type { StowRsStoredInstance } from "../../services/api/stowRsApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const { Text } = Typography;
 
@@ -72,7 +72,7 @@ const StowRsPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Study UID",
+      title: "检查 UID",
       dataIndex: "studyInstanceUid",
       key: "uid",
       render: (v: string) => (
@@ -139,8 +139,7 @@ const StowRsPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
+import type { BreastCadResult } from "../../services/api/breastCadApi";
 import {
   Card,
   Table,
@@ -13,8 +14,7 @@ import {
   message,
 } from "antd";
 import { Activity, RefreshCw, Cpu } from "lucide-react";
-import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
-import type { BreastCadResult } from "../../services/api/breastCadApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const biRadsColor: Record<string, string> = {
   "2": "green",
@@ -153,8 +153,7 @@ const BreastCadPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

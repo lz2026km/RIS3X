@@ -1,7 +1,4 @@
 // [v3.0.6.11-60] Batch 3: PACS 管理 (pacsAdminApi 真实数据 + AE 服务器/存储管理)
-import React, { useCallback, useEffect, useState } from 'react'
-import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress } from 'antd'
-import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive } from 'lucide-react'
 import {
   pacsAdminApi,
   type PacsServer,
@@ -9,6 +6,9 @@ import {
   type PacsAssociation,
   type PacsAdminStats,
 } from '../../services/api/pacsAdminApi'
+import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress } from 'antd'
+import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -98,7 +98,7 @@ const PacsAdminPage: React.FC = () => {
     { title: '名称', dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
     { title: '主机', dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
     { title: '端口', dataIndex: 'port', key: 'port', width: 80 },
-    { title: 'AE Title', dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: '应用实体名', dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
     { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? '在线' : v === 'error' ? '故障' : '离线'}</Tag> },
     { title: '心跳', dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     { title: '检查数', dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
@@ -169,7 +169,7 @@ const PacsAdminPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>刷新</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={loading && servers.length === 0}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -213,7 +213,7 @@ const PacsAdminPage: React.FC = () => {
           <Form.Item name="port" label="端口" rules={[{ required: true, message: '请输入端口' }]}>
             <Input type="number" />
           </Form.Item>
-          <Form.Item name="aeTitle" label="AE Title" rules={[{ required: true, message: '请输入 AE Title' }]}>
+          <Form.Item name="aeTitle" label="应用实体名" rules={[{ required: true, message: '请输入应用实体名' }]}>
             <Input placeholder="RIS_PRIMARY" />
           </Form.Item>
         </Form>

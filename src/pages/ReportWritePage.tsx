@@ -2,30 +2,31 @@
  * G005 放射RIS系统 v3.0.6.8-19 — 报告书写 V3（优化版）
  * 优化: 懒加载 sider tab / 精简工具条 / 自动保存模拟 / 响应式
  */
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
+import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnchor';
+import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
+import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
+import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
+import {
+  REPORT_WRITING_CONTEXT_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK, REPORT_TEMPLATES_MOCK, PHRASES_MOCK,
+} from '@data/reportWritingMock';
+import { type SimilarCaseResult } from '@services/api';
+import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
+import { examApi } from '@services/api/examApi';
+import { reportApi } from '@services/api/reportApi';
+import { templatesApi } from '@services/api/templatesApi';
+import { v3WritingApi } from '@services/api/v3Api';
+import { detectConflicts } from '@services/keywordConflictDetector';
+import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
+import { getCurrentUser } from '@utils/auth';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Type, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay } from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type} from 'lucide-react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  REPORT_WRITING_CONTEXT_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK, REPORT_TEMPLATES_MOCK, PHRASES_MOCK,
-} from '@data/reportWritingMock';
-import { reportApi } from '@services/api/reportApi';
-import { examApi } from '@services/api/examApi';
-import { templatesApi } from '@services/api/templatesApi';
-import { v3WritingApi } from '@services/api/v3Api';
-import { getCurrentUser } from '@utils/auth';
-import { detectConflicts } from '@services/keywordConflictDetector';
-import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
-import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
-import { type SimilarCaseResult } from '@services/api';
-import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
-import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
-import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
-import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
-import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnchor';
+import { Inbox, SearchX } from 'lucide-react'
 
 const { Sider, Content } = Layout;
 
@@ -51,7 +52,7 @@ function VoiceTab({ reportId, onInsert, onTextChange }: { reportId: string; onIn
 }
 
 function HistoryTab({ priorReports, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
-  if (priorReports.length === 0) return <Empty description="无历史报告" />;
+  if (priorReports.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无历史报告" />;
   return (
     <div className="space-y-2">
       {priorReports.map((p: any) => (
@@ -133,7 +134,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
       {loading ? (
         <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> 检索中…</div>
       ) : cases.length === 0 ? (
-        <Empty description="输入报告文本后自动检索相似病例" />
+        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="输入报告文本后自动检索相似病例" />
       ) : (
         <>
       {cases.map((c) => (
@@ -317,20 +318,20 @@ function CollabTab() {
 /* ---------- 主页面 ---------- */
 /* V3 优化专用样式 */
 const V3_STYLES = `
-.v3-root { min-height: 100vh; background: #f8fafc; }
-.v3-root .ant-layout-sider { background: #fff !important; }
-.v3-topbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #e2e8f0; padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+.v3-root { min-height: 100vh; background: var(--bg-primary); }
+.v3-root .ant-layout-sider { background: var(--bg-card) !important; }
+.v3-topbar { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
 .v3-topbar-left, .v3-topbar-right { display: flex; align-items: center; gap: 8px; }
 .v3-topbar-title { font-weight: 600; white-space: nowrap; }
 .v3-topbar-stats { font-size: 12px; color: #64748b; white-space: nowrap; }
 .v3-topbar-autosave { font-size: 11px; color: #22c55e; white-space: nowrap; }
-.v3-content { padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 53px); background: #f8fafc; }
+.v3-content { padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 53px); background: var(--bg-primary); }
 .v3-content .v3-card { box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-radius: 8px; }
 .v3-clinical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 12px; }
-.v3-clinical-item { padding: 6px; background: #f8fafc; border-radius: 4px; }
+.v3-clinical-item { padding: 6px; background: var(--bg-card); border-radius: 4px; }
 .v3-clinical-label { color: #64748b; font-size: 10px; }
 .v3-clinical-code { font-family: monospace; color: #3b82f6; }
-.v3-clinical-full { grid-column: 1 / -1; font-size: 12px; line-height: 1.6; background: #f8fafc; padding: 6px 8px; border-radius: 4px; }
+.v3-clinical-full { grid-column: 1 / -1; font-size: 12px; line-height: 1.6; background: var(--bg-card); padding: 6px 8px; border-radius: 4px; }
 .v3-sider { overflow-y: auto; max-height: calc(100vh - 53px); border-left: 1px solid #e2e8f0; }
 .v3-sider .ant-tabs-nav { margin-bottom: 0 !important; padding-top: 4px; }
 .v3-sider .ant-tabs-extra-content, .v3-sider .ant-tabs-extra-content .ant-badge { pointer-events: none; }
@@ -1378,7 +1379,7 @@ function PhraseLibraryModal({ open, phrases, loading, onClose, onPick }: {
         {loading ? (
           <div style={{ textAlign: 'center', padding: 24 }}><Spin /> 短语加载中…</div>
         ) : filtered.length === 0 ? (
-          <Empty description="无匹配短语" />
+          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配短语" />
         ) : (
           <div className="max-h-[420px] overflow-y-auto space-y-2">
             {filtered.map((p: any, i: number) => (

@@ -4,7 +4,7 @@ import { initialModalityDevices, initialExamItems, initialUsers } from '../data/
 const primaryBlue = '#1e40af'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
-const whiteBg = '#ffffff'
+const whiteBg = 'var(--bg-card)'
 
 interface AppointmentFormProps {
   showForm: boolean
@@ -33,7 +33,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
         <button onClick={() => { setShowForm(false); setFormErrors({}); setValidationError('') }} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={16} /></button>
       </div>
       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {validationError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: '#fee2e2', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
+        {validationError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}><User size={12} />患者信息</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -115,7 +115,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
           <textarea placeholder="添加备注信息（可选）" value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, outline: 'none', color: primaryBlue, fontFamily: 'inherit', resize: 'vertical' }} />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => { setShowForm(false); setFormErrors({}); setValidationError('') }} style={{ flex: 1, padding: '8px', background: '#f1f5f9', color: textGray, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>取消</button>
+          <button onClick={() => { setShowForm(false); setFormErrors({}); setValidationError('') }} style={{ flex: 1, padding: '8px', background: 'var(--bg-card)', color: textGray, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>取消</button>
           <button onClick={handleSubmit} style={{ flex: 1, padding: '8px', background: primaryBlue, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Plus size={14} />创建预约</button>
         </div>
       </div>

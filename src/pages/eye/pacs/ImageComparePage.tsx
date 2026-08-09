@@ -29,7 +29,7 @@ const ImageComparePage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -69,12 +69,12 @@ const ImageComparePage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#64748b",
+                color: "var(--text-secondary)",
               }}
             >
               既往图像
             </div>
-            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
               {pair.priorModality}
             </div>
           </Card>
@@ -87,7 +87,7 @@ const ImageComparePage: React.FC = () => {
             justifyContent: "center",
           }}
         >
-          <ArrowLeftRight size={28} color="#94a3b8" />
+          <ArrowLeftRight size={28} color="var(--text-secondary)" />
         </Col>
         <Col span={7}>
           <Card
@@ -107,12 +107,12 @@ const ImageComparePage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#64748b",
+                color: "var(--text-secondary)",
               }}
             >
               当前图像
             </div>
-            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
               {pair.currentModality}
             </div>
           </Card>
@@ -165,7 +165,7 @@ const ImageComparePage: React.FC = () => {
                     ) : r.direction === "improved" ? (
                       <TrendingUp size={14} color="#22c55e" />
                     ) : (
-                      <Eye size={14} color="#94a3b8" />
+                      <Eye size={14} color="var(--text-secondary)" />
                     ),
                 },
               ]}
@@ -173,7 +173,7 @@ const ImageComparePage: React.FC = () => {
             />
           </Card>
           <Card size="small" title="AI 进展评估" style={{ marginTop: 8 }}>
-            <div style={{ fontSize: 12, lineHeight: 1.8, color: "#475569" }}>
+            <div style={{ fontSize: 12, lineHeight: 1.8, color: "var(--text-secondary)" }}>
               {pair.aiProgression}
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, marginTop: 8 }}>

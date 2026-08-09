@@ -8,6 +8,9 @@ import type {
   PatientDoseSummary,
   TodayDoseStats,
   RdsrStats,
+  DrlCheckRecordInput,
+  DrlCheckResult,
+  DrlCheckSummary,
 } from "../api/rdsrApi";
 
 const API_BASE = (() => {
@@ -20,6 +23,12 @@ const DRLS: DrlEntry[] = [
   { modality: "CT", bodyPart: "腹部", ctdivolDrl: 25, dlpDrl: 800, source: "国家DRLs 2023" },
   { modality: "CT", bodyPart: "盆腔", ctdivolDrl: 20, dlpDrl: 600, source: "国家DRLs 2023" },
   { modality: "CT", bodyPart: "腰椎", ctdivolDrl: 40, dlpDrl: 700, source: "国家DRLs 2023" },
+];
+
+const CHILD_DRLS: DrlEntry[] = [
+  { modality: "CT", bodyPart: "头部", ctdivolDrl: 40, dlpDrl: 700, source: "国家DRLs 2023(儿童)", ageGroup: "child" },
+  { modality: "CT", bodyPart: "胸部", ctdivolDrl: 12, dlpDrl: 400, source: "国家DRLs 2023(儿童)", ageGroup: "child" },
+  { modality: "CT", bodyPart: "腹部", ctdivolDrl: 20, dlpDrl: 600, source: "国家DRLs 2023(儿童)", ageGroup: "child" },
 ];
 
 interface MockDoseRecord {
@@ -86,8 +95,8 @@ for (let i = 0; i < 64; i++) {
 
 const ackedAlerts = new Set<string>([]);
 
-const findDrl = (bodyPart: string): DrlEntry | undefined =>
-  DRLS.find((d) => d.bodyPart === bodyPart);
+const findDrl = (bodyPart: string, ageGroup: "adult" | "child" = "adult"): DrlEntry | undefined =>
+  (ageGroup === "child" ? CHILD_DRLS : DRLS).find((d) => d.bodyPart === bodyPart);
 
 const levelFor = (r: MockDoseRecord): "normal" | "warning" | "critical" => {
   const drl = findDrl(r.bodyPart);
@@ -96,6 +105,53 @@ const levelFor = (r: MockDoseRecord): "normal" | "warning" | "critical" => {
   if (r.ctdiVol > drl.ctdivolDrl || r.dlp > drl.dlpDrl) return "warning";
   return "normal";
 };
+
+function buildCheck(records: DrlCheckRecordInput[]): DrlCheckSummary {
+  const overLimit: DrlCheckResult[] = [];
+  for (const rec of records) {
+    const ageGroup = rec.ageGroup ?? (rec.age !== undefined ? (rec.age < 15 ? "child" : "adult") : "adult");
+    const drl = findDrl(rec.bodyPart, ageGroup);
+    if (!drl) continue;
+    const ctdivol = rec.ctdivol ?? 0;
+    const dlp = rec.dlp ?? 0;
+    const overCtdi = ctdivol > drl.ctdivolDrl;
+    const overDlp = dlp > drl.dlpDrl;
+    if (!overCtdi && !overDlp) continue;
+    const level: "warning" | "critical" = ctdivol > drl.ctdivolDrl * 1.5 || dlp > drl.dlpDrl * 1.5 ? "critical" : "warning";
+    const exceededBy = {
+      ctdivol: drl.ctdivolDrl > 0 ? Math.round(((ctdivol - drl.ctdivolDrl) / drl.ctdivolDrl) * 100) : 0,
+      dlp: drl.dlpDrl > 0 ? Math.round(((dlp - drl.dlpDrl) / drl.dlpDrl) * 100) : 0,
+    };
+    const ageLabel = ageGroup === "child" ? "儿童" : "成人";
+    overLimit.push({
+      id: uuidv4(),
+      patientId: rec.patientId ?? null,
+      patientName: rec.patientName ?? null,
+      modality: rec.modality,
+      bodyPart: rec.bodyPart,
+      ctdivol,
+      dlp,
+      ssde: rec.ssde,
+      examDate: rec.examDate ?? iso(new Date()),
+      ageGroup,
+      level,
+      ctdivolDrl: drl.ctdivolDrl,
+      dlpDrl: drl.dlpDrl,
+      exceededBy,
+      reason: level === "critical"
+        ? `超过 ${ageLabel} DRL ${drl.ctdivolDrl}/${drl.dlpDrl} 的 150%`
+        : `超过 ${ageLabel} DRL ${drl.ctdivolDrl}/${drl.dlpDrl}`,
+    });
+  }
+  return {
+    checked: records.length,
+    overLimitCount: overLimit.length,
+    warningCount: overLimit.filter((o) => o.level === "warning").length,
+    criticalCount: overLimit.filter((o) => o.level === "critical").length,
+    generatedAlertCount: 0,
+    overLimit,
+  };
+}
 
 const toResult = (r: MockDoseRecord): RdsrResult => ({
   id: r.id,
@@ -308,6 +364,12 @@ export const doseHandlers = [
       });
     }
     return HttpResponse.json({ success: true, data: DRLS });
+  }),
+
+  http.post(`${API_BASE}/rdsr/check`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { records: DrlCheckRecordInput[] };
+    return HttpResponse.json({ success: true, data: buildCheck(body.records ?? []) });
   }),
 
   http.get(`${API_BASE}/rdsr/today`, async () => {

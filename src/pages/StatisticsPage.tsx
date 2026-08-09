@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Card } from 'antd'
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
 import { useTranslation } from 'react-i18next'
@@ -51,11 +52,11 @@ const C = {
   primaryLight: '#2563eb',
   primaryDark: '#172554',
   white: '#ffffff',
-  background: '#f1f5f9',
+  background: 'var(--bg-card)',
   text: '#1e293b',
   textMuted: '#64748b',
   textLight: '#94a3b8',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   success: '#059669',
   successBg: '#ecfdf5',
   warning: '#d97706',
@@ -438,11 +439,11 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
   color: string; bg: string; trend?: { value: string; up: boolean };
 }) {
   return (
-    <div style={{
+    <Card bordered={false} style={{
       background: C.white, borderRadius: 12, padding: '16px 18px',
       border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-    }}>
+    }} styles={{ body: { padding: 0 } }}>
       <div>
         <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>{label}</div>
         <div style={{ fontSize: 28, fontWeight: 800, color: C.primary, lineHeight: 1.2 }}>{value}</div>
@@ -460,7 +461,7 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
       }}>
         {icon}
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -469,16 +470,16 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
 // ============================================================
 function ChartCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div style={{
+    <Card bordered={false} style={{
       background: C.white, borderRadius: 12, padding: 20,
       border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))'
-    }}>
+    }} styles={{ body: { padding: 0 } }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{title}</div>
         {action}
       </div>
       {children}
-    </div>
+    </Card>
   )
 }
 
@@ -726,7 +727,7 @@ function WorkloadTab() {
       </div>
 
       {/* 医生工作量表格 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }}>
+      <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
         <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>工作量统计报表</div>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -777,7 +778,7 @@ function WorkloadTab() {
             </ChartContainer>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* 7天趋势图 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', marginBottom: 20 }}>
@@ -799,7 +800,7 @@ function WorkloadTab() {
       </div>
 
       {/* TOP10排行榜 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', padding: 20 }}>
+      <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', padding: 20 }} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>工作量TOP10医生排行榜</div>
           <Award size={16} color={C.warning} />
@@ -827,7 +828,7 @@ function WorkloadTab() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
@@ -1078,7 +1079,7 @@ function QualityControlTab() {
 
         {/* 超时与危急值统计 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Clock size={16} color={C.warning} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>超时统计</span>
@@ -1093,8 +1094,8 @@ function QualityControlTab() {
               <span style={{ fontSize: 12, color: C.textMuted }}>平均超时</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{overtimeData.avgHours}h</span>
             </div>
-          </div>
-          <div style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
+          </Card>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <AlertTriangle size={16} color={C.danger} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>危急值统计</span>
@@ -1109,7 +1110,7 @@ function QualityControlTab() {
               <span style={{ fontSize: 12, color: C.textMuted }}>超时处理</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>{qualityStats.criticalOvertime}例</span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
@@ -1230,7 +1231,7 @@ function DeviceEfficiencyTab() {
       {/* 设备利用率视图 */}
       {deviceView === 'utilization' && (
         <>
-          <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备列表</div>
             </div>
@@ -1269,7 +1270,7 @@ function DeviceEfficiencyTab() {
                 ))}
               </tbody>
             </table></div>
-          </div>
+          </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <ChartCard title="各设备利用率对比">
@@ -1318,7 +1319,7 @@ function DeviceEfficiencyTab() {
       {/* 开机率视图 */}
       {deviceView === 'startup' && (
         <>
-          <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备开机率详情</div>
             </div>
@@ -1355,7 +1356,7 @@ function DeviceEfficiencyTab() {
                 ))}
               </tbody>
             </table></div>
-          </div>
+          </Card>
 
           <ChartCard title="各设备开机率对比">
           <ChartContainer height={280} state={deviceStartupData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备开机数据">
@@ -1378,7 +1379,7 @@ function DeviceEfficiencyTab() {
       {/* 检查完成时间视图 */}
       {deviceView === 'completion' && (
         <>
-          <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>检查完成时间统计</div>
             </div>
@@ -1412,7 +1413,7 @@ function DeviceEfficiencyTab() {
                 ))}
               </tbody>
             </table></div>
-          </div>
+          </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <ChartCard title="各设备平均检查时间对比">
@@ -1451,7 +1452,7 @@ function DeviceEfficiencyTab() {
       {/* 预约等待时间视图 */}
       {deviceView === 'wait' && (
         <>
-          <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }}>
+          <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 20, overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>预约等待时间统计</div>
             </div>
@@ -1486,7 +1487,7 @@ function DeviceEfficiencyTab() {
                 })}
               </tbody>
             </table></div>
-          </div>
+          </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <ChartCard title="各设备预约等待时间">
@@ -2167,7 +2168,8 @@ export default function StatisticsPage() {
   return (
     <PageContainer background="default" maxWidth="wide" data-testid="statistics-page" style={{ padding: 0 }}>
       <PageHeader
-        title={<><BarChart3 size={20} /> 统计分析</>}
+        icon={<BarChart3 size={20} />}
+        title="统计分析"
         subtitle="多维度数据图表 · 阳性率统计 · 业务报表"
         actions={
           <ExportButton data={[]} filename="统计报表" label="导出报表" ariaLabel="导出统计报表" />
@@ -2218,13 +2220,13 @@ export default function StatisticsPage() {
           justifyContent: 'center',
           zIndex: 999,
         }}>
-          <div style={{
+          <Card bordered={false} style={{
             background: C.white,
             borderRadius: 12,
             padding: '30px 40px',
             textAlign: 'center',
             boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-          }}>
+          }} styles={{ body: { padding: 0 } }}>
             <div style={{
               width: 40,
               height: 40,
@@ -2236,16 +2238,20 @@ export default function StatisticsPage() {
             }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             <div style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>{exportModal.text}</div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* 页面标题 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: C.primary, margin: '0 0 6px' }}>{t('statistics.title')}</h1>
-          <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('statistics.subtitle')}</p>
-        </div>
+    <div>
+      <PageHeader
+        variant="flex"
+        title={t('statistics.title')}
+        subtitle={t('statistics.subtitle')}
+        style={{ marginBottom: 0 }}
+      />
+    </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleRefresh} style={{
             padding: '7px 14px', background: C.white, color: C.textMuted,
@@ -2265,7 +2271,7 @@ export default function StatisticsPage() {
       </div>
 
       {/* 标签切换 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: '12px 16px', marginBottom: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
+      <Card bordered={false} style={{ background: C.white, borderRadius: 12, padding: '12px 16px', marginBottom: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
@@ -2280,7 +2286,7 @@ export default function StatisticsPage() {
             </button>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* 标签内容 */}
       {/* v3.0.6.8-23c (A8-P0-3): overflow:hidden 避免内嵌滚动条顶出圆角阴影 */}

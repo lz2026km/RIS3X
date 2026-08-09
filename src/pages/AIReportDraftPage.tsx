@@ -242,7 +242,7 @@ export default function AIReportDraftPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {/* 报告选择 */}
           <div style={{
-            background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+            background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={13} /> 选择报告
@@ -254,14 +254,14 @@ export default function AIReportDraftPage() {
                 const r = extendedReportMock.find(x => x.id === e.target.value);
                 if (r) setClinicalHistory(r.clinicalHistory || '');
               }}
-              style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12 }}
+              style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
             >
               {extendedReportMock.slice(0, 20).map(r => (
                 <option key={r.id} value={r.id}>{r.patientName} · {r.modality} {r.bodyPart}</option>
               ))}
             </select>
             {currentReport && (
-              <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4, fontSize: 12, color: '#475569' }}>
+              <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                 <div><strong>检查：</strong>{currentReport.examItemName}</div>
                 <div><strong>设备：</strong>{currentReport.deviceName || '—'}</div>
                 <div><strong>检查日期：</strong>{currentReport.examDate}</div>
@@ -271,7 +271,7 @@ export default function AIReportDraftPage() {
 
           {/* 临床病史输入 */}
           <div style={{
-            background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+            background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Stethoscope size={13} /> 临床病史
@@ -282,16 +282,16 @@ export default function AIReportDraftPage() {
               rows={5}
               placeholder="例：55 岁男性，体检发现右肺结节 1 周。无咳嗽咳痰，无胸痛，无发热..."
               style={{
-                width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4,
+                width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
               }}
             />
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{clinicalHistory.length} 字</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{clinicalHistory.length} 字</div>
           </div>
 
           {/* AI 场景模板 */}
           <div style={{
-            background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+            background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Layers size={13} /> AI 场景模板 ({AI_DRAFT_TEMPLATES.length})
@@ -303,19 +303,19 @@ export default function AIReportDraftPage() {
                   onClick={() => setSelectedTemplateId(t.id === selectedTemplateId ? null : t.id)}
                   style={{
                     padding: 8, marginBottom: 4,
-                    background: selectedTemplateId === t.id ? '#eff6ff' : '#f8fafc',
+                    background: selectedTemplateId === t.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     border: `1px solid ${selectedTemplateId === t.id ? '#3b82f6' : '#e2e8f0'}`,
                     borderRadius: 4, cursor: 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                     <Sparkles size={11} color="#7c3aed" />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{t.scenario}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t.scenario}</span>
                     <span style={{ marginLeft: 'auto', fontSize: 12, color: '#7c3aed', fontWeight: 600 }}>
                       {(t.confidence * 100).toFixed(0)}% 置信
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{t.modality} · {t.bodyPart}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.modality} · {t.bodyPart}</div>
                 </div>
               ))}
             </div>
@@ -350,8 +350,8 @@ export default function AIReportDraftPage() {
           {/* 进度 */}
           {generating && (
             <div style={{
-              padding: 10, background: '#fff', borderRadius: 6,
-              border: '1px solid #e2e8f0', fontSize: 12, color: '#475569',
+              padding: 10, background: 'var(--bg-card)', borderRadius: 6,
+              border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)',
             }}>
               <div style={{ fontSize: 12, color: '#7c3aed', fontWeight: 600, marginBottom: 6 }}>{genStage}</div>
               <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
@@ -369,18 +369,18 @@ export default function AIReportDraftPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!generatedDraft ? (
             <div style={{
-              background: '#fff', borderRadius: 8, padding: 60, textAlign: 'center',
-              border: '1px dashed #cbd5e1',
+              background: 'var(--bg-card)', borderRadius: 8, padding: 60, textAlign: 'center',
+              border: '1px dashed var(--border-color)',
             }}>
               <Brain size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 12px' }} />
-              <div style={{ fontSize: 14, color: '#64748b', fontWeight: 600 }}>填写临床病史或选择 AI 场景模板</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>点击"一键生成"自动生成报告初稿</div>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 600 }}>填写临床病史或选择 AI 场景模板</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>点击"一键生成"自动生成报告初稿</div>
             </div>
           ) : (
             <>
               {/* 来源信息 */}
               <div style={{
-                background: 'linear-gradient(135deg, #ede9fe 0%, #dbeafe 100%)',
+                background: 'linear-gradient(135deg, #8b5cf622 0%, var(--color-info-bg) 100%)',
                 borderRadius: 8, padding: 12, border: '1px solid #c4b5fd',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -397,7 +397,7 @@ export default function AIReportDraftPage() {
                     {generatedDraft.sources.map((s, i) => (
                       <span key={i} style={{
                         fontSize: 12, padding: '1px 5px', borderRadius: 3,
-                        background: '#fff', color: '#5b21b6', fontWeight: 600,
+                        background: 'var(--bg-card)', color: '#5b21b6', fontWeight: 600,
                       }}>{s}</span>
                     ))}
                   </div>
@@ -406,7 +406,7 @@ export default function AIReportDraftPage() {
 
               {/* 可编辑的所见 */}
               <div style={{
-                background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -421,7 +421,7 @@ export default function AIReportDraftPage() {
                   onChange={e => setEditedFindings(e.target.value)}
                   rows={5}
                   style={{
-                    width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4,
+                    width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                     fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
@@ -429,7 +429,7 @@ export default function AIReportDraftPage() {
 
               {/* 诊断 */}
               <div style={{
-                background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Lightbulb size={13} /> 诊断
@@ -439,7 +439,7 @@ export default function AIReportDraftPage() {
                   onChange={e => setEditedDiagnosis(e.target.value)}
                   rows={2}
                   style={{
-                    width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4,
+                    width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                     fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
@@ -447,7 +447,7 @@ export default function AIReportDraftPage() {
 
               {/* 意见 */}
               <div style={{
-                background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Beaker size={13} /> 诊断意见 / 建议
@@ -457,7 +457,7 @@ export default function AIReportDraftPage() {
                   onChange={e => setEditedImpression(e.target.value)}
                   rows={2}
                   style={{
-                    width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4,
+                    width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                     fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
@@ -468,8 +468,8 @@ export default function AIReportDraftPage() {
                 <button
                   onClick={saveAsDraft}
                   style={{
-                    padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6,
-                    background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+                    padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6,
+                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -479,7 +479,7 @@ export default function AIReportDraftPage() {
                   onClick={handleGenerate}
                   style={{
                     padding: '8px 16px', border: '1px solid #7c3aed', borderRadius: 6,
-                    background: '#fff', color: '#7c3aed', fontSize: 12, fontWeight: 600,
+                    background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 600,
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >

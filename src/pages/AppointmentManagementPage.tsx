@@ -85,11 +85,11 @@ const COLORS = {
   primaryDark: '#17b98c',
   primaryLight: '#e8faf4',
   secondary: '#64748b',
-  background: '#f8fafc',
+  background: 'var(--bg-card)',
   cardBackground: '#ffffff',
   text: '#1e293b',
   textSecondary: '#64748b',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#ef4444',
@@ -97,17 +97,17 @@ const COLORS = {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
-  pending: { label: '待确认', bg: '#fef9c3', color: '#ca8a04', border: '#fef08a' },
-  confirmed: { label: '已确认', bg: '#d1fae5', color: '#059669', border: '#6ee7b7' },
-  'checked-in': { label: '已到检', bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
-  cancelled: { label: '已取消', bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1' },
-  completed: { label: '已完成', bg: '#d1fae5', color: '#059669', border: '#6ee7b7' },
+  pending: { label: '待确认', bg: '#f59e0b22', color: '#ca8a04', border: '#fef08a' },
+  confirmed: { label: '已确认', bg: '#22c55e22', color: '#059669', border: '#6ee7b7' },
+  'checked-in': { label: '已到检', bg: '#3b82f622', color: '#3b82f6', border: '#93c5fd' },
+  cancelled: { label: '已取消', bg: 'var(--bg-deep)', color: 'var(--text-secondary)', border: 'var(--border-color)' },
+  completed: { label: '已完成', bg: '#22c55e22', color: '#059669', border: '#6ee7b7' },
 }
 
 const PRIORITY_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  critical: { label: '危重', bg: '#fee2e2', color: '#dc2626' },
-  urgent: { label: '紧急', bg: '#fef3c7', color: '#d97706' },
-  normal: { label: '普通', bg: '#f1f5f9', color: '#64748b' },
+  critical: { label: '危重', bg: '#ef444422', color: '#ef4444' },
+  urgent: { label: '紧急', bg: '#f59e0b22', color: '#f59e0b' },
+  normal: { label: '普通', bg: 'var(--bg-deep)', color: 'var(--text-secondary)' },
 }
 
 const MODALITY_OPTIONS = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI', '超声', 'PET-CT']
@@ -527,7 +527,7 @@ export default function AppointmentManagementPage() {
       display: 'grid',
       gridTemplateColumns: '120px 100px 100px 120px 100px 80px 100px 120px',
       padding: '14px 20px',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'var(--bg-card)',
       borderBottom: `1px solid ${COLORS.border}`,
       fontSize: '13px',
       fontWeight: '600',
@@ -662,7 +662,7 @@ export default function AppointmentManagementPage() {
       fontSize: '12px',
       fontWeight: '600',
       color: COLORS.textSecondary,
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'var(--bg-card)',
       borderBottom: `1px solid ${COLORS.border}`,
     },
     calendarDay: {
@@ -676,7 +676,7 @@ export default function AppointmentManagementPage() {
       alignItems: 'flex-start',
       gap: '12px',
       padding: '12px 16px',
-      backgroundColor: '#fef2f2',
+      backgroundColor: 'var(--color-error-bg)',
       border: '1px solid #fecaca',
       borderRadius: '8px',
       marginBottom: '16px',
@@ -1027,7 +1027,7 @@ export default function AppointmentManagementPage() {
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>预约ID</label>
-                <div style={{ padding: '10px', backgroundColor: '#f8fafc', borderRadius: '8px', fontWeight: '500', color: COLORS.primary }}>
+                <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontWeight: '500', color: COLORS.primary }}>
                   {selectedAppointment.id}
                 </div>
               </div>
@@ -1125,7 +1125,7 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>临床诊断</label>
-              <div style={{ padding: '10px', backgroundColor: '#f8fafc', borderRadius: '8px', fontSize: '13px' }}>
+              <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontSize: '13px' }}>
                 {selectedAppointment.clinicalDiagnosis}
               </div>
             </div>
@@ -1133,7 +1133,7 @@ export default function AppointmentManagementPage() {
             {selectedAppointment.notes && (
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>备注</label>
-                <div style={{ padding: '10px', backgroundColor: '#fef9c3', borderRadius: '8px', fontSize: '13px' }}>
+                <div style={{ padding: '10px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', fontSize: '13px' }}>
                   {selectedAppointment.notes}
                 </div>
               </div>
@@ -1142,7 +1142,7 @@ export default function AppointmentManagementPage() {
             {selectedAppointment.cancelReason && (
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>取消原因</label>
-                <div style={{ padding: '10px', backgroundColor: '#fee2e2', borderRadius: '8px', fontSize: '13px', color: COLORS.danger }}>
+                <div style={{ padding: '10px', backgroundColor: 'var(--color-error-bg)', borderRadius: '8px', fontSize: '13px', color: COLORS.danger }}>
                   {selectedAppointment.cancelReason === 'patient' ? '患者主动取消' :
                    selectedAppointment.cancelReason === 'device' ? '设备故障' :
                    selectedAppointment.cancelReason === 'doctor' ? '医生取消' :
@@ -1258,7 +1258,7 @@ export default function AppointmentManagementPage() {
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowConflictModal(false)} />
             </div>
             <div style={{ padding: '16px' }}>
-              <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: '#fef3c7', borderRadius: '8px', border: `1px solid ${COLORS.warning}` }}>
+              <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', border: `1px solid ${COLORS.warning}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <AlertTriangle size={18} color={COLORS.warning} />
                   <span style={{ fontWeight: 600, color: COLORS.warning }}>检测到 {conflictDetails.length} 个冲突</span>
@@ -1269,7 +1269,7 @@ export default function AppointmentManagementPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {conflictDetails.map((conflict, index) => (
-                  <div key={index} style={{ padding: '10px 12px', backgroundColor: '#fff', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
+                  <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
                     <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
                     {conflict.relatedAppointmentId && (
                       <div style={{ fontSize: 12, color: COLORS.textMuted }}>相关预约ID: {conflict.relatedAppointmentId}</div>
@@ -1299,7 +1299,7 @@ export default function AppointmentManagementPage() {
               <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowCancelModal(false)} />
             </div>
 
-            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#fee2e2', borderRadius: '8px' }}>
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'var(--color-error-bg)', borderRadius: '8px' }}>
               <div style={{ fontWeight: '500', color: COLORS.danger }}>
                 {selectedAppointment.patientName} - {selectedAppointment.examItemName}
               </div>

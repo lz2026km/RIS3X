@@ -1,9 +1,9 @@
 // [v3.0.6.11-60] Batch 3: 正畸管理 (dentalApi 真实数据 + 新建病例 Modal + 治疗阶段)
-import React, { useCallback, useEffect, useState } from 'react';
+import { dentalApi } from '../../services/api/dentalApi';
+import { DentalPageLayout } from './DentalShared';
 import { Table, Tag, Button, message, Space, Alert, Spin, Modal, Form, Input, InputNumber, Steps, Descriptions, Empty, Progress } from 'antd';
 import { Plus, RefreshCw, Smile, Eye, PlayCircle, CheckCircle2 } from 'lucide-react';
-import { DentalPageLayout } from './DentalShared';
-import { dentalApi } from '../../services/api/dentalApi';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface OrthoPlan {
   id: string;
@@ -100,11 +100,11 @@ export const DentalOrthoPage: React.FC = () => {
         ),
       }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Spin spinning={loading}>
         {plans.length === 0 && !error ? (
-          <div style={{ background: '#fff', borderRadius: 8, padding: 40 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 40 }}>
             <Empty description="暂无正畸病例">
               <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建病例</Button>
             </Empty>

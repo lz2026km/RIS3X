@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { usePagination } from "../../hooks/usePagination";
+import { reportApi } from "../../services/api";
+import { srDocumentApi } from "../../services/api/srReportApi";
+import { SrConceptName, SrContentItem, SrDocument, SrSection } from '../../services/api/srReportApi'
 import {
   Card,
   Table,
@@ -30,16 +33,9 @@ import {
   Database,
   ChevronRight,
 } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { srDocumentApi } from "../../services/api/srReportApi";
-import { reportApi } from "../../services/api";
-import type {
-  SrDocument,
-  SrContentItem,
-  SrSection,
-  SrConceptName,
-} from "../../services/api/srReportApi";
-import { usePagination } from "../../hooks/usePagination";
+import { Inbox } from 'lucide-react'
 
 const { Text, Paragraph } = Typography;
 
@@ -202,7 +198,7 @@ const SrReportPage: React.FC = () => {
       ),
     },
     {
-      title: "SOP Instance UID",
+      title: "SOP 实例 UID",
       dataIndex: "sopInstanceUid",
       key: "sop",
       ellipsis: true,
@@ -283,7 +279,7 @@ const SrReportPage: React.FC = () => {
               <Tag style={{ fontSize: 10 }}>{item.relationshipType}</Tag>
             )}
           </Space>
-          {item.value && <div style={{ fontSize: 13, color: "#334155" }}>{item.value}</div>}
+          {item.value && <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{item.value}</div>}
           {item.valueType === "CODE" && item.code && (
             <div style={{ marginTop: 2 }}>
               <Tag color="geekblue" style={{ fontSize: 10 }}>
@@ -359,8 +355,7 @@ const SrReportPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }
@@ -455,18 +450,18 @@ const SrReportPage: React.FC = () => {
                   {detail.templateId} (TID {detail.tid})
                 </Descriptions.Item>
                 <Descriptions.Item label="模态">{detail.modality}</Descriptions.Item>
-                <Descriptions.Item label="SOP Class UID" span={2}>
+                <Descriptions.Item label="SOP 类别 UID" span={2}>
                   <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                     {detail.sopClassUid}
                   </Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Study UID" span={2}>
+                <Descriptions.Item label="检查 UID" span={2}>
                   <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                     {detail.studyInstanceUid}
                   </Text>
                 </Descriptions.Item>
                 {detail.hl7ControlId && (
-                  <Descriptions.Item label="HL7 Control ID" span={2}>
+                  <Descriptions.Item label="HL7 控制 ID" span={2}>
                     <Text style={{ fontSize: 11, fontFamily: "monospace" }}>
                       {detail.hl7ControlId}
                     </Text>
@@ -482,7 +477,7 @@ const SrReportPage: React.FC = () => {
               <Divider titlePlacement="left" style={{ margin: "8px 0 16px" }}>
                 结构化内容树 (TID {detail.tid})
               </Divider>
-              <Card size="small" title="上下文 (Context)" style={{ marginBottom: 12 }}>
+              <Card size="small" title="上下文" style={{ marginBottom: 12 }}>
                 <Descriptions column={3} size="small">
                   <Descriptions.Item label="患者">
                     {detail.content?.context?.patient?.name} (
@@ -494,7 +489,7 @@ const SrReportPage: React.FC = () => {
                   <Descriptions.Item label="出生日期">
                     {detail.content?.context?.patient?.birthDate || "-"}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Accession">
+                  <Descriptions.Item label="检查号">
                     {detail.content?.context?.study?.accessionNumber || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="检查日期">
@@ -508,7 +503,7 @@ const SrReportPage: React.FC = () => {
               {detail.content?.sections?.length > 0 ? (
                 detail.content.sections.map(renderSection)
               ) : (
-                <Empty description="无章节内容" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无章节内容" />
               )}
               {detail.content?.codedEntries && detail.content.codedEntries.length > 0 && (
                 <Card size="small" title="编码条目 (SNOMED CT)">
@@ -530,7 +525,7 @@ const SrReportPage: React.FC = () => {
                     style={{
                       fontSize: 11,
                       fontFamily: "monospace",
-                      background: "#f8fafc",
+                      background: "var(--bg-card)",
                       padding: 12,
                       borderRadius: 8,
                       maxHeight: 220,
@@ -550,7 +545,7 @@ const SrReportPage: React.FC = () => {
                 style={{
                   fontSize: 11,
                   fontFamily: "monospace",
-                  background: "#f8fafc",
+                  background: "var(--bg-card)",
                   padding: 12,
                   borderRadius: 8,
                   maxHeight: 260,

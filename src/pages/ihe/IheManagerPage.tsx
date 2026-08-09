@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { iheApi, type IheStatus, type AffinityDomain } from '../../services/api/integrationApi'
 import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Statistic, Drawer, Form, Input, Alert, Popconfirm } from 'antd'
 import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send } from 'lucide-react'
-import { iheApi, type IheStatus, type AffinityDomain } from '../../services/api/integrationApi'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Inbox } from 'lucide-react'
 
 export const IheManagerPage: React.FC = () => {
   const [tab, setTab] = useState('status')
@@ -165,14 +166,14 @@ export const IheManagerPage: React.FC = () => {
                   </Card>
                 </Col>
               </Row>
-            ) : <Empty description={loading ? "加载中..." : "暂无数据"} />}
+            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={loading ? "加载中..." : "暂无数据"} />}
           </Card>
         </div>
       ),
     },
     {
       key: 'domain',
-      label: <Space><Globe size={14} />Affinity Domain</Space>,
+      label: <Space><Globe size={14} />归属域</Space>,
       children: (
         <Card
           size="small"
@@ -197,7 +198,7 @@ export const IheManagerPage: React.FC = () => {
               <Descriptions.Item label="PIX 管理器">{domain.pixManagerEndpoint || '-'}</Descriptions.Item>
               <Descriptions.Item label="PDQ 提供方">{domain.pdqSupplierEndpoint || '-'}</Descriptions.Item>
             </Descriptions>
-          ) : <Empty description="加载中..." />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="加载中..." />}
         </Card>
       ),
     },
@@ -258,7 +259,7 @@ export const IheManagerPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Network size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成管理</span>

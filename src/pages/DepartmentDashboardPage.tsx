@@ -125,12 +125,12 @@ const DepartmentDashboardPage: React.FC = () => {
   const styles = {
     container: {
       minHeight: '100vh',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'var(--bg-card)',
       padding: '24px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     },
     header: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
       marginBottom: '24px',
@@ -139,12 +139,12 @@ const DepartmentDashboardPage: React.FC = () => {
     headerTitle: {
       fontSize: '24px',
       fontWeight: '600',
-      color: '#1e293b',
+      color: 'var(--text-primary)',
       marginBottom: '8px',
     },
     headerSubtitle: {
       fontSize: '14px',
-      color: '#64748b',
+      color: 'var(--text-secondary)',
     },
     statsGrid: {
       display: 'grid',
@@ -153,7 +153,7 @@ const DepartmentDashboardPage: React.FC = () => {
       marginBottom: '24px',
     },
     statCard: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '20px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -161,12 +161,12 @@ const DepartmentDashboardPage: React.FC = () => {
     statValue: {
       fontSize: '32px',
       fontWeight: '700',
-      color: '#0f172a',
+      color: 'var(--text-primary)',
       marginBottom: '4px',
     },
     statLabel: {
       fontSize: '14px',
-      color: '#64748b',
+      color: 'var(--text-secondary)',
     },
     sectionGrid: {
       display: 'grid',
@@ -175,7 +175,7 @@ const DepartmentDashboardPage: React.FC = () => {
       marginBottom: '24px',
     },
     card: {
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg-card)',
       borderRadius: '12px',
       padding: '24px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -183,7 +183,7 @@ const DepartmentDashboardPage: React.FC = () => {
     cardTitle: {
       fontSize: '18px',
       fontWeight: '600',
-      color: '#1e293b',
+      color: 'var(--text-primary)',
       marginBottom: '16px',
     },
     deviceItem: {
@@ -191,7 +191,7 @@ const DepartmentDashboardPage: React.FC = () => {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: '12px 0',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: '1px solid var(--border-color)',
     },
     deviceInfo: {
       display: 'flex',
@@ -210,11 +210,11 @@ const DepartmentDashboardPage: React.FC = () => {
     deviceName: {
       fontSize: '14px',
       fontWeight: '500',
-      color: '#1e293b',
+      color: 'var(--text-primary)',
     },
     deviceType: {
       fontSize: '12px',
-      color: '#64748b',
+      color: 'var(--text-secondary)',
     },
     statusBadge: {
       padding: '4px 12px',
@@ -227,7 +227,7 @@ const DepartmentDashboardPage: React.FC = () => {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: '12px 0',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: '1px solid var(--border-color)',
     },
     progressBar: {
       height: '8px',
@@ -245,10 +245,10 @@ const DepartmentDashboardPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case '运行中': return { bg: '#dcfce7', text: '#166534' };
-      case '空闲': return { bg: '#fef3c7', text: '#92400e' };
-      case '维护中': return { bg: '#fee2e2', text: '#991b1b' };
-      default: return { bg: '#f1f5f9', text: '#475569' };
+      case '运行中': return { bg: '#22c55e22', text: '#166534' };
+      case '空闲': return { bg: '#f59e0b22', text: '#92400e' };
+      case '维护中': return { bg: '#ef444422', text: '#991b1b' };
+      default: return { bg: 'var(--bg-deep)', text: '#475569' };
     }
   };
 
@@ -274,13 +274,13 @@ const DepartmentDashboardPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div role="status" data-testid="dept-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="dept-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!dataAvailable) {
     return (
-      <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无科室数据</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>请等待数据同步或检查设备状态</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请等待数据同步或检查设备状态</div>
       </div>
     );
   }
@@ -342,7 +342,7 @@ const DepartmentDashboardPage: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   {device.patients > 0 && (
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {device.patients}人检查中
                     </span>
                   )}
@@ -369,10 +369,10 @@ const DepartmentDashboardPage: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontSize: '20px' }}>{getExamIcon(exam.type)}</span>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: '500', color: '#1e293b' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>
                       {exam.type}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       待检 {exam.pending} | 已完成 {exam.completed}
                     </div>
                   </div>
@@ -397,12 +397,12 @@ const DepartmentDashboardPage: React.FC = () => {
 
       {/* 底部提示 */}
       <div style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg-card)',
         borderRadius: '12px',
         padding: '16px 24px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         textAlign: 'center',
-        color: '#64748b',
+        color: 'var(--text-secondary)',
         fontSize: '13px',
       }}>
         放射科信息系统 (RIS) v0.7.0 | 实时数据更新 | 如有异常请联系: 放射科信息中心 ☎ 8001

@@ -35,13 +35,13 @@ export default function UserManagementPage() {
     }).catch(() => setError('API 不可用')).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (users.length === 0) {
     return (
-      <div data-testid="user-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="user-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无用户</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>请联系系统管理员开通账号</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请联系系统管理员开通账号</div>
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }} data-testid="user-management-page">
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }} data-testid="user-management-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>用户权限管理</h2>
         <button
@@ -128,7 +128,7 @@ export default function UserManagementPage() {
             data-testid="user-management-denied"
             style={{
               padding: 24,
-              background: '#fee2e2',
+              background: 'var(--color-error-bg)',
               border: '1px solid #fca5a5',
               color: '#7f1d1d',
               borderRadius: 8,

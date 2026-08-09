@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] OLAP API — query/metadata 真实; cubes/drill-down/chart/export/csv 已补
+// (olap.controller, 预定义 cube + 查询派生), MSW 标注已更新。
 export interface OlapCubeDto { id: string; name: string; dimensions: string[]; measures: string[]; lastUpdated: string }
 export interface OlapQueryDto { cube: string; measures: string[]; dimensions: string[]; filters?: Array<{ dimension: string; operator: string; value: unknown }>; orderBy?: string; limit?: number; offset?: number }
 export interface OlapQueryResult { columns: Array<{ code: string; name: string; type: string }>; rows: Record<string, unknown>[]; total: number }

@@ -27,7 +27,7 @@ interface UploadRecord {
 const UPLOAD_COLUMNS = [
   { title: '文件名', dataIndex: 'fileName', key: 'fileName', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
   { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: 'SOP Instance UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
+  { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
   { title: '归档路径', dataIndex: 's3Url', key: 's3Url', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
   { title: '目标', dataIndex: 'destination', key: 'destination', width: 120, render: (v?: string) => <Tag color="geekblue">{DEST_OPTIONS.find(o => o.value === v)?.label ?? v}</Tag> },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : v === 'UPLOADING' ? 'processing' : 'red'}>{v === 'UPLOADING' ? '上传中' : v === 'SUCCESS' ? '成功' : '失败'}</Tag> },
@@ -147,7 +147,7 @@ export const DimseUploadPage: React.FC = () => {
   const failCount = records.filter(r => r.status === 'FAIL').length;
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <UploadOutlined style={{ fontSize: 20, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DIMSE 归档上传</span>

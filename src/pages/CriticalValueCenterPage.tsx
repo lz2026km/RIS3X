@@ -575,7 +575,7 @@ const CriticalValueCenterPage: React.FC = () => {
               <Input
                 value={closeForm.resolvedBy}
                 onChange={(e) => setCloseForm((f) => ({ ...f, resolvedBy: e.target.value }))}
-                placeholder="默认 current-user"
+                placeholder="默认当前用户"
               />
             </div>
           </div>
@@ -593,7 +593,7 @@ const CriticalValueCenterPage: React.FC = () => {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={timeline} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
               <Tooltip />

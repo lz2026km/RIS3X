@@ -3,7 +3,9 @@
  * A5-REPORT / 10 点
  * 实时质控仪表盘:9 指标 / 待评估 / 完成数 / 告警 / 趋势 / 医生排行
  */
-import React, { useEffect, useState } from 'react';
+import { qualityService } from '../../../../services/quality/qualityService';
+import type { QualityDashboard, QualityGrade } from '../../../../types/R3/R3.QUALITY';
+import { ChartContainer } from '../../../charts';
 import { Card, Tag, Space, Row, Col, Statistic, List, Alert, message, Empty, Button } from 'antd';
 import {
   Activity,
@@ -18,10 +20,9 @@ import {
   Layers,
   Users,
 } from 'lucide-react';
-import { qualityService } from '../../../../services/quality/qualityService';
-import type { QualityDashboard, QualityGrade } from '../../../../types/R3/R3.QUALITY';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, CartesianGrid, Cell, LineChart, Line, Legend, RadialBarChart, RadialBar } from 'recharts';
-import { ChartContainer } from '../../../charts';
+import { Inbox } from 'lucide-react'
 
 const GRADE_COLOR: Record<QualityGrade, string> = {
   '甲': '#10b981',
@@ -230,7 +231,7 @@ export const QualityDashboard: React.FC = () => {
                   </Space>
                 </List.Item>
               )}
-              locale={{ emptyText: <Empty description="暂无评分" /> }}
+              locale={{ emptyText: <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无评分" /> }}
             />
           </Card>
         </Col>
@@ -253,7 +254,7 @@ export const QualityDashboard: React.FC = () => {
                   </Space>
                 </List.Item>
               )}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
             />
           </Card>
         </Col>

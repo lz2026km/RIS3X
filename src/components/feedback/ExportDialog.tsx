@@ -11,14 +11,13 @@ import {
   Result,
 } from "antd";
 import {
-  DownloadOutlined,
-  FilePdfOutlined,
-  FileWordOutlined,
-  FileTextOutlined,
-  CodeOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+  FileText,
+  FileType2,
+  Code,
+  CheckCircle2,
+  XCircle,
+  Download,
+} from "lucide-react";
 import {
   type ExportFormat,
   exportReport,
@@ -37,10 +36,10 @@ const FORMAT_OPTIONS: {
   label: string;
   icon: React.ReactNode;
 }[] = [
-  { value: "pdf", label: "PDF", icon: <FilePdfOutlined /> },
-  { value: "word", label: "Word", icon: <FileWordOutlined /> },
-  { value: "html", label: "HTML", icon: <CodeOutlined /> },
-  { value: "txt", label: "TXT", icon: <FileTextOutlined /> },
+  { value: "pdf", label: "PDF", icon: <FileText /> },
+  { value: "word", label: "Word", icon: <FileType2 /> },
+  { value: "html", label: "HTML", icon: <Code /> },
+  { value: "txt", label: "TXT", icon: <FileText /> },
 ];
 
 export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
@@ -110,9 +109,9 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
             status={result.success ? "success" : "error"}
             icon={
               result.success ? (
-                <CheckCircleOutlined style={{ color: "#22c55e" }} />
+                <CheckCircle2 style={{ color: "#22c55e" }} />
               ) : (
-                <CloseCircleOutlined style={{ color: "#ef4444" }} />
+                <XCircle style={{ color: "#ef4444" }} />
               )
             }
             title={
@@ -302,7 +301,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
             </Button>
             <Button
               type="primary"
-              icon={<DownloadOutlined />}
+              icon={<Download />}
               onClick={handleExport}
               loading={exporting}
             >

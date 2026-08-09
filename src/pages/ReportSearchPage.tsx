@@ -2,18 +2,27 @@
 // G005 放射科RIS系统 v1.0.7 - 报告高级检索
 // Phase R7: 全文检索 + 结构化字段 + 智能联想 + 高级筛选
 // Phase 2: 接入 reportApi 真实数据 + 关键词高亮
-// ============================================================
 
-import { useCallback, useEffect, useState } from 'react';
-import { Spin, Alert, Empty, message } from 'antd';
-import {
-  Search, Filter, FileText, Calendar, User, X,
-  Save, Star, History, Sparkles, Eye,
-  Brain,
-} from 'lucide-react';
+import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
-import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
+import { Spin, Alert, Empty, message } from 'antd';
+import {
+  Search,
+  Filter,
+  FileText,
+  Calendar,
+  User,
+  X,
+  Save,
+  Star,
+  History,
+  Eye,
+  Brain,
+  Sparkles,
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { SearchX } from 'lucide-react'
 
 interface SearchReport extends ReportDto {
   reportDate: string
@@ -217,19 +226,19 @@ export default function ReportSearchPage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Search size={20} color="#1e40af" /> 报告高级检索
           <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
         </h1>
-        <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
           全文 + 结构化 + 同义词 · 智能联想 · 7 维筛选 · 关键词高亮
         </p>
       </div>
 
       {/* 搜索框 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginBottom: 12, position: 'relative' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12, position: 'relative' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', border: '2px solid #3b82f6', borderRadius: 6, background: '#f8fafc' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', border: '2px solid #3b82f6', borderRadius: 6, background: 'var(--bg-card)' }}>
             <Search size={16} color="#3b82f6" />
             <input
               type="text"
@@ -239,27 +248,28 @@ export default function ReportSearchPage() {
               placeholder="输入关键字, 如: 磨玻璃结节 / GGN / 肝右叶 / 急性脑梗死"
               style={{ flex: 1, padding: '10px 4px', border: 'none', background: 'transparent', fontSize: 14, outline: 'none' }}
             />
-            {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: '#94a3b8' }} />}
+            {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />}
           </div>
-          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Search size={13} />
             {loading ? '检索中...' : '搜索'}
           </button>
-          <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ padding: '10px 14px', background: showAdvanced ? '#1e40af' : '#fff', color: showAdvanced ? '#fff' : '#475569', border: '1px solid ' + (showAdvanced ? '#1e40af' : '#cbd5e1'), borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ padding: '10px 14px', background: showAdvanced ? '#1e40af' : 'var(--bg-card)', color: showAdvanced ? '#fff' : '#475569', border: '1px solid ' + (showAdvanced ? '#1e40af' : '#cbd5e1'), borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Filter size={12} /> 高级筛选
           </button>
         </div>
 
         {/* 联想下拉 */}
         {suggestions.length > 0 && (
-          <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 4, background: '#fff', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', zIndex: 10, maxHeight: 240, overflowY: 'auto' }}>
+          <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 4, background: 'var(--bg-card)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid var(--border-color)', zIndex: 10, maxHeight: 240, overflowY: 'auto' }}>
             {suggestions.map((s, i) => (
-              <div key={i} onClick={() => setQuery(s.label)} style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #f1f5f9' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+              <div key={i} onClick={() => setQuery(s.label)} style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--border-light)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}>
                 <s.icon size={12} color={s.color} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, color: '#1e293b' }}>{s.label}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{s.desc}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{s.label}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.desc}</div>
                 </div>
                 <span style={{ fontSize: 12, padding: '1px 4px', background: s.color + '20', color: s.color, borderRadius: 2 }}>{s.type === 'term' ? '术语' : '短语'}</span>
               </div>
@@ -269,32 +279,32 @@ export default function ReportSearchPage() {
 
         {/* 高级筛选 */}
         {showAdvanced && (
-          <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          <div style={{ marginTop: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             <FilterSelect label="设备" value={modality} onChange={setModality} options={[{ v: 'all', l: '全部' }, ...modalityOptions.map(m => ({ v: m, l: m }))]} />
             <FilterSelect label="部位" value={bodyPart} onChange={setBodyPart} options={[{ v: 'all', l: '全部' }, ...bodyPartOptions.map(b => ({ v: b, l: b }))]} />
             <div>
-              <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>医生ID</label>
-              <input type="text" value={doctor} onChange={e => setDoctor(e.target.value)} placeholder="如 D001" style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4 }} />
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>医生ID</label>
+              <input type="text" value={doctor} onChange={e => setDoctor(e.target.value)} placeholder="如 D001" style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <FilterSelect label="状态" value={status} onChange={setStatus} options={[{ v: 'all', l: '全部' }, ...statusOptions.map(st => ({ v: st, l: st }))]} />
             <div>
-              <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>开始日期</label>
-              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4 }} />
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>开始日期</label>
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>结束日期</label>
-              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4 }} />
+              <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>结束日期</label>
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4 }} />
             </div>
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
               <button onClick={handleSearch} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>应用筛选</button>
-              <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo('') }} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>重置</button>
-              <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo('') }} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>重置</button>
+              <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Save size={10} /> 保存查询
               </button>
-              <button onClick={handleShowHistory} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleShowHistory} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <History size={10} /> 历史
               </button>
-              <button onClick={handleFavorite} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleFavorite} style={{ padding: '6px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Star size={10} /> 收藏
               </button>
             </div>
@@ -313,13 +323,13 @@ export default function ReportSearchPage() {
       </div>
 
       {/* 结果列表 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
             检索结果 ({total} 条)
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')} style={{ padding: '4px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')} style={{ padding: '4px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
               按时间 {sortDir === 'desc' ? '↓' : '↑'} {sortDir === 'desc' ? '新→旧' : '旧→新'}
             </button>
           </div>
@@ -332,36 +342,36 @@ export default function ReportSearchPage() {
             </Spin>
           </div>
         ) : !searched ? (
-          <Empty description="请输入关键词开始检索" style={{ padding: 40 }} />
+          <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description="请输入关键词开始检索" style={{ padding: 40 }} />
         ) : results.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
             <Search size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
             <div>未检索到匹配报告, 请调整搜索词或筛选条件</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
             {sortedResults.map(r => (
-              <div key={r.id} style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+              <div key={r.id} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     <FileText size={14} color="#3b82f6" />
-                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#475569' }}>{r.reportId || r.id}</span>
-                    <span style={{ padding: '1px 6px', background: '#dbeafe', color: '#1e40af', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>{r.modality}</span>
-                    <span style={{ padding: '1px 6px', background: '#f1f5f9', color: '#475569', borderRadius: 3, fontSize: 12 }}>{r.bodyPart}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{r.reportId || r.id}</span>
+                    <span style={{ padding: '1px 6px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>{r.modality}</span>
+                    <span style={{ padding: '1px 6px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 3, fontSize: 12 }}>{r.bodyPart}</span>
                   </div>
                   <span style={{ fontSize: 12, color: STATUS_META[r.status] || '#64748b', fontWeight: 600 }}>{r.status}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748b', marginBottom: 6, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, flexWrap: 'wrap' }}>
                   <span><User size={10} style={{ verticalAlign: 'middle' }} /> {highlight(r.patientName, query)}</span>
                   <span><Stethoscope size={10} style={{ verticalAlign: 'middle' }} /> {r.doctorName || '待分配'}</span>
                   <span><Calendar size={10} style={{ verticalAlign: 'middle' }} /> {r.reportDate || '-'}</span>
                   {(r.qualityScore ?? 0) > 0 && <span style={{ marginLeft: 'auto', fontWeight: 700, color: (r.qualityScore ?? 0) >= 90 ? '#10b981' : '#f59e0b' }}>分 {r.qualityScore}</span>}
-                  {r.hasCriticalValue && <span style={{ padding: '1px 6px', background: '#fee2e2', color: '#dc2626', borderRadius: 3, fontSize: 11, fontWeight: 600 }}>危急值</span>}
+                  {r.hasCriticalValue && <span style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: '#dc2626', borderRadius: 3, fontSize: 11, fontWeight: 600 }}>危急值</span>}
                 </div>
-                <div style={{ fontSize: 12, color: '#1e293b', marginBottom: 4, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 4, lineHeight: 1.6 }}>
                   <span style={{ color: '#7c3aed', fontWeight: 600 }}>所见:</span> {highlight(r.findings, query)}
                 </div>
-                <div style={{ fontSize: 12, color: '#1e293b', marginBottom: 6, lineHeight: 1.6 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.6 }}>
                   <span style={{ color: '#dc2626', fontWeight: 600 }}>印象:</span> {highlight(r.impression || r.diagnosis, query)}
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
@@ -369,7 +379,7 @@ export default function ReportSearchPage() {
                     onClick={() => window.open(`/reports?reportId=${r.reportId || r.id}`, '_blank')}>
                     <Eye size={10} /> 查看
                   </button>
-                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}
+                  <button style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}
                     onClick={() => { navigator.clipboard?.writeText(`${r.patientName} ${r.findings || ''} ${r.impression || ''}`).catch(() => undefined); message.success('已复制报告内容') }}>
                     复制
                   </button>
@@ -388,8 +398,8 @@ export default function ReportSearchPage() {
 // ============================================================
 function StatBox({ label, value, color }: any) {
   return (
-    <div style={{ background: '#fff', borderRadius: 6, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
-      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</div>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 20, fontWeight: 800, color }}>{value}</div>
     </div>
   );
@@ -398,8 +408,8 @@ function StatBox({ label, value, color }: any) {
 function FilterSelect({ label, value, onChange, options }: any) {
   return (
     <div>
-      <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{label}</label>
-      <select value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff' }}>
+      <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)' }}>
         {options.map((o: any) => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
     </div>

@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown, ZoomIn, Ruler, SlidersHorizontal } from 'lucide-react'
+import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown, ZoomIn, Ruler, SlidersHorizontal, Send } from 'lucide-react'
 import { styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, Institution, getStatusColor } from './RegionalReportServiceWire'
 
 interface DetailProps {
@@ -40,7 +40,7 @@ export const ConsultationDetail: React.FC<DetailProps> = ({
       <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>基本信息</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>病例号</div><div style={{ fontWeight: 500 }}>{c.caseId}</div></div>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>状态</div><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(c.status)}20`, color: getStatusColor(c.status) }}>{c.status}</span></div>
@@ -57,12 +57,12 @@ export const ConsultationDetail: React.FC<DetailProps> = ({
         </div>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>会诊申请理由</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>{c.applyReason}</div>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>{c.applyReason}</div>
         </div>
         {c.status === '已完成' && c.consultationOpinion && (
           <div style={{ marginBottom: '24px' }}>
             <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>会诊意见见</h4>
-            <div style={{ backgroundColor: '#f0fdf4', borderRadius: '8px', padding: '16px', border: `1px solid ${COLORS.success}` }}>{c.consultationOpinion}</div>
+            <div style={{ backgroundColor: 'var(--color-success-bg)', borderRadius: '8px', padding: '16px', border: `1px solid var(--color-success-border)` }}>{c.consultationOpinion}</div>
           </div>
         )}
         {c.status === '会诊中' && (
@@ -99,7 +99,7 @@ export const ReportDetail: React.FC<DetailProps> = ({
       <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>报告信息</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>报告号</div><div style={{ fontWeight: 500 }}>{r.reportId}</div></div>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>状态</div><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(r.status)}20`, color: getStatusColor(r.status) }}>{r.status}</span></div>
@@ -116,7 +116,7 @@ export const ReportDetail: React.FC<DetailProps> = ({
         </div>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>质控评分</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             {r.qualityScore > 0 ? (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
@@ -128,7 +128,7 @@ export const ReportDetail: React.FC<DetailProps> = ({
             ) : <div style={{ color: COLORS.textMuted }}>尚未进行质控评分</div>}
           </div>
         </div>
-        {r.reviewOpinion && <div style={{ marginBottom: '24px' }}><h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>审核意见</h4><div style={{ backgroundColor: '#fef3c7', borderRadius: '8px', padding: '16px', border: `1px solid ${COLORS.warning}` }}>{r.reviewOpinion}</div></div>}
+        {r.reviewOpinion && <div style={{ marginBottom: '24px' }}><h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>审核意见</h4><div style={{ backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', padding: '16px', border: `1px solid var(--color-warning-border)` }}>{r.reviewOpinion}</div></div>}
         {r.status === '待审核' && (
           <div style={{ marginBottom: '24px' }}>
             <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>审核操作</h4>
@@ -213,7 +213,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
           </div>
         </div>
         <div style={{ width: '400px', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
-          <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+          <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>患者信息</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
               <div>姓名：{rd.patientName}</div><div>性别：{rd.gender}</div><div>年龄：{rd.age}岁</div><div>检查：{rd.examType}</div>
@@ -225,7 +225,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>报告内容</div>
             <textarea style={{ ...styles.textarea, width: '100%', minHeight: '200px', fontSize: '13px', lineHeight: '1.6' }} placeholder="请在此书写诊断报告..." value={remoteReportContent} onChange={e => onRemoteReportContentChange(e.target.value)} />
           </div>
-          <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+          <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>双向数字签名</div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
               <div style={{ flex: 1, padding: '8px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>申请医生签名</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>待签名</span></div></div>
@@ -257,7 +257,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
       <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>基本信息</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>报告编号</div><div style={{ fontWeight: 500 }}>{cs.reportId}</div></div>
               <div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>状态</div><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(cs.status)}20`, color: getStatusColor(cs.status) }}>{cs.status}</span></div>
@@ -270,7 +270,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
         </div>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>多方签名</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               {cs.signatures.map((sig, idx) => (
                 <React.Fragment key={idx}>
@@ -289,7 +289,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
         </div>
         <div style={{ marginBottom: '24px' }}>
           <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>报告版本管理</h4>
-          <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
             <table style={styles.table}>
               <thead><tr><th style={{ ...styles.th, fontSize: '12px' }}>版本号</th><th style={{ ...styles.th, fontSize: '12px' }}>修改时间</th><th style={{ ...styles.th, fontSize: '12px' }}>修改机构</th><th style={{ ...styles.th, fontSize: '12px' }}>修改原因</th><th style={{ ...styles.th, fontSize: '12px' }}>修改人</th></tr></thead>
               <tbody>{cs.versions.map((ver, idx) => (<tr key={idx}><td style={{ ...styles.td, fontSize: '12px' }}><span style={{ ...styles.badge, backgroundColor: idx === cs.versions.length - 1 ? COLORS.primary : '#e5e7eb', color: idx === cs.versions.length - 1 ? 'white' : COLORS.textMuted }}>{ver.version}</span></td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyTime}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyInstitution}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyReason}</td><td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifier}</td></tr>))}</tbody>
@@ -380,10 +380,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshS
       <div style={{ padding: '12px' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>危急值处理时效</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-          <div style={{ backgroundColor: '#f9fafb', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>8分钟</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>平均接收时间</div></div>
-          <div style={{ backgroundColor: '#f9fafb', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.primary }}>25分钟</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>平均处理时间</div></div>
-          <div style={{ backgroundColor: '#f9fafb', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98%</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>闭环率</div></div>
-          <div style={{ backgroundColor: '#f9fafb', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.warning }}>3例</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>处理中</div></div>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>8分钟</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>平均接收时间</div></div>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.primary }}>25分钟</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>平均处理时间</div></div>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98%</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>闭环率</div></div>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.warning }}>3例</div><div style={{ fontSize: '10px', color: COLORS.textMuted }}>处理中</div></div>
         </div>
       </div>
     </div>
@@ -429,21 +429,21 @@ export const ModalContent: React.FC<ModalContentProps> = ({
               </div>
               <div style={styles.formGroup}><label style={styles.formLabel}>申请机构 *</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.institution} onChange={e => setForm({ institution: e.target.value })}><option value="">请选择机构</option>{institutions.map(inst => <option key={inst.id} value={inst.name}>{inst.name}</option>)}</select></div>
             </div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={onSubmitConsultation}>提交</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }} onClick={onSubmitConsultation}><Send size={13} />提交</button></div>
           </>
         )}
         {modalType === 'opinion' && (
           <>
             <div style={styles.modalHeader}><span>填写会诊意见见</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}><div style={styles.formGroup}><label style={styles.formLabel}>会诊意见见</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder="请详细填写会诊意见见..." value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} /></div></div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={onSubmitOpinion}>提交意见</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }} onClick={onSubmitOpinion}><Send size={13} />提交意见</button></div>
           </>
         )}
         {modalType === 'review' && (
           <>
             <div style={styles.modalHeader}><span>审核报告</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}>
-              <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+              <div style={{ backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
                 <div style={{ fontSize: '13px' }}><div style={{ marginBottom: '8px' }}>报告号：{selectedReport?.reportId}</div><div style={{ marginBottom: '8px' }}>患者：{selectedReport?.patientName}</div><div>检查：{selectedReport?.modality} - {selectedReport?.examItem}</div></div>
               </div>
               <div style={styles.formGroup}><label style={styles.formLabel}>审核意见</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '120px' }} placeholder="请填写审核意见..." value={reviewText} onChange={e => onReviewTextChange(e.target.value)} /></div>
@@ -491,8 +491,8 @@ export const ModalContent: React.FC<ModalContentProps> = ({
             <div style={styles.modalHeader}><span>危急值统计报表</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>5</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>待处理</div></div>
-                <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>3</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>已闭环</div></div>
+                <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>5</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>待处理</div></div>
+                <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', textAlign: 'center' }}><div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>3</div><div style={{ fontSize: '12px', color: COLORS.textMuted }}>已闭环</div></div>
               </div>
               <div style={styles.formGroup}><label style={styles.formLabel}>按时间范围筛选</label><select style={{ ...styles.input, width: '100%' }}><option value="today">今日</option><option value="week">本周</option><option value="month">本月</option><option value="year">本年</option></select></div>
             </div>

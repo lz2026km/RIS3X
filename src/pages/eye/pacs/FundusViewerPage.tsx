@@ -48,7 +48,7 @@ const FundusViewerPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 16, background: "#f8fafc", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
+      <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
         <Spin tip="加载眼底影像数据..." />
       </div>
     );
@@ -56,8 +56,8 @@ const FundusViewerPage: React.FC = () => {
 
   if (!study) {
     return (
-      <div style={{ padding: 16, background: "#f8fafc", minHeight: "calc(100vh - 56px)" }}>
-        <Card><div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>暂无眼底影像数据</div></Card>
+      <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+        <Card><div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>暂无眼底影像数据</div></Card>
       </div>
     );
   }
@@ -66,7 +66,7 @@ const FundusViewerPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -104,7 +104,7 @@ const FundusViewerPage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 flexDirection: "column",
                 gap: 8,
               }}

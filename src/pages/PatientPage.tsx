@@ -1,3 +1,4 @@
+import { Card } from 'antd'
 // v3.0.4 重构：拆分为子组件
 // ============================================================
 // G005 放射科RIS系统 - 患者管理 v1.0.0
@@ -44,18 +45,18 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, color, bgColor }: StatCardProps) {
   return (
-    <div
+    <Card bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: "16px 20px",
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         display: "flex",
         alignItems: "center",
         gap: 16,
       }}
-    >
+     styles={{ body: { padding: 0 } }}>
       <div
         style={{
           width: 48,
@@ -74,11 +75,11 @@ function StatCard({ label, value, icon, color, bgColor }: StatCardProps) {
         <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1 }}>
           {value}
         </div>
-        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
           {label}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -138,15 +139,15 @@ interface PieChartSimpleProps {
 function PieChartSimple({ data, title }: PieChartSimpleProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
   return (
-    <div
+    <Card bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         padding: 20,
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-    >
+     styles={{ body: { padding: 0 } }}>
       <div
         style={{
           fontSize: 14,
@@ -231,7 +232,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#94a3b8",
+                  color: "var(--text-secondary)",
                   width: 40,
                   textAlign: "right",
                 }}
@@ -242,7 +243,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -256,15 +257,15 @@ interface BarChartSimpleProps {
 function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
   const maxValue = Math.max(...data.map((d) => d.value), 1);
   return (
-    <div
+    <Card bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         padding: 20,
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-    >
+     styles={{ body: { padding: 0 } }}>
       <div
         style={{
           fontSize: 14,
@@ -302,7 +303,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               }}
             />
             <div
-              style={{ fontSize: 12, color: "#64748b", textAlign: "center" }}
+              style={{ fontSize: 12, color: "var(--text-secondary)", textAlign: "center" }}
             >
               {d.label}
             </div>
@@ -314,14 +315,14 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
           style={{
             textAlign: "center",
             fontSize: 12,
-            color: "#94a3b8",
+            color: "var(--text-secondary)",
             marginTop: 8,
           }}
         >
           {xLabel}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -997,7 +998,7 @@ export default function PatientPage() {
         <div
           style={{
             padding: "20px 24px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-color)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -1041,7 +1042,7 @@ export default function PatientPage() {
         <div
           style={{
             padding: 20,
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-color)",
             background: "var(--content-bg)",
           }}
         >
@@ -1088,14 +1089,14 @@ export default function PatientPage() {
                   alignItems: "center",
                 }}
               >
-                <X size={14} color="#64748b" />
+                <X size={14} color="var(--text-secondary)" />
               </button>
             )}
           </div>
           <div
             style={{
               fontSize: 12,
-              color: "#94a3b8",
+              color: "var(--text-secondary)",
               marginTop: 8,
               display: "flex",
               gap: 16,
@@ -1110,13 +1111,13 @@ export default function PatientPage() {
         </div>
         <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
           {pmiSearchResults.length === 0 && pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+            <div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
               <Search size={32} color="#cbd5e1" style={{ marginBottom: 8 }} />
               <div>未找到匹配的患者记录</div>
             </div>
           )}
           {pmiSearchResults.length === 0 && !pmiSearchQuery && (
-            <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+            <div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
               <FileSearch
                 size={32}
                 color="#cbd5e1"
@@ -1131,7 +1132,7 @@ export default function PatientPage() {
               onClick={() => handlePMISelectResult(result)}
               style={{
                 background: "var(--bg-card)",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color)",
                 borderRadius: 10,
                 padding: 16,
                 marginBottom: 12,
@@ -1144,7 +1145,7 @@ export default function PatientPage() {
               }
               onMouseLeave={(e) =>
                 ((e.currentTarget as HTMLDivElement).style.borderColor =
-                  "#e2e8f0")
+                  "var(--border-color)")
               }
             >
               <div
@@ -1208,13 +1209,13 @@ export default function PatientPage() {
                         fontSize: 12,
                         fontWeight: 600,
                         background: "var(--content-bg)",
-                        color: "#475569",
+                        color: "var(--text-secondary)",
                       }}
                     >
                       {result.patientType}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                     {result.idCard} · {result.phone}
                   </div>
                 </div>
@@ -1233,7 +1234,7 @@ export default function PatientPage() {
                   >
                     {result.confidence}%
                   </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>匹配度</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>匹配度</div>
                 </div>
               </div>
               <div
@@ -1252,7 +1253,7 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                   >
                     主索引ID
                   </div>
@@ -1275,7 +1276,7 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                   >
                     医保类型
                   </div>
@@ -1293,7 +1294,7 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                   >
                     累计检查
                   </div>
@@ -1311,7 +1312,7 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                   >
                     阳性率
                   </div>
@@ -1338,7 +1339,7 @@ export default function PatientPage() {
                     flex: 1,
                   }}
                 >
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     匹配字段:
                   </span>
                   {result.matchFields.map((f) => (
@@ -1349,7 +1350,7 @@ export default function PatientPage() {
                         borderRadius: 3,
                         fontSize: 12,
                         fontWeight: 600,
-                        background: "#eff6ff",
+                        background: "var(--color-info-bg)",
                         color: "#2563eb",
                       }}
                     >
@@ -1379,7 +1380,7 @@ export default function PatientPage() {
                   style={{
                     marginTop: 12,
                     padding: 12,
-                    background: "#fffbeb",
+                    background: "var(--color-warning-bg)",
                     borderRadius: 8,
                     border: "1px solid #fde68a",
                   }}
@@ -1431,15 +1432,15 @@ export default function PatientPage() {
 
   // PMI患者基本信息卡片
   const renderPMIPatientCard = (result: PMISearchResult) => (
-    <div
+    <Card bordered={false}
       style={{
         background: "var(--bg-card)",
         borderRadius: 12,
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         padding: 20,
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
-    >
+     styles={{ body: { padding: 0 } }}>
       <div
         style={{
           display: "flex",
@@ -1472,13 +1473,13 @@ export default function PatientPage() {
             <div style={{ fontSize: 18, fontWeight: 700, color: "#1e40af" }}>
               {result.name}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
               {result.gender} · {result.age}岁 · {result.patientType}
             </div>
             <div
               style={{
                 fontSize: 12,
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 marginTop: 2,
                 fontFamily: "monospace",
               }}
@@ -1503,7 +1504,7 @@ export default function PatientPage() {
             >
               {result.confidence}%
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>匹配置信度</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>匹配置信度</div>
           </div>
           <button
             onClick={handleClosePMIPanel}
@@ -1511,7 +1512,7 @@ export default function PatientPage() {
               width: 32,
               height: 32,
               borderRadius: 8,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               background: "var(--bg-card)",
               cursor: "pointer",
               display: "flex",
@@ -1519,7 +1520,7 @@ export default function PatientPage() {
               justifyContent: "center",
             }}
           >
-            <X size={16} color="#64748b" />
+            <X size={16} color="var(--text-secondary)" />
           </button>
         </div>
       </div>
@@ -1540,8 +1541,8 @@ export default function PatientPage() {
               marginBottom: 4,
             }}
           >
-            <CreditCard size={14} color="#94a3b8" />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>身份证</span>
+            <CreditCard size={14} color="var(--text-secondary)" />
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>身份证</span>
           </div>
           <div
             style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "monospace" }}
@@ -1558,8 +1559,8 @@ export default function PatientPage() {
               marginBottom: 4,
             }}
           >
-            <Phone size={14} color="#94a3b8" />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>手机号</span>
+            <Phone size={14} color="var(--text-secondary)" />
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>手机号</span>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{result.phone}</div>
         </div>
@@ -1572,8 +1573,8 @@ export default function PatientPage() {
               marginBottom: 4,
             }}
           >
-            <Shield size={14} color="#94a3b8" />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>医保类型</span>
+            <Shield size={14} color="var(--text-secondary)" />
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>医保类型</span>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.insuranceType}
@@ -1588,8 +1589,8 @@ export default function PatientPage() {
               marginBottom: 4,
             }}
           >
-            <User size={14} color="#94a3b8" />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>就诊类型</span>
+            <User size={14} color="var(--text-secondary)" />
+            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>就诊类型</span>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.patientType}
@@ -1606,7 +1607,7 @@ export default function PatientPage() {
         <div
           style={{
             padding: 16,
-            background: "#eff6ff",
+            background: "var(--color-info-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
@@ -1615,12 +1616,12 @@ export default function PatientPage() {
           <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>累计检查次数</div>
         </div>
         <div
           style={{
             padding: 16,
-            background: "#f0fdf4",
+            background: "var(--color-success-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
@@ -1635,7 +1636,7 @@ export default function PatientPage() {
           >
             {result.examStats.positiveRate}%
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>阳性率</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>阳性率</div>
         </div>
         <div
           style={{
@@ -1645,11 +1646,11 @@ export default function PatientPage() {
             textAlign: "center",
           }}
         >
-          <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
+          <Clock size={24} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
           <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.lastExamDate}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>最近检查日期</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>最近检查日期</div>
         </div>
       </div>
       {result.hasMergeHistory && (
@@ -1657,7 +1658,7 @@ export default function PatientPage() {
           style={{
             marginTop: 16,
             padding: 16,
-            background: "#fffbeb",
+            background: "var(--color-warning-bg)",
             borderRadius: 10,
             border: "1px solid #fde68a",
           }}
@@ -1711,11 +1712,11 @@ export default function PatientPage() {
                 >
                   {m.mergedDate}
                 </span>
-                <span style={{ fontSize: 12, color: "#78716c" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   {m.reason}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "#78716c" }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 {m.mergedFromId && (
                   <span>
                     由{" "}
@@ -1739,7 +1740,7 @@ export default function PatientPage() {
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 
   // ==================== 渲染：标签页4 - 患者分析 ====================
@@ -1852,15 +1853,15 @@ export default function PatientPage() {
           xLabel="检查次数"
         />
       </div>
-      <div
+      <Card bordered={false}
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           padding: 20,
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
-      >
+       styles={{ body: { padding: 0 } }}>
         <div
           style={{
             fontSize: 14,
@@ -1870,7 +1871,7 @@ export default function PatientPage() {
           }}
         >
           患者明细 (
-          <span style={{ fontWeight: 400, color: "#64748b" }}>
+          <span style={{ fontWeight: 400, color: "var(--text-secondary)" }}>
             点击查看详情
           </span>
           )
@@ -1883,7 +1884,7 @@ export default function PatientPage() {
               <tr
                 style={{
                   background: "var(--content-bg)",
-                  borderBottom: "1px solid #e2e8f0",
+                  borderBottom: "1px solid var(--border-color)",
                 }}
               >
                 {[
@@ -1903,7 +1904,7 @@ export default function PatientPage() {
                       padding: "10px 12px",
                       textAlign: "left",
                       fontWeight: 600,
-                      color: "#475569",
+                      color: "var(--text-secondary)",
                       fontSize: 12,
                     }}
                   >
@@ -1915,7 +1916,7 @@ export default function PatientPage() {
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={`patient-skeleton-${i}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                  <tr key={`patient-skeleton-${i}`} style={{ borderBottom: "1px solid var(--border-light)" }}>
                     {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} style={{ padding: "13px 12px" }}>
                         <div
@@ -1936,7 +1937,7 @@ export default function PatientPage() {
                 <tr
                   key={p.id}
                   style={{
-                    borderBottom: "1px solid #f1f5f9",
+                    borderBottom: "1px solid var(--border-light)",
                     cursor: "pointer",
                     background: idx % 2 === 0 ? "#fff" : "#fafbfc",
                   }}
@@ -1946,7 +1947,7 @@ export default function PatientPage() {
                   }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLTableRowElement).style.background =
-                      "#f0f7ff")
+                      "var(--color-info-bg)")
                   }
                   onMouseLeave={(e) =>
                     ((e.currentTarget as HTMLTableRowElement).style.background =
@@ -1958,7 +1959,7 @@ export default function PatientPage() {
                       padding: "8px 12px",
                       fontFamily: "monospace",
                       fontSize: 12,
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {p.id}
@@ -2013,7 +2014,7 @@ export default function PatientPage() {
                         fontSize: 12,
                         fontWeight: 600,
                         background: "var(--content-bg)",
-                        color: "#475569",
+                        color: "var(--text-secondary)",
                       }}
                     >
                       {p.patientType}
@@ -2031,7 +2032,7 @@ export default function PatientPage() {
                         {p.allergyHistory}
                       </span>
                     ) : (
-                      <span style={{ color: "#94a3b8", fontSize: 12 }}>无</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>无</span>
                     )}
                   </td>
                   <td
@@ -2047,7 +2048,7 @@ export default function PatientPage() {
                   <td
                     style={{
                       padding: "8px 12px",
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                       fontSize: 12,
                     }}
                   >
@@ -2063,7 +2064,7 @@ export default function PatientPage() {
                         aria-label={`查看患者 ${p.name}`}
                         style={{
                           padding: "3px 8px",
-                          background: "#eff6ff",
+                          background: "var(--color-info-bg)",
                           color: "#2563eb",
                           border: "none",
                           borderRadius: 4,
@@ -2082,7 +2083,7 @@ export default function PatientPage() {
                         aria-label={`编辑患者 ${p.name}`}
                         style={{
                           padding: "3px 8px",
-                          background: "#f0fdf4",
+                          background: "var(--color-success-bg)",
                           color: "#16a34a",
                           border: "none",
                           borderRadius: 4,
@@ -2101,7 +2102,7 @@ export default function PatientPage() {
             </tbody>
           </table></div>
         </div>
-      </div>
+      </Card>
     </>
   );
 
@@ -2113,7 +2114,7 @@ export default function PatientPage() {
           style={{
             padding: 24,
             marginBottom: 16,
-            background: "#fee2e2",
+            background: "var(--color-error-bg)",
             border: "1px solid #fca5a5",
             color: "#7f1d1d",
             borderRadius: 8,
@@ -2148,7 +2149,7 @@ export default function PatientPage() {
             <Stethoscope size={22} color="#1e40af" />
             患者管理
           </h1>
-          <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+          <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
             患者档案 · 就诊记录 · 过敏史管理 · 数据分析
           </p>
         </div>
@@ -2196,8 +2197,8 @@ export default function PatientPage() {
             style={{
               padding: "8px 16px",
               background: "var(--bg-card)",
-              color: "#64748b",
-              border: "1px solid #e2e8f0",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-color)",
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
@@ -2331,7 +2332,7 @@ export default function PatientPage() {
         style={{
           display: "flex",
           gap: 4,
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--border-color)",
           marginBottom: 16,
           background: "var(--bg-card)",
           borderRadius: "12px 12px 0 0",
@@ -2523,7 +2524,7 @@ export default function PatientPage() {
             <div
               style={{
                 padding: "16px 20px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -2556,7 +2557,7 @@ export default function PatientPage() {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   marginBottom: 10,
                   lineHeight: 1.8,
                 }}
@@ -2574,7 +2575,7 @@ export default function PatientPage() {
                   width: "100%",
                   boxSizing: "border-box",
                   padding: "10px 12px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
@@ -2590,10 +2591,10 @@ export default function PatientPage() {
                     gap: 6,
                     padding: "8px 14px",
                     borderRadius: 8,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color)",
                     background: "var(--content-bg)",
                     fontSize: 12,
-                    color: "#475569",
+                    color: "var(--text-secondary)",
                     cursor: "pointer",
                   }}
                 >
@@ -2639,7 +2640,7 @@ export default function PatientPage() {
             <div
               style={{
                 padding: "12px 20px",
-                borderTop: "1px solid #e2e8f0",
+                borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
                 gap: 10,
@@ -2650,10 +2651,10 @@ export default function PatientPage() {
                 style={{
                   padding: "8px 18px",
                   borderRadius: 8,
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   background: "var(--bg-card)",
                   fontSize: 13,
-                  color: "#475569",
+                  color: "var(--text-secondary)",
                   cursor: "pointer",
                 }}
               >

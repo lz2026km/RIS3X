@@ -27,22 +27,22 @@ const WARNING = '#d97706'
 const DANGER = '#dc2626'
 const PURPLE = '#7c3aed'
 const GRAY = '#64748b'
-const BG = '#f8fafc'
+const BG = 'var(--bg-primary)'
 const WHITE = '#ffffff'
 
 const NOTIFICATION_TYPES = [
   { key: 'all', label: '全部', icon: <Bell size={14} />, color: PRIMARY },
   { key: 'report_completed', label: '报告', icon: <FileText size={14} />, color: '#3b82f6' },
   { key: 'critical_value', label: '危急值', icon: <AlertTriangle size={14} />, color: DANGER },
-  { key: 'system', label: '系统', icon: <Settings size={14} />, color: '#6b7280' },
+  { key: 'system', label: '系统', icon: <Settings size={14} />, color: 'var(--text-secondary)' },
   { key: 'appointment', label: '预约', icon: <Calendar size={14} />, color: SUCCESS },
   { key: 'consultation', label: '会诊', icon: <MessageSquare size={14} />, color: PURPLE },
 ]
 
 const PRIORITY_CONFIG = {
-  high: { label: '紧急', color: DANGER, bg: '#fef2f2' },
-  normal: { label: '普通', color: ACCENT, bg: '#eff6ff' },
-  low: { label: '低', color: GRAY, bg: '#f8fafc' },
+  high: { label: '紧急', color: DANGER, bg: '#ef444422' },
+  normal: { label: '普通', color: ACCENT, bg: '#3b82f622' },
+  low: { label: '低', color: GRAY, bg: 'var(--bg-deep)' },
 }
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -224,7 +224,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
       justifyContent: 'center', zIndex: 1000,
     }} onClick={onClose}>
       <div style={{
-        background: WHITE, borderRadius: 12, width: '90%', maxWidth: 600,
+        background: 'var(--bg-card)', borderRadius: 12, width: '90%', maxWidth: 600,
         maxHeight: '80vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
       }} onClick={e => e.stopPropagation()}>
         {/* 头部 */}
@@ -278,7 +278,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           {/* 内容 */}
           <div style={{
             background: 'var(--content-bg)', padding: 16, borderRadius: 10,
-            border: '1px solid #e2e8f0', marginBottom: 16,
+            border: '1px solid var(--border-color)', marginBottom: 16,
           }}>
             <pre style={{
               margin: 0, fontSize: 14, color: 'var(--text-secondary)',
@@ -291,20 +291,20 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
 
           {/* 元信息 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
-            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>通知ID</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.id}</div>
             </div>
-            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>接收人</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.recipientName}</div>
             </div>
-            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>发送时间</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.sentAt)}</div>
             </div>
             {notification.readAt && (
-              <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>阅读时间</div>
                 <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.readAt)}</div>
               </div>
@@ -337,15 +337,15 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
         </div>
 
         {/* 底部 */}
-        <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
           <button
             onClick={() => {
               onMarkRead(notification.id)
               onClose()
             }}
             style={{
-              padding: '8px 16px', borderRadius: 6, border: '1px solid #e2e8f0',
-              background: WHITE, color: GRAY, fontSize: 13, cursor: 'pointer',
+              padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-color)',
+              background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
@@ -373,10 +373,10 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
               跳转到{notification.relatedType}详情
             </div>
-            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
               ID: {notification.relatedId}
             </div>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>即将跳转到相关页面查看详情</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>即将跳转到相关页面查看详情</div>
             <button onClick={handleCloseJumpModal} style={{
               marginTop: 20, padding: '10px 24px', background: '#1e40af', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
@@ -407,7 +407,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
     <div
       onClick={onView}
       style={{
-        background: isSelected ? '#eff6ff' : isUnread ? '#f8fafc' : WHITE,
+        background: isSelected ? 'var(--color-info-bg)' : isUnread ? 'var(--bg-primary)' : 'var(--bg-card)',
         border: `1px solid ${isSelected ? ACCENT : isUnread ? '#bfdbfe' : '#e2e8f0'}`,
         borderLeft: `4px solid ${typeConfig.color}`,
         borderRadius: 10, padding: 14, cursor: 'pointer',
@@ -459,7 +459,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
 
       {/* 内容摘要 */}
       <div style={{
-        fontSize: 13, color: '#475569', lineHeight: 1.5,
+        fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
         overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box',
         WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', marginBottom: 10,
       }}>
@@ -491,8 +491,8 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
             <button
               onClick={onMarkRead}
               style={{
-                padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
-                background: WHITE, color: ACCENT, fontSize: 12, cursor: 'pointer',
+                padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)', color: ACCENT, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}
               title="标记已读"
@@ -504,7 +504,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
             onClick={onDelete}
             style={{
               padding: '4px 8px', borderRadius: 4, border: '1px solid #fee2e2',
-              background: WHITE, color: DANGER, fontSize: 12, cursor: 'pointer',
+              background: 'var(--bg-card)', color: DANGER, fontSize: 12, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
             }}
             title="删除"
@@ -536,7 +536,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
       }}
     >
       <div style={{
-        width: 18, height: 18, borderRadius: '50%', background: WHITE,
+        width: 18, height: 18, borderRadius: '50%', background: '#fff',
         position: 'absolute', top: 2, transition: 'left 0.2s',
         left: checked ? 20 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
       }} />
@@ -546,7 +546,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <div style={{
       fontSize: 13, fontWeight: 700, color: PRIMARY, marginBottom: 12,
-      paddingBottom: 8, borderBottom: '1px solid #e2e8f0',
+      paddingBottom: 8, borderBottom: '1px solid var(--border-color)',
     }}>
       {children}
     </div>
@@ -564,7 +564,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
 
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+      background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
       padding: 16,
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -624,7 +624,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         icon={<BellRing size={16} />}
       />
 
-      <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 8, border: '1px solid #fcd34d' }}>
+      <div style={{ marginTop: 16, padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fcd34d' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
           <AlertCircle size={16} color={WARNING} style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
@@ -687,7 +687,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
 
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+      background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
       padding: 16, marginBottom: 16,
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -699,19 +699,19 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>今日概览</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
             <div style={{ fontSize: 12, color: GRAY }}>今日总数</div>
           </div>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>已读</div>
           </div>
-          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>未读</div>
           </div>
-          <div style={{ background: '#fef2f2', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
+          <div style={{ background: 'var(--color-error-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.critical}</div>
             <div style={{ fontSize: 12, color: GRAY }}>危急值</div>
           </div>
@@ -791,7 +791,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+      background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
       padding: 16,
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -821,7 +821,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.borderColor = 'transparent'
-                  e.currentTarget.style.background = '#f8fafc'
+                  e.currentTarget.style.background = 'var(--bg-hover)'
                 }}
               >
                 <span style={{ color: typeConfig.color }}>{typeConfig.icon}</span>
@@ -845,17 +845,17 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 // ============================================================
 function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
   const getStatus = () => {
-    if (!delivery.sent) return { label: '发送中', color: '#6b7280', bg: '#f3f4f6' }
-    if (!delivery.delivered) return { label: '发送失败', color: '#dc2626', bg: '#fee2e2' }
-    if (delivery.read) return { label: '已阅读', color: '#059669', bg: '#d1fae5' }
-    return { label: '已送达', color: '#3b82f6', bg: '#dbeafe' }
+    if (!delivery.sent) return { label: '发送中', color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
+    if (!delivery.delivered) return { label: '发送失败', color: '#ef4444', bg: '#ef444422' }
+    if (delivery.read) return { label: '已阅读', color: '#059669', bg: '#22c55e22' }
+    return { label: '已送达', color: '#3b82f6', bg: '#3b82f622' }
   }
   const s = getStatus()
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
       <span style={{ padding: '2px 8px', borderRadius: 4, background: s.bg, color: s.color, fontWeight: 500 }}>{s.label}</span>
       {delivery.retryCount > 0 && <span style={{ color: '#d97706' }}>重试{delivery.retryCount}次</span>}
-      <span style={{ color: '#94a3b8' }}>{delivery.channel === 'in-app' ? '应用内' : delivery.channel === 'sms' ? '短信' : '邮件'}</span>
+      <span style={{ color: 'var(--text-secondary)' }}>{delivery.channel === 'in-app' ? '应用内' : delivery.channel === 'sms' ? '短信' : '邮件'}</span>
     </div>
   )
 }
@@ -866,33 +866,33 @@ function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
 function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRule[]; onToggle: (id: string) => void; onDelete: (id: string) => void }) {
   const EVENT_LABELS: Record<string, string> = { critical_value: '危急值', report_ready: '报告完成', schedule_change: '排班变更', appointment: '预约', system_alert: '系统告警' }
   return (
-    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16, marginBottom: 16 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Zap size={16} />
         通知规则引擎
       </div>
       {rules.map(rule => (
-        <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
-              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? '#fef2f2' : '#f8fafc', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
+              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
                 {rule.priority === 'high' ? '高优先级' : '普通'}
               </span>
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
               事件: {EVENT_LABELS[rule.eventType] || rule.eventType} · 渠道: {rule.actions.map(a => a.channel === 'in-app' ? '应用内' : a.channel === 'sms' ? '短信' : '邮件').join(', ')}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div onClick={() => onToggle(rule.id)} style={{ width: 36, height: 20, borderRadius: 10, background: rule.enabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
-              <div style={{ width: 16, height: 16, borderRadius: '50%', background: WHITE, position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+              <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
             </div>
-            <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><Trash2 size={14} /></button>
+            <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
           </div>
         </div>
       ))}
-      <div style={{ marginTop: 12, padding: 12, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+      <div style={{ marginTop: 12, padding: 12, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
         规则引擎根据事件类型和条件自动匹配通知渠道
       </div>
     </div>
@@ -904,49 +904,49 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
 // ============================================================
 function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPreferences; onUpdate: (p: UserNotifyPreferences) => void }) {
   return (
-    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Settings size={16} />
         用户偏好
       </div>
       {/* 免打扰 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, fontWeight: 600 }}>免打扰时段</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>免打扰时段</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
             style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
-            <div style={{ width: 16, height: 16, borderRadius: '50%', background: WHITE, position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+            <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
           <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>启用免打扰</span>
         </div>
         {preferences.quietHoursEnabled && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input type="time" value={preferences.quietHoursStart} onChange={e => onUpdate({ ...preferences, quietHoursStart: e.target.value })}
-              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
-            <span style={{ color: '#94a3b8' }}>至</span>
+              style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
+            <span style={{ color: 'var(--text-secondary)' }}>至</span>
             <input type="time" value={preferences.quietHoursEnd} onChange={e => onUpdate({ ...preferences, quietHoursEnd: e.target.value })}
-              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
+              style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
           </div>
         )}
       </div>
       {/* 摘要模式 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, fontWeight: 600 }}>摘要模式</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>摘要模式</div>
         <select value={preferences.digestMode} onChange={e => onUpdate({ ...preferences, digestMode: e.target.value as any })}
-          style={{ width: '100%', padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}>
+          style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}>
           <option value="none">关闭</option>
           <option value="daily">每日摘要</option>
           <option value="weekly">每周摘要</option>
         </select>
         {preferences.digestMode !== 'none' && (
           <div style={{ marginTop: 8 }}>
-            <span style={{ fontSize: 12, color: '#64748b' }}>发送时间：</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>发送时间：</span>
             <input type="time" value={preferences.digestTime} onChange={e => onUpdate({ ...preferences, digestTime: e.target.value })}
-              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
+              style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
           </div>
         )}
       </div>
-      <div style={{ padding: 8, background: '#fffbeb', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+      <div style={{ padding: 8, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
         变更将自动保存，5分钟内生效
       </div>
     </div>
@@ -1220,7 +1220,7 @@ export default function NotificationCenter() {
         permission = await Notification.requestPermission()
       }
       if (permission !== 'granted') {
-        setLoadError('通知权限被拒绝，无法订阅 Web Push')
+        setLoadError('通知权限被拒绝，无法订阅浏览器推送')
         return
       }
       const reg = await navigator.serviceWorker?.register('/sw.js')
@@ -1247,7 +1247,7 @@ export default function NotificationCenter() {
         setLoadError(res.error?.message ?? '订阅保存失败')
       }
     } catch (e) {
-      setLoadError('Web Push 订阅失败: ' + ((e as Error)?.message ?? '未知错误'))
+      setLoadError('浏览器推送订阅失败: ' + ((e as Error)?.message ?? '未知错误'))
     } finally {
       setPushBusy(false)
     }
@@ -1277,7 +1277,7 @@ export default function NotificationCenter() {
     setPushBusy(true)
     const res = await notificationsApi.sendPush({
       userId,
-      title: 'Web Push 测试',
+      title: '浏览器推送测试',
       content: '这是一条来自通知中心的测试推送 ' + new Date().toLocaleTimeString(),
       tag: 'g005-test',
     })
@@ -1333,11 +1333,11 @@ export default function NotificationCenter() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 左侧边栏 */}
       <div style={{
-        width: 260, background: WHITE, borderRight: '1px solid #e2e8f0',
+        width: 260, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)',
         display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0,
       }}>
         {/* 标题 */}
-        <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '16px', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <div style={{
               width: 40, height: 40, borderRadius: 10, background: `${PRIMARY}15`,
@@ -1396,7 +1396,7 @@ export default function NotificationCenter() {
                 }}
                 onMouseEnter={e => {
                   if (activeTab !== type.key) {
-                    e.currentTarget.style.background = '#f1f5f9'
+                    e.currentTarget.style.background = 'var(--bg-hover)'
                   }
                 }}
                 onMouseLeave={e => {
@@ -1425,7 +1425,7 @@ export default function NotificationCenter() {
         </div>
 
         {/* 底部设置入口 */}
-        <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid var(--border-color)' }}>
           {/* 实时推送状态 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : '#d97706' }} />
@@ -1443,10 +1443,10 @@ export default function NotificationCenter() {
           </div>
 
           {/* Web Push 管理 */}
-          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <BellRing size={14} />
-              Web Push 管理
+              浏览器推送管理
             </div>
             <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, wordBreak: 'break-all' }}>
               {vapidPublicKey ? `VAPID: ${vapidPublicKey.slice(0, 24)}…` : 'VAPID 公钥获取中…'}
@@ -1454,7 +1454,7 @@ export default function NotificationCenter() {
             <div style={{ display: 'flex', gap: 6 }}>
               {pushSubscribed ? (
                 <button onClick={() => void handlePushUnsubscribe()} disabled={pushBusy}
-                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #fecaca', background: WHITE, color: DANGER, fontSize: 12, cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #fecaca', background: 'var(--bg-card)', color: DANGER, fontSize: 12, cursor: 'pointer' }}>
                   退订推送
                 </button>
               ) : (
@@ -1465,7 +1465,7 @@ export default function NotificationCenter() {
               )}
               {isAdmin && (
                 <button onClick={() => void handlePushSend()} disabled={pushBusy}
-                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                   <Send size={12} />
                   测试发送
                 </button>
@@ -1520,13 +1520,13 @@ export default function NotificationCenter() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* 顶部栏 */}
         <div style={{
-          background: WHITE, borderBottom: '1px solid #e2e8f0', padding: '14px 20px',
+          background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', padding: '14px 20px',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)',
-              padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
+              padding: '6px 14px', borderRadius: 8, border: '1px solid var(--border-color)',
             }}>
               <Search size={14} color={GRAY} />
               <input
@@ -1554,7 +1554,7 @@ export default function NotificationCenter() {
                 onClick={() => setShowBroadcast(true)}
                 style={{
                   padding: '6px 12px', borderRadius: 6, border: `1px solid ${showBroadcast ? SUCCESS : '#e2e8f0'}`,
-                  background: showBroadcast ? `${SUCCESS}15` : WHITE, color: showBroadcast ? SUCCESS : GRAY,
+                  background: showBroadcast ? `${SUCCESS}15` : 'var(--bg-card)', color: showBroadcast ? SUCCESS : GRAY,
                   fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                 }}
               >
@@ -1566,7 +1566,7 @@ export default function NotificationCenter() {
               onClick={() => setShowDeliveryTracking(!showDeliveryTracking)}
               style={{
                 padding: '6px 12px', borderRadius: 6, border: `1px solid ${showDeliveryTracking ? ACCENT : '#e2e8f0'}`,
-                background: showDeliveryTracking ? `${ACCENT}15` : WHITE, color: showDeliveryTracking ? ACCENT : GRAY,
+                background: showDeliveryTracking ? `${ACCENT}15` : 'var(--bg-card)', color: showDeliveryTracking ? ACCENT : GRAY,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
@@ -1577,7 +1577,7 @@ export default function NotificationCenter() {
               onClick={() => { setShowDeliveryTracking(false); setShowPreferences(false); setShowSettings(!showSettings) }}
               style={{
                 padding: '6px 12px', borderRadius: 6, border: `1px solid ${showSettings ? ACCENT : '#e2e8f0'}`,
-                background: showSettings ? `${ACCENT}15` : WHITE, color: showSettings ? ACCENT : GRAY,
+                background: showSettings ? `${ACCENT}15` : 'var(--bg-card)', color: showSettings ? ACCENT : GRAY,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
@@ -1587,8 +1587,8 @@ export default function NotificationCenter() {
             <button
               onClick={() => void loadData()}
               style={{
-                padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
-                background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer',
+                padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)', color: GRAY, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
@@ -1610,8 +1610,8 @@ export default function NotificationCenter() {
 
             {filteredNotifications.length === 0 ? (
               <div style={{
-                textAlign: 'center', padding: '60px 20px', background: WHITE,
-                borderRadius: 10, border: '1px solid #e2e8f0',
+                textAlign: 'center', padding: '60px 20px', background: 'var(--bg-card)',
+                borderRadius: 10, border: '1px solid var(--border-color)',
               }}>
                 <Bell size={48} color="#e2e8f0" style={{ marginBottom: 12 }} />
                 <div style={{ fontSize: 14, color: GRAY }}>暂无通知</div>
@@ -1633,7 +1633,7 @@ export default function NotificationCenter() {
                         onDelete={() => handleDelete(notification.id)}
                       />
                       {showDeliveryTracking && delivery && (
-                        <div style={{ marginTop: 2, padding: '2px 14px 6px', background: 'var(--content-bg)', borderRadius: '0 0 8px 8px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                        <div style={{ marginTop: 2, padding: '2px 14px 6px', background: 'var(--content-bg)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
                           <DeliveryStatusBadge delivery={delivery} />
                         </div>
                       )}
@@ -1647,7 +1647,7 @@ export default function NotificationCenter() {
           {/* 设置/规则/偏好侧栏 */}
           {(showSettings || showDeliveryTracking || showPreferences) && (
             <div style={{
-              width: 340, background: BG, borderLeft: '1px solid #e2e8f0',
+              width: 340, background: BG, borderLeft: '1px solid var(--border-color)',
               padding: 16, overflowY: 'auto',
             }}>
               {showSettings && (
@@ -1661,7 +1661,7 @@ export default function NotificationCenter() {
               )}
               {showDeliveryTracking && (
                 <div>
-                  <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16, marginBottom: 16 }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
                     <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <BarChart3 size={16} />
                       配送追踪
@@ -1682,7 +1682,7 @@ export default function NotificationCenter() {
                       {deliveryStatuses.filter(d => !d.read).slice(0, 10).map(d => {
                         const notif = notifications.find(n => n.id === d.notificationId)
                         return (
-                          <div key={d.notificationId} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+                          <div key={d.notificationId} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
                             <div>
                               <div style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{notif?.title || d.notificationId}</div>
                               <DeliveryStatusBadge delivery={d} />
@@ -1718,45 +1718,45 @@ export default function NotificationCenter() {
       {/* [W1-B] 广播通知弹窗: POST /notifications/broadcast */}
       {showBroadcast && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowBroadcast(false)}>
-          <div style={{ background: WHITE, borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>广播通知 (POST /notifications/broadcast)</div>
               <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>标题 *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>标题 *</label>
                 <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder="通知标题"
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>内容 *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>内容 *</label>
                 <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder="通知内容"
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>类型</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>类型</label>
                   <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, background: WHITE, outline: 'none' }}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
                     {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>严重级别</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>严重级别</label>
                   <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, background: WHITE, outline: 'none' }}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
                     {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4, display: 'block' }}>接收用户ID (逗号分隔, 留空=全部)</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>接收用户ID (逗号分隔, 留空=全部)</label>
                 <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder="如 admin,doctor01 (留空广播全部)"
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer' }}>取消</button>
                 <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? '发送中...' : '发送广播'}</button>
               </div>
             </div>

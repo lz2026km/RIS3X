@@ -22,7 +22,7 @@ function highlightAnomalies(text: string | undefined): React.ReactNode {
   let match
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIdx) parts.push(text.slice(lastIdx, match.index))
-    parts.push(<span key={match.index} style={{ background: '#fee2e2', color: DANGER, fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
+    parts.push(<span key={match.index} style={{ background: 'var(--color-error-bg)', color: DANGER, fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
     lastIdx = regex.lastIndex
   }
   if (lastIdx < text.length) parts.push(text.slice(lastIdx))
@@ -35,27 +35,27 @@ const KANBAN_COLUMNS = [
   {
     key: '草稿组', label: '📝 草稿',
     subStatus: ['待分配', '已分配', '书写中'] as readonly string[],
-    color: '#1e40af', bg: '#eff6ff', border: '#bfdbfe',
+    color: '#1e40af', bg: 'var(--color-info-bg)', border: 'var(--color-info-border)',
   },
   {
     key: '审核组', label: '👁️ 审核',
     subStatus: ['已提交', '初审中', '初审通过', '终审中', '已审核'] as readonly string[],
-    color: '#7c2d12', bg: '#fff7ed', border: '#fed7aa',
+    color: '#7c2d12', bg: 'rgba(249,115,22,0.12)', border: '#fed7aa',
   },
   {
     key: '签发组', label: '✍️ 签发',
     subStatus: ['签发中', '已签发'] as readonly string[],
-    color: '#be185d', bg: '#fdf2f8', border: '#fbcfe8',
+    color: '#be185d', bg: 'rgba(244,114,182,0.12)', border: '#fbcfe8',
   },
   {
     key: '已发布', label: '🌐 已发布',
     subStatus: ['已发布'] as readonly string[],
-    color: '#059669', bg: '#f0fdf4', border: '#bbf7d0',
+    color: '#059669', bg: 'var(--color-success-bg)', border: 'var(--color-success-border)',
   },
   {
     key: '特殊', label: '⚙️ 特殊',
     subStatus: ['修订中', '已修订', '已撤回', '已驳回', '已归档'] as readonly string[],
-    color: '#475569', bg: '#f8fafc', border: '#cbd5e1',
+    color: '#475569', bg: 'var(--bg-card)', border: 'var(--border-color)',
   },
 ]
 
@@ -107,7 +107,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
           <div onDragOver={e => handleDragOver(e, col.key)} onDragLeave={handleDragLeave} onDrop={e => handleDrop(e, col.key)}
             style={{
               flex: 1, minHeight: 300, padding: 10, borderRadius: '0 0 10px 10px',
-              background: dragOverCol === col.key ? `${col.color}08` : '#fafbfc',
+              background: dragOverCol === col.key ? `${col.color}08` : 'var(--bg-card)',
               border: `1px solid ${dragOverCol === col.key ? col.color : col.border}`, borderTop: 'none',
               transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 8,
             }}>
@@ -115,8 +115,8 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
               <div key={r.id} draggable onDragStart={e => handleDragStart(e, r.id)} onDragEnd={handleDragEnd}
                 onClick={() => onView(r)}
                 style={{
-                  background: WHITE, borderRadius: 8,
-                  border: draggedId === r.id ? `2px solid ${col.color}` : '1px solid #e2e8f0',
+                  background: 'var(--bg-card)', borderRadius: 8,
+                  border: draggedId === r.id ? `2px solid ${col.color}` : '1px solid var(--border-color)',
                   padding: '11px 13px', cursor: 'grab', transition: 'all 0.15s',
                   boxShadow: draggedId === r.id ? `0 4px 12px ${col.color}30` : '0 1px 3px rgba(0,0,0,0.06)',
                   opacity: draggedId === r.id && draggedId !== r.id ? 0.5 : 1,
@@ -127,21 +127,21 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{r.patientName}</span>
                   {r.criticalFinding && (
-                    <span style={{ padding: '1px 6px', borderRadius: 4, background: '#fee2e2', color: DANGER, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <span style={{ padding: '1px 6px', borderRadius: 4, background: 'var(--color-error-bg)', color: DANGER, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Zap size={9} />危急
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: 12, color: '#475569', marginBottom: 4, fontWeight: 500 }}>{r.examItemName}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, fontWeight: 500 }}>{r.examItemName}</div>
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{r.modality} · {r.bodyPart}</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>报告: <span style={{ color: '#334155', fontWeight: 500 }}>{r.reportDoctorName || '-'}</span></div>
-                    {r.auditorName && <div style={{ fontSize: 12, color: '#64748b' }}>审核: <span style={{ color: '#334155', fontWeight: 500 }}>{r.auditorName}</span></div>}
+                    <div style={{ fontSize: 12, color: '#64748b' }}>报告: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.reportDoctorName || '-'}</span></div>
+                    {r.auditorName && <div style={{ fontSize: 12, color: '#64748b' }}>审核: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.auditorName}</span></div>}
                   </div>
                   <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatDateTime(r.createdTime)}</div>
                 </div>
-                <div style={{ marginTop: 7, padding: '5px 8px', borderRadius: 4, background: '#f8fafc', fontSize: 12, color: '#475569', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: 48, overflow: 'hidden' }}>
+                <div style={{ marginTop: 7, padding: '5px 8px', borderRadius: 4, background: 'var(--bg-card)', fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: 48, overflow: 'hidden' }}>
                   {r.diagnosis ? highlightAnomalies(r.diagnosis.slice(0, 50)) : '(无诊断)'}
                   {r.diagnosis && r.diagnosis.length > 50 ? '…' : ''}
                 </div>

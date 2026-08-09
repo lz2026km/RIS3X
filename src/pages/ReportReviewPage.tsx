@@ -67,17 +67,17 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
 // 阶段配置
 // ============================================================
 const STAGE_CONFIG: Record<ReviewStage, { label: string; color: string; bg: string; icon: any; description: string }> = {
-  initial: { label: '初审', color: '#f59e0b', bg: '#fef3c7', icon: Eye,         description: '高年资主治/副主任审核' },
-  final:   { label: '终审', color: '#7c2d12', bg: '#fed7aa', icon: ShieldCheck, description: '副主任以上终审' },
-  sign:    { label: '签发', color: '#be185d', bg: '#fce7f3', icon: Award,        description: '医生 CA 签发' },
+  initial: { label: '初审', color: '#f59e0b', bg: '#f59e0b22', icon: Eye,         description: '高年资主治/副主任审核' },
+  final:   { label: '终审', color: '#7c2d12', bg: '#f9731622', icon: ShieldCheck, description: '副主任以上终审' },
+  sign:    { label: '签发', color: '#be185d', bg: '#ec489922', icon: Award,        description: '医生 CA 签发' },
 };
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string; border: string }> = {
-  'pending':     { label: '待审核', color: '#f59e0b', bg: '#fef3c7', border: '#fcd34d' },
-  'in-progress': { label: '审核中', color: '#0891b2', bg: '#cffafe', border: '#67e8f9' },
-  'completed':   { label: '已完成', color: '#10b981', bg: '#d1fae5', border: '#6ee7b7' },
-  'rejected':    { label: '已驳回', color: '#dc2626', bg: '#fee2e2', border: '#fca5a5' },
-  'overdue':     { label: '已超时', color: '#7f1d1d', bg: '#fecaca', border: '#f87171' },
+  'pending':     { label: '待审核', color: '#f59e0b', bg: '#f59e0b22', border: '#fcd34d' },
+  'in-progress': { label: '审核中', color: '#0891b2', bg: '#06b6d422', border: '#67e8f9' },
+  'completed':   { label: '已完成', color: '#10b981', bg: '#22c55e22', border: '#6ee7b7' },
+  'rejected':    { label: '已驳回', color: '#ef4444', bg: '#ef444422', border: '#fca5a5' },
+  'overdue':     { label: '已超时', color: '#7f1d1d', bg: '#ef444422', border: '#f87171' },
 };
 
 // ============================================================
@@ -97,7 +97,7 @@ function deadlineInfo(_deadline: string, isOverdue: boolean, hoursToDeadline: nu
     return { label: `超时 ${Math.abs(hoursToDeadline)}h`, color: '#dc2626' };
   }
   if (hoursToDeadline < 2) return { label: `${hoursToDeadline}h 内`, color: '#f59e0b' };
-  return { label: `${hoursToDeadline}h 后`, color: '#64748b' };
+  return { label: `${hoursToDeadline}h 后`, color: 'var(--text-secondary)' };
 }
 
 // ============================================================
@@ -198,13 +198,13 @@ export default function ReportReviewPage() {
     setSubmitting(false);
   }, [selectedTask, auditSuggestion, loadTasks]);
 
-  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (tasks.length === 0) {
     return (
-      <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无审核任务</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>当前没有待审核的报告,可从报告书写页提交报告后查看</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>当前没有待审核的报告,可从报告书写页提交报告后查看</div>
       </div>
     );
   }
@@ -249,7 +249,7 @@ export default function ReportReviewPage() {
 
       {/* 阶段 Tab */}
       <div style={{
-        background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0',
+        background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)',
         padding: '0 20px', display: 'flex', alignItems: 'center', flexShrink: 0,
       }}>
         {[
@@ -279,14 +279,14 @@ export default function ReportReviewPage() {
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0' }}>
           <div style={{ position: 'relative' }}>
-            <Search size={12} style={{ position: 'absolute', left: 8, top: 8, color: '#94a3b8' }} />
+            <Search size={12} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="搜索患者/报告 ID..."
               style={{
-                padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4,
+                padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', width: 180,
               }}
             />
@@ -294,7 +294,7 @@ export default function ReportReviewPage() {
           <select
             value={status}
             onChange={e => setStatus(e.target.value as any)}
-            style={{ padding: '5px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12 }}
+            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
           >
             <option value="all">全部状态</option>
             <option value="pending">待审核</option>
@@ -309,12 +309,12 @@ export default function ReportReviewPage() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* 左：任务列表 */}
         <div style={{
-          width: 460, background: 'var(--bg-card)', borderRight: '1px solid #e2e8f0',
+          width: 460, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)',
           overflowY: 'auto', flexShrink: 0,
         }}>
           <div style={{
-            padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
-            fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
+            fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> 个任务</span>
             <span>共 {tasks.length} 条记录</span>
@@ -331,8 +331,8 @@ export default function ReportReviewPage() {
                 key={task.id}
                 onClick={() => setSelectedTaskId(task.id)}
                 style={{
-                  padding: 12, borderBottom: '1px solid #f1f5f9',
-                  background: isSelected ? '#eff6ff' : task.isOverdue ? '#fef2f2' : 'transparent',
+                  padding: 12, borderBottom: '1px solid var(--border-light)',
+                  background: isSelected ? 'var(--color-info-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                   borderLeft: isSelected ? '3px solid #3b82f6' : '3px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
@@ -368,7 +368,7 @@ export default function ReportReviewPage() {
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
                   {task.patientName} · {task.modality} {task.bodyPart}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <span>报告：<strong>{task.reportDoctorTitle} {task.reportDoctorName}</strong></span>
                   <span>·</span>
                   <span>质量 {task.qualityScore}</span>
@@ -396,7 +396,7 @@ export default function ReportReviewPage() {
             );
           })}
           {filteredTasks.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
               无匹配任务
             </div>
           )}
@@ -418,7 +418,7 @@ export default function ReportReviewPage() {
               onAuditSubmit={handleAuditSubmit}
             />
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>请从左侧选择审核任务</div>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>请从左侧选择审核任务</div>
           )}
         </div>
       </div>
@@ -475,15 +475,15 @@ const ReviewTaskDetail: React.FC<{
       {/* 头部 */}
       <div style={{
         background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--border-color)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
               {task.patientName}
-              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{task.reportId}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{task.reportId}</div>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{
@@ -514,7 +514,7 @@ const ReviewTaskDetail: React.FC<{
 
         {/* 阶段进度 */}
         <div style={{ marginTop: 12, padding: 10, background: 'var(--content-bg)', borderRadius: 6 }}>
-          <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 6 }}>三阶段审核流程</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>三阶段审核流程</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {['initial', 'final', 'sign'].map((s, i) => {
               const sConf = STAGE_CONFIG[s as ReviewStage];
@@ -527,11 +527,11 @@ const ReviewTaskDetail: React.FC<{
                     flex: 1, padding: 8, background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
                     borderRadius: 4, textAlign: 'center',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : '#94a3b8' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : 'var(--text-secondary)' }}>
                       <SIcon size={11} />
                       <strong>{sConf.label}</strong>
                     </div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                       {s === 'initial' && (task.initialAuditCompletedAt ? '✓ 已完成' : task.initialAuditStartAt ? '⏳ 进行中' : '○ 待开始')}
                       {s === 'final' && (task.finalAuditCompletedAt ? '✓ 已完成' : task.finalAuditStartAt ? '⏳ 进行中' : '○ 待开始')}
                       {s === 'sign' && (task.status === 'rejected' ? '✗ 已驳回' : '○ 待开始')}
@@ -548,7 +548,7 @@ const ReviewTaskDetail: React.FC<{
       {/* 报告内容（只读） */}
       <div style={{
         background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--border-color)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -556,8 +556,8 @@ const ReviewTaskDetail: React.FC<{
           </div>
           <button
             style={{
-              padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-              background: 'var(--bg-card)', color: '#475569', fontSize: 12, cursor: 'pointer',
+              padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
+              background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
@@ -590,18 +590,18 @@ const ReviewTaskDetail: React.FC<{
       {(task.initialAuditCompletedAt || task.finalAuditCompletedAt) && (
         <div style={{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={14} /> 审核历史
           </div>
           {task.initialAuditCompletedAt && (
-            <div style={{ padding: 10, background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 8 }}>
+            <div style={{ padding: 10, background: 'var(--color-info-bg)', border: '1px solid #bae6fd', borderRadius: 6, marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                 <strong style={{ color: '#0369a1', fontSize: 12 }}>✓ 初审完成</strong>
-                <span style={{ fontSize: 12, color: '#64748b' }}>{task.initialAuditCompletedAt}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.initialAuditCompletedAt}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 {task.initialAuditTitle} {task.initialAuditDoctorName} · 评分 {task.initialAuditScore}/100
               </div>
               {task.initialAuditSuggestion && (
@@ -612,12 +612,12 @@ const ReviewTaskDetail: React.FC<{
             </div>
           )}
           {task.finalAuditCompletedAt && (
-            <div style={{ padding: 10, background: '#fdf4ff', border: '1px solid #f0abfc', borderRadius: 6 }}>
+            <div style={{ padding: 10, background: '#8b5cf622', border: '1px solid #f0abfc', borderRadius: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                 <strong style={{ color: '#86198f', fontSize: 12 }}>✓ 终审完成</strong>
-                <span style={{ fontSize: 12, color: '#64748b' }}>{task.finalAuditCompletedAt}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.finalAuditCompletedAt}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 {task.finalAuditTitle} {task.finalAuditDoctorName} · 评分 {task.finalAuditScore}/100
               </div>
               {task.finalAuditSuggestion && (
@@ -628,7 +628,7 @@ const ReviewTaskDetail: React.FC<{
             </div>
           )}
           {task.rejectedReason && (
-            <div style={{ padding: 10, background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6 }}>
+            <div style={{ padding: 10, background: 'var(--color-error-bg)', border: '1px solid #fca5a5', borderRadius: 6 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <XCircle size={12} /> 已驳回
               </div>
@@ -642,7 +642,7 @@ const ReviewTaskDetail: React.FC<{
       {(task.status === 'pending' || task.status === 'in-progress' || task.status === 'overdue') && (
         <div style={{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Edit2 size={14} /> {stageConf.label}操作
@@ -650,7 +650,7 @@ const ReviewTaskDetail: React.FC<{
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>审核评分（0-100）</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>审核评分（0-100）</div>
               <input
                 type="range" min={0} max={100} value={auditScore}
                 onChange={e => setAuditScore(Number(e.target.value))}
@@ -661,7 +661,7 @@ const ReviewTaskDetail: React.FC<{
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>快捷评分</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>快捷评分</div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {[60, 75, 85, 90, 95].map(s => (
                   <button
@@ -669,7 +669,7 @@ const ReviewTaskDetail: React.FC<{
                     onClick={() => setAuditScore(s)}
                     style={{
                       flex: 1, padding: '6px 4px',
-                      background: auditScore === s ? '#dbeafe' : '#f8fafc',
+                      background: auditScore === s ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       border: `1px solid ${auditScore === s ? '#3b82f6' : '#cbd5e1'}`,
                       borderRadius: 4, fontSize: 12, fontWeight: 600,
                       color: auditScore === s ? '#1e40af' : '#475569',
@@ -684,14 +684,14 @@ const ReviewTaskDetail: React.FC<{
           </div>
 
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>审核意见</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>审核意见</div>
             <textarea
               value={auditSuggestion}
               onChange={e => setAuditSuggestion(e.target.value)}
               rows={3}
               placeholder="请输入审核意见（驳回必填，通过建议填写）"
               style={{
-                width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4,
+                width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
               }}
             />
@@ -716,7 +716,7 @@ const ReviewTaskDetail: React.FC<{
               onClick={() => setAuditDecision('reject')}
               style={{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
-                background: auditDecision === 'reject' ? '#dc2626' : '#fee2e2',
+                background: auditDecision === 'reject' ? '#dc2626' : 'var(--color-error-bg)',
                 color: auditDecision === 'reject' ? '#fff' : '#b91c1c',
                 fontSize: 13, fontWeight: 700, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -751,7 +751,7 @@ const ReviewTaskDetail: React.FC<{
 // ============================================================
 const InfoCell: React.FC<{ label: string; value: string; alert?: boolean }> = ({ label, value, alert }) => (
   <div>
-    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
-    <div style={{ fontSize: 12, color: alert ? '#dc2626' : '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: alert ? '#dc2626' : 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );

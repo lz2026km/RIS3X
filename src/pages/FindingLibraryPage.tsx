@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Card } from 'antd'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 6,765 字符)
 // ============================================================
 // G005 放射科RIS系统 - 典型征象图文库 v1.0.0
@@ -29,12 +30,12 @@ const COLORS = {
   primaryBlueLight: '#60a5fa',
   primaryBlueBg: '#eff6ff',
   white: '#ffffff',
-  background: '#f1f5f9',
+  background: 'var(--bg-card)',
   backgroundLight: '#f8fafc',
   text: '#1e293b',
   textMuted: '#64748b',
   textLight: '#94a3b8',
-  border: '#e2e8f0',
+  border: 'var(--border-color)',
   success: '#059669',
   successBg: '#ecfdf5',
   warning: '#d97706',
@@ -937,14 +938,14 @@ export default function FindingLibraryPage() {
   // ============================================================
   const renderPlaceholder = (finding: TypicalFinding) => {
     const iconMap: Record<string, React.ReactNode> = {
-      brain: <Brain size={40} color="#94a3b8" />,
-      chest: <Activity size={40} color="#94a3b8" />,
-      abdomen: <Activity size={40} color="#94a3b8" />,
-      spine: <Bone size={40} color="#94a3b8" />,
-      bone: <Bone size={40} color="#94a3b8" />,
-      vessel: <Activity size={40} color="#94a3b8" />,
+      brain: <Brain size={40} color="var(--text-secondary)" />,
+      chest: <Activity size={40} color="var(--text-secondary)" />,
+      abdomen: <Activity size={40} color="var(--text-secondary)" />,
+      spine: <Bone size={40} color="var(--text-secondary)" />,
+      bone: <Bone size={40} color="var(--text-secondary)" />,
+      vessel: <Activity size={40} color="var(--text-secondary)" />,
     }
-    const icon = iconMap[finding.imageUrl] || <ImageIcon size={40} color="#94a3b8" />
+    const icon = iconMap[finding.imageUrl] || <ImageIcon size={40} color="var(--text-secondary)" />
     return (
       <div style={{
         width: '100%',
@@ -979,7 +980,7 @@ export default function FindingLibraryPage() {
     const isCopied = copiedId === finding.id
 
     return (
-      <div
+      <Card bordered={false}
         key={finding.id}
         onClick={() => openDetail(finding)}
         onMouseEnter={() => setHoveredId(finding.id)}
@@ -995,7 +996,7 @@ export default function FindingLibraryPage() {
           boxShadow: isHovered ? '0 12px 24px rgba(30,58,95,0.15)' : '0 1px 3px rgba(0,0,0,0.05)',
           position: 'relative',
         }}
-      >
+       styles={{ body: { padding: 0 } }}>
         {/* 占位图 */}
         {renderPlaceholder(finding)}
 
@@ -1077,7 +1078,7 @@ export default function FindingLibraryPage() {
                 borderRadius: 4,
                 fontSize: 12,
                 fontWeight: 600,
-                background: '#f1f5f9',
+                background: 'var(--bg-card)',
                 color: MODALITY_COLORS[m] || COLORS.textMuted,
                 border: `1px solid ${MODALITY_COLORS[m] || COLORS.border}30`,
               }}>
@@ -1128,7 +1129,7 @@ export default function FindingLibraryPage() {
             </button>
           </div>
         </div>
-      </div>
+      </Card>
     )
   }
 
@@ -1249,10 +1250,10 @@ export default function FindingLibraryPage() {
                   {selectedFinding.bodyPart === '血管' && <Activity size={64} color="#60a5fa" />}
                   {!['头部', '胸部', '腹部', '脊柱', '四肢', '血管'].includes(selectedFinding.bodyPart) && <ImageIcon size={64} color="#60a5fa" />}
                 </div>
-                <div style={{ color: '#94a3b8', fontSize: 14 }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
                   {t('findingPlaceholderImage')}
                 </div>
-                <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>
                   {selectedFinding.findingName} · {selectedFinding.bodyPart}
                 </div>
               </div>
@@ -1339,7 +1340,7 @@ export default function FindingLibraryPage() {
                     borderRadius: 8,
                     fontSize: 12,
                     fontWeight: 600,
-                    background: '#f1f5f9',
+                    background: 'var(--bg-card)',
                     color: MODALITY_COLORS[m] || COLORS.textMuted,
                     border: `1px solid ${MODALITY_COLORS[m] || COLORS.border}40`,
                   }}>
@@ -1361,7 +1362,7 @@ export default function FindingLibraryPage() {
                     padding: '4px 10px',
                     borderRadius: 6,
                     fontSize: 12,
-                    background: '#f1f5f9',
+                    background: 'var(--bg-card)',
                     color: COLORS.textMuted,
                   }}>
                     #{t}
@@ -1422,7 +1423,7 @@ export default function FindingLibraryPage() {
               </div>
               <div style={{
                 padding: 14,
-                background: '#fffbeb',
+                background: 'var(--color-warning-bg)',
                 borderRadius: 10,
                 textAlign: 'center',
               }}>
@@ -1565,6 +1566,20 @@ export default function FindingLibraryPage() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{t('findingLibraryTitle')}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCount', { count: ALL_FINDINGS.length })}</div>
+              {/* [G005 W2-B] 内容库保持静态, 顶部标注「静态知识库」徽标 (不接 API) */}
+              <span style={{
+                display: 'inline-block',
+                marginTop: 6,
+                padding: '2px 10px',
+                background: 'var(--color-info-bg)',
+                border: '1px solid #bfdbfe',
+                borderRadius: 10,
+                fontSize: 11,
+                fontWeight: 700,
+                color: COLORS.primary,
+              }}>
+                静态知识库 · 前端内置 {ALL_FINDINGS.length} 条征象
+              </span>
             </div>
           </div>
 
@@ -1574,7 +1589,7 @@ export default function FindingLibraryPage() {
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{filteredFindings.length}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCurrentDisplay')}</div>
             </div>
-            <div style={{ padding: '10px 12px', background: '#fffbeb', borderRadius: 8 }}>
+            <div style={{ padding: '10px 12px', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{favorites.size}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingMyFavorites')}</div>
             </div>

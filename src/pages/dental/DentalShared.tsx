@@ -140,7 +140,7 @@ export const DentalPageLayout: React.FC<{
   alert?: { message: string; type?: 'info' | 'success' | 'warning' | 'error' };
   children?: React.ReactNode;
 }> = ({ header, alert, children }) => (
-  <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+  <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
     <DentalPageHeader {...header} />
     {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 12 }} />}
     {children}

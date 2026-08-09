@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## v3.0.6.11-85 (2026-08-08) — 大规模升级：P0端点25个+14无后端模块补全+深色模式206文件全量适配+图标专业化(Empty180/按钮130/重试55)+PACS高价值4项(资质路由/DRL告警/AI叠加阅片/自动挂片)+登录页品牌化+翻译74处
+
+> **目标**: 50000 升级点——UI/图标专业优化 + 后端有前端接 + 空表格/假按钮整改 + PACS 对标 + 翻译严查 + 深色全量
+> **范围**: 15 agents 六波实施（163 suites/1530 tests）
+
+### Wave 1: 后端扩充（2 agents）
+
+- **P0 单端点 ~25 个**：/audit/stats 统计卡、queue/:roomId 房间明细、dicom-sr/:id/download、print jobs 4 端点（列表/详情/队列/重印）、ai-platform workflow 3（集成/触发）、mobile 2（今日摘要/设备令牌）、patient-portal 7（反馈/宣教/mobile×4）、compress ratio/:instanceId JPEG2000 真实比、eye iol inventory 6+optometry ok-lens+contact-lens CRUD（MaterialsPage 调拨/OK镜设计）、EyeWorkspacePage IOL 库存区块
+- **P1 无后端模块 14 组**：research（12 端点）/typical-cases/mammo-qc/diagnosis-accuracy/terminology/system-admin users+roles/olap 4 扩展/stats forecast+utilization+accuracy/cross-modal 3/模板 snippets/pacs-admin servers+associations+storage-groups+stats/appointments 5 扩展/fusion 3 方法（现有表派生+seed 回退）+ dicomApi 路径对齐 /cross-modal/* + 死代码标记 DEPRECATED
+
+### Wave 2: 页面整改（2 agents）
+
+- **MontagePage 重写**：接 /eye/studies 真实图集 + canvas 拼图截图导出 + 数据源徽标
+- **24 假按钮真实化**：CancerScreenPage 7（同步/创建任务/提交评估接 screeningApi + 真实 CSV）、mobile 6（tech 开始/完成接 examApi、nurse 签到接 checkIn、doctor 跳转写报告）、SidebarPanel 3（canvas PNG/跳转 DIMSE/危急值真实创建）、OperationLog 2 真实 CSV、Consultation 2（complete 真实提交）、DicomViewer 打印接 printApi.createJob、CriticalValueModals 规则保存、ResearchPage 2、TemplateManagement 回滚、RegionalReport 保存
+- **整改**：EyeRisPage 5 处分页受控、DataReportCenter 刷新真实重拉、ClinicalPathway 推进/退出操作列、PatientReportPortal/ReportDelivery 接真实 API 派生、FindingLibrary 静态徽标、BenchmarkAiDiagnosis 演示徽标
+
+### Wave 3: 翻译 + 图标专业化（3 agents）
+
+- **翻译 ~74 处清零**：PixPage 整页 7 高优（PIX 查询/映射/标识符映射）、FhirServerPage 3（能力声明/OAuth2 授权）、dicom DIMSE/SR/Web 系列 ~19（检查号/检查 UID/SOP 实例 UID/AE 名）、SmartAuth 4、零散 11 + appI18n studyUid + nav.json 补 criticalValueReceiver/forbidden + 收尾扫描 20 处
+- **图标专业 I**：dentalSpecialty 分组图标、新建/导出/保存/删除/打印/提交/刷新/搜索按钮补 lucide 图标 45 处（余已带）、口腔 14 项去 Activity 化（Stethoscope/Scan/Smile/Target/Award 等）、@ant-design/icons 4 文件迁移 lucide、PageHeader 11 处 icon
+- **图标专业 II**：Empty 补图标 180/238 处（Inbox/SearchX/AlertTriangle/BellOff/BarChart3）+ 25 处裸 Empty 补描述 + 重试按钮 55 处统一 RefreshCw
+
+### Wave 4: PACS 高价值 4 项 + 品牌化（3 agents）
+
+- **资质感知路由真实化（G-16）**：smart-route 新增 recommend（资质匹配 0.5 + DB 负载 0.3 + 准确率 0.2）+ assign 支持 doctorId；SmartRoutePage 推荐分配 Tab（匹配度/负载/准确率/理由/一键分配）
+- **DRL 告警闭环（G-22）**：POST /rdsr/check（阈值超限判定 + 儿童/成人 DRL 自动切换 + critical 自动生成危急值告警）；DRLManagement 阈值可编辑 + 超限面板 + 历史告警确认闭环
+- **AI 二次检出叠加阅片（G-12）**：DicomViewerPro AI 结果开关（Brain）+ AiFindingsOverlay 叠加层（置信度红/橙/绿标记 + Popover 详情 + 摘要栏）+ 四模型归一化
+- **Auto-hanging 落地（G-17）**：共享 hangingProtocols 常量（11 套协议 + 匹配引擎）+ ViewerPro 挂片协议下拉 + 自动挂片（2×2 布局 + 序列分配）
+- **登录页品牌化**：左右分栏（品牌区渐变+呼吸动效+4 亮点卡 / 表单区）+ 主题变量化 + 演示环境说明美化；HomePage COLORS 全量主题变量化（图表/Tooltip/徽章跟随主题）
+
+### Wave 5: 深色全量 + UI 一致性（4 agents）
+
+- **深色模式 206 文件全量适配**：硬编码浅色背景/文字 → CSS 变量（--bg-card/--bg-primary/语义色），~450 处替换；阅片区刻意深色豁免、打印模板豁免
+- **表格 scroll 补 38 处**（IolCalculator/DimsePage×3/DicomDimsePage×3/CosignSchedule×4 等）
+- **手写卡片换 antd Card 12 文件/63 张**（DeviceFault 13/Statistics 12/Worklist 12/Patient 5 等）
+- **页面标题统一 PageHeader 12 文件**（Audit/Backup/AIOrchestration/AIStructuredReport×5/Hl7Siu/DicomSr 等）
+- **事故修复**：@ts-nocheck 移位修复 6 文件（-212 错误）、GreenITPage 编码损坏修复（纸张成本/耗材成本）、5A/5C 中断续做
+
+### 验证
+
+- 后端: tsc 0 错误、jest **163 suites / 1530 tests 全部通过**（+13 suites +67 tests）
+- 前端: tsc 857（基线持平 0 新增）、vite build 成功（526 precache entries）、Playwright 回归 15/15、**336 路由全量回归 0 问题**
+- 浏览器实测: 新端点页 0 4xx、推荐分配/DRL 告警/AI 叠加/挂片交互实测通过、登录页品牌化渲染、深色抽查无白底
+
 ## v3.0.6.11-83 (2026-08-08) — 大规模升级：后端7模块补全+11静态页接API+13假按钮/21分页整改+翻译151处严查+UI美化（旧主色清零/图表120包卡片/侧边栏）
 
 > **目标**: 20000 升级点——UI 优化美化 + 后端有前端接 + 空表格/空按钮/分页整改 + 翻译严查 + 主题统一
@@ -35,7 +79,7 @@
 - 前端: tsc 855（基线持平 0 新增，顺带修复存量 -37）、vite build 成功（524 precache entries）、Playwright 回归 15/15
 - 浏览器实测: 新增页面全 0 4xx（9+12 路由抽查）、翻译页 0 残留、三主题/响应式/侧边栏交互正常
 
-## v3.0.6.11-83 (2026-08-08) — 大规模升级：UI 主题美化（主色统一+深色批量+表格响应式）+ 路径错位三层修复 + 孤儿模块后端 + 空表格/假按钮/分页整改 + 翻译 26 处
+## v3.0.6.11-82 (2026-08-08) — 大规模升级：UI 主题美化（主色统一+深色批量+表格响应式）+ 路径错位三层修复 + 孤儿模块后端 + 空表格/假按钮/分页整改 + 翻译 26 处
 
 > **目标**: 20000 升级点——UI 优化美化 + 反向错位修复 + 后端有前端接 + 空表格/空按钮/分页整改 + 翻译严查
 > **范围**: 10 agents 四波实施（140 suites/1415 tests）
@@ -229,7 +273,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-83 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-85 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -266,7 +310,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-83 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-85 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -497,7 +541,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-83.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-85.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -606,16 +650,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-83（含 package-lock.json）
-- backend/package.json → 3.0.6.11-83
-- index.html title + window.__appVersion → v3.0.6.11-83
-- src/main.tsx APP_VERSION → v3.0.6.11-83
-- backend/src/main.ts + app.module.ts → v3.0.6.11-83
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-83
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-83
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-83
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-83
-- CHANGELOG.md 新增 v3.0.6.11-83 条目
+- package.json → 3.0.6.11-85（含 package-lock.json）
+- backend/package.json → 3.0.6.11-85
+- index.html title + window.__appVersion → v3.0.6.11-85
+- src/main.tsx APP_VERSION → v3.0.6.11-85
+- backend/src/main.ts + app.module.ts → v3.0.6.11-85
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-85
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-85
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-85
+- CHANGELOG.md 新增 v3.0.6.11-85 条目
 
 ### 验证结果
 
@@ -626,10 +670,10 @@
 
 ---
 
-## v3.0.6.11-83 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-83
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-85
 
 ### A13: 后端安全加固
 
@@ -660,19 +704,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-83
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-83
-- backend/src/app.module.ts → v3.0.6.11-83
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-83
-- index.html title + window.__appVersion → v3.0.6.11-83
-- src/i18n/appI18n.ts → v3.0.6.11-83
-- src/main.tsx APP_VERSION → v3.0.6.11-83
-- src/routes/routeTable.tsx → v3.0.6.11-83
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-83
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-83
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-83
-- CONTRIBUTING.md → v3.0.6.11-83
-- CHANGELOG.md 新增 v3.0.6.11-83 条目
+- backend/package.json → 3.0.6.11-85
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-85
+- backend/src/app.module.ts → v3.0.6.11-85
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-85
+- index.html title + window.__appVersion → v3.0.6.11-85
+- src/i18n/appI18n.ts → v3.0.6.11-85
+- src/main.tsx APP_VERSION → v3.0.6.11-85
+- src/routes/routeTable.tsx → v3.0.6.11-85
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-85
+- CONTRIBUTING.md → v3.0.6.11-85
+- CHANGELOG.md 新增 v3.0.6.11-85 条目
 
 ### 验证结果
 

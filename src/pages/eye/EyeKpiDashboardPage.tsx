@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { PageContainer, PageHeader } from '@/components/common'
+import { usePagination } from '@/hooks/usePagination'
+import { eyeApi } from '@/services/api/eyeApi'
+import type { ApiResponse } from '@/services/api/types'
 import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Badge, Alert, Button, Spin, Empty, Space } from 'antd'
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle, RefreshCw } from 'lucide-react'
-import { eyeApi } from '@/services/api/eyeApi'
-import { PageContainer, PageHeader } from '@/components/common'
-import type { ApiResponse } from '@/services/api/types'
-import { usePagination } from '@/hooks/usePagination'
+import React, { useCallback, useEffect, useState } from 'react'
 
 const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#2563eb" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
 const categoryColors: Record<string, string> = { productivity: '#2563eb', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' }
@@ -103,7 +103,7 @@ const EyeKpiDashboardPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 12 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       {loading ? (
@@ -131,7 +131,7 @@ const EyeKpiDashboardPage: React.FC = () => {
                 ...Object.keys(categoryIcons).map((k) => ({ key: k, label: CATEGORY_LABELS_DICT[k] || k })),
               ]}
             />
-            {filtered.length === 0 ? <Empty description="暂无指标数据" /> : (
+            {filtered.length === 0 ? <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无指标数据" /> : (
               <Table dataSource={metricPagination.pageData} rowKey="id" size="small" pagination={metricPagination.pagination}
                 columns={[
                   { title: '类别', dataIndex: 'category', key: 'category', width: 80, render: (v: string) => <Tag color={categoryColors[v]}>{CATEGORY_LABELS_DICT[v] || v}</Tag> },
@@ -139,7 +139,7 @@ const EyeKpiDashboardPage: React.FC = () => {
                   { title: '值', dataIndex: 'value', key: 'value', width: 90, render: (v: number, r: KpiMetric) => <span style={{ fontWeight: 600 }}>{v}{r.unit}</span> },
                   { title: '目标', dataIndex: 'target', key: 'target', width: 70, render: (v: number) => v },
                   { title: '达成率', key: 'rate', width: 140, render: (_, r: KpiMetric) => <PercentBar value={r.value} target={r.target} /> },
-                  { title: '趋势', dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: '#94a3b8' }}>→</span> },
+                  { title: '趋势', dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: 'var(--text-secondary)' }}>→</span> },
                   { title: '周期', dataIndex: 'period', key: 'period', width: 60 },
                 ]} 
               scroll={{ x: 'max-content' }}/>
@@ -151,7 +151,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               <Row gutter={12}>{['沟通', '候诊', '环境', '推荐'].map((s, i) => {
                 const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i] ?? 0)
                 const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>
+                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>
               })}</Row>
             )}
           </Card>

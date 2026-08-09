@@ -63,7 +63,7 @@ export const DentalSurgeryPage: React.FC = () => {
       }}
     >
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>
+        <div style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
           加载中...
         </div>
       ) : treats.length === 0 ? (

@@ -4,7 +4,8 @@
 // 放射科专用数据字典：CT/MRI/X线检查项目、设备类型、诊断术语等
 // ============================================================
 import { useState, useMemo, useEffect } from 'react'
-import { message } from 'antd'
+import { Card,  message } from 'antd'
+import { PageHeader } from '../components/common/PageHeader'
 import { termApi } from '../services/api/termApi'
 import { dictionaryApi } from '../services/api/dictionaryApi'
 import {
@@ -23,7 +24,7 @@ const s: Record<string, React.CSSProperties> = {
     marginBottom: 20,
   },
   title: { fontSize: 18, fontWeight: 700, color: '#1e40af' },
-  subtitle: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   toolbar: {
     display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
     background: 'var(--bg-card)', padding: '12px 16px', borderRadius: 10,
@@ -31,7 +32,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   searchBox: {
     display: 'flex', alignItems: 'center', gap: 8,
-    background: 'var(--content-bg)', border: '1px solid #e2e8f0',
+    background: 'var(--content-bg)', border: '1px solid var(--border-color)',
     borderRadius: 8, padding: '8px 14px', flex: 1, minWidth: 220,
   },
   searchInput: {
@@ -39,7 +40,7 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 14, color: 'var(--text-secondary)', width: '100%',
   },
   select: {
-    border: '1px solid #e2e8f0', borderRadius: 8, padding: '9px 14px',
+    border: '1px solid var(--border-color)', borderRadius: 8, padding: '9px 14px',
     fontSize: 13, color: 'var(--text-secondary)', background: 'var(--content-bg)', outline: 'none',
     cursor: 'pointer', minHeight: 44,
   },
@@ -51,12 +52,12 @@ const s: Record<string, React.CSSProperties> = {
   },
   btnDanger: {
     display: 'flex', alignItems: 'center', gap: 4,
-    background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 8,
+    background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 13, cursor: 'pointer', minHeight: 44,
   },
   btnIcon: {
     display: 'flex', alignItems: 'center', gap: 4,
-    background: 'var(--content-bg)', color: '#475569', border: 'none', borderRadius: 8,
+    background: 'var(--content-bg)', color: 'var(--text-secondary)', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 13, cursor: 'pointer', minHeight: 44,
   },
   table: {
@@ -65,29 +66,29 @@ const s: Record<string, React.CSSProperties> = {
   },
   th: {
     background: 'var(--content-bg)', padding: '12px 14px', textAlign: 'left',
-    fontSize: 12, fontWeight: 600, color: '#64748b', borderBottom: '1px solid #e2e8f0',
+    fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)',
   },
   td: {
-    padding: '12px 14px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9',
+    padding: '12px 14px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)',
   },
   badge: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12,
     fontWeight: 600,
   },
-  badgeActive: { background: '#dcfce7', color: '#16a34a' },
-  badgeInactive: { background: 'var(--content-bg)', color: '#94a3b8' },
+  badgeActive: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  badgeInactive: { background: 'var(--content-bg)', color: 'var(--text-secondary)' },
   actions: { display: 'flex', gap: 6 },
   pagination: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     marginTop: 16, padding: '12px 16px', background: 'var(--bg-card)',
     borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
-  pageInfo: { fontSize: 13, color: '#64748b' },
+  pageInfo: { fontSize: 13, color: 'var(--text-secondary)' },
   pageBtns: { display: 'flex', gap: 4 },
   pageBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    width: 34, height: 34, borderRadius: 8, border: '1px solid #e2e8f0',
-    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, color: '#475569',
+    width: 34, height: 34, borderRadius: 8, border: '1px solid var(--border-color)',
+    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)',
   },
   pageBtnActive: {
     background: '#1e40af', color: '#fff', border: '1px solid #1e40af',
@@ -104,7 +105,7 @@ const s: Record<string, React.CSSProperties> = {
     boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
   },
   modalHeader: {
-    padding: '16px 20px', borderBottom: '1px solid #e2e8f0',
+    padding: '16px 20px', borderBottom: '1px solid var(--border-color)',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     background: '#1e40af',
   },
@@ -118,7 +119,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: 20, overflowY: 'auto', flex: 1,
   },
   modalFooter: {
-    padding: '12px 20px', borderTop: '1px solid #e2e8f0',
+    padding: '12px 20px', borderTop: '1px solid var(--border-color)',
     display: 'flex', justifyContent: 'flex-end', gap: 10,
   },
   formGrid: {
@@ -126,21 +127,21 @@ const s: Record<string, React.CSSProperties> = {
   },
   formGroup: { display: 'flex', flexDirection: 'column', gap: 5 },
   formGroupFull: { gridColumn: '1 / -1' },
-  label: { fontSize: 12, fontWeight: 600, color: '#475569' },
+  label: { fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' },
   required: { color: '#dc2626', marginLeft: 2 },
   input: {
-    border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px',
+    border: '1px solid var(--border-color)', borderRadius: 8, padding: '10px 12px',
     fontSize: 14, color: 'var(--text-secondary)', outline: 'none', minHeight: 44,
     boxSizing: 'border-box', width: '100%',
   },
   textarea: {
-    border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px',
+    border: '1px solid var(--border-color)', borderRadius: 8, padding: '10px 12px',
     fontSize: 14, color: 'var(--text-secondary)', outline: 'none', resize: 'vertical',
     minHeight: 80, fontFamily: 'inherit', boxSizing: 'border-box', width: '100%',
   },
   btnCancel: {
-    padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0',
-    background: 'var(--bg-card)', fontSize: 14, color: '#475569', cursor: 'pointer', minHeight: 44,
+    padding: '10px 20px', borderRadius: 8, border: '1px solid var(--border-color)',
+    background: 'var(--bg-card)', fontSize: 14, color: 'var(--text-secondary)', cursor: 'pointer', minHeight: 44,
   },
   btnSubmit: {
     padding: '10px 20px', borderRadius: 8, border: 'none',
@@ -151,7 +152,7 @@ const s: Record<string, React.CSSProperties> = {
     background: '#dc2626', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
   },
   emptyState: {
-    textAlign: 'center', padding: '60px 20px', color: '#94a3b8',
+    textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)',
     fontSize: 16,
   },
   emptyIcon: {
@@ -159,13 +160,13 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     margin: '0 auto 16px',
   },
-  emptyTitle: { fontSize: 16, fontWeight: 600, color: '#64748b', marginBottom: 8 },
-  emptyDesc: { fontSize: 13, color: '#94a3b8', marginBottom: 20 },
+  emptyTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 },
+  emptyDesc: { fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 },
   infoTip: {
-    fontSize: 12, color: '#94a3b8', marginTop: 4,
+    fontSize: 12, color: 'var(--text-secondary)', marginTop: 4,
   },
   deleteModalText: {
-    fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 8,
+    fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8,
   },
   stats: {
     display: 'flex', gap: 20, marginLeft: 'auto',
@@ -173,11 +174,11 @@ const s: Record<string, React.CSSProperties> = {
   statCard: {
     display: 'flex', alignItems: 'center', gap: 8,
     background: 'var(--bg-card)', padding: '8px 14px', borderRadius: 8,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid var(--border-light)',
   },
   statItem: {
     display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 13, color: '#64748b',
+    fontSize: 13, color: 'var(--text-secondary)',
   },
   statNum: { fontWeight: 800, color: '#1e40af', fontSize: 16 },
   categoryTag: {
@@ -198,7 +199,7 @@ const s: Record<string, React.CSSProperties> = {
     cursor: 'pointer', border: 'none', transition: 'all 0.15s',
   },
   tabActive: { background: '#1e40af', color: '#fff' },
-  tabInactive: { background: 'transparent', color: '#64748b' },
+  tabInactive: { background: 'transparent', color: 'var(--text-secondary)' },
   chartCard: {
     background: 'var(--bg-card)', borderRadius: 10, padding: 16, marginBottom: 16,
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
@@ -265,25 +266,25 @@ interface UsageStat {
 
 // ---------- 放射科字典分类颜色 ----------
 const categoryColors: Record<string, { backgroundColor: string; color: string }> = {
-  'CT检查项目':   { backgroundColor: '#dbeafe', color: '#1d4ed8' },
-  'MRI序列':      { backgroundColor: '#fce7f3', color: '#be185d' },
-  'X线检查':      { backgroundColor: '#dcfce7', color: '#16a34a' },
-  '设备类型':     { backgroundColor: '#fef3c7', color: '#92400e' },
-  '诊断术语':     { backgroundColor: '#e0e7ff', color: '#4338ca' },
-  '检查部位':     { backgroundColor: '#fdf4ff', color: '#a21caf' },
+  'CT检查项目':   { backgroundColor: 'var(--color-info-bg)', color: '#1d4ed8' },
+  'MRI序列':      { backgroundColor: '#ec489922', color: '#be185d' },
+  'X线检查':      { backgroundColor: 'var(--color-success-bg)', color: '#16a34a' },
+  '设备类型':     { backgroundColor: 'var(--color-warning-bg)', color: '#92400e' },
+  '诊断术语':     { backgroundColor: '#8b5cf622', color: '#4338ca' },
+  '检查部位':     { backgroundColor: '#8b5cf622', color: '#a21caf' },
   '造影剂':       { backgroundColor: '#ccfbf1', color: '#0f766e' },
-  '辐射剂量':     { backgroundColor: '#fee2e2', color: '#b91c1c' },
-  '体位技术':     { backgroundColor: '#fef9c3', color: '#854d0e' },
-  '对比剂类型':   { backgroundColor: '#e0f2fe', color: '#0369a1' },
+  '辐射剂量':     { backgroundColor: 'var(--color-error-bg)', color: '#b91c1c' },
+  '体位技术':     { backgroundColor: 'var(--color-warning-bg)', color: '#854d0e' },
+  '对比剂类型':   { backgroundColor: 'var(--color-info-bg)', color: '#0369a1' },
 }
 
 const modalityColors: Record<string, { bg: string; color: string }> = {
-  'CT':    { bg: '#eff6ff', color: '#2563eb' },
-  'MR':    { bg: '#f5f3ff', color: '#7c3aed' },
-  'DR':    { bg: '#ecfdf5', color: '#059669' },
-  'DSA':   { bg: '#fffbeb', color: '#d97706' },
-  '乳腺':  { bg: '#fdf2f8', color: '#db2777' },
-  '胃肠':  { bg: '#ecfeff', color: '#0891b2' },
+  'CT':    { bg: '#3b82f622', color: '#2563eb' },
+  'MR':    { bg: '#8b5cf622', color: '#7c3aed' },
+  'DR':    { bg: '#22c55e22', color: '#059669' },
+  'DSA':   { bg: '#f59e0b22', color: '#d97706' },
+  '乳腺':  { bg: '#ec489922', color: '#db2777' },
+  '胃肠':  { bg: '#06b6d422', color: '#0891b2' },
 }
 
 const initialDictionaries: DictionaryItem[] = [
@@ -624,7 +625,7 @@ export default function DictionaryPage() {
     <>
       <div style={s.toolbar}>
         <div style={s.searchBox}>
-          <Search size={15} color="#94a3b8" />
+          <Search size={15} color="var(--text-secondary)" />
           <input
             style={s.searchInput}
             placeholder="搜索名称、编码、拼音、备注..."
@@ -633,7 +634,7 @@ export default function DictionaryPage() {
           />
           {search && (
             <button onClick={() => { setSearch(''); setPage(1) }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2 }}>
-              <X size={13} color="#94a3b8" />
+              <X size={13} color="var(--text-secondary)" />
             </button>
           )}
         </div>
@@ -683,25 +684,25 @@ export default function DictionaryPage() {
       </div>
 
       {dictLoading && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#1e40af' }}>
           正在从数据字典 API 加载...
         </div>
       )}
       {dictLoadError && !dictLoading && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#b91c1c' }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#b91c1c' }}>
           字典加载失败: {dictLoadError} (页面将显示空列表, 可尝试刷新)
         </div>
       )}
 
       {paged.length === 0 ? (
-        <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }} styles={{ body: { padding: 0 } }}>
           <div style={s.emptyState}>
-            <div style={s.emptyIcon}><BookOpen size={28} color="#94a3b8" /></div>
+            <div style={s.emptyIcon}><BookOpen size={28} color="var(--text-secondary)" /></div>
             <div style={s.emptyTitle}>暂无字典数据</div>
             <div style={s.emptyDesc}>当前分类下没有字典记录，请尝试调整筛选条件</div>
             <button style={s.btnPrimary} onClick={openAdd}><Plus size={15} /> 新增第一条字典</button>
           </div>
-        </div>
+        </Card>
       ) : (
         <div style={{ overflowX: "auto" }}><table style={s.table}>
           <thead>
@@ -722,21 +723,21 @@ export default function DictionaryPage() {
             {paged.map(d => (
               <tr key={d.id} style={{ background: 'var(--bg-card)', transition: 'background 0.1s' }}
                 onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
-                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'}
               >
                 <td style={s.td}>
-                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: 'var(--content-bg)', color: '#475569' }) }}>
+                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: 'var(--content-bg)', color: 'var(--text-secondary)' }) }}>
                     {d.category ?? ''}
                   </span>
                 </td>
                 <td style={s.td}>
-                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
+                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-secondary)' }}>
                     {d.code ?? ''}
                   </code>
                 </td>
                 <td style={s.td}>
                   <div style={{ fontWeight: 600, color: '#1e40af' }}>{d.name ?? ''}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</div>
                 </td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
@@ -747,16 +748,16 @@ export default function DictionaryPage() {
                     ))}
                   </div>
                 </td>
-                <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{d.bodyPart || '-'}</span></td>
-                <td style={s.td}><span style={{ color: '#94a3b8', fontSize: 12 }}>{d.pinyin || '-'}</span></td>
-                <td style={s.td}><span style={{ color: '#64748b', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span></td>
+                <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.bodyPart || '-'}</span></td>
+                <td style={s.td}><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{d.pinyin || '-'}</span></td>
+                <td style={s.td}><span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span></td>
                 <td style={s.td}>
                   <span style={{ ...s.badge, ...(d.isActive ? s.badgeActive : s.badgeInactive) }}>
                     {d.isActive ? '✓ 启用' : '✗ 停用'}
                   </span>
                 </td>
                 <td style={s.td}>
-                  <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#94a3b8', fontSize: 12 }} title={d.notes}>
+                  <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)', fontSize: 12 }} title={d.notes}>
                     {d.notes || '-'}
                   </div>
                 </td>
@@ -831,19 +832,19 @@ export default function DictionaryPage() {
           <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射</div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
             <div style={s.searchBox}>
-              <Search size={15} color="#94a3b8" />
+              <Search size={15} color="var(--text-secondary)" />
               <input style={s.searchInput} placeholder="搜索源编码/目标编码/系统..." value={mappingSearch} onChange={e => setMappingSearch(e.target.value)} />
             </div>
             <button style={s.btnPrimary} onClick={handleImportMappings}><Upload size={13} /> CSV批量导入映射</button>
           </div>
           {showImportMapping && (
-            <div style={{ background: '#dcfce7', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--color-success-bg)', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <CheckCircle2 size={15} color="#16a34a" />
               <span style={{ fontSize: 12, color: '#166534' }}>成功导入 3 条新映射关系</span>
             </div>
           )}
           {unmapped.length > 0 && (
-            <div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <AlertTriangle size={15} color="#d97706" />
               <span style={{ fontSize: 12, color: '#92400e' }}>发现 {unmapped.length} 条未映射术语 <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>查看报告</button></span>
             </div>
@@ -864,15 +865,15 @@ export default function DictionaryPage() {
               {filteredMappings.map(m => (
                 <tr key={m.id}>
                   <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{m.sourceSystem}</span></td>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: '#eff6ff', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.sourceSystem}</span></td>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--color-info-bg)', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
                   <td style={s.td}>{m.targetSystem}</td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
                         <div style={{ width: `${m.accuracy * 100}%`, height: 6, background: m.accuracy > 0.9 ? '#16a34a' : m.accuracy > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
                       </div>
-                      <span style={{ fontSize: 12, color: '#64748b' }}>{Math.round(m.accuracy * 100)}%</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(m.accuracy * 100)}%</span>
                     </div>
                   </td>
                   <td style={s.td}>
@@ -884,12 +885,12 @@ export default function DictionaryPage() {
                       {m.status === 'verified' ? '已验证' : m.status === 'unverified' ? '待验证' : '冲突'}
                     </span>
                   </td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: '#94a3b8' }}>{m.lastVerified}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.lastVerified}</span></td>
                 </tr>
               ))}
             </tbody>
           </table></div>
-          <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>共 {filteredMappings.length} 条映射关系</div>
+          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>共 {filteredMappings.length} 条映射关系</div>
         </div>
       </div>
     )
@@ -903,7 +904,7 @@ export default function DictionaryPage() {
             <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               <div style={s.searchBox}>
-                <Search size={15} color="#94a3b8" />
+                <Search size={15} color="var(--text-secondary)" />
                 <input style={s.searchInput} placeholder="按编码/显示名称查找概念..." value={fhirSearch} onChange={e => setFhirSearch(e.target.value)} />
               </div>
               <select style={s.select}>
@@ -913,14 +914,14 @@ export default function DictionaryPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {mockFhirSystems.map(fs => (
-                <div key={fs.system} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
+                <div key={fs.system} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{fs.name}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{fs.system}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>版本 {fs.version}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{fs.system}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>版本 {fs.version}</div>
                 </div>
               ))}
             </div>
-            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>概念层级树</div>
               {mockConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
@@ -930,7 +931,7 @@ export default function DictionaryPage() {
                   >
                     <Layers size={12} color="#2563eb" />
                     <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{concept.display}</span>
-                    <code style={{ fontSize: 12, color: '#64748b' }}>({concept.code})</code>
+                    <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({concept.code})</code>
                   </div>
                   {concept.children?.map(child => (
                     <div key={child.code} style={{ paddingLeft: 24 }}>
@@ -938,16 +939,16 @@ export default function DictionaryPage() {
                         onClick={() => setSelectedConcept(child)}
                         style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === child.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                       >
-                        <Layers size={12} color="#64748b" />
+                        <Layers size={12} color="var(--text-secondary)" />
                         <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{child.display}</span>
-                        <code style={{ fontSize: 12, color: '#64748b' }}>({child.code})</code>
+                        <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({child.code})</code>
                       </div>
                       {child.children?.map(grandchild => (
                         <div key={grandchild.code} style={{ paddingLeft: 48 }}>
                           <div style={{ padding: '6px 10px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <Layers size={12} color="#94a3b8" />
-                            <span style={{ fontSize: 12, color: '#475569' }}>{grandchild.display}</span>
-                            <code style={{ fontSize: 12, color: '#94a3b8' }}>({grandchild.code})</code>
+                            <Layers size={12} color="var(--text-secondary)" />
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{grandchild.display}</span>
+                            <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({grandchild.code})</code>
                           </div>
                         </div>
                       ))}
@@ -963,15 +964,15 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Globe size={16} /> 概念详情</div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>编码</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>编码</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{selectedConcept.code}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>显示名称</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>显示名称</div>
                 <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{selectedConcept.display}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>系统</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>系统</div>
                 <div style={{ fontSize: 12, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
               </div>
               <button
@@ -1026,7 +1027,7 @@ export default function DictionaryPage() {
             <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
               {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
             </select>
-            <span style={{ fontSize: 12, color: '#64748b' }}>共 {dictVersions.length} 个版本</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 {dictVersions.length} 个版本</span>
           </div>
           <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
@@ -1053,8 +1054,8 @@ export default function DictionaryPage() {
                     </span>
                   </td>
                   <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changedBy}</span></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changedAt}</span></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changes}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changedAt}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changes}</span></td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
@@ -1123,10 +1124,10 @@ export default function DictionaryPage() {
             </tbody>
           </table></div>
           {diffView && (
-            <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+            <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>Diff 视图</div>
-              <div style={{ fontSize: 12, color: '#059669', background: '#ecfdf5', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
-              <div style={{ fontSize: 12, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
+              <div style={{ fontSize: 12, color: '#059669', background: 'var(--color-success-bg)', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
+              <div style={{ fontSize: 12, color: '#dc2626', background: 'var(--color-error-bg)', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
             </div>
           )}
         </div>
@@ -1208,27 +1209,27 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><Upload size={16} /> 批量导入</div>
               {importStep === 'upload' && (
                 <>
-                  <div style={{ border: '2px dashed #cbd5e1', borderRadius: 8, padding: 40, textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
+                  <div style={{ border: '2px dashed var(--border-color)', borderRadius: 8, padding: 40, textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
                     onClick={() => document.getElementById('importFileInput')?.click()}
                   >
-                    <FileSpreadsheet size={32} color="#94a3b8" style={{ marginBottom: 8 }} />
-                    <div style={{ fontSize: 13, color: '#64748b' }}>点击选择 CSV/Excel/JSON 文件</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>支持 .csv, .xlsx, .json 格式</div>
+                    <FileSpreadsheet size={32} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>点击选择 CSV/Excel/JSON 文件</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>支持 .csv, .xlsx, .json 格式</div>
                     <input id="importFileInput" type="file" accept=".csv,.xlsx,.json" style={{ display: 'none' }} onChange={e => { setImportFile(e.target.files?.[0] || null) }} />
                   </div>
                   {importFile && (
-                    <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <FileSpreadsheet size={15} color="#2563eb" />
                       <span style={{ fontSize: 12, color: '#1e40af' }}>{importFile.name}</span>
-                      <span style={{ fontSize: 12, color: '#64748b' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                   )}
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>字段映射</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>字段映射</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {[{ file: '编码', dict: 'code' }, { file: '名称', dict: 'name' }, { file: '分类', dict: 'category' }, { file: '拼音', dict: 'pinyin' }, { file: '部位', dict: 'bodyPart' }].map(fm => (
                         <div key={fm.file} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 12, color: '#64748b', minWidth: 60 }}>{fm.file} →</span>
+                          <span style={{ fontSize: 12, color: 'var(--text-secondary)', minWidth: 60 }}>{fm.file} →</span>
                           <input style={{ ...s.select, padding: '4px 8px', minHeight: 30 }} value={fm.dict} readOnly />
                         </div>
                       ))}
@@ -1275,7 +1276,7 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Download size={16} /> 导出与过滤</div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>筛选条件</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>筛选条件</div>
                 <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="">全部分类</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select>
                 <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="all">全部状态</option><option value="active">已启用</option><option value="inactive">停用</option></select>
               </div>
@@ -1305,21 +1306,21 @@ export default function DictionaryPage() {
                 {mockUsageStats[0].trend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: '#3b82f6', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{['1月','2月','3月','4月','5月','6月'][i]}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{['1月','2月','3月','4月','5月','6月'][i]}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 8, textAlign: 'center' }}>基于 {mockUsageStats.reduce((s, u) => s + u.usageCount, 0)} 次使用记录</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, textAlign: 'center' }}>基于 {mockUsageStats.reduce((s, u) => s + u.usageCount, 0)} 次使用记录</div>
             </div>
 
             <div style={s.chartCard}>
               <div style={s.chartTitle}><BarChart2 size={16} /> 最常用术语 TOP 5</div>
               {mostUsed.slice(0, 5).map((u, i) => (
-                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{u.termName}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{u.department}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.department}</div>
                   </div>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
                 </div>
@@ -1333,9 +1334,9 @@ export default function DictionaryPage() {
                 const deptStats = mockUsageStats.filter(u => u.department === dept)
                 const total = deptStats.reduce((s, u) => s + u.usageCount, 0)
                 return (
-                  <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{dept}</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
                     <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
                       <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: '#3b82f6', borderRadius: 2 }} />
                     </div>
@@ -1347,11 +1348,11 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><AlertTriangle size={16} /> 清理建议</div>
               {leastUsed.map(u => (
-                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <PieChart size={12} color="#f59e0b" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, color: '#475569' }}>{u.termName}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>仅使用 {u.usageCount} 次</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.termName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>仅使用 {u.usageCount} 次</div>
                   </div>
                   <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 12 }}
                     onClick={async () => {
@@ -1372,7 +1373,7 @@ export default function DictionaryPage() {
                   </button>
                 </div>
               ))}
-              <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>系统建议清理使用频率较低的术语，减少字典冗余</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>系统建议清理使用频率较低的术语，减少字典冗余</div>
             </div>
           </div>
         </div>
@@ -1381,32 +1382,34 @@ export default function DictionaryPage() {
   }
 
   return (
-    <div style={{ background: '#f0f4f8', minHeight: '100vh', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div style={{ background: 'var(--bg-card)', minHeight: '100vh', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       <div style={s.pageHeader}>
-        <div>
-          <div style={s.title}>📖 数据字典管理</div>
-          <div style={s.subtitle}>放射科检查项目、设备类型、诊断术语标准化字典</div>
-        </div>
+        <PageHeader
+          variant="flex"
+          title="📖 数据字典管理"
+          subtitle="放射科检查项目、设备类型、诊断术语标准化字典"
+          style={{ marginBottom: 0 }}
+        />
         <div style={s.stats}>
           <div style={s.statCard}>
-            <BookOpen size={15} color="#64748b" />
+            <BookOpen size={15} color="var(--text-secondary)" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af' }}>{stats.total}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>字典条目</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>字典条目</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Activity size={15} color="#16a34a" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>{stats.active}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>已启用</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已启用</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Filter size={15} color="#7c3aed" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed' }}>{stats.catCount}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>分类数</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>分类数</div>
             </div>
           </div>
         </div>
@@ -1457,7 +1460,7 @@ export default function DictionaryPage() {
                 </div>
                 <div style={s.modalBody}>
                   {formErrors.length > 0 && (
-                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
+                    <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
                       {formErrors.map((err, i) => <div key={i} style={{ fontSize: 12, color: '#dc2626' }}>• {err}</div>)}
                     </div>
                   )}

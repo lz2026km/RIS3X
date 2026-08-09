@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { cardiacSpecialtyApi } from "../../services/api/cardiacSpecialtyApi";
+import { CardiacAnalysis } from '../../services/api/cardiacSpecialtyApi'
+import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { message, Spin, Alert, Button } from "antd";
 import { Search, Download, Database, Eye, RefreshCw } from "lucide-react";
-import { cardiacSpecialtyApi } from "../../services/api/cardiacSpecialtyApi";
-import type { CardiacAnalysis } from "../../services/api/cardiacSpecialtyApi";
-import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
+import { useState, useEffect, useCallback } from "react";
 
 type CvModality = "CCTA" | "CMR" | "Echo" | "Cath" | "Vascular";
 type CvAnatomy =
@@ -257,8 +257,7 @@ export default function CvDatabasePage() {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

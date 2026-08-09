@@ -252,12 +252,12 @@ export default function ReportPhraseBankPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <MessageSquare size={20} color="#3b82f6" /> 报告短语库
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
-              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
               color: source === 'api' ? '#16a34a' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
@@ -265,7 +265,7 @@ export default function ReportPhraseBankPage() {
               {loading ? '同步中...' : source === 'api' ? '数据源: templatesApi.snippets 实时' : '演示数据(接口不可用)'}
             </span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {phrases.length} 短语 · 6 分类 · 占位符替换 · 一键复制 · 评分系统
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
@@ -291,7 +291,7 @@ export default function ReportPhraseBankPage() {
               key={c.key}
               onClick={() => setFilterCategory(filterCategory === c.key ? 'all' : c.key)}
               style={{
-                background: '#fff', padding: 10, borderRadius: 8,
+                background: 'var(--bg-card)', padding: 10, borderRadius: 8,
                 border: `2px solid ${filterCategory === c.key ? c.color : '#e2e8f0'}`,
                 cursor: 'pointer', textAlign: 'center',
               }}
@@ -300,7 +300,7 @@ export default function ReportPhraseBankPage() {
                 <Icon size={12} color={c.color} />
                 <span style={{ fontSize: 12, color: c.color, fontWeight: 700 }}>{c.label}</span>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{phrases.filter(p => p.category === c.key).length}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{phrases.filter(p => p.category === c.key).length}</div>
             </div>
           );
         })}
@@ -308,16 +308,16 @@ export default function ReportPhraseBankPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 12 }}>
         {/* 左：短语列表 */}
-        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: '#94a3b8' }} />
+              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="搜索标题/内容/标签..."
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
               />
             </div>
           </div>
@@ -330,26 +330,26 @@ export default function ReportPhraseBankPage() {
                   key={p.id}
                   onClick={() => setSelectedPhraseId(p.id)}
                   style={{
-                    padding: 10, borderBottom: '1px solid #f1f5f9',
-                    background: isSelected ? '#eff6ff' : 'transparent',
+                    padding: 10, borderBottom: '1px solid var(--border-light)',
+                    background: isSelected ? 'var(--color-info-bg)' : 'transparent',
                     borderLeft: isSelected ? `3px solid ${cConf.color}` : '3px solid transparent',
                     cursor: 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', flex: 1 }}>{p.title}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{p.title}</span>
                     <span style={{
                       fontSize: 12, padding: '1px 4px', borderRadius: 2,
                       background: cConf.bg, color: cConf.color, fontWeight: 600,
                     }}>{cConf.label}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, lineHeight: 1.4, maxHeight: 32, overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.4, maxHeight: 32, overflow: 'hidden' }}>
                     {p.content.slice(0, 60)}...
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                     <span>{'⭐'.repeat(p.rating)}</span>
                     <span>· ×{p.usageCount}</span>
-                    {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: '#fef3c7', color: '#92400e', borderRadius: 2 }}>{p.placeholders.length} 占位符</span>}
+                    {p.placeholders.length > 0 && <span style={{ padding: '0 4px', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 2 }}>{p.placeholders.length} 占位符</span>}
                   </div>
                 </div>
               );
@@ -361,17 +361,17 @@ export default function ReportPhraseBankPage() {
         {selected && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* 头部 */}
-            <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{selected.title}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{selected.scene}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{selected.scene}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: PHRASE_CATEGORIES.find(c => c.key === selected.category)!.bg, color: PHRASE_CATEGORIES.find(c => c.key === selected.category)!.color, fontWeight: 600 }}>
                     {PHRASE_CATEGORIES.find(c => c.key === selected.category)!.label}
                   </span>
-                  <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: '#fef3c7', color: '#92400e' }}>
+                  <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: 'var(--color-warning-bg)', color: '#92400e' }}>
                     {'⭐'.repeat(selected.rating)}
                   </span>
                 </div>
@@ -379,13 +379,13 @@ export default function ReportPhraseBankPage() {
 
               {/* 占位符提示 */}
               {placeholders.length > 0 && (
-                <div style={{ marginBottom: 12, padding: 10, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 6 }}>
+                <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6 }}>
                   <div style={{ fontSize: 12, color: '#92400e', fontWeight: 700, marginBottom: 6 }}>
                     💡 本短语包含 {placeholders.length} 个占位符：
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {placeholders.map(p => (
-                      <span key={p} style={{ fontSize: 12, padding: '2px 8px', background: '#fff', color: '#92400e', borderRadius: 10, fontFamily: 'monospace', fontWeight: 600 }}>
+                      <span key={p} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--bg-card)', color: '#92400e', borderRadius: 10, fontFamily: 'monospace', fontWeight: 600 }}>
                         {`{{${p}}}`}
                       </span>
                     ))}
@@ -396,14 +396,14 @@ export default function ReportPhraseBankPage() {
               {/* 编辑区 */}
               <div style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>📝 原始（含占位符）</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>📝 原始（含占位符）</span>
                 </div>
                 <textarea
                   ref={editorRef}
                   value={editedContent}
                   onChange={e => setEditedContent(e.target.value)}
                   rows={5}
-                  style={{ width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
                 />
               </div>
 
@@ -412,35 +412,35 @@ export default function ReportPhraseBankPage() {
                   <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>✨ 渲染预览（占位符已替换）</span>
                   <button
                     onClick={() => handleCopy(filledContent)}
-                    style={{ padding: '2px 8px', border: '1px solid #10b981', borderRadius: 3, background: '#fff', color: '#10b981', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                    style={{ padding: '2px 8px', border: '1px solid #10b981', borderRadius: 3, background: 'var(--bg-card)', color: '#10b981', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
                     <Copy size={10} /> 复制
                   </button>
                 </div>
-                <div style={{ padding: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 6, fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
+                <div style={{ padding: 10, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 6, fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
                   {filledContent}
                 </div>
               </div>
 
               {/* 操作按钮 */}
-              <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
-                <button onClick={handleEditFocus} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+              <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+                <button onClick={handleEditFocus} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Edit2 size={11} /> 编辑
                 </button>
-                <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Star size={11} /> 评分
                 </button>
                 <button onClick={() => handleCopy(filledContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
                   <Copy size={11} /> 一键复制
                 </button>
-                <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Trash2 size={11} /> 删除
                 </button>
               </div>
             </div>
 
             {/* 元信息 */}
-            <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>📊 短语元信息</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <InfoCell label="作者" value={selected.author} />
@@ -449,12 +449,12 @@ export default function ReportPhraseBankPage() {
                 <InfoCell label="标签数" value={String(selected.tags.length)} color="#7c3aed" />
               </div>
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🏷️ 标签</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>🏷️ 标签</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.tags.map(t => (
-                    <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: '#dbeafe', color: '#1e40af', borderRadius: 10 }}>#{t}</span>
+                    <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 10 }}>#{t}</span>
                   ))}
-                  {selected.tags.length === 0 && <span style={{ fontSize: 12, color: '#94a3b8' }}>（无标签）</span>}
+                  {selected.tags.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>（无标签）</span>}
                 </div>
               </div>
             </div>
@@ -505,7 +505,7 @@ export default function ReportPhraseBankPage() {
 // ============================================================
 const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>
-    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
-    <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: color || 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );

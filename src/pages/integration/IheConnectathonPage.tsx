@@ -2,7 +2,15 @@
  * G005 放射RIS系统 v3.0.6.0 - IHE Connectathon 页面
  * 15 升级点:测试执行 / 报告导出 / Profile 列表 / 通过率
  */
-import React, { useState, useCallback, useMemo } from "react";
+import type {
+  IheTestCase,
+  IheConnectathonSession,
+  IheTestStatus,
+  IheProfileId,
+} from "../../types/integration";
+import { usePagination } from "@/hooks/usePagination";
+import { startSession, runTestCase, addStep, endSession, exportReport, presetXdsTestCases, presetPixTestCases, presetPdqvTestCases, presetAtnaTestCases, presetPamTestCases } from '@services/integration/connectathon/IheTesting';
+import { IHE_PROFILES } from "@services/integration/ihe/IheProfiles";
 import { Card, Space, Tag, Button, Table, Empty, Statistic, Row, Col, Progress, Select, Input } from 'antd';
 import {
   Activity,
@@ -17,16 +25,9 @@ import {
   Clock,
   FileText,
 } from "lucide-react";
-import { startSession, runTestCase, addStep, endSession, exportReport, presetXdsTestCases, presetPixTestCases, presetPdqvTestCases, presetAtnaTestCases, presetPamTestCases } from '@services/integration/connectathon/IheTesting';
-import { IHE_PROFILES } from "@services/integration/ihe/IheProfiles";
-import type {
-  IheTestCase,
-  IheConnectathonSession,
-  IheTestStatus,
-  IheProfileId,
-} from "../../types/integration";
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePagination } from "@/hooks/usePagination";
 
 export const IheConnectathonPage: React.FC = () => {
   const navigate = useNavigate();
@@ -422,13 +423,13 @@ export const IheConnectathonPage: React.FC = () => {
             }
           >
             {!session || session.testCases.length === 0 ? (
-              <Empty description="点击'加载用例'创建" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击'加载用例'创建" />
             ) : (
               <Table
                 size="small"
                 rowKey="id"
                 pagination={testCasePagination.pagination}
-                locale={{ emptyText: <Empty description="暂无数据" /> }}
+                locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
                 scroll={{ x: "max-content" }}
                 dataSource={testCasePagination.pageData}
                 columns={[

@@ -1,8 +1,9 @@
 // [v3.0.6.8-36] PR 3: Toric 散光晶体规划 + 真实 Barrett II/Kane/Hill-RBF
 // 对标: ZEISS IOLMaster 700 + Alcon/J&J Toric Calculator
-import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
 import { Calculator, Compass, TrendingUp } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useEffect } from 'react';
 
 interface IOLResult {
   formula: string;
@@ -157,7 +158,7 @@ export const ToricPlannerPage: React.FC = () => {
   }, [targetPower, K1, K2, AL, ACD]);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Calculator size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼科 IOL 规划</span>
@@ -237,7 +238,7 @@ export const ToricPlannerPage: React.FC = () => {
             <Col span={14}>
               <Card title="计算结果" size="small">
                 {results.length === 0 ? (
-                  <Empty description="点击计算按钮" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击计算按钮" />
                 ) : (
                   <List
                     size="small"
@@ -263,7 +264,7 @@ export const ToricPlannerPage: React.FC = () => {
                             </Space>
                           }
                           description={
-                            <div style={{ fontSize: 11, color: '#999' }}>
+                            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                               {r.source} · {new Date(r.calculatedAt).toLocaleString('zh-CN')}
                             </div>
                           }
@@ -380,7 +381,7 @@ export const ToricPlannerPage: React.FC = () => {
                                     </Space>
                                   }
                                   description={
-                                    <span style={{ fontSize: 11, color: '#999' }}>
+                                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                                       残余: {c.residualAstigmatism}
                                     </span>
                                   }
@@ -389,13 +390,13 @@ export const ToricPlannerPage: React.FC = () => {
                             )}
                           />
                         ) : (
-                          <Empty />
+                          <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
                         )}
                       </Card>
                     </Col>
                   </Row>
                 ) : (
-                  <Empty description="点击 Toric 规划" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击 Toric 规划" />
                 )}
               </Card>
             </Col>
@@ -458,7 +459,7 @@ export const ToricPlannerPage: React.FC = () => {
                     </Col>
                   </Row>
                 ) : (
-                  <Empty description="点击术后预测" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击术后预测" />
                 )}
               </Card>
             </Col>

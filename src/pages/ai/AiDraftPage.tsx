@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip } from 'antd'
-import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout } from 'lucide-react'
+import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout, Save } from 'lucide-react'
 import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
 import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'
 import { reportApi } from '../../services/api/reportApi'
@@ -278,8 +278,8 @@ const AiDraftPage: React.FC = () => {
         >
           {draftResult.paragraphs.map((p, idx) => (
             <div key={p.id} style={{
-              marginBottom: 12, padding: 12, border: '1px solid #e8e8e8', borderRadius: 6,
-              background: editingParagraph === p.id ? '#fffbe6' : '#fafafa',
+              marginBottom: 12, padding: 12, border: '1px solid var(--border-color)', borderRadius: 6,
+              background: editingParagraph === p.id ? 'var(--color-warning-bg)' : 'var(--bg-card)',
               borderLeft: `3px solid ${idx === 0 ? '#2563eb' : idx === 1 ? '#52c41a' : idx === 2 ? '#faad14' : '#722ed1'}`,
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -297,7 +297,7 @@ const AiDraftPage: React.FC = () => {
                 <div>
                   <TextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} style={{ fontSize: 13 }} />
                   <Space style={{ marginTop: 6 }}>
-                    <Button size="small" type="primary" onClick={handleSaveEdit}>保存</Button>
+                    <Button size="small" type="primary" icon={<Save size={12} />} onClick={handleSaveEdit}>保存</Button>
                     <Button size="small" onClick={() => setEditingParagraph(null)}>取消</Button>
                   </Space>
                 </div>

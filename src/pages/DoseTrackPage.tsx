@@ -14,6 +14,7 @@ import {
   BarChart3,
   FileText,
   TrendingDown,
+  Gauge,
 } from "lucide-react";
 import { t } from "../i18n/appI18n";
 import {
@@ -198,11 +199,11 @@ export default function DoseTrackPage() {
       <SecondaryStats pendingAlerts={alerts.filter((a) => a.status === "pending").length} stats={stats} />
 
       {dataSource === 'api' ? (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#dcfce7', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
           数据源: /rdsr/today + /rdsr/patients + /rdsr/alerts（真实接口）· 日期 {today?.date ?? '-'}
         </div>
       ) : (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
           {dataError ? `剂量接口不可用: ${dataError}; ` : ''}演示数据（rdsrApi 未返回, 已回退 mockData）
         </div>
       )}
@@ -262,7 +263,21 @@ export default function DoseTrackPage() {
           doseAlerts={doseAlerts}
           cumulativeStats={stats}
           filteredAlerts={filteredAlerts}
-          onAcknowledgeAlert={(alertId) => {
+          onAcknowledgeAlert={async (alertId) => {
+            // 真实闭环: 写回 /rdsr/alerts/:id/ack, 失败时回退本地状态
+            if (dataSource === 'api') {
+              try {
+                const res = await rdsrApi.ackAlert(alertId);
+                if (res.success) {
+                  setAlerts((prev) =>
+                    prev.map((a) =>
+                      a.id === alertId ? { ...a, status: "acknowledged" as const } : a,
+                    ),
+                  );
+                  return;
+                }
+              } catch { /* fall through to local */ }
+            }
             setAlerts((prev) =>
               prev.map((a) =>
                 a.id === alertId ? { ...a, status: "acknowledged" as const } : a,
@@ -325,11 +340,15 @@ function PageHeader({
             fontWeight: 700,
             color: "#1e40af",
             margin: "0 0 4px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
           }}
         >
+          <Gauge size={18} color="#1e40af" />
           {t("doseTrack.title")}
         </h1>
-        <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+        <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
           {t("doseTrack.subtitle")}
         </p>
       </div>
@@ -361,7 +380,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         delta="+5.2%"
         deltaColor="#16a34a"
         icon={<Activity size={18} />}
-        iconBg="#eff6ff"
+        iconBg="var(--color-info-bg)"
         iconColor="#3b82f6"
       />
       <PrimaryStat
@@ -390,7 +409,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         delta={`${stats.criticalAlerts}危 / ${stats.warningAlerts}警`}
         deltaColor="#64748b"
         icon={<ShieldAlert size={18} />}
-        iconBg="#fffbeb"
+        iconBg="var(--color-warning-bg)"
         iconColor="#d97706"
       />
       <PrimaryStat
@@ -430,17 +449,17 @@ function PrimaryStat({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 10,
         padding: "14px 16px",
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
       }}
     >
       <div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
         <div
           style={{
             fontSize: 22,
@@ -452,7 +471,7 @@ function PrimaryStat({
         >
           {value}
           {suffix && (
-            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
+            <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 400 }}>
               {suffix}
             </span>
           )}
@@ -510,7 +529,7 @@ function SecondaryStats({ pendingAlerts, stats }: { pendingAlerts: number; stats
         label={t("doseTrack.stats.examCount")}
         value={stats.totalExamCount}
         icon={<Zap size={16} />}
-        iconBg="#eff6ff"
+        iconBg="var(--color-info-bg)"
         iconColor="#3b82f6"
       />
       <MiniStat
@@ -547,10 +566,10 @@ function MiniStat({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 10,
         padding: "12px 16px",
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         display: "flex",
         alignItems: "center",
         gap: 12,
@@ -571,7 +590,7 @@ function MiniStat({
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
         <div style={{ fontSize: 18, fontWeight: 800, color: iconColor }}>
           {value}
         </div>
@@ -587,17 +606,17 @@ function FooterInfo() {
         style={{
           marginTop: 20,
           padding: "12px 16px",
-          background: "#f8fafc",
+          background: "var(--bg-card)",
           borderRadius: 8,
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           display: "flex",
           alignItems: "flex-start",
           gap: 10,
         }}
       >
-        <Info size={14} style={{ color: "#64748b", marginTop: 2, flexShrink: 0 }} />
-        <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
-          <strong style={{ color: "#334155" }}>剂量参考：</strong>
+        <Info size={14} style={{ color: "var(--text-secondary)", marginTop: 2, flexShrink: 0 }} />
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+          <strong style={{ color: "var(--text-primary)" }}>剂量参考：</strong>
           CT头颅平扫 DLP参考值约700-800 mGy·cm；胸部CT平扫约400-600
           mGy·cm；冠脉CTA约800-1200 mGy·cm； DSA冠脉造影约2000-4000
           mGy·m²；乳腺钼靶约3-6 mGy。 根据《医疗照射放射防护标准》GBZ
@@ -611,7 +630,7 @@ function FooterInfo() {
           marginTop: 12,
           textAlign: "center",
           fontSize: 12,
-          color: "#94a3b8",
+          color: "var(--text-secondary)",
         }}
       >
         DoseTrackPage v0.3.0 · G005-001渐进式修改规范 · 最后更新: 2026-05-03
@@ -622,9 +641,9 @@ function FooterInfo() {
 
 const headerBtn: React.CSSProperties = {
   padding: "6px 14px",
-  background: "#fff",
-  color: "#334155",
-  border: "1px solid #e2e8f0",
+  background: "var(--bg-card)",
+  color: "var(--text-primary)",
+  border: "1px solid var(--border-color)",
   borderRadius: 6,
   fontSize: 12,
   fontWeight: 600,

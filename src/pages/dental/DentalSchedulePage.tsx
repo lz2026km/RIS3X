@@ -1,10 +1,11 @@
 // [v3.0.6.8-103] Phase 4: 牙椅预约排班 + PSR 牙周记录 (修复: 新建预约实际提交)
 // 对标: 领健·牙医管家
-import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
+import { dentalApi } from '@/services/api/dentalApi';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
 import { Calendar, User, Armchair, Plus, CheckCircle2 } from 'lucide-react';
-import { dentalApi } from '@/services/api/dentalApi';
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const APPT_TYPES = [
@@ -103,7 +104,7 @@ export const DentalSchedulePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Calendar size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>牙椅排班 · 牙周 PSR 记录</span>
@@ -129,12 +130,12 @@ export const DentalSchedulePage: React.FC = () => {
             </Card>
           </Col>
         ))}
-        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>全部</span></Space><div style={{fontSize:11,color:'#999',marginTop:4}}>共 {appts.length} 预约</div></Card></Col>
+        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>全部</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>共 {appts.length} 预约</div></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
         {key:'schedule', label:'排班看板', children:<>
           <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>新建预约</Button>
-          {filtered.length === 0 ? <Empty description="当日暂无预约" /> : (
+          {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="当日暂无预约" /> : (
             <Table dataSource={filtered} rowKey="id" size="small" pagination={false}
               columns={[
                 {title:'时间',dataIndex:'time',width:70,render:(t:string)=><Tag color="geekblue">{t}</Tag>,fixed:'left'},
@@ -175,7 +176,7 @@ export const DentalSchedulePage: React.FC = () => {
                       </Col>
                     ))}
                   </Row>
-                  <div style={{fontSize:11,color:"#999",marginTop:4}}>6-point: DB (Distal-Buccal), B (Buccal), MB (Mesial-Buccal), ML (Mesial-Lingual), L (Lingual), DL (Distal-Lingual)</div>
+                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>6-point: DB (Distal-Buccal), B (Buccal), MB (Mesial-Buccal), ML (Mesial-Lingual), L (Lingual), DL (Distal-Lingual)</div>
                   <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0度正常'},{value:1,label:'I度小于1mm'},{value:2,label:'II度1-2mm'},{value:3,label:'III度大于2mm'}]} /></Form.Item>
                   <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0:健康'},{value:1,label:'1:出血'},{value:2,label:'2:牙结石'},{value:3,label:'3:4-5mm'},{value:4,label:'4:大于6mm'}]} /></Form.Item>
                   <Form.Item label="备注"><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
@@ -207,9 +208,9 @@ export const DentalSchedulePage: React.FC = () => {
                       <Tag color="blue">PSR 评分: 2</Tag>
                       <Tag color="orange">探诊: 3-5mm</Tag>
                       <Tag>松动 I°</Tag>
-                      <span style={{fontSize:11,color:'#999'}}>2026-06-15 李医生</span>
+                      <span style={{fontSize:11,color:'var(--text-secondary)'}}>2026-06-15 李医生</span>
                     </Space>
-                    <div style={{marginTop:4,fontSize:11,color:'#666'}}>6点: 2-3-4-3-2-2mm</div>
+                    <div style={{marginTop:4,fontSize:11,color:'var(--text-secondary)'}}>6点: 2-3-4-3-2-2mm</div>
                   </Card>
                 ))}
               </Card>

@@ -2,8 +2,10 @@
  * G005 RIS v3.0.6.11-79 - 用户中心 (W1-B, P0)
  * 个人资料卡 (authApi.getMe) + 修改密码 (authApi.changePassword) + TOTP 安全状态 + 退出登录 (authApi.logout)
  */
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { authApi, type AuthMeDto } from "../../services/api/authApi";
+import { roleLabel } from "../../services/auth/roleUtils";
+import { logout as clearLocalSession } from "../../utils/auth";
 import {
   Avatar,
   Button,
@@ -28,10 +30,9 @@ import {
   LogOut,
   Lock,
 } from "lucide-react";
-import { authApi, type AuthMeDto } from "../../services/api/authApi";
-import { logout as clearLocalSession } from "../../utils/auth";
-import { useAuth } from "../../hooks/useAuth";
-import { roleLabel } from "../../services/auth/roleUtils";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { RefreshCw } from 'lucide-react'
 
 const { Title, Text } = Typography;
 
@@ -138,8 +139,7 @@ export default function UserCenterPage() {
           showIcon
           message="加载失败"
           description={error}
-          action={
-            <Button size="small" onClick={() => void loadMe()}>
+          action={<Button size="small" onClick={() => void loadMe()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

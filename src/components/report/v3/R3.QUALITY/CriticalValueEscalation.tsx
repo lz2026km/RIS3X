@@ -3,7 +3,13 @@
  * 危急值自动升级规则编辑器 (15 点)
  * 功能:升级规则配置 / 编辑器 / 启用切换 / 触发统计
  */
-import React, { useEffect, useState } from 'react';
+import { criticalValueService } from '../../../../services/quality/criticalValueService';
+import type {
+  CriticalEscalationRule,
+  CriticalLevel,
+  NotificationChannel,
+  CriticalLevelConfig,
+} from '../../../../types/R3/R3.CRITICAL';
 import {
   Card,
   Tag,
@@ -25,13 +31,8 @@ import {
   Segmented,
 } from 'antd';
 import { TrendingUp, AlertCircle, Clock, Bell, Settings, Edit, ArrowUp, Plus, Trash2, Save, MessageSquare, Mail, Phone, Smartphone, Send, Zap, Activity } from 'lucide-react';
-import { criticalValueService } from '../../../../services/quality/criticalValueService';
-import type {
-  CriticalEscalationRule,
-  CriticalLevel,
-  NotificationChannel,
-  CriticalLevelConfig,
-} from '../../../../types/R3/R3.CRITICAL';
+import React, { useEffect, useState } from 'react';
+import { Inbox } from 'lucide-react'
 
 const CHANNEL_META: Record<NotificationChannel, { label: string; color: string; icon: React.ReactNode }> = {
   phone: { label: '电话', color: 'green', icon: <Phone size={10} /> },
@@ -276,7 +277,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
 
       <Card size="small" loading={loading}>
         {filtered.length === 0 ? (
-          <Empty description="暂无升级规则" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无升级规则" />
         ) : (
           <List
             dataSource={filtered}

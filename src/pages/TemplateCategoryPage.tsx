@@ -111,16 +111,16 @@ const TreeNode: React.FC<{
           borderLeft: isSelected ? `3px solid ${color}` : '3px solid transparent',
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 12, color: '#1e293b',
+          fontSize: 12, color: 'var(--text-primary)',
           transition: 'all 0.15s',
         }}
-        onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = '#f8fafc'; }}
+        onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)'; }}
         onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
       >
         {hasChildren ? (
           <button
             onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
-            style={{ padding: 0, background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}
+            style={{ padding: 0, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
           >
             {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
@@ -147,7 +147,7 @@ const TreeNode: React.FC<{
 
         <span style={{
           fontSize: 12, padding: '1px 4px', borderRadius: 3,
-          background: node.level === 'modality' ? '#dbeafe' : node.level === 'bodyPart' ? '#ede9fe' : '#cffafe',
+          background: node.level === 'modality' ? 'var(--color-info-bg)' : node.level === 'bodyPart' ? '#8b5cf622' : 'var(--color-info-bg)',
           color: node.level === 'modality' ? '#1e40af' : node.level === 'bodyPart' ? '#7c3aed' : '#0e7490',
           fontWeight: 700,
         }}>{node.level === 'modality' ? '设备' : node.level === 'bodyPart' ? '部位' : '病种'}</span>
@@ -239,11 +239,11 @@ export default function TemplateCategoryPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <FolderTree size={20} color="#0891b2" /> 模板分类管理
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             按设备 → 部位 → 病种 三级分类管理 36 个标准模板分类
           </p>
         </div>
@@ -252,7 +252,7 @@ export default function TemplateCategoryPage() {
             onClick={() => navigate('/template-designer')}
             style={{
               padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6,
-              background: '#fff', color: '#1e40af', fontSize: 12, fontWeight: 600,
+              background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
@@ -261,8 +261,8 @@ export default function TemplateCategoryPage() {
           <button
             onClick={() => navigate('/template-management')}
             style={{
-              padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6,
-              background: '#fff', color: '#475569', fontSize: 12,
+              padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
+              background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
               cursor: 'pointer',
             }}
           >
@@ -282,11 +282,11 @@ export default function TemplateCategoryPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 12 }}>
         {/* 左：树视图 */}
         <div style={{
-          background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
           overflow: 'hidden',
         }}>
           <div style={{
-            padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+            padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
             <FolderTree size={12} color="#1e40af" />
@@ -295,8 +295,8 @@ export default function TemplateCategoryPage() {
               <button
                 onClick={() => setViewMode('tree')}
                 style={{
-                  padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
-                  background: viewMode === 'tree' ? '#dbeafe' : '#fff',
+                  padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
+                  background: viewMode === 'tree' ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
@@ -304,8 +304,8 @@ export default function TemplateCategoryPage() {
               <button
                 onClick={() => setViewMode('flat')}
                 style={{
-                  padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
-                  background: viewMode === 'flat' ? '#dbeafe' : '#fff',
+                  padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
+                  background: viewMode === 'flat' ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   color: viewMode === 'flat' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
@@ -314,9 +314,9 @@ export default function TemplateCategoryPage() {
           </div>
 
           {/* 搜索框 */}
-          <div style={{ padding: 8, borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ padding: 8, borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={12} style={{ position: 'absolute', left: 8, top: 9, color: '#94a3b8' }} />
+              <Search size={12} style={{ position: 'absolute', left: 8, top: 9, color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 value={search}
@@ -324,7 +324,7 @@ export default function TemplateCategoryPage() {
                 placeholder="搜索分类..."
                 style={{
                   width: '100%', padding: '6px 8px 6px 26px',
-                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
+                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
                 }}
               />
             </div>
@@ -355,13 +355,13 @@ export default function TemplateCategoryPage() {
                     style={{
                       padding: '4px 8px',
                       paddingLeft: 8 + n.depth * 12,
-                      background: selectedId === n.id ? '#dbeafe' : 'transparent',
+                      background: selectedId === n.id ? 'var(--color-info-bg)' : 'transparent',
                       cursor: 'pointer', fontSize: 12,
-                      color: '#475569', display: 'flex', alignItems: 'center', gap: 4,
+                      color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{n.code}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{n.code}</span>
                   </div>
                 ))
             )}
@@ -370,24 +370,24 @@ export default function TemplateCategoryPage() {
 
         {/* 右：详情面板 */}
         <div style={{
-          background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
           overflow: 'hidden',
         }}>
           {selectedNode ? (
             <>
               <div style={{
-                padding: 16, borderBottom: '1px solid #e2e8f0',
+                padding: 16, borderBottom: '1px solid var(--border-color)',
                 background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
               }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#0c4a6e', display: 'flex', alignItems: 'center', gap: 8 }}>
                   {selectedNode.icon && <span style={{ fontSize: 24 }}>{selectedNode.icon}</span>}
                   {selectedNode.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  编码：<code style={{ background: '#fff', padding: '1px 4px', borderRadius: 3 }}>{selectedNode.code}</code> · 层级：<strong>{selectedNode.level === 'modality' ? '设备' : selectedNode.level === 'bodyPart' ? '部位' : '病种'}</strong>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+                  编码：<code style={{ background: 'var(--bg-card)', padding: '1px 4px', borderRadius: 3 }}>{selectedNode.code}</code> · 层级：<strong>{selectedNode.level === 'modality' ? '设备' : selectedNode.level === 'bodyPart' ? '部位' : '病种'}</strong>
                 </div>
                 {selectedNode.description && (
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#334155', padding: 8, background: '#fff', borderRadius: 4, border: '1px solid #bae6fd' }}>
+                  <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-primary)', padding: 8, background: 'var(--bg-card)', borderRadius: 4, border: '1px solid #bae6fd' }}>
                     {selectedNode.description}
                   </div>
                 )}
@@ -405,8 +405,8 @@ export default function TemplateCategoryPage() {
                   </button>
                   <button
                     style={{
-                      padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 12,
+                      padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
+                      background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -414,8 +414,8 @@ export default function TemplateCategoryPage() {
                   </button>
                   <button
                     style={{
-                      padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 12,
+                      padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
+                      background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -437,22 +437,22 @@ export default function TemplateCategoryPage() {
                           key={c.id}
                           onClick={() => setSelectedId(c.id)}
                           style={{
-                            padding: 10, background: '#f8fafc', border: '1px solid #e2e8f0',
+                            padding: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                             borderRadius: 6, cursor: 'pointer', fontSize: 12,
                             display: 'flex', alignItems: 'center', gap: 8,
                             transition: 'all 0.15s',
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#eff6ff'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = '#f8fafc'}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-info-bg)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                         >
                           <span style={{ fontSize: 16 }}>{c.icon || '📁'}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, color: '#1e293b' }}>{c.name}</div>
-                            <div style={{ fontSize: 12, color: '#94a3b8' }}>{c.code}</div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.name}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.code}</div>
                           </div>
                           <span style={{
                             fontSize: 12, padding: '1px 5px', borderRadius: 8,
-                            background: '#dbeafe', color: '#1e40af', fontWeight: 700,
+                            background: 'var(--color-info-bg)', color: '#1e40af', fontWeight: 700,
                           }}>{TEMPLATE_COUNT_MAP[c.id] || 0}</span>
                         </div>
                       ))}
@@ -465,24 +465,24 @@ export default function TemplateCategoryPage() {
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={12} /> 模板列表 (本分类 {templateCount[selectedNode.id] || 0} / 全部后代 {selectedStats})
                   </div>
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: '#475569' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: 'var(--text-secondary)' }}>
                     {templateCount[selectedNode.id] ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {Array.from({ length: templateCount[selectedNode.id] }).map((_, i) => (
                           <div key={i} style={{
-                            padding: 8, background: '#fff', borderRadius: 4,
-                            border: '1px solid #e2e8f0',
+                            padding: 8, background: 'var(--bg-card)', borderRadius: 4,
+                            border: '1px solid var(--border-color)',
                             display: 'flex', alignItems: 'center', gap: 8,
                           }}>
                             <FileText size={12} color="#3b82f6" />
                             <span style={{ fontWeight: 600, color: '#1e40af' }}>{selectedNode.name} 模板 #{i + 1}</span>
-                            <span style={{ fontSize: 12, color: '#94a3b8' }}>v1.0</span>
-                            <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: '#d1fae5', color: '#047857', borderRadius: 2 }}>已启用</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>v1.0</span>
+                            <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2 }}>已启用</span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
                         该分类暂无模板
                         <div style={{ marginTop: 8 }}>
                           <button
@@ -502,7 +502,7 @@ export default function TemplateCategoryPage() {
                 </div>
 
                 {/* 路径面包屑 */}
-                <div style={{ marginTop: 16, padding: 10, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 12 }}>
+                <div style={{ marginTop: 16, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 12 }}>
                   <div style={{ fontWeight: 700, color: '#92400e', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <GitBranch size={12} /> 分类路径
                   </div>
@@ -512,7 +512,7 @@ export default function TemplateCategoryPage() {
                       if (pathNodes.length > 0) {
                         return pathNodes[0].path.split(' / ').map((p, i, arr) => (
                           <React.Fragment key={i}>
-                            <span style={{ padding: '1px 6px', background: '#fff', borderRadius: 3 }}>{p}</span>
+                            <span style={{ padding: '1px 6px', background: 'var(--bg-card)', borderRadius: 3 }}>{p}</span>
                             {i < arr.length - 1 && <ArrowRight size={10} />}
                           </React.Fragment>
                         ));
@@ -524,7 +524,7 @@ export default function TemplateCategoryPage() {
               </div>
             </>
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
               请从左侧选择分类查看详情
             </div>
           )}
@@ -539,8 +539,8 @@ export default function TemplateCategoryPage() {
 // ============================================================
 const StatCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
   <div style={{
-    background: '#fff', padding: 12, borderRadius: 8,
-    border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10,
+    background: 'var(--bg-card)', padding: 12, borderRadius: 8,
+    border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10,
   }}>
     <div style={{
       width: 36, height: 36, borderRadius: 8,
@@ -550,8 +550,8 @@ const StatCard: React.FC<{ icon: any; label: string; value: number | string; col
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
     </div>
   </div>
 );

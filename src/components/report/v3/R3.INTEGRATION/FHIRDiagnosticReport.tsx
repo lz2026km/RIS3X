@@ -3,12 +3,13 @@
  * R3.INTEGRATION 组 C:FHIR
  * 20 升级点:R4 规范 / Bundle / 资源映射 / SMART on FHIR OAuth2
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
-import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
 import { FHIR_DR_DOCUMENTS_MOCK, FHIR_DR_MOCK } from '@data/reportIntegrationMock';
 import { generateFhirDr, downloadFhirDr, sendFhirDr, validateFhir, buildFhirBundle } from '@services/integration/fhirDiagnosticService';
 import type { FhirDiagnosticReport } from '@types/R3/R3.INTEGRATION';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
+import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Inbox } from 'lucide-react'
 
 interface Props {
   reportId?: string;
@@ -264,7 +265,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
                 },
               ]}
             />
-          ) : <Empty description="请选择 FHIR 文档" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 FHIR 文档" />}
         </Card>
       </div>
 

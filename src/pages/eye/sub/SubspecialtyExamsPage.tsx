@@ -1,9 +1,10 @@
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表 + 接触镜 + 低视力
-import React, { useState } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
 import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState } from 'react';
 
 const {  } = Input;
 
@@ -29,7 +30,7 @@ export const StrabismusPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>斜视专科</span>
@@ -68,11 +69,11 @@ export const StrabismusPage: React.FC = () => {
                 <Col span={8}>
                   <Statistic title="水平" value={`${result.result.horizontal.value} ${result.result.horizontal.unit}`}
                     styles={{ content: {  color: Math.abs(result.result.horizontal.value) > 10 ? '#ff4d4f' : '#52c41a'  } }} />
-                  <div style={{ fontSize: 12, color: '#666' }}>{result.result.horizontal.type}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{result.result.horizontal.type}</div>
                 </Col>
                 <Col span={8}>
                   <Statistic title="垂直" value={`${result.result.vertical.value} ${result.result.vertical.unit}`} />
-                  <div style={{ fontSize: 12, color: '#666' }}>{result.result.vertical.type}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{result.result.vertical.type}</div>
                 </Col>
                 <Col span={8}>
                   <Statistic title="旋转" value={`${result.result.torsion.value}${result.result.torsion.unit}`} />
@@ -82,10 +83,10 @@ export const StrabismusPage: React.FC = () => {
                   <Alert title={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
                 </Col>
                 <Col span={24}>
-                  <div style={{ fontSize: 11, color: '#999' }}>方法: {result.method}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>方法: {result.method}</div>
                 </Col>
               </Row>
-            ) : <Empty description="点击保存按钮" />}
+            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击保存按钮" />}
           </Card>
         </Col>
       </Row>
@@ -123,7 +124,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>神经眼科</span>
@@ -171,7 +172,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
                   <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon /></Col>
                 </Row>
               )
-            ) : <Empty />}
+            ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
       </Row>
@@ -195,7 +196,7 @@ export const OcularOncologyPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Compass size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼眶肿瘤</span>
@@ -223,7 +224,7 @@ export const OcularOncologyPage: React.FC = () => {
                 <Col span={8}><Statistic title="差值" value={result.difference} suffix="mm" styles={{ content: {  color: result.difference > 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon /></Col>
               </Row>
-            ) : <Empty />}
+            ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
       </Row>
@@ -247,7 +248,7 @@ export const CorneaPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>角膜病</span>
@@ -275,7 +276,7 @@ export const CorneaPage: React.FC = () => {
                 <Col span={8}><Statistic title="BAD 评分" value={result.badScore} styles={{ content: {  color: result.badScore >= 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={24}><Alert title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon /></Col>
               </Row>
-            ) : <Empty />}
+            ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
       </Row>
@@ -301,7 +302,7 @@ export const ContactLensFittingPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Glasses size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>接触镜验配</span>
@@ -325,7 +326,7 @@ export const ContactLensFittingPage: React.FC = () => {
               <Form.Item label="基弧 BC (mm)"><InputNumber value={bc} onChange={v => setBc(v || 7.8)} min={6} max={12} step={0.1} style={{ width: '100%' }} /></Form.Item>
               <Form.Item label="直径 DIA (mm)"><InputNumber value={dia} onChange={v => setDia(v || 14.0)} min={10} max={24} step={0.1} style={{ width: '100%' }} /></Form.Item>
               <Form.Item label="度数 (D)"><InputNumber value={power} onChange={v => setPower(v || -3.0)} min={-30} max={30} step={0.25} style={{ width: '100%' }} /></Form.Item>
-              <Button type="primary" block onClick={handleSubmit}>保存试戴</Button>
+              <Button type="primary" block icon={<Save size={14} />} onClick={handleSubmit}>保存试戴</Button>
             </Form>
           </Card>
         </Col>
@@ -340,7 +341,7 @@ export const ContactLensFittingPage: React.FC = () => {
                 <Col span={8}><Statistic title="度数" value={result.power} suffix="D" /></Col>
                 <Col span={24}><Alert title={`配适: ${result.fit}`} type="success" showIcon /></Col>
               </Row>
-            ) : <Empty />}
+            ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
       </Row>
@@ -366,7 +367,7 @@ export const LowVisionPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Accessibility size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>低视力康复</span>
@@ -411,7 +412,7 @@ export const LowVisionPage: React.FC = () => {
                 </Col>
                 <Col span={24}><Alert title="推荐助视器" description={result.deviceRecommendation} type="success" showIcon /></Col>
               </Row>
-            ) : <Empty />}
+            ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
       </Row>
@@ -438,7 +439,7 @@ export const CataractPage: React.FC = () => {
   };
   const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>白内障专科</span>
@@ -468,7 +469,7 @@ export const CataractPage: React.FC = () => {
                 <Col span={24}><Statistic title="总分级" value={result.totalScore} styles={{ content: {  color: result.totalScore >= 4 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={24}><Alert title={result.diagnosis} description={`建议: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon /></Col>
               </Row>
-            ) : <Empty description="点击评估" />}
+            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击评估" />}
           </Card>
         </Col>
       </Row>
@@ -499,7 +500,7 @@ export const RefractivePage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Zap size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>屈光手术专科</span>
@@ -556,7 +557,7 @@ export const RefractivePage: React.FC = () => {
                     type={result.riskLevel === 'low' ? 'success' : 'warning'} showIcon />
                 </Col>
               </Row>
-            ) : <Empty description="点击开具处方" />}
+            ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击开具处方" />}
           </Card>
         </Col>
       </Row>

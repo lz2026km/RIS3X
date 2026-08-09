@@ -80,19 +80,19 @@ const STATUS_MAP: Record<string, AppointmentRecord['status']> = {
 // ===== Styles =====
 const s = {
   container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: '#fff', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
-  title: { fontSize: 18, fontWeight: 700, color: '#1e293b', margin: 0, marginBottom: 16 },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  title: { fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  input: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box' as const },
-  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' },
+  input: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' as const },
+  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' as const },
   badge: (status: string) => ({
     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-    background: status === '已确认' ? '#dcfce7' : status === '已取消' ? '#fee2e2' : status === '已完成' ? '#e0f2fe' : '#fef9c3',
-    color: status === '已确认' ? '#166534' : status === '已取消' ? '#991b1b' : status === '已完成' ? '#0369a1' : '#854d0e',
+    background: status === '已确认' ? 'var(--color-success-bg)' : status === '已取消' ? 'var(--color-error-bg)' : status === '已完成' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
+    color: status === '已确认' ? 'var(--color-success)' : status === '已取消' ? 'var(--color-error)' : status === '已完成' ? 'var(--color-info)' : 'var(--color-warning)',
   }),
 }
 
@@ -203,17 +203,17 @@ export default function ServiceManagement() {
   return (
     <div style={s.container}>
       {/* 数据源状态条 */}
-      <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: source === 'api' ? '#f0fdf4' : '#fffbeb', border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`, fontSize: 12, color: source === 'api' ? '#166534' : '#92400e', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', border: `1px solid ${source === 'api' ? 'var(--color-success-border)' : 'var(--color-warning-border)'}`, fontSize: 12, color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
         {loading ? '数据同步中...' : source === 'api' ? '数据源: appointmentApi / templatesApi 实时（预约、推送模板）' : '数据源: 演示数据（接口不可用，已回退）'}
         {error && <span style={{ color: '#dc2626', marginLeft: 'auto' }}>{error}</span>}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
         {(['appointment', 'push', 'preference'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
-            background: activeTab === tab ? '#fff' : 'transparent', color: activeTab === tab ? '#1e40af' : '#64748b',
+            background: activeTab === tab ? 'var(--bg-elevated)' : 'transparent', color: activeTab === tab ? '#1e40af' : '#64748b',
             cursor: 'pointer', boxShadow: activeTab === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
           }}>
             {tab === 'appointment' ? '预约挂号' : tab === 'push' ? '推送管理' : '偏好设置'}
@@ -256,8 +256,8 @@ export default function ServiceManagement() {
             </div>
             <button style={{ ...s.btn, marginTop: 12 }} onClick={() => void handleBook()}>提交预约</button>
             {successCode && (
-              <div style={{ marginTop: 16, padding: 16, background: '#f0fdf4', borderRadius: 8, textAlign: 'center' }}>
-                <div style={{ fontSize: 14, color: '#166534', fontWeight: 600 }}>预约成功！</div>
+              <div style={{ marginTop: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, textAlign: 'center' }}>
+                <div style={{ fontSize: 14, color: 'var(--color-success)', fontWeight: 600 }}>预约成功！</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#059669', fontFamily: 'monospace', letterSpacing: 2, marginTop: 8 }}>{successCode}</div>
               </div>
             )}
@@ -267,16 +267,16 @@ export default function ServiceManagement() {
             <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
               <h3 style={s.title}>我的预约 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(appointmentApi 实时)' : '(演示)'}</span></h3>
               {appointments.map(a => (
-                <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: '#1e293b' }}>{a.department}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{a.department}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>编号：{a.code}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
                     {a.status !== '已取消' && a.status !== '已完成' && (
-                      <button style={{ ...s.btnSmall, background: '#fee2e2', color: '#991b1b' }} onClick={() => void handleCancel(a.id)}>取消</button>
+                      <button style={{ ...s.btnSmall, background: 'var(--color-error-bg)', color: 'var(--color-error)' }} onClick={() => void handleCancel(a.id)}>取消</button>
                     )}
                   </div>
                 </div>
@@ -291,20 +291,20 @@ export default function ServiceManagement() {
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={s.title}>推送模板管理 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? '(templatesApi.snippets 实时)' : '(演示)'}</span></h3>
           {templates.map(t => (
-            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   {t.name}
                   <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                    background: t.channel === '短信' ? '#e0f2fe' : t.channel === '微信' ? '#dcfce7' : '#fef3c7',
-                    color: t.channel === '短信' ? '#0369a1' : t.channel === '微信' ? '#166534' : '#92400e',
+                    background: t.channel === '短信' ? 'var(--color-info-bg)' : t.channel === '微信' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                    color: t.channel === '短信' ? 'var(--color-info)' : t.channel === '微信' ? 'var(--color-success)' : 'var(--color-warning)',
                   }}>{t.channel}</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t.content}</div>
               </div>
               <button onClick={() => toggleTemplate(t.id)} style={{
                 ...s.btnSmall, minWidth: 48,
-                background: t.enabled ? '#059669' : '#e2e8f0',
+                background: t.enabled ? '#059669' : 'var(--bg-card)',
                 color: t.enabled ? '#fff' : '#94a3b8',
               }}>
                 {t.enabled ? '开启' : '关闭'}
@@ -330,7 +330,7 @@ export default function ServiceManagement() {
             ].map(item => (
               <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', cursor: 'pointer' }}>
                 <input type="checkbox" checked={prefs[item.key] as boolean} onChange={() => setPrefs(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ width: 16, height: 16 }} />
-                <span style={{ fontSize: 14, color: '#334155' }}>{item.label}</span>
+                <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{item.label}</span>
               </label>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import React from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, Download, Printer } from 'lucide-react'
 
-const WHITE = '#ffffff'
+const WHITE = 'var(--bg-card)'
 const GRAY = '#64748b'
 const ACCENT = '#3182ce'
 
@@ -47,7 +47,7 @@ export default function ReportHeader({
   const btnStyle = (active: boolean, color: string): React.CSSProperties => ({
     padding: '5px 12px',
     borderRadius: 6,
-    border: `1px solid ${active ? color : '#e2e8f0'}`,
+    border: `1px solid ${active ? color : 'var(--border-color)'}`,
     background: active ? `${color}18` : WHITE,
     color: active ? color : GRAY,
     fontSize: 12,
@@ -60,9 +60,9 @@ export default function ReportHeader({
   const dropStyle: React.CSSProperties = {
     padding: '6px 10px',
     borderRadius: 6,
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-color)',
     background: WHITE,
-    color: '#334155',
+    color: 'var(--text-secondary)',
     fontSize: 12,
     cursor: 'pointer',
     outline: 'none',
@@ -71,12 +71,12 @@ export default function ReportHeader({
   return (
     <div style={{
       background: WHITE, borderRadius: 10, padding: '14px 16px',
-      border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: 14,
+      border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: 14,
     }}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', background: '#fafbfc' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / Accession号..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / 检查号..."
             style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
           {search && <X size={13} style={{ color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
         </div>
@@ -115,10 +115,10 @@ export default function ReportHeader({
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>日期:</span>
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
           <span style={{ fontSize: 12, color: GRAY }}>—</span>
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
         </div>
         <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, '#dc2626')}>
           {criticalOnly ? '✓' : ''} 仅危急值
@@ -129,11 +129,15 @@ export default function ReportHeader({
         <button onClick={onReset} style={{ ...btnStyle(false, GRAY), color: GRAY }}>
           <X size={12} /> 清空
         </button>
-        <button onClick={onExport} style={{ ...btnStyle(false, ACCENT), marginLeft: 'auto' }}>导出</button>
-        <button onClick={onPrint} style={{ ...btnStyle(false, GRAY) }}>打印</button>
+        <button onClick={onExport} style={{ ...btnStyle(false, ACCENT), marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Download size={12} /> 导出
+        </button>
+        <button onClick={onPrint} style={{ ...btnStyle(false, GRAY), display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Printer size={12} /> 打印
+        </button>
       </div>
 
-      <div style={{ fontSize: 12, color: '#94a3b8', borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
+      <div style={{ fontSize: 12, color: '#94a3b8', borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
         <Filter size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />
         提示: 使用高级筛选可进一步按质量评分过滤
       </div>

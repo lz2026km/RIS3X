@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { fhirApi, type FhirObservation } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Form, Input, message, Empty, Modal, Descriptions, Tooltip } from 'antd'
 import { Activity, Search, RefreshCw, Eye } from 'lucide-react'
-import { fhirApi, type FhirObservation } from '../../services/api/fhirApi'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 const PAGE_SIZE = 10
 
@@ -109,7 +110,7 @@ export const FhirObservationPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Observation 管理</span>
@@ -166,7 +167,7 @@ export const FhirObservationPage: React.FC = () => {
               {selectedObs.interpretation?.map(i => i.coding?.[0]?.code).join(', ') || '-'}
             </Descriptions.Item>
           </Descriptions>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

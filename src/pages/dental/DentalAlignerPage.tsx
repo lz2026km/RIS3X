@@ -171,7 +171,7 @@ export const DentalAlignerPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
           <Activity size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -246,7 +246,7 @@ export const DentalAlignerPage: React.FC = () => {
                     text={p.status}
                   />
                 </Space>
-                <div style={{ marginTop: 4, fontSize: 12, color: "#999" }}>
+                <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
                   {p.diagnosis?.slice(0, 40)}...
                   <br />
                   阶段 {p.currentStage}/{p.totalStages} | 每副{" "}
@@ -272,7 +272,7 @@ export const DentalAlignerPage: React.FC = () => {
     : 0;
 
   return (
-    <div style={{ padding: 16, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回
@@ -398,7 +398,7 @@ export const DentalAlignerPage: React.FC = () => {
             {progress && (
               <>
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, color: "#999" }}>依从性 </span>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>依从性 </span>
                   <Progress
                     percent={Math.round(progress.patientCompliance * 100)}
                     size="small"
@@ -422,7 +422,7 @@ export const DentalAlignerPage: React.FC = () => {
                       ? "一般"
                       : "需警惕"}
                 </Tag>
-                <div style={{ marginTop: 8, fontSize: 12, color: "#666" }}>
+                <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
                   当前阶段已佩戴: {progress.lastStageWornDays}天<br />
                   下一阶段: {progress.nextStageDate}
                 </div>

@@ -1,9 +1,10 @@
 // [v3.0.6.8-46] PR2: 患者 + 设备 CRUD 综合管理页面
-import React, { useState, useEffect } from 'react';
+import { deviceApi } from '@/services/api/deviceApi';
+import { patientApi } from '@/services/api/patientApi';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline, Table, Descriptions, Avatar } from 'antd';
 import { User, Box, Plus, Edit3, Wrench, Stethoscope, FileText, History } from 'lucide-react';
-import { patientApi } from '@/services/api/patientApi';
-import { deviceApi } from '@/services/api/deviceApi';
+import React, { useState, useEffect } from 'react';
+import { Inbox } from 'lucide-react'
 
 const { TextArea } = Input;
 
@@ -217,7 +218,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     ]}
                   />
                 </Card>
-              ) : <Card><Empty description="选择左侧患者查看详情" /></Card>}
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧患者查看详情" /></Card>}
             </Col>
           </Row>
         </Tabs.TabPane>
@@ -329,7 +330,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     children: <div>{h.date} - {h.type} - {h.notes}</div>,
                   }))} />
                 </Card>
-              ) : <Card><Empty description="选择左侧设备查看详情" /></Card>}
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧设备查看详情" /></Card>}
             </Col>
           </Row>
         </Tabs.TabPane>

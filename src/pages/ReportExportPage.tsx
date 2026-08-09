@@ -2,33 +2,47 @@
 // G005 放射科RIS系统 v3.0.6.0 - 报告导出中心(强化+R7扩展)
 // v1.0.6 基础 + R3.INTEGRATION 80 升级点 + R7 ~500 升级点
 // [v3.0.6.11-70] P0 真实化: 报告列表/导出任务/下载 blob 接入后端 + exportService
-// ============================================================
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Tabs, Badge, message, Empty, Spin } from 'antd';
-import {
-  Download, FileText, FileType, FileCode, Globe, Server, FileJson,
-  CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
-  Zap, Package, Presentation, ShieldCheck,
-  Mail,
-} from 'lucide-react';
-import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
-import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
-import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
-import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
+// [v3.0.6.11-70] P0 真实化: 报告列表来自后端; 导出 = 后端入队 + 本地真实文件生成下载
+import { BulkExportDialog } from '../components/export/BulkExportDialog';
+import { EmailSendDialog } from '../components/export/EmailSendDialog';
+import { PptxExportDialog } from '../components/export/PptxExportDialog';
 import {
   EXPORT_TEMPLATES,
   type ExportFormat,
 } from '../data/deliveryExportSignatureMock';
-// [v3.0.6.11-70] P0 真实化: 报告列表来自后端; 导出 = 后端入队 + 本地真实文件生成下载
-import { reportApi, type ReportDto } from '../services/api/reportApi';
-import { API_BASE } from '../services/api/client';
-import { exportApprovalApi } from '../services/api/analyticsApi'; // [W1-5] 导出审批中心集成
+import { exportApprovalApi } from '../services/api'; // [W1-5] 导出审批流程文件
 import { exportReport as engineExportReport, downloadExport } from '../services/exportService';
-import { BulkExportDialog } from '../components/export/BulkExportDialog';
-import { PptxExportDialog } from '../components/export/PptxExportDialog';
-import { EmailSendDialog } from '../components/export/EmailSendDialog';
+import { API_BASE } from '../services/api/client';
+import { reportApi, type ReportDto } from '../services/api/reportApi';
+import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
+import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
+import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
+import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
+import { Tabs, Badge, message, Empty, Spin } from 'antd';
+import {
+  Download,
+  FileText,
+  FileType,
+  FileCode,
+  Globe,
+  Server,
+  FileJson,
+  CheckCircle2,
+  Eye,
+  Loader2,
+  Layers,
+  Sparkles,
+  Code2,
+  Database,
+  Zap,
+  Presentation,
+  ShieldCheck,
+  Mail,
+} from 'lucide-react';
+import { FileDown, Inbox } from 'lucide-react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // ============================================================
 // 格式图标（未使用，但保留以备扩展）
@@ -215,12 +229,12 @@ export default function ReportExportPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Download size={20} color="#dc2626" /> 报告导出中心
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点
           </p>
         </div>
@@ -242,7 +256,7 @@ export default function ReportExportPage() {
           />
           <button
             onClick={() => navigate('/report-delivery')}
-            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
             推送中心
           </button>
@@ -250,7 +264,7 @@ export default function ReportExportPage() {
             <ShieldCheck size={12} /> 导出审批
           </button>
           <button onClick={handleBulkExport} style={btnOutlinePrimary}>
-            <Package size={12} /> 批量导出
+            <FileDown size={12} /> 批量导出
           </button>
           <button onClick={() => setPptxOpen(true)} style={btnOutlinePrimary}>
             <Presentation size={12} /> PPTX
@@ -293,8 +307,8 @@ export default function ReportExportPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
         {/* 左：模板列表 */}
-        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <Layers size={13} color="#1e40af" />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>导出模板 ({filteredTemplates.length})</span>
@@ -315,7 +329,7 @@ export default function ReportExportPage() {
                   key={t.id}
                   onClick={() => setSelectedTemplateId(t.id)}
                   style={{
-                    padding: 12, borderBottom: '1px solid #f1f5f9',
+                    padding: 12, borderBottom: '1px solid var(--border-light)',
                     background: isSelected ? '#fef2f2' : 'transparent',
                     borderLeft: isSelected ? '3px solid #dc2626' : '3px solid transparent',
                     cursor: 'pointer',
@@ -323,10 +337,10 @@ export default function ReportExportPage() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                     <span style={{ fontSize: 18 }}>{t.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', flex: 1 }}>{t.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{t.name}</span>
                     {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t.description}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t.description}</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {t.hasImages && <Tag color="#3b82f6">📷 图像</Tag>}
                     {t.hasSignature && <Tag color="#7c3aed">✍️ 签名</Tag>}
@@ -344,7 +358,7 @@ export default function ReportExportPage() {
           {selectedTemplate && (
             <>
               {/* 模板详情 */}
-              <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: 12,
@@ -353,11 +367,11 @@ export default function ReportExportPage() {
                     fontSize: 28,
                   }}>{selectedTemplate.icon}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{selectedTemplate.name}</div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{selectedTemplate.description}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedTemplate.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{selectedTemplate.description}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>预估大小</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>预估大小</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: selectedTemplate.color }}>{selectedTemplate.estimatedSize}</div>
                   </div>
                 </div>
@@ -378,21 +392,21 @@ export default function ReportExportPage() {
                     </div>
                     <button
                       onClick={() => setSelectedReports(new Set(reports.slice(0, 5).map(r => r.reportId || r.id)))}
-                      style={{ padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
+                      style={{ padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
                     >
                       全选前 5
                     </button>
                   </div>
-                  <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 4 }}>
+                  <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 4 }}>
                     {reportsLoading ? (
                       <div style={{ padding: 20, textAlign: 'center' }}><Spin size="small" /> 加载报告中...</div>
                     ) : reports.length === 0 ? (
-                      <Empty description="暂无报告" imageStyle={{ height: 48 }} />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无报告" imageStyle={{ height: 48 }} />
                     ) : (
                       reports.slice(0, 8).map(r => (
                         <label key={r.reportId || r.id} style={{
                           display: 'flex', alignItems: 'center', gap: 6,
-                          padding: '6px 10px', borderBottom: '1px solid #f1f5f9',
+                          padding: '6px 10px', borderBottom: '1px solid var(--border-light)',
                           cursor: 'pointer', fontSize: 12,
                         }}>
                           <input
@@ -401,9 +415,9 @@ export default function ReportExportPage() {
                             onChange={() => toggleReport(r.reportId || r.id)}
                             style={{ width: 14, height: 14 }}
                           />
-                          <span style={{ fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
-                          <span style={{ color: '#64748b' }}>{r.modality} {r.bodyPart}</span>
-                          <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>{r.reportId || r.id}</span>
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
+                          <span style={{ color: 'var(--text-secondary)' }}>{r.modality} {r.bodyPart}</span>
+                          <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>{r.reportId || r.id}</span>
                         </label>
                       ))
                     )}
@@ -412,13 +426,13 @@ export default function ReportExportPage() {
 
                 {/* 进度条 */}
                 {exporting && (
-                  <div style={{ marginBottom: 12, padding: 10, background: '#eff6ff', borderRadius: 6 }}>
+                  <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#1e40af' }}>
                       <Loader2 size={11} className="spin" />
                       正在生成 {selectedTemplate.name}... {exportProgress}%
-                      {batchTaskId && <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>任务号 {batchTaskId}</span>}
+                      {batchTaskId && <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>任务号 {batchTaskId}</span>}
                     </div>
-                    <div style={{ height: 6, background: '#dbeafe', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: 6, background: 'var(--color-info-bg)', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #dc2626)', transition: 'width 0.15s' }} />
                     </div>
                   </div>
@@ -426,29 +440,29 @@ export default function ReportExportPage() {
 
                 {/* [W4-B] 批量导出结果: 错误提示 + 完成后下载列表 */}
                 {batchError && !exporting && (
-                  <div style={{ marginBottom: 12, padding: 10, background: '#fef2f2', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
+                  <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-error-bg)', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
                     ⚠️ {batchError}
                   </div>
                 )}
                 {batchDownloads.length > 0 && !exporting && (
-                  <div style={{ marginBottom: 12, padding: 12, background: '#f0fdf4', borderRadius: 6, border: '1px solid #bbf7d0' }}>
+                  <div style={{ marginBottom: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 6, border: '1px solid #bbf7d0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#15803d' }}>
                       <CheckCircle2 size={14} /> 批量导出完成 · 共 {batchDownloads.length} 个文件
                       <button
                         onClick={() => { batchDownloads.forEach(d => void downloadBatchFile(d)); }}
-                        style={{ marginLeft: 'auto', padding: '3px 10px', border: '1px solid #86efac', borderRadius: 4, background: '#fff', color: '#15803d', fontSize: 12, cursor: 'pointer' }}
+                        style={{ marginLeft: 'auto', padding: '3px 10px', border: '1px solid #86efac', borderRadius: 4, background: 'var(--bg-card)', color: '#15803d', fontSize: 12, cursor: 'pointer' }}
                       >
                         全部下载
                       </button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
                       {batchDownloads.map((d, i) => (
-                        <div key={`${d.reportId}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#374151' }}>
+                        <div key={`${d.reportId}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-primary)' }}>
                           <FileText size={12} color="#15803d" />
                           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {d.fileName || d.reportId}
                           </span>
-                          <span style={{ color: '#94a3b8' }}>{(d.sizeBytes / 1024).toFixed(0)} KB</span>
+                          <span style={{ color: 'var(--text-secondary)' }}>{(d.sizeBytes / 1024).toFixed(0)} KB</span>
                           <button
                             onClick={() => void downloadBatchFile(d)}
                             style={{ padding: '2px 8px', border: 'none', borderRadius: 4, background: '#16a34a', color: '#fff', fontSize: 11, cursor: 'pointer' }}
@@ -481,7 +495,7 @@ export default function ReportExportPage() {
                       }
                       setTimeout(() => URL.revokeObjectURL(url), 60_000);
                     }}
-                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                    style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   >
                     <Eye size={12} /> 预览样例
                   </button>
@@ -503,22 +517,22 @@ export default function ReportExportPage() {
               </div>
 
               {/* 模板对比 */}
-              <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={13} /> 模板用途速查
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
                   {EXPORT_TEMPLATES.slice(0, 4).map(t => (
                     <div key={t.id} style={{
-                      padding: 8, background: t.id === selectedTemplateId ? `${t.color}15` : '#f8fafc',
+                      padding: 8, background: t.id === selectedTemplateId ? `${t.color}15` : 'var(--bg-card)',
                       border: `1px solid ${t.id === selectedTemplateId ? t.color : '#e2e8f0'}`,
                       borderRadius: 6, fontSize: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                         <span>{t.icon}</span>
-                        <strong style={{ color: '#1e293b' }}>{t.name}</strong>
+                        <strong style={{ color: 'var(--text-primary)' }}>{t.name}</strong>
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{t.description}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.description}</div>
                     </div>
                   ))}
                 </div>
@@ -553,7 +567,7 @@ export default function ReportExportPage() {
 // 样式
 // ============================================================
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
   fontSize: 12, outline: 'none', width: '100%',
 };
 
@@ -571,13 +585,13 @@ const Tag: React.FC<{ color: string; children: React.ReactNode }> = ({ color, ch
 // KPI
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
     </div>
   </div>
 );
@@ -587,13 +601,13 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
 // ============================================================
 const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>
-    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
-    <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: color || 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );
 
 const btnOutlinePrimary: React.CSSProperties = {
   padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 6,
-  background: '#fef2f2', color: '#dc2626', fontSize: 12, cursor: 'pointer',
+  background: 'var(--color-error-bg)', color: '#dc2626', fontSize: 12, cursor: 'pointer',
   display: 'flex', alignItems: 'center', gap: 4,
 };

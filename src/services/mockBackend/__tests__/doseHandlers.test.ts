@@ -154,4 +154,57 @@ describe("doseHandlers - 剂量管理 DRL 端点", () => {
     const { status } = await postJson("/rdsr/alerts/not-exist/ack", {});
     expect(status).toBe(404);
   });
+
+  it("POST /rdsr/check 返回超限列表并区分 warning/critical", async () => {
+    const { status, body } = await postJson("/rdsr/check", {
+      records: [
+        { modality: "CT", bodyPart: "胸部", ctdivol: 18, dlp: 700, patientName: "超限患者" },
+        { modality: "CT", bodyPart: "胸部", ctdivol: 10, dlp: 300, patientName: "正常患者" },
+        { modality: "CT", bodyPart: "胸部", ctdivol: 40, dlp: 2000, patientName: "危急患者" },
+      ],
+    });
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    const data = body.data as {
+      checked: number;
+      overLimitCount: number;
+      warningCount: number;
+      criticalCount: number;
+      overLimit: Array<{ level: string; patientName: string; ctdivolDrl: number; dlpDrl: number; reason: string }>;
+    };
+    expect(data.checked).toBe(3);
+    expect(data.overLimitCount).toBe(2);
+    expect(data.warningCount).toBe(1);
+    expect(data.criticalCount).toBe(1);
+    const critical = data.overLimit.find((o) => o.patientName === "危急患者");
+    expect(critical?.level).toBe("critical");
+    expect(critical?.reason).toContain("150%");
+    const warning = data.overLimit.find((o) => o.patientName === "超限患者");
+    expect(warning?.level).toBe("warning");
+    expect(warning?.dlpDrl).toBeGreaterThan(0);
+  });
+
+  it("POST /rdsr/check 儿童(age<15)使用儿童 DRL 阈值", async () => {
+    const { status, body } = await postJson("/rdsr/check", {
+      records: [
+        { modality: "CT", bodyPart: "头部", ctdivol: 50, dlp: 800, age: 8, patientName: "儿童" },
+        { modality: "CT", bodyPart: "头部", ctdivol: 50, dlp: 800, age: 40, patientName: "成人" },
+      ],
+    });
+    expect(status).toBe(200);
+    const data = body.data as { overLimit: Array<{ patientName: string; ageGroup: string; ctdivolDrl: number }> };
+    expect(data.overLimit).toHaveLength(1);
+    expect(data.overLimit[0]!.patientName).toBe("儿童");
+    expect(data.overLimit[0]!.ageGroup).toBe("child");
+    expect(data.overLimit[0]!.ctdivolDrl).toBe(40);
+  });
+
+  it("POST /rdsr/check 空记录返回零统计", async () => {
+    const { status, body } = await postJson("/rdsr/check", { records: [] });
+    expect(status).toBe(200);
+    const data = body.data as { checked: number; overLimitCount: number; overLimit: unknown[] };
+    expect(data.checked).toBe(0);
+    expect(data.overLimitCount).toBe(0);
+    expect(data.overLimit).toEqual([]);
+  });
 });

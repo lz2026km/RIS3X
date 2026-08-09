@@ -103,7 +103,7 @@ const PacsViewerPage: React.FC = () => {
           {MODALITY_LABELS[study.modality] || study.modality}
         </Tag>
         <Tag style={{ fontSize: 12 }}>{study.patientId}</Tag>
-        <span style={{ fontSize: 12, color: "#94a3b8" }}>
+        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
           {new Date(study.studyDate).toLocaleDateString()}
         </span>
         <div style={{ flex: 1 }} />
@@ -128,13 +128,13 @@ const PacsViewerPage: React.FC = () => {
             minHeight: 400,
           }}
         >
-          <div style={{ textAlign: "center", color: "#475569" }}>
+          <div style={{ textAlign: "center", color: "var(--text-secondary)" }}>
             <Image
               className="v4-icon"
-              style={{ width: 64, height: 64, color: "#334155" }}
+              style={{ width: 64, height: 64, color: "var(--text-primary)" }}
             />
             <div style={{ marginTop: 12, fontSize: 14 }}>影像显示区</div>
-            <div style={{ fontSize: 12, color: "#334155" }}>{study.device}</div>
+            <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{study.device}</div>
             {study.criticalFlag && (
               <div style={{ color: "#ef4444", marginTop: 8, fontSize: 12 }}>
                 ⚠ 危急值 - 请立即审核
@@ -164,7 +164,7 @@ const PacsViewerPage: React.FC = () => {
                 borderBottom: "1px solid #334155",
               }}
             >
-              <span style={{ color: "#64748b" }}>{k}: </span>
+              <span style={{ color: "var(--text-secondary)" }}>{k}: </span>
               <span style={{ fontWeight: 600 }}>{v}</span>
             </div>
           ))}
@@ -173,7 +173,7 @@ const PacsViewerPage: React.FC = () => {
           <div
             style={{
               fontSize: 12,
-              color: "#94a3b8",
+              color: "var(--text-secondary)",
               lineHeight: 1.6,
               flex: 1,
               overflow: "auto",

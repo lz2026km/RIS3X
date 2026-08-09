@@ -3,13 +3,13 @@
  * R3.DIST 组 D:多通道推送(微信/短信/钉钉/邮件/站内/DICOM/纸质/云盘/胶片)
  * 25 升级点
  */
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress } from 'antd';
-import { Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film, CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers, Inbox, Activity, Clock } from 'lucide-react';
 import { DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK } from '@data/reportDistributionMock';
 import { sendMultiChannel, retryDeliveryTask, cancelDeliveryTask } from '@services/distribution/distributionService';
 import type { DeliveryChannel, DeliveryChannelConfig, DeliveryTask, DeliveryStatus } from '@types/R3/R3.DIST';
 import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
+import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress } from 'antd';
+import { Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film, CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers, Inbox, Activity, Clock } from 'lucide-react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
 interface Props {
   reportId?: string;
@@ -258,7 +258,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
             scroll={{ x: 800 }}
           />
         ) : (
-          <Empty description="暂无任务" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无任务" />
         )}
       </Card>
 

@@ -2,13 +2,14 @@
  * G005 v3.0.6.11-75 W3-1 - 影像质控专项页
  * qcImageAiApi 真实评分(scoreV2) + 评分列表(listResults) + 统计(getStatsV2) + 设备影像等级
  */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
+import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
 import {
   Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty,
 } from 'antd'
 import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw } from 'lucide-react'
-import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
-import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { BarChart3 } from 'lucide-react'
 
 const MODALITY_OPTIONS = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => ({ label: m, value: m }))
 const STATUS_META: Record<string, { color: string; label: string }> = {
@@ -107,7 +108,7 @@ export default function ImageQualityControlPage() {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Camera size={20} color="#3b82f6" />
         <span style={{ fontSize: 18, fontWeight: 700 }}>影像质控专项</span>
@@ -118,13 +119,13 @@ export default function ImageQualityControlPage() {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {['all', 'CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => (
           <button key={m} onClick={() => setModality(m)}
-            style={{ padding: '6px 14px', background: modality === m ? '#1e40af' : '#fff', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? '#1e40af' : '#cbd5e1'), borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            style={{ padding: '6px 14px', background: modality === m ? '#1e40af' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? '#1e40af' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
             {m === 'all' ? '全部' : m}
           </button>
         ))}
@@ -176,7 +177,7 @@ export default function ImageQualityControlPage() {
             {loading ? (
               <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
             ) : results.length === 0 ? (
-              <Empty description="暂无评分记录" />
+              <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无评分记录" />
             ) : (
               <Table rowKey="id" size="small" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
             )}
@@ -187,26 +188,26 @@ export default function ImageQualityControlPage() {
       <Card size="small" title="设备影像质量详细" style={{ marginTop: 16 }}>
         <table style={{ width: '100%', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: '#f8fafc' }}>
+            <tr style={{ background: 'var(--bg-card)' }}>
               {['设备 ID', '类型', '厂家型号', '影像等级', '剂量合规率', '月扫描', '故障率'].map((h) => (
-                <th key={h} style={{ padding: 10, textAlign: 'left', fontWeight: 600, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                <th key={h} style={{ padding: 10, textAlign: 'left', fontWeight: 600, color: '#475569', borderBottom: '2px solid var(--border-color)' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {DEVICE_MASTER.slice(0, 30).map((d) => (
-              <tr key={d.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+              <tr key={d.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: 10, fontFamily: 'monospace', fontSize: 11 }}>{d.id}</td>
                 <td style={{ padding: 10 }}>{d.modality}</td>
                 <td style={{ padding: 10 }}>{d.brand} {d.model}</td>
                 <td style={{ padding: 10 }}>
-                  <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: d.imageQualityGrade === 'A' ? '#d1fae5' : d.imageQualityGrade === 'D' ? '#fee2e2' : '#fef3c7', color: d.imageQualityGrade === 'A' ? '#065f46' : d.imageQualityGrade === 'D' ? '#991b1b' : '#92400e' }}>
+                  <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: d.imageQualityGrade === 'A' ? 'var(--color-success-bg)' : d.imageQualityGrade === 'D' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: d.imageQualityGrade === 'A' ? '#065f46' : d.imageQualityGrade === 'D' ? '#991b1b' : '#92400e' }}>
                     {d.imageQualityGrade} 级
                   </span>
                 </td>
                 <td style={{ padding: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ width: `${d.doseComplianceRate}%`, height: '100%', background: d.doseComplianceRate >= 90 ? '#10b981' : d.doseComplianceRate >= 80 ? '#f59e0b' : '#dc2626' }} />
                     </div>
                     <span style={{ fontSize: 11, color: '#475569' }}>{d.doseComplianceRate}%</span>

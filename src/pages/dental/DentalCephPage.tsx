@@ -1,6 +1,6 @@
 // [v3.0.6.8-90] Phase 2: 头影测量分析
 // 对标: Sidexis Ceph + Dolphin Imaging + Planmeca Romexis Ceph
-import React, { useState, useEffect, useRef } from "react";
+import { dentalApi } from "../../services/api/dentalApi";
 import {
   Card,
   Space,
@@ -25,7 +25,8 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
-import { dentalApi } from "../../services/api/dentalApi";
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useRef } from "react";
 
 const ANALYSIS_TYPES = [
   { value: "steiner", label: "Steiner 分析法 (SNA/SNB/ANB)" },
@@ -244,7 +245,7 @@ export const DentalCephPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
           <Crosshair size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -310,7 +311,7 @@ export const DentalCephPage: React.FC = () => {
                     text={s.status}
                   />
                 </Space>
-                <div style={{ marginTop: 4, fontSize: 12, color: "#999" }}>
+                <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
                   {s.age}岁 {s.gender === "M" ? "男" : "女"} |{" "}
                   {s.analysisType || "未分析"} | {s.acquisitionDate}
                 </div>
@@ -323,7 +324,7 @@ export const DentalCephPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回
@@ -438,7 +439,7 @@ export const DentalCephPage: React.FC = () => {
                 </Space>
               }
             >
-              <div style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
                 诊断: {analysis.diagnosis}
               </div>
               <Table
@@ -478,7 +479,7 @@ export const DentalCephPage: React.FC = () => {
             </Card>
           ) : (
             <Card size="small" title="分析结果">
-              <Empty description="点击「运行分析」生成测量结果" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击「运行分析」生成测量结果" />
             </Card>
           )}
           {archData && (

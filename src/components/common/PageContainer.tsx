@@ -27,8 +27,8 @@ export type PageMaxWidth =
   | "fluid"; // 100%
 
 const BG_MAP: Record<PageBackground, string | undefined> = {
-  default: "var(--color-gray-50, #f8fafc)", // 默认浅灰
-  slate: "var(--color-gray-50, #f8fafc)", // 兼容旧 #f8fafc
+  default: "var(--bg-primary, #f8fafc)", // 默认浅灰 (随主题)
+  slate: "var(--bg-primary, #f8fafc)", // 兼容旧 #f8fafc (随主题)
   blue: "var(--color-primary-50, #eff6ff)", // #eff6ff
   sky: "var(--color-info-50, #ecfeff)", // #ecfeff / #f0f9ff
   gray: "#e8e8e8", // 兼容 AIAssistPage 浅灰

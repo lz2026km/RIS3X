@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] 术语管理 API — 后端已实现 /terminology controller
+// (terminology.module, DictEntry 派生 + seed 回退 + 内存 CRUD), MSW 标注已更新。
 export interface TerminologyMapping {
   id: string
   source: string

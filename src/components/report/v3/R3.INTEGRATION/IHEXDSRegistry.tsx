@@ -3,12 +3,13 @@
  * R3.INTEGRATION 组 D:IHE XDS.b / XDR / ATNA
  * 20 升级点:ebXML 提交 / Stored Query / 文档条目 / 关联
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
-import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus, Search } from 'lucide-react';
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
 import { registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest, buildFindDocumentsQuery, validateXds } from '@services/integration/iheXdsService';
 import type { XdsRegistry, XdsDocumentEntry } from '@types/R3/R3.INTEGRATION';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus, Search } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from 'react';
 
 interface Props {
   reportId?: string;
@@ -262,7 +263,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                 },
               ]}
             />
-          ) : <Empty description="请选择 Registry" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 Registry" />}
         </Card>
       </div>
 

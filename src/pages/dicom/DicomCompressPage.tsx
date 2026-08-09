@@ -1,4 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePagination } from "../../hooks/usePagination";
+import type {
+  CompressInstance,
+  DicomCompressTask,
+} from "../../services/api/dicomCompressApi";
+import { dicomCompressApi } from '../../services/api/dicomCompressApi'
+import {
+  CompressOutlined,
+  ExpandOutlined,
+  BarChartOutlined,
+  FileOutlined,
+  UploadOutlined,
+  ReloadOutlined,
+  ExperimentOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Select,
@@ -21,22 +36,8 @@ import {
   Descriptions,
   Modal,
 } from "antd";
-import {
-  CompressOutlined,
-  ExpandOutlined,
-  BarChartOutlined,
-  FileOutlined,
-  UploadOutlined,
-  ReloadOutlined,
-  ExperimentOutlined,
-  ThunderboltOutlined,
-} from "@ant-design/icons";
-import type {
-  CompressInstance,
-  DicomCompressTask,
-} from "../../services/api/dicomCompressApi";
-import { dicomCompressApi } from "../../services/api/dicomCompressApi";
-import { usePagination } from "../../hooks/usePagination";
+import { BarChart3, File, FlaskConical, Inbox, Maximize2, RotateCw, Shrink, Trash2, Upload, Zap } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const { Title, Text } = Typography;
 
@@ -126,6 +127,9 @@ export default function DicomCompressPage() {
   const [taskStats, setTaskStats] = useState<{ totalTasks: number; completedTasks: number; failedTasks: number; totalSavedBytes: number; avgRatio: number } | null>(null);
   const [taskDetail, setTaskDetail] = useState<DicomCompressTask | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  // [G005 Wave1A P0] 行内真实压缩比: GET /dicom/compress/ratio/:instanceId (JPEG2000 无损预测)
+  const [realRatios, setRealRatios] = useState<Record<string, { ratio: number; real: boolean }>>({});
+  const [ratioLoadingId, setRatioLoadingId] = useState<string>("");
   const { pageData: taskPageData, pagination: taskPagination } = usePagination(tasks, 8);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -457,6 +461,28 @@ export default function DicomCompressPage() {
       : []),
   ];
 
+  // [G005 Wave1A P0] 单实例真实压缩比 (GET /dicom/compress/ratio/:instanceId)
+  const handleFetchRealRatio = async (row: DicomCompressTask) => {
+    setRatioLoadingId(row.id);
+    try {
+      const res = await dicomCompressApi.getRatio(row.fileId);
+      const data = res.data as { ratio?: number; real?: boolean; originalSize?: number; compressedSize?: number } | null;
+      if (res.success && data && data.ratio !== undefined) {
+        setRealRatios(prev => ({ ...prev, [row.fileId]: { ratio: data.ratio!, real: data.real !== false } }));
+        messageApi.success(
+          `实例 ${row.fileId} 真实压缩比 ${data.ratio.toFixed(2)}× (${data.real === false ? "查表估算" : "JPEG2000 真实编码"})`,
+        );
+      } else {
+        messageApi.warning("该实例暂无可计算的真实压缩比");
+      }
+    } catch (err) {
+      console.warn("[DicomCompress] getRatio failed", err);
+      messageApi.error("真实压缩比获取失败");
+    } finally {
+      setRatioLoadingId("");
+    }
+  };
+
   const taskColumns = [
     { title: "任务 ID", dataIndex: "id", key: "id", width: 130 },
     { title: "文件", dataIndex: "fileId", key: "fileId", ellipsis: true },
@@ -520,6 +546,21 @@ export default function DicomCompressPage() {
       render: (v: boolean | undefined) =>
         v ? <Tag color="gold">估算</Tag> : <Tag color="green">真实</Tag>,
     },
+    {
+      title: "JPEG2000 真实比",
+      key: "realRatio",
+      width: 120,
+      render: (_: unknown, row: DicomCompressTask) => {
+        const r = realRatios[row.fileId];
+        return r ? (
+          <Tag color={r.real ? "green" : "gold"}>{r.ratio.toFixed(2)}×{r.real ? "" : " (估算)"}</Tag>
+        ) : (
+          <Button size="small" type="link" loading={ratioLoadingId === row.id} onClick={() => void handleFetchRealRatio(row)}>
+            查询
+          </Button>
+        );
+      },
+    },
     { title: "耗时", dataIndex: "elapsedMs", key: "elapsedMs", width: 90, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
     {
       title: "操作",
@@ -532,7 +573,7 @@ export default function DicomCompressPage() {
             <Button size="small" danger loading={taskActionId === row.id} onClick={() => void handleCancelTask(row)}>取消</Button>
           )}
           <Popconfirm title="确认删除该任务?" onConfirm={() => void handleDeleteTask(row)}>
-            <Button size="small" type="text" danger loading={taskActionId === row.id}>删除</Button>
+            <Button size="small" type="text" danger loading={taskActionId === row.id} icon={<Trash2 size={12} />}>删除</Button>
           </Popconfirm>
         </Space>
       ),
@@ -593,7 +634,7 @@ export default function DicomCompressPage() {
     <div style={{ padding: 24 }}>
       {contextHolder}
       <Title level={3}>
-        <CompressOutlined style={{ marginRight: 8 }} />
+        <Shrink size={16} style={{ marginRight: 8 }} />
         DICOM 压缩工作台
         <Text type="secondary" style={{ fontSize: 13, marginLeft: 12 }}>
           真实 JPEG2000/HTJ2K 对标: RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码
@@ -605,7 +646,7 @@ export default function DicomCompressPage() {
           <Card
             title={
               <Space>
-                <FileOutlined />
+                <File size={14} />
                 源文件
               </Space>
             }
@@ -638,7 +679,7 @@ export default function DicomCompressPage() {
                 }}
               />
               <Button
-                icon={<UploadOutlined />}
+                icon={<Upload />}
                 onClick={() => fileInputRef.current?.click()}
                 block
               >
@@ -660,7 +701,7 @@ export default function DicomCompressPage() {
           <Card
             title={
               <Space>
-                <ExperimentOutlined />
+                <FlaskConical size={14} />
                 压缩参数
               </Space>
             }
@@ -698,7 +739,7 @@ export default function DicomCompressPage() {
           <Card
             title={
               <Space>
-                <ThunderboltOutlined />
+                <Zap size={14} />
                 执行
               </Space>
             }
@@ -707,7 +748,7 @@ export default function DicomCompressPage() {
             <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
                 type="primary"
-                icon={<CompressOutlined />}
+                icon={<Shrink />}
                 loading={loading}
                 onClick={handleCompress}
                 block
@@ -715,7 +756,7 @@ export default function DicomCompressPage() {
                 开始压缩
               </Button>
               <Button
-                icon={<CompressOutlined />}
+                icon={<Shrink />}
                 loading={batchLoading}
                 onClick={() => void handleBatchCompress()}
                 block
@@ -723,7 +764,7 @@ export default function DicomCompressPage() {
                 批量压缩 (最多5个)
               </Button>
               <Button
-                icon={<ExpandOutlined />}
+                icon={<Maximize2 />}
                 loading={loading}
                 onClick={handleDecompress}
                 block
@@ -731,14 +772,14 @@ export default function DicomCompressPage() {
                 解压
               </Button>
               <Button
-                icon={<BarChartOutlined />}
+                icon={<BarChart3 />}
                 loading={comparing}
                 onClick={handleCompareAll}
                 block
               >
                 全部算法对比
               </Button>
-              <Button icon={<ReloadOutlined />} onClick={refreshAll} block>
+              <Button icon={<RotateCw />} onClick={refreshAll} block>
                 刷新任务与统计
               </Button>
             </Space>
@@ -749,7 +790,7 @@ export default function DicomCompressPage() {
       <Card
         title={
           <Space>
-            <BarChartOutlined />
+            <BarChart3 size={16} />
             压缩结果
             {currentTask?.simulated === true && (
               <Tag color="gold">估算 (文件不可达时查表回退)</Tag>
@@ -796,14 +837,14 @@ export default function DicomCompressPage() {
                     <Statistic
                       title="原始大小"
                       value={formatBytes(currentTask.originalSize)}
-                      prefix={<FileOutlined />}
+                      prefix={<File size={14} />}
                     />
                   </Col>
                   <Col span={4}>
                     <Statistic
                       title="压缩后"
                       value={formatBytes(currentTask.compressedSize)}
-                      prefix={<FileOutlined />}
+                      prefix={<File size={14} />}
                     />
                   </Col>
                   <Col span={4}>
@@ -854,7 +895,7 @@ export default function DicomCompressPage() {
             )}
             {currentTask.status === "done" && (
               <Button
-                icon={<ExpandOutlined />}
+                icon={<Maximize2 />}
                 style={{ marginTop: 12 }}
                 onClick={handleDecompress}
               >
@@ -863,7 +904,7 @@ export default function DicomCompressPage() {
             )}
           </div>
         ) : (
-          <Empty description={polling ? "压缩中..." : "尚未压缩"} />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={polling ? "压缩中..." : "尚未压缩"} />
         )}
       </Card>
 
@@ -872,7 +913,7 @@ export default function DicomCompressPage() {
       <Card
         title={
           <Space>
-            <FileOutlined />
+            <File size={14} />
             任务列表
             {polling && <Tag color="processing">轮询中</Tag>}
           </Space>
@@ -898,7 +939,7 @@ export default function DicomCompressPage() {
           scroll={{ x: 'max-content' }}
           />
         ) : (
-          <Empty description="暂无任务" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无任务" />
         )}
       </Card>
 
@@ -909,7 +950,7 @@ export default function DicomCompressPage() {
           <Card
             title={
               <Space>
-                <BarChartOutlined />
+                <BarChart3 size={16} />
                 算法对比
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   {compareRows.length > 0 ? `${formatBytes(compareRows[0]?.originalSize)} 像素数据` : ""}
@@ -925,7 +966,7 @@ export default function DicomCompressPage() {
             ) : compareRows.length > 0 ? (
               <Table dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} size="small" scroll={{ x: 'max-content' }}/>
             ) : (
-              <Empty description='点击 "全部算法对比" 查看各算法真实压缩比' />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description='点击 "全部算法对比" 查看各算法真实压缩比' />
             )}
           </Card>
         </Col>
@@ -933,7 +974,7 @@ export default function DicomCompressPage() {
           <Card
             title={
               <Space>
-                <BarChartOutlined />
+                <BarChart3 size={16} />
                 压缩比统计
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   共 {ratios.byAlgorithm.reduce((s, a) => s + a.count, 0)} 次任务, 节省 {formatBytes(ratios.totalSavedBytes)}, 平均 {ratios.avgRatio.toFixed(2)}×
@@ -954,7 +995,7 @@ export default function DicomCompressPage() {
                 <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
               </>
             ) : (
-              <Empty description="暂无统计数据，先执行一次压缩" />
+              <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无统计数据，先执行一次压缩" />
             )}
           </Card>
         </Col>
@@ -989,7 +1030,7 @@ export default function DicomCompressPage() {
             {taskDetail.error && <Descriptions.Item label="错误" span={2}><Text type="danger">{taskDetail.error}</Text></Descriptions.Item>}
           </Descriptions>
         ) : (
-          <Empty description="加载中" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="加载中" />
         )}
       </Modal>
     </div>

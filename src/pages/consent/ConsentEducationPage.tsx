@@ -1,11 +1,12 @@
 // [v3.0.6.8-79] 知情同意/患者教育管理
 // [v3.0.6.11-60] Batch 3: consentEducationApi 真实数据 + 分类筛选 + 上传/查看
-import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
-import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
+import { usePagination } from '../../hooks/usePagination';
 import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
-import { usePagination } from '../../hooks/usePagination';
+import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
+import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
+import { Text, Video } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react';
 
 // [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
 
@@ -162,7 +163,7 @@ export const ConsentEducationPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
       </Space>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="待签署" value={stats.pending} styles={{ content: { color: '#faad14' } }} prefix={<Clock size={14} />} /></Card></Col>

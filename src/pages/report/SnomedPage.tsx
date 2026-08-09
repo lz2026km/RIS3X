@@ -46,7 +46,7 @@ export default function SnomedPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader title={<><Code size={20} color="#3b82f6" /> {t("title")}</>} subtitle={t("subtitle")} />
+      <PageHeader icon={<Code size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20 }}>
           <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>

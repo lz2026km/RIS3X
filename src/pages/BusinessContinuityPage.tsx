@@ -112,7 +112,7 @@ export default function BusinessContinuityPage() {
   const queuePagination = usePagination(queue, 10);
 
   return (
-    <div style={{ padding: 24, background: "#f1f5f9", minHeight: "calc(100vh - 56px)" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <Space size={16}>
           <Shield size={36} color="#fff" />
@@ -139,7 +139,7 @@ export default function BusinessContinuityPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={12}>
           <Card title={<Space><Database size={16} />数据库副本 ({replicas.length})<Badge count={replicas.filter(r => r.status === "healthy").length} status="success" /><Tag color="orange">静态演示数据 (failover.ts)</Tag></Space>}>
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               dataSource={replicas}
               rowKey="id"
               size="small"
@@ -155,7 +155,7 @@ export default function BusinessContinuityPage() {
                 { title: "RPO", dataIndex: "rpo", key: "rpo", width: 80, render: (n: number) => `${n}s` },
                 { title: "RTO", dataIndex: "rto", key: "rto", width: 80, render: (n: number) => `${n}s` },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Col>
@@ -189,13 +189,13 @@ export default function BusinessContinuityPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={5}><Card><Statistic title="设备总数" value={deviceStats?.total ?? 0} prefix={<Monitor size={16} />} styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
         <Col span={5}><Card><Statistic title="运行中" value={deviceStats?.inUse ?? 0} prefix={<CheckCircle size={16} />} styles={{ content: {  color: "#10b981"  } }} /></Card></Col>
-        <Col span={5}><Card><Statistic title="待机" value={deviceStats?.idle ?? 0} styles={{ content: {  color: "#64748b"  } }} /></Card></Col>
+        <Col span={5}><Card><Statistic title="待机" value={deviceStats?.idle ?? 0} styles={{ content: {  color: "var(--text-secondary)"  } }} /></Card></Col>
         <Col span={5}><Card><Statistic title="维护中" value={deviceStats?.maintenance ?? 0} prefix={<AlertTriangle size={16} />} styles={{ content: {  color: "#f59e0b"  } }} /></Card></Col>
         <Col span={4}><Card><Statistic title="故障" value={deviceStats?.broken ?? 0} prefix={<XCircle size={16} />} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
       </Row>
 
       <Card title={<Space><Monitor size={16} />影像设备状态 ({devices.length})<Tag color="green">数据来源：/devices 真实接口</Tag></Space>} style={{ marginBottom: 16 }}>
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           dataSource={devicePagination.pageData}
           rowKey="id"
           size="small"
@@ -209,12 +209,12 @@ export default function BusinessContinuityPage() {
             { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const m = DEV_STATUS[s] || { color: "default", label: s }; return <Tag color={m.color}>{m.label}</Tag>; } },
             { title: "上次维护", dataIndex: "lastMaintenanceAt", key: "lm", width: 150, render: (t?: string) => t ? new Date(t).toLocaleDateString("zh-CN") : "-" },
           ]}
-        scroll={{ x: 'max-content' }}
+       
         />
       </Card>
 
       <Card title={<Space><Activity size={16} />同步队列 ({queue.length})</Space>}>
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           dataSource={queuePagination.pageData}
           rowKey="id"
           size="small"
@@ -230,7 +230,7 @@ export default function BusinessContinuityPage() {
             { title: "创建", dataIndex: "createdAt", key: "c", width: 160, render: (t: string) => new Date(t).toLocaleString("zh-CN") },
             { title: "大小", dataIndex: "bytes", key: "b", width: 90, render: (b: number) => `${(b / 1024).toFixed(1)} KB` },
           ]}
-        scroll={{ x: 'max-content' }}
+       
         />
       </Card>
     </div>

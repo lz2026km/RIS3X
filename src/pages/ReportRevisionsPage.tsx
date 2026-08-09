@@ -22,19 +22,19 @@ import { reportApi } from '../services/api/reportApi';
 // 修订动作配置
 // ============================================================
 const ACTION_CONFIG = {
-  initial:  { label: '初次发布', color: '#3b82f6', bg: '#dbeafe', icon: FileText },
-  revise:   { label: '修订',     color: '#f59e0b', bg: '#fef3c7', icon: Edit2 },
-  addendum: { label: '补发',     color: '#7c3aed', bg: '#ede9fe', icon: Plus },
-  recall:   { label: '撤回',     color: '#dc2626', bg: '#fee2e2', icon: RotateCcw },
+  initial:  { label: '初次发布', color: '#3b82f6', bg: '#3b82f622', icon: FileText },
+  revise:   { label: '修订',     color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  addendum: { label: '补发',     color: '#7c3aed', bg: '#8b5cf622', icon: Plus },
+  recall:   { label: '撤回',     color: '#ef4444', bg: '#ef444422', icon: RotateCcw },
 };
 
 // ============================================================
 // 变更类型配置
 // ============================================================
 const CHANGE_CONFIG = {
-  modified: { label: '修改', color: '#f59e0b', bg: '#fef3c7', icon: Edit2 },
-  added:    { label: '新增', color: '#10b981', bg: '#d1fae5', icon: Plus },
-  deleted:  { label: '删除', color: '#dc2626', bg: '#fee2e2', icon: X },
+  modified: { label: '修改', color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  added:    { label: '新增', color: '#10b981', bg: '#22c55e22', icon: Plus },
+  deleted:  { label: '删除', color: '#ef4444', bg: '#ef444422', icon: X },
 };
 
 // ============================================================
@@ -212,12 +212,12 @@ export default function ReportRevisionsPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <History size={20} color="#f59e0b" /> 报告修订与版本管理
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
-              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
               color: source === 'api' ? '#16a34a' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
@@ -225,7 +225,7 @@ export default function ReportRevisionsPage() {
               {loading ? '同步中...' : source === 'api' ? '数据源: reportApi.auditTrail/diff 实时' : '演示数据(接口不可用)'}
             </span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             修订链追溯 · 版本对比 (Diff) · 补发/勘误 · 患者告知
             {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
           </p>
@@ -246,8 +246,8 @@ export default function ReportRevisionsPage() {
           <button
             onClick={() => navigate('/reports')}
             style={{
-              padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6,
-              background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+              padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
+              background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
             }}
           >
             返回报告列表
@@ -258,15 +258,15 @@ export default function ReportRevisionsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 12 }}>
         {/* 左：报告列表 */}
         <div style={{
-          background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
           overflow: 'hidden', alignSelf: 'flex-start',
         }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Layers size={12} /> 修订报告 ({reportIds.length})
             </div>
             <div style={{ position: 'relative' }}>
-              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: '#94a3b8' }} />
+              <Search size={11} style={{ position: 'absolute', left: 8, top: 8, color: 'var(--text-secondary)' }} />
               <input
                 type="text"
                 value={search}
@@ -274,7 +274,7 @@ export default function ReportRevisionsPage() {
                 placeholder="搜索报告 ID / 患者..."
                 style={{
                   width: '100%', padding: '5px 8px 5px 26px',
-                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
+                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
                 }}
               />
             </div>
@@ -299,17 +299,17 @@ export default function ReportRevisionsPage() {
                       setRightVersion(revs[revs.length - 1]!.versionNumber);
                     }}
                     style={{
-                      padding: 10, borderBottom: '1px solid #f1f5f9',
-                      background: isSelected ? '#eff6ff' : 'transparent',
+                      padding: 10, borderBottom: '1px solid var(--border-light)',
+                      background: isSelected ? 'var(--color-info-bg)' : 'transparent',
                       borderLeft: isSelected ? '3px solid #3b82f6' : '3px solid transparent',
                       cursor: 'pointer',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r?.patientName || rid}</span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>{r?.modality}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r?.patientName || rid}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r?.modality}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
                       {rid} · {revs.length} 个版本
                     </div>
                     <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -327,7 +327,7 @@ export default function ReportRevisionsPage() {
                 );
               })}
             {reportIds.length === 0 && (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
                 暂无修订报告
               </div>
             )}
@@ -341,17 +341,17 @@ export default function ReportRevisionsPage() {
               {/* 报告信息 */}
               {report && (
                 <div style={{
-                  background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
                         {report.patientName} · {report.modality} {report.bodyPart}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{selectedReportId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{selectedReportId}</div>
                     </div>
-                    <div style={{ fontSize: 12, color: '#475569' }}>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>修订次数</span>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>修订次数</span>
                       <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export default function ReportRevisionsPage() {
 
               {/* 修订链时间线 */}
               <div style={{
-                background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <GitBranch size={14} /> 修订链时间线
@@ -380,7 +380,7 @@ export default function ReportRevisionsPage() {
                           }}
                           style={{
                             minWidth: 200, padding: 12,
-                            background: (isLeft || isRight) ? '#eff6ff' : '#f8fafc',
+                            background: (isLeft || isRight) ? 'var(--color-info-bg)' : 'var(--bg-card)',
                             border: `2px solid ${isLeft ? '#f59e0b' : isRight ? '#10b981' : '#e2e8f0'}`,
                             borderRadius: 8, cursor: 'pointer',
                             position: 'relative',
@@ -391,12 +391,12 @@ export default function ReportRevisionsPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                             <Icon size={12} color={aConf.color} />
                             <strong style={{ fontSize: 12, color: aConf.color }}>{rev.versionLabel}</strong>
-                            <span style={{ fontSize: 12, color: '#94a3b8' }}>{aConf.label}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{aConf.label}</span>
                           </div>
-                          <div style={{ fontSize: 12, color: '#475569', marginBottom: 4, fontWeight: 600 }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, fontWeight: 600 }}>
                             {rev.authorTitle} {rev.authorName}
                           </div>
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{rev.createdAt}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rev.createdAt}</div>
                           {rev.publishedAt && (
                             <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>✓ 已发布 {rev.publishedAt}</div>
                           )}
@@ -416,16 +416,16 @@ export default function ReportRevisionsPage() {
                 </div>
 
                 {/* 对比控制栏 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>对比：</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>对比：</span>
                   <select value={leftVersion} onChange={e => setLeftVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
-                  <ArrowLeftRight size={14} color="#64748b" />
+                  <ArrowLeftRight size={14} color="var(--text-secondary)" />
                   <select value={rightVersion} onChange={e => setRightVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>字段：</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>字段：</span>
                   <select value={diffField} onChange={e => setDiffField(e.target.value as any)} style={selectStyle}>
                     <option value="findings">检查所见</option>
                     <option value="diagnosis">诊断</option>
@@ -434,8 +434,8 @@ export default function ReportRevisionsPage() {
                   <button
                     onClick={() => setShowDiff(!showDiff)}
                     style={{
-                      padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: showDiff ? '#dbeafe' : '#fff',
+                      padding: '4px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
+                      background: showDiff ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: showDiff ? '#1e40af' : '#475569',
                       fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
@@ -448,15 +448,15 @@ export default function ReportRevisionsPage() {
               {/* Diff 对比视图 */}
               {showDiff && leftRev && rightRev && (
                 <div style={{
-                  background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                    <div style={{ flex: 1, padding: 8, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 4 }}>
+                    <div style={{ flex: 1, padding: 8, background: '#f9731622', border: '1px solid #fed7aa', borderRadius: 4 }}>
                       <div style={{ fontSize: 12, color: '#9a3412', fontWeight: 600 }}>左侧：{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#7c2d12' }}>{leftRev.authorName} · {leftRev.createdAt}</div>
                     </div>
-                    <ArrowLeftRight size={16} color="#64748b" />
-                    <div style={{ flex: 1, padding: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4 }}>
+                    <ArrowLeftRight size={16} color="var(--text-secondary)" />
+                    <div style={{ flex: 1, padding: 8, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 4 }}>
                       <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>右侧：{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
                       <div style={{ fontSize: 12, color: '#166534' }}>{rightRev.authorName} · {rightRev.createdAt}</div>
                     </div>
@@ -478,17 +478,17 @@ export default function ReportRevisionsPage() {
 
                   {/* 合并视图 */}
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 6 }}>合并视图（红=删除 绿=新增 黑=相同）</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>合并视图（红=删除 绿=新增 黑=相同）</div>
                     <div style={{
-                      padding: 12, background: '#f8fafc', borderRadius: 6,
-                      border: '1px solid #e2e8f0', fontSize: 12, lineHeight: 1.8,
+                      padding: 12, background: 'var(--bg-card)', borderRadius: 6,
+                      border: '1px solid var(--border-color)', fontSize: 12, lineHeight: 1.8,
                     }}>
                       {diffText(leftRev[diffField] || '', rightRev[diffField] || '').map((seg, i) => (
                         <span
                           key={i}
                           style={{
-                            background: seg.type === 'removed' ? '#fee2e2' : seg.type === 'added' ? '#d1fae5' : 'transparent',
-                            color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '#1e293b',
+background: seg.type === 'removed' ? 'var(--color-error-bg)' : seg.type === 'added' ? 'var(--color-success-bg)' : 'transparent',
+color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : 'var(--text-primary)',
                             textDecoration: seg.type === 'removed' ? 'line-through' : 'none',
                             padding: '0 2px',
                           }}
@@ -501,7 +501,7 @@ export default function ReportRevisionsPage() {
 
                   {/* 修订变更列表 */}
                   {rightRev.changes && rightRev.changes.length > 0 && (
-                    <div style={{ marginTop: 12, padding: 10, background: '#fef3c7', borderRadius: 6, border: '1px solid #fcd34d' }}>
+                    <div style={{ marginTop: 12, padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
                         📝 修订变更列表（{rightRev.changes.length} 项）
                       </div>
@@ -510,7 +510,7 @@ export default function ReportRevisionsPage() {
                         const CIcon = cConf.icon;
                         const fieldLabel = { findings: '检查所见', diagnosis: '诊断', impression: '意见', recommendation: '建议', critical: '危急值' }[change.field] || change.field;
                         return (
-                          <div key={i} style={{ marginBottom: 8, padding: 8, background: '#fff', borderRadius: 4, fontSize: 12 }}>
+                          <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                               <span style={{
                                 fontSize: 12, padding: '1px 5px', borderRadius: 2,
@@ -519,15 +519,15 @@ export default function ReportRevisionsPage() {
                               }}>
                                 <CIcon size={9} /> {cConf.label}
                               </span>
-                              <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{fieldLabel}</span>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{fieldLabel}</span>
                             </div>
                             {change.before && (
-                              <div style={{ padding: 4, background: '#fee2e2', color: '#7f1d1d', textDecoration: 'line-through', borderRadius: 3, marginBottom: 2 }}>
+                              <div style={{ padding: 4, background: 'var(--color-error-bg)', color: '#7f1d1d', textDecoration: 'line-through', borderRadius: 3, marginBottom: 2 }}>
                                 − {change.before}
                               </div>
                             )}
                             {change.after && (
-                              <div style={{ padding: 4, background: '#d1fae5', color: '#065f46', borderRadius: 3 }}>
+                              <div style={{ padding: 4, background: 'var(--color-success-bg)', color: '#065f46', borderRadius: 3 }}>
                                 + {change.after}
                               </div>
                             )}
@@ -543,8 +543,8 @@ export default function ReportRevisionsPage() {
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button
                   style={{
-                    padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4,
-                    background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+                    padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
+                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -552,8 +552,8 @@ export default function ReportRevisionsPage() {
                 </button>
                 <button
                   style={{
-                    padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4,
-                    background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+                    padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
+                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -562,7 +562,7 @@ export default function ReportRevisionsPage() {
                 <button
                   style={{
                     padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4,
-                    background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer',
+                    background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -571,7 +571,7 @@ export default function ReportRevisionsPage() {
               </div>
             </>
           ) : (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', background: '#fff', borderRadius: 8 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--bg-card)', borderRadius: 8 }}>
               请从左侧选择有修订的报告
             </div>
           )}
@@ -585,7 +585,7 @@ export default function ReportRevisionsPage() {
 // 样式
 // ============================================================
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
   fontSize: 12, outline: 'none', minWidth: 100,
 };
 
@@ -596,7 +596,7 @@ const DiffPanel: React.FC<{ title: string; text: string; variant: 'before' | 'af
   const isBefore = variant === 'before';
   return (
     <div style={{
-      background: isBefore ? '#fff7ed' : '#f0fdf4',
+      background: isBefore ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
       border: `1px solid ${isBefore ? '#fed7aa' : '#bbf7d0'}`,
       borderRadius: 6, padding: 10,
     }}>
@@ -604,7 +604,7 @@ const DiffPanel: React.FC<{ title: string; text: string; variant: 'before' | 'af
         {title}
       </div>
       <div style={{ fontSize: 12, lineHeight: 1.7, color: isBefore ? '#7c2d12' : '#166534', whiteSpace: 'pre-wrap' }}>
-        {text || <em style={{ color: '#94a3b8' }}>（空）</em>}
+        {text || <em style={{ color: 'var(--text-secondary)' }}>（空）</em>}
       </div>
     </div>
   );

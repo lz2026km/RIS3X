@@ -3,7 +3,7 @@
 // v1.0.6 基础 + R3.DIST 50 升级点
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, Badge, message } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
@@ -17,26 +17,72 @@ import {
   type DeliveryRecord,
   type DeliveryChannel,
 } from '../data/deliveryExportSignatureMock';
+import { reportApi } from '../services/api/reportApi';
+import type { ReportDto } from '../types/dto';
+
+// [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
+const DELIVERY_CHANNELS: DeliveryChannel[] = ['wechat', 'sms', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'];
+
+const DELIVERY_STATUS_BY_REPORT_STATE: Record<string, DeliveryRecord['status']> = {
+  SIGNED: 'delivered',
+  PUBLISHED: 'delivered',
+  REVIEWED: 'delivered',
+  INITIAL_REVIEW: 'pending',
+  FINAL_REVIEW: 'pending',
+  CO_SIGN_REVIEW: 'pending',
+  WRITING: 'pending',
+  ASSIGNED: 'pending',
+  SUBMITTED: 'pending',
+  SIGNING: 'pending',
+  AMENDING: 'pending',
+  AMENDED: 'delivered',
+  SUPPLEMENTING: 'pending',
+  SUPPLEMENTED: 'delivered',
+  REJECTED: 'failed',
+  WITHDRAWN: 'failed',
+  REDISTRIBUTING: 'pending',
+};
+
+function deriveChannel(id: string): DeliveryChannel {
+  let sum = 0;
+  for (let i = 0; i < id.length; i += 1) sum += id.charCodeAt(i);
+  return DELIVERY_CHANNELS[sum % DELIVERY_CHANNELS.length] ?? 'email';
+}
+
+function reportToDeliveryRecord(r: ReportDto): DeliveryRecord {
+  return {
+    id: `dl-${r.id}`,
+    reportId: r.id,
+    patientName: r.patientName || '患者',
+    channel: deriveChannel(r.id),
+    deliveredAt: r.signedAt ?? r.updatedTime ?? '',
+    status: DELIVERY_STATUS_BY_REPORT_STATE[r.status] ?? 'pending',
+    retryCount: 0,
+    downloadCount: 0,
+    notifyDoctor: r.doctorId ?? '--',
+    template: 'standard',
+  };
+}
 
 // ============================================================
 // 渠道配置
 // ============================================================
 const CHANNEL_CONFIG: Record<DeliveryChannel, { label: string; icon: any; color: string; bg: string; description: string }> = {
-  wechat: { label: '微信',     icon: MessageSquare, color: '#07c160', bg: '#e6f9ed', description: '微信公众号/小程序推送' },
-  sms:    { label: '短信',     icon: Smartphone,    color: '#3b82f6', bg: '#dbeafe', description: '短信推送（含链接）' },
-  email:  { label: '邮件',     icon: Mail,          color: '#ea580c', bg: '#fed7aa', description: 'Email 含 PDF 附件' },
-  inApp:  { label: '站内',     icon: Bell,          color: '#7c3aed', bg: '#ede9fe', description: '患者 App 消息' },
-  dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#cffafe', description: 'DICOM SR 推送到 PACS' },
-  paper:  { label: '纸质打印', icon: Printer,        color: '#475569', bg: '#f1f5f9', description: '实体报告打印' },
-  cloud:  { label: '云盘',     icon: Cloud,         color: '#0ea5e9', bg: '#e0f2fe', description: '云盘链接分享' },
-  film:   { label: '胶片',     icon: Film,          color: '#059669', bg: '#d1fae5', description: '胶片打印' },
+  wechat: { label: '微信',     icon: MessageSquare, color: '#07c160', bg: '#22c55e22', description: '微信公众号/小程序推送' },
+  sms:    { label: '短信',     icon: Smartphone,    color: '#3b82f6', bg: '#3b82f622', description: '短信推送（含链接）' },
+  email:  { label: '邮件',     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: 'Email 含 PDF 附件' },
+  inApp:  { label: '站内',     icon: Bell,          color: '#7c3aed', bg: '#8b5cf622', description: '患者 App 消息' },
+  dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#06b6d422', description: 'DICOM SR 推送到 PACS' },
+  paper:  { label: '纸质打印', icon: Printer,        color: 'var(--text-secondary)', bg: 'var(--bg-deep)', description: '实体报告打印' },
+  cloud:  { label: '云盘',     icon: Cloud,         color: '#0ea5e9', bg: '#3b82f622', description: '云盘链接分享' },
+  film:   { label: '胶片',     icon: Film,          color: '#059669', bg: '#22c55e22', description: '胶片打印' },
 };
 
 const STATUS_CONFIG = {
-  pending:   { label: '推送中', color: '#f59e0b', bg: '#fef3c7' },
-  delivered: { label: '已送达', color: '#3b82f6', bg: '#dbeafe' },
-  read:      { label: '已阅读', color: '#10b981', bg: '#d1fae5' },
-  failed:    { label: '失败',   color: '#dc2626', bg: '#fee2e2' },
+  pending:   { label: '推送中', color: '#f59e0b', bg: '#f59e0b22' },
+  delivered: { label: '已送达', color: '#3b82f6', bg: '#3b82f622' },
+  read:      { label: '已阅读', color: '#10b981', bg: '#22c55e22' },
+  failed:    { label: '失败',   color: '#ef4444', bg: '#ef444422' },
 };
 
 // ============================================================
@@ -46,7 +92,32 @@ export default function ReportDeliveryPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams(); // [W2-3] 支持 /report-delivery?reportId= 直达
   const fromReportId = searchParams.get('reportId') ?? '';
-  const [records] = useState<DeliveryRecord[]>(DELIVERY_RECORDS);
+  const [records, setRecords] = useState<DeliveryRecord[]>(DELIVERY_RECORDS);
+  // [G005 W2-B] 写死数据源整改: reportApi 无 delivery 端点 → reportApi.list 派生 + 标注
+  const [recordsSource, setRecordsSource] = useState<'api' | 'static'>('static');
+  const [recordsLoading, setRecordsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await reportApi.list({ page: 1, pageSize: 100, take: '100', skip: '0' });
+        if (!cancelled && res.success && res.data) {
+          const raw = res.data as unknown;
+          const list: ReportDto[] = Array.isArray(raw)
+            ? raw as ReportDto[]
+            : (raw as { items?: ReportDto[] })?.items ?? [];
+          if (list.length > 0) {
+            setRecords(list.map(reportToDeliveryRecord));
+            setRecordsSource('api');
+          }
+        }
+      } catch { /* 保持静态演示数据 */ }
+      if (!cancelled) setRecordsLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const [filterChannel, setFilterChannel] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedRecords, setSelectedRecords] = useState<Set<string>>(new Set());
@@ -93,7 +164,7 @@ export default function ReportDeliveryPage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {fromReportId && (
         <div style={{
-          marginBottom: 12, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0',
+          marginBottom: 12, padding: '10px 14px', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0',
           borderRadius: 8, fontSize: 13, color: '#166534', display: 'flex', alignItems: 'center', gap: 8,
         }}>
           <Send size={14} />
@@ -101,7 +172,7 @@ export default function ReportDeliveryPage() {
             来自报告列表: <strong>{fromReportId}</strong> — 可直接选择下方推送渠道对该报告进行分发 / 推送管理
             <button
               onClick={() => navigate('/reports')}
-              style={{ marginLeft: 10, padding: '2px 8px', border: '1px solid #bbf7d0', borderRadius: 4, background: '#fff', color: '#047857', fontSize: 12, cursor: 'pointer' }}
+              style={{ marginLeft: 10, padding: '2px 8px', border: '1px solid #bbf7d0', borderRadius: 4, background: 'var(--bg-card)', color: '#047857', fontSize: 12, cursor: 'pointer' }}
             >
               返回报告列表
             </button>
@@ -111,12 +182,21 @@ export default function ReportDeliveryPage() {
       {/* 顶部 v3 升级标识 */}
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> 报告推送中心
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
+            {recordsSource === 'api' ? (
+              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
+                {recordsLoading ? '加载中...' : `reportApi.list 派生 · ${records.length} 条`}
+              </span>
+            ) : (
+              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
+                静态演示数据（reportApi 无 delivery 端点，派生失败回退）
+              </span>
+            )}
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点
           </p>
         </div>
@@ -129,8 +209,7 @@ export default function ReportDeliveryPage() {
               title={`推送记录 ${records.length} 条`}
               style={{ backgroundColor: '#10b981' }}
             />
-          }
-          items={[
+          }          items={[
             { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.DIST 增强</span> },
             { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
           ]}
@@ -159,18 +238,18 @@ export default function ReportDeliveryPage() {
         <>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> 报告推送中心
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => navigate('/report-export')}
-            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
+            style={{ padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}
           >
             导出中心
           </button>
@@ -197,12 +276,12 @@ export default function ReportDeliveryPage() {
               key={c}
               onClick={() => setFilterChannel(isActive ? 'all' : c)}
               style={{
-                background: '#fff', padding: 10, borderRadius: 8, border: `2px solid ${isActive ? conf.color : '#e2e8f0'}`,
+                background: 'var(--bg-card)', padding: 10, borderRadius: 8, border: `2px solid ${isActive ? conf.color : '#e2e8f0'}`,
                 cursor: 'pointer', textAlign: 'center',
               }}
             >
               <Icon size={20} color={conf.color} style={{ display: 'block', margin: '0 auto 4px' }} />
-              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{conf.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{conf.label}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: conf.color }}>{count}</div>
             </div>
           );
@@ -210,8 +289,8 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* 操作栏 */}
-      <div style={{ background: '#fff', borderRadius: 8, padding: 10, marginBottom: 12, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Filter size={12} color="#64748b" />
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 10, marginBottom: 12, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Filter size={12} color="var(--text-secondary)" />
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
           <option value="all">全部状态</option>
           <option value="pending">推送中</option>
@@ -219,12 +298,12 @@ export default function ReportDeliveryPage() {
           <option value="read">已阅读</option>
           <option value="failed">失败</option>
         </select>
-        <span style={{ fontSize: 12, color: '#64748b' }}>已选 <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} 条</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已选 <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} 条</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {sending && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#1e40af' }}>
               <Loader2 size={12} className="spin" /> 推送中 {sendProgress}%
-              <div style={{ width: 100, height: 4, background: '#dbeafe', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ width: 100, height: 4, background: 'var(--color-info-bg)', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{ width: `${sendProgress}%`, height: '100%', background: '#3b82f6' }} />
               </div>
             </div>
@@ -246,7 +325,7 @@ export default function ReportDeliveryPage() {
       </div>
 
       {/* 记录列表 */}
-      <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         {filteredRecords.map(r => {
           const cConf = CHANNEL_CONFIG[r.channel];
           const sConf = STATUS_CONFIG[r.status];
@@ -256,8 +335,8 @@ export default function ReportDeliveryPage() {
             <div
               key={r.id}
               style={{
-                padding: 12, borderBottom: '1px solid #f1f5f9',
-                background: r.status === 'failed' ? '#fef2f2' : isSelected ? '#eff6ff' : 'transparent',
+                padding: 12, borderBottom: '1px solid var(--border-light)',
+                background: r.status === 'failed' ? 'var(--color-error-bg)' : isSelected ? 'var(--color-info-bg)' : 'transparent',
                 display: 'flex', alignItems: 'center', gap: 10,
               }}
             >
@@ -281,7 +360,7 @@ export default function ReportDeliveryPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
                   <span style={{
                     fontSize: 12, padding: '1px 4px', borderRadius: 2,
                     background: cConf.bg, color: cConf.color, fontWeight: 600,
@@ -291,14 +370,14 @@ export default function ReportDeliveryPage() {
                     background: sConf.bg, color: sConf.color, fontWeight: 700,
                   }}>{sConf.label}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#475569' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{r.template}
                 </div>
                 {r.failureReason && (
                   <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
                 )}
               </div>
-              <div style={{ textAlign: 'right', fontSize: 12, color: '#64748b' }}>
+              <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)' }}>
                 <div>{r.deliveredAt}</div>
                 {r.openedAt && <div style={{ color: '#10b981' }}>阅读：{r.openedAt.slice(11)}</div>}
                 <div>下载 {r.downloadCount} 次</div>
@@ -319,13 +398,13 @@ export default function ReportDeliveryPage() {
                         message.warning(`重试请求已发送 · ${r.id} · ${e?.message || String(e)}`);
                       }
                     }}
-                    style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: '#fff', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                    style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
                     <RefreshCw size={10} /> 重试
                   </button>
                 )}
                 <button
-                  style={{ padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                  style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                 >
                   <Eye size={10} /> 详情
                 </button>
@@ -334,7 +413,7 @@ export default function ReportDeliveryPage() {
           );
         })}
         {filteredRecords.length === 0 && (
-          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>无匹配记录</div>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>无匹配记录</div>
         )}
       </div>
         </>
@@ -347,7 +426,7 @@ export default function ReportDeliveryPage() {
 // 样式
 // ============================================================
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
   fontSize: 12, outline: 'none',
 };
 
@@ -355,13 +434,13 @@ const selectStyle: React.CSSProperties = {
 // KPI
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
+  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
     </div>
   </div>
 );

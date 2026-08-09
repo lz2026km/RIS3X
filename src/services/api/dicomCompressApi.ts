@@ -88,8 +88,24 @@ export const COMPRESS_SYNTAXES = {
   jpegBaseline: '1.2.840.10008.1.2.4.50',
 } as const
 
+export interface CompressRatioDto {
+  instanceId: string
+  sopClass: string
+  sopClassName: string
+  originalSize: number
+  compressedSize: number
+  ratio: number
+  transferSyntax: string
+  modality?: string
+  real: boolean
+}
+
 export const dicomCompressApi = {
   listInstances: () => api.get<CompressInstance[]>('/dicom/compress/instances'),
+
+  // [G005 Wave1A P0] 单实例真实压缩比 (后端 GET /dicom/compress/ratio/:instanceId, JPEG2000 无损预测)
+  getRatio: (instanceId: string) =>
+    api.get<CompressRatioDto>(`/dicom/compress/ratio/${encodeURIComponent(instanceId)}`),
 
   getSyntaxes: () =>
     api.get<Array<{ uid: string; name: string; lossy: boolean }>>('/dicom/compress/syntaxes'),

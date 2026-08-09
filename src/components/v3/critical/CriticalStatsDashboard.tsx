@@ -1,13 +1,14 @@
-﻿/**
+/**
  * G005 放射RIS系统 v3.0.2 - 危急值升级统计仪表盘
  */
-import React, { useMemo } from 'react'
-import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
-import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
-import type { CriticalValueV2 } from './CriticalEscalationV2'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'
+import type { CriticalValueV2 } from './CriticalEscalationV2'
+import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table } from 'antd'
+import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
+import React, { useMemo } from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
+import { Inbox } from 'lucide-react'
 
 export interface CriticalStatsDashboardProps {
   values: CriticalValueV2[]
@@ -78,7 +79,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
     return { recent, byCategory, byStatus, byRecipient, daily, avgResponseTime, overdueRate, catKeys }
   }, [values, days])
 
-  if (data.recent.length === 0) return <Empty description={`近 ${days} 天无危急值数据`} />
+  if (data.recent.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={`近 ${days} 天无危急值数据`} />
 
   return (
     <div data-testid="critical-stats-dashboard">

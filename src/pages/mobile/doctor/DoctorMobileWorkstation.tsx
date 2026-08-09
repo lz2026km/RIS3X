@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { message } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import { Search, Filter, ChevronRight, Bell, AlertTriangle, ListChecks, Image, Mic, BarChart3, FileText, RefreshCw, CheckCircle } from 'lucide-react'
 import {
   mobileApi,
@@ -48,17 +49,17 @@ const MOCK_REPORTS: LatestReportItem[] = [
 ]
 
 const s = {
-  container: { maxWidth: 420, margin: '0 auto', background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
+  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 },
   statCard: (bg: string) => ({ background: bg, borderRadius: 10, padding: '10px 8px', textAlign: 'center' as const }),
   statValue: { fontSize: 20, fontWeight: 800, color: '#1e40af' },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid #e2e8f0' },
+  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
   tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#1e40af' : '#94a3b8', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent' }),
-  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
   badge: (color: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${color}20`, color }),
   priorityDot: (color: string) => ({ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }),
 }
@@ -82,6 +83,7 @@ function formatTime(iso: string | null | undefined): string {
 }
 
 export default function DoctorMobileWorkstation() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState<'worklist' | 'critical' | 'reports' | 'stats'>('worklist')
   const [filter, setFilter] = useState<'all' | 'pending' | 'reading'>('all')
   const [search, setSearch] = useState('')
@@ -141,9 +143,15 @@ export default function DoctorMobileWorkstation() {
     return true
   })
 
-  const handleItemClick = useCallback((_item: WorklistItem) => {
-    message.info('该功能暂不可用')
-  }, [])
+  // [Wave2A] 列表项点击 → 报告书写页 (带 patientId/examId)
+  // 注: 需求文档目标路由 /report/write 未在 routeTable 注册, 实际报告书写路由为 /write-report
+  const handleItemClick = useCallback((item: WorklistItem) => {
+    const params = new URLSearchParams()
+    if (item.patientId) params.set('patientId', item.patientId)
+    if (item.id) params.set('examId', item.id)
+    if (item.accessionNumber) params.set('accessionNumber', item.accessionNumber)
+    navigate(`/write-report?${params.toString()}`)
+  }, [navigate])
 
   const handleAck = useCallback(async (id: string) => {
     setAckingId(id)
@@ -171,14 +179,14 @@ export default function DoctorMobileWorkstation() {
       onTouchEnd={onTouchEnd}
     >
       {(pullDist > 0 || refreshing) && (
-        <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 12, color: '#64748b', background: '#e2e8f0' }}>
+        <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 12, color: '#64748b', background: 'var(--bg-card)' }}>
           <RefreshCw size={12} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle', animation: refreshing ? 'spin 1s linear infinite' : undefined }} />
           {refreshing ? '刷新中...' : pullDist >= 80 ? '松开刷新' : '下拉刷新'}
         </div>
       )}
 
       {usingMock && (
-        <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
+        <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
           ⚠ 后端不可用，当前展示离线演示数据
         </div>
       )}
@@ -187,16 +195,16 @@ export default function DoctorMobileWorkstation() {
         <div style={s.headerTitle}>医生移动工作站</div>
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 诊断工作台{summary.date ? ` · ${summary.date}` : ''}</div>
         <div style={s.statsRow}>
-          <div style={s.statCard('#dbeafe')}><div style={s.statValue}>{summary.pendingExams}</div><div style={s.statLabel}>待报告</div></div>
-          <div style={s.statCard('#fef3c7')}><div style={s.statValue}>{summary.inProgressExams}</div><div style={s.statLabel}>报告中</div></div>
-          <div style={s.statCard('#d1fae5')}><div style={s.statValue}>{summary.signedReportsToday}</div><div style={s.statLabel}>今日完成</div></div>
-          <div style={s.statCard('#fee2e2')}><div style={s.statValue}>{summary.criticalValues}</div><div style={s.statLabel}>危急值</div></div>
+          <div style={s.statCard('var(--color-info-bg)')}><div style={s.statValue}>{summary.pendingExams}</div><div style={s.statLabel}>待报告</div></div>
+          <div style={s.statCard('var(--color-warning-bg)')}><div style={s.statValue}>{summary.inProgressExams}</div><div style={s.statLabel}>报告中</div></div>
+          <div style={s.statCard('var(--color-success-bg)')}><div style={s.statValue}>{summary.signedReportsToday}</div><div style={s.statLabel}>今日完成</div></div>
+          <div style={s.statCard('var(--color-error-bg)')}><div style={s.statValue}>{summary.criticalValues}</div><div style={s.statLabel}>危急值</div></div>
         </div>
       </div>
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者、Accession号..." style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者、检查号..." style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Filter size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
@@ -216,7 +224,7 @@ export default function DoctorMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'pending', label: '待报告' }, { key: 'reading', label: '报告中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e40af' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e40af' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -228,7 +236,7 @@ export default function DoctorMobileWorkstation() {
                 <div style={s.priorityDot(PRIORITY_COLORS[item.urgency] ?? '#64748b')} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
                     {item.urgency === 'critical' && <AlertTriangle size={12} color="#dc2626" />}
                     <span style={s.badge(PRIORITY_COLORS[item.urgency] ?? '#64748b')}>
                       {item.urgency === 'critical' ? '危急' : item.urgency === 'urgent' ? '紧急' : '普通'}
@@ -253,15 +261,15 @@ export default function DoctorMobileWorkstation() {
       ) : tab === 'critical' ? (
         <div style={{ padding: 16 }}>
           {criticals.map(c => (
-            <div key={c.id} style={{ background: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? '#fca5a5' : '#fcd34d'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
+            <div key={c.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{c.patientName}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
                 <span style={s.badge(c.severity === 'CRITICAL' ? '#dc2626' : '#d97706')}>
                   {c.severity === 'CRITICAL' ? '危急' : c.severity === 'URGENT' ? '紧急' : c.severity}
                 </span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#334155', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{formatTime(c.createdAt)} · {c.notifiedTo ?? '未通知'}</span>
                 {isAcked(c) ? (
@@ -285,13 +293,13 @@ export default function DoctorMobileWorkstation() {
       ) : tab === 'reports' ? (
         <div style={{ padding: 16 }}>
           {reports.map(r => (
-            <div key={r.id} style={{ background: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, border: '1px solid #e2e8f0' }}>
+            <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{r.patientName}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName}</span>
                 {r.isCritical && <span style={s.badge('#dc2626')}>危急</span>}
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.modality ?? ''} {r.bodyPart ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#334155', marginTop: 6, lineHeight: 1.5 }}>{r.impression || '—'}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{r.impression || '—'}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between' }}>
                 <span>{r.radiologistName ? `${r.radiologistName} 报告` : '报告撰写中'}</span>
                 <span>{formatTime(r.signedAt ?? r.createdAt)}</span>
@@ -302,8 +310,8 @@ export default function DoctorMobileWorkstation() {
         </div>
       ) : (
         <div style={{ padding: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>今日工作统计 ({summary.date})</div>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>今日工作统计 ({summary.date})</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
               {[
                 { label: '今日检查', value: `${summary.examsToday}例`, color: '#2563eb' },
@@ -313,7 +321,7 @@ export default function DoctorMobileWorkstation() {
                 { label: '待检查', value: `${summary.pendingExams}例`, color: '#d97706' },
                 { label: '检查中', value: `${summary.inProgressExams}例`, color: '#0891b2' },
               ].map(stat => (
-                <div key={stat.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+                <div key={stat.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
                 </div>
@@ -323,7 +331,7 @@ export default function DoctorMobileWorkstation() {
         </div>
       )}
 
-      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '6px 0' }}>
+      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' }}>
         {[
           { key: 'worklist', icon: ListChecks, label: '工作台' },
           { key: 'viewer', icon: Image, label: '阅片' },

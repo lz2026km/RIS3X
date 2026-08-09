@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
+import { auditApi as auditAggApi } from '../services/api/auditApi'
 import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
+import { PageHeader } from '../components/common/PageHeader'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons'
+import { Search } from 'lucide-react'
 
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLogDto[]>([])
   const [stats, setStats] = useState<AuditStatsDto | null>(null)
+  // [G005 Wave1A P0] 按操作类型分布 (后端 GET /audit/aggregation → byAction)
+  const [byAction, setByAction] = useState<Record<string, number> | null>(null)
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -34,6 +39,11 @@ export default function AuditPage() {
   const fetchStats = async () => {
     const res = await auditApi.stats()
     if (res.success) setStats(res.data)
+    // [G005 Wave1A P0] 按操作类型分布 (聚合端点, 失败静默回退)
+    try {
+      const agg = await auditAggApi.getAggregation()
+      if (agg.success && agg.data?.byAction) setByAction(agg.data.byAction)
+    } catch { /* 回退: 不展示分布 */ }
   }
 
   // [W2-C] 审计记录详情: 操作者/资源/请求/响应/时间
@@ -96,8 +106,8 @@ export default function AuditPage() {
     <div style={{ padding: 24 }}>
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
-          <Row justify="space-between" align="middle">
-            <h2 style={{ margin: 0 }}><AuditOutlined /> 审计日志</h2>
+<Row justify="space-between" align="middle">
+<PageHeader variant="flex" icon={<AuditOutlined />} title="审计日志" style={{ marginBottom: 0 }} />
             <Space>
               <Button icon={<DownloadOutlined />} onClick={handleExport}>导出</Button>
               <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats() }}>刷新</Button>
@@ -113,6 +123,22 @@ export default function AuditPage() {
                   <Col span={6}><Card size="small"><Statistic title="24h 内" value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
                   <Col span={6}><Card size="small"><Statistic title="活跃用户" value="-" prefix={<UserOutlined />} /></Card></Col>
                   <Col span={6}><Card size="small"><Statistic title="安全事件" value="0" styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+                  {byAction && Object.keys(byAction).length > 0 && (
+                    <Col span={24} style={{ marginTop: 12 }}>
+                      <Card size="small" title="按操作类型分布 (Top)">
+                        <Space wrap size={[8, 8]}>
+                          {Object.entries(byAction)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 8)
+                            .map(([action, count]) => (
+                              <Tag key={action} color={action === 'LOGIN' || action === 'EXPORT' || action === 'PRINT' ? 'blue' : 'default'} style={{ fontSize: 12, padding: '2px 10px' }}>
+                                {action}: <b>{count}</b>
+                              </Tag>
+                            ))}
+                        </Space>
+                      </Card>
+                    </Col>
+                  )}
                 </Row>
               ) : <Card size="small"><Statistic title="加载中..." value="-" /></Card>,
             },
@@ -124,7 +150,7 @@ export default function AuditPage() {
                   <Space style={{ marginBottom: 16 }}>
                     <Select allowClear placeholder="操作类型" style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'PRINT'].map((a) => ({ value: a, label: a }))} />
                     <Select allowClear placeholder="资源类型" style={{ width: 150 }} onChange={(v) => setParams((p) => ({ ...p, resource: v }))} options={['patient', 'report', 'user', 'exam', 'dicom'].map((r) => ({ value: r, label: r }))} />
-                    <Button type="primary" onClick={() => fetchLogs(1)}>查询</Button>
+                    <Button type="primary" icon={<Search size={14} />} onClick={() => fetchLogs(1)}>查询</Button>
                   </Space>
                   <ProTable<AuditLogDto>
                     dataSource={logs}
@@ -167,7 +193,7 @@ export default function AuditPage() {
               {detail.status ?? 'SUCCESS'}
             </Tag>
             <Tag>{detail.action}</Tag>
-            <span style={{ color: '#999', fontSize: 12 }}>{new Date(detail.createdAt).toLocaleString('zh-CN')}</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{new Date(detail.createdAt).toLocaleString('zh-CN')}</span>
           </Space>
         )}
       >

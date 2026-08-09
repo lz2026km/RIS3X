@@ -1,5 +1,8 @@
 // Cardiac Specialty Page — 心脏分析 · 冠脉评估 · 心功能
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
+import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
+import { CardiacAnalysis } from '@/services/api/cardiacSpecialtyApi'
+import { Spin, Alert, Button, Select, Empty } from "antd";
 import {
   Heart,
   Activity,
@@ -13,10 +16,8 @@ import {
   Gauge,
   RefreshCw,
 } from "lucide-react";
-import { Spin, Alert, Button, Select, Empty } from "antd";
-import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
-import type { CardiacAnalysis } from "@/services/api/cardiacSpecialtyApi";
-import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
+import { Inbox } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 const CADRADS_COLORS: Record<string, string> = {
   0: "#16a34a",
@@ -250,8 +251,7 @@ const CardiacSpecialtyPage = () => {
             showIcon
             style={{ marginBottom: 16 }}
             title={error}
-            action={
-              <Button size="small" onClick={() => void load()}>
+            action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
                 重试
               </Button>
             }
@@ -438,7 +438,7 @@ const CardiacSpecialtyPage = () => {
             </div>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
               {filtered.length === 0 ? (
-                <Empty description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
               ) : (
                 <table
                   style={{
@@ -764,7 +764,7 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty description="暂无心功能数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无心功能数据" />
               )}
             </div>
             <div
@@ -817,7 +817,7 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 ))}
               {analyses.filter((a) => a.lvFunction).length === 0 && (
-                <Empty description="暂无心功能参数" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无心功能参数" />
               )}
             </div>
           </div>
@@ -922,7 +922,7 @@ const CardiacSpecialtyPage = () => {
                   );
                 })
               ) : (
-                <Empty description="该分析暂无冠脉分段数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分析暂无冠脉分段数据" />
               )}
             </div>
             <div
@@ -1013,7 +1013,7 @@ const CardiacSpecialtyPage = () => {
                   </div>
                 </>
               ) : (
-                <Empty description="该分析暂无钙化积分数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="该分析暂无钙化积分数据" />
               )}
             </div>
           </div>
@@ -1042,7 +1042,7 @@ const CardiacSpecialtyPage = () => {
                 <BarChart3 size={16} color="#1e40af" /> CAD-RADS 分布
               </div>
               {cadRadsDistribution.length === 0 ? (
-                <Empty description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
               ) : (
                 cadRadsDistribution.map(([c, count]) => {
                   const color = CADRADS_COLORS[c] ?? "#94a3b8";
@@ -1121,7 +1121,7 @@ const CardiacSpecialtyPage = () => {
                 <TrendingUp size={16} color="#16a34a" /> EF 趋势
               </div>
               {efTrend.length === 0 ? (
-                <Empty description="暂无数据" />
+                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
               ) : (
                 efTrend.map((t) => (
                   <div

@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] 预约 API — CRUD 真实; rules/waitlist/reminders/reschedules/cancellations 已补
+// (appointments.controller, Device/Appointment 派生 + seed), MSW 标注已更新。
 export interface AppointmentDto {
   id: string
   patientName: string

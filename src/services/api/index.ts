@@ -721,3 +721,23 @@ export type {
   DownloadResult,
 } from "./filesApi";
 
+// [Wave2A] 胶片打印 + 科研数据 (DicomViewerPage / ResearchPage 真实化)
+export { printApi } from "./printApi";
+export type {
+  PrintTaskDto,
+  PrintTaskStatus,
+  PrinterDto,
+  PrintStatsDto,
+} from "./printApi";
+export { researchApi } from "./researchApi";
+export type {
+  ResearchProjectDto,
+  ExamRecordDto,
+  ResearchLabelDto,
+  ExportRecordDto,
+  IRBSubmissionDto,
+  CohortDefinitionDto,
+  ExportAuditDto,
+  DataQualityScoreDto,
+} from "./researchApi";
+

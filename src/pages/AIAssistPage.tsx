@@ -2,13 +2,14 @@
  * G005 v3.0.6.11-75 W3-1 - AI 辅助助手页
  * 输入临床描述 → 生成报告草稿(所见/结论) → 复制到报告; 历史记录; loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react'
+import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '../services/api/aiDraftApi'
 import {
   Card, Form, Input, Select, Segmented, Button, Space, Typography, Tag, Spin,
   Alert, message, List, Empty, Progress, Divider, Row, Col, Statistic, Tooltip,
 } from 'antd'
 import { Sparkles, Copy, Check, History, RefreshCw, FileText, ClipboardPaste, BrainCircuit } from 'lucide-react'
-import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '../services/api/aiDraftApi'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Inbox } from 'lucide-react'
 
 const { Text, Paragraph } = Typography
 
@@ -132,7 +133,7 @@ const AIAssistPage: React.FC = () => {
   const allText = draft ? draft.sections.map((s) => `【${s.heading}】\n${s.content}`).join('\n\n') : ''
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Sparkles size={20} color="#7c3aed" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助助手</span>
@@ -237,7 +238,7 @@ const AIAssistPage: React.FC = () => {
                 <div style={{ marginTop: 12, color: '#8b5cf6' }}>AI 正在分析临床描述并生成草稿...</div>
               </div>
             ) : !draft ? (
-              <Empty description="输入临床描述后点击「生成建议草稿」" />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="输入临床描述后点击「生成建议草稿」" />
             ) : (
               <>
                 <Row gutter={16} style={{ marginBottom: 12 }}>
@@ -259,7 +260,7 @@ const AIAssistPage: React.FC = () => {
                 </Row>
                 <Divider style={{ margin: '8px 0' }} />
                 {draft.sections.map((s) => (
-                  <div key={s.heading} style={{ marginBottom: 12, border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, background: '#fafcff' }}>
+                  <div key={s.heading} style={{ marginBottom: 12, border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <Text strong style={{ color: '#1e40af' }}>{s.heading}</Text>
                       <Button
@@ -271,7 +272,7 @@ const AIAssistPage: React.FC = () => {
                         {copied === s.heading ? '已复制' : '复制'}
                       </Button>
                     </div>
-                    <Paragraph style={{ marginBottom: 0, whiteSpace: 'pre-wrap', color: '#334155' }}>{s.content}</Paragraph>
+                    <Paragraph style={{ marginBottom: 0, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>{s.content}</Paragraph>
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>

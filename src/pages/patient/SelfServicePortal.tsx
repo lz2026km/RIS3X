@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Printer, Download } from 'lucide-react'
 import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card } from 'antd'
 import {
   patientPortalApi,
@@ -39,31 +40,31 @@ const REPORT_STATE_LABEL: Record<string, string> = {
 // ===== Styles =====
 const styles = {
   container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: '#fff', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: 700, color: '#1e293b', margin: 0 },
-  subTitle: { fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, marginBottom: 16 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 },
+  subTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 },
-  value: { fontSize: 14, color: '#1e293b' },
+  value: { fontSize: 14, color: 'var(--text-primary)' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid #e2e8f0' },
-  td: { padding: '10px 12px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f1f5f9' },
+  th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid var(--border-color)' },
+  td: { padding: '10px 12px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' },
   badge: (status: string) => ({
     padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-    background: status === '已出报告' || status === '已发布' ? '#dcfce7' : status === '审核中' ? '#fef9c3' : '#f1f5f9',
-    color: status === '已出报告' || status === '已发布' ? '#166534' : status === '审核中' ? '#854d0e' : '#64748b',
+    background: status === '已出报告' || status === '已发布' ? 'var(--color-success-bg)' : status === '审核中' ? 'var(--color-warning-bg)' : 'var(--bg-card)',
+    color: status === '已出报告' || status === '已发布' ? 'var(--color-success)' : status === '审核中' ? 'var(--color-warning)' : 'var(--text-secondary)',
   }),
   btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
   btnGreen: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d9488', color: '#fff' },
   imageGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 },
-  imageCard: { background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' },
-  imagePlaceholder: { width: '100%', aspectRatio: '1', background: '#e2e8f0', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 8 },
+  imageCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' },
+  imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 8 },
   slider: { width: '100%', margin: '4px 0' },
   voucherBtn: { padding: '12px 24px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', background: '#059669', color: '#fff' },
-  voucherCode: { marginTop: 12, padding: 12, background: '#f0fdf4', borderRadius: 8, fontSize: 18, fontWeight: 700, color: '#059669', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
+  voucherCode: { marginTop: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 18, fontWeight: 700, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
   statRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 },
-  todoItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' },
+  todoItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' },
 }
 
 // ===== Helpers =====
@@ -106,13 +107,13 @@ function MiniCalendar(props: {
         <button
           type="button"
           onClick={() => onMonthChange(new Date(year, monthIndex - 1, 1))}
-          style={{ ...styles.btn, background: '#e2e8f0', color: '#475569' }}
+          style={{ ...styles.btn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
         >上月</button>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{year}年{monthIndex + 1}月</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{year}年{monthIndex + 1}月</div>
         <button
           type="button"
           onClick={() => onMonthChange(new Date(year, monthIndex + 1, 1))}
-          style={{ ...styles.btn, background: '#e2e8f0', color: '#475569' }}
+          style={{ ...styles.btn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
         >下月</button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
@@ -134,9 +135,9 @@ function MiniCalendar(props: {
               onClick={() => onSelect(cell)}
               style={{
                 padding: '8px 0', borderRadius: 8, fontSize: 13, cursor: disabled ? 'not-allowed' : 'pointer',
-                border: isSelected ? '2px solid #1e40af' : isToday ? '2px solid #93c5fd' : '1px solid #e2e8f0',
-                background: isSelected ? '#1e40af' : isToday ? '#eff6ff' : '#fff',
-                color: isSelected ? '#fff' : disabled ? '#cbd5e1' : '#334155',
+                border: isSelected ? '2px solid #1e40af' : isToday ? '2px solid #93c5fd' : '1px solid var(--border-color)',
+                background: isSelected ? '#1e40af' : isToday ? 'var(--color-info-bg)' : 'var(--bg-card)',
+                color: isSelected ? '#fff' : disabled ? '#cbd5e1' : 'var(--text-secondary)',
                 fontWeight: isToday || isSelected ? 700 : 400,
               }}
             >{Number(cell.slice(8))}</button>
@@ -588,7 +589,7 @@ export default function SelfServicePortal() {
                 {upcomingAppointments.slice(0, 3).map(a => (
                   <div key={a.id} style={styles.todoItem}>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                         {a.modality} · {a.bodyPart ?? '未指定部位'}
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)} 检查</div>
@@ -599,7 +600,7 @@ export default function SelfServicePortal() {
                 {reports.length > 0 && (
                   <div style={styles.todoItem}>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                         {latestReport?.modality ?? ''} · {latestReport?.bodyPart ?? '影像'} 报告已发布
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b' }}>签发时间 {fmtDateTime(latestReport?.signedAt)}</div>
@@ -618,7 +619,7 @@ export default function SelfServicePortal() {
               <h3 style={styles.subTitle}>最近预约</h3>
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
-                  <div style={{ fontSize: 13, color: '#334155' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}</span>
                     <Tag color={stateColor(a.state)}>{APPOINTMENT_STATE_LABEL[a.state] ?? a.state}</Tag>
@@ -636,8 +637,8 @@ export default function SelfServicePortal() {
       children: (
         <div>
           {bookingDone && (
-            <Card bordered={false} style={{ ...styles.card, border: '1px solid #a7f3d0', background: '#f0fdf4' }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ ...styles.subTitle, color: '#166534' }}>预约成功</h3>
+            <Card bordered={false} style={{ ...styles.card, border: '1px solid var(--color-success-border)', background: 'var(--color-success-bg)' }} styles={{ body: { padding: 0 } }}>
+              <h3 style={{ ...styles.subTitle, color: 'var(--color-success)' }}>预约成功</h3>
               <div style={styles.grid2}>
                 <div><div style={styles.label}>检查类型</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? '未指定部位'}）</div></div>
                 <div><div style={styles.label}>预约时间</div><div style={styles.value}>{fmtDateTime(bookingDone.scheduledAt)}</div></div>
@@ -657,8 +658,8 @@ export default function SelfServicePortal() {
                   onClick={() => setBooking({ ...booking, modality: m.value, bodyPart: undefined })}
                   style={{
                     padding: '16px 8px', borderRadius: 10, cursor: 'pointer', fontSize: 13,
-                    border: booking.modality === m.value ? '2px solid #1e40af' : '1px solid #e2e8f0',
-                    background: booking.modality === m.value ? '#eff6ff' : '#fff',
+                    border: booking.modality === m.value ? '2px solid #1e40af' : '1px solid var(--border-color)',
+                    background: booking.modality === m.value ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     color: booking.modality === m.value ? '#1e40af' : '#475569',
                     fontWeight: booking.modality === m.value ? 700 : 500,
                   }}
@@ -680,8 +681,8 @@ export default function SelfServicePortal() {
                     onClick={() => setBooking({ ...booking, bodyPart: p })}
                     style={{
                       padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
-                      border: booking.bodyPart === p ? '2px solid #0d9488' : '1px solid #e2e8f0',
-                      background: booking.bodyPart === p ? '#f0fdfa' : '#fff',
+                      border: booking.bodyPart === p ? '2px solid #0d9488' : '1px solid var(--border-color)',
+                      background: booking.bodyPart === p ? 'rgba(13,148,136,0.12)' : 'var(--bg-card)',
                       color: booking.bodyPart === p ? '#0f766e' : '#475569',
                       fontWeight: booking.bodyPart === p ? 700 : 500,
                     }}
@@ -712,8 +713,8 @@ export default function SelfServicePortal() {
                     onClick={() => setBooking({ ...booking, slot: s })}
                     style={{
                       padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
-                      border: booking.slot === s ? '2px solid #1e40af' : '1px solid #e2e8f0',
-                      background: booking.slot === s ? '#eff6ff' : '#fff',
+                      border: booking.slot === s ? '2px solid #1e40af' : '1px solid var(--border-color)',
+                      background: booking.slot === s ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: booking.slot === s ? '#1e40af' : '#475569',
                       fontWeight: booking.slot === s ? 700 : 500,
                     }}
@@ -725,7 +726,7 @@ export default function SelfServicePortal() {
           {booking.modality && booking.bodyPart && booking.date && booking.slot && (
             <Card bordered={false} style={{ ...styles.card, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} styles={{ body: { padding: 0 } }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {booking.modality} · {booking.bodyPart} · {booking.date} {booking.slot}
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>确认后将为您创建预约，请按时到检</div>
@@ -794,10 +795,12 @@ export default function SelfServicePortal() {
                 ]}
               />
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button style={{ ...styles.btn, background: '#059669' }} onClick={() => downloadReportText(selectedReport)}>
+                <button style={{ ...styles.btn, background: '#059669', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => downloadReportText(selectedReport)}>
+                  <Download size={13} />
                   下载报告
                 </button>
-                <button style={{ ...styles.btnGreen, background: '#1e40af' }} onClick={() => window.print()}>
+                <button style={{ ...styles.btnGreen, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => window.print()}>
+                  <Printer size={13} />
                   打印报告
                 </button>
               </div>
@@ -812,7 +815,7 @@ export default function SelfServicePortal() {
               {exams.filter(e => e.reportContent).map(exam => (
                 <div key={exam.id} style={styles.todoItem}>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{exam.examItem}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItem}</div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>{exam.examDate} · {exam.bodyPart}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -829,7 +832,7 @@ export default function SelfServicePortal() {
                 const exam = exams.find(e => e.id === expandedReport)
                 if (!exam?.reportContent) return null
                 return (
-                  <div style={{ marginTop: 16, padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: '#334155' }}>
+                  <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                     {exam.reportContent}
                     {exam.diagnosis && <div style={{ marginTop: 12 }}><div style={styles.label}>诊断意见</div><div style={styles.value}>{exam.diagnosis}</div></div>}
                     {exam.recommendations && <div style={{ marginTop: 8 }}><div style={styles.label}>建议</div><div style={styles.value}>{exam.recommendations}</div></div>}
@@ -879,12 +882,12 @@ export default function SelfServicePortal() {
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
               <h3 style={styles.subTitle}>电子胶片 — {selectedExam.examItem}</h3>
               {study && study.series.length > 0 && (
-                <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
                     DICOM 检查号：{study.studyInstanceUid} · WADO-RS：<code style={{ fontSize: 11 }}>{study.wadoRs.study}</code>
                   </div>
                   {study.series.map(s => (
-                    <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: '#334155', marginBottom: 4 }}>
+                    <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
                       序列 {s.seriesNumber ?? '-'}（{s.modality}）：{s.instanceCount} 帧
                       <span style={{ color: '#94a3b8', marginLeft: 8 }}>{s.wadoRs.instances}</span>
                     </div>
@@ -894,7 +897,7 @@ export default function SelfServicePortal() {
               <div style={styles.imageGrid}>
                 {images.map(img => (
                   <div key={img.id} style={styles.imageCard}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{img.label}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{img.label}</div>
                     <div style={{ ...styles.imagePlaceholder, filter: getImageFilter(img), background: '#1e293b' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 1, padding: 8, width: '100%', height: '100%', boxSizing: 'border-box' as const }}>
                         {Array.from({ length: 64 }).map((_, i) => (
@@ -905,7 +908,7 @@ export default function SelfServicePortal() {
                     <div style={{ marginTop: 8 }}>
                       <div><label style={styles.label}>窗宽</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
                       <div><label style={styles.label}>窗位</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
-                      <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : '#fff', color: img.invert ? '#fff' : '#64748b' }}>
+                      <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
                         {img.invert ? '取消反转' : '反转'}
                       </button>
                       <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(selectedExam)}>完整查看</button>
@@ -949,10 +952,10 @@ export default function SelfServicePortal() {
                 const contentType = edu.contentType
                 const isOpen = expandedEdu === id
                 return (
-                  <div key={id} style={{ padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div key={id} style={{ padding: '14px 0', borderBottom: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                           {title}
                           {contentType === 'video' && <Tag color="blue">视频</Tag>}
                           {contentType === 'audio' && <Tag color="purple">音频</Tag>}
@@ -969,7 +972,7 @@ export default function SelfServicePortal() {
                       )}
                     </div>
                     {isOpen && body && (
-                      <div style={{ marginTop: 12, padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: '#334155' }}>
+                      <div style={{ marginTop: 12, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                         {body}
                         {edu.duration && <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>预计阅读时长：约 {edu.duration} 秒</div>}
                       </div>
@@ -1043,14 +1046,14 @@ export default function SelfServicePortal() {
                   { title: '放射科护士', color: '#0d9488', users: nurseContacts },
                   { title: '技师', color: '#7c3aed', users: techContacts },
                 ].map(group => (
-                  <div key={group.title} style={{ background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0', padding: 14 }}>
+                  <div key={group.title} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
                     {group.users.length === 0 ? (
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无</div>
                     ) : (
                       group.users.map(u => (
-                        <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid #eef2f7' }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{u.name}</div>
+                        <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{u.name}</div>
                           <div style={{ fontSize: 12, color: '#64748b' }}>{u.title ?? u.role} · {u.department ?? '-'}</div>
                           <div style={{ fontSize: 12, color: '#0d9488', fontFamily: 'monospace' }}>{u.phone ?? '-'}</div>
                         </div>
@@ -1131,7 +1134,7 @@ export default function SelfServicePortal() {
             {(user?.name ?? '患').slice(0, 1)}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{user?.name ?? '-'}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>患者编号：{user?.id ?? '-'}</div>
           </div>
         </div>
@@ -1176,7 +1179,7 @@ export default function SelfServicePortal() {
               ]}
             />
             {(clinicalDetail as any).labValues && (
-              <div style={{ marginTop: 16, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+              <div style={{ marginTop: 16, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
                 <div style={styles.label}>检验/生命体征</div>
                 <div style={{ ...styles.value, fontSize: 13, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
               </div>

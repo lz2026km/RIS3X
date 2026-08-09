@@ -29,12 +29,12 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
       alignItems: 'center', justifyContent: 'center', padding: 20,
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{
-        background: WHITE, borderRadius: 12, width: '100%', maxWidth: 520,
+        background: 'var(--bg-card)', borderRadius: 12, width: '100%', maxWidth: 520,
         maxHeight: '90vh', display: 'flex', flexDirection: 'column',
         boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
       }}>
         <div style={{
-          padding: '16px 20px', borderBottom: '1px solid #e2e8f0',
+          padding: '16px 20px', borderBottom: '1px solid var(--border-color)',
           display: 'flex', alignItems: 'center', gap: 10,
           background: '#6d28d9', borderRadius: '12px 12px 0 0',
         }}>
@@ -45,7 +45,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
           </button>
         </div>
 
-        <div style={{ padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ padding: '12px 20px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={12} style={{ color: GRAY }} />
             <span style={{ fontSize: 12, color: GRAY }}>报告: <strong style={{ color: PRIMARY }}>{report.reportId}</strong></span>
@@ -65,12 +65,12 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
 
         <div style={{ padding: 20, flex: 1, overflowY: 'auto' }}>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 8 }}>审核结果</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>审核结果</div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setResult('approved')} style={{
                 flex: 1, padding: '10px 16px', borderRadius: 8, border: '2px solid',
-                borderColor: result === 'approved' ? SUCCESS : '#e2e8f0',
-                background: result === 'approved' ? '#f0fdf4' : WHITE,
+                borderColor: result === 'approved' ? SUCCESS : 'var(--border-color)',
+                background: result === 'approved' ? 'var(--color-success-bg)' : 'var(--bg-card)',
                 color: result === 'approved' ? SUCCESS : GRAY,
                 fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
@@ -78,8 +78,8 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
               </button>
               <button onClick={() => setResult('rejected')} style={{
                 flex: 1, padding: '10px 16px', borderRadius: 8, border: '2px solid',
-                borderColor: result === 'rejected' ? DANGER : '#e2e8f0',
-                background: result === 'rejected' ? '#fef2f2' : WHITE,
+                borderColor: result === 'rejected' ? DANGER : 'var(--border-color)',
+                background: result === 'rejected' ? 'var(--color-error-bg)' : 'var(--bg-card)',
                 color: result === 'rejected' ? DANGER : GRAY,
                 fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
@@ -89,25 +89,25 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>审核意见</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6 }}>审核意见</div>
             <textarea value={suggestion} onChange={e => setSuggestion(e.target.value)}
               placeholder={result === 'approved' ? '同意发布，报告书写规范。' : '请修改诊断意见中的描述...'}
               rows={3} style={{
-                width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 6,
+                width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
                 fontSize: 12, resize: 'none', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
               }} />
           </div>
 
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>电子签名密码</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6 }}>电子签名密码</div>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
               placeholder="请输入审核签名密码..."
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
 
-        <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button onClick={handleSubmit} disabled={submitting || !password}
             style={{
               padding: '8px 24px', borderRadius: 8, border: 'none',

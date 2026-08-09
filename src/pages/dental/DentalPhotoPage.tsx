@@ -1,8 +1,9 @@
 // [v3.0.6.8-102] 口内照片管理 (修复: 真实图片展示+上传+对比)
-import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Modal, Alert, Upload, Empty, Slider } from 'antd';
-import type { UploadProps } from 'antd';
+import { UploadProps } from 'antd'
 import { Camera, Share2, Download, ZoomIn, ZoomOut, X } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
 
 interface Photo {
   id: string;
@@ -134,7 +135,7 @@ export const DentalPhotoPage: React.FC = () => {
   const radiograph = photos.filter(p => p.category === 'radiograph').length;
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Camera size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者照片与沟通</span>
@@ -185,7 +186,7 @@ export const DentalPhotoPage: React.FC = () => {
 
       <Card size="small" title="照片图库">
         {photos.length === 0 ? (
-          <Empty description="暂无照片, 点击右上角 '上传照片' 上传第一张" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无照片, 点击右上角 '上传照片' 上传第一张" />
         ) : (
           <Row gutter={[12, 12]}>
             {photos.map(p => (
@@ -208,7 +209,7 @@ export const DentalPhotoPage: React.FC = () => {
                 >
                   <Tag color={CAT_COLORS[p.category]}>{CAT_LABEL[p.category] || p.category}</Tag>
                   <div style={{ fontSize: 12, fontWeight: 500, marginTop: 2 }}>{p.label}</div>
-                  <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {p.takenAt?.slice(0, 10) || '—'}
                   </div>
                 </Card>
@@ -234,7 +235,7 @@ export const DentalPhotoPage: React.FC = () => {
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
-                      <Empty description="需要至少 2 张照片" />
+                      <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="需要至少 2 张照片" />
                     )}
                   </Card>
                 </Col>
@@ -247,7 +248,7 @@ export const DentalPhotoPage: React.FC = () => {
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
-                      <Empty />
+                      <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
                     )}
                   </Card>
                 </Col>
@@ -272,7 +273,7 @@ export const DentalPhotoPage: React.FC = () => {
                     title="分享链接已生成"
                     description={
                       <Space orientation="vertical" style={{ width: '100%' }}>
-                        <code style={{ background: '#f5f5f5', padding: 4, borderRadius: 4, display: 'block' }}>
+                        <code style={{ background: 'var(--bg-card)', padding: 4, borderRadius: 4, display: 'block' }}>
                           {shareLink}
                         </code>
                         <Space>
@@ -289,7 +290,7 @@ export const DentalPhotoPage: React.FC = () => {
                     showIcon
                   />
                 ) : (
-                  <Empty description="点击「生成分享链接」按钮生成分享链接" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击「生成分享链接」按钮生成分享链接" />
                 )}
               </Card>
             ),
@@ -319,7 +320,7 @@ export const DentalPhotoPage: React.FC = () => {
               value={uploadLabel}
               onChange={e => setUploadLabel(e.target.value)}
               placeholder="例如: 正面微笑像"
-              style={{ width: '100%', height: 32, padding: '4px 11px', border: '1px solid #d9d9d9', borderRadius: 6 }}
+              style={{ width: '100%', height: 32, padding: '4px 11px', border: '1px solid var(--border-color)', borderRadius: 6 }}
             />
           </div>
           <div>
@@ -357,7 +358,7 @@ export const DentalPhotoPage: React.FC = () => {
             </div>
             <Space style={{ marginTop: 12 }}>
               <Tag color={CAT_COLORS[preview.category]}>{CAT_LABEL[preview.category]}</Tag>
-              <span style={{ fontSize: 12, color: '#999' }}>{preview.takenAt}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{preview.takenAt}</span>
             </Space>
           </div>
         )}

@@ -95,8 +95,11 @@ export default function BenchmarkAiDiagnosisPage() {
             <Cpu size={22} color="#fff" />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>AI 诊断准确率仪表盘</h2>
-            <span style={{ color: '#94a3b8', fontSize: 13 }}>敏感度/特异度/阳性预测值/阴性预测值 · 趋势分析</span>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+              AI 诊断准确率仪表盘
+              <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>演示数据</span>
+            </h2>
+            <span style={{ color: '#94a3b8', fontSize: 13 }}>敏感度/特异度/阳性预测值/阴性预测值 · 趋势分析 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>演示数据（后端 /ai/score 语义不符，本地生成）</span></span>
           </div>
         </Space>
       </div>

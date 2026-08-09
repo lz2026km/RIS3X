@@ -7,10 +7,10 @@ import { usePagination } from '../../hooks/usePagination';
 const { RangePicker } = DatePicker;
 
 const ECHO_COLUMNS: any[] = [
-  { title: 'AE Title', dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
   { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
   { title: '端口', dataIndex: 'port', key: 'port' },
-  { title: 'Modality', dataIndex: 'modality', key: 'modality' },
+  { title: '设备', dataIndex: 'modality', key: 'modality' },
   { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
   { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{v}</Tag> : '-' },
 ];
@@ -18,22 +18,22 @@ const ECHO_COLUMNS: any[] = [
 const MWL_COLUMNS = [
   { title: '患者姓名', dataIndex: 'patientName', key: 'patientName' },
   { title: '患者 ID', dataIndex: 'patientId', key: 'patientId' },
-  { title: 'Accession#', dataIndex: 'accessionNumber', key: 'accessionNumber' },
-  { title: 'Modality', dataIndex: 'modality', key: 'modality' },
+  { title: '检查号', dataIndex: 'accessionNumber', key: 'accessionNumber' },
+  { title: '设备', dataIndex: 'modality', key: 'modality' },
   { title: '检查日期', dataIndex: 'studyDate', key: 'studyDate' },
   { title: '状态', dataIndex: 'status', key: 'status' },
 ];
 
 const C_STORE_COLUMNS = [
-  { title: 'SOP Instance UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
+  { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
   { title: '存储路径', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
   { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
   { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
 ];
 
 const C_MOVE_COLUMNS = [
-  { title: 'Study UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
-  { title: 'Destination AE', dataIndex: 'destAe', key: 'destAe' },
+  { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: '目标 AE', dataIndex: 'destAe', key: 'destAe' },
   { title: '传输数', dataIndex: 'transferredCount', key: 'transferredCount' },
   { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
 ];
@@ -129,7 +129,7 @@ export const DimsePage: React.FC = () => {
       label: <Space><SendOutlined />C-ECHO</Space>,
       children: (
         <Card size="small" title="DICOM 设备列表">
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             dataSource={devices}
             rowKey="aeTitle"
             pagination={false}
@@ -156,8 +156,8 @@ export const DimsePage: React.FC = () => {
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery} initialValues={{ modality: undefined }}>
               <Form.Item name="patientName" label="名称"><Input placeholder="患者姓名" allowClear /></Form.Item>
               <Form.Item name="patientId" label="编号"><Input placeholder="患者 ID" allowClear /></Form.Item>
-              <Form.Item name="accessionNumber" label="Accession"><Input placeholder="Accession#" allowClear /></Form.Item>
-              <Form.Item name="modality" label="Modality">
+              <Form.Item name="accessionNumber" label="检查号"><Input placeholder="检查号" allowClear /></Form.Item>
+              <Form.Item name="modality" label="设备">
                 <Select allowClear placeholder="全部" style={{ width: 100 }}>
                   <Select.Option value="CT">CT</Select.Option>
                   <Select.Option value="MR">MR</Select.Option>
@@ -170,7 +170,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="Worklist 条目">
-            <Table dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination} scroll={{ x: 'max-content' }}/>
+            <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
       ),
@@ -189,7 +189,7 @@ export const DimsePage: React.FC = () => {
             <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>选择 .dcm 文件</Button>
           </Upload>
           <Alert title="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
-          <Table dataSource={storeResults} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={false} />
+          <Table scroll={{ x: 'max-content' }} dataSource={storeResults} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={false} />
         </Card>
       ),
     },
@@ -200,7 +200,7 @@ export const DimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={moveForm} layout="inline" onFinish={handleMove}>
-              <Form.Item name="studyUid" label="Study UID" rules={[{ required: true, message: '请输入 Study UID' }]}>
+              <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
                 <Input placeholder="1.2.840.xxxxx" style={{ width: 320 }} />
               </Form.Item>
               <Form.Item name="destAe" label="目标 AE" rules={[{ required: true }]}>
@@ -216,7 +216,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="转存记录">
-            <Table dataSource={moveResults} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={false} />
+            <Table scroll={{ x: 'max-content' }} dataSource={moveResults} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={false} />
           </Card>
         </>
       ),
@@ -224,7 +224,7 @@ export const DimsePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 设备集成</span>
         <Tag color="blue">v3.0</Tag>

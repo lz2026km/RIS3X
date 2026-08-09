@@ -4,7 +4,7 @@ import {
   BarChart3, PieChart as PieChartIcon, Activity,
   Server, Clock, Scissors, HeartPulse,
   Package, Percent, Award, Wallet, FileText, ClipboardList, AlertTriangle,
-  CheckCircle, XCircle, Ban, Send, RefreshCw, Landmark,
+  CheckCircle, XCircle, Ban, RefreshCw, Landmark, Download,
   Hash, List, ShieldBan, MessageSquare, ArrowRight
 } from 'lucide-react'
 import {
@@ -234,12 +234,12 @@ export default function CostAnalysisPage() {
   const containerStyle: React.CSSProperties = { minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', padding: '24px' }
   const sectionTitleStyle: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: '#f0f6fc', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }
 
-  if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
   if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) {
     return (
-      <div data-testid="cost-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+      <div data-testid="cost-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无设备成本数据</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>请检查日期范围或导入设备台账后重试</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>请检查日期范围或导入设备台账后重试</div>
       </div>
     );
   }
@@ -904,7 +904,7 @@ export default function CostAnalysisPage() {
                 </tbody>
               </table>
               <div style={{ padding: '12px 16px', borderTop: '1px solid #30363d', display: 'flex', gap: 8 }}>
-                <button onClick={handleExportClaims837} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={14} /> 生成837理赔</button>
+                <button onClick={handleExportClaims837} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Download size={14} /> 生成837理赔</button>
                 <button onClick={() => void loadFinance()} style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />刷新</button>
               </div>
             </div>

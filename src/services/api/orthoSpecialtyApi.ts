@@ -1,6 +1,7 @@
 // Ortho Specialty API — 骨科影像分析 · 关节 · 脊柱 · 骨密度
+// [G005 Wave1B P1] DEPRECATED (死代码清理): orthoSpecialtyApi (/ortho, 0 页面引用)
 // [v3.0.6.11-81] W1-B P1: 后端无 /ortho/* 端点 (仅 MSW mock), 页面为演示页 (0 调用方)。
-// 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
+// 保留文件避免 import 断裂; 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
 import type { ApiResponse } from './types';
 
 export type JointType = 'shoulder' | 'elbow' | 'wrist' | 'hip' | 'knee' | 'ankle' | 'cervical' | 'lumbar';

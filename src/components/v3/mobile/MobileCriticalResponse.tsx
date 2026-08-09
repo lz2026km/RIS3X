@@ -2,9 +2,10 @@
  * G005 放射RIS系统 v3.0.2 - 移动端 危急值响应
  * 对标:医师手机端 危急值快速响应
  */
-import React, { useState, useMemo } from 'react'
 import { Card, Tag, Space, Button, Empty, Statistic, Row, Col, Input, Badge, message, Modal, Form, Radio, List } from 'antd'
 import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, Volume2, WifiOff } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { BellOff } from 'lucide-react'
 
 export interface MobileCriticalItem {
   id: string
@@ -171,7 +172,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
             </Card>
           )
         }}
-        locale={{ emptyText: <Empty description="无危急值" /> }}
+        locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="无危急值" /> }}
       />
 
       <Modal

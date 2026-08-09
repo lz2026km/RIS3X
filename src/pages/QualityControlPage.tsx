@@ -128,7 +128,7 @@ const QualityControlPage: React.FC = () => {
                       style={{ cursor: 'pointer', borderColor: selectedScore?.id === s.id ? '#3b82f6' : '#e2e8f0', minWidth: 180 }}
                     >
                       <div style={{ fontSize: 12 }}><strong>{s.patientName}</strong></div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{s.reportId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.reportId}</div>
                       <div style={{ marginTop: 4 }}>
                         <Tag color={s.grade === '甲' ? 'green' : s.grade === '乙' ? 'blue' : s.grade === '丙' ? 'gold' : 'red'}>{s.grade} {s.totalScore}</Tag>
                       </div>

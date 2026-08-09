@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Plus } from 'lucide-react'
 import { regionalApi } from '../../services/api/regionalApi'
 
 interface AllianceMember {
@@ -106,9 +107,9 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500 }}>医联体成员 ({allianceMembers.length})</h2>
           </div>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)' }}>
                 <th style={thStyle}>机构名称</th>
                 <th style={thStyle}>等级/类型</th>
                 <th style={thStyle}>区域</th>
@@ -125,7 +126,7 @@ const MedicalAlliancePage: React.FC = () => {
                   <td style={tdStyle}>{m.region}</td>
                   <td style={tdStyle}>{m.contactPerson}<br /><small>{m.contactPhone}</small></td>
                   <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: m.status === 'active' ? '#d1fae5' : m.status === 'pending' ? '#fef3c7' : '#f3f4f6', color: m.status === 'active' ? '#065f46' : m.status === 'pending' ? '#92400e' : '#6b7280' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: m.status === 'active' ? 'var(--color-success-bg)' : m.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: m.status === 'active' ? 'var(--color-success)' : m.status === 'pending' ? 'var(--color-warning)' : 'var(--text-secondary)' }}>
                       {m.status === 'active' ? '已加入' : m.status === 'pending' ? '待审批' : '已停用'}
                     </span>
                   </td>
@@ -135,11 +136,11 @@ const MedicalAlliancePage: React.FC = () => {
             </tbody>
           </table></div>
           <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1, padding: 16, background: '#eff6ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
+            <div style={{ flex: 1, padding: 16, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid var(--color-info-border)' }}>
               <div style={{ fontSize: 13, color: '#1e40af' }}>共享资源</div>
               <div style={{ fontSize: 20, fontWeight: 600, color: '#1e40af' }}>CT, MR, PET-CT, 超声, X光</div>
             </div>
-            <div style={{ flex: 1, padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+            <div style={{ flex: 1, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
               <div style={{ fontSize: 13, color: '#166534' }}>覆盖区域</div>
               <div style={{ fontSize: 20, fontWeight: 600, color: '#166534' }}>广州市越秀区、天河区</div>
             </div>
@@ -151,11 +152,11 @@ const MedicalAlliancePage: React.FC = () => {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500 }}>转诊记录 ({allianceReferrals.length})</h2>
-            <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>新建转诊</button>
+                <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />新建转诊</button>
           </div>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+              <tr style={{ background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)' }}>
                 <th style={thStyle}>患者</th>
                 <th style={thStyle}>转出机构</th>
                 <th style={thStyle}>转入机构</th>
@@ -173,12 +174,12 @@ const MedicalAlliancePage: React.FC = () => {
                   <td style={tdStyle}>{r.toMemberName}</td>
                   <td style={tdStyle}>{r.diagnosis}</td>
                   <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.priority === 'urgent' ? '#fee2e2' : '#f3f4f6', color: r.priority === 'urgent' ? '#991b1b' : '#6b7280' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.priority === 'urgent' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: r.priority === 'urgent' ? 'var(--color-error)' : 'var(--text-secondary)' }}>
                       {r.priority === 'urgent' ? '紧急' : '普通'}
                     </span>
                   </td>
                   <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.status === 'completed' ? '#d1fae5' : r.status === 'accepted' ? '#dbeafe' : r.status === 'cancelled' ? '#f3f4f6' : '#fef3c7', color: r.status === 'completed' ? '#065f46' : r.status === 'accepted' ? '#1e40af' : r.status === 'cancelled' ? '#6b7280' : '#92400e' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.status === 'completed' ? 'var(--color-success-bg)' : r.status === 'accepted' ? 'var(--color-info-bg)' : r.status === 'cancelled' ? 'var(--bg-card)' : 'var(--color-warning-bg)', color: r.status === 'completed' ? 'var(--color-success)' : r.status === 'accepted' ? 'var(--color-info)' : r.status === 'cancelled' ? 'var(--text-secondary)' : 'var(--color-warning)' }}>
                       {r.status === 'pending' ? '待接诊' : r.status === 'accepted' ? '已接诊' : r.status === 'completed' ? '已完成' : '已取消'}
                     </span>
                   </td>
@@ -203,14 +204,14 @@ const MedicalAlliancePage: React.FC = () => {
               { label: '资源共享量', value: '1,256', color: '#8b5cf6' },
               { label: '转诊完成率', value: '87.5%', color: '#f59e0b' },
             ].map((card, i) => (
-              <div key={i} style={{ padding: 20, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+              <div key={i} style={{ padding: 20, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
                 <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                 <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{card.label}</div>
               </div>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h3 style={{ fontSize: 15, fontWeight: 500, marginBottom: 12 }}>资源贡献分布</h3>
               {['CT', 'MR', '超声', 'X光', 'PET-CT'].map((res, i) => (
                 <div key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -222,7 +223,7 @@ const MedicalAlliancePage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div style={{ padding: 16, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h3 style={{ fontSize: 15, fontWeight: 500, marginBottom: 12 }}>近期转诊趋势</h3>
               {[{ month: '2026-03', count: 5 }, { month: '2026-04', count: 7 }, { month: '2026-05', count: 8 }].map((item, i) => (
                 <div key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>

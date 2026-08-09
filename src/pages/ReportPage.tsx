@@ -346,7 +346,7 @@ export default function ReportPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide" padding={0} testId="report-page">
-      {accessDenied && <div style={{ padding: 24, margin: 24, background: "#fee2e2", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取报告资源，请联系管理员。</div>}
+      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取报告资源，请联系管理员。</div>}
       {loading && <LoadingBanner message="正在从 API 加载报告数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } } @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>

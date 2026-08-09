@@ -97,7 +97,7 @@ export const MprViewerPage: React.FC = () => {
           <span style={{ fontSize: 16, fontWeight: 600 }}>CBCT MPR 多平面重建</span>
           <Tag color="cyan">v3.0.6.8-56</Tag>
           <Tag color="purple">Planmeca Romexis 对标</Tag>
-          <span style={{ color: '#888', fontSize: 11 }}>{study?.patientName || studyId}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{study?.patientName || studyId}</span>
         </Space>
         <Space>
           <InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" />
@@ -129,7 +129,7 @@ export const MprViewerPage: React.FC = () => {
                 // Cross-link slices: Clicking in axial moves sagittal/coronal
                 if (plane === 'Axial') setSlices(s => ({ ...s, Sagittal: Math.round(x / 512 * 100), Coronal: Math.round(y / 512 * 100) }));
               }} />
-            <div style={{ position: 'absolute', bottom: 4, left: 8, color: '#888', fontSize: 10 }}>
+            <div style={{ position: 'absolute', bottom: 4, left: 8, color: 'var(--text-secondary)', fontSize: 10 }}>
               WW: {ww} WC: {wc}
             </div>
             <div style={{ position: 'absolute', bottom: 4, right: 8, display: 'flex', gap: 4 }}>
@@ -141,9 +141,9 @@ export const MprViewerPage: React.FC = () => {
         {/* Bottom Right: 3D Volume Rendering */}
         <div style={{ border: '1px solid #222', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a1a' }}>
           <div style={{ textAlign: 'center' }}>
-            <Activity size={48} color="#333" />
-            <div style={{ color: '#666', marginTop: 8, fontSize: 12 }}>体绘制 (Volume Rendering)</div>
-            <div style={{ color: '#555', fontSize: 11, marginTop: 4 }}>3D 容积渲染需要 WebGL 2.0</div>
+            <Activity size={48} color="var(--text-secondary)" />
+            <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>体绘制</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>3D 容积渲染需要 WebGL 2.0</div>
             <Button size="small" style={{ marginTop: 8 }}>开始重建</Button>
           </div>
         </div>

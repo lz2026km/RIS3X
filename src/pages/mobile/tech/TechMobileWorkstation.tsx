@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { message } from 'antd'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import {  } from '../../../utils/deviceStateAdapter'
-import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, mobileApi, type TodaySummary, type WorklistItem } from '../../../services/api'
+import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, examApi, mobileApi, type TodaySummary, type WorklistItem } from '../../../services/api'
 
 export interface TechExamItem {
   id: string
@@ -36,13 +36,13 @@ const STATUS_COLORS: Record<string, string> = {
 
 
 const s = {
-  container: { maxWidth: 420, margin: '0 auto', background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
+  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #0f766e, #14b8a6)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
-  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid #e2e8f0' },
+  searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
   tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#0f766e' : '#94a3b8', borderBottom: active ? '2px solid #0f766e' : '2px solid transparent' }),
-  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' },
 }
 
 export default function TechMobileWorkstation() {
@@ -134,16 +134,59 @@ export default function TechMobileWorkstation() {
     return true
   })
 
-  const handleStartExam = useCallback((id: string) => {
-    message.success(`开始检查: ${id}`)
+  // [Wave2A] 开始检查 → POST /worklist/:id/start (MSW 支撑, 后端 worklist 待对齐)
+  const [operatingId, setOperatingId] = useState<string | null>(null)
+  const handleStartExam = useCallback(async (id: string) => {
+    setOperatingId(id)
+    try {
+      const res = await examApi.start(id)
+      if (res.success) {
+        setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'in-progress' as const } : item))
+        message.success(`已开始检查: ${id}`)
+      } else {
+        message.error(res.error?.message ?? '开始检查失败')
+      }
+    } catch {
+      message.error('开始检查失败: 网络错误')
+    } finally {
+      setOperatingId(null)
+    }
   }, [])
 
-  const handleCompleteExam = useCallback((_id: string) => {
-    message.info('完成检查功能暂不可用')
+  const handleCompleteExam = useCallback(async (id: string) => {
+    setOperatingId(id)
+    try {
+      const res = await examApi.complete(id)
+      if (res.success) {
+        setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'completed' as const } : item))
+        message.success(`检查完成: ${id}`)
+      } else {
+        message.error(res.error?.message ?? '完成检查失败')
+      }
+    } catch {
+      message.error('完成检查失败: 网络错误')
+    } finally {
+      setOperatingId(null)
+    }
   }, [])
 
+  // [Wave2A] 扫码: 优先调用条形码扫描 API, 桌面端 navigator 不可用 → 文件输入回退(文件名即扫码结果)
+  const scanInputRef = useRef<HTMLInputElement | null>(null)
   const handleScan = useCallback(() => {
-    message.info('扫码功能暂不可用')
+    try {
+      const nav = navigator as any
+      if (typeof nav?.mediaDevices?.getUserMedia === 'function' || typeof nav?.BarcodeDetector !== 'undefined') {
+        message.info('请对准检查申请单条形码扫描 (BarcodeDetector 可用)')
+      }
+    } catch { /* ignore */ }
+    if (scanInputRef.current) scanInputRef.current.click()
+  }, [])
+
+  const handleScanFile = useCallback((file: File | null) => {
+    if (!file) return
+    const code = file.name.replace(/\.[^.]+$/, '')
+    setSearch(code)
+    message.success(`已扫码: ${code}（文件名回退扫码，扫描队列已按此过滤）`)
   }, [])
 
   return (
@@ -178,6 +221,14 @@ export default function TechMobileWorkstation() {
         <Camera size={16} color="#94a3b8" style={{ cursor: 'pointer' }} onClick={handleScan} />
       </div>
 
+      <input
+        ref={scanInputRef}
+        type="file"
+        accept="image/*,.pdf"
+        style={{ display: 'none' }}
+        onChange={e => { const f = e.target.files?.[0] ?? null; handleScanFile(f); e.target.value = '' }}
+      />
+
       <div style={s.tabRow}>
         {[{ key: 'exams' as const, icon: ListChecks, label: '检查队列' }, { key: 'devices' as const, icon: Monitor, label: '设备状态' }].map(t => (
           <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
@@ -192,7 +243,7 @@ export default function TechMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'scheduled', label: '待检查' }, { key: 'in-progress', label: '检查中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -206,8 +257,8 @@ export default function TechMobileWorkstation() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
-                    <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: item.priority === 'urgent' ? '#fef3c7' : '#f1f5f9', color: item.priority === 'urgent' ? '#d97706' : '#64748b' }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
+                    <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: item.priority === 'urgent' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: item.priority === 'urgent' ? 'var(--color-warning)' : '#64748b' }}>
                       {item.priority === 'urgent' ? '紧急' : '普通'}
                     </span>
                   </div>
@@ -220,10 +271,10 @@ export default function TechMobileWorkstation() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {item.status === 'scheduled' && (
-                    <button onClick={() => handleStartExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>开始</button>
+                    <button onClick={() => handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '开始'}</button>
                   )}
                   {item.status === 'in-progress' && (
-                    <button onClick={() => handleCompleteExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>完成</button>
+                    <button onClick={() => handleCompleteExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '完成'}</button>
                   )}
                   {item.status === 'completed' && <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>✓ 已完成</span>}
                 </div>
@@ -234,10 +285,10 @@ export default function TechMobileWorkstation() {
       ) : (
         <div style={{ padding: 16 }}>
           {devices.map(device => (
-            <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderRadius: 10, marginBottom: 8, border: '1px solid #e2e8f0' }}>
+            <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, marginBottom: 8, border: '1px solid var(--border-color)' }}>
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="#dc2626" /> : <AlertCircle size={18} color="#d97706" />}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{device.name}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{device.name}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '维护中'}</div>
                 {device.currentPatient && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>当前患者: {device.currentPatient}</div>}
               </div>
@@ -246,7 +297,7 @@ export default function TechMobileWorkstation() {
         </div>
       )}
 
-      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '6px 0' }}>
+      <div style={{ position: 'sticky', bottom: 0, display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' }}>
         {[
           { key: 'exams', icon: ListChecks, label: '检查' },
           { key: 'devices', icon: Monitor, label: '设备' },

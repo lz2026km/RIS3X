@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react'
-import {
-  Card, Table, Tag, Statistic, Row, Col, Button, Spin, Alert, Tabs, Descriptions, Space,
-  Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm,
-} from 'antd'
+import { useAuth } from '../hooks/useAuth'
+import { tenantApi, type TenantProfile, type TenantUsage, type TenantFeatures } from '../services/api/tenantApi'
 import {
   SafetyCertificateOutlined, ReloadOutlined, SettingOutlined, TeamOutlined,
   DashboardOutlined, ThunderboltOutlined, PlusOutlined,
   PoweroffOutlined, PlayCircleOutlined,
 } from '@ant-design/icons'
-import { tenantApi, type TenantProfile, type TenantUsage, type TenantFeatures } from '../services/api/tenantApi'
-import { useAuth } from '../hooks/useAuth'
+import {
+  Card, Table, Tag, Statistic, Row, Col, Button, Spin, Alert, Tabs, Descriptions, Space,
+  Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm,
+} from 'antd'
+import { useState, useEffect, useCallback } from 'react'
+import { RefreshCw } from 'lucide-react'
 
 const FEATURE_DEFS: Array<{ key: keyof TenantFeatures; label: string; desc: string }> = [
   { key: 'aiOrchestration', label: 'AI 编排', desc: 'AI 工作流编排与自动化诊断调度' },
@@ -159,7 +160,7 @@ export default function TenantConfigPage() {
     { title: '租户', dataIndex: 'name', key: 'name', render: (_: string, r: TenantProfile) => (
       <Space direction="vertical" size={0}>
         <span><strong>{r.name}</strong> <Tag color={r.status === 'ACTIVE' ? 'success' : 'default'}>{r.status === 'ACTIVE' ? '启用' : '停用'}</Tag></span>
-        <span style={{ fontSize: 12, color: '#999' }}>{r.code} · {r.id}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.code} · {r.id}</span>
       </Space>
     ) },
     { title: '许可证', dataIndex: 'license', key: 'license' },
@@ -186,7 +187,7 @@ export default function TenantConfigPage() {
           <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>刷新</Button>
         </Row>
 
-        {error && <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void fetchAll()}>重试</Button>} />}
+        {error && <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> 重试</Button>} />}
 
         {loading && !tenant ? <Spin tip="加载租户信息..." style={{ display: 'block', margin: '48px auto' }} /> : (
           <Tabs items={[
@@ -223,15 +224,15 @@ export default function TenantConfigPage() {
                       {usage ? (
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>存储用量</span><span style={{ color: '#999', fontSize: 12 }}>{formatBytes(usage.storageBytes)} / {formatBytes(usage.storageLimitBytes)}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>存储用量</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{formatBytes(usage.storageBytes)} / {formatBytes(usage.storageLimitBytes)}</span></div>
                             <Progress percent={storagePct} size="small" status={storagePct > 90 ? 'exception' : 'normal'} />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>用户</span><span style={{ color: '#999', fontSize: 12 }}>{usage.users} / {usage.userLimit}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>用户</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.users} / {usage.userLimit}</span></div>
                             <Progress percent={userPct} size="small" />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>检查量</span><span style={{ color: '#999', fontSize: 12 }}>{usage.exams.toLocaleString()} / {usage.examLimit.toLocaleString()}</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>检查量</span><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{usage.exams.toLocaleString()} / {usage.examLimit.toLocaleString()}</span></div>
                             <Progress percent={examPct} size="small" />
                           </div>
                         </Space>
@@ -273,7 +274,7 @@ export default function TenantConfigPage() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <div><strong>{f.label}</strong></div>
-                            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{f.desc}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{f.desc}</div>
                           </div>
                           <Switch
                             checked={features?.[f.key] ?? false}

@@ -1,14 +1,14 @@
 // [v3.0.6.11-54] Phase 2: 全院资源排程中心 (日历 + 排班列表 + 新建预约)
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
+import { deviceApi } from '../../services/api/deviceApi';
 import {
   Card, Space, Tag, Button, Table, Calendar, Col, Row, Select, Statistic,
   Badge, Modal, Form, DatePicker, message, Alert, Spin, Empty,
 } from 'antd';
 import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
 import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-react';
-import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
-import { deviceApi } from '../../services/api/deviceApi';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue', CONFIRMED: 'cyan', CHECKED_IN: 'geekblue', IN_PROGRESS: 'orange',
@@ -94,7 +94,7 @@ export const SchedulingCenterPage: React.FC = () => {
             <Badge status={(STATE_COLOR[a.state] ?? 'default') as any} text={`${getAptTime(a)} ${a.patientName} ${a.modality ?? ''}`} />
           </li>
         ))}
-        {list.length < appointments.filter((x) => getAptDate(x) === key).length && <li style={{ color: '#999' }}>…</li>}
+        {list.length < appointments.filter((x) => getAptDate(x) === key).length && <li style={{ color: 'var(--text-secondary)' }}>…</li>}
       </ul>
     );
   };
@@ -146,7 +146,7 @@ export const SchedulingCenterPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <CalendarDays size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全院资源排程中心</span>
@@ -156,7 +156,7 @@ export const SchedulingCenterPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

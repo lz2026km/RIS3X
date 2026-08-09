@@ -62,7 +62,7 @@ export const PamPage: React.FC = () => {
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>IHE PAM 患者管理</span>
@@ -89,7 +89,7 @@ export const PamPage: React.FC = () => {
                       <Form.Item label="就诊号" required>
                         <Input value={visitNumber} onChange={e => setVisitNumber(e.target.value)} placeholder="V20260001" />
                       </Form.Item>
-                      <Form.Item label="Class Code">
+                      <Form.Item label="类别代码">
                         <Select value={classCode} onChange={setClassCode}
                           options={[{ value: 'AMB', label: 'AMB' }, { value: 'IMP', label: 'IMP' }, { value: 'EMR', label: 'EMR' }, { value: 'OBS', label: 'OBS' }]} />
                       </Form.Item>
@@ -105,7 +105,7 @@ export const PamPage: React.FC = () => {
                 <Col span={16}>
                   <Card size="small" title="ACK 响应">
                     {ackResult ? (
-                      <pre style={{ fontSize: 12, maxHeight: 400, overflow: 'auto', background: '#f0fdf4', padding: 8, borderRadius: 4, border: '1px solid #bbf7d0' }}>
+                      <pre style={{ fontSize: 12, maxHeight: 400, overflow: 'auto', background: 'var(--color-success-bg)', padding: 8, borderRadius: 4, border: '1px solid var(--color-success-border)' }}>
                         {ackResult}
                       </pre>
                     ) : (

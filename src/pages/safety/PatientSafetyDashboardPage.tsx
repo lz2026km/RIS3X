@@ -2,15 +2,16 @@
  * G005 v3.0.6.11-75 W3-1 - 患者安全与质量指标看板
  * safetyApi 真实数据: adverse events 统计/风险项 + 图表 + 最新事件 + loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react'
-import {
-  Card, Space, Tag, Row, Col, Statistic, Progress, Table, Badge, List, Segmented, Alert, Button, Empty, Tabs,
-} from 'antd'
-import { Shield, AlertTriangle, Activity, Heart, RefreshCw } from 'lucide-react'
 import {
   getAdverseEvents, getRiskItems, getAdverseEventTrend,
   type AdverseEvent, type RiskItem, type AdverseEventTrendItem,
 } from '../../services/api/safetyApi'
+import {
+  Card, Space, Tag, Row, Col, Statistic, Progress, Table, Badge, List, Segmented, Alert, Button, Empty, Tabs,
+} from 'antd'
+import { Shield, AlertTriangle, Activity, Heart, RefreshCw } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Inbox } from 'lucide-react'
 
 const SEVERITY_LABELS: Record<string, string> = {
   'near-miss': '未遂事件', minor: '轻微', moderate: '中度', severe: '严重', catastrophic: '灾难性',
@@ -93,7 +94,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -190,7 +191,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
       </Row>
 
       <Card size="small" title={<Space><Heart size={14} />最新安全事件</Space>} loading={loading}>
-        {events.length === 0 ? <Empty description="暂无安全事件" /> : (
+        {events.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无安全事件" /> : (
           <Table
             dataSource={events.slice(0, 10)} rowKey="id" pagination={false} size="small"
             columns={[

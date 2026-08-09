@@ -54,7 +54,7 @@ const IolCalculatorPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }} data-testid="iol-calculator-page">
+    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }} data-testid="iol-calculator-page">
       <Row gutter={16}>
         <Col xs={24} xl={16}>
           <Space style={{ marginBottom: 12 }}>
@@ -144,7 +144,7 @@ const IolCalculatorPage: React.FC = () => {
           {lastSummary && (
             <Card size="small" title="最近提交" style={{ marginTop: 12 }}>
               <Statistic title="IOL 度数" value={lastSummary.iolPower} suffix="D" />
-              <div style={{ marginTop: 4, color: '#64748b', fontSize: 12 }}>
+              <div style={{ marginTop: 4, color: 'var(--text-secondary)', fontSize: 12 }}>
                 {patientId ? `患者 ${patientId}` : '未绑定患者'} · {eyeSide || 'OD/OS'}
               </div>
             </Card>

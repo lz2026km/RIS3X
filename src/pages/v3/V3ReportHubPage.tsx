@@ -1,16 +1,24 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Statistic, Table } from 'antd';
-import {
-  Edit3, Send, BarChart3, RefreshCw, Sparkles, ClipboardList, Layers,
-  Database, Network,
-} from 'lucide-react';
+import { reportApi } from '@/services/api/reportApi';
 import {
   v3WritingApi, v3DistApi, v3IntegrationApi, v3AiAssistApi,
   v3QualityReportApi, v3PacsApi, v3AnalyticsApi,
 } from '@/services/api/v3Api';
-import { reportApi } from '@/services/api/reportApi';
 import type { ReportDto } from '@/types/dto';
+import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Statistic, Table } from 'antd';
+import {
+  Edit3,
+  Send,
+  BarChart3,
+  RefreshCw,
+  Sparkles,
+  ClipboardList,
+  Layers,
+  Database,
+  Network,
+} from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react';
 
 export const V3ReportHubPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -133,7 +141,7 @@ export const V3ReportHubPage: React.FC = () => {
                       <Col span={8}><Statistic title="AI 采纳" value={dash.aiAdoption || 0} suffix="%" styles={{ content: {  color: '#722ed1'  } }} /></Col>
                       <Col span={8}><Statistic title="分发成功率" value={dash.distSuccess || 0} suffix="%" /></Col>
                     </Row>
-                  ) : <Empty description="加载中" />}
+                  ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="加载中" />}
                 </Card>
                 <Card
                   size="small"

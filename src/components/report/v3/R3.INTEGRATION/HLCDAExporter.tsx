@@ -3,13 +3,14 @@
  * R3.INTEGRATION 组 A:HL7 CDA
  * 20 升级点:完整 XML 构造 / 解析 / 验证 / 下载 / 签名
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
-import { FileCode, Download, Shield, CheckCircle2, FileText, Copy, Code2, Braces, Layers, Plus } from 'lucide-react';
 import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
 import { generateCda, downloadCda, parseCda, validateCda } from '@services/integration/hl7CdaService';
-import { CDA_SECTION_CODES } from '@services/integration/hl7CdaService';
+import { CDA_SECTION_CODES } from '@services/integration/hl7CdaService'
 import type { CdaDocument, CdaSection, CdaSectionCode } from '@types/R3/R3.INTEGRATION';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Divider, Alert } from 'antd';
+import { FileCode, Download, Shield, CheckCircle2, FileText, Copy, Code2, Braces, Layers, Plus } from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from 'react';
 
 interface Props {
   reportId?: string;
@@ -236,11 +237,11 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
                         </div>
                       ))}
                     </div>
-                  ) : <Empty description="点击'解析'查看" />,
+                  ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击'解析'查看" />,
                 },
               ]}
             />
-          ) : <Empty description="请选择 CDA 文档" />}
+          ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="请选择 CDA 文档" />}
         </Card>
       </div>
 

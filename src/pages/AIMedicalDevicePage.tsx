@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { Card } from 'antd'
 import React, { useState, useMemo, useEffect } from 'react'
 import { Search, X, Eye, ChevronLeft, ChevronRight, Cpu, AlertCircle, CheckCircle, Clock, RefreshCw, Activity } from 'lucide-react'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
@@ -12,11 +13,11 @@ const DEVICE_STATE_LABELS = {
   OFFLINE: '离线',
 }
 const DEVICE_STATE_STYLES = {
-  IDLE: { bg: '#dcfce7', color: '#166534' },
-  IN_USE: { bg: '#dbeafe', color: '#1e40af' },
-  MAINTENANCE: { bg: '#fef3c7', color: '#92400e' },
-  BROKEN: { bg: '#fee2e2', color: '#991b1b' },
-  OFFLINE: { bg: '#e2e8f0', color: '#475569' },
+  IDLE: { bg: '#22c55e22', color: '#166534' },
+  IN_USE: { bg: '#3b82f622', color: '#1e40af' },
+  MAINTENANCE: { bg: '#f59e0b22', color: '#92400e' },
+  BROKEN: { bg: '#ef444422', color: '#991b1b' },
+  OFFLINE: { bg: '#e2e8f0', color: 'var(--text-secondary)' },
 }
 
 const DeviceStateBadge = ({ state }) => {
@@ -103,9 +104,9 @@ const allDevices = generateAIMedicalDevices()
 // 状态徽章组件
 const StatusBadge = ({ status }) => {
   const styles = {
-    valid: { bg: '#dcfce7', color: '#166534', icon: <CheckCircle size={12} /> },
-    expiring: { bg: '#fef3c7', color: '#92400e', icon: <Clock size={12} /> },
-    expired: { bg: '#fee2e2', color: '#991b1b', icon: <AlertCircle size={12} /> },
+    valid: { bg: '#22c55e22', color: '#166534', icon: <CheckCircle size={12} /> },
+    expiring: { bg: '#f59e0b22', color: '#92400e', icon: <Clock size={12} /> },
+    expired: { bg: '#ef444422', color: '#991b1b', icon: <AlertCircle size={12} /> },
   }
   const labels = { valid: '有效', expiring: '即将过期', expired: '已过期' }
   const s = styles[status] || styles.valid
@@ -212,7 +213,7 @@ export default function AIMedicalDevicePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f9ff' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-info-bg)' }}>
       {/* 蓝色渐变卡片头部 */}
       <div style={{
         background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
@@ -270,7 +271,7 @@ export default function AIMedicalDevicePage() {
         <div style={{ padding: '20px 32px' }}>
           {error && (
             <div style={{
-              padding: '10px 14px', borderRadius: 8, background: '#fee2e2', color: '#991b1b', fontSize: 12, marginBottom: 12,
+              padding: '10px 14px', borderRadius: 8, background: 'var(--color-error-bg)', color: '#991b1b', fontSize: 12, marginBottom: 12,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <span>{error}</span>
@@ -281,7 +282,7 @@ export default function AIMedicalDevicePage() {
           {/* 搜索 + 状态筛选 */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ flex: '1 1 280px', position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
               <input
                 type="text" value={deviceSearch}
                 onChange={e => { setDeviceSearch(e.target.value); setDevicePage(1) }}
@@ -292,7 +293,7 @@ export default function AIMedicalDevicePage() {
                 }}
               />
               {deviceSearch && (
-                <X size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', cursor: 'pointer' }}
+                <X size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', cursor: 'pointer' }}
                   onClick={() => { setDeviceSearch(''); setDevicePage(1) }} />
               )}
             </div>
@@ -309,11 +310,11 @@ export default function AIMedicalDevicePage() {
           </div>
 
           {/* 设备表格 */}
-          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#f0f9ff', borderBottom: '2px solid #dbeafe' }}>
+                  <tr style={{ background: 'var(--color-info-bg)', borderBottom: '2px solid #dbeafe' }}>
                     {['设备编码', '设备名称', '模态', '厂商', '位置', '状态', '今日检查', '今日用时(min)', '注册时间', '操作'].map(h => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
@@ -322,17 +323,17 @@ export default function AIMedicalDevicePage() {
                 <tbody>
                   {filteredRealDevices.slice((devicePage - 1) * pageSize, devicePage * pageSize).map((device, idx) => (
                     <tr key={device.id || device.code} style={{ borderBottom: idx < filteredRealDevices.length - 1 ? '1px solid #f0f9ff' : 'none', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f0f9ff'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ padding: '12px 16px', fontSize: 13, fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{device.code}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: '#374151', fontWeight: 600 }}>{device.name}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', fontWeight: 600 }}>{device.name}</td>
                       <td style={{ padding: '12px 16px' }}><span style={{ background: modalityColor(device.modality), color: '#fff', padding: '2px 8px', borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{device.modality}</span></td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: '#64748b' }}>{device.manufacturer || '—'}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: '#64748b' }}>{device.location || '—'}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.manufacturer || '—'}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.location || '—'}</td>
                       <td style={{ padding: '12px 16px' }}><DeviceStateBadge state={device.state} /></td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: '#374151', textAlign: 'right' }}>{device.todayExams ?? 0}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 13, color: '#374151', textAlign: 'right' }}>{device.todayUsageMin ?? 0}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, color: '#64748b' }}>{formatIsoDate(device.createdAt)}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', textAlign: 'right' }}>{device.todayExams ?? 0}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)', textAlign: 'right' }}>{device.todayUsageMin ?? 0}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, color: 'var(--text-secondary)' }}>{formatIsoDate(device.createdAt)}</td>
                       <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                         <button onClick={() => setSelectedRealDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
                           <Eye size={14} /> 详情
@@ -343,44 +344,44 @@ export default function AIMedicalDevicePage() {
                 </tbody>
               </table>
             </div>
-            {loading && <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>设备数据同步中…</div>}
+            {loading && <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>设备数据同步中…</div>}
             {!loading && filteredRealDevices.length === 0 && (
-              <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>
                 暂无设备数据{error ? '（接口异常）' : ''}
               </div>
             )}
 
             {/* 分页 */}
             {filteredRealDevices.length > 0 && (
-              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: '#f0f9ff' }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>
+              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: 'var(--color-info-bg)' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   显示 {(devicePage - 1) * pageSize + 1} - {Math.min(devicePage * pageSize, filteredRealDevices.length)} 条，共 {filteredRealDevices.length} 台设备
                 </span>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button onClick={() => setDevicePage(p => Math.max(1, p - 1))} disabled={devicePage === 1}
-                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: '#fff', cursor: devicePage === 1 ? 'not-allowed' : 'pointer', opacity: devicePage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#374151' }}>
+                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: devicePage === 1 ? 'not-allowed' : 'pointer', opacity: devicePage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
                     <ChevronLeft size={14} /> 上一页
                   </button>
-                  <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{devicePage} / {Math.max(1, Math.ceil(filteredRealDevices.length / pageSize))}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{devicePage} / {Math.max(1, Math.ceil(filteredRealDevices.length / pageSize))}</span>
                   <button onClick={() => setDevicePage(p => Math.min(Math.ceil(filteredRealDevices.length / pageSize), p + 1))} disabled={devicePage >= Math.ceil(filteredRealDevices.length / pageSize)}
-                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: '#fff', cursor: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 'not-allowed' : 'pointer', opacity: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#374151' }}>
+                    style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 'not-allowed' : 'pointer', opacity: devicePage >= Math.ceil(filteredRealDevices.length / pageSize) ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
                     下一页 <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {activeTab === 'certs' && (
         <>
       {/* 搜索和筛选区域 */}
-      <div style={{ padding: '20px 32px', background: '#fff', borderBottom: '1px solid #dbeafe' }}>
+      <div style={{ padding: '20px 32px', background: 'var(--bg-card)', borderBottom: '1px solid #dbeafe' }}>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           {/* 搜索框 */}
           <div style={{ flex: '1 1 300px', position: 'relative' }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             <input
               type="text"
               value={searchText}
@@ -395,7 +396,7 @@ export default function AIMedicalDevicePage() {
               onBlur={e => e.target.style.borderColor = '#dbeafe'}
             />
             {searchText && (
-              <X size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', cursor: 'pointer' }}
+              <X size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', cursor: 'pointer' }}
                 onClick={() => { setSearchText(''); setCurrentPage(1) }} />
             )}
           </div>
@@ -429,10 +430,10 @@ export default function AIMedicalDevicePage() {
 
       {/* 表格区域 */}
       <div style={{ padding: '20px 32px' }}>
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #dbeafe', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: '#f0f9ff', borderBottom: '2px solid #dbeafe' }}>
+              <tr style={{ background: 'var(--color-info-bg)', borderBottom: '2px solid #dbeafe' }}>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>注册证编号</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>设备名称</th>
                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>型号</th>
@@ -445,19 +446,19 @@ export default function AIMedicalDevicePage() {
             <tbody>
               {paginatedDevices.map((device, idx) => (
                 <tr key={device.id} style={{ borderBottom: idx < paginatedDevices.length - 1 ? '1px solid #f0f9ff' : 'none', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#f0f9ff'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ padding: '12px 16px', fontSize: 13, fontFamily: 'monospace', color: '#1e40af', fontWeight: 600 }}>{device.regNumber}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: '#374151' }}>{device.deviceName}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: '#64748b' }}>{device.model}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{device.manufacturer}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)' }}>{device.deviceName}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.model}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{device.manufacturer}</td>
                   <td style={{ padding: '12px 16px', fontSize: 13, color: isExpiringSoon(device.expiryDate) ? '#d97706' : '#374151', fontWeight: isExpiringSoon(device.expiryDate) ? 600 : 400 }}>
                     {formatDate(device.expiryDate)}
                   </td>
                   <td style={{ padding: '12px 16px' }}><StatusBadge status={device.status} /></td>
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     <button onClick={() => setSelectedDevice(device)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#eff6ff'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-info-bg)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <Eye size={14} /> 详情
                     </button>
@@ -468,30 +469,30 @@ export default function AIMedicalDevicePage() {
           </table>
 
           {/* 分页 */}
-          <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: '#f0f9ff' }}>
-            <span style={{ fontSize: 12, color: '#64748b' }}>
+          <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #dbeafe', background: 'var(--color-info-bg)' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
               显示 {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredDevices.length)} 条，共 {filteredDevices.length} 条
             </span>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#374151' }}>
+                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
                 <ChevronLeft size={14} /> 上一页
               </button>
-              <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{currentPage} / {totalPages}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600 }}>{currentPage} / {totalPages}</span>
               <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#374151' }}>
+                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #dbeafe', background: 'var(--bg-card)', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-primary)' }}>
                 下一页 <ChevronRight size={14} />
               </button>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* 详情弹窗 */}
       {selectedDevice && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
           onClick={() => setSelectedDevice(null)}>
-          <div style={{ background: '#fff', borderRadius: 16, width: 560, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, width: 560, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
             onClick={e => e.stopPropagation()}>
             {/* 弹窗头部 */}
             <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #1e40af, #3b82f6)', borderRadius: '16px 16px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -506,67 +507,67 @@ export default function AIMedicalDevicePage() {
             {/* 弹窗内容 */}
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>注册证编号</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>注册证编号</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedDevice.regNumber}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备名称</div>
-                <div style={{ fontSize: 14, color: '#374151', fontWeight: 600 }}>{selectedDevice.deviceName}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备名称</div>
+                <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>{selectedDevice.deviceName}</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>型号</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.model}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>型号</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.model}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>分类</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.category}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>分类</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.category}</div>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>生产商</div>
-                <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.manufacturer}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>生产商</div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.manufacturer}</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>发证日期</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{formatDate(selectedDevice.certifiedDate)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>发证日期</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatDate(selectedDevice.certifiedDate)}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>有效期至</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>有效期至</div>
                   <div style={{ fontSize: 13, color: isExpiringSoon(selectedDevice.expiryDate) ? '#d97706' : '#374151', fontWeight: isExpiringSoon(selectedDevice.expiryDate) ? 600 : 400 }}>{formatDate(selectedDevice.expiryDate)}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>发证机构</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.certificateOrg}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>发证机构</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.certificateOrg}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>应用科室</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.applicationArea}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>应用科室</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.applicationArea}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>软件版本</div>
-                  <div style={{ fontSize: 13, color: '#374151', fontFamily: 'monospace' }}>{selectedDevice.softwareVersion}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>软件版本</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: 'monospace' }}>{selectedDevice.softwareVersion}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>AI算法</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.aiAlgorithm}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>AI算法</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.aiAlgorithm}</div>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>诊断准确率</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>诊断准确率</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedDevice.accuracy}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>审批适应症</div>
-                <div style={{ fontSize: 13, color: '#374151' }}>{selectedDevice.approvedIndications}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>审批适应症</div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.approvedIndications}</div>
               </div>
               <div style={{ marginBottom: 0 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>状态</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>状态</div>
                 <StatusBadge status={selectedDevice.status} />
               </div>
             </div>
@@ -580,7 +581,7 @@ export default function AIMedicalDevicePage() {
       {selectedRealDevice && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
           onClick={() => setSelectedRealDevice(null)}>
-          <div style={{ background: '#fff', borderRadius: 16, width: 560, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, width: 560, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #1e40af, #3b82f6)', borderRadius: '16px 16px 0 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -593,51 +594,51 @@ export default function AIMedicalDevicePage() {
             </div>
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备编码</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备编码</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedRealDevice.code}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备名称</div>
-                <div style={{ fontSize: 14, color: '#374151', fontWeight: 600 }}>{selectedRealDevice.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>设备名称</div>
+                <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>{selectedRealDevice.name}</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>模态</div>
-                  <div style={{ fontSize: 13, color: '#374151', fontWeight: 700 }}>{selectedRealDevice.modality}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>模态</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 700 }}>{selectedRealDevice.modality}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>状态</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>状态</div>
                   <DeviceStateBadge state={selectedRealDevice.state} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>厂商</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedRealDevice.manufacturer || '—'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>厂商</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedRealDevice.manufacturer || '—'}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>位置</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{selectedRealDevice.location || '—'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>位置</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedRealDevice.location || '—'}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>今日检查</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>今日检查</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayExams ?? 0} 例</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>今日用时</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>今日用时</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayUsageMin ?? 0} min</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>注册时间</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{formatIsoDate(selectedRealDevice.createdAt)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>注册时间</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.createdAt)}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>最近更新</div>
-                  <div style={{ fontSize: 13, color: '#374151' }}>{formatIsoDate(selectedRealDevice.updatedAt)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>最近更新</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.updatedAt)}</div>
                 </div>
               </div>
             </div>

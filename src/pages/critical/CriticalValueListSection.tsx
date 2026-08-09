@@ -42,8 +42,8 @@ const CriticalItemsDirectory = () => {
 
   return (
     <>
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`, borderRadius: '12px 12px 0 0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`, borderRadius: '12px 12px 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <ShieldAlert size={18} style={{ color: '#fff' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>国家卫健委2024年版危急值目录</span>
@@ -58,23 +58,23 @@ const CriticalItemsDirectory = () => {
             const isExpanded = expandedCategory === category
             return (
               <div key={category} style={{ marginBottom: 8 }}>
-                <div onClick={() => setExpandedCategory(isExpanded ? null : category)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? '#eff6ff' : '#f8fafc', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? '#bfdbfe' : '#e2e8f0'}` }}>
+                <div onClick={() => setExpandedCategory(isExpanded ? null : category)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}>
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{category}</span>
-                  <span style={{ fontSize: 12, color: '#64748b', background: '#f1f5f9', padding: '2px 8px', borderRadius: 10 }}>{items.length}项</span>
+                  <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{items.length}项</span>
                   <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
                 {isExpanded && (
-                  <div style={{ padding: '8px 12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, background: '#fafafa', borderRadius: '0 0 8px 8px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                  <div style={{ padding: '8px 12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, background: 'var(--bg-card)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
                     {items.map((item) => {
                       const ItemIcon = item.icon
                       return (
-                        <div key={item.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: '#fff', borderRadius: 6, border: '1px solid #f1f5f9' }}>
+                        <div key={item.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-light)' }}>
                           <div style={{ width: 28, height: 28, borderRadius: 6, background: item.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <ItemIcon size={14} style={{ color: item.color }} />
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
                             <div style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.code}</div>
                           </div>
                         </div>
@@ -90,8 +90,8 @@ const CriticalItemsDirectory = () => {
 
       {showModal && (
         <div onClick={() => setShowModal(false)} role="dialog" aria-modal="true" aria-label="国家卫健委2024年版放射科危急值目录" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 500)' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: 700, maxHeight: '80vh', background: '#fff', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)` }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 700, maxHeight: '80vh', background: 'var(--bg-card)', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <ShieldAlert size={20} style={{ color: '#fff' }} />
                 <div>
@@ -117,7 +117,7 @@ const CriticalItemsDirectory = () => {
                       {items.map((item) => {
                         const ItemIcon = item.icon
                         return (
-                          <div key={item.code} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                          <div key={item.code} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: item.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <ItemIcon size={18} style={{ color: item.color }} />
                             </div>
@@ -136,8 +136,8 @@ const CriticalItemsDirectory = () => {
                 )
               })}
             </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center', gap: 12 }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 12 }}>
+              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
               <button onClick={() => { const blob = new Blob([JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '危急值目录.json'; link.click(); URL.revokeObjectURL(url) }}
                 style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Download size={14} />导出目录

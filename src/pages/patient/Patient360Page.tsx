@@ -1,15 +1,22 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+
+import { patientApi } from '../../services/api/patientApi'
+import type { PatientDto } from '../../types/dto'
+import { ExamDto } from '../../types/dto'
 import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty } from 'antd'
 import {
-  User, Phone, Calendar, Activity, Image, AlertTriangle,
-  Clock, ShieldAlert, Eye,
+  User,
+  Phone,
+  Activity,
+  Image,
+  AlertTriangle,
+  Clock,
+  ShieldAlert,
+  Eye,
+  Calendar,
 } from 'lucide-react'
-import { patientApi } from '../../services/api/patientApi'
-
-
-import type { PatientDto } from '../../types/dto'
-import type { ExamDto } from '../../types/dto'
+import { BellOff, Inbox, Map } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 
 interface ExamView {
   id: string
@@ -171,7 +178,7 @@ export default function Patient360Page() {
   }
 
   return (
-    <div style={{ padding: 24, background: '#f1f5f9', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Card style={{ marginBottom: 16, borderRadius: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div
@@ -209,10 +216,10 @@ export default function Patient360Page() {
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
-            { label: '总检查次数', value: stats.totalExams, color: '#1e40af', bg: '#eff6ff', icon: Activity },
-            { label: '阳性/危急', value: stats.positiveCount, color: '#dc2626', bg: '#fef2f2', icon: AlertTriangle },
-            { label: '阴性/正常', value: stats.negativeCount, color: '#16a34a', bg: '#f0fdf4', icon: Clock },
-            { label: '首次检查', value: stats.firstExamDate, color: '#64748b', bg: '#f8fafc', icon: Calendar },
+            { label: '总检查次数', value: stats.totalExams, color: '#1e40af', bg: 'var(--color-info-bg)', icon: Activity },
+            { label: '阳性/危急', value: stats.positiveCount, color: 'var(--color-error)', bg: 'var(--color-error-bg)', icon: AlertTriangle },
+            { label: '阴性/正常', value: stats.negativeCount, color: 'var(--color-success)', bg: 'var(--color-success-bg)', icon: Clock },
+            { label: '首次检查', value: stats.firstExamDate, color: 'var(--text-secondary)', bg: 'var(--bg-card)', icon: Calendar },
           ].map((item) => (
             <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
               <item.icon size={22} style={{ color: item.color }} />
@@ -228,7 +235,7 @@ export default function Patient360Page() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <Card title="历次检查时间线" style={{ borderRadius: 12 }}>
           {timelineEvents.length === 0 ? (
-            <Empty description="暂无检查记录" style={{ padding: 24 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无检查记录" style={{ padding: 24 }} />
           ) : (
             <Timeline
               items={timelineEvents.map((evt) => ({
@@ -257,7 +264,7 @@ export default function Patient360Page() {
 
         <Card title="历次报告摘要" style={{ borderRadius: 12 }}>
           {exams.length === 0 ? (
-            <Empty description="暂无报告记录" style={{ padding: 24 }} />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无报告记录" style={{ padding: 24 }} />
           ) : (
             <Collapse
               ghost
@@ -304,7 +311,7 @@ export default function Patient360Page() {
 
       <Card title="危急值标记" style={{ marginTop: 16, borderRadius: 12 }}>
         {criticalExams.length === 0 ? (
-          <Empty description="该患者暂无危急值记录" style={{ padding: 16 }} />
+          <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="该患者暂无危急值记录" style={{ padding: 16 }} />
         ) : (
           <Table
             dataSource={criticalExams}

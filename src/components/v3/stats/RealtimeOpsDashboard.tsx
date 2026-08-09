@@ -1,12 +1,13 @@
 /**
  * G005 放射RIS系统 v3.0.2 - 实时运营看板 (大屏/综合看板)
  */
-import React, { useState, useMemo, useEffect } from 'react'
-import { Card, Row, Col, Statistic, Tag, Space, List, Progress, Badge, Empty, Avatar } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
-import { Activity, AlertOctagon, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
 import { CHART_COLORS } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'
+import { Card, Row, Col, Statistic, Tag, Space, List, Progress, Badge, Empty, Avatar } from 'antd'
+import { Activity, AlertOctagon, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
+import { Inbox } from 'lucide-react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
 
 export interface RealtimeEvent {
   id: string
@@ -164,7 +165,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             data-testid="ops-event-stream"
           >
             {events.length === 0 ? (
-              <Empty />
+              <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
             ) : (
               <List
                 size="small"

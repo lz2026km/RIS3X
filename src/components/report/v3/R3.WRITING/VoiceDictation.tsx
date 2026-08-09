@@ -4,17 +4,18 @@
  * 20 升级点:实时识别 / 自动标点 / 分段 / 命令 / 历史 / 多语言
  * Expanded: 段落选择 / 多说话人 / 医学术语管理 / 命令面板
  */
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
-import type { TableProps } from 'antd';
-import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, Type, BookOpen, User } from 'lucide-react';
 
+import { asrApi } from '@services/api/asrApi';
 import {
   startVoiceDictation, pauseVoiceDictation, resumeVoiceDictation, stopVoiceDictation,
   getVoiceDictationHistory,
 } from '@services/writing/writingService';
-import { asrApi } from '@services/api/asrApi';
 import type { VoiceDictationSession, VoiceDictationState, VoiceDictationLang } from '@types/R3/R3.WRITING';
+import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
+import { TableProps } from 'antd'
+import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type} from 'lucide-react';
+import { Inbox } from 'lucide-react'
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 interface Props {
   reportId: string;
@@ -594,7 +595,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
             )}
           />
         ) : (
-          <Empty description="暂无历史" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无历史" />
         )}
       </Modal>
     </Card>

@@ -1,11 +1,11 @@
 // [W3-2] 眼压测量: eyeApi 记录 CRUD + IOP 分类 (正常/偏高/高) + 24h 趋势
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Row, Col, InputNumber, Select, Tag, Button, message, Table, Alert, Popconfirm, Empty, Spin, Space, Statistic, Progress } from 'antd';
-import { Droplets, Save, Trash2, RefreshCw, TrendingUp, Activity } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import IopCurveChart from '@/components/eye/IopCurveChart';
-import { eyeApi } from '@/services/api/eyeApi';
 import { usePagination } from '@/hooks/usePagination';
+import { eyeApi } from '@/services/api/eyeApi';
+import { Card, Row, Col, InputNumber, Select, Tag, Button, message, Table, Alert, Popconfirm, Empty, Spin, Space, Statistic, Progress } from 'antd';
+import { Droplets, Save, Trash2, RefreshCw, TrendingUp, Activity } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const DEVICE_OPTIONS = [
   { value: 'nct', label: 'NCT 非接触' },
@@ -116,7 +116,7 @@ const IntraocularPressurePage: React.FC = () => {
   const avgOs = iopRecords.length ? Math.round(iopRecords.reduce((s, r) => s + r.os, 0) / iopRecords.length) : 0;
 
   const columns = [
-    { title: '时间', dataIndex: 'timestamp', key: 'timestamp', width: 150, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
+    { title: '时间', dataIndex: 'timestamp', key: 'timestamp', width: 150, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 16) : '-'}</span> },
     { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 80 },
     { title: '右眼 OD', dataIndex: 'od', key: 'od', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
     { title: '左眼 OS', dataIndex: 'os', key: 'os', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
@@ -125,7 +125,7 @@ const IntraocularPressurePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
+    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <Droplets className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼压测量 (IOP)</span>
@@ -135,7 +135,7 @@ const IntraocularPressurePage: React.FC = () => {
         <Tag color="orange">24h 曲线</Tag>
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
 
       <Row gutter={12}>
         <Col span={8}>
@@ -145,20 +145,20 @@ const IntraocularPressurePage: React.FC = () => {
             extra={<Space><Select size="small" value={patient} onChange={(v) => { setPatient(v); const p = PATIENT_OPTIONS.find(o => o.value === v); if (p) setPatientName(p.label); }} options={PATIENT_OPTIONS} style={{ width: 100 }} /><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /></Space>}
           >
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>右眼 OD (mmHg)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>右眼 OD (mmHg)</div>
               <InputNumber value={iop.od} onChange={(v) => setIop((s) => ({ ...s, od: v ?? 18 }))} min={0} max={80} style={{ width: 120 }} />
               <Tag color={odClass.color} style={{ marginLeft: 8, fontSize: 12 }}>{odClass.label}</Tag>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>左眼 OS (mmHg)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>左眼 OS (mmHg)</div>
               <InputNumber value={iop.os} onChange={(v) => setIop((s) => ({ ...s, os: v ?? 19 }))} min={0} max={80} style={{ width: 120 }} />
               <Tag color={osClass.color} style={{ marginLeft: 8, fontSize: 12 }}>{osClass.label}</Tag>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>测量方式</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>测量方式</div>
               <Select value={device} onChange={setDevice} options={DEVICE_OPTIONS} style={{ width: 160 }} />
             </div>
-            <div style={{ marginBottom: 12, fontSize: 12, color: '#475569' }}>
+            <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
               患者: <Tag color="geekblue">{patientName}</Tag>
               {latest && <div style={{ marginTop: 4 }}>最新: OD {latest.od} / OS {latest.os} mmHg</div>}
             </div>
@@ -169,14 +169,14 @@ const IntraocularPressurePage: React.FC = () => {
               <Col span={12}><Statistic title="OD 均值" value={avgOd} suffix="mmHg" valueStyle={{ fontSize: 18, color: classify(avgOd).color }} /></Col>
               <Col span={12}><Statistic title="OS 均值" value={avgOs} suffix="mmHg" valueStyle={{ fontSize: 18, color: classify(avgOs).color }} /></Col>
             </Row>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
               <Progress percent={Math.min(100, Math.round((avgOd / 30) * 100))} size="small" strokeColor={classify(avgOd).color} format={() => `OD 峰值占比`} />
               <Progress percent={Math.min(100, Math.round((avgOs / 30) * 100))} size="small" strokeColor={classify(avgOs).color} format={() => `OS 峰值占比`} />
             </div>
           </Card>
         </Col>
         <Col span={16}>
-          <Card size="small" title={<Space><Activity size={14} />24h 眼压曲线 <Tag>{patientName}</Tag></Space>} extra={<span style={{ fontSize: 12, color: '#94a3b8' }}>21mmHg 参考线</span>}>
+          <Card size="small" title={<Space><Activity size={14} />24h 眼压曲线 <Tag>{patientName}</Tag></Space>} extra={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>21mmHg 参考线</span>}>
             <IopCurveChart records={chartRecords} patientId={patientName} />
           </Card>
         </Col>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { teleSignApi, type TeleSignSession } from '../../services/api/teleSignApi'
 import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Alert, Form } from 'antd'
 import { FileSignature, CheckCircle, XCircle, Pen, Eye, Plus } from 'lucide-react'
-import { teleSignApi, type TeleSignSession } from '../../services/api/teleSignApi'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { RefreshCw } from 'lucide-react'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -148,7 +149,7 @@ const TeleSignPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>远程双签</span>
         <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>发起签署会话</Button>
       </Space>
-      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}>重试</Button>} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
       <Card>
         <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>

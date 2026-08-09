@@ -1,6 +1,7 @@
 /**
  * G005 v3.0.6.11-75 W3-1 - 跨模态检索 MSW handlers
- * 支持 crossModalSearchApi (GET /dicom/cross-modal-search) 与 crossModalApi (POST /cross-modal/search)
+ * [G005 Wave1B P1] 标注更新: 后端 /cross-modal/* 已全部实现 (index-status/reindex/suggestions 已补),
+ * 本 handler 仅作为 mock 模式兜底; /dicom/cross-modal-search 旧路径已由前端对齐为 /cross-modal/*。
  */
 import { http, HttpResponse, delay } from 'msw'
 

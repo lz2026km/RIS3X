@@ -2,7 +2,7 @@
 // 放射科专用术语词库，支持快速录入、分类管理、快捷复制、批量导入
 // 支持 WS/T 500-2016 国家标准对照
 import { useState, useEffect, useRef } from 'react'
-import { BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move } from 'lucide-react'
+import { BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move, Save } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -98,7 +98,7 @@ const MODALITY_COLORS: Record<string, string> = {
   'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#10b981', 'DSA': '#f59e0b', 'MG': '#ec4899', 'GI': '#06b6d4',
 }
 const MODALITY_BG: Record<string, string> = {
-  'CT': '#eff6ff', 'MR': '#f5f3ff', 'DR': '#ecfdf5', 'DSA': '#fffbeb', 'MG': '#fdf2f8', 'GI': '#ecfeff',
+  'CT': '#3b82f622', 'MR': '#8b5cf622', 'DR': '#10b98122', 'DSA': '#f59e0b22', 'MG': '#ec489922', 'GI': '#06b6d422',
 }
 
 const WS_STANDARDS: WsStandardEntry[] = [
@@ -458,7 +458,7 @@ export default function TermLibraryPage() {
   const renderFeatureBar = () => (
     <div style={{
       display: mainTab === 'dict' ? 'flex' : 'none', gap: 4, marginBottom: 0,
-      background: 'var(--bg-card)', padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+      background: 'var(--bg-card)', padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
       flexWrap: 'wrap',
     }}>
       {[
@@ -475,7 +475,7 @@ export default function TermLibraryPage() {
           style={{
             display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
             borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none',
-            background: featureTab === f.key ? '#1e40af' : '#f1f5f9',
+            background: featureTab === f.key ? '#1e40af' : 'var(--bg-card)',
             color: featureTab === f.key ? '#fff' : '#64748b',
           }}
         >
@@ -487,39 +487,39 @@ export default function TermLibraryPage() {
 
   const renderSuggestionTab = () => (
     <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'suggestion' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Lightbulb size={15} color="#f59e0b" />
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>实时智能建议</span>
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
-            <Search size={12} color="#94a3b8" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
+            <Search size={12} color="var(--text-secondary)" />
             <input value={suggestionSearch} onChange={e => setSuggestionSearch(e.target.value)} placeholder="输入关键词获取建议..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
           </div>
-          <select style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
+          <select style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
             <option value="">全部设备</option>
             {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {filteredSuggestions.map(s => (
-            <div key={s.term} style={{ padding: 10, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div key={s.term} style={{ padding: 10, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{s.term}</div>
-              <div style={{ display: 'flex', gap: 6, fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>
+              <div style={{ display: 'flex', gap: 6, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                 <span>频率: {s.frequency}</span>
                 <span>·</span>
                 <span>{s.modality}</span>
                 <span>·</span>
                 <span>{s.context}</span>
               </div>
-              <button onClick={() => handleCopyTerm(s.term)} style={{ padding: '3px 10px', background: '#eff6ff', color: '#2563eb', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={() => handleCopyTerm(s.term)} style={{ padding: '3px 10px', background: 'var(--color-info-bg)', color: '#2563eb', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
                 <Copy size={10} /> 使用
               </button>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>基于 {suggestions.reduce((s, x) => s + x.frequency, 0)} 次历史使用记录排序 · 上下文感知（检查部位/设备类型过滤）</div>
+        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>基于 {suggestions.reduce((s, x) => s + x.frequency, 0)} 次历史使用记录排序 · 上下文感知（检查部位/设备类型过滤）</div>
       </div>
     </div>
   )
@@ -540,17 +540,17 @@ export default function TermLibraryPage() {
     return (
       <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'synonym' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Network size={15} color="#7c3aed" />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>术语关系网络</span>
               <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-                <button onClick={() => setSynonymZoom(z => Math.min(3, z + 0.2))} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>+</button>
-                <button onClick={() => setSynonymZoom(z => Math.max(0.5, z - 0.2))} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>-</button>
-                <button onClick={() => { setSynonymZoom(1); setSynonymPan({ x: 0, y: 0 }) }} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>重置</button>
+                <button onClick={() => setSynonymZoom(z => Math.min(3, z + 0.2))} style={{ padding: '2px 6px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>+</button>
+                <button onClick={() => setSynonymZoom(z => Math.max(0.5, z - 0.2))} style={{ padding: '2px 6px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>-</button>
+                <button onClick={() => { setSynonymZoom(1); setSynonymPan({ x: 0, y: 0 }) }} style={{ padding: '2px 6px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12 }}>重置</button>
               </span>
             </div>
-            <div style={{ overflow: 'hidden', height: 350, position: 'relative', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid #e2e8f0' }}
+            <div style={{ overflow: 'hidden', height: 350, position: 'relative', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}
               onMouseDown={e => { if (e.button === 0) { const startX = e.clientX - synonymPan.x; const startY = e.clientY - synonymPan.y; const onMove = (ev: MouseEvent) => { setSynonymPan({ x: ev.clientX - startX, y: ev.clientY - startY }); }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}}
             >
               <svg width="100%" height="350" viewBox={`0 0 600 350`} style={{ transform: `scale(${synonymZoom}) translate(${synonymPan.x / synonymZoom}px, ${synonymPan.y / synonymZoom}px)`, transformOrigin: 'center center' }}>
@@ -575,7 +575,7 @@ export default function TermLibraryPage() {
                   return (
                     <g key={node} onClick={() => setSelectedNode(selectedNode === node ? null : node)} style={{ cursor: 'pointer' }}>
                       <circle cx={x} cy={y} r={radius} fill={nodeColors[node] || '#94a3b8'} stroke={isSelected ? '#1e293b' : 'none'} strokeWidth={isSelected ? 2 : 0} opacity={isSelected ? 1 : 0.8} />
-                      <text x={x} y={y + radius + 12} textAnchor="middle" fontSize={isSelected ? 11 : 9} fill="#1e293b" fontWeight={isSelected ? 700 : 400}>{node}</text>
+                      <text x={x} y={y + radius + 12} textAnchor="middle" fontSize={isSelected ? 11 : 9} fill="var(--text-primary)" fontWeight={isSelected ? 700 : 400}>{node}</text>
                       {isSelected && <text x={x} y={y + 4} textAnchor="middle" fontSize={8} fill="#fff" fontWeight={700}>{nodeDegrees[node]}</text>}
                     </g>
                   )
@@ -584,7 +584,7 @@ export default function TermLibraryPage() {
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
               {Object.entries(relationshipColors).map(([type, color]) => (
-                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b' }}>
+                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
                   {type === 'synonym' ? '同义词' : type === 'broader' ? '上位词' : type === 'narrower' ? '下位词' : '相关'}
                 </span>
@@ -592,16 +592,16 @@ export default function TermLibraryPage() {
             </div>
           </div>
           {selectedNode && (
-            <div style={{ width: 280, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', height: 'fit-content' }}>
+            <div style={{ width: 280, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{selectedNode}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>关联关系 ({selectedRelations.length} 条)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>关联关系 ({selectedRelations.length} 条)</div>
               {selectedRelations.map(r => {
                 const other = r.from === selectedNode ? r.to : r.from
                 return (
-                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', borderBottom: '1px solid var(--border-light)' }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: relationshipColors[r.type], flexShrink: 0 }} />
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>{other}</span>
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                       {r.type === 'synonym' ? '同义词' : r.type === 'broader' ? '上位词' : r.type === 'narrower' ? '下位词' : '相关'}
                     </span>
                   </div>
@@ -616,7 +616,7 @@ export default function TermLibraryPage() {
 
   const renderExtractionTab = () => (
     <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'extraction' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <FileSearch size={15} color="#059669" />
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>报告术语提取</span>
@@ -630,38 +630,38 @@ export default function TermLibraryPage() {
           </button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-          <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 12px' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#1e40af' }}>{extractedTerms.length}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>提取术语总数</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>提取术语总数</div>
           </div>
-          <div style={{ background: '#dcfce7', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 12px' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#16a34a' }}>{extractedTerms.filter(t => t.status === 'approved').length}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>已采纳</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已采纳</div>
           </div>
-          <div style={{ background: '#fef3c7', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ background: 'var(--color-warning-bg)', borderRadius: 8, padding: '10px 12px' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#d97706' }}>{extractedTerms.filter(t => t.status === 'pending').length}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>待审核</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>待审核</div>
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
         <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>提取术语</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>频率</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>来源</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>建议分类</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>状态</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>操作</th>
+            <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>提取术语</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>频率</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>来源</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>建议分类</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>状态</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>操作</th>
             </tr>
           </thead>
           <tbody>
             {extractedTerms.map(et => (
-              <tr key={et.id} style={{ borderBottom: '1px solid #f8fafc' }}>
+              <tr key={et.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                 <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{et.term}</span></td>
                 <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 700, color: '#059669' }}>{et.frequency}</span></td>
-                <td style={{ padding: '9px 12px' }}><span style={{ color: '#64748b', fontSize: 12 }}>{et.source}</span></td>
-                <td style={{ padding: '9px 12px' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#f5f3ff', color: '#6d28d9' }}>{et.suggestedCategory}</span></td>
+                <td style={{ padding: '9px 12px' }}><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{et.source}</span></td>
+                <td style={{ padding: '9px 12px' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{et.suggestedCategory}</span></td>
                 <td style={{ padding: '9px 12px' }}>
                   <span style={{
                     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700,
@@ -674,8 +674,8 @@ export default function TermLibraryPage() {
                 <td style={{ padding: '9px 12px' }}>
                   {et.status === 'pending' && (
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleApproveExtraction(et.id)} style={{ padding: '3px 8px', background: '#dcfce7', color: '#16a34a', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>采纳</button>
-                      <button onClick={() => handleRejectExtraction(et.id)} style={{ padding: '3px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>拒绝</button>
+                      <button onClick={() => handleApproveExtraction(et.id)} style={{ padding: '3px 8px', background: 'var(--color-success-bg)', color: '#16a34a', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>采纳</button>
+                      <button onClick={() => handleRejectExtraction(et.id)} style={{ padding: '3px 8px', background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>拒绝</button>
                     </div>
                   )}
                 </td>
@@ -690,21 +690,21 @@ export default function TermLibraryPage() {
 
   const renderLanguageTab = () => (
     <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'language' ? undefined : 'none' }}>
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Languages size={15} color="#7c3aed" />
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>多语言支持</span>
-          <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#475569', cursor: 'pointer' }}>
+          <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer' }}>
             <input type="checkbox" checked={bilingualMode} onChange={() => setBilingualMode(!bilingualMode)} />
             双语模式
           </label>
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
-            <Search size={12} color="#94a3b8" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
+            <Search size={12} color="var(--text-secondary)" />
             <input value={languageSearch} onChange={e => setLanguageSearch(e.target.value)} placeholder="搜索术语..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
           </div>
-          <select value={selectedLang} onChange={e => setSelectedLang(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
+          <select value={selectedLang} onChange={e => setSelectedLang(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
             <option value="zh">中文</option>
             <option value="en">English</option>
             <option value="ja">日本語</option>
@@ -713,32 +713,32 @@ export default function TermLibraryPage() {
         <div style={{ overflowX: 'auto' }}>
         <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>中文</th>
-              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>English</th>}
-              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>日本語</th>}
-              {!bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>{selectedLang === 'en' ? 'English' : '日本語'}</th>}
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12 }}>准确度</th>
+            <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>中文</th>
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>English</th>}
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>日本語</th>}
+              {!bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>{selectedLang === 'en' ? 'English' : '日本語'}</th>}
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>准确度</th>
             </tr>
           </thead>
           <tbody>
             {filteredTranslations.map(t => (
-              <tr key={t.termId} style={{ borderBottom: '1px solid #f8fafc' }}>
+              <tr key={t.termId} style={{ borderBottom: '1px solid var(--border-light)' }}>
                 <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{t.zh}</span></td>
                 {bilingualMode ? (
                   <>
-                    <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{t.en}</span></td>
-                    <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{t.ja}</span></td>
+                    <td style={{ padding: '9px 12px' }}><span style={{ color: 'var(--text-secondary)' }}>{t.en}</span></td>
+                    <td style={{ padding: '9px 12px' }}><span style={{ color: 'var(--text-secondary)' }}>{t.ja}</span></td>
                   </>
                 ) : (
-                  <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{selectedLang === 'en' ? t.en : t.ja}</span></td>
+                  <td style={{ padding: '9px 12px' }}><span style={{ color: 'var(--text-secondary)' }}>{selectedLang === 'en' ? t.en : t.ja}</span></td>
                 )}
                 <td style={{ padding: '9px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: 50, height: 5, background: '#e2e8f0', borderRadius: 3 }}>
                       <div style={{ width: `${t.accuracy * 100}%`, height: 5, background: t.accuracy > 0.95 ? '#16a34a' : t.accuracy > 0.9 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
                     </div>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>{Math.round(t.accuracy * 100)}%</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(t.accuracy * 100)}%</span>
                   </div>
                 </td>
               </tr>
@@ -746,7 +746,7 @@ export default function TermLibraryPage() {
           </tbody>
         </table></div>
         </div>
-        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证</div>
+        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证</div>
       </div>
     </div>
   )
@@ -814,11 +814,11 @@ export default function TermLibraryPage() {
           }}
         >
           {node.children.length > 0 ? (
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>{expandedNodes.has(node.id) ? '▼' : '▶'}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{expandedNodes.has(node.id) ? '▼' : '▶'}</span>
           ) : <span style={{ width: 10 }} />}
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: node.color, flexShrink: 0 }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{node.name}</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', background: 'var(--content-bg)', borderRadius: 8, padding: '1px 6px' }}>{node.count}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', background: 'var(--content-bg)', borderRadius: 8, padding: '1px 6px' }}>{node.count}</span>
         </div>
         {expandedNodes.has(node.id) && node.children.length > 0 && renderTree(node.children, level + 1)}
       </div>
@@ -827,7 +827,7 @@ export default function TermLibraryPage() {
     return (
       <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'category' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+          <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Move size={15} color="#0891b2" />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>分类树浏览器</span>
@@ -838,22 +838,22 @@ export default function TermLibraryPage() {
             <div style={{ maxHeight: 400, overflowY: 'auto', padding: 4 }}>
               {renderTree(categoryTree)}
             </div>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>拖拽术语到分类节点进行分类</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>拖拽术语到分类节点进行分类</div>
           </div>
           {selectedCategory && (
-            <div style={{ width: 300, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', height: 'fit-content' }}>
+            <div style={{ width: 300, background: 'var(--bg-card)', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', height: 'fit-content' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>分类统计</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#1e40af' }}>32</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>术语数</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>术语数</div>
                 </div>
-                <div style={{ background: '#dcfce7', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#16a34a' }}>1,245</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>使用次数</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>使用次数</div>
                 </div>
               </div>
-              <button onClick={openEditCategory} style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: 'var(--content-bg)', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              <button onClick={openEditCategory} style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: 'var(--content-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
                 编辑分类
               </button>
             </div>
@@ -862,19 +862,19 @@ export default function TermLibraryPage() {
         {showCategoryModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCategoryModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 8 }}><Move size={16} color="#0891b2" /> {categoryForm.id ? '编辑分类' : '新建分类'}</div>
-              <button onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 18, padding: 4 }}>×</button>
+              <button onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>分类名称 *</label>
-                <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder="如: 胸部疾病" style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>分类名称 *</label>
+                <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder="如: 胸部疾病" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               {!categoryForm.id && (
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>父级分类</label>
-                  <select value={categoryForm.parentId} onChange={e => setCategoryForm({ ...categoryForm, parentId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>父级分类</label>
+                  <select value={categoryForm.parentId} onChange={e => setCategoryForm({ ...categoryForm, parentId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     <option value="">无（顶级分类）</option>
                     {categoryTree.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
                   </select>
@@ -882,7 +882,7 @@ export default function TermLibraryPage() {
               )}
               {!categoryForm.id && (
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>颜色</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>颜色</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {CATEGORY_COLORS.map(c => (
                       <button key={c} onClick={() => setCategoryForm({ ...categoryForm, color: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: categoryForm.color === c ? '3px solid #1e293b' : 'none', cursor: 'pointer' }} />
@@ -891,8 +891,8 @@ export default function TermLibraryPage() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowCategoryModal(false)} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>取消</button>
-                <button onClick={handleSaveCategory} disabled={!categoryForm.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: categoryForm.name.trim() ? '#1e40af' : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: categoryForm.name.trim() ? 'pointer' : 'not-allowed' }}>保存</button>
+                <button onClick={() => setShowCategoryModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={handleSaveCategory} disabled={!categoryForm.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: categoryForm.name.trim() ? '#1e40af' : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: categoryForm.name.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />保存</button>
               </div>
             </div>
           </div>
@@ -904,44 +904,44 @@ export default function TermLibraryPage() {
 
   // ============ 渲染 ============
   return (
-    <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: '#f0f4f8', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /terms controller, 数据由 MSW 演示数据提供 */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #fcd34d' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #fcd34d' }}>
         演示数据（后端待实现）：本页词库数据由 MSW 演示数据提供，后端暂无 /terms 接口
       </div>
       {loading && <LoadingBanner message="正在从 API 加载术语库..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
-      <div style={{ width: 260, background: 'var(--bg-card)', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #e2e8f0', background: '#1e40af' }}>
+      <div style={{ width: 260, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border-color)', background: '#1e40af' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <BookOpen size={18} style={{ color: '#93c5fd' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>报告词库</span>
           </div>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: 0 }}>标准化术语 · WS/T 500-2016</p>
         </div>
-        <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid #f1f5f9' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 8, padding: '7px 10px' }}>
-            <Search size={13} style={{ color: '#94a3b8', flexShrink: 0 }} />
+        <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid var(--border-light)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
+            <Search size={13} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder="搜索词条..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
-            {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: '#94a3b8' }} /></button>}
+            {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
           </div>
         </div>
-        <div style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-light)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <div style={{ background: '#eff6ff', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+            <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#1e40af' }}>{stats.totalTerms}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>词条总数</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>词条总数</div>
             </div>
-            <div style={{ background: '#f5f3ff', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+            <div style={{ background: '#8b5cf622', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#1e40af' }}>{stats.mappedCount}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>已对照</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已对照</div>
             </div>
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
           <button onClick={() => { setActiveCategoryId('ALL'); setMainTab('dict') }} style={{
             width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
-            background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#eff6ff' : 'transparent',
+            background: activeCategoryId === 'ALL' && mainTab === 'dict' ? 'var(--color-info-bg)' : 'transparent',
             borderLeft: activeCategoryId === 'ALL' && mainTab === 'dict' ? '3px solid #1e40af' : '3px solid transparent', textAlign: 'left',
           }}>
             <FolderOpen size={13} style={{ color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#94a3b8' }} />
@@ -950,27 +950,27 @@ export default function TermLibraryPage() {
           </button>
           <button onClick={() => { setMainTab('standard'); setActiveCategoryId('ALL') }} style={{
             width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
-            background: mainTab === 'standard' ? '#eff6ff' : 'transparent',
+            background: mainTab === 'standard' ? 'var(--color-info-bg)' : 'transparent',
             borderLeft: mainTab === 'standard' ? '3px solid #1e40af' : '3px solid transparent', textAlign: 'left',
           }}>
             <FileCheck size={13} style={{ color: mainTab === 'standard' ? '#1e40af' : '#94a3b8' }} />
             <span style={{ fontSize: 12, fontWeight: mainTab === 'standard' ? 700 : 400, color: mainTab === 'standard' ? '#1e40af' : '#475569' }}>国家标准</span>
             <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: mainTab === 'standard' ? '#1e40af' : '#e2e8f0', color: mainTab === 'standard' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{WS_STANDARDS.length}</span>
           </button>
-          <div style={{ padding: '6px 16px 4px', fontSize: 12, color: '#94a3b8', fontWeight: 600, letterSpacing: 1 }}>按检查类型</div>
+          <div style={{ padding: '6px 16px 4px', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1 }}>按检查类型</div>
           {categories.map(cat => (
             <button key={cat.id} onClick={() => { setActiveCategoryId(cat.id); setMainTab('dict') }} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', border: 'none', cursor: 'pointer',
-              background: activeCategoryId === cat.id && mainTab === 'dict' ? '#eff6ff' : 'transparent',
+              background: activeCategoryId === cat.id && mainTab === 'dict' ? 'var(--color-info-bg)' : 'transparent',
               borderLeft: activeCategoryId === cat.id && mainTab === 'dict' ? `3px solid ${cat.color}` : '3px solid transparent', textAlign: 'left',
             }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: cat.color, opacity: activeCategoryId === cat.id ? 1 : 0.5 }} />
               <span style={{ fontSize: 12, fontWeight: activeCategoryId === cat.id ? 600 : 400, color: activeCategoryId === cat.id ? '#1e40af' : '#475569' }}>{cat.name}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 600, background: activeCategoryId === cat.id ? cat.color : '#f1f5f9', color: activeCategoryId === cat.id ? '#fff' : '#94a3b8', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount(cat.id)}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 600, background: activeCategoryId === cat.id ? cat.color : 'var(--bg-card)', color: activeCategoryId === cat.id ? '#fff' : '#94a3b8', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount(cat.id)}</span>
             </button>
           ))}
         </div>
-        <div style={{ padding: 12, borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ padding: 12, borderTop: '1px solid var(--border-color)' }}>
           <button onClick={openAddModal} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 6px rgba(30,64,175,0.3)' }}>
             <Plus size={13} /> 新建词条
           </button>
@@ -978,13 +978,13 @@ export default function TermLibraryPage() {
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ background: 'var(--bg-card)', padding: '14px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ background: 'var(--bg-card)', padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LayoutGrid size={16} style={{ color: '#1e40af' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>
               {mainTab === 'dict' ? '词库管理' : '国家标准 WS/T 500-2016'}
             </span>
-            <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} 条)</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} 条)</span>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {mainTab === 'dict' && (
@@ -1011,69 +1011,69 @@ export default function TermLibraryPage() {
           {mainTab === 'standard' && (
             <div style={{ padding: 16 }}>
               {importedCount !== null && (
-                <div style={{ background: '#dcfce7', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--color-success-bg)', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <CheckCircle2 size={15} style={{ color: '#16a34a' }} />
                   <span style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>已成功导入 {importedCount} 条标准对照关系！</span>
                 </div>
               )}
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <FileCheck size={15} style={{ color: '#1e40af' }} />
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>WS/T 500-2016 标准对照表</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>卫生行业标准 · 放射学检查项目分类与编码</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>卫生行业标准 · 放射学检查项目分类与编码</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 12 }}>
                   {[
-                    { label: '标准总数', value: WS_STANDARDS.length, color: '#1e40af', bg: '#eff6ff' },
-                    { label: 'CT类', value: WS_STANDARDS.filter(w => w.department === 'CT').length, color: '#3b82f6', bg: '#eff6ff' },
-                    { label: 'MR类', value: WS_STANDARDS.filter(w => w.department === 'MR').length, color: '#8b5cf6', bg: '#f5f3ff' },
-                    { label: 'DR/X线类', value: WS_STANDARDS.filter(w => w.department === 'DXR' || w.department === '乳腺').length, color: '#10b981', bg: '#ecfdf5' },
-                    { label: '超声/DSA', value: WS_STANDARDS.filter(w => w.department === '超声' || w.department === 'DSA').length, color: '#f59e0b', bg: '#fffbeb' },
+                    { label: '标准总数', value: WS_STANDARDS.length, color: '#1e40af', bg: '#3b82f622' },
+                    { label: 'CT类', value: WS_STANDARDS.filter(w => w.department === 'CT').length, color: '#3b82f6', bg: '#3b82f622' },
+                    { label: 'MR类', value: WS_STANDARDS.filter(w => w.department === 'MR').length, color: '#8b5cf6', bg: '#8b5cf622' },
+                    { label: 'DR/X线类', value: WS_STANDARDS.filter(w => w.department === 'DXR' || w.department === '乳腺').length, color: '#10b981', bg: '#22c55e22' },
+                    { label: '超声/DSA', value: WS_STANDARDS.filter(w => w.department === '超声' || w.department === 'DSA').length, color: '#f59e0b', bg: '#f59e0b22' },
                   ].map(item => (
                     <div key={item.label} style={{ background: item.bg, borderRadius: 8, padding: '10px 12px', border: `1px solid ${item.color}20` }}>
                       <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}</div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{item.label}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{item.label}</div>
                     </div>
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
-                    <Search size={12} style={{ color: '#94a3b8', flexShrink: 0 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
+                    <Search size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
                     <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder="搜索标准名称、代码或别名..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
-                    {wsSearch && <button onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: '#94a3b8' }} /></button>}
+                    {wsSearch && <button onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
                   </div>
-                  <select value={wsDeptFilter} onChange={e => setWsDeptFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
+                  <select value={wsDeptFilter} onChange={e => setWsDeptFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
                     <option value="全部">全部科室</option>
                     {DEPT_LIST.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
               </div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                 <div style={{ overflowX: 'auto' }}>
                   <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
-                    <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
+                    <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       {['代码', '标准检查名称', '常用别名', '科室', '检查子类', '报告模板', '状态'].map((h, i) => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
                       ))}
                     </tr></thead>
                     <tbody>
                       {filteredWsStandards.length === 0 ? (
-                        <tr><td colSpan={7} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>无匹配的标准条目</div></div></td></tr>
+                        <tr><td colSpan={7} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: 'var(--text-secondary)', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>无匹配的标准条目</div></div></td></tr>
                       ) : filteredWsStandards.map((ws, _idx) => {
                         const isMapped = mappedWsCodes.has(ws.code)
                         return (
-                          <tr key={ws.code} style={{ borderBottom: '1px solid #f8fafc', background: 'var(--bg-card)', transition: 'background 0.1s' }}
+                          <tr key={ws.code} style={{ borderBottom: '1px solid var(--border-light)', background: 'var(--bg-card)', transition: 'background 0.1s' }}
                             onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
-                            onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+                            onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'}
                           >
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1e40af', background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>{ws.code}</span></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 180 }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{ws.aliases.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: '#64748b' }}>{a}</span>)}</div></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: MODALITY_BG[ws.department] || '#f1f5f9', color: MODALITY_COLORS[ws.department] || '#64748b' }}>{ws.department}</span></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontSize: 12, color: '#64748b' }}>{ws.subClass}</span></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 250 }}><div style={{ fontSize: 12, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>{ws.reportTemplate}</div></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1e40af', background: 'var(--color-info-bg)', padding: '2px 8px', borderRadius: 4 }}>{ws.code}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 180 }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{ws.aliases.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: MODALITY_BG[ws.department] || '#f1f5f9', color: MODALITY_COLORS[ws.department] || '#64748b' }}>{ws.department}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ws.subClass}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 250 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>{ws.reportTemplate}</div></td>
                             <td style={{ padding: '9px 12px' }}>
-                              {isMapped ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: '#dcfce7', color: '#16a34a' }}><CheckCircle2 size={10} /> 已对照</span> : <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#fef3c7', color: '#d97706' }}>未对照</span>}
+                              {isMapped ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#16a34a' }}><CheckCircle2 size={10} /> 已对照</span> : <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-warning-bg)', color: '#d97706' }}>未对照</span>}
                             </td>
                           </tr>
                         )
@@ -1081,9 +1081,9 @@ export default function TermLibraryPage() {
                     </tbody>
                   </table></div>
                 </div>
-                <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredWsStandards.length}</strong> 条标准，已对照 <strong style={{ color: '#16a34a' }}>{WS_STANDARDS.filter(w => mappedWsCodes.has(w.code)).length}</strong> 条</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）</span>
+                <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-card)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 <strong style={{ color: '#1e40af' }}>{filteredWsStandards.length}</strong> 条标准，已对照 <strong style={{ color: '#16a34a' }}>{WS_STANDARDS.filter(w => mappedWsCodes.has(w.code)).length}</strong> 条</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）</span>
                 </div>
               </div>
             </div>
@@ -1092,21 +1092,21 @@ export default function TermLibraryPage() {
           {mainTab === 'dict' && featureTab === 'main' && (
             <>
               {showStats && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <BarChart2 size={15} style={{ color: '#7c3aed' }} />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>词库统计</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
-                      { label: '词条总数', value: stats.totalTerms, sub: '条', color: '#1e40af', bg: '#eff6ff' },
-                      { label: '本月使用', value: stats.thisMonthUsage, sub: '次', color: '#7c3aed', bg: '#f5f3ff' },
-                      { label: '已对照标准', value: stats.mappedCount, sub: '条', color: '#059669', bg: '#ecfdf5' },
-                      { label: '活跃词条', value: stats.activeTerms, sub: '条', color: '#d97706', bg: '#fffbeb' },
+                      { label: '词条总数', value: stats.totalTerms, sub: '条', color: '#1e40af', bg: '#3b82f622' },
+                      { label: '本月使用', value: stats.thisMonthUsage, sub: '次', color: '#7c3aed', bg: '#8b5cf622' },
+                      { label: '已对照标准', value: stats.mappedCount, sub: '条', color: '#059669', bg: '#22c55e22' },
+                      { label: '活跃词条', value: stats.activeTerms, sub: '条', color: '#d97706', bg: '#f59e0b22' },
                     ].map(item => (
                       <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${item.color}20` }}>
                         <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, marginLeft: 2 }}>{item.sub}</span></div>
-                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{item.label}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{item.label}</div>
                       </div>
                     ))}
                   </div>
@@ -1117,13 +1117,13 @@ export default function TermLibraryPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                       {top20Terms.map((t, i) => (
-                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? '#fffbeb' : i === 1 ? '#f8fafc' : '#fef3c7') : '#fafafa', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : '#f1f5f9'}` }}>
+                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? 'var(--color-warning-bg)' : i === 1 ? 'var(--bg-card)' : 'var(--color-warning-bg)') : '#fafafa', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : '#f1f5f9'}` }}>
                           <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 16 }}>#{i + 1}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</div>
-                            <div style={{ fontSize: 12, color: '#94a3b8' }}>{t.count}次</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.count}次</div>
                           </div>
-                          <button onClick={() => handleCopyTerm(t.term)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: '#94a3b8' }}><Copy size={11} /></button>
+                          <button onClick={() => handleCopyTerm(t.term)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--text-secondary)' }}><Copy size={11} /></button>
                         </div>
                       ))}
                     </div>
@@ -1132,15 +1132,15 @@ export default function TermLibraryPage() {
               )}
 
               {showQuickPanel && (
-                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, marginBottom: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, margin: 16, marginBottom: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                     <Zap size={15} style={{ color: '#f59e0b' }} />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>快捷词库</span>
-                    <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>点击词条自动复制</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>点击词条自动复制</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
                     {MODALITY_LIST.map(m => (
-                      <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: activeQuickModality === m ? MODALITY_BG[m] : '#fff', color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b' }}>{m}</button>
+                      <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: activeQuickModality === m ? MODALITY_BG[m] : 'var(--bg-card)', color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b' }}>{m}</button>
                     ))}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -1148,7 +1148,7 @@ export default function TermLibraryPage() {
                       <div
                         role="status"
                         data-testid="term-empty"
-                        style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 12 }}
+                        style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: 'var(--text-secondary)', fontSize: 12 }}
                       >
                         暂无词汇,试试切换其他模态或在词库中补充
                       </div>
@@ -1156,44 +1156,44 @@ export default function TermLibraryPage() {
                       <button key={t.id} onClick={() => { handleCopyTerm(t.term); useCount(t.id) }} style={{
                         display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid',
                         cursor: 'pointer', fontSize: 12, fontWeight: 500,
-                        background: copySuccess === t.term ? '#dcfce7' : '#f8fafc',
+                        background: copySuccess === t.term ? 'var(--color-success-bg)' : 'var(--bg-card)',
                         borderColor: copySuccess === t.term ? '#16a34a' : '#e2e8f0',
-                        color: copySuccess === t.term ? '#16a34a' : '#334155',
+                        color: copySuccess === t.term ? '#16a34a' : 'var(--text-primary)',
                         transition: 'all 0.15s',
                       }}>
                         {copySuccess === t.term ? <Check size={11} /> : <Copy size={11} />}
                         <span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', background: 'var(--content-bg)', borderRadius: 8, padding: '1px 5px' }}>{t.count}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', background: 'var(--content-bg)', borderRadius: 8, padding: '1px 5px' }}>{t.count}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div style={{ background: 'var(--bg-card)', borderRadius: 12, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 12, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', gap: 4 }}>
                     {([{ key: 'all', label: '全部', count: terms.length }, { key: 'active', label: '已启用', count: terms.filter(t => t.isActive !== false).length }, { key: 'inactive', label: '已禁用', count: terms.filter(t => t.isActive === false).length }] as const).map(tab => (
-                      <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === tab.key ? '#1e40af' : '#f1f5f9', color: activeTab === tab.key ? '#fff' : '#64748b' }}>
+                      <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === tab.key ? '#1e40af' : 'var(--bg-card)', color: activeTab === tab.key ? '#fff' : '#64748b' }}>
                         {tab.label} ({tab.count})
                       </button>
                     ))}
                   </div>
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 6, padding: '5px 10px' }}>
-                      <Search size={12} style={{ color: '#94a3b8' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '5px 10px' }}>
+                      <Search size={12} style={{ color: 'var(--text-secondary)' }} />
                       <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder="搜索词条内容..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: 150, color: '#1e40af' }} />
                     </div>
-                    <select value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
+                    <select value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
                       <option value="全部">全部设备</option>
                       {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
-                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
+                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
                       <option value="全部">全部分类</option>
                       {allCategoryNames.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> 导入模板</button>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? '#f5f5f5' : '#fff', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
+                    <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> 导入模板</button>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? '#f5f5f5' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
                       <Upload size={11} />{importLoading ? '导入中...' : '批量导入'}
                       <input ref={fileInputRef} type="file" accept=".csv,.xlsx" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
@@ -1202,36 +1202,36 @@ export default function TermLibraryPage() {
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
-                    <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
+                    <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       {['词条ID', '词条内容', '类别', '设备类型', '使用次数', '最近使用', '标准对照', '操作'].map((h, i) => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
                       ))}
                     </tr></thead>
                     <tbody>
                       {filteredTerms.length === 0 ? (
-                        <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={28} style={{ marginBottom: 8, color: '#94a3b8' }} /><div>暂无匹配的词条</div></div></td></tr>
+                        <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: 'var(--text-secondary)', fontSize: 13 }}><Search size={28} style={{ marginBottom: 8, color: 'var(--text-secondary)' }} /><div>暂无匹配的词条</div></div></td></tr>
                       ) : filteredTerms.map((term, _idx) => (
-                        <tr key={term.id} style={{ borderBottom: '1px solid #f8fafc', background: term.isActive === false ? '#fef9f9' : '#fff', transition: 'background 0.1s' }}
+                        <tr key={term.id} style={{ borderBottom: '1px solid var(--border-light)', background: term.isActive === false ? 'var(--color-error-bg)' : 'var(--bg-card)', transition: 'background 0.1s' }}
                           onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff' }}
-                          onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fff'; else (e.currentTarget as HTMLTableRowElement).style.background = '#fef9f9' }}
+                          onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'; else (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-error-bg)' }}
                         >
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: '#94a3b8', background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{term.id}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 220 }}>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{term.id}</span></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 220 }}>
                             <div style={{ fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{term.term}</div>
-                            <div style={{ fontSize: 12, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>{term.standardReport}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>{term.standardReport}</div>
                           </td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#f5f3ff', color: '#6d28d9' }}>{term.category}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>{term.modality?.map(m => <span key={m} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: MODALITY_BG[m] || '#f1f5f9', color: MODALITY_COLORS[m] || '#64748b' }}>{m}</span>)}</div></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{term.count}</span></div></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontSize: 12, color: '#64748b' }}>{term.lastUsed || '-'}</span></td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            {term.wsStandardCode ? <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: '#dcfce7', color: '#16a34a' }}>{term.wsStandardCode}</span> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>}
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{term.category}</span></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>{term.modality?.map(m => <span key={m} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: MODALITY_BG[m] || 'var(--bg-card)', color: MODALITY_COLORS[m] || '#64748b' }}>{m}</span>)}</div></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{term.count}</span></div></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{term.lastUsed || '-'}</span></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}>
+                            {term.wsStandardCode ? <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'var(--color-success-bg)', color: '#16a34a' }}>{term.wsStandardCode}</span> : <span style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>—</span>}
                           </td>
                           <td style={{ padding: '9px 12px' }}>
                             <div style={{ display: 'flex', gap: 4 }}>
-                              <button onClick={() => openEditModal(term)} title="编辑" style={{ padding: '4px 8px', background: '#eff6ff', color: '#2563eb', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Edit2 size={11} /></button>
-                              <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? '启用' : '禁用'} style={{ padding: '4px 8px', background: term.isActive === false ? '#ecfdf5' : '#fef3c7', color: term.isActive === false ? '#16a34a' : '#d97706', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
-                              <button onClick={() => handleDeleteTerm(term.id)} title="删除" style={{ padding: '4px 8px', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={11} /></button>
+                              <button onClick={() => openEditModal(term)} title="编辑" style={{ padding: '4px 8px', background: 'var(--color-info-bg)', color: '#2563eb', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Edit2 size={11} /></button>
+                              <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? '启用' : '禁用'} style={{ padding: '4px 8px', background: term.isActive === false ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: term.isActive === false ? '#16a34a' : '#d97706', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
+                              <button onClick={() => handleDeleteTerm(term.id)} title="删除" style={{ padding: '4px 8px', background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={11} /></button>
                               <button onClick={() => { handleCopyTerm(term.term); useCount(term.id) }} title="复制并使用" style={{ padding: '4px 8px', background: copySuccess === term.term ? '#dcfce7' : '#f0fdf4', color: copySuccess === term.term ? '#16a34a' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
                             </div>
                           </td>
@@ -1240,8 +1240,8 @@ export default function TermLibraryPage() {
                     </tbody>
                   </table></div>
                 </div>
-                <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong> 条词条，已对照标准 <strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong> 条</span>
+                <div style={{ padding: '10px 16px', borderTop: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-card)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 <strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong> 条词条，已对照标准 <strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong> 条</span>
                   <button onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={12} /> 新建词条</button>
                 </div>
               </div>
@@ -1259,7 +1259,7 @@ export default function TermLibraryPage() {
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: 16, width: 580, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e40af', borderRadius: '16px 16px 0 0' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e40af', borderRadius: '16px 16px 0 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Tag size={15} style={{ color: '#93c5fd' }} />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{modalMode === 'add' ? '新建词条' : '编辑词条'}</span>
@@ -1269,22 +1269,22 @@ export default function TermLibraryPage() {
             <div style={{ padding: 20 }}>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>词条内容 <span style={{ color: '#dc2626' }}>*</span></label>
-                <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder="请输入词条内容，如：未见异常密度影" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder="请输入词条内容，如：未见异常密度影" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>所属分类</label>
-                  <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
+                  <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
                     {allCategoryNames.length > 0 ? allCategoryNames.map(c => <option key={c} value={c}>{c}</option>) : ['CT描述', 'MR描述', '结论术语', '急诊模板', '肿瘤评估'].map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>词条类型</label>
-                  <select value={formData.termType} onChange={e => setFormData(prev => ({ ...prev, termType: e.target.value as TermEntry['termType'] }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
+                  <select value={formData.termType} onChange={e => setFormData(prev => ({ ...prev, termType: e.target.value as TermEntry['termType'] }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
                     {TERM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>适用检查类型 <span style={{ color: '#94a3b8', fontWeight: 400 }}>（可多选）</span></label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>适用检查类型 <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>（可多选）</span></label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {MODALITY_LIST.map(m => (
                     <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: formData.modality.includes(m) ? MODALITY_BG[m] : '#fff', color: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#94a3b8', userSelect: 'none' }}>
@@ -1299,22 +1299,22 @@ export default function TermLibraryPage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>WS/T 500-2016 标准对照</label>
-                <select value={formData.wsStandardCode} onChange={e => setFormData(prev => ({ ...prev, wsStandardCode: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
+                <select value={formData.wsStandardCode} onChange={e => setFormData(prev => ({ ...prev, wsStandardCode: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', background: 'var(--bg-card)', cursor: 'pointer', boxSizing: 'border-box' }}>
                   <option value="">不关联标准</option>
                   {WS_STANDARDS.map(ws => <option key={ws.code} value={ws.code}>{ws.code} - {ws.standardName}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>标准报告模板</label>
-                <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder="请输入标准报告模板内容" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder="请输入标准报告模板内容" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>使用说明 / 备注</label>
-                <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder="选填" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder="选填" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
             </div>
-            <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10, background: '#fafcff', borderRadius: '0 0 16px 16px' }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+            <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 10, background: 'var(--bg-card)', borderRadius: '0 0 16px 16px' }}>
+              <button onClick={() => setShowModal(false)} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
               <button onClick={handleSaveTerm} disabled={!formData.term.trim()} style={{ padding: '8px 20px', background: formData.term.trim() ? '#1e40af' : '#94a3b8', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: formData.term.trim() ? 'pointer' : 'not-allowed', boxShadow: formData.term.trim() ? '0 2px 8px rgba(30,64,175,0.3)' : 'none' }}>
                 {modalMode === 'add' ? '保存词条' : '保存修改'}
               </button>

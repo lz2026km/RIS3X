@@ -151,7 +151,7 @@ export const DentalAIPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 AI 辅助诊断</span>
@@ -224,7 +224,7 @@ export const DentalAIPage: React.FC = () => {
                   render: (c: number) => <Progress percent={Math.round((c ?? 0) * 100)} size="small" />,
                 },
                 { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'confirmed' ? 'success' : 'processing'} text={s === 'confirmed' ? '已确认' : '待复核'} /> },
-                { title: '时间', dataIndex: 'createdAt', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+                { title: '时间', dataIndex: 'createdAt', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
                 { title: '操作', render: (_, r: AiFindingRecord) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看</Button> },
               ]}
             scroll={{ x: 'max-content' }}

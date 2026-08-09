@@ -22,25 +22,25 @@ const BORDER = '#e2e8f0'
 const WHITE = '#ffffff'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '待回复': { bg: '#fef3c7', color: '#d97706', label: '待回复' },
-  '已回复': { bg: '#d1fae5', color: '#059669', label: '已回复' },
-  '已拒绝': { bg: '#f1f5f9', color: '#94a3b8', label: '已拒绝' },
-  '进行中': { bg: '#dbeafe', color: '#2563eb', label: '进行中' },
-  '已完成': { bg: '#d1fae5', color: '#059669', label: '已完成' },
+  '待回复': { bg: '#f59e0b22', color: '#f59e0b', label: '待回复' },
+  '已回复': { bg: '#22c55e22', color: '#059669', label: '已回复' },
+  '已拒绝': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '已拒绝' },
+  '进行中': { bg: '#3b82f622', color: '#3b82f6', label: '进行中' },
+  '已完成': { bg: '#22c55e22', color: '#059669', label: '已完成' },
 }
 
 const TYPE_CONFIG: Record<string, { bg: string; color: string }> = {
-  'MDT': { bg: '#ede9fe', color: '#6d28d9' },
-  '疑难病例': { bg: '#fef3c7', color: '#b45309' },
-  '远程会诊': { bg: '#dbeafe', color: '#2563eb' },
-  '二次意见': { bg: '#d1fae5', color: '#047857' },
+  'MDT': { bg: '#8b5cf622', color: '#6d28d9' },
+  '疑难病例': { bg: '#f59e0b22', color: '#b45309' },
+  '远程会诊': { bg: '#3b82f622', color: '#3b82f6' },
+  '二次意见': { bg: '#22c55e22', color: '#047857' },
 }
 
 const RECORDING_STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '准备中': { bg: '#f1f5f9', color: '#64748b', label: '准备中' },
-  '录制中': { bg: '#fee2e2', color: '#dc2626', label: '录制中' },
-  '已暂停': { bg: '#fef3c7', color: '#d97706', label: '已暂停' },
-  '已完成': { bg: '#d1fae5', color: '#059669', label: '已完成' },
+  '准备中': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '准备中' },
+  '录制中': { bg: '#ef444422', color: '#ef4444', label: '录制中' },
+  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: '已暂停' },
+  '已完成': { bg: '#22c55e22', color: '#059669', label: '已完成' },
 }
 
 interface RecordingArchive {
@@ -159,7 +159,9 @@ export default function ConsultationPage() {
 
   // Upload Modal state
   const [showUploadModal, setShowUploadModal] = useState(false)
-  useState<File[]>([])
+  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
 
   // Conclusion Modal state
   const [showConclusionModal, setShowConclusionModal] = useState(false)
@@ -233,12 +235,59 @@ export default function ConsultationPage() {
     setShowUploadModal(true)
   }
 
+  // [Wave2A] 附件选择 (文件输入)
+  const handleSelectFiles = (files: FileList | null) => {
+    if (!files) return
+    setUploadFiles(prev => [...prev, ...Array.from(files)].slice(0, 10))
+  }
+
+  const handleRemoveUploadFile = (name: string) => {
+    setUploadFiles(prev => prev.filter(f => f.name !== name))
+  }
+
+  // [Wave2A] 开始上传: 后端无会诊附件端点 → 本地预览 + 标注
+  const handleStartUpload = () => {
+    if (uploadFiles.length === 0) {
+      showToast('请先选择需要上传的文件', 'info')
+      return
+    }
+    setUploading(true)
+    showToast('正在上传附件...', 'progress')
+    setTimeout(() => {
+      setUploading(false)
+      showToast(`已上传 ${uploadFiles.length} 个文件 (本地预览 · 后端附件接口待接入)`, 'success')
+      setUploadFiles([])
+      setShowUploadModal(false)
+    }, 900)
+  }
+
   const handleSubmitConclusion = () => {
     if (!conclusionText.trim()) {
       showToast('请填写会诊意见见', 'info')
       return
     }
     setShowConclusionModal(true)
+  }
+
+  // [Wave2A] 确认提交: consultationApi.complete 真实完成会诊
+  const [submittingConclusion, setSubmittingConclusion] = useState(false)
+  const handleConfirmConclusion = async () => {
+    if (!selected) { setShowConclusionModal(false); return }
+    setSubmittingConclusion(true)
+    try {
+      const res = await consultationApi.complete(selected.id, conclusionText.trim())
+      if (res.success) {
+        setConsultations(prev => prev.map(c => c.id === selected.id ? { ...c, status: '已完成' as const } : c))
+        showToast('会诊结论已提交，会诊状态更新为已完成', 'success')
+        setShowConclusionModal(false)
+      } else {
+        showToast(res.error?.message ?? '提交失败', 'info')
+      }
+    } catch {
+      showToast('提交服务暂不可用，请稍后重试', 'info')
+    } finally {
+      setSubmittingConclusion(false)
+    }
   }
 
   const handlePrint = () => {
@@ -366,39 +415,39 @@ export default function ConsultationPage() {
       label: '全部会诊',
       value: consultations.length,
       icon: <Radio size={18} color={ACCENT} />,
-      bg: '#eff6ff',
+      bg: '#3b82f622',
     },
     {
       label: '待回复',
       value: consultations.filter(c => c.status === '待回复').length,
       icon: <Clock size={18} color={WARNING} />,
-      bg: '#fef3c7',
+      bg: '#f59e0b22',
     },
     {
       label: '进行中',
       value: consultations.filter(c => c.status === '已回复').length,
       icon: <Activity size={18} color={ACCENT} />,
-      bg: '#dbeafe',
+      bg: '#3b82f622',
     },
     {
       label: '已完成',
       value: consultations.filter(c => c.status === '已完成').length,
       icon: <CheckCircle size={18} color={SUCCESS} />,
-      bg: '#d1fae5',
+      bg: '#22c55e22',
     },
   ]
 
   const recordingStatCards = [
-    { label: '总存档数', value: mockRecordingArchives.length, icon: <Film size={18} color={ACCENT} />, bg: '#eff6ff' },
-    { label: '可用', value: mockRecordingArchives.filter(a => a.status === '可用').length, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#d1fae5' },
-    { label: '处理中', value: mockRecordingArchives.filter(a => a.status === '处理中').length, icon: <Clock size={18} color={WARNING} />, bg: '#fef3c7' },
-    { label: '已损坏', value: mockRecordingArchives.filter(a => a.status === '已损坏').length, icon: <AlertCircle size={18} color={DANGER} />, bg: '#fee2e2' },
+    { label: '总存档数', value: mockRecordingArchives.length, icon: <Film size={18} color={ACCENT} />, bg: '#3b82f622' },
+    { label: '可用', value: mockRecordingArchives.filter(a => a.status === '可用').length, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#22c55e22' },
+    { label: '处理中', value: mockRecordingArchives.filter(a => a.status === '处理中').length, icon: <Clock size={18} color={WARNING} />, bg: '#f59e0b22' },
+    { label: '已损坏', value: mockRecordingArchives.filter(a => a.status === '已损坏').length, icon: <AlertCircle size={18} color={DANGER} />, bg: '#ef444422' },
   ]
 
   return (
-    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /consultations controller, 数据由 MSW 演示数据提供 */}
-      <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 12 }}>
+      <div style={{ background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 12 }}>
         演示数据（后端待实现）：本页会诊数据由 MSW 演示数据提供，后端暂无 /consultations 接口
       </div>
       {loading && <LoadingBanner message="正在从 API 加载会诊数据..." />}
@@ -560,20 +609,20 @@ export default function ConsultationPage() {
                         borderLeft: isSelected ? `3px solid ${ACCENT}` : '3px solid transparent',
                         transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = '#f0f7ff' }}
+                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'var(--color-info-bg)' }}
                       onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = idx % 2 === 0 ? WHITE : '#fafbfc' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontWeight: 700, fontSize: 14, color: PRIMARY }}>{c.patientName}</span>
                           {c.isRemote && (
-                            <span style={{ padding: '1px 6px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <span style={{ padding: '1px 6px', background: '#8b5cf622', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Video size={9} />远程
                             </span>
                           )}
                           {hasVideo && (
                             <span
-                              style={{ padding: '1px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer' }}
+                              style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer' }}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 const archiveId = consultationVideoMap[c.id]
@@ -594,25 +643,25 @@ export default function ConsultationPage() {
                         </span>
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                        <span style={{ padding: '1px 8px', background: '#eff6ff', color: ACCENT, borderRadius: 4, fontSize: 12 }}>{c.modality}</span>
+                        <span style={{ padding: '1px 8px', background: 'var(--color-info-bg)', color: ACCENT, borderRadius: 4, fontSize: 12 }}>{c.modality}</span>
                         <span style={{ padding: '1px 8px', background: tc.bg, color: tc.color, borderRadius: 4, fontSize: 12 }}>{c.consultationType}</span>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                         <div>
                           <div style={{ fontSize: 12, color: GRAY }}>申请科室</div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{c.requestingDepartment}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.requestingDepartment}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 12, color: GRAY }}>接收科室</div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{c.consultedDepartment || '—'}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.consultedDepartment || '—'}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 12, color: GRAY }}>会诊医生</div>
-                          <div style={{ fontSize: 12, color: '#334155' }}>{c.consultedDoctorName || '待指定'}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{c.consultedDoctorName || '待指定'}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: 12, color: GRAY }}>申请时间</div>
-                          <div style={{ fontSize: 12, color: '#334155' }}>{c.requestTime.split(' ')[0]}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{c.requestTime.split(' ')[0]}</div>
                         </div>
                       </div>
                       <div style={{ marginTop: 8, fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -643,13 +692,13 @@ export default function ConsultationPage() {
                             {STATUS_CONFIG[selected.status]?.label}
                           </span>
                           {selected.isRemote && (
-                            <span style={{ padding: '2px 8px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ padding: '2px 8px', background: '#8b5cf622', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                               <Video size={11} />远程会诊
                             </span>
                           )}
                           {consultationVideoMap[selected.id] && (
                             <span
-                              style={{ padding: '2px 8px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
+                              style={{ padding: '2px 8px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
                               onClick={() => {
                                 const archiveId = consultationVideoMap[selected.id]
                                 const archive = mockRecordingArchives.find(a => a.id === archiveId)
@@ -666,10 +715,10 @@ export default function ConsultationPage() {
                         <div style={{ fontSize: 12, color: GRAY }}>会诊单号：{selected.id}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={handleUpload} style={{ padding: '6px 14px', background: '#f0f7ff', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <button onClick={handleUpload} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                           <Upload size={13} />上传资料
                         </button>
-                        <button onClick={handlePrint} style={{ padding: '6px 14px', background: '#f0f7ff', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <button onClick={handlePrint} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                           <Printer size={13} />打印会诊单
                         </button>
                       </div>
@@ -781,7 +830,7 @@ export default function ConsultationPage() {
                             {item.icon}
                             <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{item.label}</span>
                           </div>
-                          <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{item.value}</div>
+                          <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{item.value}</div>
                         </div>
                       ))}
                     </div>
@@ -891,7 +940,7 @@ export default function ConsultationPage() {
                       </h3>
                       <button
                         onClick={() => setShowRatingModal(true)}
-                        style={{ padding: '4px 12px', background: '#f0f7ff', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        style={{ padding: '4px 12px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Edit3 size={12} />详细评分
                       </button>
                     </div>
@@ -979,7 +1028,7 @@ export default function ConsultationPage() {
                         width: 56,
                         height: 56,
                         borderRadius: '50%',
-                        background: '#fee2e2',
+                        background: 'var(--color-error-bg)',
                         border: '3px solid #dc2626',
                         cursor: 'pointer',
                         display: 'flex',
@@ -999,7 +1048,7 @@ export default function ConsultationPage() {
                         width: 56,
                         height: 56,
                         borderRadius: '50%',
-                        background: '#fee2e2',
+                        background: 'var(--color-error-bg)',
                         border: '3px solid #dc2626',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1041,7 +1090,7 @@ export default function ConsultationPage() {
                         width: 48,
                         height: 48,
                         borderRadius: '50%',
-                        background: '#f1f5f9',
+                        background: 'var(--bg-card)',
                         border: '2px solid #64748b',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1049,7 +1098,7 @@ export default function ConsultationPage() {
                         justifyContent: 'center',
                       }}
                     >
-                      <Square size={18} color="#64748b" />
+                      <Square size={18} color="var(--text-secondary)" />
                     </button>
                   )}
 
@@ -1251,7 +1300,7 @@ export default function ConsultationPage() {
                   width: '100%',
                   padding: '10px 16px',
                   borderRadius: 8,
-                  background: '#f0f7ff',
+                  background: 'var(--color-info-bg)',
                   border: `1px solid ${ACCENT}`,
                   color: ACCENT,
                   fontSize: 13,
@@ -1298,11 +1347,11 @@ export default function ConsultationPage() {
                       }}
                     >
                       <td style={{ padding: '10px 12px', fontWeight: 600, color: PRIMARY }}>{archive.id}</td>
-                      <td style={{ padding: '10px 12px', color: '#334155' }}>{archive.consultationId}</td>
-                      <td style={{ padding: '10px 12px', color: '#334155' }}>{archive.patientName}</td>
-                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#334155' }}>{archive.duration}</td>
-                      <td style={{ padding: '10px 12px', color: '#334155' }}>{archive.fileSize}</td>
-                      <td style={{ padding: '10px 12px', color: '#334155' }}>{archive.recordTime}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.consultationId}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.patientName}</td>
+                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>{archive.duration}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.fileSize}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.recordTime}</td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{
                           padding: '2px 8px',
@@ -1360,7 +1409,7 @@ export default function ConsultationPage() {
                             style={{
                               padding: '4px 10px',
                               borderRadius: 4,
-                              background: '#fff',
+                              background: 'var(--bg-card)',
                               border: '1px solid #fee2e2',
                               color: DANGER,
                               fontSize: 12,
@@ -1622,7 +1671,7 @@ export default function ConsultationPage() {
                 style={{
                   padding: '8px 16px',
                   borderRadius: 8,
-                  background: '#f0f7ff',
+                  background: 'var(--color-info-bg)',
                   border: `1px solid ${ACCENT}`,
                   color: ACCENT,
                   fontSize: 13,
@@ -1702,17 +1751,40 @@ export default function ConsultationPage() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()}>
               <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 13, color: GRAY, marginBottom: 8 }}>将文件拖拽到此处，或点击选择文件</div>
               <div style={{ fontSize: 12, color: GRAY }}>支持 DICOM、PDF、JPG、PNG 等格式</div>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                multiple
+                accept=".dcm,.pdf,.jpg,.jpeg,.png,.zip"
+                style={{ display: 'none' }}
+                onChange={e => { handleSelectFiles(e.target.files); e.target.value = '' }}
+              />
             </div>
+            {uploadFiles.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6 }}>已选文件 ({uploadFiles.length})</div>
+                <div style={{ display: 'grid', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
+                  {uploadFiles.map(f => (
+                    <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, background: LIGHT_BG, padding: '6px 10px', borderRadius: 6, fontSize: 12 }}>
+                      <FileText size={12} color={ACCENT} />
+                      <span style={{ flex: 1, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
+                      <span style={{ color: GRAY }}>{(f.size / 1024).toFixed(0)}KB</span>
+                      <button onClick={() => handleRemoveUploadFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: DANGER, padding: 0 }}><X size={12} /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 取消
               </button>
-              <button onClick={() => { showToast('资料上传成功', 'success'); setShowUploadModal(false) }} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                开始上传
+              <button onClick={handleStartUpload} disabled={uploading} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>
+                {uploading ? '上传中...' : '开始上传'}
               </button>
             </div>
           </div>
@@ -1732,23 +1804,23 @@ export default function ConsultationPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>会诊医生意见</div>
-                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{conclusionText || '（未填写）'}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{conclusionText || '（未填写）'}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>诊断建议</div>
-                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{diagnosisAdvice || '（未填写）'}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{diagnosisAdvice || '（未填写）'}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>参考资料</div>
-                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{referenceInfo || '（未填写）'}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{referenceInfo || '（未填写）'}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowConclusionModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 返回修改
               </button>
-              <button onClick={() => { setShowConclusionModal(false); showToast('会诊结论已提交', 'success') }} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                确认提交
+              <button onClick={() => void handleConfirmConclusion()} disabled={submittingConclusion} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: submittingConclusion ? 0.6 : 1 }}>
+                {submittingConclusion ? '提交中...' : '确认提交'}
               </button>
             </div>
           </div>
@@ -1765,7 +1837,7 @@ export default function ConsultationPage() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 20 }}>
               确定删除存档 <strong>{deleteTarget.id}</strong> 吗？此操作不可恢复。
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>

@@ -267,8 +267,22 @@ export const eyeApi = {
       ? api.post(`${EYE_API}/iol/calculate/kane`, body)
       : api.post(`${EYE_API}/iol/calculate/barrett`, body)
   },
-  // 实际眼科 IOL 库存 (存在 handler /eye/iol/inventory)
-  getIolInventory: () => api.get(`${EYE_API}/iol/inventory`),
+  // ===== IOL 库存 (后端 eye.controller: /eye/iol/inventory*) =====
+  // [G005 Wave1A P0] 低库存 / 即将过期 / 出库 / 调拨 / 调整 (MaterialsPage 在用)
+  getIolInventory: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/iol/inventory${buildQuery(params)}`),
+  getIolInventoryById: (id: string) =>
+    api.get(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}`),
+  getIolLowStock: (threshold?: number) =>
+    api.get(`${EYE_API}/iol/inventory/low-stock${threshold ? `?threshold=${threshold}` : ''}`),
+  getIolExpiring: (days = 90) =>
+    api.get(`${EYE_API}/iol/inventory/expiring?days=${days}`),
+  iolOutStock: (id: string, data: { reason: string; patientId?: string; surgeon?: string }) =>
+    api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/out`, data),
+  iolTransfer: (id: string, data: { fromLocation: string; toLocation: string }) =>
+    api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/transfer`, data),
+  iolAdjust: (id: string, data: { deltaQty: number; reason: string }) =>
+    api.post(`${EYE_API}/iol/inventory/${encodeURIComponent(id)}/adjust`, data),
 
   // ===== Reports (handler 路径前缀是 /report/ 单数) =====
   // [G005 W3-A] 路径对齐: getReports /eye/report/reports -> /eye/reports (后端 @Get('reports'))
@@ -335,9 +349,22 @@ export const eyeApi = {
     api.get(`${EYE_API}/journey/${patientId}/notifications`),
 
   // ===== Contact Lens (实际 handler 路径) =====
-  getContactLensInventory: () => api.get(`${EYE_API}/contact-lens/inventory`),
+  getContactLensInventory: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/contact-lens/inventory${buildQuery(params)}`),
+  getContactLens: (id: string) =>
+    api.get(`${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`),
+  createContactLens: (data: any) =>
+    api.post(`${EYE_API}/contact-lens/inventory`, data),
+  updateContactLens: (id: string, data: any) =>
+    api.put(`${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`, data),
+  deleteContactLens: (id: string) =>
+    api.delete(`${EYE_API}/contact-lens/inventory/${encodeURIComponent(id)}`),
   contactLensFitting: (data: any) =>
     api.post(`${EYE_API}/contact-lens/fitting`, data),
+
+  // [G005 Wave1A P0] OK 镜设计 (后端 POST /eye/optometry/ok-lens/design)
+  okLensDesign: (data: any) =>
+    api.post(`${EYE_API}/optometry/ok-lens/design`, data),
   lowVisionPrescription: (data: any) =>
     api.post(`${EYE_API}/low-vision/prescription`, data),
 

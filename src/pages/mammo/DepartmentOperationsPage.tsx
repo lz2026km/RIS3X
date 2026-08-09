@@ -6,48 +6,48 @@ import { statsApi } from '../../services/api/statsApi'
 import { Card } from 'antd'
 
 const statsData = [
-  { label: '今日检查量', value: '28', unit: '例', icon: Activity, color: '#2563eb', bg: '#eff6ff' },
-  { label: '待诊患者', value: '12', unit: '人', icon: Users, color: '#ea580c', bg: '#fff7ed' },
-  { label: '平均等待', value: '18', unit: 'min', icon: Clock, color: '#ca8a04', bg: '#fefce8' },
-  { label: '设备使用率', value: '86', unit: '%', icon: TrendingUp, color: '#16a34a', bg: '#f0fdf4' },
-  { label: '当日报告', value: '18', unit: '份', icon: FileText, color: '#7c3aed', bg: '#f5f3ff' },
-  { label: '值班人员', value: '6', unit: '人', icon: UserCheck, color: '#0891b2', bg: '#ecfeff' },
+  { label: '今日检查量', value: '28', unit: '例', icon: Activity, color: '#2563eb', bg: '#3b82f622' },
+  { label: '待诊患者', value: '12', unit: '人', icon: Users, color: '#ea580c', bg: '#f9731622' },
+  { label: '平均等待', value: '18', unit: 'min', icon: Clock, color: '#ca8a04', bg: '#f59e0b22' },
+  { label: '设备使用率', value: '86', unit: '%', icon: TrendingUp, color: '#16a34a', bg: '#22c55e22' },
+  { label: '当日报告', value: '18', unit: '份', icon: FileText, color: '#7c3aed', bg: '#8b5cf622' },
+  { label: '值班人员', value: '6', unit: '人', icon: UserCheck, color: '#0891b2', bg: '#06b6d422' },
 ]
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
+  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
-  statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
+  statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
-  section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 },
-  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
-  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
-  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
+  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
+  td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-primary)' },
   bad: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600, display: 'inline-block' },
   scrollBox: { maxHeight: 280, overflowY: 'auto' },
 }
 
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, { bg: string; text: string }> = {
-    '空闲': { bg: '#f0fdf4', text: '#16a34a' },
+    '空闲': { bg: '#22c55e22', text: '#16a34a' },
     '使用中': { bg: '#2563eb', text: '#fff' },
-    '维护中': { bg: '#fefce8', text: '#ca8a04' },
-    '等待中': { bg: '#fff7ed', text: '#ea580c' },
-    '已完成': { bg: '#f0fdf4', text: '#16a34a' },
-    '已签到': { bg: '#eff6ff', text: '#2563eb' },
+    '维护中': { bg: '#f59e0b22', text: '#ca8a04' },
+    '等待中': { bg: '#f9731622', text: '#ea580c' },
+    '已完成': { bg: '#22c55e22', text: '#16a34a' },
+    '已签到': { bg: '#3b82f622', text: '#2563eb' },
   }
-  const c = colors[status] || { bg: '#f1f5f9', text: '#64748b' }
+  const c = colors[status] || { bg: 'var(--bg-deep)', text: '#64748b' }
   return <span style={{ ...s.bad, background: c.bg, color: c.text }}>{status}</span>
 }
 
@@ -154,7 +154,7 @@ const DepartmentOperationsPage = () => {
             <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706' }}>
               {source === 'api' ? '数据源: /stats/daily' : '演示数据(接口不可用)'}
             </span>
-            {loading && <span style={{ marginLeft: 8, color: '#94a3b8' }}>加载中...</span>}
+            {loading && <span style={{ marginLeft: 8, color: 'var(--text-secondary)' }}>加载中...</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -167,7 +167,7 @@ const DepartmentOperationsPage = () => {
         {effectiveStats.map((stat, i) => (
           <Card key={i} bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ ...s.statIcon, background: stat.bg }}><stat.icon size={20} color={stat.color} /></div>
-            <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span></div>
+            <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-secondary)' }}>{stat.unit}</span></div>
             <div style={s.statLabel}>{stat.label}</div>
           </Card>
         ))}
@@ -180,7 +180,7 @@ const DepartmentOperationsPage = () => {
             {Object.entries(byModality).map(([mod, stat]) => {
               const count = typeof stat === 'number' ? stat : ((stat as { total?: number })?.total ?? 0)
               return (
-                <span key={mod} style={{ padding: '4px 12px', background: '#eff6ff', borderRadius: 12, fontSize: 12, fontWeight: 600, color: '#2563eb' }}>{mod}: {count} 例</span>
+                <span key={mod} style={{ padding: '4px 12px', background: 'var(--color-info-bg)', borderRadius: 12, fontSize: 12, fontWeight: 600, color: '#2563eb' }}>{mod}: {count} 例</span>
               )
             })}
           </div>
@@ -191,14 +191,14 @@ const DepartmentOperationsPage = () => {
         <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
           <div style={s.sectionTitle}><Bed size={16} color='#2563eb' />设备状态</div>
           {rooms.map((r, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8fafc' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: r.status === '空闲' ? '#16a34a' : r.status === '使用中' ? '#2563eb' : '#ca8a04' }} />
-                <div><div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 12, color: '#94a3b8' }}>{r.device} · {r.modality}</div></div>
+                <div><div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.device} · {r.modality}</div></div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <StatusBadge status={r.status} />
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>今日{r.todayCount}例</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>今日{r.todayCount}例</div>
               </div>
             </div>
           ))}
@@ -208,12 +208,12 @@ const DepartmentOperationsPage = () => {
           <div style={s.sectionTitle}><Users size={16} color='#7c3aed' />值班人员</div>
           <div style={s.grid4}>
             {staff.map((p, i) => (
-              <div key={i} style={{ padding: 12, background: '#f8fafc', borderRadius: 10, textAlign: 'center' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e2e8f0', margin: '0 auto 6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#64748b' }}>{p.name[0]}</div>
+              <div key={i} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 10, textAlign: 'center' }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e2e8f0', margin: '0 auto 6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: 'var(--text-secondary)' }}>{p.name[0]}</div>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{p.role}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.role}</div>
                 <StatusBadge status={p.status} />
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{p.shift} · {p.focus}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{p.shift} · {p.focus}</div>
               </div>
             ))}
           </div>
@@ -224,7 +224,7 @@ const DepartmentOperationsPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={s.sectionTitle}><Calendar size={16} color='#0891b2' />候诊队列</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none', width: 200 }} placeholder='搜索患者或检查...' value={search} onChange={e => setSearch(e.target.value)} />
+            <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', width: 200 }} placeholder='搜索患者或检查...' value={search} onChange={e => setSearch(e.target.value)} />
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => setShowAddModal(true)}><Plus size={12} /> 加号</button>
           </div>
         </div>
@@ -252,37 +252,37 @@ const DepartmentOperationsPage = () => {
 
       {showStatsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStatsModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} color="#2563eb" /> 科室统计报表</div>
-              <button onClick={() => setShowStatsModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, fontSize: 16 }}>×</button>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} color="#2563eb" /> 科室统计报表</div>
+              <button onClick={() => setShowStatsModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4, fontSize: 16 }}>×</button>
             </div>
             <div style={{ padding: 20 }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
                 {effectiveStats.slice(0, 6).map(stat => (
                   <div key={stat.label} style={{ background: stat.bg, borderRadius: 10, padding: '14px 12px', textAlign: 'center' }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 2 }}>{stat.unit}</span></div>
-                    <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{stat.label}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 10 }}>候诊队列统计</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>候诊队列统计</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {['等待中', '已签到', '检查中', '已完成'].map(st => {
                   const count = queue.filter(q => q.status === st).length
                   const max = Math.max(1, queue.length)
                   return (
                     <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ width: 60, fontSize: 12, color: '#64748b' }}>{st}</span>
-                      <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
+                      <span style={{ width: 60, fontSize: 12, color: 'var(--text-secondary)' }}>{st}</span>
+                      <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                         <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: '#2563eb', borderRadius: 4 }} />
                       </div>
-                      <span style={{ width: 28, fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1e293b' }}>{count}</span>
+                      <span style={{ width: 28, fontSize: 12, fontWeight: 700, textAlign: 'right', color: 'var(--text-primary)' }}>{count}</span>
                     </div>
                   )
                 })}
               </div>
-              <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>数据更新于 {new Date().toLocaleTimeString('zh-CN', { hour12: false })} · 共 {queue.length} 位候诊患者</div>
+              <div style={{ marginTop: 16, fontSize: 12, color: 'var(--text-secondary)' }}>数据更新于 {new Date().toLocaleTimeString('zh-CN', { hour12: false })} · 共 {queue.length} 位候诊患者</div>
             </div>
           </div>
         </div>
@@ -290,31 +290,31 @@ const DepartmentOperationsPage = () => {
 
       {showAddModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAddModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={16} color="#0891b2" /> 添加候诊患者</div>
-              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, fontSize: 16 }}>×</button>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-light)' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={16} color="#0891b2" /> 添加候诊患者</div>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4, fontSize: 16 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>患者姓名</label>
-                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} placeholder="请输入患者姓名" style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>患者姓名</label>
+                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} placeholder="请输入患者姓名" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>检查项目</label>
-                <select value={newPatient.exam} onChange={e => setNewPatient({ ...newPatient, exam: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>检查项目</label>
+                <select value={newPatient.exam} onChange={e => setNewPatient({ ...newPatient, exam: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13 }}>
                   {['MG', '乳腺断层', '乳腺超声', '乳腺MRI'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>检查室</label>
-                <select value={newPatient.room} onChange={e => setNewPatient({ ...newPatient, room: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>检查室</label>
+                <select value={newPatient.room} onChange={e => setNewPatient({ ...newPatient, room: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13 }}>
                   <option value="">自动分配</option>
                   {rooms.map(r => <option key={r.name} value={r.name}>{r.name}</option>)}
                 </select>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>取消</button>
                 <button onClick={handleAddPatient} disabled={!newPatient.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: newPatient.name.trim() ? '#2563eb' : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: newPatient.name.trim() ? 'pointer' : 'not-allowed' }}>加入队列</button>
               </div>
             </div>

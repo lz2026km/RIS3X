@@ -38,6 +38,8 @@ export interface DicomViewerProProps {
   modality?: string;
   initialPreset?: string;
   initialTool?: ToolType;
+  // [G005 v3.0.6.11-85 Wave 4B] 多视口挂片: 唯一元素 id (Cornerstone viewportId 隔离)
+  elementId?: string;
   onMeasurementCreate?: (m: DicomMeasurement) => void;
   onViewportReady?: (viewport: any) => void;
 }
@@ -57,6 +59,7 @@ export default function DicomViewerPro({
   modality = 'CT',
   initialPreset,
   initialTool = 'windowlevel',
+  elementId = 'dicom-viewport-pro',
   onMeasurementCreate,
   onViewportReady,
 }: DicomViewerProProps) {
@@ -125,7 +128,7 @@ export default function DicomViewerPro({
     jumpTo,
     setWWWC,
     reset,
-  } = useViewport('dicom-viewport-pro', {
+  } = useViewport(elementId, {
     imageIds,
     modality: effectiveModality,
     preset: presetKey,
@@ -364,7 +367,7 @@ export default function DicomViewerPro({
         {/* 主视口 */}
         <div
           ref={elementRef}
-          id="dicom-viewport-pro"
+          id={elementId}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           style={{

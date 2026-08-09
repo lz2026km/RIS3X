@@ -256,7 +256,7 @@ export const DentalCadPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
           <Pen size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -422,7 +422,7 @@ export const DentalCadPage: React.FC = () => {
                         text={STATUS_META[d.status]?.label ?? d.status}
                       />
                     </Space>
-                    <div style={{ marginTop: 4, fontSize: 12, color: "#999" }}>
+                    <div style={{ marginTop: 4, fontSize: 12, color: "var(--text-secondary)" }}>
                       {d.patientName} - FDI {d.toothNo} | {d.designer} |{" "}
                       {d.createdAt?.slice(0, 10)}
                     </div>
@@ -437,7 +437,7 @@ export const DentalCadPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回列表
@@ -506,7 +506,7 @@ export const DentalCadPage: React.FC = () => {
                 cursor: drawing ? "crosshair" : "default",
               }}
             />
-            <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4 }}>
               点击牙齿轮廓边缘添加控制点 (已标记 {marginPoints.length} 个)
             </div>
           </Card>
@@ -598,7 +598,7 @@ export const DentalCadPage: React.FC = () => {
               </Col>
             </Row>
             {current?.colorShade && shades[current.colorShade] && (
-              <div style={{ marginTop: 8, fontSize: 12, color: "#999" }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
                 CIELab: L*={shades[current.colorShade].L} a*=
                 {shades[current.colorShade].a} b*={shades[current.colorShade].b}
               </div>

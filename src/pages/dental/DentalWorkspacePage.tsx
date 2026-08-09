@@ -92,7 +92,7 @@ export const DentalWorkspacePage: React.FC = () => {
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{q.title}</div>
                     <Typography.Text type="secondary" style={{ fontSize: 11 }}>{q.desc}</Typography.Text>
                   </div>
-                  <ArrowRight size={12} style={{ marginLeft: 'auto', color: '#94a3b8' }} />
+                  <ArrowRight size={12} style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }} />
                 </Space>
               </Card>
             </Col>
@@ -108,10 +108,10 @@ export const DentalWorkspacePage: React.FC = () => {
               ) : (
                 <div>
                   {appointments.map((a) => (
-                    <div key={a.id ?? a.patientId} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <div key={a.id ?? a.patientId} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13 }}>{a.patientName ?? a.patientId}</div>
-                        <div style={{ fontSize: 11, color: '#999' }}>{a.type ?? a.modality ?? ''} · {a.time ?? a.date ?? ''}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.type ?? a.modality ?? ''} · {a.time ?? a.date ?? ''}</div>
                       </div>
                       <Tag color={(a.status === 'completed' ? 'green' : a.status === 'cancelled' ? 'red' : 'blue')}>{a.status ?? '-'}</Tag>
                     </div>
@@ -128,10 +128,10 @@ export const DentalWorkspacePage: React.FC = () => {
               ) : (
                 <div>
                   {recentStudies.map((s) => (
-                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ fontSize: 13 }}>{s.patientName} <Tag style={{ marginLeft: 6 }}>{s.modality}</Tag></span>
-                        <div style={{ fontSize: 11, color: '#999' }}>{s.region} · {s.acquisitionDate?.slice(0, 10)}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.region} · {s.acquisitionDate?.slice(0, 10)}</div>
                       </div>
                       <Tag color={s.quality === 'Diagnostic' ? 'green' : s.quality === 'Acceptable' ? 'blue' : 'orange'}>{s.quality}</Tag>
                     </div>

@@ -38,7 +38,7 @@ const VisualFieldPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        background: "#f8fafc",
+        background: "var(--bg-card)",
         minHeight: "calc(100vh - 56px)",
       }}
     >
@@ -95,7 +95,7 @@ const VisualFieldPage: React.FC = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         fontSize: 7,
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                       }}
                     >
                       {v > 0 ? v : ""}
@@ -105,7 +105,7 @@ const VisualFieldPage: React.FC = () => {
                 <div
                   style={{
                     fontSize: 12,
-                    color: "#64748b",
+                    color: "var(--text-secondary)",
                     marginTop: 4,
                     textAlign: "center",
                   }}
@@ -159,7 +159,7 @@ const VisualFieldPage: React.FC = () => {
                 <div
                   style={{
                     fontSize: 12,
-                    color: "#64748b",
+                    color: "var(--text-secondary)",
                     marginTop: 4,
                     textAlign: "center",
                   }}
@@ -176,13 +176,13 @@ const VisualFieldPage: React.FC = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#64748b",
+                    color: "var(--text-secondary)",
                     flexDirection: "column",
                   }}
                 >
                   <Target size={24} />
                   <span style={{ fontSize: 12, marginTop: 4 }}>TD 曲线图</span>
-                  <div style={{ fontSize: 12, color: "#475569" }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     上方鼻侧阶梯状暗点
                   </div>
                 </div>
@@ -269,11 +269,11 @@ const VisualFieldPage: React.FC = () => {
               </div>
               <div>缺损模式: 上方鼻侧阶梯状暗点</div>
               <div>缺损深度: {vf?.defectDepth}dB</div>
-              <div style={{ marginTop: 8, color: "#475569" }}>
+              <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
                 • 颞上扇形敏感度显著下降(-12.5dB)
               </div>
-              <div style={{ color: "#475569" }}>• 与 RNFL 颞上变薄一致</div>
-              <div style={{ color: "#475569" }}>• 功能损伤已达重度</div>
+              <div style={{ color: "var(--text-secondary)" }}>• 与 RNFL 颞上变薄一致</div>
+              <div style={{ color: "var(--text-secondary)" }}>• 功能损伤已达重度</div>
             </div>
           </Card>
         </Col>

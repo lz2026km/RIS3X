@@ -119,6 +119,13 @@ import { AutoCollectionModule } from "./modules/auto-collection/auto-collection.
 import { KioskModule } from "./modules/kiosk/kiosk.module";
 import { ConsentEducationModule } from "./modules/consent-education/consent-education.module";
 import { InsuranceAuditsModule } from "./modules/insurance-audits/insurance-audits.module";
+// [G005 Wave1B P1] 第 8 轮盘点: 有页面无后端模块补 controller (14 组)
+import { ResearchModule } from "./modules/research/research.module";
+import { TypicalCasesModule } from "./modules/typical-cases/typical-cases.module";
+import { MammoQcModule } from "./modules/mammo-qc/mammo-qc.module";
+import { DiagnosisAccuracyModule } from "./modules/diagnosis-accuracy/diagnosis-accuracy.module";
+import { TerminologyModule } from "./modules/terminology/terminology.module";
+import { SystemAdminModule } from "./modules/system-admin/system-admin.module";
 
 @Module({
   imports: [
@@ -255,6 +262,12 @@ import { InsuranceAuditsModule } from "./modules/insurance-audits/insurance-audi
     KioskModule,
     ConsentEducationModule,
     InsuranceAuditsModule,
+    ResearchModule,
+    TypicalCasesModule,
+    MammoQcModule,
+    DiagnosisAccuracyModule,
+    TerminologyModule,
+    SystemAdminModule,
   ],
   controllers: [HealthController],
   providers: [

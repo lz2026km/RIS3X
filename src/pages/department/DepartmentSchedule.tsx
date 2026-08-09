@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { AlertTriangle, Clock, Plus, CalendarCheck, CalendarX } from "lucide-react";
 import { regionalApi } from "../../services/api";
+import { Send } from "lucide-react";
 import {
   PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -196,7 +197,7 @@ export default function DepartmentSchedule() {
               <input placeholder="事由" value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
                 <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>取消</button>
-                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>提交</button>
+                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Send size={11} />提交</button>
               </div>
             </div>
           )}

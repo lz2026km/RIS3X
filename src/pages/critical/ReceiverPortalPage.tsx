@@ -261,7 +261,7 @@ export default function ReceiverPortalPage() {
       >
         {receiptItem && (
           <div>
-            <div style={{ marginBottom: 12, padding: '10px 12px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+            <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? '未知患者'} · {receiptItem.finding ?? '危急值'}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>

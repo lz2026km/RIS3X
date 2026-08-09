@@ -18,12 +18,12 @@ import { screeningApi } from '../services/api/screeningApi'
 
 // ---------- 统计数据 ----------
 const statsData = [
-  { label: 'LDCT筛查人数', value: '8,642', unit: '人', icon: Wind, color: '#2563eb', bg: '#eff6ff' },
-  { label: '乳腺筛查人数', value: '5,826', unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#fdf2f8' },
-  { label: '高危结节检出', value: '1,284', unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#fff7ed' },
-  { label: '早癌/疑似早癌', value: '326', unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#fef2f2' },
-  { label: 'BI-RADS 4+', value: '412', unit: '例', icon: Scan, color: '#7c3aed', bg: '#f5f3ff' },
-  { label: '本月新增筛查', value: '628', unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#ecfeff' },
+  { label: 'LDCT筛查人数', value: '8,642', unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+  { label: '乳腺筛查人数', value: '5,826', unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
+  { label: '高危结节检出', value: '1,284', unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
+  { label: '早癌/疑似早癌', value: '326', unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+  { label: 'BI-RADS 4+', value: '412', unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
+  { label: '本月新增筛查', value: '628', unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
 ]
 
 // ---------- 样式 ----------
@@ -31,7 +31,7 @@ const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
+  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
   // 统计卡片行
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: {
@@ -40,8 +40,8 @@ const s: Record<string, React.CSSProperties> = {
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
-  statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
-  statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
+  statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
   // 功能区分区
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
@@ -52,25 +52,25 @@ const s: Record<string, React.CSSProperties> = {
   taskRight: {},
   taskToolbar: { display: 'flex', gap: 8, marginBottom: 12 },
   searchInput: {
-    flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0',
+    flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
     fontSize: 13, outline: 'none',
   },
   btn: {
-    padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
+    padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)',
     background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex',
     alignItems: 'center', gap: 6, fontWeight: 500,
   },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
-  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
-  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: 'var(--text-secondary)' },
+  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
+  td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' },
   statusBadge: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
   // 高危评估
   assessGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   formItem: {},
-  formLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
-  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', background: 'var(--bg-card)' },
+  formLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
+  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', background: 'var(--bg-card)' },
   riskCard: {
     borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16,
     border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.2s',
@@ -82,9 +82,9 @@ const s: Record<string, React.CSSProperties> = {
   detectionGrid: { display: 'grid', gridTemplateColumns: '1fr', gap: 0 },
   detectionRow: {
     display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px',
-    gap: 8, padding: '10px 8px', borderBottom: '1px solid #f1f5f9', alignItems: 'center', fontSize: 12,
+    gap: 8, padding: '10px 8px', borderBottom: '1px solid var(--border-light)', alignItems: 'center', fontSize: 12,
   },
-  detectionHeader: { background: 'var(--content-bg)', borderRadius: 8, marginBottom: 4, fontWeight: 600, color: '#64748b', fontSize: 12 },
+  detectionHeader: { background: 'var(--content-bg)', borderRadius: 8, marginBottom: 4, fontWeight: 600, color: 'var(--text-secondary)', fontSize: 12 },
   tag: { padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-block', textAlign: 'center' },
   // 地图
   mapGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
@@ -92,23 +92,23 @@ const s: Record<string, React.CSSProperties> = {
   mapPlaceholder: { display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' },
   mapProvince: { padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'default' },
   provinceTable: { fontSize: 12 },
-  provinceTh: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 },
-  provinceTd: { padding: '8px 10px', borderBottom: '1px solid #f8fafc', color: 'var(--text-secondary)' },
+  provinceTh: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 },
+  provinceTd: { padding: '8px 10px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' },
   // 滚动容器
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
   // 空状态
   emptyState: {
     textAlign: 'center',
     padding: '48px 20px',
-    color: '#94a3b8',
+    color: 'var(--text-secondary)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: 12,
   },
   emptyStateIcon: { opacity: 0.35, marginBottom: 4 },
-  emptyStateText: { fontSize: 14, color: '#64748b', fontWeight: 500 },
-  emptyStateHint: { fontSize: 12, color: '#94a3b8', marginTop: 4 },
+  emptyStateText: { fontSize: 14, color: 'var(--text-secondary)', fontWeight: 500 },
+  emptyStateHint: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   // 筛查类型标签
   screenTypeTag: { padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 },
 }
@@ -119,7 +119,7 @@ const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typ
     <div style={{ ...s.statIcon, background: bg }}>
       <Icon size={20} color={color} />
     </div>
-    <div style={s.statValue}>{value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{unit}</span></div>
+    <div style={s.statValue}>{value}<span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-secondary)' }}>{unit}</span></div>
     <div style={s.statLabel}>{label}</div>
     {sub && <div style={s.statSub}>{sub}</div>}
     {trend && <div style={{ ...s.statTrend, color: trend === 'up' ? '#16a34a' : '#dc2626' }}><ArrowUp size={12} />{trend === 'up' ? '↑' : '↓'}</div>}
@@ -128,25 +128,25 @@ const StatCard = ({ label, value, unit, sub, icon: Icon, color, bg, trend }: typ
 
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, { bg: string; text: string }> = {
-    '招募中': { bg: '#fefce8', text: '#ca8a04' },
-    '进行中': { bg: '#eff6ff', text: '#2563eb' },
-    '已完成': { bg: '#f0fdf4', text: '#16a34a' },
-    '已终止': { bg: '#fef2f2', text: '#dc2626' },
+    '招募中': { bg: '#f59e0b22', text: '#ca8a04' },
+    '进行中': { bg: '#3b82f622', text: '#2563eb' },
+    '已完成': { bg: '#22c55e22', text: '#16a34a' },
+    '已终止': { bg: '#ef444422', text: '#dc2626' },
   }
-  const c = colors[status] || { bg: '#f1f5f9', text: '#64748b' }
+  const c = colors[status] || { bg: 'var(--bg-deep)', text: '#64748b' }
   return <span style={{ ...s.statusBadge, background: c.bg, color: c.text }}>{status}</span>
 }
 
 // 筛查类型图标与颜色
 const screenTypeConfig: Record<string, { bg: string; text: string; icon: typeof Wind }> = {
-  'LDCT': { bg: '#eff6ff', text: '#2563eb', icon: Wind },
-  'MG': { bg: '#fdf2f8', text: '#ec4899', icon: Heart },
-  '乳腺超声': { bg: '#fdf2f8', text: '#db2777', icon: Scan },
-  '消化道': { bg: '#f0fdf4', text: '#16a34a', icon: Circle },
+  'LDCT': { bg: '#3b82f622', text: '#2563eb', icon: Wind },
+  'MG': { bg: '#ec489922', text: '#ec4899', icon: Heart },
+  '乳腺超声': { bg: '#ec489922', text: '#db2777', icon: Scan },
+  '消化道': { bg: '#22c55e22', text: '#16a34a', icon: Circle },
 }
 
 const ScreenTypeBadge = ({ type }: { type: string }) => {
-  const cfg = screenTypeConfig[type] || { bg: '#f1f5f9', text: '#64748b', icon: FileImage }
+  const cfg = screenTypeConfig[type] || { bg: 'var(--bg-deep)', text: '#64748b', icon: FileImage }
   const Icon = cfg.icon
   return (
     <span style={{ ...s.screenTypeTag, background: cfg.bg, color: cfg.text }}>
@@ -157,20 +157,20 @@ const ScreenTypeBadge = ({ type }: { type: string }) => {
 
 // Lung-RADS / BI-RADS 颜色
 const radsColors: Record<string, { bg: string; text: string }> = {
-  'Lung-RADS 2': { bg: '#f0fdf4', text: '#16a34a' },
-  'Lung-RADS 3': { bg: '#fefce8', text: '#ca8a04' },
-  'Lung-RADS 4A': { bg: '#fff7ed', text: '#ea580c' },
-  'Lung-RADS 4B': { bg: '#fef2f2', text: '#dc2626' },
-  'BI-RADS 2': { bg: '#f0fdf4', text: '#16a34a' },
-  'BI-RADS 3': { bg: '#fefce8', text: '#ca8a04' },
-  'BI-RADS 4A': { bg: '#fff7ed', text: '#ea580c' },
-  'BI-RADS 4B': { bg: '#fef2f2', text: '#dc2626' },
-  'BI-RADS 5': { bg: '#fef2f2', text: '#dc2626' },
-  '待定': { bg: '#f1f5f9', text: '#64748b' },
+  'Lung-RADS 2': { bg: '#22c55e22', text: '#16a34a' },
+  'Lung-RADS 3': { bg: '#f59e0b22', text: '#ca8a04' },
+  'Lung-RADS 4A': { bg: '#f9731622', text: '#ea580c' },
+  'Lung-RADS 4B': { bg: '#ef444422', text: '#dc2626' },
+  'BI-RADS 2': { bg: '#22c55e22', text: '#16a34a' },
+  'BI-RADS 3': { bg: '#f59e0b22', text: '#ca8a04' },
+  'BI-RADS 4A': { bg: '#f9731622', text: '#ea580c' },
+  'BI-RADS 4B': { bg: '#ef444422', text: '#dc2626' },
+  'BI-RADS 5': { bg: '#ef444422', text: '#dc2626' },
+  '待定': { bg: 'var(--bg-deep)', text: '#64748b' },
 }
 
 const RadsBadge = ({ rads }: { rads: string }) => {
-  const cfg = radsColors[rads] || { bg: '#f1f5f9', text: '#64748b' }
+  const cfg = radsColors[rads] || { bg: 'var(--bg-deep)', text: '#64748b' }
   return <span style={{ ...s.tag, background: cfg.bg, color: cfg.text }}>{rads}</span>
 }
 
@@ -188,6 +188,12 @@ const CancerScreenPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [lastSync, setLastSync] = useState<Date>(new Date())
+  const [syncing, setSyncing] = useState(false)
+  // [Wave2A] 任务筛选条件 (受控表单) + 新建/编辑任务表单
+  const [filterForm, setFilterForm] = useState({ type: '全部', region: '全部地区', status: '全部' })
+  const [taskFilters, setTaskFilters] = useState({ type: '全部', region: '全部地区', status: '全部' })
+  const [newTaskForm, setNewTaskForm] = useState({ name: '', type: 'LDCT', region: '山东省', target: 500 })
+  const [editTaskForm, setEditTaskForm] = useState({ id: 0, name: '', type: 'LDCT', region: '山东省', target: 500, status: '招募中' })
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type })
@@ -228,12 +234,12 @@ const CancerScreenPage = () => {
       if (statsRes.success && statsRes.data) {
         const d = statsRes.data as any
         setLiveStats([
-          { label: 'LDCT筛查人数', value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#eff6ff' },
-          { label: '乳腺筛查人数', value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#fdf2f8' },
-          { label: '高危结节检出', value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#fff7ed' },
-          { label: '早癌/疑似早癌', value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#fef2f2' },
-          { label: 'BI-RADS 4+', value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: '本月新增筛查', value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#ecfeff' },
+          { label: 'LDCT筛查人数', value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+          { label: '乳腺筛查人数', value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
+          { label: '高危结节检出', value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
+          { label: '早癌/疑似早癌', value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+          { label: 'BI-RADS 4+', value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
+          { label: '本月新增筛查', value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
         ])
       }
       if (queueRes.success && Array.isArray(queueRes.data)) setQueue(queueRes.data)
@@ -307,7 +313,7 @@ const CancerScreenPage = () => {
   const screenTypes = ['LDCT', 'MG', '乳腺超声', '消化道']
   const regions = ['山东省', '河南省', '内蒙古', '青海省', '四川省', '广东省', '江苏省', '浙江省', '安徽省', '福建省', '江西省', '湖南省', '湖北省', '河北省', '山西省', '陕西省', '辽宁省', '吉林省']
 
-  const tasks = useMemo(() => Array.from({ length: 60 }, (_, i) => {
+  const [tasks, setTasks] = useState(() => Array.from({ length: 60 }, (_, i) => {
     const status = taskStatuses[Math.floor(Math.random() * 4)]
     const type = screenTypes[i % 4]
     const target = 150 + Math.floor(Math.random() * 600)
@@ -327,7 +333,7 @@ const CancerScreenPage = () => {
       type,
       doctor: `张${['伟', '磊', '涛', '勇', '强', '军', '波', '辉', '彬', '龙'][i % 10]}医生`,
     }
-  }), [])
+  }))
 
   const riskColors: Record<string, string> = { '低危': '#16a34a', '中危': '#ca8a04', '高危': '#ea580c', '极高危': '#dc2626' }
   const riskBgColors: Record<string, string> = { '低危': '#f0fdf4', '中危': '#fefce8', '高危': '#fff7ed', '极高危': '#fef2f2' }
@@ -374,19 +380,19 @@ const CancerScreenPage = () => {
   const locations = ['右肺上叶', '右肺中叶', '右肺下叶', '左肺上叶', '左肺下叶', '左肺舌段', '右乳外上', '右乳内上', '左乳外上', '左乳内上', '胃窦', '胃体', '直肠', '乙状结肠']
   const treatments = ['定期随访', '穿刺活检', '手术切除', '微创消融', '放化疗', '待定']
   const treatmentColors: Record<string, { bg: string; text: string }> = {
-    '定期随访': { bg: '#eff6ff', text: '#2563eb' },
-    '穿刺活检': { bg: '#fefce8', text: '#ca8a04' },
-    '手术切除': { bg: '#fef2f2', text: '#dc2626' },
-    '微创消融': { bg: '#f5f3ff', text: '#7c3aed' },
-    '放化疗': { bg: '#fff7ed', text: '#ea580c' },
-    '待定': { bg: '#f8fafc', text: '#64748b' },
+    '定期随访': { bg: '#3b82f622', text: '#2563eb' },
+    '穿刺活检': { bg: '#f59e0b22', text: '#ca8a04' },
+    '手术切除': { bg: '#ef444422', text: '#dc2626' },
+    '微创消融': { bg: '#8b5cf622', text: '#7c3aed' },
+    '放化疗': { bg: '#f9731622', text: '#ea580c' },
+    '待定': { bg: 'var(--bg-deep)', text: '#64748b' },
   }
   const followUpStatuses = ['随访中', '失访', '治愈', '进展']
   const followUpColors: Record<string, { bg: string; text: string }> = {
-    '随访中': { bg: '#eff6ff', text: '#2563eb' },
-    '失访': { bg: '#fef2f2', text: '#dc2626' },
-    '治愈': { bg: '#f0fdf4', text: '#16a34a' },
-    '进展': { bg: '#fef2f2', text: '#dc2626' },
+    '随访中': { bg: '#3b82f622', text: '#2563eb' },
+    '失访': { bg: '#ef444422', text: '#dc2626' },
+    '治愈': { bg: '#22c55e22', text: '#16a34a' },
+    '进展': { bg: '#ef444422', text: '#dc2626' },
   }
   const patientNames = ['李秀英', '王德明', '张建华', '刘玉兰', '陈国庆', '杨文军', '赵桂英', '黄伟东', '周丽娟', '吴洪波', '徐海峰', '孙桂芳', '马志远', '朱秀云', '胡金生', '郭彩霞', '林国强', '何春梅', '高建波', '罗素芳']
 
@@ -518,7 +524,183 @@ const CancerScreenPage = () => {
 
   const filteredTasks = tasks.filter(t =>
     t.name.includes(taskSearch) || t.region.includes(taskSearch) || t.type.includes(taskSearch)
+  ).filter(t =>
+    (taskFilters.type === '全部' || t.type === taskFilters.type) &&
+    (taskFilters.region === '全部地区' || t.region === taskFilters.region) &&
+    (taskFilters.status === '全部' || t.status === taskFilters.status)
   )
+
+  // ===== [Wave2A] 假按钮真实化 =====
+  // 1) 同步数据: 重拉 screeningApi.getStats + listQueue
+  const handleSyncData = async () => {
+    setSyncing(true)
+    try {
+      const [statsRes, queueRes] = await Promise.all([screeningApi.getStats(), screeningApi.listQueue()])
+      let synced = false
+      if (statsRes.success && statsRes.data) {
+        const d = statsRes.data as any
+        setLiveStats([
+          { label: 'LDCT筛查人数', value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+          { label: '乳腺筛查人数', value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
+          { label: '高危结节检出', value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
+          { label: '早癌/疑似早癌', value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+          { label: 'BI-RADS 4+', value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
+          { label: '本月新增筛查', value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
+        ])
+        synced = true
+      }
+      if (queueRes.success && Array.isArray(queueRes.data)) {
+        setQueue(queueRes.data)
+        synced = true
+      } else {
+        setQueueError('筛查队列加载失败')
+      }
+      setLastSync(new Date())
+      showToast(synced ? `数据同步成功 · ${new Date().toLocaleTimeString('zh-CN')}` : '数据同步完成（部分接口不可用）', synced ? 'success' : 'error')
+    } catch {
+      showToast('数据同步失败，请稍后重试', 'error')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  // 2) 应用筛选: 受控表单真实过滤
+  const handleApplyFilter = () => {
+    setTaskFilters({ ...filterForm })
+    setShowFilterModal(false)
+    showToast(`筛选已应用: ${filterForm.type} / ${filterForm.region} / ${filterForm.status}`, 'success')
+  }
+
+  // 3) 创建任务: 受控表单 + screeningApi.create 真实登记
+  const [taskCreating, setTaskCreating] = useState(false)
+  const handleCreateTask = async () => {
+    if (!newTaskForm.name.trim()) { antdMessage.warning('请填写任务名称'); return }
+    if (!newTaskForm.target || newTaskForm.target <= 0) { antdMessage.warning('目标人数需大于 0'); return }
+    setTaskCreating(true)
+    try {
+      const res = await screeningApi.create({
+        patientId: `TASK-${Date.now()}`,
+        patientName: newTaskForm.name.trim(),
+        age: 0,
+        gender: '—',
+        screenType: newTaskForm.type,
+        screenDate: new Date().toISOString().split('T')[0],
+        status: '已登记',
+        institution: newTaskForm.region,
+      })
+      if (res.success) {
+        const newTask = {
+          id: Date.now(),
+          name: newTaskForm.name.trim(),
+          region: newTaskForm.region,
+          target: Number(newTaskForm.target),
+          completed: 0,
+          rate: 0,
+          status: '招募中',
+          startDate: new Date().toISOString().slice(0, 10),
+          type: newTaskForm.type,
+          doctor: '当前用户',
+        }
+        setTasks(prev => [newTask, ...prev])
+        void loadQueue()
+        showToast(`筛查任务创建成功: ${newTask.name}`, 'success')
+        setShowNewModal(false)
+        setNewTaskForm({ name: '', type: 'LDCT', region: '山东省', target: 500 })
+      } else {
+        antdMessage.error(res.error?.message || '创建任务失败')
+      }
+    } catch {
+      antdMessage.error('创建任务服务暂不可用')
+    } finally {
+      setTaskCreating(false)
+    }
+  }
+
+  // 4) 保存修改: 真实变更 (队列状态同步 + 本地任务更新)
+  const handleSaveEdit = async () => {
+    if (!editTaskForm.name.trim() || editTaskForm.target <= 0) { antdMessage.warning('请填写正确的任务名称和目标人数'); return }
+    const targetTask = tasks.find(t => t.id === editTaskForm.id)
+    try {
+      await screeningApi.create({
+        patientId: `EDIT-${editTaskForm.id}`,
+        patientName: editTaskForm.name,
+        screenType: editTaskForm.type,
+        screenDate: new Date().toISOString().split('T')[0],
+        status: editTaskForm.status === '已完成' ? '已完成' : '已登记',
+      })
+      void loadQueue()
+    } catch { /* 后端不可用时仅本地更新 */ }
+    if (targetTask) {
+      setTasks(prev => prev.map(t => t.id === editTaskForm.id ? {
+        ...t,
+        name: editTaskForm.name,
+        type: editTaskForm.type,
+        region: editTaskForm.region,
+        target: Number(editTaskForm.target),
+        status: editTaskForm.status,
+        rate: t.completed > 0 ? Math.round((t.completed / Number(editTaskForm.target)) * 100) : 0,
+      } : t))
+    }
+    showToast(`任务已更新: ${editTaskForm.name}`, 'success')
+    setShowEditModal(false)
+  }
+
+  // 5) 确认导出: 真实 CSV Blob 下载
+  const handleExportConfirm = () => {
+    const csvRows: string[][] = []
+    csvRows.push(['统计指标', '数值'])
+    ;(liveStats || statsData).forEach(st => csvRows.push([st.label, st.value + (st.unit || '')]))
+    csvRows.push([])
+    csvRows.push(['登记号', '患者', '性别/年龄', '筛查类型', '检查日期', '状态', '结果', 'RADS'])
+    queue.forEach(item => csvRows.push([
+      item.examId || item.id, item.patientName,
+      `${item.gender || ''}/${item.age ?? ''}`, item.screenType,
+      item.screenDate || '', item.status || '',
+      item.result || '-', item.rads || '-',
+    ]))
+    const csv = csvRows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `早癌筛查报告-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    showToast(`报告导出成功 (${queue.length} 条队列 + 统计)`, 'success')
+    setShowExportModal(false)
+  }
+
+  // 6) 提交评估/确认提交: screeningApi.create 真实登记评估记录 + 刷新
+  const [submitting, setSubmitting] = useState(false)
+  const handleSubmitAssessment = async () => {
+    setSubmitting(true)
+    try {
+      const res = await screeningApi.create({
+        patientId: `ASSESS-${Date.now()}`,
+        patientName: `评估-${currentRisk}`,
+        age: Number(assessmentForm.age) || 0,
+        gender: assessmentForm.gender,
+        screenType: 'LDCT',
+        screenDate: new Date().toISOString().split('T')[0],
+        status: '已完成',
+        result: currentRisk,
+        rads: currentRisk === '极高危' || currentRisk === '高危' ? 'Lung-RADS 4A' : 'Lung-RADS 2',
+      })
+      if (res.success) {
+        void loadQueue()
+        showToast(`评估已提交成功: ${currentRisk}（${currentScore}分）`, 'success')
+        setShowConfirmModal(false)
+      } else {
+        antdMessage.error(res.error?.message || '提交失败')
+      }
+    } catch {
+      antdMessage.error('提交服务暂不可用')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div style={s.root}>
@@ -529,7 +711,7 @@ const CancerScreenPage = () => {
           <p style={s.subtitle}>放射科早癌筛查平台 · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn} onClick={() => { setLastSync(new Date()); showToast('数据同步成功', 'success') }}><RefreshCw size={14} /> 同步数据</button>
+          <button style={s.btn} onClick={() => void handleSyncData()} disabled={syncing}><RefreshCw size={14} /> {syncing ? '同步中...' : '同步数据'}</button>
           <button style={s.btn} onClick={() => setShowExportModal(true)}><Download size={14} /> 导出报告</button>
         </div>
       </div>
@@ -615,14 +797,14 @@ const CancerScreenPage = () => {
                         <div style={{ width: 60, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{ width: `${task.rate}%`, height: '100%', background: task.rate >= 100 ? '#16a34a' : task.rate >= 50 ? '#2563eb' : '#ca8a04', borderRadius: 3 }} />
                         </div>
-                        <span style={{ fontSize: 12, color: '#64748b' }}>{task.rate}%</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{task.rate}%</span>
                       </div>
                     </td>
                     <td style={s.td}><StatusBadge status={task.status} /></td>
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowEditModal(true)}><Edit size={12} /></button>
+                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
                       </div>
                     </td>
                   </tr>
@@ -630,7 +812,7 @@ const CancerScreenPage = () => {
               </tbody>
             </table>
           </div>
-          <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>
+          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
             显示 1-15 条，共 {filteredTasks.length} 条任务
           </div>
         </div>
@@ -666,7 +848,7 @@ const CancerScreenPage = () => {
                 <div style={{ fontSize: 12, color: riskColors[currentRisk], opacity: 0.8, marginTop: 4 }}>风险评分: {currentScore} 分</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setShowConfirmModal(true); showToast('评估已提交，等待审核', 'success') }}><CheckCircle size={16} />提交评估</button>
+                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => setShowConfirmModal(true)}><CheckCircle size={16} />提交评估</button>
                 <button style={{ ...s.btn, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setCurrentScore(0); setCurrentRisk('低危'); setAssessmentForm({ age: 55, gender: '男', smoking: '无', family: '无', exposure: '无', symptoms: '无', history: '无', region: '低风险' }) }}>重置评估</button>
               </div>
             </div>
@@ -681,10 +863,10 @@ const CancerScreenPage = () => {
                     <div style={s.emptyStateHint}>完成高危评估后将显示历史记录</div>
                   </div>
                 ) : assessments.map(a => (
-                  <div key={a.id} style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={a.id} style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: '#94a3b8' }}>({a.age}岁)</span></div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} · {a.doctor}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({a.age}岁)</span></div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{a.date} · {a.doctor}</div>
                     </div>
                     <span style={{ ...s.tag, background: riskBgColors[a.risk], color: riskColors[a.risk] }}>{a.risk} ({a.totalScore}分)</span>
                   </div>
@@ -768,7 +950,7 @@ const CancerScreenPage = () => {
                   </tbody>
                 </table>
               </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 16, fontSize: 12, color: '#64748b' }}>
+              <div style={{ marginTop: 12, display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-secondary)' }}>
                 <span>机构总数: <strong>404家</strong></span>
                 <span>累计筛查: <strong>36,248人</strong></span>
                 <span>整体检出率: <strong>2.37%</strong></span>
@@ -778,10 +960,10 @@ const CancerScreenPage = () => {
             <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>各筛查类型统计</div>
               {[
-                { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#eff6ff' },
-                { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#fdf2f8' },
-                { type: '乳腺超声', icon: Scan, count: 2400, color: '#db2777', bg: '#fdf2f8' },
-                { type: '消化道', icon: Circle, count: 2480, color: '#16a34a', bg: '#f0fdf4' },
+                { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#3b82f622' },
+                { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#ec489922' },
+                { type: '乳腺超声', icon: Scan, count: 2400, color: '#db2777', bg: '#ec489922' },
+                { type: '消化道', icon: Circle, count: 2480, color: '#16a34a', bg: '#22c55e22' },
               ].map(item => {
                 const Icon = item.icon
                 return (
@@ -791,14 +973,14 @@ const CancerScreenPage = () => {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{item.type}筛查</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>占比{Math.round(item.count / 100).toLocaleString()}%</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>占比{Math.round(item.count / 100).toLocaleString()}%</div>
                     </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count.toLocaleString()}</div>
                   </div>
                 )
               })}
-              <div style={{ marginTop: 8, padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed #e2e8f0' }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>本年月度筛查趋势（最近6个月）</div>
+              <div style={{ marginTop: 8, padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>本年月度筛查趋势（最近6个月）</div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
                   {monthlyData.slice(-6).map((m, i) => {
                     const maxS = Math.max(...monthlyData.slice(-6).map(x => x.screenings))
@@ -853,7 +1035,7 @@ const biRadsStats = [
                         <div style={{ width: '100%', background: '#e2e8f0', borderRadius: 4, height: 50, position: 'relative' }}>
                           <div style={{ position: 'absolute', bottom: 0, width: '100%', background: '#2563eb', borderRadius: 4, height: `${(m.screenings / maxS) * 50}px` }} />
                         </div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.month.slice(5)}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.month.slice(5)}</div>
                       </div>
                     )
                   })}
@@ -869,25 +1051,25 @@ const biRadsStats = [
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>筛选条件</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
-                <select style={{ ...s.formSelect, width: '100%' }}>
-                  <option>全部</option><option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.type} onChange={e => setFilterForm({ ...filterForm, type: e.target.value })}>
+                  <option>全部</option><option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
                 </select>
               </div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
-                <select style={{ ...s.formSelect, width: '100%' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.region} onChange={e => setFilterForm({ ...filterForm, region: e.target.value })}>
                   <option>全部地区</option>{regions.map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>状态</div>
-                <select style={{ ...s.formSelect, width: '100%' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>状态</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={filterForm.status} onChange={e => setFilterForm({ ...filterForm, status: e.target.value })}>
                   <option>全部</option>{taskStatuses.map(s => <option key={s}>{s}</option>)}
                 </select>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowFilterModal(false)}>取消</button>
-              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowFilterModal(false); showToast('筛选已应用', 'success') }}>应用筛选</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={handleApplyFilter}>应用筛选</button>
             </div>
           </div>
         </div>
@@ -899,22 +1081,22 @@ const biRadsStats = [
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>新建筛查任务</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} placeholder="请输入任务名称" /></div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
-                <select style={{ ...s.formSelect, width: '100%' }}>
-                  <option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} placeholder="请输入任务名称" value={newTaskForm.name} onChange={e => setNewTaskForm({ ...newTaskForm, name: e.target.value })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={newTaskForm.type} onChange={e => setNewTaskForm({ ...newTaskForm, type: e.target.value })}>
+                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
                 </select>
               </div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
-                <select style={{ ...s.formSelect, width: '100%' }}>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={newTaskForm.region} onChange={e => setNewTaskForm({ ...newTaskForm, region: e.target.value })}>
                   {regions.map(r => <option key={r}>{r}</option>)}
                 </select>
               </div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder="请输入目标人数" /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder="请输入目标人数" value={newTaskForm.target} onChange={e => setNewTaskForm({ ...newTaskForm, target: Number(e.target.value) })} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowNewModal(false)}>取消</button>
-              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowNewModal(false); showToast('筛查任务创建成功', 'success') }}>创建任务</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={taskCreating} onClick={() => void handleCreateTask()}>{taskCreating ? '创建中...' : '创建任务'}</button>
             </div>
           </div>
         </div>
@@ -955,12 +1137,12 @@ const biRadsStats = [
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>任务详情</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>任务名称</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>筛查类型</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>目标人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>完成人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>地区</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>负责人</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>任务名称</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>筛查类型</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>目标人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>完成人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>地区</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>负责人</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>关闭</button>
@@ -1033,22 +1215,22 @@ const biRadsStats = [
                       <td style={s.td}>
                         {item.result && item.result !== '-'
                           ? <span style={{ ...s.tag, background: item.result === '阳性' ? '#fef2f2' : '#f0fdf4', color: item.result === '阳性' ? '#dc2626' : '#16a34a' }}>{item.result}</span>
-                          : <span style={{ color: '#94a3b8' }}>-</span>}
+                          : <span style={{ color: 'var(--text-secondary)' }}>-</span>}
                       </td>
-                      <td style={s.td}>{item.rads && item.rads !== '-' ? <RadsBadge rads={item.rads} /> : <span style={{ color: '#94a3b8' }}>-</span>}</td>
+                      <td style={s.td}>{item.rads && item.rads !== '-' ? <RadsBadge rads={item.rads} /> : <span style={{ color: 'var(--text-secondary)' }}>-</span>}</td>
                       <td style={{ ...s.td, fontSize: 11 }}>{item.institution || '-'}</td>
                       <td style={s.td}>
                         <div style={{ display: 'flex', gap: 4 }}>
-                          <button style={{ ...s.tag, background: '#eff6ff', color: '#2563eb', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
+                          <button style={{ ...s.tag, background: 'var(--color-info-bg)', color: '#2563eb', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
                             <Flag size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />标记
                           </button>
                           {item.status !== '已完成' && (
-                            <button style={{ ...s.tag, background: '#f0fdf4', color: '#16a34a', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '已完成')}>
+                            <button style={{ ...s.tag, background: 'var(--color-success-bg)', color: '#16a34a', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '已完成')}>
                               <CheckCircle size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />完成
                             </button>
                           )}
                           {item.status !== '异常' && item.status !== '已完成' && (
-                            <button style={{ ...s.tag, background: '#fef2f2', color: '#dc2626', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '异常')}>
+                            <button style={{ ...s.tag, background: 'var(--color-error-bg)', color: '#dc2626', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '异常')}>
                               异常
                             </button>
                           )}
@@ -1057,7 +1239,7 @@ const biRadsStats = [
                     </tr>
                   ))}
                   {queue.length === 0 && (
-                    <tr><td colSpan={10} style={{ ...s.td, textAlign: 'center', color: '#94a3b8', padding: 32 }}>暂无筛查队列数据</td></tr>
+                    <tr><td colSpan={10} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)', padding: 32 }}>暂无筛查队列数据</td></tr>
                   )}
                 </tbody>
               </table>
@@ -1072,22 +1254,27 @@ const biRadsStats = [
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>编辑任务</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} defaultValue="山东省LDCT早癌筛查" /></div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" defaultValue="500" /></div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
-                <select style={{ ...s.formSelect, width: '100%' }} defaultValue="LDCT">
-                  <option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.name} onChange={e => setEditTaskForm({ ...editTaskForm, name: e.target.value })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" value={editTaskForm.target} onChange={e => setEditTaskForm({ ...editTaskForm, target: Number(e.target.value) })} /></div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.type} onChange={e => setEditTaskForm({ ...editTaskForm, type: e.target.value })}>
+                  <option>LDCT</option><option>MG</option><option>乳腺超声</option><option>消化道</option>
                 </select>
               </div>
-              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
-                <select style={{ ...s.formSelect, width: '100%' }} defaultValue="山东省">
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.region} onChange={e => setEditTaskForm({ ...editTaskForm, region: e.target.value })}>
                   {regions.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>状态</div>
+                <select style={{ ...s.formSelect, width: '100%' }} value={editTaskForm.status} onChange={e => setEditTaskForm({ ...editTaskForm, status: e.target.value })}>
+                  {taskStatuses.map(st => <option key={st}>{st}</option>)}
                 </select>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowEditModal(false)}>取消</button>
-              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowEditModal(false); showToast('任务已更新', 'success') }}>保存修改</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => void handleSaveEdit()}>保存修改</button>
             </div>
           </div>
         </div>
@@ -1100,14 +1287,14 @@ const biRadsStats = [
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>导出报告预览</div>
             <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>报告概要</div>
-              <div style={{ fontSize: 12, color: '#64748b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <span>LDCT筛查人数: 8,642人</span><span>乳腺筛查人数: 5,826人</span>
                 <span>高危结节检出: 1,284例</span><span>早癌/疑似早癌: 326例</span>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowExportModal(false)}>取消</button>
-              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowExportModal(false); showToast('报告导出成功', 'success') }}>确认导出</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={handleExportConfirm}>确认导出</button>
             </div>
           </div>
         </div>
@@ -1118,10 +1305,10 @@ const biRadsStats = [
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>确认提交评估</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>当前风险评估结果为「{currentRisk}」（{currentScore}分），确认提交审核吗？</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>当前风险评估结果为「{currentRisk}」（{currentScore}分），确认提交审核吗？</div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowConfirmModal(false)}>取消</button>
-              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowConfirmModal(false); showToast('评估已提交成功', 'success') }}>确认提交</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={submitting} onClick={() => void handleSubmitAssessment()}>{submitting ? '提交中...' : '确认提交'}</button>
             </div>
           </div>
         </div>

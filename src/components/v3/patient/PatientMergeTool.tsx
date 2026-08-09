@@ -2,9 +2,10 @@
  * G005 放射RIS系统 v3.0.2 - 患者合并 / MPI 匹配
  * 对标:HIS MPI 重复患者检测
  */
-import React, { useState, useMemo } from 'react'
 import { Card, Tag, Space, Button, Input, Modal, Empty, Statistic, Row, Col, Progress, Alert, Radio } from 'antd'
 import { UserCheck, UserMinus, Search, GitMerge, Phone, IdCard, Calendar, GitCompare } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Inbox } from 'lucide-react'
 
 export interface PatientCandidate {
   id: string
@@ -157,7 +158,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
       />
 
       {filtered.length === 0 ? (
-        <Empty description="无重复患者" />
+        <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无重复患者" />
       ) : (
         filtered.map((d, idx) => (
           <Card

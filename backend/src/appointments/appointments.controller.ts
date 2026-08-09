@@ -51,6 +51,7 @@ export class AppointmentsController {
     @Query('deviceId') deviceId?: string,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
+    @Query('patientId') patientId?: string,
   ) {
     return this.service.list({
       skip: Number(skip ?? 0),
@@ -59,7 +60,34 @@ export class AppointmentsController {
       deviceId,
       dateFrom,
       dateTo,
+      patientId,
     })
+  }
+
+  // [G005 Wave1B P1] 5 个子资源 — 必须声明在 @Get(':id') 之前, 避免路由抢占
+  @Get('rules')
+  rules() {
+    return this.service.rules()
+  }
+
+  @Get('waitlist')
+  waitlist() {
+    return this.service.waitlist()
+  }
+
+  @Get('reminders')
+  reminders() {
+    return this.service.reminders()
+  }
+
+  @Get('reschedules')
+  reschedules() {
+    return this.service.reschedules()
+  }
+
+  @Get('cancellations')
+  cancellations() {
+    return this.service.cancellations()
   }
 
   @Get(':id')

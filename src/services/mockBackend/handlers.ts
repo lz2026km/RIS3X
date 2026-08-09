@@ -669,6 +669,7 @@ export const appointmentHandlers = [
   }),
 
   // ===== 静态子路由 (必须先于 :id, 避免被 :id 吞掉) =====
+  // [G005 Wave1B P1] 标注更新: 后端 appointments.controller 已补 5 子资源, 此处仅 mock 兜底
   // 预约规则: 由设备主数据派生
   http.get(`${API_BASE}/appointments/rules`, async () => {
     await delay(80);
@@ -1634,6 +1635,30 @@ let printQueueStore: PrintTask[] = [
 ];
 
 export const printHandlers = [
+  // [G005 Wave1A P0] 打印任务列表 (GET /print/jobs?status=)
+  http.get(`${API_BASE}/print/jobs`, async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    let data = printQueueStore;
+    if (status) data = data.filter((t) => t.status === status);
+    return HttpResponse.json({ success: true, data });
+  }),
+
+  // [G005 Wave1A P0] 打印任务详情 (GET /print/jobs/:id)
+  http.get(`${API_BASE}/print/jobs/:id`, async ({ params }) => {
+    await delay(60);
+    const task = printQueueStore.find((t) => t.id === params.id);
+    if (!task) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: task });
+  }),
+
+  // [G005 Wave1A P0] 打印队列 (GET /print/queues, 排队中/打印中)
+  http.get(`${API_BASE}/print/queues`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'queued' || t.status === 'printing') });
+  }),
+
   http.get(`${API_BASE}/print/queue`, async () => {
     await delay(100);
     return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'queued' || t.status === 'printing') });
@@ -1729,6 +1754,31 @@ export const printHandlers = [
       t.submitTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
     }
     return HttpResponse.json({ success: true, data: { ok: true } });
+  }),
+
+  // [G005 Wave1A P0] 重新打印 (POST /print/jobs/:id/reprint, 以原任务参数新建任务)
+  http.post(`${API_BASE}/print/jobs/:id/reprint`, async ({ params }) => {
+    await delay(150);
+    const src = printQueueStore.find((t) => t.id === params.id);
+    if (!src) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const task: PrintTask = {
+      id: 'DPT' + String(printQueueStore.length + 1).padStart(3, '0'),
+      filmId: src.filmId,
+      patientId: src.patientId,
+      patientName: src.patientName,
+      modality: src.modality,
+      studyType: src.studyType,
+      filmSpec: src.filmSpec,
+      copies: src.copies,
+      status: 'queued',
+      printer: src.printer,
+      submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      completeTime: null,
+      progress: 0,
+      errorMsg: undefined,
+    };
+    printQueueStore = [task, ...printQueueStore];
+    return HttpResponse.json({ success: true, data: task }, { status: 201 });
   }),
 ];
 
@@ -2470,6 +2520,7 @@ function getSnippetStore(): any[] {
 
 export const templateHandlers = [
   // 智能片段 (静态路径需在 /templates/:id 之前注册)
+  // [G005 Wave1B P1] 标注更新: 后端 templates.controller 已补 snippets 端点, 此处仅 mock 兜底
   http.get(`${API_BASE}/templates/snippets`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);

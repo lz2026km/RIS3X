@@ -124,41 +124,41 @@ const BreastSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> 乳腺专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#fdf2f8', color: dataSource === 'real' ? '#16a34a' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? 'breastCadApi 实时' : '演示数据(回退)'}</span></h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> 乳腺专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? '#16a34a' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? 'breastCadApi 实时' : '演示数据(回退)'}</span></h1>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流</p>
         </div>
         <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>新建筛查</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
-          { label: '今日检查', value: '28', icon: Activity, color: '#be185d', bg: '#fdf2f8' },
-          { label: 'BI-RADS 4-5', value: String(suspicious), icon: AlertTriangle, color: '#dc2626', bg: '#fef2f2' },
-          { label: '待召回', value: String(recalls), icon: Clock, color: '#ea580c', bg: '#fff7ed' },
-          { label: '今日报告', value: '18', icon: FileText, color: '#16a34a', bg: '#f0fdf4' },
-          { label: '检出率', value: '4.2%', icon: TrendingUp, color: '#7c3aed', bg: '#f5f3ff' },
+          { label: '今日检查', value: '28', icon: Activity, color: '#be185d', bg: '#ec489922' },
+          { label: 'BI-RADS 4-5', value: String(suspicious), icon: AlertTriangle, color: '#dc2626', bg: '#ef444422' },
+          { label: '待召回', value: String(recalls), icon: Clock, color: '#ea580c', bg: '#f9731622' },
+          { label: '今日报告', value: '18', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
+          { label: '检出率', value: '4.2%', icon: TrendingUp, color: '#7c3aed', bg: '#8b5cf622' },
         ].map((k, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
             <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)' }}>{k.value}</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{k.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
           </div>
         ))}
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
         {[{ key: 'screening', label: '筛查管理' }, { key: 'density', label: '密度评估' }, { key: 'workflow', label: '乳腺工作流' }, { key: 'stats', label: '统计分析' }, { key: 'cad', label: 'AI 检出' }].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#be185d' : '#f1f5f9', color: tab === t.key ? '#fff' : '#64748b' }}>{t.label}</button>
+          <button key={t.key} onClick={() => setTab(t.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#be185d' : 'var(--bg-card)', color: tab === t.key ? '#fff' : '#64748b' }}>{t.label}</button>
         ))}
       </div>
 
       {tab === 'screening' && (
-        <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> 筛查列表</div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: 8, padding: '4px 12px' }}>
-                <Search size={16} color="#64748b" />
+              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
+                <Search size={16} color="var(--text-secondary)" />
                 <input placeholder="搜索患者..." value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: 8, fontSize: 13, width: 160 }} />
               </div>
             </div>
@@ -166,24 +166,24 @@ const BreastSpecialtyPage = () => {
           <div style={{ maxHeight: 320, overflowY: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead><tr>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>编号</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>患者</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>年龄</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>密度</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>BI-RADS</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>结果</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>日期</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>编号</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>患者</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>年龄</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>密度</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>结果</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>日期</th>
               </tr></thead>
               <tbody>
                 {filtered.map(r => (
                   <tr key={r.id}>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.id}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc', fontWeight: 600 }}>{r.patientName}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.age}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{DENSITY_LABELS[r.density]}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}><BiradsTag v={r.biRads} /></td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{OUTCOME_LABELS[r.outcome]}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#64748b' }}>{r.date}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.age}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{DENSITY_LABELS[r.density]}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.biRads} /></td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{OUTCOME_LABELS[r.outcome]}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{r.date}</td>
                   </tr>
                 ))}
               </tbody>
@@ -194,7 +194,7 @@ const BreastSpecialtyPage = () => {
 
       {tab === 'density' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Activity size={16} color="#be185d" /> 密度分布</div>
             {(['a', 'b', 'c', 'd'] as BreastDensity[]).map(d => {
               const count = mockScreening.filter(r => r.density === d).length;
@@ -202,12 +202,12 @@ const BreastSpecialtyPage = () => {
               return (
                 <div key={d} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}><span>{DENSITY_LABELS[d]}</span><span style={{ fontWeight: 700 }}>{count} 例 ({pct}%)</span></div>
-                  <div style={{ height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${pct}%`, background: '#be185d', borderRadius: 4 }} /></div>
+                  <div style={{ height: 8, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${pct}%`, background: '#be185d', borderRadius: 4 }} /></div>
                 </div>
               );
             })}
           </div>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Microscope size={16} color="#7c3aed" /> BI-RADS 分布</div>
             {[1, 2, 3, '4A', '4B', 4, 5].map(b => {
               const count = mockScreening.filter(r => r.biRads === b || r.biRads === Number(b)).length;
@@ -215,8 +215,8 @@ const BreastSpecialtyPage = () => {
               return (
                 <div key={String(b)} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <span style={{ width: 60, fontSize: 12, fontWeight: 600, color }}>BI-RADS {b}</span>
-                  <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}><div style={{ height: '100%', width: `${count > 0 ? Math.max(count * 20, 8) : 0}%`, background: color, borderRadius: 4 }} /></div>
-                  <span style={{ fontSize: 12, color: '#64748b', width: 30, textAlign: 'right' }}>{count}</span>
+                  <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}><div style={{ height: '100%', width: `${count > 0 ? Math.max(count * 20, 8) : 0}%`, background: color, borderRadius: 4 }} /></div>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', width: 30, textAlign: 'right' }}>{count}</span>
                 </div>
               );
             })}
@@ -225,7 +225,7 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'workflow' && (
-        <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Activity size={16} color="#be185d" /> 乳腺工作流</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {[
@@ -236,13 +236,13 @@ const BreastSpecialtyPage = () => {
               { step: '5. 影像诊断', status: 'pending', desc: 'BI-RADS 评分、报告', time: '10 min' },
               { step: '6. 签发报告', status: 'pending', desc: '医师审核、签发', time: '5 min' },
             ].map((w, i) => (
-              <div key={i} style={{ padding: 16, background: w.status === 'active' ? '#fdf2f8' : '#f8fafc', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
+              <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #d1d5db', display: 'inline-block' }} />}
-                  <span style={{ fontSize: 13, fontWeight: 700, color: w.status === 'active' ? '#be185d' : '#334155' }}>{w.step}</span>
+                  {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
+                  <span style={{ fontSize: 13, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{w.desc}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>预计: {w.time}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>预计: {w.time}</div>
               </div>
             ))}
           </div>
@@ -251,7 +251,7 @@ const BreastSpecialtyPage = () => {
 
       {tab === 'stats' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#be185d" /> 月度筛查统计</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, textAlign: 'center' }}>
               {['1月', '2月', '3月', '4月', '5月', '6月'].map((m, i) => {
@@ -261,19 +261,19 @@ const BreastSpecialtyPage = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: 120 }}>
                       <div style={{ width: '80%', height: `${val / 1.5}px`, background: '#be185d', borderRadius: '4px 4px 0 0', opacity: 0.8 }} />
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{m}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{m}</div>
                     <div style={{ fontSize: 12, fontWeight: 700 }}>{val}</div>
                   </div>
                 );
               })}
             </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="#dc2626" /> 召回率趋势</div>
             {[{ month: '2026-07', rate: 8.5, cases: 11 }, { month: '2026-06', rate: 7.2, cases: 9 }, { month: '2026-05', rate: 9.1, cases: 13 }, { month: '2026-04', rate: 6.8, cases: 7 }].map(t => (
               <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <span style={{ width: 80, fontSize: 12, color: '#64748b' }}>{t.month}</span>
-                <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}><div style={{ height: '100%', width: `${t.rate * 5}%`, background: '#ea580c', borderRadius: 3 }} /></div>
+                <span style={{ width: 80, fontSize: 12, color: 'var(--text-secondary)' }}>{t.month}</span>
+                <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}><div style={{ height: '100%', width: `${t.rate * 5}%`, background: '#ea580c', borderRadius: 3 }} /></div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{t.rate}%</span>
               </div>
             ))}
@@ -282,45 +282,45 @@ const BreastSpecialtyPage = () => {
       )}
 
       {tab === 'cad' && (
-        <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BrainCircuit size={16} color="#be185d" /> AI 检出列表
               {dataSource === 'real'
-                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>breastCadApi 实时</span>
-                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8' }}>演示回退</span>}
+                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>breastCadApi 实时</span>
+                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#ec489922', color: '#be185d', border: '1px solid #fbcfe8' }}>演示回退</span>}
             </div>
-            <button onClick={() => setTab('stats' as any)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, color: '#64748b' }}>查看统计</button>
+            <button onClick={() => setTab('stats' as any)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }}>查看统计</button>
           </div>
           {cadLoading ? (
-            <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>AI 检出加载中...</div>
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>AI 检出加载中...</div>
           ) : cadError && cadResults.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>{cadError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>{cadError}</div>
           ) : (
             <div style={{ maxHeight: 360, overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead><tr>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>编号</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>患者</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>模态</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>病灶数</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>BI-RADS</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>状态</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>日期</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 }}>操作</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>编号</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>患者</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>模态</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>病灶数</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>状态</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>日期</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>操作</th>
                 </tr></thead>
                 <tbody>
                   {cadResults.map(r => (
                     <tr key={r.id} style={{ cursor: 'pointer' }} onClick={() => setCadDetail(r)}>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.id}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc', fontWeight: 600 }}>{r.patientName}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.modality}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.lesionCount}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}><BiradsTag v={r.overallBiRads} /></td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>{r.status === 'confirmed' ? '已确认' : r.status === 'reviewed' ? '已复核' : '待复核'}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#64748b' }}>{(r.createdAt ?? '').slice(0, 10)}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid #f8fafc' }}>
-                        <button onClick={e => { e.stopPropagation(); setCadDetail(r) }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#fdf2f8', color: '#be185d', fontSize: 12, cursor: 'pointer' }}>详情</button>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.modality}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.lesionCount}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.overallBiRads} /></td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.status === 'confirmed' ? '已确认' : r.status === 'reviewed' ? '已复核' : '待复核'}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{(r.createdAt ?? '').slice(0, 10)}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                        <button onClick={e => { e.stopPropagation(); setCadDetail(r) }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer' }}>详情</button>
                       </td>
                     </tr>
                   ))}
@@ -333,38 +333,38 @@ const BreastSpecialtyPage = () => {
 
       {cadDetail && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setCadDetail(null)}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 620, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 620, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>AI 检出详情 · {cadDetail.patientName}</div>
-              <button onClick={() => setCadDetail(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#64748b', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setCadDetail(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 10, background: '#f8fafc', borderRadius: 8, fontSize: 13 }}><span style={{ color: '#64748b' }}>编号: </span>{cadDetail.id}</div>
-              <div style={{ padding: 10, background: '#f8fafc', borderRadius: 8, fontSize: 13 }}><span style={{ color: '#64748b' }}>检查号: </span>{cadDetail.studyId}</div>
-              <div style={{ padding: 10, background: '#f8fafc', borderRadius: 8, fontSize: 13 }}><span style={{ color: '#64748b' }}>整体 BI-RADS: </span><BiradsTag v={cadDetail.overallBiRads} /></div>
-              <div style={{ padding: 10, background: '#f8fafc', borderRadius: 8, fontSize: 13 }}><span style={{ color: '#64748b' }}>模型: </span>{cadDetail.modelVersion}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>编号: </span>{cadDetail.id}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>检查号: </span>{cadDetail.studyId}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>整体 BI-RADS: </span><BiradsTag v={cadDetail.overallBiRads} /></div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>模型: </span>{cadDetail.modelVersion}</div>
             </div>
             {cadDetail.recommendation && (
-              <div style={{ marginBottom: 16, padding: 12, background: '#fff7ed', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 13, color: '#9a3412' }}>{cadDetail.recommendation}</div>
+              <div style={{ marginBottom: 16, padding: 12, background: '#f9731622', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 13, color: '#9a3412' }}>{cadDetail.recommendation}</div>
             )}
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>病灶列表 ({cadDetail.lesions.length})</div>
             <div style={{ maxHeight: 300, overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead><tr>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #f1f5f9', color: '#64748b' }}>类型</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #f1f5f9', color: '#64748b' }}>形态</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #f1f5f9', color: '#64748b' }}>边缘</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #f1f5f9', color: '#64748b' }}>BI-RADS</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid #f1f5f9', color: '#64748b' }}>恶性风险</th>
+                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>类型</th>
+                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>形态</th>
+                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>边缘</th>
+                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>BI-RADS</th>
+                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>恶性风险</th>
                 </tr></thead>
                 <tbody>
                   {cadDetail.lesions.map((l: BreastLesion) => (
                     <tr key={l.id}>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #f8fafc' }}>{l.type}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #f8fafc' }}>{l.shape}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #f8fafc' }}>{l.margin}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #f8fafc' }}><BiradsTag v={l.biRads} /></td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #f8fafc', color: l.malignancyRisk > 0.5 ? '#dc2626' : '#64748b', fontWeight: 600 }}>{(l.malignancyRisk * 100).toFixed(0)}%</td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.type}</td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.shape}</td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.margin}</td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={l.biRads} /></td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)', color: l.malignancyRisk > 0.5 ? '#dc2626' : '#64748b', fontWeight: 600 }}>{(l.malignancyRisk * 100).toFixed(0)}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -376,21 +376,21 @@ const BreastSpecialtyPage = () => {
 
       {showNewModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowNewModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>新建筛查</div>
-              <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#64748b', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>患者ID *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder="如 P100006" style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>患者姓名 *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder="请输入姓名" style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>年龄</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>风险分层</label><div style={{ display: 'flex', gap: 8 }}>{([['average', '一般'], ['intermediate', '中等'], ['high', '高危']] as const).map(([v, l]) => (
-                <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? '#fdf2f8' : '#fff', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>患者ID *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder="如 P100006" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>患者姓名 *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder="请输入姓名" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>年龄</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>风险分层</label><div style={{ display: 'flex', gap: 8 }}>{([['average', '一般'], ['intermediate', '中等'], ['high', '高危']] as const).map(([v, l]) => (
+                <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? 'var(--color-error-bg)' : 'var(--bg-card)', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
               ))}</div></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>检查日期</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>检查日期</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
                 <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? '保存中...' : '创建筛查'}</button>
               </div>
             </div>

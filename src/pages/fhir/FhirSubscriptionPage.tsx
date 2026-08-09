@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { usePagination } from '../../hooks/usePagination'
+import { fhirApi, type FhirSubscription } from '../../services/api/fhirApi'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Popconfirm, Empty } from 'antd'
 import { Bell, Plus, Trash, RefreshCw, Eye } from 'lucide-react'
-import { fhirApi, type FhirSubscription } from '../../services/api/fhirApi'
-import { usePagination } from '../../hooks/usePagination'
+import { Inbox } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 export const FhirSubscriptionPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<FhirSubscription[]>([])
@@ -151,7 +152,7 @@ export const FhirSubscriptionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 订阅管理</span>
@@ -233,7 +234,7 @@ export const FhirSubscriptionPage: React.FC = () => {
               {JSON.stringify(selectedSub, null, 2)}
             </pre>
           </div>
-        ) : <Empty />}
+        ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
     </div>
   )

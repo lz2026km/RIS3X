@@ -1,11 +1,12 @@
 // [v3.0.6.8-54] 口腔 DICOM 查看器 (CBCT/全景/根尖/口扫)
 // [v3.0.6.8-81] 修复: 复用 shared constants
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip } from 'antd';
-import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MODALITY_LABELS } from '../../data/dental/constants';
 import { dentalApi } from '../../services/api/dentalApi';
+import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip } from 'antd';
+import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Inbox, SearchX } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export const DentalViewerPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -50,7 +51,7 @@ export const DentalViewerPage: React.FC = () => {
   };
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
-  if (!study) return <div style={{ padding: 24 }}><Card><Empty description="未找到检查" /></Card></div>;
+  if (!study) return <div style={{ padding: 24 }}><Card><Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到检查" /></Card></div>;
 
   const modality = study.modality || modParam;
   const isCBCT = modality === 'CBCT';
@@ -85,9 +86,9 @@ export const DentalViewerPage: React.FC = () => {
           {isCBCT ? (
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: 480, height: 360, background: '#1a1a1a', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transform: `scale(${zoom / 100})` }}>
-                <Layers size={48} color="#666" />
-                <div style={{ color: '#888', marginTop: 12, fontSize: 14 }}>CBCT 轴向切片 #{currentSlice + 1}</div>
-                <div style={{ color: '#666', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | 512×512 | 16bit</div>
+                <Layers size={48} color="var(--text-secondary)" />
+                <div style={{ color: 'var(--text-secondary)', marginTop: 12, fontSize: 14 }}>CBCT 轴向切片 #{currentSlice + 1}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | 512×512 | 16bit</div>
                 {/* Simulated CBCT MPR grid */}
                 <div style={{ display: 'flex', gap: 2, marginTop: 20 }}>
                   <div style={{ width: 100, height: 80, background: '#222', borderRadius: 2 }} />
@@ -97,17 +98,17 @@ export const DentalViewerPage: React.FC = () => {
               </div>
               <div style={{ marginTop: 8 }}>
                 <Button size="small" icon={<ChevronLeft size={12} />} onClick={() => setCurrentSlice(s => Math.max(0, s-1))} disabled={currentSlice === 0} />
-                <span style={{ color: '#888', margin: '0 12px' }}>{currentSlice + 1} / {imageCount}</span>
+                <span style={{ color: 'var(--text-secondary)', margin: '0 12px' }}>{currentSlice + 1} / {imageCount}</span>
                 <Button size="small" icon={<ChevronRight size={12} />} onClick={() => setCurrentSlice(s => Math.min(imageCount-1, s+1))} disabled={currentSlice >= imageCount-1} />
               </div>
             </div>
           ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: 480, height: isPanoramic ? 240 : 320, background: '#1a1a1a', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transform: `scale(${zoom / 100})` }}>
-                <Camera size={48} color="#666" />
-                <div style={{ color: '#888', marginTop: 12, fontSize: 14 }}>{MODALITY_LABELS[modality]}</div>
-                <div style={{ color: '#666', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | {study.imageCount || 1} frame</div>
-                <div style={{ color: '#555', fontSize: 12, marginTop: 20, border: '1px solid #333', padding: '4px 12px', borderRadius: 4 }}>
+                <Camera size={48} color="var(--text-secondary)" />
+                <div style={{ color: 'var(--text-secondary)', marginTop: 12, fontSize: 14 }}>{MODALITY_LABELS[modality]}</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | {study.imageCount || 1} frame</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 20, border: '1px solid #333', padding: '4px 12px', borderRadius: 4 }}>
                   {/* Simulated dental arch outline for panoramic */}
                   {isPanoramic && '⌣ (下颌骨轮廓示意)'}
                   {isPeriapical && '🦷 (牙根及根尖周示意)'}
@@ -119,7 +120,7 @@ export const DentalViewerPage: React.FC = () => {
         </div>
 
         {/* Right: Info Panel */}
-        <div style={{ width: 380, background: '#fff', overflowY: 'auto', borderLeft: '1px solid #1f1f1f' }}>
+        <div style={{ width: 380, background: 'var(--bg-card)', overflowY: 'auto', borderLeft: '1px solid #1f1f1f' }}>
           <Tabs activeKey={activeTab} onChange={setActiveTab} size="small" tabBarStyle={{ padding: '0 8px', margin: 0 }}
             items={[
               { key: 'info', label: '信息', children: <Card size="small" styles={{ body: { padding: 8 } }}>
@@ -140,11 +141,11 @@ export const DentalViewerPage: React.FC = () => {
               },
               { key: 'measurements', label: '测量', children: <Card size="small" styles={{ body: { padding: 8 } }}>
                   {(study.measurements && study.measurements.length > 0) ? study.measurements.map((m: any, i: number) => (
-                    <div key={i} style={{ marginBottom: 8, padding: 8, background: '#fafafa', borderRadius: 4 }}>
-                      <div style={{ fontSize: 12, color: '#666' }}>{m.label}</div>
-                      <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}<span style={{ fontSize: 12, fontWeight: 400, color: '#999', marginLeft: 4 }}>{m.unit}</span></div>
+                    <div key={i} style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.label}</div>
+                      <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{m.unit}</span></div>
                     </div>
-                  )) : <Empty description="暂无测量" />}
+                  )) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无测量" />}
                 </Card>
               },
               { key: 'segments', label: '分割', children: <Card size="small" styles={{ body: { padding: 8 } }}>
@@ -152,7 +153,7 @@ export const DentalViewerPage: React.FC = () => {
                     {study.segments.map((s: any, i: number) => <Col key={i} span={12}>
                       <div style={{ padding: 8, background: s.color || '#f0f0f0', borderRadius: 4, fontSize: 12, fontWeight: 600, color: '#fff' }}>{s.label} ({s.volume}mm³)</div>
                     </Col>)}
-                  </Row> : <Empty description="暂无分割" />}
+                  </Row> : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无分割" />}
                 </Card>
               },
               { key: 'ai', label: 'AI 分析', children: (study.aiAnalysis || aiResult) ? (
@@ -165,7 +166,7 @@ export const DentalViewerPage: React.FC = () => {
                   <Divider style={{ margin: '8px 0' }} />
                   <Button size="small" icon={<Activity size={12} />} loading={aiRunning} onClick={() => void handleRunAi()}>运行 AI 分析</Button>
                 </Card>
-              ) : <Card><Empty description="无 AI 分析" /></Card>,
+              ) : <Card><Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无 AI 分析" /></Card>,
               },
             ]}
           />

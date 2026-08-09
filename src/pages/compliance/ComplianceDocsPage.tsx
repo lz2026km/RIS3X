@@ -1,18 +1,18 @@
 // [v3.0.6.11-79 W1-C] 合规文档库: 列表/筛选/搜索 + 新建/编辑/发布/归档/删除 + 详情
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Alert, Button, Card, Col, DatePicker, Descriptions, Drawer, Form, Input, Modal,
-  Popconfirm, Row, Select, Space, Spin, Statistic, Table, Tag, Typography, message,
-} from 'antd';
-import { Search, FilePlus2, RefreshCw, FileText, ScrollText, Send, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
+import { usePagination } from '../../hooks/usePagination';
+import { invalidateApiCacheByPrefix } from '../../services/api/client';
 import {
   complianceDocsApi,
   type ComplianceDocDto,
   type CreateComplianceDocInput,
 } from '../../services/api/complianceDocsApi';
-import { invalidateApiCacheByPrefix } from '../../services/api/client';
-import { usePagination } from '../../hooks/usePagination';
+import {
+  Alert, Button, Card, Col, DatePicker, Descriptions, Drawer, Form, Input, Modal,
+  Popconfirm, Row, Select, Space, Spin, Statistic, Table, Tag, Typography, message,
+} from 'antd';
+import { Search, FilePlus2, RefreshCw, FileText, ScrollText, Send, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 const { TextArea } = Input;
 
@@ -228,7 +228,7 @@ export const ComplianceDocsPage: React.FC = () => {
       {error && (
         <Alert
           type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>}
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>}
         />
       )}
 

@@ -405,6 +405,18 @@
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3);
   --shadow-card-hover: 0 4px 8px 0 rgb(0 0 0 / 0.4);
   --shadow-modal: 0 16px 32px 0 rgb(0 0 0 / 0.6);
+
+  /* 鎰忎箟鑹茶儗鏅?鎹负閫忔槑钑叉哗, 閬垮厤鏆楄壊妯″紡涓嬪嚭鐜扮摝鐧借儗鏅?*/
+  --color-success-bg: rgba(74, 222, 128, 0.12);
+  --color-success-border: rgba(74, 222, 128, 0.32);
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
+  --color-warning-border: rgba(251, 191, 36, 0.32);
+  --color-error-bg: rgba(248, 113, 113, 0.12);
+  --color-error-border: rgba(248, 113, 113, 0.32);
+  --color-info-bg: rgba(96, 165, 250, 0.12);
+  --color-info-border: rgba(96, 165, 250, 0.32);
+  --color-pending-bg: rgba(96, 165, 250, 0.12);
+  --color-pending-border: rgba(96, 165, 250, 0.32);
 }
 
 /* ============================================================
@@ -665,6 +677,13 @@
   --color-error: #ff4444; --color-info: #66ccff;
   --shadow-sm: none; --shadow-md: none;
   --radius-sm: 4px; --radius-md: 6px; --radius-lg: 10px;
+
+  /* 鎰忎箟鑹茶儗鏅?闈炲父瑙夊彲鍙?*/
+  --color-success-bg: #002800; --color-success-border: #00ff00;
+  --color-warning-bg: #2a2000; --color-warning-border: #ffcc00;
+  --color-error-bg: #2a0000; --color-error-border: #ff4444;
+  --color-info-bg: #001528; --color-info-border: #66ccff;
+  --color-pending-bg: #001528; --color-pending-border: #66ccff;
 
   /* compatibility aliases -> same value */
   --content-bg: var(--bg-primary); --content-fg: var(--text-primary);

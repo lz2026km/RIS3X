@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
+import type { FractureCadResult } from "../../services/api/fractureCadApi";
 import {
   Card,
   Table,
@@ -13,8 +14,7 @@ import {
   message,
 } from "antd";
 import { Activity, RefreshCw, Cpu } from "lucide-react";
-import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
-import type { FractureCadResult } from "../../services/api/fractureCadApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const severityColor: Record<string, string> = {
   mild: "green",
@@ -147,8 +147,7 @@ const FractureCadPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

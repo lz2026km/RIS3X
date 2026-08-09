@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { autoCollectionApi, type AutoCollectionRule } from '../../services/api/autoCollectionApi'
 import { Card, Table, Switch, Space, Row, Col, Statistic, Button, Tag, message, Modal, Form, Input, Select, Alert } from 'antd'
 import { Settings, Play } from 'lucide-react'
-import { autoCollectionApi, type AutoCollectionRule } from '../../services/api/autoCollectionApi'
+import React, { useState, useEffect, useCallback } from 'react'
+import { RefreshCw } from 'lucide-react'
 
 // 数据来源说明: 后端无 auto-collection controller,
 // 由 MSW handler (src/services/mockBackend/autoCollectionHandlers.ts) 提供演示数据。
@@ -115,7 +116,7 @@ const AutoCollectionPage: React.FC = () => {
         <Settings size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>自动采集管理</span>
       </Space>
-      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchRules}>重试</Button>} style={{ marginBottom: 16 }} />}
+      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchRules}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="总规则" value={rules.length} loading={loading} /></Card></Col>
         <Col span={6}><Card><Statistic title="已启用" value={rules.filter(r => r.enabled).length} styles={{ content: { color: '#52c41a' } }} loading={loading} /></Card></Col>
@@ -148,10 +149,10 @@ const AutoCollectionPage: React.FC = () => {
           </Form.Item>
           <Form.Item name="action" label="动作" rules={[{ required: true }]}>
             <Select options={[
-              { value: 'archive', label: '自动归档 (archive)' },
-              { value: 'notify', label: '通知 (notify)' },
-              { value: 'report', label: '生成报告 (report)' },
-              { value: 'transfer', label: '转储 (transfer)' },
+              { value: 'archive', label: '自动归档' },
+              { value: 'notify', label: '通知' },
+              { value: 'report', label: '生成报告' },
+              { value: 'transfer', label: '转储' },
             ]} />
           </Form.Item>
           <Form.Item name="enabled" label="创建后立即启用" valuePropName="checked">

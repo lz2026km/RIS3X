@@ -60,29 +60,29 @@ const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
-  SCHEDULED: { bg: "#dbeafe", color: "#2563eb", label: "已登记" },
-  ARRIVED: { bg: "#ede9fe", color: "#7c3aed", label: "已报到" },
-  IN_PROGRESS: { bg: "#fce7f3", color: "#db2777", label: "检查中" },
-  COMPLETED: { bg: "#d1fae5", color: "#059669", label: "已完成" },
-  CANCELLED: { bg: "#fee2e2", color: "#ef4444", label: "已取消" },
-  已登记: { bg: "#dbeafe", color: "#2563eb", label: "已登记" },
-  待检查: { bg: "#ede9fe", color: "#7c3aed", label: "待检查" },
-  检查中: { bg: "#fce7f3", color: "#db2777", label: "检查中" },
-  待报告: { bg: "#fef9c3", color: "#ca8a04", label: "待报告" },
-  已报告: { bg: "#d1fae5", color: "#059669", label: "已报告" },
-  已发布: { bg: "#ecfdf5", color: "#047857", label: "已发布" },
-  已暂停: { bg: "#fef3c7", color: "#f59e0b", label: "已暂停" },
-  质控退回: { bg: "#fee2e2", color: "#ef4444", label: "质控退回" },
+  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
+  ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到" },
+  IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中" },
+  COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成" },
+  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消" },
+  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
+  待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "待检查" },
+  检查中: { bg: "#ec489922", color: "#db2777", label: "检查中" },
+  待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告" },
+  已报告: { bg: "#22c55e22", color: "#059669", label: "已报告" },
+  已发布: { bg: "#22c55e22", color: "#047857", label: "已发布" },
+  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停" },
+  质控退回: { bg: "#ef444422", color: "#ef4444", label: "质控退回" },
 };
 
 const PRIORITY_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
-  普通: { bg: "#f1f5f9", color: "#64748b", label: "普通" },
-  紧急: { bg: "#fef3c7", color: "#d97706", label: "紧急" },
-  危重: { bg: "#fee2e2", color: "#dc2626", label: "危重" },
-  会诊: { bg: "#ede9fe", color: "#7c3aed", label: "会诊" },
+  普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "普通" },
+  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "紧急" },
+  危重: { bg: "#ef444422", color: "#ef4444", label: "危重" },
+  会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "会诊" },
 };
 
 const getDeviceById = (deviceId: string) =>
@@ -168,8 +168,7 @@ export function DetailDrawer({
   const room = getRoomById(exam.roomId ?? "");
 
   const sc = STATUS_CONFIG[exam.status] || {
-    bg: "#f1f5f9",
-    color: "#64748b",
+    bg: "var(--bg-deep)", color: "var(--text-secondary)",
     label: exam.status,
   };
   const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG["普通"]!;
@@ -287,7 +286,7 @@ export function DetailDrawer({
       <div
         style={{
           padding: "16px 20px",
-          borderBottom: "1px solid #f1f5f9",
+          borderBottom: "1px solid var(--border-light)",
           background: "var(--content-bg)",
         }}
       >
@@ -329,7 +328,7 @@ export function DetailDrawer({
                 style={{
                   padding: "3px 10px",
                   background: "var(--content-bg)",
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   borderRadius: 6,
                   fontSize: 12,
                   fontWeight: 500,
@@ -342,10 +341,10 @@ export function DetailDrawer({
                   padding: "3px 10px",
                   background:
                     exam.patientType === "急诊"
-                      ? "#fee2e2"
+                      ? "var(--color-error-bg)"
                       : exam.patientType === "住院"
-                        ? "#dbeafe"
-                        : "#f1f5f9",
+                        ? "var(--color-info-bg)"
+                        : "var(--bg-deep)",
                   color:
                     exam.patientType === "急诊"
                       ? "#dc2626"
@@ -389,7 +388,7 @@ export function DetailDrawer({
       <div
         style={{
           padding: "12px 20px",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--border-color)",
           display: "flex",
           gap: 8,
           background: "var(--bg-card)",
@@ -455,7 +454,7 @@ export function DetailDrawer({
                     <div
                       style={{
                         fontSize: 12,
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         marginBottom: 2,
                       }}
                     >
@@ -518,7 +517,7 @@ export function DetailDrawer({
                     <div
                       style={{
                         fontSize: 12,
-                        color: "#94a3b8",
+                        color: "var(--text-secondary)",
                         marginBottom: 2,
                       }}
                     >
@@ -570,12 +569,12 @@ export function DetailDrawer({
                   justifyContent: "center",
                 }}
               >
-                <Image size={32} style={{ color: "#94a3b8" }} />
+                <Image size={32} style={{ color: "var(--text-secondary)" }} />
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
                 {exam.imagesAcquired}
               </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
                 幅图像
               </div>
               <div
@@ -585,8 +584,8 @@ export function DetailDrawer({
                   background: "var(--bg-card)",
                   borderRadius: 6,
                   fontSize: 12,
-                  color: "#64748b",
-                  border: "1px dashed #cbd5e1",
+                  color: "var(--text-secondary)",
+                  border: "1px dashed var(--border-color)",
                 }}
               >
                 点击"查看图像"按钮打开图像查看器
@@ -611,17 +610,17 @@ export function DetailDrawer({
               <History size={14} />
               历史检查记录
               {!historyLoading && !historyError && (
-                <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 400 }}>
                   (该患者共 {historyExams.length} 次历史检查)
                 </span>
               )}
             </div>
             {historyLoading ? (
-              <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
+              <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
                 正在加载历史检查...
               </div>
             ) : historyError ? (
-              <div style={{ background: "#fef2f2", borderRadius: 10, padding: 40, textAlign: "center", color: "#dc2626", fontSize: 12 }}>
+              <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "#dc2626", fontSize: 12 }}>
                 {historyError}
               </div>
             ) : historyExams.length > 0 ? (
@@ -630,8 +629,7 @@ export function DetailDrawer({
               >
                 {historyExams.map((hist) => {
                   const histSc = STATUS_CONFIG[hist.status] || {
-                    bg: "#f1f5f9",
-                    color: "#64748b",
+                    bg: "var(--bg-deep)", color: "var(--text-secondary)",
                     label: hist.status,
                   };
                   return (
@@ -641,7 +639,7 @@ export function DetailDrawer({
                         background: "var(--content-bg)",
                         borderRadius: 10,
                         padding: 12,
-                        border: "1px solid #e2e8f0",
+                        border: "1px solid var(--border-color)",
                       }}
                     >
                       <div
@@ -679,7 +677,7 @@ export function DetailDrawer({
                           gridTemplateColumns: "1fr 1fr",
                           gap: 6,
                           fontSize: 12,
-                          color: "#64748b",
+                          color: "var(--text-secondary)",
                         }}
                       >
                         <span>{hist.examDate}</span>
@@ -696,7 +694,7 @@ export function DetailDrawer({
                   borderRadius: 10,
                   padding: 40,
                   textAlign: "center",
-                  color: "#94a3b8",
+                  color: "var(--text-secondary)",
                 }}
               >
                 <History
@@ -771,7 +769,7 @@ export function DetailDrawer({
                           background: "var(--content-bg)",
                           borderRadius: 8,
                           padding: "10px 14px",
-                          border: "1px solid #e2e8f0",
+                          border: "1px solid var(--border-color)",
                         }}
                       >
                         <div
@@ -787,7 +785,7 @@ export function DetailDrawer({
                         <div
                           style={{
                             fontSize: 12,
-                            color: "#64748b",
+                            color: "var(--text-secondary)",
                             display: "flex",
                             justifyContent: "space-between",
                           }}
@@ -810,7 +808,7 @@ export function DetailDrawer({
       <div
         style={{
           padding: 16,
-          borderTop: "1px solid #e2e8f0",
+          borderTop: "1px solid var(--border-color)",
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: 10,
@@ -822,7 +820,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
@@ -842,7 +840,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
@@ -862,7 +860,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
@@ -882,7 +880,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
@@ -922,7 +920,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
@@ -961,7 +959,7 @@ export function DetailDrawer({
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,

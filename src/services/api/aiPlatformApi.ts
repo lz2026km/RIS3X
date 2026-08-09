@@ -116,6 +116,22 @@ export interface CreateAiOrchestrationDto {
   trigger?: "ON_STUDY_COMPLETE" | "ON_REPORT_SAVE" | "MANUAL";
 }
 
+// [G005 Wave1A P0] 对齐 backend aiplatform.schema (CreateWorkflowIntegrationSchema / TriggerWorkflowEventSchema)
+export interface CreateWorkflowIntegrationDto {
+  modelId: string;
+  name: string;
+  targetWorkflow: string;
+  triggerConditions?: Record<string, unknown>;
+}
+
+export interface TriggerWorkflowEventDto {
+  trigger: string;
+  examId: string;
+  modality?: string;
+  bodyPart?: string;
+  payload?: Record<string, unknown>;
+}
+
 function unwrap<T>(res: { success: boolean; data: unknown }): T {
   const body = res.data as { data?: T } | T | null;
   if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
@@ -237,6 +253,26 @@ export const aiPlatformApi = {
     api.get<{ data: AiPlatformQcResult[] }>(`/ai-platform/qc/${id}`),
 
   // ==================== [W1-D] AI 平台 7 端点补全 ====================
+
+  // [G005 Wave1A P0] 工作流集成列表 (后端 GET /ai-platform/workflow/integrations)
+  listWorkflowIntegrations: async () => {
+    const res = await api.get<unknown>("/ai-platform/workflow/integrations");
+    return { ...res, data: unwrapList<AiPlatformRecord>(res) };
+  },
+
+  // [G005 Wave1A P0] 新建工作流集成 (后端 POST /ai-platform/workflow/integrations)
+  createWorkflowIntegration: async (data: CreateWorkflowIntegrationDto) => {
+    const res = await api.post<unknown>("/ai-platform/workflow/integrations", data);
+    await invalidateApiCache("/ai-platform/workflow/integrations");
+    return { ...res, data: unwrap<AiPlatformRecord[]>(res)[0] };
+  },
+
+  // [G005 Wave1A P0] 触发工作流事件 (后端 POST /ai-platform/workflow/trigger → 匹配触发器建任务)
+  triggerWorkflowEvent: async (data: TriggerWorkflowEventDto) => {
+    const res = await api.post<unknown>("/ai-platform/workflow/trigger", data);
+    await invalidateApiCache("/ai-platform/jobs");
+    return res;
+  },
 
   // 结构化报告列表 (后端: auditLog resource=ai-structured-report)
   listStructuredReports: async () => {

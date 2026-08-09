@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { usePagination } from "../../hooks/usePagination";
+import { wadoRsApi } from "../../services/api/wadoRsApi";
+import { WadoRsSeries, WadoRsStudy } from '../../services/api/wadoRsApi'
 import {
   Card,
   Table,
@@ -17,9 +19,7 @@ import {
   List,
 } from "antd";
 import { Globe, Search, Download, RefreshCw, Loader2 } from "lucide-react";
-import { wadoRsApi } from "../../services/api/wadoRsApi";
-import type { WadoRsStudy, WadoRsSeries } from "../../services/api/wadoRsApi";
-import { usePagination } from "../../hooks/usePagination";
+import React, { useState, useEffect, useCallback } from "react";
 
 const { Text } = Typography;
 
@@ -117,7 +117,7 @@ const WadoRsPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Study UID",
+      title: "检查 UID",
       dataIndex: "studyInstanceUid",
       key: "uid",
       render: (v: string) => (
@@ -188,7 +188,7 @@ const WadoRsPage: React.FC = () => {
         <Space>
           <Input
             prefix={<Search size={14} />}
-            placeholder="搜索患者名/Study UID"
+            placeholder="搜索患者名/检查 UID"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: 400 }}
@@ -201,8 +201,7 @@ const WadoRsPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

@@ -59,7 +59,7 @@ export const DentalEmrPage: React.FC = () => {
   useEffect(() => { loadPatient(selectedId); }, []);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 360° 患者视图</span>
@@ -77,7 +77,7 @@ export const DentalEmrPage: React.FC = () => {
                   <div>
                     <div style={{ fontWeight: 600 }}>{overview.name} <Tag>{overview.gender === 'M' ? '男' : '女'}</Tag><Tag>{overview.age}岁</Tag></div>
                     <Space size={2}>
-                      <Phone size={10} color="#999" /><span style={{ fontSize: 11, color: '#999' }}>{overview.phone}</span>
+                      <Phone size={10} color="var(--text-secondary)" /><span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{overview.phone}</span>
                     </Space>
                   </div>
                 </Space>
@@ -94,7 +94,7 @@ export const DentalEmrPage: React.FC = () => {
                   {overview.systemicDisease?.map((d: string) => <Tag key={d} color="orange">{d}</Tag>)}
                   {overview.tags?.map((t: string) => <Tag key={t} color="purple">{t}</Tag>)}
                 </Space>
-                <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>首诊: {overview.firstVisit} | 主治: {overview.dentist}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>首诊: {overview.firstVisit} | 主治: {overview.dentist}</div>
               </Card>
             </Col>
           </Row>
@@ -122,9 +122,9 @@ export const DentalEmrPage: React.FC = () => {
               {key:'billing', label:<span><DollarSign size={12}/>费用 ({bills.length})</span>, children:<Table dataSource={bills} rowKey="id" size="small" pagination={false}
                 columns={[{title:'日期',dataIndex:'date'},{title:'项目',dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={s} />}]} 
               scroll={{ x: 'max-content' }}/>},
-              {key:'rx', label:<span><Pill size={12}/>处方 ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'#999'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
-              {key:'consents', label:<span><FileText size={12}/>知情同意 ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?'已签署':'待签署'} /></Space>} description={<div style={{fontSize:12,color:'#999'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
-              {key:'recalls', label:<span><AlertTriangle size={12}/>回访 ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'#999'}}>{r.date} | 方式: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?'已发送':'待发送'} /></div>} /></List.Item>} />},
+              {key:'rx', label:<span><Pill size={12}/>处方 ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
+              {key:'consents', label:<span><FileText size={12}/>知情同意 ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?'已签署':'待签署'} /></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
+              {key:'recalls', label:<span><AlertTriangle size={12}/>回访 ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{r.date} | 方式: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?'已发送':'待发送'} /></div>} /></List.Item>} />},
             ]} />
           </Card>
         </>

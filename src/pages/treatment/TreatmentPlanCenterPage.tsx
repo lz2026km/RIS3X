@@ -1,9 +1,9 @@
 // [W3-2] 跨科室治疗计划中心: treatmentPlanApi 真实 CRUD + 状态流转 + 时间线
-import React, { useState, useEffect, useCallback } from 'react';
+import { usePagination } from '../../hooks/usePagination';
+import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
 import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
-import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
-import { usePagination } from '../../hooks/usePagination';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const { TextArea } = Input;
 
@@ -224,7 +224,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
       </Space>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="总计划" value={stats.total} /></Card></Col>
         <Col span={6}><Card><Statistic title="已计划" value={stats.planned} styles={{ content: { color: '#faad14' } }} /></Card></Col>

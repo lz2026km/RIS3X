@@ -1,10 +1,10 @@
 // [v3.0.6.11-17] 检查室占用率 + 排队预测仪表盘
 // [G005 W1-1] 接入后端 /occupancy/rooms|queue|trends|room/:id/status (30s 轮询)
-import React, { useState, useEffect, useCallback } from 'react';
+import { occupancyApi } from '../../services/api';
+import { OccupancyQueueEntry, OccupancyRoom, OccupancyTrendPoint, RoomStatusValue } from '../../services/api'
 import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
-import { occupancyApi } from '../../services/api';
-import type { OccupancyRoom, OccupancyQueueEntry, OccupancyTrendPoint, RoomStatusValue } from '../../services/api';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -83,14 +83,14 @@ export const RoomOccupancyPage: React.FC = () => {
 
   if (loading && rooms.length === 0) {
     return (
-      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description="加载中..." />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <LayoutDashboard size={20} color="#2563eb" />
@@ -103,7 +103,7 @@ export const RoomOccupancyPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message="加载失败"
-          description={error} action={<Button size="small" onClick={() => void refresh()}>重试</Button>} />
+          description={error} action={<Button size="small" onClick={() => void refresh()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
@@ -117,11 +117,11 @@ export const RoomOccupancyPage: React.FC = () => {
         <Col span={16}>
           <Card size="small" title={<Space><LayoutDashboard size={14} />检查室平面布局</Space>}>
             {rooms.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无检查室数据</div>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>暂无检查室数据</div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
                 {rooms.map(r => {
-                  const meta = STATUS_META[r.status] ?? { color: '#94a3b8', label: r.status };
+                  const meta = STATUS_META[r.status] ?? { color: 'var(--text-secondary)', label: r.status };
                   const isOverdue = r.overdue;
                   return (
                     <Tooltip key={r.id} title={
@@ -161,7 +161,7 @@ export const RoomOccupancyPage: React.FC = () => {
 
           <Card size="small" title={<Space><TrendingUp size={14} />占用率趋势（过去 24h）</Space>} style={{ marginTop: 16 }}>
             {trends.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无趋势数据</div>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>暂无趋势数据</div>
             ) : (
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 2, padding: '0 4px' }}>
                 {trends.map((p, i) => (
@@ -171,7 +171,7 @@ export const RoomOccupancyPage: React.FC = () => {
                         width: '100%', height: `${p.rate}%`, background: p.rate > 80 ? '#ff4d4f' : p.rate > 50 ? '#faad14' : '#52c41a',
                         borderRadius: '4px 4px 0 0', minHeight: 4, transition: 'height 0.3s',
                       }} />
-                      <div style={{ fontSize: 9, color: '#999', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
+                      <div style={{ fontSize: 9, color: 'var(--text-secondary)', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
                     </div>
                   </Tooltip>
                 ))}
@@ -183,7 +183,7 @@ export const RoomOccupancyPage: React.FC = () => {
         <Col span={8}>
           <Card size="small" title={<Space><Clock size={14} />排队队列 {selectedRoom ? `- ${rooms.find(r => r.id === selectedRoom)?.roomNo ?? ''}` : ''}</Space>}>
             {!selectedRoom ? (
-              <div style={{ color: '#999', textAlign: 'center', padding: 24 }}>点击左侧房间查看排队</div>
+              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>点击左侧房间查看排队</div>
             ) : (
               <>
                 <div style={{ marginBottom: 8 }}>

@@ -1,4 +1,15 @@
-import React, { useState, useMemo, useEffect } from "react";
+import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
+import { usePagination } from "../../../hooks/usePagination";
+import { eyeApi } from "../../../services/api/eyeApi";
+import type {
+  EyeAppointment,
+  SurgeryAppointment,
+  FollowUpReminder,
+  EyeReferral,
+  CriticalValue,
+} from "../../../types/eye";
+import { PageContainer, PageHeader } from "@/components/common";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import {
   Card,
   Row,
@@ -22,17 +33,8 @@ import {
   ArrowRight,
   Bell,
 } from "lucide-react";
-import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
-import { eyeApi } from "../../../services/api/eyeApi";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { PageContainer, PageHeader } from "@/components/common";
-import type {
-  EyeAppointment,
-  SurgeryAppointment,
-  FollowUpReminder,
-  EyeReferral,
-  CriticalValue,
-} from "../../../types/eye";
+import React, { useState, useMemo, useEffect } from "react";
+import { Inbox } from 'lucide-react'
 
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
@@ -132,7 +134,7 @@ const EyeRisPage: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0] ?? "";
   const todayApts = appointments.filter((a) => a.scheduledDate === today);
   const upcomingApts = appointments.filter(
     (a) => a.scheduledDate > today,
@@ -162,6 +164,13 @@ const EyeRisPage: React.FC = () => {
     });
     return maxIdx;
   }, [todayApts]);
+
+  // [G005 W2-B] 5 张表受控分页 (usePagination: current/total/onChange)
+  const { pageData: todayAptsPage, pagination: todayAptsPagination } = usePagination(todayApts, 5);
+  const { pageData: upcomingAptsPage, pagination: upcomingAptsPagination } = usePagination(upcomingApts, 5);
+  const { pageData: followUpsPage, pagination: followUpsPagination } = usePagination(followUps, 4);
+  const { pageData: referralsPage, pagination: referralsPagination } = usePagination(referrals, 3);
+  const { pageData: surgeryAptsPage, pagination: surgeryAptsPagination } = usePagination(surgeryAppointments, 5);
 
   
   const statusLabels: Record<string, string> = {
@@ -245,16 +254,16 @@ const EyeRisPage: React.FC = () => {
               ]}
             />
             <Table
-              dataSource={todayApts}
+              dataSource={todayAptsPage}
               rowKey="id"
               size="small"
               pagination={{
-                pageSize: 5,
+                ...todayAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t) => `共 ${t} 条`,
+                showTotal: (t: number) => `共 ${t} 条`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
               columns={[
                 {
                   title: "时间",
@@ -341,16 +350,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={upcomingApts}
+              dataSource={upcomingAptsPage}
               rowKey="id"
               size="small"
               pagination={{
-                pageSize: 5,
+                ...upcomingAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t) => `共 ${t} 条`,
+                showTotal: (t: number) => `共 ${t} 条`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
               columns={[
                 {
                   title: "日期",
@@ -405,16 +414,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={followUps}
+              dataSource={followUpsPage}
               rowKey="id"
               size="small"
               pagination={{
-                pageSize: 4,
+                ...followUpsPagination,
                 showSizeChanger: true,
-                showTotal: (t) => `共 ${t} 条`,
+                showTotal: (t: number) => `共 ${t} 条`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
               columns={[
                 {
                   title: "患者",
@@ -457,16 +466,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={referrals}
+              dataSource={referralsPage}
               rowKey="id"
               size="small"
               pagination={{
-                pageSize: 3,
+                ...referralsPagination,
                 showSizeChanger: true,
-                showTotal: (t) => `共 ${t} 条`,
+                showTotal: (t: number) => `共 ${t} 条`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
               columns={[
                 {
                   title: "患者",
@@ -505,16 +514,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={surgeryAppointments}
+              dataSource={surgeryAptsPage}
               rowKey="id"
               size="small"
               pagination={{
-                pageSize: 5,
+                ...surgeryAptsPagination,
                 showSizeChanger: true,
-                showTotal: (t) => `共 ${t} 条`,
+                showTotal: (t: number) => `共 ${t} 条`,
               }}
               scroll={{ x: "max-content" }}
-              locale={{ emptyText: <Empty description="暂无数据" /> }}
+              locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
               columns={[
                 {
                   title: "时间",

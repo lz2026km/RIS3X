@@ -110,7 +110,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Ruler size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全景片标注</span>
@@ -136,17 +136,17 @@ export const PanoramicAnnotatorPage: React.FC = () => {
           }>
             <canvas ref={canvasRef} width={700} height={550} style={{ width: '100%', height: 'auto', cursor: 'crosshair', border: '1px solid #333', borderRadius: 4 }}
               onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} />
-            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>在图片上拖动进行标注 | 标注数: {annotations.length}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>在图片上拖动进行标注 | 标注数: {annotations.length}</div>
           </Card>
         </Col>
         <Col span={6}>
           <Card title="标注列表" size="small">
-            {annotations.map((a, i) => <div key={a.id} style={{ padding: 8, marginBottom: 4, background: '#fafafa', borderRadius: 4, borderLeft: `3px solid ${a.color}` }}>
+            {annotations.map((a, i) => <div key={a.id} style={{ padding: 8, marginBottom: 4, background: 'var(--bg-card)', borderRadius: 4, borderLeft: `3px solid ${a.color}` }}>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{a.tool} - {a.label || '-'}</div>
-              <div style={{ fontSize: 11, color: '#666' }}>{a.tool === 'ruler' ? Math.round(Math.sqrt(a.w*a.w + a.h*a.h)) + 'mm' : `${a.w}×${a.h}`}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.tool === 'ruler' ? Math.round(Math.sqrt(a.w*a.w + a.h*a.h)) + 'mm' : `${a.w}×${a.h}`}</div>
               <Button type="text" size="small" danger icon={<Trash2 size={10} />} onClick={() => setAnnotations(annotations.filter((_, j) => j !== i))}>删</Button>
             </div>)}
-            {annotations.length === 0 && <div style={{ color: '#999', fontSize: 12 }}>暂无标注</div>}
+            {annotations.length === 0 && <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>暂无标注</div>}
           </Card>
         </Col>
       </Row>

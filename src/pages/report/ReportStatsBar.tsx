@@ -2,7 +2,7 @@ import React from 'react'
 
 const PRIMARY = '#1e40af'
 const GRAY = '#64748b'
-const WHITE = '#ffffff'
+const WHITE = 'var(--bg-card)'
 
 export interface ReportStatCardProps {
   label: string
@@ -30,7 +30,7 @@ export function StatCard({ label, value, icon, color, sub, onClick }: ReportStat
   return (
     <div onClick={onClick} style={{
       background: WHITE, borderRadius: 10, padding: '14px 18px',
-      border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
       display: 'flex', alignItems: 'center', gap: 14,
       cursor: onClick ? 'pointer' : 'default', transition: 'all 0.2s',
       flex: 1, minWidth: 160,

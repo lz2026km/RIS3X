@@ -86,20 +86,20 @@ interface ExtractFilter {
 const COLORS = {
   primary: '#1e40af',
   primaryLight: '#3b82f6',
-  primaryLighter: '#dbeafe',
+  primaryLighter: 'var(--color-info-bg)',
   secondary: '#64748b',
   success: '#16a34a',
-  successLight: '#dcfce7',
+  successLight: 'var(--color-success-bg)',
   warning: '#d97706',
-  warningLight: '#fef3c7',
+  warningLight: 'var(--color-warning-bg)',
   danger: '#dc2626',
-  dangerLight: '#fee2e2',
-  bgGray: '#f1f5f9',
-  bgWhite: '#ffffff',
-  border: '#e2e8f0',
-  textPrimary: '#1e293b',
-  textSecondary: '#64748b',
-  textLight: '#94a3b8',
+  dangerLight: 'var(--color-error-bg)',
+  bgGray: 'var(--content-bg)',
+  bgWhite: 'var(--bg-card)',
+  border: 'var(--border-color)',
+  textPrimary: 'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
+  textLight: 'var(--text-muted)',
 }
 
 // ==================== 工具函数 ====================
@@ -130,7 +130,7 @@ function getStatusColor(status: ProjectStatus): string {
 }
 
 function getStatusBgColor(status: ProjectStatus): string {
-  switch (status) { case '进行中': return COLORS.primaryLighter; case '已完成': return COLORS.successLight; case '已归档': return '#f1f5f9'; default: return '#f1f5f9' }
+  switch (status) { case '进行中': return COLORS.primaryLighter; case '已完成': return COLORS.successLight; case '已归档': return 'var(--content-bg)'; default: return 'var(--content-bg)' }
 }
 
 function getLabelTypeColor(type: LabelType): string {
@@ -165,15 +165,15 @@ function ProgressModal({ open, title, message, progress, onClose }: ProgressModa
   if (!open) return null
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
-      <div style={{ background: '#ffffff', borderRadius: 12, padding: 32, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>{title}</div>
-        <div style={{ fontSize: 14, color: '#64748b', marginBottom: 20 }}>{message}</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 32, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>{title}</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>{message}</div>
         {progress !== undefined && (
-          <div style={{ background: '#e8e8e8', borderRadius: 8, height: 8, overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 8, height: 8, overflow: 'hidden' }}>
             <div style={{ background: '#3b82f6', height: '100%', width: `${progress}%`, transition: 'width 0.3s' }} />
           </div>
         )}
-        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>{progress !== undefined ? `${progress}%` : '请稍候...'}</div>
+        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{progress !== undefined ? `${progress}%` : '请稍候...'}</div>
       </div>
     </div>
   )
@@ -295,7 +295,7 @@ function ProjectsTab() {
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>课题描述</label><textarea value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} placeholder="请输入课题描述" rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} /></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
             <button onClick={() => setShowModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button>
-            <button onClick={handleCreateProject} style={{ padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>创建课题</button>
+                <button onClick={handleCreateProject} style={{ padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Plus size={14} />创建课题</button>
           </div>
         </div>
       </Modal>
@@ -324,7 +324,7 @@ function ProjectsTab() {
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>课题描述</label><textarea value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} /></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
             <button onClick={() => { setShowEditModal(false); setEditingProject(null) }} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button>
-            <button onClick={handleEditProject} disabled={!newProject.name?.trim()} style={{ padding: '10px 20px', background: newProject.name?.trim() ? COLORS.primary : COLORS.bgGray, color: newProject.name?.trim() ? '#ffffff' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: newProject.name?.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>保存修改</button>
+            <button onClick={handleEditProject} disabled={!newProject.name?.trim()} style={{ padding: '10px 20px', background: newProject.name?.trim() ? COLORS.primary : COLORS.bgGray, color: newProject.name?.trim() ? '#ffffff' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: newProject.name?.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}><Save size={14} />保存修改</button>
           </div>
         </div>
       </Modal>
@@ -545,6 +545,20 @@ function ExportTab() {
     })()
   }, [])
   const [exportPermissions, setExportPermissions] = useState({ allowCsv: true, allowJson: true, allowDicom: false, maxRecordsPerExport: 1000, requireApproval: true })
+  // [Wave2A] 加载已保存的导出权限 (localStorage; researchApi 无权限设置端点)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ris_research_export_permissions')
+      if (raw) setExportPermissions(prev => ({ ...prev, ...JSON.parse(raw) }))
+    } catch { /* ignore */ }
+  }, [])
+  const handleSaveExportPermissions = () => {
+    try {
+      localStorage.setItem('ris_research_export_permissions', JSON.stringify(exportPermissions))
+    } catch { /* ignore */ }
+    showToast('导出权限设置已保存 (本地持久化 · researchApi 无权限端点)', 'success')
+    setShowPermissionModal(false)
+  }
   const handleDownload = (record: ExportRecord) => { showToast(`开始下载: ${record.downloadUrl}`, 'info') }
   return (
     <div>
@@ -573,7 +587,7 @@ function ExportTab() {
           <div><div style={{ fontSize: 13, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12 }}>允许导出的格式</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: 'CSV 格式', desc: '表格数据，便于统计分析' }, { key: 'allowJson', label: 'JSON 格式', desc: '结构化数据，便于程序处理' }, { key: 'allowDicom', label: 'DICOM 格式', desc: '原始影像数据，需额外审批' }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 12, background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><input type="checkbox" checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 12, width: 18, height: 18 }} /><div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>单次最大导出记录数</label><input type="number" value={exportPermissions.maxRecordsPerExport} onChange={e => setExportPermissions({ ...exportPermissions, maxRecordsPerExport: Number(e.target.value) })} min={1} max={10000} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}><input type="checkbox" checked={exportPermissions.requireApproval} onChange={e => setExportPermissions({ ...exportPermissions, requireApproval: e.target.checked })} style={{ width: 18, height: 18 }} /><span style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>导出需管理员审批</span></label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowPermissionModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button><button onClick={() => { showToast('导出权限设置已保存', 'success'); setShowPermissionModal(false) }} style={{ padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>保存设置</button></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowPermissionModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button><button onClick={handleSaveExportPermissions} style={{ padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>保存设置</button></div>
         </div>
       </Modal>
     </div>
@@ -585,6 +599,9 @@ function DeidEngineTab() {
   const { showToast } = useToast()
   const [deidProfile, setDeidProfile] = useState('hipaa')
   const [showPreview, setShowPreview] = useState(false)
+  const [deidRunning, setDeidRunning] = useState(false)
+  const [deidFileCount, setDeidFileCount] = useState(50)
+  const [deidResult, setDeidResult] = useState<string | null>(null)
   const [phiTags] = useState([
     { tag: 'PatientName', status: 'remove' },
     { tag: 'PatientID', status: 'remove' },
@@ -601,7 +618,7 @@ function DeidEngineTab() {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Shield size={16} /> 脱敏配置文件</div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-          {[{ id: 'hipaa', label: 'HIPAA Safe Harbor', desc: '移除18类PHI标识符' }, { id: 'expert', label: 'Expert Determination', desc: '专家确定去标识化' }].map(p => (
+          {[{ id: 'hipaa', label: 'HIPAA 安全港', desc: '移除18类PHI标识符' }, { id: 'expert', label: '专家判定', desc: '专家确定去标识化' }].map(p => (
             <div key={p.id} onClick={() => setDeidProfile(p.id)} style={{ flex: 1, padding: 16, borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: deidProfile === p.id ? COLORS.primary : COLORS.textPrimary }}>{p.label}</div>
               <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{p.desc}</div>
@@ -643,8 +660,15 @@ function DeidEngineTab() {
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
-        <button onClick={() => { showToast('脱敏引擎正在处理...', 'info'); setTimeout(() => showToast('脱敏完成，已处理50个DICOM文件', 'success'), 1500) }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Shield size={16} /> 执行脱敏</button>
+        <button disabled={deidRunning} onClick={() => { showToast('脱敏端点 /research/deid 待后端接入，当前为本地模拟...', 'info'); setDeidRunning(true); setTimeout(() => { setDeidRunning(false); setDeidResult(`脱敏完成: ${deidFileCount} 个 DICOM 文件已按 ${deidProfile === 'hipaa' ? 'HIPAA 安全港' : '专家判定'} 配置处理 (本地模拟)`); showToast('脱敏完成（本地模拟）', 'success') }, 1500) }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, opacity: deidRunning ? 0.6 : 1 }}><Shield size={16} /> {deidRunning ? '脱敏处理中...' : '执行脱敏'}</button>
         <button onClick={() => setShowPreview(!showPreview)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Eye size={16} /> 预览对比</button>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, fontSize: 12, color: COLORS.textSecondary }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>处理文件数:
+          <input type="number" min={1} max={500} value={deidFileCount} onChange={e => setDeidFileCount(Number(e.target.value) || 0)} style={{ width: 70, padding: '4px 8px', border: '1px solid ' + COLORS.border, borderRadius: 6, fontSize: 13 }} />
+        </label>
+        {deidResult && <span style={{ color: COLORS.success, fontWeight: 600 }}>{deidResult}</span>}
+        <span style={{ color: COLORS.warning }}>标注: 后端未提供脱敏端点, 当前为本地模拟</span>
       </div>
     </div>
   )
@@ -1016,7 +1040,7 @@ export default function ResearchPage() {
   return (
     <div style={{ padding: 24, background: COLORS.bgGray, minHeight: '100vh' }}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
-      <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 16 }}>
+      <div style={{ background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 16 }}>
         演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口
       </div>
       <div style={{ marginBottom: 24 }}>

@@ -81,7 +81,7 @@ function StorageMonitorTab() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><HardDrive size={16} />存储节点 ({nodes.length})<Tag color="green">{(nodes.filter(n => n.status === "online").length)} 在线</Tag></Space>}>
-            <Table
+            <Table scroll={{ x: 'max-content' }}
               dataSource={nodes}
               rowKey="id"
               size="small"
@@ -108,7 +108,7 @@ function StorageMonitorTab() {
                 { title: "写延迟", dataIndex: "writeLatencyMs", key: "wl", width: 90, render: (n: number) => `${n} ms` },
                 { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const st = STATUS_MAP[s] ?? { color: "gray", label: s }; return <Tag color={st.color}>{st.label}</Tag> } },
               ]}
-            scroll={{ x: 'max-content' }}
+           
             />
           </Card>
         </Col>
@@ -140,7 +140,7 @@ function StorageMonitorTab() {
       </Row>
 
       <Card title={<Space><Repeat size={16} />归档任务 ({ARCHIVE_JOBS.length})</Space>}>
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           dataSource={jobsPagination.pageData}
           rowKey="id"
           size="small"
@@ -157,7 +157,7 @@ function StorageMonitorTab() {
             { title: "进度", dataIndex: "progress", key: "p", width: 140, render: (p: number) => <Progress percent={p} size="small" status={p === 100 ? "success" : "active"} /> },
             { title: "状态", dataIndex: "status", key: "st", width: 90, render: (s: string) => <Tag color={JOB_STATUS[s]?.color}>{s === "success" ? "成功" : s === "running" ? "进行中" : s === "failed" ? "失败" : "排队"}</Tag> },
           ]}
-        scroll={{ x: 'max-content' }}
+       
         />
       </Card>
     </>
@@ -361,12 +361,12 @@ function StorageConfigTab() {
               <Alert type="info" showIcon message="对象数超过统计上限 (5000), 统计为抽样结果。" style={{ marginBottom: 12 }} />
             )}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <Clock size={14} color="#6b7280" />
+              <Clock size={14} color="var(--text-secondary)" />
               <Text type="secondary" style={{ fontSize: 12 }}>{stats?.detail ?? "暂无统计"}</Text>
             </div>
             {stats?.latencyMs !== undefined && (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Activity size={14} color="#6b7280" />
+                <Activity size={14} color="var(--text-secondary)" />
                 <Text type="secondary" style={{ fontSize: 12 }}>驱动延迟 {stats.latencyMs} ms</Text>
               </div>
             )}
@@ -383,7 +383,7 @@ function StorageConfigTab() {
 
 export default function CloudStorageDashboardPage() {
   return (
-    <div style={{ padding: 24, background: "#f1f5f9", minHeight: "calc(100vh - 56px)" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#0ea5e9 0%,#06b6d4 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <Space size={16}>
           <Cloud size={36} color="#fff" />

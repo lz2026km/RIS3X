@@ -2,14 +2,15 @@
  * G005 v3.0.6.11-75 W3-1 - 跨模态检索页
  * 搜索表单(关键词/患者/模态/日期) → crossModalApi → 结果分组(exam/report/dicom) → 跳转详情
  */
-import React, { useState } from 'react'
+import { crossModalApi } from '../../services/api'
+import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../services/api/crossModalApi'
 import {
   Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, Statistic, message,
 } from 'antd'
 import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw } from 'lucide-react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { crossModalApi } from '../../services/api'
-import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../services/api/crossModalApi'
+import { SearchX } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -196,7 +197,7 @@ const CrossModalSearchPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="检索失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={handleSearch}>重试</Button>} />
+          action={<Button size="small" onClick={handleSearch}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       {loading ? (
@@ -204,7 +205,7 @@ const CrossModalSearchPage: React.FC = () => {
       ) : !searched ? (
         <Empty description="输入检索条件开始搜索" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: 48 }} />
       ) : results.length === 0 ? (
-        <Empty description="未找到匹配结果" style={{ marginTop: 48 }} />
+        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到匹配结果" style={{ marginTop: 48 }} />
       ) : (
         <Card size="small">
           <Tabs

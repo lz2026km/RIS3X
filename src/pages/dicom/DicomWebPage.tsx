@@ -2,13 +2,14 @@
  * G005 v3.0.6.11-75 W3-1 - DICOMweb 工具页
  * QIDO-RS 检索(dicomWebApi.searchStudies) + 结果列表 + WADO-RS 预览 + STOW-RS 上传 + loading/error
  */
-import { useCallback, useEffect, useState } from 'react'
+import WadoRsViewer from '../../components/dicom/WadoRsViewer'
+import { dicomWebApi, type DicomWebCapabilities, type DicomWebStudy } from '../../services/api/dicomApi'
+import { UploadOutlined, SearchOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
 import {
   Card, Input, Select, Upload, Button, message, Typography, Space, Divider, Table, Tag, Alert, Spin, Empty, Modal,
 } from 'antd'
-import { UploadOutlined, SearchOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
-import WadoRsViewer from '../../components/dicom/WadoRsViewer'
-import { dicomWebApi, type DicomWebCapabilities, type DicomWebStudy } from '../../services/api/dicomApi'
+import { RefreshCw } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 
 const { Title, Text } = Typography
 
@@ -108,7 +109,7 @@ export default function DicomWebPage() {
   }
 
   const columns = [
-    { title: 'Study UID', dataIndex: 'studyInstanceUID', key: 'uid', width: 240, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+    { title: '检查 UID', dataIndex: 'studyInstanceUID', key: 'uid', width: 240, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
     { title: '患者', dataIndex: 'patientName', key: 'patient', width: 100 },
     { title: '患者 ID', dataIndex: 'patientID', key: 'pid', width: 100 },
     { title: '模态', dataIndex: 'modalitiesInStudy', key: 'modality', width: 110, render: (v: string[]) => <Space size={2} wrap>{(v ?? []).map((m) => <Tag key={m} color="blue">{m}</Tag>)}</Space> },
@@ -143,7 +144,7 @@ export default function DicomWebPage() {
 
       {searchError && (
         <Alert type="error" showIcon message="QIDO-RS 检索失败" description={searchError} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void handleQidoSearch()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void handleQidoSearch()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Card size="small" title="QIDO-RS 检索" style={{ marginBottom: 16 }} extra={capabilities && (
@@ -152,7 +153,7 @@ export default function DicomWebPage() {
         </Text>
       )}>
         <Space wrap style={{ width: '100%', marginBottom: 12 }}>
-          <Input placeholder="Patient ID" value={qidopatient} onChange={(e) => setQidopatient(e.target.value)} style={{ width: 150 }} />
+          <Input placeholder="患者 ID" value={qidopatient} onChange={(e) => setQidopatient(e.target.value)} style={{ width: 150 }} />
           <Select placeholder="模态" allowClear style={{ width: 100 }} options={MODALITY_OPTIONS} value={qidomodality || undefined} onChange={(v) => setQidomodality(v ?? '')} />
           <Input placeholder="检查描述关键词" value={qidokeyword} onChange={(e) => setQidokeyword(e.target.value)} style={{ width: 220 }} onPressEnter={() => void handleQidoSearch()} />
           <Button type="primary" icon={<SearchOutlined />} onClick={() => void handleQidoSearch()} loading={searchLoading}>QIDO 检索</Button>
@@ -166,11 +167,11 @@ export default function DicomWebPage() {
         )}
       </Card>
 
-      <Card size="small" title="WADO-RS 按 Study UID 预览" style={{ marginBottom: 16 }}>
+      <Card size="small" title="WADO-RS 按检查 UID 预览" style={{ marginBottom: 16 }}>
         <Space wrap>
           <Select options={SERVER_OPTIONS} value={server} onChange={setServer} style={{ width: 180 }} />
           <Input
-            placeholder="Study Instance UID"
+            placeholder="检查实例 UID"
             value={studyUID}
             onChange={(e) => setStudyUID(e.target.value)}
             style={{ width: 360 }}

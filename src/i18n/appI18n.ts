@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-83 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-85 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-83 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-85 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -189,7 +189,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-83]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-85]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -1906,7 +1906,7 @@ export const translations: Translations = {
     "rdsr.bodyPart": "部位",
     "rdsr.events": "曝光事件数",
     "rdsr.totalExposure": "总曝光量",
-    "rdsr.studyUid": "Study UID",
+    "rdsr.studyUid": "检查 UID",
     "rdsr.examDate": "检查日期",
     "rdsr.alertWarning": "剂量超出 DRL 参考水平，请注意",
     "rdsr.alertCritical": "剂量严重超标！请立即核查",
@@ -2059,7 +2059,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-83 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-85 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2230,7 +2230,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-83]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-85]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",

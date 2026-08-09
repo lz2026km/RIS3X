@@ -1,5 +1,7 @@
 import { api } from './client'
 
+// [G005 Wave1B P1] 模板 API — snippets 端点后端已实现 (templates.controller,
+// ReportTemplate 派生 + 内存 CRUD), MSW 标注已更新。
 export interface TemplateDto {
   id: string
   name: string

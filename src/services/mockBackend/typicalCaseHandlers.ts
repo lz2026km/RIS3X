@@ -1,5 +1,6 @@
 // [W3-B] 典型病例库 MSW handlers: /api/v1/typical-cases, /api/v1/typical-cases/stats
-// 后端暂无典型病例专用端点 (teachApi 仅示教录制), 由 MSW 提供确定性演示数据。
+// [G005 Wave1B P1] 标注更新: 后端已实现 /typical-cases controller (typical-cases.module),
+// 本 handler 仅作为 mock 模式兜底 (dev 无后端时演示数据)。
 import { http, HttpResponse, delay } from 'msw'
 import { TYPICAL_CASES_SEED } from './typicalCasesSeed'
 

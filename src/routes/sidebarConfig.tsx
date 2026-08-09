@@ -77,7 +77,7 @@ import {
   FolderOpen, // [W1-A v3.0.6.11-79] 文件管理
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid } from 'lucide-react';
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid, Stethoscope, Smile, Anchor, AlignCenter, Scissors, Baby } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -1625,55 +1625,55 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/dental",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Stethoscope, { size: 18 }),
         labelKey: "nav.dentalWorkspace",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/studies",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Scan, { size: 18 }),
         labelKey: "nav.dentalPacs",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/chart",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Smile, { size: 18 }),
         labelKey: "nav.dentalChart",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/ai",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Target, { size: 18 }),
         labelKey: "nav.dentalAi",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/treatment",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Award, { size: 18 }),
         labelKey: "nav.dentalTreatment",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/implant",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Anchor, { size: 18 }),
         labelKey: "nav.dentalImplant",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/ortho",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(AlignCenter, { size: 18 }),
         labelKey: "nav.dentalOrtho",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/tele",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Video, { size: 18 }),
         labelKey: "nav.dentalTele",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/inventory",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Package, { size: 18 }),
         labelKey: "nav.dentalInventory",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1756,35 +1756,35 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 牙体牙髓
       {
         path: "/dental/endo",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Shield, { size: 18 }),
         labelKey: "nav.dentalEndo",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       // [v3.0.6.11-42] P2 牙周
       {
         path: "/dental/perio",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Heart, { size: 18 }),
         labelKey: "nav.dentalPerio",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       // [v3.0.6.11-42] P2 修复
       {
         path: "/dental/restorative",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Hammer, { size: 18 }),
         labelKey: "nav.dentalRestorative",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       // [v3.0.6.11-42] P2 口腔外科
       {
         path: "/dental/surgery",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Scissors, { size: 18 }),
         labelKey: "nav.dentalSurgery",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       // [v3.0.6.11-42] P2 儿牙
       {
         path: "/dental/pediatric",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(Baby, { size: 18 }),
         labelKey: "nav.dentalPediatric",
         roles: ["医生", "技师", "主任", "管理员"],
       },

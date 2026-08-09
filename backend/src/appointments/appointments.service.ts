@@ -3,7 +3,7 @@
  * - create: 完整字段落库 + 同事务创建 Exam (工作列表可见)
  * - 补 5 个子资源: rules / waitlist / reminders / reschedules / cancellations
  */
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { Appointment, AppointmentPriority, AppointmentState, Gender } from '@prisma/client'
@@ -180,12 +180,15 @@ const seedCancellations = [
 
 @Injectable()
 export class AppointmentsService {
+  private readonly logger = new Logger(AppointmentsService.name)
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(params: { skip?: number; take?: number; state?: AppointmentState; deviceId?: string; dateFrom?: string; dateTo?: string }) {
+  async list(params: { skip?: number; take?: number; state?: AppointmentState; deviceId?: string; dateFrom?: string; dateTo?: string; patientId?: string }) {
     const where: any = { tenantId: currentTenantId() }
     if (params.state) where.state = params.state
     if (params.deviceId) where.deviceId = params.deviceId
+    if (params.patientId) where.patientId = params.patientId
     if (params.dateFrom || params.dateTo) {
       where.scheduledAt = {}
       if (params.dateFrom) where.scheduledAt.gte = new Date(params.dateFrom)
@@ -359,76 +362,90 @@ export class AppointmentsService {
 
   /** 预约规则: 设备维度规则列表 (容量/提前期/违约罚分), 无规则设备给默认值 */
   async rules() {
-    const devices = await this.prisma.device.findMany({
-      where: { tenantId: currentTenantId() },
-      orderBy: { name: 'asc' },
-    })
-    if (devices.length === 0) {
+    try {
+      const devices = await this.prisma.device.findMany({
+        where: { tenantId: currentTenantId() },
+        orderBy: { name: 'asc' },
+      })
+      if (devices.length === 0) {
+        return [
+          {
+            deviceId: 'DEV-CT-01',
+            deviceName: 'CT-1（GE Revolution CT）',
+            maxDailyAppointments: 60,
+            maxPerTimeSlot: 4,
+            minAdvanceDays: 0,
+            maxAdvanceDays: 30,
+            noShowPenalty: 3,
+            enabled: true,
+          },
+          {
+            deviceId: 'DEV-MR-01',
+            deviceName: 'MR-1（西门子MAGNETOM Vida）',
+            maxDailyAppointments: 40,
+            maxPerTimeSlot: 3,
+            minAdvanceDays: 1,
+            maxAdvanceDays: 30,
+            noShowPenalty: 3,
+            enabled: true,
+          },
+          {
+            deviceId: 'DEV-DR-01',
+            deviceName: 'DR-1（飞利浦DigitalDiagnost）',
+            maxDailyAppointments: 80,
+            maxPerTimeSlot: 5,
+            minAdvanceDays: 0,
+            maxAdvanceDays: 14,
+            noShowPenalty: 2,
+            enabled: true,
+          },
+        ]
+      }
+      return devices.map((d) => ({
+        deviceId: d.id,
+        deviceName: d.name,
+        maxDailyAppointments: d.modality === 'MR' ? 40 : d.modality === 'CT' ? 60 : 80,
+        maxPerTimeSlot: d.modality === 'MR' ? 3 : 4,
+        minAdvanceDays: 0,
+        maxAdvanceDays: 30,
+        noShowPenalty: 3,
+        enabled: d.state !== 'MAINTENANCE' && d.state !== 'BROKEN' && d.state !== 'OFFLINE',
+      }))
+    } catch (err) {
+      this.logger.warn(`[Appointments] rules DB query failed, fallback to default rules: ${(err as Error).message}`)
       return [
-        {
-          deviceId: 'DEV-CT-01',
-          deviceName: 'CT-1（GE Revolution CT）',
-          maxDailyAppointments: 60,
-          maxPerTimeSlot: 4,
-          minAdvanceDays: 0,
-          maxAdvanceDays: 30,
-          noShowPenalty: 3,
-          enabled: true,
-        },
-        {
-          deviceId: 'DEV-MR-01',
-          deviceName: 'MR-1（西门子MAGNETOM Vida）',
-          maxDailyAppointments: 40,
-          maxPerTimeSlot: 3,
-          minAdvanceDays: 1,
-          maxAdvanceDays: 30,
-          noShowPenalty: 3,
-          enabled: true,
-        },
-        {
-          deviceId: 'DEV-DR-01',
-          deviceName: 'DR-1（飞利浦DigitalDiagnost）',
-          maxDailyAppointments: 80,
-          maxPerTimeSlot: 5,
-          minAdvanceDays: 0,
-          maxAdvanceDays: 14,
-          noShowPenalty: 2,
-          enabled: true,
-        },
+        { deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', maxDailyAppointments: 60, maxPerTimeSlot: 4, minAdvanceDays: 0, maxAdvanceDays: 30, noShowPenalty: 3, enabled: true },
+        { deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', maxDailyAppointments: 40, maxPerTimeSlot: 3, minAdvanceDays: 1, maxAdvanceDays: 30, noShowPenalty: 3, enabled: true },
+        { deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', maxDailyAppointments: 80, maxPerTimeSlot: 5, minAdvanceDays: 0, maxAdvanceDays: 14, noShowPenalty: 2, enabled: true },
       ]
     }
-    return devices.map((d) => ({
-      deviceId: d.id,
-      deviceName: d.name,
-      maxDailyAppointments: d.modality === 'MR' ? 40 : d.modality === 'CT' ? 60 : 80,
-      maxPerTimeSlot: d.modality === 'MR' ? 3 : 4,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 3,
-      enabled: d.state !== 'MAINTENANCE' && d.state !== 'BROKEN' && d.state !== 'OFFLINE',
-    }))
   }
 
-  /** 等候名单: 待确认预约 (SCHEDULED) 按时间升序 */
+  /** 等候名单: 待确认预约 (SCHEDULED) 按时间升序, DB 不可用时回退空表 */
   async waitlist() {
-    const items = await this.prisma.appointment.findMany({
-      where: { tenantId: currentTenantId(), state: 'SCHEDULED' },
-      orderBy: { scheduledAt: 'asc' },
-      take: 50,
-      include: { patient: true },
-    })
-    return items.map((a) => ({
-      id: a.id,
-      patientName: a.patientName,
-      phone: a.patient?.phone ?? '',
-      examItemName: a.bodyPart ? `${a.modality} ${a.bodyPart}` : a.modality,
-      modality: a.modality,
-      preferredDate: a.scheduledAt.toISOString().slice(0, 10),
-      preferredTime: `${String(a.scheduledAt.getHours()).padStart(2, '0')}:${String(a.scheduledAt.getMinutes()).padStart(2, '0')}`,
-      priority: a.priority === 'STAT' ? 'critical' : a.priority === 'URGENT' ? 'urgent' : 'normal',
-      addedAt: a.createdAt.toISOString().slice(0, 16).replace('T', ' '),
-      notified: false,
-    }))
+    try {
+      const items = await this.prisma.appointment.findMany({
+        where: { tenantId: currentTenantId(), state: 'SCHEDULED' },
+        orderBy: { scheduledAt: 'asc' },
+        take: 50,
+        include: { patient: true },
+      })
+      return items.map((a) => ({
+        id: a.id,
+        patientName: a.patientName,
+        phone: a.patient?.phone ?? '',
+        examItemName: a.bodyPart ? `${a.modality} ${a.bodyPart}` : a.modality,
+        modality: a.modality,
+        preferredDate: a.scheduledAt.toISOString().slice(0, 10),
+        preferredTime: `${String(a.scheduledAt.getHours()).padStart(2, '0')}:${String(a.scheduledAt.getMinutes()).padStart(2, '0')}`,
+        priority: a.priority === 'STAT' ? 'critical' : a.priority === 'URGENT' ? 'urgent' : 'normal',
+        addedAt: a.createdAt.toISOString().slice(0, 16).replace('T', ' '),
+        notified: false,
+      }))
+    } catch (err) {
+      this.logger.warn(`[Appointments] waitlist DB query failed, return empty: ${(err as Error).message}`)
+      return []
+    }
   }
 
   /** 提醒记录 (内存 seed, 后续可落表) */

@@ -24,12 +24,35 @@ const UpdateSchema = z.object({
   tags: z.array(z.string()).optional(),
 })
 
+const CreateSnippetSchema = z.object({
+  name: z.string().min(1),
+  content: z.string().min(1),
+  category: z.string().min(1),
+  shortcuts: z.string().optional(),
+})
+
 @ApiTags('templates')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
 @Controller('templates')
 export class TemplatesController {
   constructor(private readonly service: TemplatesService) {}
+
+  // [G005 Wave1B P1] 智能片段端点 — 必须声明在 @Get(':id') 之前, 避免路由抢占
+  @Get('snippets')
+  listSnippets(@Query('category') category?: string) {
+    return this.service.listSnippets({ category })
+  }
+
+  @Post('snippets')
+  createSnippet(@Body(new ZodValidationPipe(CreateSnippetSchema)) body: z.infer<typeof CreateSnippetSchema>) {
+    return this.service.createSnippet(body)
+  }
+
+  @Delete('snippets/:id')
+  deleteSnippet(@Param('id') id: string) {
+    return this.service.deleteSnippet(id)
+  }
 
   @Get()
   list(@Query('category') category?: string, @Query('bodyPart') bodyPart?: string, @Query('keyword') keyword?: string) {

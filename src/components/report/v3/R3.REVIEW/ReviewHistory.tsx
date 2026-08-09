@@ -1,7 +1,8 @@
 /**
  * G005 RIS v3.0.5.1 - R3.REVIEW.010 R3.REVIEW.086 R3.REVIEW.087 R3.REVIEW.088 ReviewHistory 审核历史
  */
-import React, { useEffect, useState } from 'react';
+import { reviewService } from '../../../../services/review/reviewService';
+import type { ReviewHistoryEntry } from '../../../types/R3/R3.REVIEW';
 import { Card, Tag, Space, Button, Timeline, Empty, Select, message, Tooltip } from 'antd';
 import {
   History,
@@ -17,10 +18,10 @@ import {
   AlertCircle,
   RotateCcw,
   Send,
-  type LucideIcon,
+  LucideIcon,
 } from 'lucide-react';
-import { reviewService } from '../../../../services/review/reviewService';
-import type { ReviewHistoryEntry } from '../../../types/R3/R3.REVIEW';
+import { Inbox } from 'lucide-react'
+import React, { useEffect, useState } from 'react';
 
 const ACTION_META: Record<string, { color: string; label: string; icon: LucideIcon }> = {
   submit: { color: 'blue', label: '提交', icon: Send },
@@ -178,7 +179,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
 
       <Card size="small" loading={loading}>
         {filtered.length === 0 ? (
-          <Empty description="暂无历史记录" />
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无历史记录" />
         ) : (
           <Timeline>
             {filtered.map((e) => {

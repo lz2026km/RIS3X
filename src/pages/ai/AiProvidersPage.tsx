@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { v3AiPlatformApi } from '../../services/api/v3Api'
 import { Card, Table, Tag, Space, Typography, Button, message, Row, Col, Statistic, Empty, Badge } from 'antd'
 import { Cpu, RefreshCw, Settings } from 'lucide-react'
-import { v3AiPlatformApi } from '../../services/api/v3Api'
+import React, { useState, useEffect } from 'react'
+import { Inbox } from 'lucide-react'
 
 const { Text, Title } = Typography
 
@@ -147,7 +148,7 @@ const AiProvidersPage: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={false}
-          locale={{ emptyText: <Empty description="暂无提供商数据" /> }}
+          locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无提供商数据" /> }}
         scroll={{ x: 'max-content' }}
         />
       </Card>

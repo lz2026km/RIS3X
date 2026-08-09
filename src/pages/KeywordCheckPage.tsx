@@ -26,9 +26,9 @@ import { reportApi } from '../services/api/reportApi';
 // 严重度配置
 // ============================================================
 const SEVERITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  error:   { label: '错误', color: '#dc2626', bg: '#fee2e2', icon: XCircle },
-  warning: { label: '警告', color: '#f59e0b', bg: '#fef3c7', icon: AlertTriangle },
-  info:    { label: '提示', color: '#3b82f6', bg: '#dbeafe', icon: Info },
+  error:   { label: '错误', color: '#ef4444', bg: '#ef444422', icon: XCircle },
+  warning: { label: '警告', color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
+  info:    { label: '提示', color: '#3b82f6', bg: '#3b82f622', icon: Info },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -164,12 +164,12 @@ export default function KeywordCheckPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Search size={20} color="#3b82f6" /> 关键字全量扫描
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
-              background: source === 'api' ? '#f0fdf4' : '#fffbeb',
+              background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
               color: source === 'api' ? '#16a34a' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
@@ -177,7 +177,7 @@ export default function KeywordCheckPage() {
               {loading ? '同步中...' : source === 'api' ? '数据源: reportApi 实时' : '演示数据(接口不可用)'}
             </span>
           </h1>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             6 大类 · {ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion}+ 条规则 · 0-100 评分
             {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
           </p>
@@ -215,10 +215,10 @@ export default function KeywordCheckPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 12 }}>
         {/* 左：报告列表 */}
         <div style={{
-          background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
           overflow: 'hidden', alignSelf: 'flex-start',
         }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={12} /> 选择报告 ({reports.length})
             </div>
@@ -229,18 +229,18 @@ export default function KeywordCheckPage() {
                 key={r.id}
                 onClick={() => { setSelectedReportId(r.id); setScanResult(null); }}
                 style={{
-                  padding: 10, borderBottom: '1px solid #f1f5f9',
-                  background: selectedReportId === r.id ? '#eff6ff' : 'transparent',
+                  padding: 10, borderBottom: '1px solid var(--border-light)',
+                  background: selectedReportId === r.id ? 'var(--color-info-bg)' : 'transparent',
                   borderLeft: selectedReportId === r.id ? '3px solid #3b82f6' : '3px solid transparent',
                   cursor: 'pointer',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
-                  <span style={{ fontSize: 12, padding: '1px 4px', background: '#dbeafe', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
+                  <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{r.examItemName}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{r.id}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.examItemName}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{r.id}</div>
               </div>
             ))}
           </div>
@@ -251,14 +251,14 @@ export default function KeywordCheckPage() {
           {/* 当前报告 */}
           {currentReport && (
             <div style={{
-              background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+              background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
                     {currentReport.patientName} · {currentReport.modality} {currentReport.bodyPart}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{currentReport.id}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>报告 ID：{currentReport.id}</div>
                 </div>
                 {scanResult && (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -267,7 +267,7 @@ export default function KeywordCheckPage() {
                       color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
                     }}>{scanResult.score}</div>
                     <div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>总评分</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>总评分</div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: scanResult.passed ? '#10b981' : '#dc2626' }}>
                         {scanResult.passed ? '✓ 检查通过' : '✗ 需修改'}
                       </div>
@@ -286,7 +286,7 @@ export default function KeywordCheckPage() {
                       transition: 'width 0.1s linear',
                     }} />
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center' }}>
                     正在扫描 {scanProgress}%
                   </div>
                 </div>
@@ -306,11 +306,11 @@ export default function KeywordCheckPage() {
 
               {/* 过滤器 */}
               <div style={{
-                background: '#fff', borderRadius: 8, padding: 10, border: '1px solid #e2e8f0',
+                background: 'var(--bg-card)', borderRadius: 8, padding: 10, border: '1px solid var(--border-color)',
                 display: 'flex', alignItems: 'center', gap: 8,
               }}>
-                <Filter size={12} color="#64748b" />
-                <span style={{ fontSize: 12, color: '#64748b' }}>过滤：</span>
+                <Filter size={12} color="var(--text-secondary)" />
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>过滤：</span>
                 <select value={filterSeverity} onChange={e => setFilterSeverity(e.target.value)} style={selectStyle}>
                   <option value="all">全部严重度</option>
                   <option value="error">错误</option>
@@ -323,7 +323,7 @@ export default function KeywordCheckPage() {
                     <option key={key} value={key}>{label}</option>
                   ))}
                 </select>
-                <span style={{ marginLeft: 'auto', fontSize: 12, color: '#64748b' }}>
+                <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-secondary)' }}>
                   显示 <strong style={{ color: '#1e40af' }}>{filteredIssues.length}</strong> / {scanResult.totalIssues} 个问题
                 </span>
               </div>
@@ -332,7 +332,7 @@ export default function KeywordCheckPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8 }}>
                 {/* 左：问题列表 */}
                 <div style={{
-                  background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+                  background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)',
                   overflow: 'hidden',
                 }}>
                   {filteredIssues.length === 0 ? (
@@ -350,8 +350,8 @@ export default function KeywordCheckPage() {
                           key={issue.id}
                           onClick={() => setSelectedIssue(issue)}
                           style={{
-                            padding: 10, borderBottom: '1px solid #f1f5f9',
-                            background: selectedIssue?.id === issue.id ? '#eff6ff' : 'transparent',
+                            padding: 10, borderBottom: '1px solid var(--border-light)',
+                            background: selectedIssue?.id === issue.id ? 'var(--color-info-bg)' : 'transparent',
                             cursor: 'pointer',
                           }}
                         >
@@ -365,16 +365,16 @@ export default function KeywordCheckPage() {
                             </span>
                             <span style={{
                               fontSize: 12, padding: '1px 4px', borderRadius: 2,
-                              background: '#f1f5f9', color: '#475569',
+                              background: 'var(--bg-card)', color: 'var(--text-secondary)',
                             }}>{CATEGORY_LABELS[issue.category]}</span>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{issue.message}</span>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{issue.message}</span>
                           </div>
-                          <div style={{ fontSize: 12, color: '#64748b', paddingLeft: 4 }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', paddingLeft: 4 }}>
                             💡 {issue.suggestion}
                           </div>
                           {issue.matched && issue.matched !== '未找到' && (
                             <div style={{
-                              fontSize: 12, padding: '2px 6px', background: '#fef3c7', color: '#78350f',
+                              fontSize: 12, padding: '2px 6px', background: 'var(--color-warning-bg)', color: '#78350f',
                               borderRadius: 3, marginTop: 4, display: 'inline-block',
                               fontFamily: 'monospace',
                             }}>
@@ -389,7 +389,7 @@ export default function KeywordCheckPage() {
 
                 {/* 右：详情 + 建议 */}
                 <div style={{
-                  background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+                  background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
                 }}>
                   {selectedIssue ? (
                     <>
@@ -398,13 +398,13 @@ export default function KeywordCheckPage() {
                       <DetailRow label="类别" value={CATEGORY_LABELS[selectedIssue.category]} />
                       <DetailRow label="规则 ID" value={selectedIssue.ruleId} />
                       <DetailRow label="位置" value={selectedIssue.position >= 0 ? `字符 ${selectedIssue.position}` : '全文'} />
-                      <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
-                        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>建议：</div>
-                        <div style={{ fontSize: 12, color: '#1e293b' }}>{selectedIssue.suggestion}</div>
+                      <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>建议：</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedIssue.suggestion}</div>
                       </div>
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 12, padding: 20 }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12, padding: 20 }}>
                       点击左侧问题查看详情
                     </div>
                   )}
@@ -415,12 +415,12 @@ export default function KeywordCheckPage() {
 
           {!scanResult && !scanning && (
             <div style={{
-              background: '#fff', borderRadius: 8, padding: 40, textAlign: 'center',
-              border: '1px dashed #cbd5e1',
+              background: 'var(--bg-card)', borderRadius: 8, padding: 40, textAlign: 'center',
+              border: '1px dashed var(--border-color)',
             }}>
               <Search size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
-              <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>点击"开始扫描"对当前报告执行关键字检查</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>点击"开始扫描"对当前报告执行关键字检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
                 系统将按 6 大类规则进行全量扫描
               </div>
             </div>
@@ -435,7 +435,7 @@ export default function KeywordCheckPage() {
 // 样式
 // ============================================================
 const selectStyle: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
   fontSize: 12, outline: 'none',
 };
 
@@ -444,8 +444,8 @@ const selectStyle: React.CSSProperties = {
 // ============================================================
 const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
   <div style={{
-    background: '#fff', padding: 10, borderRadius: 8,
-    border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 8,
+    background: 'var(--bg-card)', padding: 10, borderRadius: 8,
+    border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8,
   }}>
     <div style={{
       width: 32, height: 32, borderRadius: 6,
@@ -455,8 +455,8 @@ const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: s
       <Icon size={16} />
     </div>
     <div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{count} <span style={{ fontSize: 12, color: '#94a3b8' }}>条</span></div>
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{count} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>条</span></div>
     </div>
   </div>
 );
@@ -466,13 +466,13 @@ const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: s
 // ============================================================
 const ScoreCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
   <div style={{
-    background: '#fff', padding: 12, borderRadius: 8,
+    background: 'var(--bg-card)', padding: 12, borderRadius: 8,
     border: `1px solid ${color}30`,
     textAlign: 'center',
   }}>
     <Icon size={20} color={color} style={{ display: 'block', margin: '0 auto 4px' }} />
     <div style={{ fontSize: 22, fontWeight: 700, color }}>{count}</div>
-    <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
   </div>
 );
 
@@ -481,7 +481,7 @@ const ScoreCard: React.FC<{ icon: any; label: string; count: number; color: stri
 // ============================================================
 const DetailRow: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '4px 0' }}>
-    <span style={{ color: '#64748b' }}>{label}</span>
-    <span style={{ fontWeight: 600, color: color || '#1e293b' }}>{value}</span>
+    <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+    <span style={{ fontWeight: 600, color: color || 'var(--text-primary)' }}>{value}</span>
   </div>
 );

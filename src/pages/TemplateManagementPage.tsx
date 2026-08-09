@@ -6,12 +6,12 @@ import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe } from 'lucide-react'
 
 const C = {
-  primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: '#dbeafe',
+  primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
   accent: '#0891b2', accentLight: '#06b6d4', white: '#ffffff',
-  bg: '#e8e8e8', bgLight: '#f5f5f5', border: '#d4d4d4', borderLight: '#e5e5e5',
-  textDark: '#1f2937', textMid: '#4b5563', textLight: '#9ca3af',
-  success: '#059669', successLight: '#d1fae5', warning: '#d97706', warningLight: '#fef3c7',
-  danger: '#dc2626', dangerLight: '#fee2e2', info: '#2563eb', infoLight: '#dbeafe',
+  bg: 'var(--bg-deep)', bgLight: 'var(--content-bg)', border: 'var(--border-color)', borderLight: '#e5e5e5',
+  textDark: 'var(--text-primary)', textMid: 'var(--text-secondary)', textLight: 'var(--text-muted)',
+  success: '#059669', successLight: 'var(--color-success-bg)', warning: '#d97706', warningLight: 'var(--color-warning-bg)',
+  danger: '#dc2626', dangerLight: 'var(--color-error-bg)', info: '#2563eb', infoLight: 'var(--color-info-bg)',
 }
 
 interface TemplateRecord {
@@ -262,8 +262,29 @@ export default function TemplateManagementPage() {
       showToast(`已提交审核版本 ${draftVersion.version}，等待审核人确认`)
     }
 
+    // [Wave2A] 版本回滚: 模板后端无版本端点 → 快照回滚 (templatesApi.update 恢复模板内容 + 本地版本状态)
+    const handleRollback = async (v: TemplateVersion) => {
+      const target = templates.find(t => t.id === selectedTemplateId)
+      const snapshot = v.content || target?.content || ''
+      let apiOk = true
+      try {
+        const res = await templatesApi.update(selectedTemplateId, { body: snapshot })
+        apiOk = res.success
+      } catch { apiOk = false }
+      setVersions(prev => prev.map(x => {
+        if (x.id === v.id) {
+          return { ...x, status: 'published' as const, changeLog: `已回滚: 恢复至 ${v.version} (${new Date().toLocaleDateString('zh-CN')})` }
+        }
+        if (x.status === 'draft' || x.status === 'review') {
+          return { ...x, status: 'archived' as const, changeLog: `${x.changeLog || '历史版本'} · 已被回滚操作归档` }
+        }
+        return x
+      }))
+      showToast(`已回滚至 ${v.version}（模板内容已恢复${apiOk ? '，已同步后端' : '，后端同步失败·本地快照生效'}）`)
+    }
+
     return (
-      <div style={{ display: activeTab === 'version' ? undefined : 'none', background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div style={{ display: activeTab === 'version' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
@@ -325,7 +346,7 @@ export default function TemplateManagementPage() {
                       <Eye size={12} /> {diffView === v.id ? '收起' : '对比'}
                     </button>
                     {v.status === 'published' && (
-                      <button onClick={() => showToast(`已回滚至 ${v.version}`)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <button onClick={() => void handleRollback(v)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <RotateCcw size={12} /> 回滚
                       </button>
                     )}
@@ -354,7 +375,7 @@ export default function TemplateManagementPage() {
       <div style={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <TrendingUp size={18} color={C.accent} />
                 <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>使用趋势（近12个月）</span>
@@ -369,7 +390,7 @@ export default function TemplateManagementPage() {
               </div>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
                 <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>最常用模板 TOP 5</span>
@@ -388,7 +409,7 @@ export default function TemplateManagementPage() {
           </div>
 
           <div style={{ width: 350 }}>
-            <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
                 <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>概览</span>
@@ -413,7 +434,7 @@ export default function TemplateManagementPage() {
               </div>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Star size={18} color={C.warning} />
                 <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>用户满意度</span>
@@ -458,7 +479,7 @@ export default function TemplateManagementPage() {
     }
 
     return (
-      <div style={{ display: activeTab === 'share' ? undefined : 'none', background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div style={{ display: activeTab === 'share' ? undefined : 'none', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
@@ -519,7 +540,7 @@ export default function TemplateManagementPage() {
         </div>
         {showShareModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowShareModal(false)}>
-            <div style={{ background: '#fff', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${C.borderLight}` }}>
                 <div style={{ fontSize: 15, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> 新建分享</div>
                 <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 4 }}>×</button>
@@ -539,12 +560,12 @@ export default function TemplateManagementPage() {
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>权限</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {([['view', '查看'], ['edit', '编辑'], ['admin', '管理']] as const).map(([v, l]) => (
-                      <button key={v} onClick={() => setShareForm({ ...shareForm, permission: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${shareForm.permission === v ? C.primary : C.border}`, background: shareForm.permission === v ? C.primaryLighter : '#fff', color: shareForm.permission === v ? C.primary : C.textMid }}>{l}</button>
+                      <button key={v} onClick={() => setShareForm({ ...shareForm, permission: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${shareForm.permission === v ? C.primary : C.border}`, background: shareForm.permission === v ? C.primaryLighter : 'var(--bg-card)', color: shareForm.permission === v ? C.primary : C.textMid }}>{l}</button>
                     ))}
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: '#fff', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>取消</button>
+                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>取消</button>
                   <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>确认分享</button>
                 </div>
               </div>
@@ -566,10 +587,10 @@ export default function TemplateManagementPage() {
         <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>可视化设计器 (R2)</span>
         </button>
-        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: '#fff', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <GitBranch size={16} /><span>继承/克隆</span>
         </button>
-        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: '#fff', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <FolderTree size={16} /><span>分类树</span>
         </button>
       </div>
@@ -629,7 +650,7 @@ export default function TemplateManagementPage() {
               </tr></thead>
               <tbody>
                 {paginatedTemplates.map((tpl, idx) => (
-                  <tr key={tpl.id} style={{ ...styles.tr, backgroundColor: idx % 2 === 0 ? C.white : C.bgLight }}>
+                  <tr key={tpl.id} style={{ ...styles.tr, backgroundColor: idx % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
                     <td style={styles.td}><code style={styles.code}>{tpl.code}</code></td>
                     <td style={styles.td}><div style={styles.nameCell}><span style={styles.name}>{tpl.name}</span><span style={styles.version}>{tpl.version}</span></div></td>
                     <td style={styles.td}><div style={styles.modalityCell}>{getModalityIcon(tpl.modality)}<span style={styles.modalityText}>{tpl.modality}</span></div></td>
@@ -740,21 +761,21 @@ export default function TemplateManagementPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: { padding: '24px', backgroundColor: C.bg, minHeight: '100vh', fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: C.white, padding: '16px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: 'var(--bg-card)', padding: '16px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   headerLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
   title: { fontSize: '22px', fontWeight: 600, color: C.textDark, margin: 0 },
   addBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'background-color 0.2s' },
-  toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', backgroundColor: C.white, padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
+  toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', backgroundColor: 'var(--bg-card)', padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   searchBox: { display: 'flex', alignItems: 'center', gap: '10px', flex: 1, maxWidth: '400px', padding: '8px 14px', backgroundColor: C.bgLight, borderRadius: '6px', border: `1px solid ${C.borderLight}` },
   searchInput: { flex: 1, border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: '14px', color: C.textDark },
   filters: { display: 'flex', alignItems: 'center', gap: '12px' },
   filterGroup: { display: 'flex', alignItems: 'center', gap: '8px' },
-  select: { padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, backgroundColor: C.white, cursor: 'pointer', outline: 'none' },
-  statsBar: { display: 'flex', gap: '24px', marginBottom: '16px', backgroundColor: C.white, padding: '14px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
+  select: { padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, backgroundColor: 'var(--bg-card)', cursor: 'pointer', outline: 'none' },
+  statsBar: { display: 'flex', gap: '24px', marginBottom: '16px', backgroundColor: 'var(--bg-card)', padding: '14px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   statItem: { display: 'flex', alignItems: 'center', gap: '8px' },
   statLabel: { fontSize: '14px', color: C.textMid },
   statValue: { fontSize: '16px', fontWeight: 600, color: C.textDark },
-  tableWrapper: { backgroundColor: C.white, borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' },
+  tableWrapper: { backgroundColor: 'var(--bg-card)', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' },
   table: { width: '100%', borderCollapse: 'collapse' },
   theadTr: { backgroundColor: C.primaryLighter },
   th: { padding: '12px 16px', textAlign: 'left', fontSize: '13px', fontWeight: 600, color: C.primary, borderBottom: `2px solid ${C.primaryLight}` },
@@ -779,15 +800,15 @@ const styles: Record<string, React.CSSProperties> = {
   actionBtnDanger: { color: C.danger },
   emptyCell: { textAlign: 'center', padding: '60px 20px', color: C.textLight },
   emptyText: { marginTop: '12px', fontSize: '14px' },
-  pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '20px', padding: '14px', backgroundColor: C.white, borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
+  pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '20px', padding: '14px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   pageBtn: { padding: '8px 16px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' },
   pageBtnDisabled: { backgroundColor: C.borderLight, color: C.textLight, cursor: 'not-allowed' },
   pageInfo: { fontSize: '13px', color: C.textMid },
   pageCurrent: { fontWeight: 600, color: C.primary },
   pageDivider: { margin: '0 8px', color: C.border },
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { width: '700px', maxHeight: '90vh', backgroundColor: C.white, borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
-  previewModal: { width: '650px', maxHeight: '90vh', backgroundColor: C.white, borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
+  modal: { width: '700px', maxHeight: '90vh', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
+  previewModal: { width: '650px', maxHeight: '90vh', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: `1px solid ${C.borderLight}`, backgroundColor: C.bgLight },
   modalTitle: { display: 'flex', alignItems: 'center', gap: '10px' },
   modalClose: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', color: C.textMid },
@@ -808,7 +829,7 @@ const styles: Record<string, React.CSSProperties> = {
   radioLabel: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: C.textDark, cursor: 'pointer' },
   radioText: { fontSize: '14px' },
   modalFooter: { display: 'flex', justifyContent: 'flex-end', gap: '12px', padding: '16px 24px', borderTop: `1px solid ${C.borderLight}`, backgroundColor: C.bgLight },
-  cancelBtn: { padding: '10px 20px', backgroundColor: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
+  cancelBtn: { padding: '10px 20px', backgroundColor: 'var(--bg-card)', color: C.textMid, border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
   saveBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
   copyBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', backgroundColor: C.accent, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
   previewMeta: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px 24px', backgroundColor: C.bgLight, borderBottom: `1px solid ${C.borderLight}` },

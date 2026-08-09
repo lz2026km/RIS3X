@@ -1,14 +1,3 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Card, Tabs, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Badge,
-  Drawer, Descriptions, Empty, Row, Col, Avatar, Tooltip, Spin,
-} from 'antd';
-import {
-  Cpu, Plus, Play, Square, FlaskConical, GitBranch, ListChecks, Boxes, Zap, Eye,
-  Activity, CheckCircle, XCircle, Clock, Box, ScanSearch, Wifi, WifiOff,
-  FileText, Layers, Sparkles, Copy, Workflow,
-} from 'lucide-react';
-import type { TableProps } from 'antd';
 import {
   aiOrchestratorApi,
   type AiOrchestrationModel,
@@ -23,6 +12,39 @@ import {
   type GenerateStructuredReportDto,
   type CreateAiOrchestrationDto,
 } from '../services/api/aiPlatformApi';
+import {
+  Card, Tabs, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Badge,
+  Drawer, Descriptions, Empty, Row, Col, Avatar, Tooltip, Spin,
+} from 'antd';
+import { TableProps } from 'antd'
+import { PageHeader } from '../components/common/PageHeader'
+import {
+  Cpu,
+  Plus,
+  Play,
+  Square,
+  FlaskConical,
+  GitBranch,
+  ListChecks,
+  Boxes,
+  Zap,
+  Eye,
+  Activity,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Box,
+  ScanSearch,
+  Wifi,
+  WifiOff,
+  FileText,
+  Layers,
+  Sparkles,
+  Copy,
+  Workflow,
+} from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Inbox } from 'lucide-react'
 
 const MODEL_STATUS_META: Record<string, { color: string; label: string }> = {
   REGISTERED: { color: 'default', label: '已注册' },
@@ -545,7 +567,7 @@ export default function AIOrchestrationPage() {
       render: (_v: unknown, r) => r.model ? (
         <Space size={4}>
           <Tag color="geekblue">{r.model.name} v{r.model.version}</Tag>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.model.vendor}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{r.model.vendor}</span>
         </Space>
       ) : <Tag>{r.modelId}</Tag>,
     },
@@ -572,7 +594,7 @@ export default function AIOrchestrationPage() {
     },
     {
       title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
-      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v.replace('T', ' ').slice(0, 16)}</span>,
+      render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{v.replace('T', ' ').slice(0, 16)}</span>,
     },
   ];
 
@@ -586,13 +608,13 @@ export default function AIOrchestrationPage() {
       render: (_v: unknown, r) => r.model ? (
         <Space direction="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.model.name}</span>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>v{r.model.version} · {r.model.vendor}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>v{r.model.version} · {r.model.vendor}</span>
         </Space>
       ) : <Tag>{r.modelId}</Tag>,
     },
     {
       title: '检查', dataIndex: 'examId', key: 'examId',
-      render: (v: string | null) => v ? <Tag color="default">{v}</Tag> : <span style={{ color: '#999' }}>--</span>,
+      render: (v: string | null) => v ? <Tag color="default">{v}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>,
     },
     {
       title: '触发', dataIndex: 'trigger', key: 'trigger',
@@ -608,7 +630,7 @@ export default function AIOrchestrationPage() {
     {
       title: '耗时', key: 'duration',
       render: (_v: unknown, r) => {
-        if (!r.startedAt) return <span style={{ color: '#999' }}>--</span>;
+        if (!r.startedAt) return <span style={{ color: 'var(--text-secondary)' }}>--</span>;
         const end = r.completedAt ? Date.parse(r.completedAt) : Date.now();
         const dur = end - Date.parse(r.startedAt);
         return <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{formatDuration(dur)}</span>;
@@ -618,7 +640,7 @@ export default function AIOrchestrationPage() {
       title: '结果', dataIndex: 'result', key: 'result',
       render: (_v: unknown, r) => {
         if (r.status === 'FAILED') return <span style={{ color: '#ef4444', fontSize: 12 }}>{r.error ?? '推理失败'}</span>;
-        if (r.status !== 'COMPLETED') return <span style={{ color: '#999' }}>--</span>;
+        if (r.status !== 'COMPLETED') return <span style={{ color: 'var(--text-secondary)' }}>--</span>;
         const findings = r.result?.findings?.length ?? 0;
         const priority = r.result?.structured?.priority;
         return (
@@ -654,14 +676,14 @@ export default function AIOrchestrationPage() {
       title: '检查', key: 'studyId',
       render: (_v: unknown, r) => {
         const sid = detailOf(r, 'studyId');
-        return sid ? <Tag color="default">{String(sid)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return sid ? <Tag color="default">{String(sid)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
       title: '模板', key: 'templateId',
       render: (_v: unknown, r) => {
         const tid = detailOf(r, 'templateId');
-        return tid ? <Tag color="geekblue" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(tid)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return tid ? <Tag color="geekblue" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(tid)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
@@ -669,7 +691,7 @@ export default function AIOrchestrationPage() {
       render: (_v: unknown, r) => {
         const findings = detailOf(r, 'findings');
         const count = Array.isArray(findings) ? findings.length : 0;
-        return count > 0 ? <Tag color="green">{count} 条</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return count > 0 ? <Tag color="green">{count} 条</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
@@ -678,7 +700,7 @@ export default function AIOrchestrationPage() {
     },
     {
       title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
-      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
+      render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
     {
       title: '操作', key: 'actionView',
@@ -693,15 +715,15 @@ export default function AIOrchestrationPage() {
               content: (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div>
-                    <span style={{ color: '#64748b', fontSize: 12 }}>检查号：</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>检查号：</span>
                     <span>{String(detailOf(r, 'studyId') ?? '--')}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#64748b', fontSize: 12 }}>模板：</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>模板：</span>
                     <span>{String(detailOf(r, 'templateId') ?? '--')}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#64748b', fontSize: 12 }}>发现内容：</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>发现内容：</span>
                     <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
                       {fmtList(findings)}
                     </div>
@@ -742,7 +764,7 @@ export default function AIOrchestrationPage() {
       title: '融合类型', key: 'type',
       render: (_v: unknown, r) => {
         const t = detailOf(r, 'type');
-        return t ? <Tag color="geekblue">{String(t)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return t ? <Tag color="geekblue">{String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
@@ -757,12 +779,12 @@ export default function AIOrchestrationPage() {
       title: '结果路径', key: 'resultPath',
       render: (_v: unknown, r) => {
         const p = detailOf(r, 'resultPath');
-        return p ? <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#0ea5e9' }}>{String(p)}</span> : <span style={{ color: '#999' }}>--</span>;
+        return p ? <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#0ea5e9' }}>{String(p)}</span> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
       title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
-      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
+      render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
   ];
 
@@ -785,7 +807,7 @@ export default function AIOrchestrationPage() {
       title: '触发', key: 'trigger',
       render: (_v: unknown, r) => {
         const t = detailOf(r, 'trigger');
-        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{String(t)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
@@ -793,12 +815,12 @@ export default function AIOrchestrationPage() {
       render: (_v: unknown, r) => {
         const steps = detailOf(r, 'steps');
         const count = Array.isArray(steps) ? steps.length : 0;
-        return count > 0 ? <Tag color="blue">{count} 步</Tag> : <span style={{ color: '#999' }}>--</span>;
+        return count > 0 ? <Tag color="blue">{count} 步</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {
       title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
-      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
+      render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
   ];
 
@@ -831,7 +853,7 @@ export default function AIOrchestrationPage() {
                 <Tag color={st.color}>{st.label}</Tag>
               </div>
 
-              <div style={{ color: '#94a3b8', fontSize: 12, lineHeight: '18px' }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                   {m.status === 'FAILED' ? <WifiOff size={12} /> : <Wifi size={12} />}
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.endpoint ?? '未配置端点'}</span>
@@ -847,11 +869,11 @@ export default function AIOrchestrationPage() {
 
               <Row gutter={8} style={{ textAlign: 'center' }}>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>推理次数</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>推理次数</div>
                   <div style={{ fontSize: 18, fontWeight: 600 }}>{m.deploymentCount}</div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>工作流集成</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>工作流集成</div>
                   <div style={{ fontSize: 18, fontWeight: 600 }}>{m.integrationCount}</div>
                 </Col>
               </Row>
@@ -876,8 +898,8 @@ export default function AIOrchestrationPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1440, margin: '0 auto' }}>
       <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <Space>
+        <PageHeader
+          icon={
             <div style={{
               width: 42, height: 42, borderRadius: 10,
               background: 'linear-gradient(135deg, #8b5cf6, #0ea5e9)',
@@ -885,26 +907,26 @@ export default function AIOrchestrationPage() {
             }}>
               <Cpu size={22} color="#fff" />
             </div>
-            <div>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>AI 编排平台</h2>
-              <span style={{ color: '#94a3b8', fontSize: 13 }}>模型注册 → 部署 → 工作流集成 → 推理任务 → 二次检出</span>
-            </div>
-          </Space>
-          <Space size={12}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{models.filter((m) => m.status === 'DEPLOYED').length}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>已部署模型</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#0ea5e9' }}>{integrations.filter((i) => i.status === 'ACTIVE').length}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>活跃集成</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#8b5cf6' }}>{completedJobs.length}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>完成任务</div>
-            </div>
-          </Space>
-        </div>
+          }
+          title="AI 编排平台"
+          subtitle="模型注册 → 部署 → 工作流集成 → 推理任务 → 二次检出"
+          actions={
+            <Space size={12}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{models.filter((m) => m.status === 'DEPLOYED').length}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>已部署模型</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#0ea5e9' }}>{integrations.filter((i) => i.status === 'ACTIVE').length}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>活跃集成</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#8b5cf6' }}>{completedJobs.length}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>完成任务</div>
+              </div>
+            </Space>
+          }
+        />
       </Card>
 
       <Card variant="borderless" style={{ borderRadius: 12 }}>
@@ -920,7 +942,7 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={models.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>已注册模型</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>已注册模型</span>
                       </Badge>
                       {modelsLoading && <Spin size="small" />}
                     </Space>
@@ -929,7 +951,7 @@ export default function AIOrchestrationPage() {
                     </Button>
                   </div>
                   {models.length === 0 && !modelsLoading ? (
-                    <Empty description="暂无模型，点击右上角注册" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无模型，点击右上角注册" />
                   ) : renderModelCards()}
                 </div>
               ),
@@ -942,7 +964,7 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={integrations.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>AI → 工作流集成</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>AI → 工作流集成</span>
                       </Badge>
                       {integrationsLoading && <Spin size="small" />}
                     </Space>
@@ -957,7 +979,7 @@ export default function AIOrchestrationPage() {
                     rowKey="id"
                     loading={integrationsLoading}
                     pagination={{ current: integrationPage, pageSize: 8, total: integrations.length, onChange: setIntegrationPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty description="暂无集成，点击右上角新建" /> }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无集成，点击右上角新建" /> }}
                   scroll={{ x: 'max-content' }}
                   />
                   <div style={{ marginTop: 20 }}>
@@ -993,7 +1015,7 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={jobs.length} color="#10b981" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>推理任务（每 4s 自动刷新）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>推理任务（每 4s 自动刷新）</span>
                       </Badge>
                       {jobsLoading && <Spin size="small" />}
                     </Space>
@@ -1007,7 +1029,7 @@ export default function AIOrchestrationPage() {
                     rowKey="id"
                     loading={jobsLoading}
                     pagination={{ current: jobPage, pageSize: 10, total: jobs.length, onChange: setJobPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty description="暂无推理任务" /> }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无推理任务" /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1021,7 +1043,7 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={srReports.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>结构化报告（由检查生成）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>结构化报告（由检查生成）</span>
                       </Badge>
                       {srLoading && <Spin size="small" />}
                       {srError && <span style={{ color: '#ef4444', fontSize: 12 }}>{srError}</span>}
@@ -1036,7 +1058,7 @@ export default function AIOrchestrationPage() {
                     rowKey="id"
                     loading={srLoading}
                     pagination={{ current: srPage, pageSize: 8, total: srReports.length, onChange: setSrPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty description="暂无结构化报告，点击右上角生成" /> }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无结构化报告，点击右上角生成" /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1050,12 +1072,12 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={fusionJobs.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>多模态融合任务（FusionJob）</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>多模态融合任务（FusionJob）</span>
                       </Badge>
                       {fusionLoading && <Spin size="small" />}
                       {fusionError && <span style={{ color: '#ef4444', fontSize: 12 }}>{fusionError}</span>}
                     </Space>
-                    <span style={{ color: '#94a3b8', fontSize: 12 }}>支持 PET/CT、MR/PET、CT/CTA 等序列融合</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>支持 PET/CT、MR/PET、CT/CTA 等序列融合</span>
                   </div>
                   <Table
                     dataSource={fusionJobs}
@@ -1063,7 +1085,7 @@ export default function AIOrchestrationPage() {
                     rowKey="id"
                     loading={fusionLoading}
                     pagination={{ current: fusionPage, pageSize: 8, total: fusionJobs.length, onChange: setFusionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-                    locale={{ emptyText: <Empty description="暂无融合任务" /> }}
+                    locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无融合任务" /> }}
                   scroll={{ x: 'max-content' }}
                   />
                 </div>
@@ -1077,7 +1099,7 @@ export default function AIOrchestrationPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
                       <Badge count={assistItems.length} color="#10b981" style={{ boxShadow: 'none' }}>
-                        <span style={{ color: '#64748b' }}>报告书写辅助建议模板</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>报告书写辅助建议模板</span>
                       </Badge>
                       {assistLoading && <Spin size="small" />}
                       {assistError && <span style={{ color: '#ef4444', fontSize: 12 }}>{assistError}</span>}
@@ -1090,7 +1112,7 @@ export default function AIOrchestrationPage() {
                     </Button>
                   </div>
                   {assistItems.length === 0 && !assistLoading ? (
-                    <Empty description="暂无 AI 辅助建议" />
+                    <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无 AI 辅助建议" />
                   ) : (
                     <Row gutter={[16, 16]}>
                       {assistItems.map((a) => {
@@ -1123,7 +1145,7 @@ export default function AIOrchestrationPage() {
                                   {applicable && <Tag style={{ fontSize: 11 }}>{applicable}</Tag>}
                                 </Space>
                               </div>
-                              <div style={{ color: '#475569', fontSize: 13, lineHeight: '22px', flex: 1 }}>
+                              <div style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: '22px', flex: 1 }}>
                                 {suggestion}
                               </div>
                               <Button
@@ -1261,7 +1283,7 @@ export default function AIOrchestrationPage() {
               }))}
             />
           </Form.Item>
-          <Form.Item name="examId" label="检查号 (Exam ID)" rules={[{ required: true, message: '请输入检查号' }]}>
+          <Form.Item name="examId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
             <Input placeholder="如：EX-5123" />
           </Form.Item>
           <Form.Item name="trigger" label="触发方式" initialValue="MANUAL">
@@ -1284,7 +1306,7 @@ export default function AIOrchestrationPage() {
           <Form.Item name="trigger" label="事件类型" rules={[{ required: true, message: '请选择事件类型' }]} initialValue="ON_STUDY_COMPLETE">
             <Select options={TRIGGER_OPTIONS} />
           </Form.Item>
-          <Form.Item name="examId" label="检查号 (Exam ID)" rules={[{ required: true, message: '请输入检查号' }]}>
+          <Form.Item name="examId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
             <Input placeholder="如：EX-5123" />
           </Form.Item>
           <Row gutter={12}>
@@ -1299,7 +1321,7 @@ export default function AIOrchestrationPage() {
               </Form.Item>
             </Col>
           </Row>
-          <div style={{ color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
             系统将根据集成触发条件自动匹配并创建对应推理任务（队列模拟）
           </div>
         </Form>
@@ -1317,7 +1339,7 @@ export default function AIOrchestrationPage() {
         width={520}
       >
         <Form form={srForm} layout="vertical" style={{ marginTop: 12 }}>
-          <Form.Item name="studyId" label="检查号 (Study/Exam ID)" rules={[{ required: true, message: '请输入检查号' }]}>
+          <Form.Item name="studyId" label="检查号" rules={[{ required: true, message: '请输入检查号' }]}>
             <Input placeholder="如：EX-5001" />
           </Form.Item>
           <Form.Item name="templateId" label="报告模板" rules={[{ required: true, message: '请选择模板' }]}>
@@ -1383,7 +1405,7 @@ export default function AIOrchestrationPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {fields.map(({ key, name, ...restField }) => (
                     <Space key={key} align="baseline" style={{ display: 'flex' }}>
-                      <span style={{ width: 20, color: '#94a3b8', fontSize: 12 }}>{name + 1}</span>
+                      <span style={{ width: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{name + 1}</span>
                       <Form.Item {...restField} name={[name, 'action']} rules={[{ required: true, message: '请输入动作' }]} style={{ marginBottom: 0, width: 180 }}>
                         <Input placeholder="如：ai_detection" />
                       </Form.Item>
@@ -1400,7 +1422,7 @@ export default function AIOrchestrationPage() {
               )}
             </Form.List>
           </Form.Item>
-          <div style={{ color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
             步骤动作示例：ai_detection（AI 检测）、report_draft（报告起草）、human_review（医生复核）、critical_escalation（危急值升级）
           </div>
         </Form>
@@ -1425,7 +1447,7 @@ export default function AIOrchestrationPage() {
                 <div style={{ fontWeight: 600, color: testResult.reachable ? '#389e0d' : '#cf1322' }}>
                   {testResult.reachable ? '连通正常' : '连接异常'}
                 </div>
-                <div style={{ fontSize: 12, color: '#666' }}>{testResult.message}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{testResult.message}</div>
               </div>
             </div>
             <Descriptions column={2} size="small" bordered>
@@ -1489,7 +1511,7 @@ export default function AIOrchestrationPage() {
             </Descriptions>
 
             {drawerJob.status === 'RUNNING' && (
-              <div style={{ padding: 16, borderRadius: 8, background: '#f0f5ff', textAlign: 'center' }}>
+              <div style={{ padding: 16, borderRadius: 8, background: 'var(--color-info-bg)', textAlign: 'center' }}>
                 <Spin />
                 <div style={{ marginTop: 8, color: '#597ef7', fontSize: 13 }}>模型推理执行中，结果生成后自动展示异常区域...</div>
               </div>
@@ -1535,7 +1557,7 @@ export default function AIOrchestrationPage() {
                                 background: active ? '#ef4444' : '#f59e0b', display: 'inline-block',
                               }} />
                               <span style={{ fontWeight: active ? 700 : 500 }}>{f.label}</span>
-                              <span style={{ color: '#94a3b8', fontSize: 12 }}>
+                              <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
                                 坐标 ({Math.round(f.x * 100)}, {Math.round(f.y * 100)})
                               </span>
                             </Space>
@@ -1546,18 +1568,18 @@ export default function AIOrchestrationPage() {
                         );
                       })}
                     </div>
-                    <div style={{ color: '#94a3b8', fontSize: 12 }}>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
                       提示：点击异常区域列表项，查看器内对应坐标框将高亮显示，便于二次核对。
                     </div>
                   </>
                 ) : (
-                  <Empty description="本次推理未检出异常区域" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="本次推理未检出异常区域" />
                 )}
               </>
             )}
 
             {drawerJob.status === 'QUEUED' && (
-              <Empty description="任务排队中，稍后自动开始推理..." />
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="任务排队中，稍后自动开始推理..." />
             )}
           </div>
         )}

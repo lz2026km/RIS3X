@@ -39,13 +39,13 @@ import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hook
 
 // ==================== 常量配置 ====================
 const PRIMARY = "#1e40af"; // 浅蓝
-const PRIMARY_BG = "#eff6ff"; // 深蓝背景
+const PRIMARY_BG = "var(--color-info-bg)"; // 深蓝背景
 
 // 优先级配置
 const PRIORITY_CONFIG: Record<string, { color: string; bg: string }> = {
-  普通: { color: "#64748b", bg: "#f1f5f9" },
-  紧急: { color: "#d97706", bg: "#fef3c7" },
-  危重: { color: "#dc2626", bg: "#fee2e2" },
+  普通: { color: "var(--text-secondary)", bg: "var(--bg-deep)" },
+  紧急: { color: "#f59e0b", bg: "#f59e0b22" },
+  危重: { color: "#ef4444", bg: "#ef444422" },
 };
 
 // 状态配置
@@ -53,15 +53,15 @@ const STATUS_CONFIG: Record<
   string,
   { color: string; bg: string; label: string }
 > = {
-  待检查: { color: "#2563eb", bg: "#dbeafe", label: "待检查" },
-  检查中: { color: "#d97706", bg: "#fef3c7", label: "检查中" },
-  已报告: { color: "#16a34a", bg: "#dcfce7", label: "已报告" },
-  已发布: { color: "#7c3aed", bg: "#ede9fe", label: "已发布" },
-  待报告: { color: "#0891b2", bg: "#cffafe", label: "待报告" },
-  已登记: { color: "#64748b", bg: "#f1f5f9", label: "已登记" },
-  已预约: { color: "#64748b", bg: "#f1f5f9", label: "已预约" },
+  待检查: { color: "#3b82f6", bg: "#3b82f622", label: "待检查" },
+  检查中: { color: "#f59e0b", bg: "#f59e0b22", label: "检查中" },
+  已报告: { color: "#16a34a", bg: "#22c55e22", label: "已报告" },
+  已发布: { color: "#7c3aed", bg: "#8b5cf622", label: "已发布" },
+  待报告: { color: "#0891b2", bg: "#06b6d422", label: "待报告" },
+  已登记: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "已登记" },
+  已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "已预约" },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
-  draft: { color: "#94a3b8", bg: "#f1f5f9", label: "草稿" },
+  draft: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "草稿" },
   submitted: { color: "#d1fae5", bg: "#059669", label: "已提交" },
   reviewed: { color: "#ecfdf5", bg: "#047857", label: "已审核" },
   cosigned: { color: "#dbeafe", bg: "#2563eb", label: "已会签" },
@@ -155,8 +155,7 @@ const getPriorityStyle = (priority: string) => {
 
 const getStatusStyle = (status: string) => {
   const config = STATUS_CONFIG[status] || {
-    color: "#64748b",
-    bg: "#f1f5f9",
+    color: "var(--text-secondary)", bg: "var(--bg-deep)",
     label: status,
   };
   return {
@@ -171,31 +170,31 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
   const examDate = new Date(exam.examDate);
 
   const nodes: ExamStatusNode[] = [
-    { key: "reserved", label: "已预约", color: "#94a3b8", bgColor: "#f1f5f9" },
+    { key: "reserved", label: "已预约", color: "var(--text-secondary)", bgColor: "var(--bg-card)" },
     {
       key: "registered",
       label: "已登记",
       color: "#22c55e",
-      bgColor: "#dcfce7",
+      bgColor: "var(--color-success-bg)",
     },
     {
       key: "inProgress",
       label: "检查中",
       color: "#3b82f6",
-      bgColor: "#dbeafe",
+      bgColor: "var(--color-info-bg)",
     },
-    { key: "imaging", label: "图像采集", color: "#eab308", bgColor: "#fef9c3" },
+    { key: "imaging", label: "图像采集", color: "#eab308", bgColor: "var(--color-warning-bg)" },
     {
       key: "reporting",
       label: "报告书写",
       color: "#f97316",
-      bgColor: "#ffedd5",
+      bgColor: "var(--color-warning-bg)",
     },
     {
       key: "reviewed",
       label: "报告审核",
       color: "#22c55e",
-      bgColor: "#dcfce7",
+      bgColor: "var(--color-success-bg)",
     },
     { key: "published", label: "已发布", color: "#22c55e", bgColor: "#dcfce7" },
   ];
@@ -245,7 +244,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
         node.isOverdue = Math.random() > 0.7; // 模拟30%超时率
         if (node.isOverdue) {
           node.color = "#dc2626";
-          node.bgColor = "#fee2e2";
+          node.bgColor = "var(--color-error-bg)";
         }
       }
       node.timestamp = "进行中";
@@ -629,8 +628,8 @@ export default function ExamPage() {
   const TabBar = () => (
     <div
       style={{
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #e2e8f0",
+        backgroundColor: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-color)",
         display: "flex",
         padding: "0 20px",
       }}
@@ -691,8 +690,8 @@ export default function ExamPage() {
   const FilterBar = () => (
     <div
       style={{
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #e2e8f0",
+        backgroundColor: "var(--bg-card)",
+        borderBottom: "1px solid var(--border-color)",
         padding: "12px 20px",
         display: "flex",
         flexWrap: "wrap",
@@ -726,7 +725,7 @@ export default function ExamPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
             技师工作站
           </div>
-          <div style={{ fontSize: 12, color: "#94a3b8" }}>检查执行管理</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查执行管理</div>
         </div>
       </div>
 
@@ -742,7 +741,7 @@ export default function ExamPage() {
             left: 10,
             top: "50%",
             transform: "translateY(-50%)",
-            color: "#94a3b8",
+            color: "var(--text-secondary)",
           }}
         />
         <input
@@ -753,14 +752,14 @@ export default function ExamPage() {
           style={{
             width: "100%",
             padding: "8px 10px 8px 32px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 6,
             fontSize: 12,
             outline: "none",
             boxSizing: "border-box",
           }}
           onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
-          onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+          onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
         />
       </div>
 
@@ -770,7 +769,7 @@ export default function ExamPage() {
         onChange={(e) => handleFilterChange("priority", e.target.value)}
         style={{
           padding: "8px 12px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           borderRadius: 6,
           fontSize: 12,
           outline: "none",
@@ -778,7 +777,7 @@ export default function ExamPage() {
           backgroundColor:
             filters.priority !== "全部"
               ? PRIORITY_CONFIG[filters.priority]?.bg
-              : "#fff",
+              : "var(--bg-card)",
         }}
       >
         {["全部", "普通", "紧急", "危重"].map((p) => (
@@ -794,7 +793,7 @@ export default function ExamPage() {
         onChange={(e) => handleFilterChange("status", e.target.value)}
         style={{
           padding: "8px 12px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           borderRadius: 6,
           fontSize: 12,
           outline: "none",
@@ -814,7 +813,7 @@ export default function ExamPage() {
         onChange={(e) => handleFilterChange("modality", e.target.value)}
         style={{
           padding: "8px 12px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           borderRadius: 6,
           fontSize: 12,
           outline: "none",
@@ -834,7 +833,7 @@ export default function ExamPage() {
         onChange={(e) => handleFilterChange("patientType", e.target.value)}
         style={{
           padding: "8px 12px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color)",
           borderRadius: 6,
           fontSize: 12,
           outline: "none",
@@ -866,15 +865,15 @@ export default function ExamPage() {
           }
           style={{
             padding: "8px 12px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 6,
             fontSize: 12,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             gap: 4,
-            backgroundColor: "#fff",
-            color: "#64748b",
+            backgroundColor: "var(--bg-card)",
+            color: "var(--text-secondary)",
           }}
         >
           <X size={12} /> 清空
@@ -895,7 +894,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             gap: 6,
-            backgroundColor: "#fff",
+            backgroundColor: "var(--bg-card)",
             color: "#059669",
           }}
         >
@@ -905,7 +904,7 @@ export default function ExamPage() {
           onClick={() => void handleExamExport()}
           style={{
             padding: "8px 14px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color)",
             borderRadius: 6,
             fontSize: 12,
             fontWeight: 600,
@@ -913,7 +912,7 @@ export default function ExamPage() {
             display: "flex",
             alignItems: "center",
             gap: 6,
-            backgroundColor: "#fff",
+            backgroundColor: "var(--bg-card)",
             color: PRIMARY,
           }}
         >
@@ -966,7 +965,7 @@ export default function ExamPage() {
 
   // 表格
   const ExamTable = () => (
-    <div style={{ flex: 1, overflow: "auto", backgroundColor: "#fff" }}>
+    <div style={{ flex: 1, overflow: "auto", backgroundColor: "var(--bg-card)" }}>
       <table
         style={{
           width: "100%",
@@ -1046,7 +1045,7 @@ export default function ExamPage() {
                   style={{
                   padding: "40px 12px",
                   textAlign: "center",
-                  color: "#94a3b8",
+                  color: "var(--text-secondary)",
                 }}
               >
                 <div
@@ -1070,7 +1069,7 @@ export default function ExamPage() {
                 <tr
                   key={exam.id}
                   style={{
-                    backgroundColor: idx % 2 === 0 ? "#fff" : "#f8fafc",
+                    backgroundColor: idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)",
                     transition: "background-color 0.15s",
                   }}
                   onMouseEnter={(e) =>
@@ -1078,7 +1077,7 @@ export default function ExamPage() {
                   }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor =
-                      idx % 2 === 0 ? "#fff" : "#f8fafc")
+                      idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)")
                   }
                 >
                   {/* 批量选择 */}
@@ -1100,7 +1099,7 @@ export default function ExamPage() {
                     style={{
                       padding: "10px 12px",
                       fontFamily: "monospace",
-                      color: "#64748b",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {exam.accessionNumber}
@@ -1124,10 +1123,10 @@ export default function ExamPage() {
                         <User size={14} style={{ color: PRIMARY }} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: "#1e293b" }}>
+                        <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                           {exam.patientName}
                         </div>
-                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                           {exam.gender} · {exam.age}岁 · {exam.patientType}
                         </div>
                       </div>
@@ -1135,10 +1134,10 @@ export default function ExamPage() {
                   </td>
                   {/* 检查项目 */}
                   <td style={{ padding: "10px 12px" }}>
-                    <div style={{ fontWeight: 500, color: "#334155" }}>
+                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>
                       {exam.examItemName}
                     </div>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                       {exam.modality} · {exam.bodyPart}
                     </div>
                   </td>
@@ -1147,12 +1146,12 @@ export default function ExamPage() {
                     <div
                       style={{ display: "flex", alignItems: "center", gap: 4 }}
                     >
-                      <Monitor size={12} style={{ color: "#94a3b8" }} />
-                      <span style={{ color: "#64748b" }}>
+                      <Monitor size={12} style={{ color: "var(--text-secondary)" }} />
+                      <span style={{ color: "var(--text-secondary)" }}>
                         {exam.deviceName?.split("（")[0] || "-"}
                       </span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                       {exam.roomName}
                     </div>
                   </td>
@@ -1188,8 +1187,8 @@ export default function ExamPage() {
                   </td>
                   {/* 检查时间 */}
                   <td style={{ padding: "10px 12px" }}>
-                    <div style={{ color: "#64748b" }}>{exam.examDate}</div>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                    <div style={{ color: "var(--text-secondary)" }}>{exam.examDate}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                       {formatTime(exam.examTime)}
                     </div>
                   </td>
@@ -1231,9 +1230,9 @@ export default function ExamPage() {
                             style={{
                               padding: "4px 8px",
                               borderRadius: 4,
-                              border: "1px solid #e2e8f0",
-                              backgroundColor: "#fff",
-                              color: "#64748b",
+                              border: "1px solid var(--border-color)",
+                              backgroundColor: "var(--bg-card)",
+                              color: "var(--text-secondary)",
                               fontSize: 12,
                               cursor: "pointer",
                             }}
@@ -1249,9 +1248,9 @@ export default function ExamPage() {
                           style={{
                             padding: "4px 10px",
                             borderRadius: 4,
-                            border: "1px solid #e2e8f0",
-                            backgroundColor: "#fff",
-                            color: "#64748b",
+                            border: "1px solid var(--border-color)",
+                            backgroundColor: "var(--bg-card)",
+                            color: "var(--text-secondary)",
                             fontSize: 12,
                             cursor: "pointer",
                             display: "flex",
@@ -1291,13 +1290,13 @@ export default function ExamPage() {
           <div
             key={execution.id}
             style={{
-              backgroundColor: "#fff",
+              backgroundColor: "var(--bg-card)",
               borderRadius: 12,
               padding: 20,
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: execution.completed
-                ? "2px solid #dcfce7"
-                : "2px solid #dbeafe",
+                ? "2px solid var(--color-success-border)"
+                : "2px solid var(--color-info-border)",
             }}
           >
             {/* 卡片头部 */}
@@ -1314,13 +1313,13 @@ export default function ExamPage() {
                   style={{
                     fontSize: 16,
                     fontWeight: 700,
-                    color: "#1e293b",
+                    color: "var(--text-primary)",
                     marginBottom: 4,
                   }}
                 >
                   {execution.patientName}
                 </div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   {execution.examItemName}
                 </div>
               </div>
@@ -1328,7 +1327,7 @@ export default function ExamPage() {
                 style={{
                   padding: "4px 10px",
                   borderRadius: 20,
-                  backgroundColor: execution.completed ? "#dcfce7" : "#dbeafe",
+                  backgroundColor: execution.completed ? "var(--color-success-bg)" : "var(--color-info-bg)",
                   color: execution.completed ? "#16a34a" : PRIMARY,
                   fontSize: 12,
                   fontWeight: 600,
@@ -1349,36 +1348,36 @@ export default function ExamPage() {
             >
               <div
                 style={{
-                  backgroundColor: "#f8fafc",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
                   padding: 10,
                 }}
               >
                 <div
-                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                  style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                 >
                   设备编号
                 </div>
                 <div
-                  style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.deviceNumber}
                 </div>
               </div>
               <div
                 style={{
-                  backgroundColor: "#f8fafc",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
                   padding: 10,
                 }}
               >
                 <div
-                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
+                  style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                 >
                   检查室
                 </div>
                 <div
-                  style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.roomName}
                 </div>
@@ -1401,7 +1400,7 @@ export default function ExamPage() {
               <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 600 }}>
                 {execution.technologistName}
               </span>
-              <span style={{ fontSize: 12, color: "#64748b" }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 （当前登录）
               </span>
             </div>
@@ -1415,17 +1414,17 @@ export default function ExamPage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>开始时间</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>开始时间</div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.startTime}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>预计时长</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>预计时长</div>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.estimatedDuration}分钟
                 </div>
@@ -1443,7 +1442,7 @@ export default function ExamPage() {
                 }}
               >
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   图像采集数量
                 </span>
@@ -1454,7 +1453,7 @@ export default function ExamPage() {
                     gap: 8,
                   }}
                 >
-                  <Camera size={14} style={{ color: "#64748b" }} />
+                  <Camera size={14} style={{ color: "var(--text-secondary)" }} />
                   <input
                     type="number"
                     value={execution.imagesAcquired}
@@ -1468,16 +1467,16 @@ export default function ExamPage() {
                     style={{
                       width: 60,
                       padding: "4px 8px",
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid var(--border-color)",
                       borderRadius: 4,
                       fontSize: 14,
                       fontWeight: 700,
                       textAlign: "center",
                       color: execution.completed ? "#94a3b8" : PRIMARY,
-                      backgroundColor: execution.completed ? "#f8fafc" : "#fff",
+                      backgroundColor: execution.completed ? "var(--bg-primary)" : "var(--bg-card)",
                     }}
                   />
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>帧</span>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>帧</span>
                 </div>
               </div>
               {/* 采集进度条 */}
@@ -1535,9 +1534,9 @@ export default function ExamPage() {
                   justifyContent: "center",
                   gap: 8,
                   padding: "10px 16px",
-                  backgroundColor: "#f8fafc",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
-                  border: "1px dashed #cbd5e1",
+                  border: "1px dashed var(--border-color)",
                 }}
               >
                 <div
@@ -1545,7 +1544,7 @@ export default function ExamPage() {
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    backgroundColor: "#dcfce7",
+                    backgroundColor: "var(--color-success-bg)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1554,7 +1553,7 @@ export default function ExamPage() {
                   <CheckCircle size={16} style={{ color: "#16a34a" }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     技师电子签名
                   </div>
                   <div
@@ -1600,35 +1599,33 @@ export default function ExamPage() {
             value: transferRecords.filter(
               (r) => r.transferReason === "急诊→住院",
             ).length,
-            color: "#dc2626",
-            bg: "#fee2e2",
+            color: "#ef4444", bg: "#ef444422",
           },
           {
             label: "住院→转科",
             value: transferRecords.filter(
               (r) => r.transferReason === "住院→转科",
             ).length,
-            color: "#d97706",
-            bg: "#fef3c7",
+            color: "#f59e0b", bg: "#f59e0b22",
           },
           {
             label: "待完成检查",
             value: transferRecords.filter((r) => !r.examCompleted).length,
             color: "#f97316",
-            bg: "#ffedd5",
+            bg: "#f9731622",
           },
         ].map((stat) => (
           <div
             key={stat.label}
             style={{
-              backgroundColor: "#fff",
+              backgroundColor: "var(--bg-card)",
               borderRadius: 12,
               padding: 16,
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               borderLeft: `4px solid ${stat.color}`,
             }}
           >
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
               {stat.label}
             </div>
             <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>
@@ -1644,13 +1641,13 @@ export default function ExamPage() {
           <div
             key={record.id}
             style={{
-              backgroundColor: "#fff",
+              backgroundColor: "var(--bg-card)",
               borderRadius: 12,
               padding: 20,
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               border: record.examCompleted
-                ? "2px solid #dcfce7"
-                : "2px solid #fef3c7",
+                ? "2px solid var(--color-success-border)"
+                : "2px solid var(--color-warning-border)",
             }}
           >
             {/* 患者信息头部 */}
@@ -1678,11 +1675,11 @@ export default function ExamPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 16, fontWeight: 700, color: "#1e293b" }}
+                    style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}
                   >
                     {record.patientName}
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     {record.gender} · {record.age}岁 · {record.patientType}
                   </div>
                 </div>
@@ -1700,8 +1697,8 @@ export default function ExamPage() {
                     padding: "4px 10px",
                     borderRadius: 20,
                     backgroundColor: record.examCompleted
-                      ? "#dcfce7"
-                      : "#fef3c7",
+                      ? "var(--color-success-bg)"
+                      : "var(--color-warning-bg)",
                     color: record.examCompleted ? "#16a34a" : "#d97706",
                     fontSize: 12,
                     fontWeight: 600,
@@ -1715,10 +1712,10 @@ export default function ExamPage() {
                     borderRadius: 20,
                     backgroundColor:
                       record.transferReason === "急诊→住院"
-                        ? "#fee2e2"
+                        ? "var(--color-error-bg)"
                         : record.transferReason === "住院→转科"
-                          ? "#fef3c7"
-                          : "#dbeafe",
+                          ? "var(--color-warning-bg)"
+                          : "var(--color-info-bg)",
                     color:
                       record.transferReason === "急诊→住院"
                         ? "#dc2626"
@@ -1749,15 +1746,15 @@ export default function ExamPage() {
                   alignItems: "center",
                   gap: 8,
                   padding: "10px 14px",
-                  backgroundColor: "#f8fafc",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
                 }}
               >
                 <ArrowRight size={14} style={{ color: "#dc2626" }} />
                 <div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>转出科室</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>转出科室</div>
                   <div
-                    style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                   >
                     {record.fromDepartment}
                   </div>
@@ -1769,15 +1766,15 @@ export default function ExamPage() {
                   alignItems: "center",
                   gap: 8,
                   padding: "10px 14px",
-                  backgroundColor: "#f8fafc",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: 8,
                 }}
               >
                 <ArrowRight size={14} style={{ color: "#16a34a" }} />
                 <div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>转入科室</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>转入科室</div>
                   <div
-                    style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                   >
                     {record.toDepartment}
                   </div>
@@ -1794,23 +1791,23 @@ export default function ExamPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Clock size={12} style={{ color: "#94a3b8" }} />
-                <span style={{ fontSize: 12, color: "#64748b" }}>
+                <Clock size={12} style={{ color: "var(--text-secondary)" }} />
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   转科时间：
                 </span>
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {record.transferTime}
                 </span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Stethoscope size={12} style={{ color: "#94a3b8" }} />
-                <span style={{ fontSize: 12, color: "#64748b" }}>
+                <Stethoscope size={12} style={{ color: "var(--text-secondary)" }} />
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   主治医生：
                 </span>
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {record.attendingDoctor}
                 </span>
@@ -1822,7 +1819,7 @@ export default function ExamPage() {
               <div
                 style={{
                   padding: "10px 14px",
-                  backgroundColor: "#fef9c3",
+                  backgroundColor: "var(--color-warning-bg)",
                   borderRadius: 8,
                   borderLeft: "3px solid #eab308",
                   marginBottom: 12,
@@ -1852,7 +1849,7 @@ export default function ExamPage() {
                   alignItems: "center",
                   gap: 8,
                   padding: "10px 14px",
-                  backgroundColor: record.examCompleted ? "#dcfce7" : "#fff7ed",
+                  backgroundColor: record.examCompleted ? "var(--color-success-bg)" : "var(--color-warning-bg)",
                   borderRadius: 8,
                   border: `1px solid ${record.examCompleted ? "#bbf7d0" : "#fed7aa"}`,
                 }}
@@ -1863,7 +1860,7 @@ export default function ExamPage() {
                     color: record.examCompleted ? "#16a34a" : "#f97316",
                   }}
                 />
-                <span style={{ fontSize: 12, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   跟随检查：
                 </span>
                 <span
@@ -1893,15 +1890,15 @@ export default function ExamPage() {
   const Pagination = () => (
     <div
       style={{
-        backgroundColor: "#fff",
-        borderTop: "1px solid #e2e8f0",
+        backgroundColor: "var(--bg-card)",
+        borderTop: "1px solid var(--border-color)",
         padding: "10px 20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
       }}
     >
-      <div style={{ fontSize: 12, color: "#64748b" }}>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
         共{" "}
         <span style={{ fontWeight: 600, color: PRIMARY }}>
           {filteredExams.length}
@@ -1917,8 +1914,8 @@ export default function ExamPage() {
           style={{
             padding: "6px 10px",
             borderRadius: 4,
-            border: "1px solid #e2e8f0",
-            backgroundColor: "#fff",
+            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-card)",
             color: page === 1 ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
             cursor: page === 1 ? "not-allowed" : "pointer",
@@ -1936,8 +1933,8 @@ export default function ExamPage() {
           style={{
             padding: "6px 10px",
             borderRadius: 4,
-            border: "1px solid #e2e8f0",
-            backgroundColor: "#fff",
+            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-card)",
             color: page === 1 ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
             cursor: page === 1 ? "not-allowed" : "pointer",
@@ -1970,7 +1967,7 @@ export default function ExamPage() {
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: page === p ? PRIMARY : "#e2e8f0",
-                backgroundColor: page === p ? PRIMARY : "#fff",
+                backgroundColor: page === p ? PRIMARY : "var(--bg-card)",
                 color: page === p ? "#fff" : "#64748b",
                 fontSize: 12,
                 cursor: "pointer",
@@ -1987,8 +1984,8 @@ export default function ExamPage() {
           style={{
             padding: "6px 10px",
             borderRadius: 4,
-            border: "1px solid #e2e8f0",
-            backgroundColor: "#fff",
+            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-card)",
             color: page === totalPages ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
             cursor: page === totalPages ? "not-allowed" : "pointer",
@@ -2005,8 +2002,8 @@ export default function ExamPage() {
           style={{
             padding: "6px 10px",
             borderRadius: 4,
-            border: "1px solid #e2e8f0",
-            backgroundColor: "#fff",
+            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-card)",
             color: page === totalPages ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
             cursor: page === totalPages ? "not-allowed" : "pointer",
@@ -2144,7 +2141,7 @@ export default function ExamPage() {
       >
         <div
           style={{
-            backgroundColor: "#fff",
+            backgroundColor: "var(--bg-card)",
             borderRadius: 12,
             width: 480,
             maxWidth: "90vw",
@@ -2155,7 +2152,7 @@ export default function ExamPage() {
           <div
             style={{
               padding: "16px 20px",
-              borderBottom: "1px solid #e2e8f0",
+              borderBottom: "1px solid var(--border-color)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -2195,7 +2192,7 @@ export default function ExamPage() {
             {/* 患者信息 */}
             <div
               style={{
-                backgroundColor: "#f8fafc",
+                backgroundColor: "var(--bg-card)",
                 borderRadius: 8,
                 padding: 12,
                 marginBottom: 16,
@@ -2208,8 +2205,8 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "#64748b" }}>患者姓名</span>
-                <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>患者姓名</span>
+                <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                   {modal.exam.patientName}
                 </span>
               </div>
@@ -2220,8 +2217,8 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "#64748b" }}>检查项目</span>
-                <span style={{ color: "#334155" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查项目</span>
+                <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.examItemName}
                 </span>
               </div>
@@ -2232,14 +2229,14 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "#64748b" }}>检查号</span>
-                <span style={{ fontFamily: "monospace", color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查号</span>
+                <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
                   {modal.exam.accessionNumber}
                 </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, color: "#64748b" }}>设备</span>
-                <span style={{ color: "#334155" }}>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>设备</span>
+                <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.deviceName?.split("（")[0]}
                 </span>
               </div>
@@ -2252,7 +2249,7 @@ export default function ExamPage() {
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "var(--text-primary)",
                     display: "block",
                     marginBottom: 8,
                   }}
@@ -2280,11 +2277,11 @@ export default function ExamPage() {
                         backgroundColor:
                           imageQuality === q
                             ? q === "优"
-                              ? "#dcfce7"
+                              ? "var(--color-success-bg)"
                               : q === "良"
-                                ? "#fef3c7"
-                                : "#fee2e2"
-                            : "#fff",
+                                ? "var(--color-warning-bg)"
+                                : "var(--color-error-bg)"
+                            : "var(--bg-card)",
                         color:
                           imageQuality === q
                             ? q === "优"
@@ -2310,7 +2307,7 @@ export default function ExamPage() {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#334155",
+                  color: "var(--text-primary)",
                   display: "block",
                   marginBottom: 8,
                 }}
@@ -2325,7 +2322,7 @@ export default function ExamPage() {
                 style={{
                   width: "100%",
                   padding: "10px 12px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
                   resize: "none",
@@ -2336,7 +2333,7 @@ export default function ExamPage() {
                 onFocus={(e) =>
                   (e.target.style.borderColor = actionConfig.color)
                 }
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
               />
             </div>
           </div>
@@ -2345,7 +2342,7 @@ export default function ExamPage() {
           <div
             style={{
               padding: "12px 20px",
-              borderTop: "1px solid #e2e8f0",
+              borderTop: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "flex-end",
               gap: 8,
@@ -2356,9 +2353,9 @@ export default function ExamPage() {
               style={{
                 padding: "8px 16px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
-                backgroundColor: "#fff",
-                color: "#64748b",
+                border: "1px solid var(--border-color)",
+                backgroundColor: "var(--bg-card)",
+                color: "var(--text-secondary)",
                 fontSize: 13,
                 cursor: "pointer",
               }}
@@ -2394,7 +2391,7 @@ export default function ExamPage() {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        backgroundColor: "#f0f4f8",
+        backgroundColor: "var(--bg-card)",
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
@@ -2462,7 +2459,7 @@ export default function ExamPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 14,
               width: "100%",
               maxWidth: 680,
@@ -2476,7 +2473,7 @@ export default function ExamPage() {
             <div
               style={{
                 padding: "16px 20px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -2509,7 +2506,7 @@ export default function ExamPage() {
               <div
                 style={{
                   fontSize: 12,
-                  color: "#64748b",
+                  color: "var(--text-secondary)",
                   marginBottom: 10,
                   lineHeight: 1.8,
                 }}
@@ -2527,7 +2524,7 @@ export default function ExamPage() {
                   width: "100%",
                   boxSizing: "border-box",
                   padding: "10px 12px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-color)",
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
@@ -2543,10 +2540,10 @@ export default function ExamPage() {
                     gap: 6,
                     padding: "8px 14px",
                     borderRadius: 8,
-                    border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
+                    border: "1px solid var(--border-color)",
+                    background: "var(--bg-card)",
                     fontSize: 12,
-                    color: "#475569",
+                    color: "var(--text-secondary)",
                     cursor: "pointer",
                   }}
                 >
@@ -2571,7 +2568,7 @@ export default function ExamPage() {
                     padding: "12px 14px",
                     border: "1px solid",
                     borderColor: importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
-                    background: importResult.errors.length > 0 ? "#fffbeb" : "#f0fdf4",
+                    background: importResult.errors.length > 0 ? "var(--color-warning-bg)" : "var(--color-success-bg)",
                   }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
@@ -2592,7 +2589,7 @@ export default function ExamPage() {
             <div
               style={{
                 padding: "12px 20px",
-                borderTop: "1px solid #e2e8f0",
+                borderTop: "1px solid var(--border-color)",
                 display: "flex",
                 justifyContent: "flex-end",
                 gap: 10,
@@ -2603,10 +2600,10 @@ export default function ExamPage() {
                 style={{
                   padding: "8px 18px",
                   borderRadius: 8,
-                  border: "1px solid #e2e8f0",
-                  background: "#fff",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--bg-card)",
                   fontSize: 13,
-                  color: "#475569",
+                  color: "var(--text-secondary)",
                   cursor: "pointer",
                 }}
               >

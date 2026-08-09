@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
+import type { LungCadResult } from "../../services/api/lungCadApi";
 import {
   Card,
   Table,
@@ -22,8 +23,7 @@ import {
   RefreshCw,
   Cpu,
 } from "lucide-react";
-import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
-import type { LungCadResult } from "../../services/api/lungCadApi";
+import React, { useState, useEffect, useCallback } from "react";
 
 const { Text } = Typography;
 
@@ -202,8 +202,7 @@ const LungCadPage: React.FC = () => {
           showIcon
           style={{ marginBottom: 16 }}
           title={error}
-          action={
-            <Button size="small" onClick={() => void load()}>
+          action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 
               重试
             </Button>
           }

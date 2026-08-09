@@ -38,6 +38,20 @@ const RegionalReportPage: React.FC = () => {
   const [toastSuccess, setToastSuccess] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+  // [Wave2A] 系统设置: 受控表单 + localStorage 真实持久化 (regionalApi 无设置端点)
+  const [settingsForm, setSettingsForm] = useState(() => {
+    try {
+      const raw = localStorage.getItem('ris_regional_settings')
+      return raw ? JSON.parse(raw) : { institutionName: '', notifyCritical: true, notifyConsult: true, notifyAudit: false }
+    } catch {
+      return { institutionName: '', notifyCritical: true, notifyConsult: true, notifyAudit: false }
+    }
+  })
+  const handleSaveSettings = () => {
+    try { localStorage.setItem('ris_regional_settings', JSON.stringify(settingsForm)) } catch { /* ignore */ }
+    showToast(`设置已保存 (机构: ${settingsForm.institutionName || '未填写'})`)
+    setShowSettingsModal(false)
+  }
   const [consultationForm, setConsultationForm] = useState({ patientName: '', gender: '男', age: '', modality: 'CT', examItem: '', applyReason: '', priority: '普通', institution: '' })
   const [opinionText, setOpinionText] = useState('')
   const [reviewText, setReviewText] = useState('')
@@ -288,10 +302,10 @@ const RegionalReportPage: React.FC = () => {
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}><span>系统设置</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowSettingsModal(false)} /></div>
             <div style={styles.modalBody}>
-              <div style={styles.formGroup}><label style={styles.formLabel}>机构名称</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入机构名称" /></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>通知设置</label><div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" defaultChecked /> 接收危急值提醒</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" defaultChecked /> 接收会诊通知</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" /> 接收报告审核通知</label></div></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>机构名称</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入机构名称" value={settingsForm.institutionName} onChange={e => setSettingsForm({ ...settingsForm, institutionName: e.target.value })} /></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>通知设置</label><div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyCritical} onChange={e => setSettingsForm({ ...settingsForm, notifyCritical: e.target.checked })} /> 接收危急值提醒</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyConsult} onChange={e => setSettingsForm({ ...settingsForm, notifyConsult: e.target.checked })} /> 接收会诊通知</label><label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" checked={settingsForm.notifyAudit} onChange={e => setSettingsForm({ ...settingsForm, notifyAudit: e.target.checked })} /> 接收报告审核通知</label></div></div>
             </div>
-            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowSettingsModal(false)}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { setShowSettingsModal(false); showToast('设置已保存') }}>保存</button></div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowSettingsModal(false)}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveSettings}>保存</button></div>
           </div>
         </div>
       )}

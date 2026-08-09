@@ -1,22 +1,23 @@
-import { useEffect, useState } from 'react'
-import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card } from 'antd'
-import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
 import { patientPortalApi, type CreateEducationInput } from '../../services/api'
+import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
+import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card } from 'antd'
+import { Inbox, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 // ===== Styles =====
 const s = {
   container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: '#fff', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1e293b', margin: 0, marginBottom: 16 },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
-  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' },
+  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-    background: active ? '#fff' : 'transparent', color: active ? '#1e40af' : '#64748b',
+    background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
 }
@@ -30,11 +31,11 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const CONTENT_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  text: { bg: '#f1f5f9', text: '#475569' },
-  video: { bg: '#fee2e2', text: '#b91c1c' },
-  audio: { bg: '#fef3c7', text: '#b45309' },
-  pdf: { bg: '#ede9fe', text: '#7c3aed' },
-  image: { bg: '#dbeafe', text: '#1d4ed8' },
+  text: { bg: 'var(--bg-card)', text: 'var(--text-secondary)' },
+  video: { bg: 'var(--color-error-bg)', text: 'var(--color-error)' },
+  audio: { bg: 'var(--color-warning-bg)', text: 'var(--color-warning)' },
+  pdf: { bg: 'rgba(124,58,237,0.12)', text: '#7c3aed' },
+  image: { bg: 'var(--color-info-bg)', text: 'var(--color-info)' },
 }
 
 // ===== Component =====
@@ -193,7 +194,7 @@ export default function PatientEducationPage() {
       {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
         {(['materials', 'records', 'communication'] as const).map(tab => (
           <button key={tab} style={s.tab(activeTab === tab)} onClick={() => setActiveTab(tab)}>
             {tab === 'materials' ? `教育资料 (${materials.length})` : tab === 'records' ? '学习记录' : '沟通模板'}
@@ -207,7 +208,7 @@ export default function PatientEducationPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ ...s.btn, background: '#1e40af' }} onClick={() => setCreateOpen(true)}>＋ 新建宣教资料</button>
+                <button style={{ ...s.btn, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> 新建宣教资料</button>
               <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
                 <option value="">全部分类</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -218,10 +219,10 @@ export default function PatientEducationPage() {
           {selectedMaterial ? (
             <div>
               <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => setSelectedMaterial(null)}>← 返回列表</button>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selectedMaterial.title}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedMaterial.title}</div>
               <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
               {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 8 }}>{selectedMaterial.modality}</span>}
-              <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || '#475569', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || '#f1f5f9'), marginLeft: 8 }}>
+              <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || 'var(--text-secondary)', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || 'var(--bg-card)'), marginLeft: 8 }}>
                 {CONTENT_TYPE_LABELS[selectedMaterial.contentType] || selectedMaterial.contentType}
               </span>
               {selectedMaterial.duration && (
@@ -252,19 +253,19 @@ export default function PatientEducationPage() {
                 </div>
               )}
 
-              <div style={{ marginTop: 16, padding: 16, background: '#f8fafc', borderRadius: 8, fontSize: 14, color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+              <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
                 {selectedMaterial.content}
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 4 }}>
-                {selectedMaterial.tags.map(t => <span key={t} style={s.badge('#64748b', '#f1f5f9')}>{t}</span>)}
+                {selectedMaterial.tags.map(t => <span key={t} style={s.badge('var(--text-secondary)', 'var(--bg-card)')}>{t}</span>)}
               </div>
             </div>
           ) : materials.length === 0 ? (
-            <Empty description="暂无宣教资料" />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无宣教资料" />
           ) : (
             <div style={s.grid2}>
               {filtered.map(m => (
-                <div key={m.id} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer', position: 'relative' }}
+                <div key={m.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'pointer', position: 'relative' }}
                   onClick={() => handlePlay(m)}>
                   <button
                     title="删除该宣教资料"
@@ -273,7 +274,7 @@ export default function PatientEducationPage() {
                   >×</button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '🎬' : m.contentType === 'audio' ? '🎧' : m.contentType === 'pdf' ? '📄' : '📖'}</span>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.title}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</div>
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
                   <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category] || m.category}</span>
@@ -293,10 +294,10 @@ export default function PatientEducationPage() {
           {records.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.materialTitle}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.materialTitle}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>分配时间：{new Date(r.assignedAt).toLocaleString()}</div>
               </div>
-              <span style={s.badge(r.completed ? '#166534' : '#854d0e', r.completed ? '#dcfce7' : '#fef9c3')}>
+              <span style={s.badge(r.completed ? 'var(--color-success)' : 'var(--color-warning)', r.completed ? 'var(--color-success-bg)' : 'var(--color-warning-bg)')}>
                 {r.completed ? '已学习' : '未学习'}
               </span>
             </div>
@@ -310,13 +311,13 @@ export default function PatientEducationPage() {
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
           <h3 style={{ ...s.title, fontSize: 16 }}>沟通模板</h3>
           {templates.map(t => (
-            <div key={t.id} style={{ padding: 16, marginBottom: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div key={t.id} style={{ padding: 16, marginBottom: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{t.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t.name}</span>
                 <span style={s.badge('#fff', { 'sms': '#0369a1', 'wechat': '#166534', 'email': '#92400e', 'app_push': '#7c3aed' }[t.channel] || '#64748b')}>{t.channel}</span>
               </div>
               <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>标题：{t.title}</div>
-              <div style={{ fontSize: 12, color: '#475569', background: '#fff', padding: 8, borderRadius: 6, border: '1px solid #e2e8f0' }}>{t.body}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)' }}>{t.body}</div>
               <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
                 {t.variables.map(v => <span key={v} style={s.badge('#7c3aed', '#f3e8ff')}>{`{${v}}`}</span>)}
               </div>

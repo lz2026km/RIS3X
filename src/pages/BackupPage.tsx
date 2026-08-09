@@ -3,6 +3,7 @@ import { backupApi, type BackupDto } from '../services/api/systemApi'
 import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
 import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 import { usePagination } from '../hooks/usePagination'
+import { PageHeader } from '../components/common/PageHeader'
 
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
@@ -71,7 +72,7 @@ export default function BackupPage() {
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
-            <h2 style={{ margin: 0 }}><SafetyOutlined /> 备份管理</h2>
+            <PageHeader variant="flex" icon={<SafetyOutlined />} title="备份管理" style={{ marginBottom: 0 }} />
             <Space>
               <Select
                 placeholder="备份类型"

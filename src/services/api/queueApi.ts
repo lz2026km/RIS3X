@@ -22,9 +22,24 @@ export interface ExamRoomStatus {
   queueCount: number
 }
 
+// [G005 Wave1A P0] 房间队列明细 (后端 GET /queue/:roomId → { roomId, roomName, queue })
+export interface RoomQueueDetail {
+  roomId: string
+  roomName: string
+  queue: QueueCallDto[]
+}
+
 export const queueApi = {
   list: () =>
     api.get<QueueCallDto[]>('/queue'),
+
+  // [G005 Wave1A P0] 房间队列明细 (GET /queue/:roomId)
+  getRoomQueue: (roomId: string) =>
+    api.get<RoomQueueDetail>(`/queue/${encodeURIComponent(roomId)}`),
+
+  // [G005 Wave1A P0] 房间实时状态 (GET /queue/:roomId/status)
+  getRoomStatusDetail: (roomId: string) =>
+    api.get<ExamRoomStatus>(`/queue/${encodeURIComponent(roomId)}/status`),
 
   getRoomStatus: () =>
     api.get<ExamRoomStatus[]>('/queue/rooms'),

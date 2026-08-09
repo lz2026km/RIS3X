@@ -46,8 +46,8 @@ interface FilterBarProps {
 }
 
 const filterBtnStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1e40af' : '#e2e8f0'}`,
-  background: isActive ? '#1e40af' : '#fff', color: isActive ? '#fff' : '#64748b',
+  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1e40af' : 'var(--border-color)'}`,
+  background: isActive ? '#1e40af' : 'var(--bg-card)', color: isActive ? '#fff' : '#64748b',
   fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
 })
 
@@ -56,18 +56,18 @@ export const FilterBar = ({
   severityFilter, setSeverityFilter, timeRangeFilter, setTimeRangeFilter,
   dateRange, setDateRange, onBatchNotify, onBatchProcess, selectedCount, onOpenSettings,
 }: FilterBarProps) => (
-  <div style={{ background: '#fff', borderRadius: 12, padding: '14px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
+  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: '#f8fafc', borderRadius: 8, padding: '8px 14px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
         <Search size={16} style={{ color: '#94a3b8' }} />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名/检查号/危急值ID..." style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
         {search && <X size={14} style={{ color: '#94a3b8', cursor: 'pointer' }} onClick={() => setSearch('')} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Calendar size={14} style={{ color: '#64748b' }} />
-        <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: '#334155', outline: 'none' }} />
+        <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', outline: 'none' }} />
       </div>
-      <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+      <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
         <Settings size={14} />
         规则设置
       </button>
@@ -104,12 +104,12 @@ export const FilterBar = ({
       </div>
     </div>
     {selectedCount > 0 && (
-      <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+      <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
         <span style={{ fontSize: 12, color: '#1e40af', fontWeight: 700 }}>已选中 {selectedCount} 项</span>
-        <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #d97706', background: '#fffbeb', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #d97706', background: 'var(--color-warning-bg)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           <Send size={13} />批量发送通知
         </button>
-        <button onClick={onBatchProcess} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onBatchProcess} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           <CheckCircle size={13} />批量标记处理
         </button>
       </div>
@@ -142,12 +142,12 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '40px 100px 90px 130px 60px 140px 100px 90px 120px 80px 90px 100px 60px',
-      alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #f1f5f9',
-      background: isSelected ? '#eff6ff' : '#fff',
+      alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--border-color)',
+      background: isSelected ? 'var(--color-info-bg)' : 'var(--bg-card)',
       borderLeft: `4px solid ${severityCfg.borderColor}`, transition: 'background 0.15s',
     }}
-    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#f8fafc' }}
-    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = '#fff' }}
+    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)' }}
+    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-card)' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div onClick={onSelect} style={{ cursor: 'pointer', color: isSelected ? '#1e40af' : '#cbd5e1' }}>
@@ -160,7 +160,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
       </div>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{cv.examItemName}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{cv.examItemName}</div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.modality}</div>
       </div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
@@ -169,7 +169,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
         <div style={{ fontSize: 12, color: '#94a3b8' }}>危急: {cv.criticalRange}</div>
       </div>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{cv.reportedByName}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{cv.reportedByName}</div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{(cv.reportedTime || '').split(' ')[1] || cv.reportedTime}</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -180,57 +180,57 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
         {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'voice_called' || cv.status === 'acknowledged' || cv.status === 'receipted') && (
-          <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Edit3 size={10} />处理
           </button>
         )}
-        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e40af', background: '#fff', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e40af', background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Eye size={10} />详情
         </button>
         {(cv.status === 'notified' || cv.status === '已通知') && (
-          <button onClick={onVoiceCall} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c', background: '#fff7ed', color: '#ea580c', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onVoiceCall} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c', background: 'var(--color-warning-bg)', color: '#ea580c', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Phone size={10} />电话
           </button>
         )}
         {(cv.status === 'voice_called') && (
-          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: '#dbeafe', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <CheckCircle size={10} />确认
           </button>
         )}
         {(cv.status === 'acknowledged' || cv.status === '已接收') && (
-          <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: '#f0fdf4', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: 'var(--color-success-bg)', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Edit3 size={10} />回执
           </button>
         )}
-        <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: 'var(--bg-card)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Phone size={10} />联系
         </button>
         {cv.status !== 'closed_loop' && cv.status !== 'resolved' && cv.status !== '已处理' && (
-          <button onClick={onCloseLoop} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: '#ecfdf5', color: '#047857', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onCloseLoop} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: 'var(--color-success-bg)', color: '#047857', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Archive size={10} />闭环
           </button>
         )}
         {cv.status !== 'escalated' && cv.status !== '已升级' && (
-          <button onClick={onEscalate} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onEscalate} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <ArrowUp size={10} />升级
           </button>
         )}
-        <button onClick={onGo5Step} title="5步闭环工作流" style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onGo5Step} title="5步闭环工作流" style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <CheckCircle size={10} />5步
         </button>
         <Popconfirm title="删除危急值" description="确定删除该危急值记录吗?此操作不可恢复。" onConfirm={onDelete} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}>
-          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dc2626', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dc2626', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Trash2 size={10} />删除
           </button>
         </Popconfirm>
       </div>
       <div>
         {cv.transferredToFollowUp ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: '#d1fae5', color: '#059669', border: '1px solid #a7f3d0' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: '#059669', border: '1px solid var(--color-success-border)' }}>
             <CheckCircle size={11} />已转随访
           </span>
         ) : (
-          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title="转随访">
+          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: 'var(--color-info-bg)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title="转随访">
             <ArrowUpRight size={12} />
           </button>
         )}
@@ -280,8 +280,8 @@ export const CriticalValueList = ({
   }, [actors])
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center' }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+      <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: '#64748b', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
         <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={onToggleSelectAll} style={{ cursor: 'pointer', color: allSelected ? '#1e40af' : '#cbd5e1' }}>
             {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -329,7 +329,7 @@ export const CriticalValueList = ({
         </div>
       )}
 
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #f1f5f9', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 12, color: '#64748b' }}>
           共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条记录，
           已选中 <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> 项

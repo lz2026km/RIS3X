@@ -1,7 +1,8 @@
 // [v3.0.6.8-45] PR1: 报告流程核心页面
 // 报告全流程操? submit ?review ?sign ?publish + cosign + diff + auditTrail
 // 对标: Nuance PowerScribe 360 / 3M CodeAssist / 国内一?RIS
-import React, { useState, useEffect } from "react";
+import { reportApi } from "@/services/api/reportApi";
+import { REPORT_STATUS_MAP } from "@/utils/statusMaps";
 import {
   Card,
   Space,
@@ -36,8 +37,8 @@ import {
   FileText,
   Activity,
 } from "lucide-react";
-import { reportApi } from "@/services/api/reportApi";
-import { REPORT_STATUS_MAP } from "@/utils/statusMaps";
+import React, { useState, useEffect } from "react";
+import { Inbox } from 'lucide-react'
 
 const { TextArea } = Input;
 
@@ -172,7 +173,7 @@ export const ReportWorkflowPage: React.FC = () => {
   }, {});
 
   return (
-    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>报告流程核心</span>
@@ -443,7 +444,7 @@ export const ReportWorkflowPage: React.FC = () => {
                           <Card size="small">
                             <pre
                               style={{
-                                background: "#f5f5f5",
+                                background: "var(--bg-card)",
                                 padding: 12,
                                 borderRadius: 4,
                                 fontSize: 12,
@@ -453,7 +454,7 @@ export const ReportWorkflowPage: React.FC = () => {
                             </pre>
                           </Card>
                         ) : (
-                          <Empty />
+                          <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
                         ),
                       },
                       {
@@ -500,7 +501,7 @@ export const ReportWorkflowPage: React.FC = () => {
                             />
                           </Card>
                         ) : (
-                          <Empty />
+                          <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
                         ),
                       },
                     ]}
@@ -508,7 +509,7 @@ export const ReportWorkflowPage: React.FC = () => {
                 </>
               ) : (
                 <Card>
-                  <Empty description="选择左侧报告查看详情" />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择左侧报告查看详情" />
                 </Card>
               )}
             </Col>

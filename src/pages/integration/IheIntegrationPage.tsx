@@ -2,13 +2,13 @@
  * G005 v3.0.6.11-75 W3-1 - IHE 集成引擎页
  * iheApi.getStatus 真实数据 + 状态卡 + 交易统计 + 配置入口 + loading/error
  */
-import React, { useCallback, useEffect, useState } from 'react';
+import { iheApi } from '../../services/api/integrationApi';
+import { IheStatus } from '../../services/api/integrationApi'
 import {
   Card, Space, Tag, Table, Button, Row, Col, Statistic, message, Alert, Spin, Input, Modal, Divider, Descriptions,
 } from 'antd';
 import { Globe, Activity, RefreshCw, ArrowLeftRight, Server, Network, Database, FileSearch, IdCard, CalendarRange } from 'lucide-react';
-import { iheApi } from '../../services/api/integrationApi';
-import type { IheStatus } from '../../services/api/integrationApi';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const IheIntegrationPage: React.FC = () => {
   const [status, setStatus] = useState<IheStatus | null>(null);
@@ -75,7 +75,7 @@ const IheIntegrationPage: React.FC = () => {
 
       {error && (
         <Alert type="error" showIcon message="状态加载失败" description={error} style={{ marginBottom: 16 }}
-          action={<Button size="small" onClick={() => void fetchStatus()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void fetchStatus()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
@@ -89,15 +89,15 @@ const IheIntegrationPage: React.FC = () => {
         <Col xs={24} lg={10}>
           <Card
             size="small"
-            title={<Space><Server size={14} />Affinity Domain</Space>}
+            title={<Space><Server size={14} />归属域</Space>}
             extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchStatus()} loading={loading}>刷新</Button>}
             style={{ marginBottom: 16 }}
           >
             {loading ? <Spin /> : domain ? (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <div><Tag color="blue">名称</Tag> {domain.name} {domain.nameEn ? <span style={{ color: '#64748b' }}>({domain.nameEn})</span> : null}</div>
-                <div><Tag>Home Community ID</Tag> <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
-                <div><Tag>Assigning Authority</Tag> <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
+                <div><Tag>Home Community ID</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
+                <div><Tag>Assigning Authority</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
                 <Divider style={{ margin: '4px 0' }} />
                 <Space size={4} wrap>
                   {domain.pixManagerEndpoint && <Tag icon={<Network size={10} />} color="purple">PIX: {domain.pixManagerEndpoint}</Tag>}

@@ -1,10 +1,11 @@
 // [W3-2] 牙科远程会诊: dentalApi.tele 真实 API + 发起/加入 + 会诊列表 + 状态
 // [W3-C] 上传照片→文件选择+本地预览; AI 预筛→功能标注; 详情→Modal
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Statistic, Badge, Popconfirm, Image, Descriptions } from 'antd';
-import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming, AlertTriangle } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
+import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Statistic, Badge, Popconfirm, Image, Descriptions } from 'antd';
+import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Inbox } from 'lucide-react'
 
 const { TextArea } = Input;
 
@@ -144,7 +145,7 @@ export const DentalTelePage: React.FC = () => {
 
   return (
     <DentalPageLayout header={{ title: '远程口腔会诊', icon: <Video size={20} color="#2563eb" /> }}>
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="会诊总数" value={sessions.length} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
@@ -160,7 +161,7 @@ export const DentalTelePage: React.FC = () => {
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{ marginTop: 16 }}>
         <Spin spinning={loading}>
           {sessions.length === 0 && !loading ? (
-            <Empty description="暂无会诊记录, 点击「新建会诊」发起" />
+            <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无会诊记录, 点击「新建会诊」发起" />
           ) : (
             <List
               dataSource={sessions}
@@ -187,7 +188,7 @@ export const DentalTelePage: React.FC = () => {
                         <Tag color={meta.color === 'processing' ? 'blue' : meta.color}>{meta.label}</Tag>
                         <Badge status={s.status === 'in_progress' ? 'processing' : 'default'} />
                       </Space>}
-                      description={<span style={{ fontSize: 12, color: '#999' }}>
+                      description={<span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                         患者: {s.patientName} | 专家: {s.expert} | 发起: {s.hostDoctor} | 时间: {(s.createdAt ?? '').replace('T', ' ').slice(0, 16)}
                         {s.reason ? ` | 议题: ${s.reason}` : ''}
                       </span>}
@@ -228,17 +229,17 @@ export const DentalTelePage: React.FC = () => {
             onChange={(e) => handleSelectPhotos(e.target.files)}
           />
           <Button type="primary" icon={<Upload size={14} />} onClick={() => photoInputRef.current?.click()}>选择照片</Button>
-          <span style={{ marginLeft: 12, fontSize: 12, color: '#94a3b8' }}>已选 {photos.length} 张 · 本地预览, 不涉及网络传输</span>
+          <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-secondary)' }}>已选 {photos.length} 张 · 本地预览, 不涉及网络传输</span>
         </div>
         {photos.length === 0 ? (
           <Empty description="尚未选择照片, 请选择口内照片后预览" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {photos.map((p) => (
-              <div key={p.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 8 }}>
+              <div key={p.id} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 8 }}>
                 <Image src={p.url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 6 }} />
-                <div style={{ marginTop: 6, fontSize: 11, color: '#334155' }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{p.sizeKB} KB · {p.uploadedAt}</div>
+                <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text-primary)' }}>{p.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.sizeKB} KB · {p.uploadedAt}</div>
                 <Button
                   size="small"
                   danger

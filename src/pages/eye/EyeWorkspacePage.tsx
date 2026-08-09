@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Row, Col, Statistic, Tag, Empty, Typography, Spin } from 'antd';
+import { Card, Row, Col, Statistic, Tag, Empty, Typography, Spin, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   Eye,
@@ -13,6 +13,8 @@ import {
   ArrowRight,
   ScanLine,
   Pill,
+  Box,
+  Package,
 } from 'lucide-react';
 import { PageContainer, PageHeader } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
@@ -92,6 +94,29 @@ const EyeWorkspacePage: React.FC = () => {
   const [criticalCount, setCriticalCount] = useState<number>(0);
   const [quickLinkMeta, setQuickLinkMeta] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(true);
+
+  // [G005 Wave1A P0] IOL 库存摘要: GET /eye/iol/inventory + low-stock + expiring
+  const [iolSummary, setIolSummary] = useState<{ total: number; lowStock: number; expiring: number }>({ total: 0, lowStock: 0, expiring: 0 });
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [inv, low, exp] = await Promise.allSettled([
+          eyeApi.getIolInventory(),
+          eyeApi.getIolLowStock(),
+          eyeApi.getIolExpiring(90),
+        ]);
+        if (cancelled) return;
+        setIolSummary({
+          total: inv.status === 'fulfilled' && Array.isArray(inv.value.data) ? inv.value.data.length : 0,
+          lowStock: low.status === 'fulfilled' && Array.isArray(low.value.data) ? low.value.data.length : 0,
+          expiring: exp.status === 'fulfilled' && Array.isArray(exp.value.data) ? exp.value.data.length : 0,
+        });
+      } catch { /* 静默 */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,7 +208,7 @@ const EyeWorkspacePage: React.FC = () => {
               >
                 <Statistic
                   title={
-                    <span style={{ fontSize: 12, color: '#64748b' }}>{k.title}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{k.title}</span>
                   }
                   value={kpiValues[k.key as keyof typeof kpiValues]}
                   prefix={<k.Icon className="v4-icon" style={{ color: k.color }} />}
@@ -213,12 +238,43 @@ const EyeWorkspacePage: React.FC = () => {
                     {quickLinkMeta[q.key] ?? q.description}
                   </Text>
                 </div>
-                <ArrowRight size={14} className="v4-icon" style={{ color: '#94a3b8' }} />
+                <ArrowRight size={14} className="v4-icon" style={{ color: 'var(--text-secondary)' }} />
               </div>
             </Card>
           </Col>
         ))}
       </Row>
+
+      {/* [G005 Wave1A P0] IOL 库存区块: GET /eye/iol/inventory + low-stock + expiring (MaterialsPage /materials 明细) */}
+      <Card
+        size="small"
+        title={<Space><Box size={15} color="#10b981" />IOL 库存摘要</Space>}
+        style={{ marginBottom: 16 }}
+        extra={
+          <a onClick={() => navigate('/materials')} style={{ fontSize: 12 }}>
+            库存明细 <ArrowRight size={12} className="v4-icon" />
+          </a>
+        }
+      >
+        <Row gutter={12}>
+          <Col xs={8} md={4}>
+            <Statistic title="库存总数" value={iolSummary.total} prefix={<Package size={14} />} valueStyle={{ fontSize: 20 }} />
+          </Col>
+          <Col xs={8} md={4}>
+            <Statistic title="低库存" value={iolSummary.lowStock} valueStyle={{ color: iolSummary.lowStock > 0 ? '#faad14' : undefined, fontSize: 20 }} />
+          </Col>
+          <Col xs={8} md={4}>
+            <Statistic title="90天内过期" value={iolSummary.expiring} valueStyle={{ color: iolSummary.expiring > 0 ? '#ff4d4f' : undefined, fontSize: 20 }} />
+          </Col>
+          <Col xs={24} md={12} style={{ display: 'flex', alignItems: 'center' }}>
+            <Space size={6} wrap>
+              {iolSummary.lowStock > 0 && <Tag color="warning">⚠ {iolSummary.lowStock} 项需补货</Tag>}
+              {iolSummary.expiring > 0 && <Tag color="error">⏳ {iolSummary.expiring} 项即将到期</Tag>}
+              {iolSummary.total === 0 && iolSummary.lowStock === 0 && <Tag>接口未返回数据 (离线模式)</Tag>}
+            </Space>
+          </Col>
+        </Row>
+      </Card>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} md={12}>

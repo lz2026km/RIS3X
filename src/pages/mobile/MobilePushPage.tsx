@@ -18,12 +18,11 @@ interface PushNotificationItem {
 }
 
 const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }> }> = {
-  info: { bg: '#dbeafe', color: '#2563eb', borderColor: '#93c5fd', icon: Bell },
-  warning: { bg: '#fef3c7', color: '#d97706', borderColor: '#fcd34d', icon: AlertTriangle },
-  critical: { bg: '#fee2e2', color: '#dc2626', borderColor: '#fca5a5', icon: AlertTriangle },
+  info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', borderColor: 'var(--color-info-border)', icon: Bell },
+  warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', borderColor: 'var(--color-warning-border)', icon: AlertTriangle },
+  critical: { bg: 'var(--color-error-bg)', color: 'var(--color-error)', borderColor: 'var(--color-error-border)', icon: AlertTriangle },
 }
-
-const DEFAULT_SEVERITY = { bg: '#dbeafe', color: '#2563eb', borderColor: '#93c5fd', icon: Bell }
+const DEFAULT_SEVERITY = { bg: 'var(--color-info-bg)', color: 'var(--color-info)', borderColor: 'var(--color-info-border)', icon: Bell }
 
 const TOPIC_LABELS: Record<string, string> = {
   critical: '危急值',
@@ -139,7 +138,7 @@ export default function MobilePushPage() {
       const sub = await pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
       if (sub) {
         void registerDeviceToken(sub)
-        message.success('推送通知已开启 (Web Push)')
+        message.success('推送通知已开启 (浏览器推送)')
       } else {
         message.warning('订阅失败: 浏览器或后端推送通道不可用')
       }
@@ -194,7 +193,7 @@ export default function MobilePushPage() {
 
   const containerStyle: React.CSSProperties = {
     maxWidth: 480, margin: '0 auto', padding: 16,
-    background: '#f8fafc', minHeight: '100vh',
+    background: 'var(--bg-primary)', minHeight: '100vh',
     fontFamily: '-apple-system, sans-serif',
   }
 
@@ -204,7 +203,7 @@ export default function MobilePushPage() {
   }
 
   const cardStyle: React.CSSProperties = {
-    background: '#fff', borderRadius: 10, border: '1px solid #e2e8f0',
+    background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
     marginBottom: 8, overflow: 'hidden',
   }
 
@@ -251,8 +250,8 @@ export default function MobilePushPage() {
             disabled={pushEnabled}
             style={{
               ...btnBase, flex: 1, gap: 6,
-              background: pushEnabled ? '#d1fae5' : '#1e40af',
-              color: pushEnabled ? '#059669' : '#fff',
+              background: pushEnabled ? 'var(--color-success-bg)' : '#1e40af',
+              color: pushEnabled ? 'var(--color-success)' : '#fff',
               opacity: pushEnabled ? 0.7 : 1,
               cursor: pushEnabled ? 'not-allowed' : 'pointer',
             }}
@@ -260,7 +259,7 @@ export default function MobilePushPage() {
             {pushEnabled ? <CheckCircle size={14} /> : <Bell size={14} />}
             {pushEnabled ? '已开启' : '开启推送'}
           </button>
-          <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: '#f1f5f9', color: '#64748b', gap: 6 }}>
+          <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: 'var(--bg-card)', color: '#64748b', gap: 6 }}>
             <Send size={14} />测试推送
           </button>
         </div>
@@ -268,19 +267,19 @@ export default function MobilePushPage() {
           推送状态: <span style={{ color: pushPermission === 'granted' ? '#059669' : '#dc2626', fontWeight: 600 }}>
             {pushPermission === 'granted' ? '已授权' : pushPermission === 'denied' ? '已拒绝' : pushPermission === 'unsupported' ? '不支持' : '未授权'}
           </span>
-          <span style={{ marginLeft: 8 }}>渠道: <span style={{ fontWeight: 600 }}>{pushService.supported ? 'Web Push' : 'N/A'}</span></span>
+          <span style={{ marginLeft: 8 }}>渠道: <span style={{ fontWeight: 600 }}>{pushService.supported ? '浏览器推送' : 'N/A'}</span></span>
         </div>
       </div>
 
       {showTestPanel && (
-        <div style={{ ...cardStyle, padding: 12, border: '1px solid #bfdbfe', background: '#eff6ff' }}>
+        <div style={{ ...cardStyle, padding: 12, border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>推送测试面板</div>
           <div style={{ marginBottom: 8 }}>
             <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>标题</label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
           <div style={{ marginBottom: 8 }}>
@@ -289,7 +288,7 @@ export default function MobilePushPage() {
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
               rows={2}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
           <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: '#2563eb', color: '#fff', gap: 6 }}>
@@ -309,7 +308,7 @@ export default function MobilePushPage() {
             onClick={() => setFilterTopic(topic)}
             style={{
               padding: '4px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
-              background: filterTopic === topic ? '#1e40af' : '#f1f5f9',
+              background: filterTopic === topic ? '#1e40af' : 'var(--bg-card)',
               color: filterTopic === topic ? '#fff' : '#64748b',
             }}
           >
@@ -323,10 +322,10 @@ export default function MobilePushPage() {
           共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条通知
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>
+          <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>
             <CheckCircle size={11} style={{ marginRight: 3 }} />全部已读
           </button>
-          <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fca5a5', background: '#fff', color: '#dc2626', fontSize: 11, cursor: 'pointer' }}>
+          <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: '#dc2626', fontSize: 11, cursor: 'pointer' }}>
             <Trash2 size={11} style={{ marginRight: 3 }} />清空
           </button>
         </div>
@@ -343,7 +342,7 @@ export default function MobilePushPage() {
               ...cardStyle,
               padding: 12, cursor: 'pointer',
               borderLeft: `4px solid ${cfg.borderColor}`,
-              background: n.read ? '#fff' : '#fafbff',
+              background: n.read ? 'var(--bg-card)' : 'var(--color-info-bg)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -355,7 +354,7 @@ export default function MobilePushPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{n.title}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
                   {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626' }} />}
                   <span style={{
                     padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600,
@@ -390,7 +389,7 @@ export default function MobilePushPage() {
         </div>
       )}
 
-      <div style={{ marginTop: 16, padding: 12, background: '#f1f5f9', borderRadius: 8 }}>
+      <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
         <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
           <strong>推送配置说明</strong><br />
           - 危急值通知: 实时推送危急检查结果，需立即处理<br />

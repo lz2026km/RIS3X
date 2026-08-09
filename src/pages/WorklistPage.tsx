@@ -1,3 +1,4 @@
+import { Card } from 'antd'
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useFocusTrap } from '../a11y/SkipLink'
 import {
@@ -42,6 +43,7 @@ import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import BatchActionBar from '../components/batch/BatchActionBar'
 import { AppButton } from '../components/common/AppButton'
+import { PageHeader } from '../components/common/PageHeader'
 import { useOperationLog } from '../hooks/useOperationLog'
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
 import { SmartSortPanel } from '../components/worklist/SmartSortPanel'
@@ -1039,7 +1041,7 @@ export default function WorklistPage() {
       variant={viewMode === mode ? "primary" : "default"}
       size="compact"
       onClick={() => setViewMode(mode)}
-      style={viewMode === mode ? undefined : { color: '#64748b' }}
+      style={viewMode === mode ? undefined : { color: 'var(--text-secondary)' }}
     >
       {icon}
       {label}
@@ -1169,41 +1171,28 @@ export default function WorklistPage() {
         alignItems: 'flex-start',
         marginBottom: 20,
       }}>
-        <div>
-          <h1 style={{
-            fontSize: 22,
-            fontWeight: 800,
-            color: '#1e40af',
-            margin: '0 0 6px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}>
-            <ClipboardList size={24} />
-            检查工作列表
-          </h1>
-          <p style={{
-            fontSize: 13,
-            color: '#64748b',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}>
-            <span>DICOM 工作列表</span>
-            <span style={{ color: '#cbd5e1' }}>·</span>
-            <span>融合HIS/PAACS预约数据</span>
-            <span style={{ color: '#cbd5e1' }}>·</span>
-            <span>实时设备状态</span>
-          </p>
-        </div>
+    <PageHeader
+      variant="flex"
+      icon={<ClipboardList size={24} />}
+      title="检查工作列表"
+      subtitle={
+        <>
+          <span>DICOM 检查列表</span>
+          <span style={{ color: '#cbd5e1' }}>·</span>
+          <span>对接HIS/PAACS预约系统</span>
+          <span style={{ color: '#cbd5e1' }}>·</span>
+          <span>实时设备状态</span>
+        </>
+      }
+      style={{ marginBottom: 0 }}
+    />
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             padding: '6px 12px',
-            background: '#ecfdf5',
+            background: 'var(--color-success-bg)',
             borderRadius: 8,
             fontSize: 12,
             color: '#059669',
@@ -1218,7 +1207,7 @@ export default function WorklistPage() {
             display: 'flex',
             background: 'var(--bg-card)',
             borderRadius: 8,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--border-color)',
             overflow: 'hidden',
           }}>
             <ViewModeButton mode="list" icon={<LayoutList size={14} />} label="列表" />
@@ -1254,44 +1243,44 @@ export default function WorklistPage() {
         gap: 16,
         marginBottom: 20,
       }}>
-        <div
+        <Card bordered={false}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: [] }))}
           style={{
           background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
           onClick={() => setFilters(f => ({ ...f, statuses: [] }))}
-        >
+         styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>全部检查</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>全部检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 等待中: {stats.waiting}
               </div>
             </div>
             <MiniSparkline color="#3b82f6" />
           </div>
-        </div>
-        <div
+        </Card>
+        <Card bordered={false}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
           style={{
           background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
           onClick={() => setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
-        >
+         styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>危重/紧急</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>危重/紧急</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 SLA超期: {slaCriticalExams.length}
               </div>
             </div>
@@ -1303,23 +1292,23 @@ export default function WorklistPage() {
               </ChartContainer>
             </div>
           </div>
-        </div>
-        <div
+        </Card>
+        <Card bordered={false}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
           style={{
           background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
           onClick={() => setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
-        >
+         styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>待完成</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>待完成</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 平均等待: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
                   const t = e.createdTime ? new Date(e.createdTime).getTime() : 0;
                   return t > 0 ? s + (Date.now() - t) / 60000 : s
@@ -1328,51 +1317,51 @@ export default function WorklistPage() {
             </div>
             <MiniSparkline color="#d97706" />
           </div>
-        </div>
-        <div
+        </Card>
+        <Card bordered={false}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
           style={{
           background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
           onClick={() => setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
-        >
+         styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>已完成</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>已完成</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 检查中: {stats.inProgress}项
               </div>
             </div>
             <MiniSparkline color="#059669" />
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* [W1-B] 服务器状态分布: GET /worklist/stats */}
       {serverStats && (
-        <div style={{
+        <Card bordered={false} style={{
           display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-          background: 'var(--bg-card)', border: '1px solid #e2e8f0', borderRadius: 12,
+          background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12,
           padding: '10px 16px', marginBottom: 16, fontSize: 12,
-        }}>
+        }} styles={{ body: { padding: 0 } }}>
           <span style={{ fontWeight: 700, color: '#1e40af' }}>服务器统计 (GET /worklist/stats)</span>
-          <span style={{ color: '#64748b' }}>总量: <b style={{ color: '#1e293b' }}>{serverStats.total}</b></span>
+          <span style={{ color: 'var(--text-secondary)' }}>总量: <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
           {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
             <span key={status} style={{
-              padding: '2px 10px', borderRadius: 999, background: '#f1f5f9', color: '#475569',
+              padding: '2px 10px', borderRadius: 999, background: 'var(--bg-card)', color: 'var(--text-secondary)',
             }}>
               {status}: <b>{count}</b>
             </span>
           ))}
           {Object.keys(serverStats.byStatus ?? {}).length === 0 && (
-            <span style={{ color: '#94a3b8' }}>暂无状态分布数据</span>
+            <span style={{ color: 'var(--text-secondary)' }}>暂无状态分布数据</span>
           )}
-        </div>
+        </Card>
       )}
 
       <BatchToolbar
@@ -1512,7 +1501,7 @@ export default function WorklistPage() {
 
       <div style={{
         marginTop: 20, padding: '12px 0', textAlign: 'center',
-        fontSize: 12, color: '#94a3b8', borderTop: '1px solid #e2e8f0',
+        fontSize: 12, color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)',
       }}>
         G005 放射科RIS系统 · 检查工作列表 · {new Date().toLocaleDateString('zh-CN')}
       </div>
@@ -1529,9 +1518,9 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setPatientInfoModalExam(null); }}
           onClick={() => setPatientInfoModalExam(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>修改患者信息</h3>
               <button onClick={() => setPatientInfoModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
@@ -1539,16 +1528,16 @@ export default function WorklistPage() {
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: '#64748b' }}>患者姓名：</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>性别：</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>年龄：</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>患者姓名：</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>性别：</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>年龄：</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
               <button onClick={() => void savePatientInfo()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>保存</button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1564,16 +1553,16 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setDeviceSelectModalExam(null); }}
           onClick={() => setDeviceSelectModalExam(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配检查设备</h3>
               <button onClick={() => setDeviceSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
-            <div style={{ marginBottom: 16, color: '#64748b', fontSize: 13 }}>当前检查：{deviceSelectModalExam.examItemName}</div>
+            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>当前检查：{deviceSelectModalExam.examItemName}</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
                 <div
@@ -1582,16 +1571,16 @@ export default function WorklistPage() {
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && void assignDevice(deviceSelectModalExam, device.id)}
                   style={{
-                  padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
+                  padding: 12, border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 8
                 }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
                   <Monitor size={16} style={{ color: '#1e40af' }} />
                   <span style={{ fontSize: 13 }}>{device.name}</span>
-                  <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1607,23 +1596,23 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setDoctorSelectModalExam(null); }}
           onClick={() => setDoctorSelectModalExam(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配报告医生</h3>
               <button onClick={() => setDoctorSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
-            <div style={{ marginBottom: 16, color: '#64748b', fontSize: 13 }}>
+            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
               当前检查：{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
-              <span style={{ marginLeft: 8, color: '#94a3b8', fontSize: 12 }}>
+              <span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
                 当前报告医生：{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : '未分配')}
               </span>
             </div>
             {doctorOptionsLoading && (
-              <div style={{ padding: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>正在加载医生列表...</div>
+              <div style={{ padding: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>正在加载医生列表...</div>
             )}
             {!doctorOptionsLoading && doctorOptions.length === 0 && (
               <div style={{ padding: 12, fontSize: 12, color: '#b45309', textAlign: 'center' }}>
@@ -1640,13 +1629,13 @@ export default function WorklistPage() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && void assignDoctor(doctorSelectModalExam, doctor.id)}
                     style={{
-                      padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
+                      padding: 12, border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: 8,
                       background: isAssigned ? '#f0f7ff' : '#fff',
                     }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
                     <Stethoscope size={16} style={{ color: '#1e40af' }} />
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{doctor.name}</span>
-                    <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                       {doctor.title || '放射科医生'}
                       {isAssigned ? ' · 已分配' : ''}
                     </span>
@@ -1654,7 +1643,7 @@ export default function WorklistPage() {
                 )
               })}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1670,9 +1659,9 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setReportModalExam(null); }}
           onClick={() => setReportModalExam(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
                 {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
@@ -1682,17 +1671,17 @@ export default function WorklistPage() {
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: '#64748b' }}>患者：</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
-              <div><span style={{ color: '#64748b' }}>检查项目：</span>{reportModalExam.examItemName}</div>
-              <div><span style={{ color: '#64748b' }}>临床诊断：</span>{reportModalExam.clinicalDiagnosis}</div>
-              <div><span style={{ color: '#64748b' }}>检查所见：</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
-              <div><span style={{ color: '#64748b' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>患者：</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>检查项目：</span>{reportModalExam.examItemName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>临床诊断：</span>{reportModalExam.clinicalDiagnosis}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>检查所见：</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
               <button onClick={() => void submitReport()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>提交报告</button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1707,14 +1696,14 @@ export default function WorklistPage() {
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setConfirmModalConfig(null); }}>
-          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }}>
+          <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }} styles={{ body: { padding: 0 } }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{confirmModalConfig.title}</h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
               <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: confirmModalConfig.variant === 'danger' ? '#dc2626' : '#1e40af', color: '#fff', cursor: 'pointer' }}>确认</button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1730,16 +1719,16 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setBatchResultModalData(null); }}
           onClick={() => setBatchResultModalData(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>批量操作结果</h3>
               <button onClick={() => setBatchResultModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
-            <div style={{ marginBottom: 16, padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+            <div style={{ marginBottom: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
               <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
               <div style={{ fontSize: 14, color: '#166534' }}>操作完成</div>
               <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
@@ -1752,7 +1741,7 @@ export default function WorklistPage() {
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>确定</button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -1768,29 +1757,29 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setPrintPreviewModalData(null); }}
           onClick={() => setPrintPreviewModalData(null)}>
-          <div style={{
+          <Card bordered={false} style={{
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
-          }} onClick={e => e.stopPropagation()}>
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>打印预览</h3>
               <button onClick={() => setPrintPreviewModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
-            <div style={{ marginBottom: 16, fontSize: 13, color: '#64748b' }}>
+            <div style={{ marginBottom: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
               即将打印 {printPreviewModalData.examIds.length} 份报告
             </div>
-            <div style={{ background: 'var(--content-bg)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>打印内容预览</div>
+            <div style={{ background: 'var(--content-bg)', padding: 16, borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>打印内容预览</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                 报告列表：{printPreviewModalData.examIds.join(', ')}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
               <button onClick={() => { window.print(); setPrintPreviewModalData(null) }} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>打印</button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 

@@ -34,6 +34,20 @@ export interface DoctorQualification {
   currentLoad: number
   maxLoad: number
   priority: number
+  accuracy: number
+}
+
+export interface DoctorRecommendation {
+  doctorId: string
+  name: string
+  subspecialty: string
+  qualified: boolean
+  matchScore: number
+  currentLoad: number
+  maxLoad: number
+  accuracy: number
+  composite: number
+  reasons: string[]
 }
 
 export interface SmartRouteStats {
@@ -48,11 +62,21 @@ export interface SmartRouteAssignDto {
   modality: string
   bodyPart: string
   patientStatus: string
+  doctorId?: string
+}
+
+export interface SmartRouteRecommendDto {
+  modality: string
+  bodyPart: string
+  patientStatus: string
 }
 
 export const smartRouteApi = {
   assign: (dto: SmartRouteAssignDto) =>
     api.post<SmartRouteAssignment>('/smart-route/assign', dto),
+
+  recommend: (dto: SmartRouteRecommendDto) =>
+    api.post<DoctorRecommendation[]>('/smart-route/recommend', dto),
 
   getRules: () =>
     api.get<SmartRouteRule[]>('/smart-route/rules'),

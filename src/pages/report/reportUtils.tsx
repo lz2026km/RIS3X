@@ -10,7 +10,7 @@ export const WARNING = '#d97706'
 export const DANGER = '#dc2626'
 export const PURPLE = '#7c3aed'
 export const GRAY = '#64748b'
-export const BG = '#f8fafc'
+export const BG = 'var(--bg-primary)'
 export const WHITE = '#ffffff'
 
 export const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {

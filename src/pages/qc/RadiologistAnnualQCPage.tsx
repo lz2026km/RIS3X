@@ -34,7 +34,8 @@ export default function RadiologistAnnualQCPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        title={<><Users size={20} color="#7c3aed" /> 医生年度质控档案</>}
+        icon={<Users size={20} color="#7c3aed" />}
+        title="医生年度质控档案"
         subtitle="每位医生全年质控 KPI 趋势 / 评分历史 / 绩效分析"
       />
       <StickyActionBar
@@ -46,7 +47,7 @@ export default function RadiologistAnnualQCPage() {
       />
       <div style={{ padding: 24, display: "grid", gridTemplateColumns: "300px 1fr", gap: 16 }}>
         {/* 左侧: 医生列表 */}
-        <div style={{ background: "#fff", borderRadius: 10, padding: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", maxHeight: 800, overflowY: "auto" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", maxHeight: 800, overflowY: "auto" }}>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -60,7 +61,7 @@ export default function RadiologistAnnualQCPage() {
               style={{
                 width: "100%",
                 padding: 10,
-                background: selectedId === d.id ? "#eff6ff" : "transparent",
+                background: selectedId === d.id ? "var(--color-info-bg)" : "transparent",
                 border: "1px solid " + (selectedId === d.id ? "#3b82f6" : "transparent"),
                 borderRadius: 6,
                 cursor: "pointer",
@@ -75,7 +76,7 @@ export default function RadiologistAnnualQCPage() {
                 {d.name[0]}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{d.name}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{d.name}</div>
                 <div style={{ fontSize: 11, color: "#64748b" }}>{d.id} · {d.title}</div>
               </div>
               {selectedId === d.id && <ChevronRight size={14} color="#3b82f6" />}
@@ -86,13 +87,13 @@ export default function RadiologistAnnualQCPage() {
         {/* 右侧: 详情 */}
         {selected && (
           <div>
-            <div style={{ background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 16 }}>
+            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                 <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700 }}>
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, color: "#1e293b", margin: 0 }}>{selected.name}</h2>
+                  <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
                   <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
                     {selected.id} · {selected.title} · {selected.subspecialty} · 工龄 {selected.yearsOfExperience} 年
                   </div>
@@ -111,14 +112,14 @@ export default function RadiologistAnnualQCPage() {
               </StatCardGrid>
             </div>
 
-            <div style={{ background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>月度质控趋势</h3>
+            <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>月度质控趋势</h3>
               {selectedHistory.length > 0 ? (
                 <div>
                   <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 8, padding: "0 8px" }}>
                     {selectedHistory.map((h) => (
                       <div key={h.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                        <div style={{ fontSize: 10, color: "#1e293b", fontWeight: 700 }}>{h.qcScore}</div>
+                        <div style={{ fontSize: 10, color: "var(--text-primary)", fontWeight: 700 }}>{h.qcScore}</div>
                         <div style={{ width: "100%", height: `${(h.qcScore / 100) * 160}px`, background: h.qcScore >= 90 ? "linear-gradient(180deg, #10b981, #059669)" : h.qcScore >= 80 ? "linear-gradient(180deg, #f59e0b, #d97706)" : "linear-gradient(180deg, #dc2626, #991b1b)", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
                         <div style={{ fontSize: 9, color: "#94a3b8" }}>{h.month.slice(5)}</div>
                       </div>

@@ -18,15 +18,15 @@ import { ChartContainer } from '../components/charts'
 const C = {
   primary: '#1e40af',        // 深蓝主色
   primaryLight: '#3b82f6',   // 浅蓝
-  primaryLighter: '#dbeafe', // 淡蓝背景
+  primaryLighter: 'var(--color-info-bg)', // 淡蓝背景
   accent: '#0891b2',         // 青色辅色
   accentLight: '#06b6d4',    // 浅青
   white: '#ffffff',          // 白色卡片
-  bg: '#e8e8e8',             // 浅灰背景
-  border: '#d1d5db',         // 边框色
-  textDark: '#1f2937',       // 深色文字
-  textMid: '#4b5563',        // 中色文字
-  textLight: '#9ca3af',      // 浅色文字
+  bg: 'var(--bg-deep)',             // 浅灰背景
+  border: 'var(--border-color)',         // 边框色
+  textDark: 'var(--text-primary)',       // 深色文字
+  textMid: 'var(--text-secondary)',        // 中色文字
+  textLight: 'var(--text-muted)',      // 浅色文字
   success: '#059669',        // 成功绿
   warning: '#d97706',        // 警告橙
   danger: '#dc2626',         // 危险红
@@ -332,7 +332,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, icon, children, style }) => (
   <div style={{
-    background: C.white,
+    background: 'var(--bg-card)',
     borderRadius: 6,
     padding: 16,
     marginBottom: 12,
@@ -379,7 +379,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => (
         style={{
           flex: 1, padding: '8px 12px', border: 'none', borderRadius: 4,
           cursor: 'pointer', fontSize: 13, fontWeight: 500,
-          background: activeTab === tab.id ? C.white : 'transparent',
+          background: activeTab === tab.id ? 'var(--bg-card)' : 'transparent',
           color: activeTab === tab.id ? C.primary : C.textMid,
           boxShadow: activeTab === tab.id ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
           transition: 'all 0.2s'
@@ -648,12 +648,21 @@ export default function PrintManagementPage() {
     return () => { cancelled = true }
   }, [])
 
-  // [W2-B] DICOM 打印任务: /print/queue + /print/history 合并
+  // [W2-B] DICOM 打印任务: /print/jobs(任务列表) + /print/queue + /print/history 合并
+  // [G005 Wave1A P0] 接入 printApi.listJobs / listQueues / reprintJob
+  const [serverQueues, setServerQueues] = useState<number>(0)
+  const [reprintingId, setReprintingId] = useState<string>('')
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const [q, h] = await Promise.all([printApi.listQueue(), printApi.listHistory()])
+      const [j, q, h, qs] = await Promise.all([
+        printApi.listJobs(),
+        printApi.listQueue(),
+        printApi.listHistory(),
+        printApi.listQueues(),
+      ])
       if (cancelled) return
+      if (qs.success && Array.isArray(qs.data)) setServerQueues(qs.data.length)
       const all: typeof DICOM_PRINT_TASKS = []
       const push = (t: any) => {
         all.push({
@@ -671,12 +680,34 @@ export default function PrintManagementPage() {
           mediumType: '蓝基胶片',
         })
       }
+      if (j.success && Array.isArray(j.data)) j.data.forEach((t: any) => push(t))
       if (q.success && Array.isArray(q.data)) q.data.forEach((t: any) => push(t))
       if (h.success && Array.isArray(h.data)) h.data.forEach((t: any) => push(t))
-      if (all.length > 0) setDicomTasks(all)
+      if (all.length > 0) {
+        const seen = new Set<string>()
+        setDicomTasks(all.filter((t) => (seen.has(t.id) ? false : (seen.add(t.id), true))))
+      }
     })()
     return () => { cancelled = true }
   }, [])
+
+  // [G005 Wave1A P0] 重新打印: POST /print/jobs/:id/reprint (后端新建任务)
+  const handleReprintJob = async (taskId: string) => {
+    setReprintingId(taskId)
+    try {
+      const res = await printApi.reprintJob(taskId)
+      if (res.success) {
+        displayToast(`已重新提交打印任务: ${res.data?.id ?? taskId}`, 'success')
+        handleRefreshQueue()
+      } else {
+        displayToast(res.error?.message ?? '重新打印失败', 'error')
+      }
+    } catch {
+      displayToast('重新打印失败，请稍后重试', 'error')
+    } finally {
+      setReprintingId('')
+    }
+  }
 
   // 打印量趋势数据
   const trendData = filmUsageStats.map(f => ({
@@ -946,7 +977,7 @@ export default function PrintManagementPage() {
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                background: selectedPrinter?.id === printer.id ? C.primaryLighter : C.white
+                background: selectedPrinter?.id === printer.id ? C.primaryLighter : 'var(--bg-card)'
               }}
             >
               <div>
@@ -984,7 +1015,7 @@ export default function PrintManagementPage() {
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                background: spec.code === defaultFilmSpec ? C.primaryLighter : C.white
+                background: spec.code === defaultFilmSpec ? C.primaryLighter : 'var(--bg-card)'
               }}
             >
               <div>
@@ -1004,7 +1035,7 @@ export default function PrintManagementPage() {
                 onClick={() => setDefaultFilmSpec(spec.code)}
                 style={{
                   padding: '4px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
-                  background: spec.code === defaultFilmSpec ? C.primary : C.white,
+                  background: spec.code === defaultFilmSpec ? C.primary : 'var(--bg-card)',
                   color: spec.code === defaultFilmSpec ? C.white : C.textMid,
                   fontSize: 12, cursor: 'pointer'
                 }}
@@ -1058,7 +1089,7 @@ export default function PrintManagementPage() {
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 cursor: 'pointer',
-                background: preset.id === selectedPreset ? C.primaryLighter : C.white
+                background: preset.id === selectedPreset ? C.primaryLighter : 'var(--bg-card)'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -1169,7 +1200,7 @@ export default function PrintManagementPage() {
           </button>
           <button onClick={handleDownloadPdf} style={{
             flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
-            background: C.white, color: C.textMid, fontSize: 13, cursor: 'pointer',
+            background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}>
             <Download size={14} /> 下载PDF
@@ -1210,7 +1241,7 @@ export default function PrintManagementPage() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
                   borderRadius: 4, border: `1px solid ${C.border}`, cursor: 'pointer',
-                  background: selectedQueueItems.includes(`batch-${idx}`) ? C.primaryLighter : C.white
+                  background: selectedQueueItems.includes(`batch-${idx}`) ? C.primaryLighter : 'var(--bg-card)'
                 }}
               >
                 <input
@@ -1284,13 +1315,14 @@ export default function PrintManagementPage() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={handleRefreshQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: 'none', fontSize: 12,
-              background: C.primary, color: C.white, cursor: 'pointer'
+              background: C.primary, color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
             }}>
+              <RefreshCw size={12} />
               刷新
             </button>
             <button onClick={handleTogglePauseQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: `1px solid ${C.border}`, fontSize: 12,
-              background: C.white, color: C.textMid, cursor: 'pointer'
+              background: 'var(--bg-card)', color: C.textMid, cursor: 'pointer'
             }}>
               {queuePaused ? '恢复全部' : '暂停全部'}
             </button>
@@ -1395,7 +1427,7 @@ export default function PrintManagementPage() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
               <Bar dataKey="films14x17" name="14×17" fill={C.primary} stackId="a" />
@@ -1464,7 +1496,7 @@ export default function PrintManagementPage() {
                 key={printer.id}
                 style={{
                   padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
-                  background: printer.status === 'online' ? C.white : C.bg,
+                  background: printer.status === 'online' ? 'var(--bg-card)' : C.bg,
                   opacity: printer.status === 'online' ? 1 : 0.7
                 }}
               >
@@ -1496,7 +1528,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedFilmSpec(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
               }}
             >
               {FILM_SPEC_OPTIONS.map(opt => (
@@ -1543,7 +1575,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMediumType(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
               }}
             >
               {MEDIUM_TYPES.map(opt => (
@@ -1559,7 +1591,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPrintCopies(Number(e.target.value))}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
               }}
             >
               {[1, 2, 3, 4, 5].map(n => (
@@ -1594,6 +1626,7 @@ export default function PrintManagementPage() {
         <div style={{ marginTop: 12, padding: 10, background: C.bg, borderRadius: 4 }}>
           <div style={{ fontSize: 12, color: C.textMid }}>
             今日总任务: <span style={{ color: C.primary, fontWeight: 600 }}>{dicomTasks.length}</span> 项
+            {' · '}服务端打印队列 (排队/打印中): <span style={{ color: C.info, fontWeight: 600 }}>{serverQueues}</span> 项
           </div>
         </div>
       </Card>
@@ -1611,7 +1644,7 @@ export default function PrintManagementPage() {
               onClick={handleRefreshQueue}
               style={{
                 padding: '6px 12px', borderRadius: 4, border: `1px solid ${C.border}`,
-                background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer',
+                background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 4
               }}
             >
@@ -1694,7 +1727,7 @@ export default function PrintManagementPage() {
                           onClick={() => handleCancelTask(task.id)}
                           style={{
                             padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 3,
-                            background: C.white, color: C.danger, fontSize: 12, cursor: 'pointer'
+                            background: 'var(--bg-card)', color: C.danger, fontSize: 12, cursor: 'pointer'
                           }}
                         >
                           取消
@@ -1705,6 +1738,18 @@ export default function PrintManagementPage() {
                       )}
                       {task.status === 'completed' && (
                         <span style={{ fontSize: 12, color: C.success }}>已完成</span>
+                      )}
+                      {(task.status === 'completed' || task.status === 'failed') && (
+                        <button
+                          onClick={() => void handleReprintJob(task.id)}
+                          disabled={reprintingId === task.id}
+                          style={{
+                            padding: '4px 8px', border: 'none', borderRadius: 3,
+                            background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer'
+                          }}
+                        >
+                          {reprintingId === task.id ? '重印中...' : '重新打印'}
+                        </button>
                       )}
                     </div>
                   </td>
@@ -1775,7 +1820,7 @@ export default function PrintManagementPage() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
               <Bar dataKey="filmCost" name="胶片成本" fill={C.primary} stackId="a" />
@@ -1833,7 +1878,7 @@ export default function PrintManagementPage() {
             <div key={task.id} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '8px 12px', borderRadius: 6,
-              background: idx === 0 ? `${C.info}10` : '#f8fafc',
+              background: idx === 0 ? `${C.info}10` : 'var(--bg-primary)',
               border: `1px solid ${idx === 0 ? C.info + '30' : C.border}`
             }}>
               <div style={{
@@ -1863,7 +1908,7 @@ export default function PrintManagementPage() {
           {FILM_SPEC_OPTIONS.map(opt => (
             <div key={opt.value} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '8px 10px', borderRadius: 6, background: '#f8fafc',
+              padding: '8px 10px', borderRadius: 6, background: 'var(--bg-card)',
               border: `1px solid ${selectedFilmSpec === opt.value ? C.accent + '40' : C.border}`
             }}>
               <span style={{ fontSize: 12, color: C.textDark }}>{opt.label}</span>
@@ -1889,7 +1934,7 @@ export default function PrintManagementPage() {
           {MEDIUM_TYPES.map(mt => (
             <div key={mt.value} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '8px 10px', borderRadius: 6, background: '#f8fafc',
+              padding: '8px 10px', borderRadius: 6, background: 'var(--bg-card)',
               border: `1px solid ${C.border}`
             }}>
               <span style={{ fontSize: 12, color: C.textDark }}>{mt.label}</span>
@@ -1945,7 +1990,7 @@ export default function PrintManagementPage() {
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
-              <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <Bar dataKey="ct" name="CT" fill="#7c3aed" stackId="a" />
               <Bar dataKey="mr" name="MR" fill="#2563eb" stackId="a" />
               <Bar dataKey="dr" name="DR" fill="#059669" stackId="a" />
@@ -2001,13 +2046,13 @@ export default function PrintManagementPage() {
             >
               {/* 预览缩略图 */}
               <div style={{
-                background: '#f8fafc', padding: 16,
+                background: 'var(--bg-card)', padding: 16,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 minHeight: 120
               }}>
                 <div style={{
                   width: '100%', aspectRatio: template.orientation === 'PORTRAIT' ? '3/4' : '4/3',
-                  background: C.white, borderRadius: 4, border: `1px solid ${C.border}`,
+                  background: 'var(--bg-card)', borderRadius: 4, border: `1px solid ${C.border}`,
                   display: 'grid',
                   gridTemplateColumns: `repeat(${template.cols}, 1fr)`,
                   gridTemplateRows: `repeat(${template.rows}, 1fr)`,
@@ -2066,7 +2111,7 @@ export default function PrintManagementPage() {
               {['PORTRAIT', 'LANDSCAPE'].map(dir => (
                 <button key={dir} onClick={() => setCustomOrientation(dir)} style={{
                   flex: 1, padding: '8px 12px', borderRadius: 6, border: `1px solid ${C.border}`,
-                  background: customOrientation === dir ? C.primary : C.white,
+                  background: customOrientation === dir ? C.primary : 'var(--bg-card)',
                   color: customOrientation === dir ? '#fff' : C.textMid,
                   fontSize: 12, fontWeight: 600, cursor: 'pointer'
                 }}>
@@ -2077,13 +2122,13 @@ export default function PrintManagementPage() {
           </div>
           {/* 自定义预览 */}
           <div style={{
-            background: '#f8fafc', borderRadius: 6, padding: 12,
+            background: 'var(--bg-card)', borderRadius: 6, padding: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             minHeight: 140
           }}>
             <div style={{
               width: 160, aspectRatio: '3/4',
-              background: C.white, borderRadius: 4, border: `1px solid ${C.border}`,
+              background: 'var(--bg-card)', borderRadius: 4, border: `1px solid ${C.border}`,
               display: 'grid', gridTemplateColumns: `repeat(${customCols}, 1fr)`, gridTemplateRows: `repeat(${customRows}, 1fr)`,
               gap: 1, padding: 1
             }}>
@@ -2108,18 +2153,18 @@ export default function PrintManagementPage() {
       {/* 预览缩略图 */}
       <Card title="打印预览" icon={<Eye size={16} />}>
         <div style={{
-          background: '#f8fafc', borderRadius: 6, padding: 20,
+          background: 'var(--bg-card)', borderRadius: 6, padding: 20,
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
         }}>
           <div style={{
             width: 200, aspectRatio: '3/4',
-            background: C.white, borderRadius: 6, border: `2px solid ${C.border}`,
+            background: 'var(--bg-card)', borderRadius: 6, border: `2px solid ${C.border}`,
             display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)',
             gap: 2, padding: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
           }}>
             {['胸部正位', '胸部侧位', '腹部CT', '头颅MR'].map((label, i) => (
               <div key={i} style={{
-                background: '#f0f4f8', borderRadius: 2, padding: 4,
+                background: 'var(--bg-card)', borderRadius: 2, padding: 4,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 fontSize: 7, color: C.textMid, gap: 2
               }}>
@@ -2131,7 +2176,7 @@ export default function PrintManagementPage() {
           <div style={{ fontSize: 12, color: C.textLight }}>4合1 布局预览</div>
           <button style={{
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
-            background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer'
+            background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
             <Download size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             导出预览图
@@ -2226,7 +2271,7 @@ export default function PrintManagementPage() {
           {QUOTA_REQUESTS.map(req => (
             <div key={req.id} style={{
               padding: 10, borderRadius: 6, border: `1px solid ${C.border}`,
-              background: '#f8fafc'
+              background: 'var(--bg-card)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{req.dept}</span>
@@ -2282,7 +2327,7 @@ export default function PrintManagementPage() {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 10, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, fontSize: 12.5, color: C.textMid }}>
+        <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--bg-card)', borderRadius: 6, fontSize: 12.5, color: C.textMid }}>
           超配额自动切换为审批模式，需科室主任审批后方可继续打印
         </div>
       </Card>
@@ -2303,7 +2348,7 @@ export default function PrintManagementPage() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
               <Area type="monotone" dataKey="prints" name="打印张数" stroke={C.primary} fill={C.primaryLighter} />
@@ -2321,7 +2366,7 @@ export default function PrintManagementPage() {
               <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
               />
               <Bar dataKey="printCount" name="打印次数" fill={C.primary} radius={[4, 4, 0, 0]} />
@@ -2351,7 +2396,7 @@ export default function PrintManagementPage() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                  contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                   formatter={(value: number) => [`${value} 张`, '使用量']}
                 />
               </RePieChart>
@@ -2380,7 +2425,7 @@ export default function PrintManagementPage() {
               <XAxis dataKey="hour" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
                 formatter={(value: number, name: string) => [
                   name === 'avgTime' ? `${value}秒` : `${value}份`,
@@ -2414,7 +2459,7 @@ export default function PrintManagementPage() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 formatter={(value: number) => [`${value} 次`, '打印次数']}
               />
             </RePieChart>
@@ -2438,7 +2483,7 @@ export default function PrintManagementPage() {
         zIndex: 1000
       }}>
         <div style={{
-          background: C.white, borderRadius: 8, padding: 24, width: 480,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 480,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -2490,7 +2535,7 @@ export default function PrintManagementPage() {
               onClick={() => setShowPrinterModal(false)}
               style={{
                 flex: 1, padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
-                background: C.white, color: C.textMid, fontSize: 13, cursor: 'pointer'
+                background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer'
               }}
             >
               取消
@@ -2520,7 +2565,7 @@ export default function PrintManagementPage() {
         zIndex: 1000
       }}>
         <div style={{
-          background: C.white, borderRadius: 8, padding: 24, width: 600,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 600,
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -2542,7 +2587,7 @@ export default function PrintManagementPage() {
                 { label: '胶片规格', value: previewItem.filmSpec },
                 { label: '打印份数', value: `${previewItem.copies} 份` },
               ].map(item => (
-                <div key={item.label} style={{ padding: '6px 8px', background: C.white, borderRadius: 4 }}>
+                <div key={item.label} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4 }}>
                   <div style={{ fontSize: 12, color: C.textLight, marginBottom: 2 }}>{item.label}</div>
                   <div style={{ color: C.textDark, fontWeight: 500 }}>{item.value}</div>
                 </div>
@@ -2563,7 +2608,7 @@ export default function PrintManagementPage() {
               onClick={() => setShowPreviewModal(false)}
               style={{
                 flex: 1, padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
-                background: C.white, color: C.textMid, fontSize: 13, cursor: 'pointer'
+                background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer'
               }}
             >
               关闭
@@ -2635,7 +2680,7 @@ export default function PrintManagementPage() {
         zIndex: 1500
       }}>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: 24,
           width: 400,
@@ -2667,7 +2712,7 @@ export default function PrintManagementPage() {
                 padding: '10px 12px',
                 border: `1px solid ${C.border}`,
                 borderRadius: 4,
-                background: C.white,
+                background: 'var(--bg-card)',
                 color: C.textMid,
                 fontSize: 13,
                 cursor: 'pointer'
@@ -2712,7 +2757,7 @@ export default function PrintManagementPage() {
         zIndex: 1000
       }}>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: 24,
           width: 480,
@@ -2769,7 +2814,7 @@ export default function PrintManagementPage() {
                   borderRadius: 4,
                   fontSize: 13,
                   outline: 'none',
-                  background: C.white
+                  background: 'var(--bg-card)'
                 }}
               >
                 <option value="CT">CT</option>
@@ -2793,7 +2838,7 @@ export default function PrintManagementPage() {
                   borderRadius: 4,
                   fontSize: 13,
                   outline: 'none',
-                  background: C.white
+                  background: 'var(--bg-card)'
                 }}
               >
                 {[1, 2, 3, 4, 5].map(n => (
@@ -2810,7 +2855,7 @@ export default function PrintManagementPage() {
                 padding: '10px 12px',
                 border: `1px solid ${C.border}`,
                 borderRadius: 4,
-                background: C.white,
+                background: 'var(--bg-card)',
                 color: C.textMid,
                 fontSize: 13,
                 cursor: 'pointer'
@@ -2875,7 +2920,7 @@ export default function PrintManagementPage() {
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
         padding: '8px 14px', borderRadius: 6,
-        background: dataError ? '#fef2f2' : '#f0fdf4',
+        background: dataError ? 'var(--color-error-bg)' : 'var(--color-success-bg)',
         border: `1px solid ${dataError ? '#fecaca' : '#bbf7d0'}`
       }}>
         {dataLoading
@@ -2885,7 +2930,7 @@ export default function PrintManagementPage() {
               <span style={{
                 fontSize: 12, fontWeight: 600,
                 padding: '2px 10px', borderRadius: 10,
-                background: dataSource === 'api' ? '#dcfce7' : '#fef9c3',
+                background: dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                 color: dataSource === 'api' ? '#15803d' : '#a16207'
               }}>
                 {dataSource === 'api' ? '真实数据' : '演示数据'}
@@ -2910,7 +2955,7 @@ export default function PrintManagementPage() {
           <div
             key={stat.label}
             style={{
-              background: C.white, borderRadius: 6, padding: 16,
+              background: 'var(--bg-card)', borderRadius: 6, padding: 16,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: `1px solid ${C.border}`,
               display: 'flex', alignItems: 'center', gap: 12
             }}

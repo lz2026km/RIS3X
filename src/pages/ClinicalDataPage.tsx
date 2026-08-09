@@ -135,7 +135,7 @@ const COLORS = {
   cardWhite: '#ffffff',
   textDark: '#1f2937',
   textMuted: '#6b7280',
-  border: '#e5e7eb',
+  border: 'var(--border-color)',
   purple: '#8b5cf6',
   purpleLight: '#ede9fe',
   orange: '#f97316',
@@ -206,7 +206,7 @@ const styles = {
   tabContainer: {
     display: 'flex',
     gap: '4px',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     padding: '6px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -339,7 +339,7 @@ const styles = {
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     minWidth: '120px',
   },
   btn: (color: string) => ({
@@ -356,7 +356,7 @@ const styles = {
     transition: 'all 0.2s',
   }),
   btnOutline: (color: string) => ({
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-card)',
     color,
     border: `1px solid ${color}`,
     padding: '8px 16px',
@@ -633,7 +633,7 @@ const searchCDRData = (query: string): CDRSearchResult[] => {
 // ==================== 辅助组件 ====================
 const StatusBadge = ({ status }: { status: SyncStatus }) => {
   const config: Record<SyncStatus, { color: string; bg: string; icon: React.ReactNode }> = {
-    '同步中': { color: COLORS.primary, bg: '#eff6ff', icon: <SyncIcon size={12} /> },
+    '同步中': { color: COLORS.primary, bg: '#3b82f622', icon: <SyncIcon size={12} /> },
     '已同步': { color: COLORS.success, bg: COLORS.successLight, icon: <Check size={12} /> },
     '失败': { color: COLORS.danger, bg: COLORS.dangerLight, icon: <AlertOctagon size={12} /> },
     '待同步': { color: COLORS.warning, bg: COLORS.warningLight, icon: <ClockIcon size={12} /> },
@@ -650,7 +650,7 @@ const StatusBadge = ({ status }: { status: SyncStatus }) => {
 const QualityBadge = ({ level }: { level: QualityLevel }) => {
   const config: Record<QualityLevel, { color: string; bg: string }> = {
     '优': { color: COLORS.success, bg: COLORS.successLight },
-    '良': { color: COLORS.primaryLight, bg: '#eff6ff' },
+    '良': { color: COLORS.primaryLight, bg: '#3b82f622' },
     '中': { color: COLORS.warning, bg: COLORS.warningLight },
     '差': { color: COLORS.danger, bg: COLORS.dangerLight },
   }
@@ -673,7 +673,7 @@ const SyncStatusIcon = ({ status }: { status: SyncStatus }) => {
 
 const SystemTypeBadge = ({ type }: { type: SyncRecord['systemType'] }) => {
   const config: Record<string, { color: string; bg: string }> = {
-    'HIS': { color: COLORS.his, bg: '#eff6ff' },
+    'HIS': { color: COLORS.his, bg: '#3b82f622' },
     'PACS': { color: COLORS.pacs, bg: COLORS.purpleLight },
     'EMR': { color: COLORS.emr, bg: COLORS.successLight },
     'LIS': { color: COLORS.lis, bg: COLORS.orangeLight },
@@ -685,7 +685,7 @@ const SystemTypeBadge = ({ type }: { type: SyncRecord['systemType'] }) => {
 
 const DataSourceBadge = ({ source }: { source: DataSource }) => {
   const config: Record<DataSource, { color: string; bg: string }> = {
-    'HIS': { color: COLORS.his, bg: '#eff6ff' },
+    'HIS': { color: COLORS.his, bg: '#3b82f622' },
     'PACS': { color: COLORS.pacs, bg: COLORS.purpleLight },
     'EMR': { color: COLORS.emr, bg: COLORS.successLight },
     'LIS': { color: COLORS.lis, bg: COLORS.orangeLight },
@@ -1394,7 +1394,7 @@ const CrossSystemSync = () => {
             <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需处理</div>
           </div>
-          <div style={{ padding: '12px', backgroundColor: '#eff6ff', borderRadius: '8px', textAlign: 'center' }}>
+          <div style={{ padding: '12px', backgroundColor: 'var(--color-info-bg)', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>同步记录</div>
             <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
             <div style={{ fontSize: '10px', color: connectionStats.totalErrors > 0 ? COLORS.danger : COLORS.textMuted, marginTop: '2px' }}>
@@ -1631,7 +1631,7 @@ const DataQualityMonitor = () => {
   const dimensionColors: Record<string, { color: string; bg: string; light: string }> = {
     '完整性': { color: COLORS.success, bg: COLORS.successLight, light: '#dcfce7' },
     '及时性': { color: COLORS.warning, bg: COLORS.warningLight, light: '#fef3c7' },
-    '准确性': { color: COLORS.primary, bg: '#eff6ff', light: '#dbeafe' },
+    '准确性': { color: COLORS.primary, bg: '#3b82f622', light: '#dbeafe' },
     '一致性': { color: COLORS.purple, bg: COLORS.purpleLight, light: '#ede9fe' },
   }
   
@@ -2091,11 +2091,11 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.borderColor = COLORS.primary
-                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.borderColor = COLORS.border
-                  e.currentTarget.style.backgroundColor = '#fff'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-card)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

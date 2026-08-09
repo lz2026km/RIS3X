@@ -55,6 +55,18 @@ export interface PrintStatsDto {
 }
 
 export const printApi = {
+  // [G005 Wave1A P0] 打印任务列表 (后端 GET /print/jobs?status=)
+  listJobs: (status?: PrintTaskStatus) =>
+    api.get<PrintTaskDto[]>(`/print/jobs${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+
+  // [G005 Wave1A P0] 打印任务详情 (后端 GET /print/jobs/:id)
+  getJob: (id: string) =>
+    api.get<PrintTaskDto>(`/print/jobs/${encodeURIComponent(id)}`),
+
+  // [G005 Wave1A P0] 打印队列 (后端 GET /print/queues, 排队中/打印中)
+  listQueues: () =>
+    api.get<PrintTaskDto[]>('/print/queues'),
+
   listQueue: () =>
     api.get<PrintTaskDto[]>('/print/queue'),
 
@@ -81,6 +93,13 @@ export const printApi = {
 
   retryJob: async (id: string) => {
     const res = await api.post<{ ok: boolean }>(`/print/jobs/${id}/retry`)
+    await invalidateApiCacheByPrefix('/print')
+    return res
+  },
+
+  // [G005 Wave1A P0] 重新打印 (后端 POST /print/jobs/:id/reprint, 新建任务)
+  reprintJob: async (id: string) => {
+    const res = await api.post<PrintTaskDto>(`/print/jobs/${id}/reprint`)
     await invalidateApiCacheByPrefix('/print')
     return res
   },

@@ -5,33 +5,33 @@ import { Card } from 'antd'
 
 // [W1-B] 开票 Modal (POST /finance/invoices)
 const modalOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }
-const modalCard: React.CSSProperties = { background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }
+const modalCard: React.CSSProperties = { background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }
 
 // ===== Styles =====
 const s = {
   container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
-  card: { background: '#fff', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
-  title: { fontSize: 20, fontWeight: 700, color: '#1e293b', margin: 0, marginBottom: 16 },
+  card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
   statGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 },
-  statCard: { background: '#f8fafc', borderRadius: 8, padding: 16, textAlign: 'center' as const },
-  statValue: { fontSize: 24, fontWeight: 800, color: '#1e293b' },
+  statCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 16, textAlign: 'center' as const },
+  statValue: { fontSize: 24, fontWeight: 800, color: 'var(--text-primary)' },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   badge: (status: string) => ({
     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-    background: status === 'paid' ? '#dcfce7' : status === 'partial' ? '#fef9c3' : status === 'pending' ? '#e0f2fe' : status === 'refunded' ? '#fee2e2' : '#f3e8ff',
-    color: status === 'paid' ? '#166534' : status === 'partial' ? '#854d0e' : status === 'pending' ? '#0369a1' : status === 'refunded' ? '#991b1b' : '#7c3aed',
+    background: status === 'paid' ? 'var(--color-success-bg)' : status === 'partial' ? 'var(--color-warning-bg)' : status === 'pending' ? 'var(--color-info-bg)' : status === 'refunded' ? 'var(--color-error-bg)' : 'rgba(124,58,237,0.12)',
+    color: status === 'paid' ? 'var(--color-success)' : status === 'partial' ? 'var(--color-warning)' : status === 'pending' ? 'var(--color-info)' : status === 'refunded' ? 'var(--color-error)' : '#7c3aed',
   }),
   btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  select: { padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, background: '#fff', outline: 'none' },
+  select: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)', outline: 'none' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-    background: active ? '#fff' : 'transparent', color: active ? '#1e40af' : '#64748b',
+    background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
   label: { fontSize: 12, color: '#64748b', marginBottom: 2 },
-  value: { fontSize: 13, color: '#1e293b', fontWeight: 500 },
-  row: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' },
+  value: { fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 },
+  row: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' },
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -139,7 +139,7 @@ export default function PatientFinancePage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', padding: 4, borderRadius: 10 }}>
         {(['bills', 'payments', 'claims'] as const).map(tab => (
           <button key={tab} style={s.tab(activeTab === tab)} onClick={() => setActiveTab(tab)}>
             {tab === 'bills' ? '账单' : tab === 'payments' ? '缴费记录' : '医保理赔'}
@@ -153,12 +153,12 @@ export default function PatientFinancePage() {
           {selectedBill ? (
             <div>
               <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => { setSelectedBill(null); setBillPayments([]) }}>← 返回账单列表</button>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selectedBill.examItem}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedBill.examItem}</div>
               <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 16 }}>{selectedBill.examDate} · 编号：{selectedBill.id}</div>
               <span style={s.badge(selectedBill.status)}>{STATUS_LABELS[selectedBill.status]}</span>
 
               <div style={{ margin: '16px 0' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>费用明细</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>费用明细</div>
                 {selectedBill.items.map(item => (
                   <div key={item.id} style={s.row}>
                     <div>
@@ -192,7 +192,7 @@ export default function PatientFinancePage() {
 
               {billPayments.length > 0 && (
                 <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>缴费记录</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>缴费记录</div>
                   {billPayments.map(p => (
                     <div key={p.id} style={s.row}>
                       <div>
@@ -212,11 +212,11 @@ export default function PatientFinancePage() {
                 <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
                   onClick={() => handleSelectBill(b)}>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{b.examItem}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>¥{b.totalAmount}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>¥{b.totalAmount}</div>
                     <span style={s.badge(b.status)}>{STATUS_LABELS[b.status]}</span>
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export default function PatientFinancePage() {
           {bills.length === 0 ? <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无缴费用记录</div> :
             bills.filter(b => b.paidAmount > 0).map(b => (
               <div key={b.id} style={{ padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{b.examItem}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>已付 ¥{b.paidAmount} / 总计 ¥{b.totalAmount}</div>
               </div>
             ))
@@ -249,7 +249,7 @@ export default function PatientFinancePage() {
             <div key={c.id} style={{ padding: '14px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{c.insuranceType}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>理赔金额：¥{c.claimAmount} · 核准：¥{c.approvedAmount}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>提交：{c.submittedAt}</div>
                 </div>
@@ -265,7 +265,7 @@ export default function PatientFinancePage() {
       {showInvoiceModal && (
         <div style={modalOverlay} onClick={() => setShowInvoiceModal(false)}>
           <div style={modalCard} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>开具发票</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>开具发票</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <div style={s.label}>患者ID *</div>

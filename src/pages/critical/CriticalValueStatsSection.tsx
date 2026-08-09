@@ -16,7 +16,7 @@ const StatCard = ({ label, value, icon: Icon, color, bgColor, trend, suffix }: {
   label: string; value: number | string; icon: React.ComponentType<any>; color: string; bgColor: string; trend?: string; suffix?: string
 }) => (
   <div
-    style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16, transition: 'box-shadow 0.2s', cursor: 'pointer' }}
+    style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: 16, transition: 'box-shadow 0.2s', cursor: 'pointer' }}
     onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)')}
     onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)')}
   >
@@ -28,7 +28,7 @@ const StatCard = ({ label, value, icon: Icon, color, bgColor, trend, suffix }: {
       <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{label}</div>
     </div>
     {trend && (
-      <div style={{ fontSize: 12, color: trend.startsWith('+') ? '#059669' : '#dc2626', background: trend.startsWith('+') ? '#d1fae5' : '#fee2e2', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
+      <div style={{ fontSize: 12, color: trend.startsWith('+') ? '#059669' : '#dc2626', background: trend.startsWith('+') ? 'var(--color-success-bg)' : 'var(--color-error-bg)', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
         {trend}
       </div>
     )}
@@ -87,24 +87,24 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
   ]
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
         <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', borderRadius: 10, padding: 14, color: '#fff' }}>
           <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>本月新增危急值</div>
           <div style={{ fontSize: 28, fontWeight: 800 }}>{thisMonthCount}</div>
           <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>例</div>
         </div>
-        <div style={{ background: '#d1fae5', borderRadius: 10, padding: 14, border: '1px solid #a7f3d0' }}>
+        <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-success-border)' }}>
           <div style={{ fontSize: 12, color: '#059669', marginBottom: 4 }}>及时处理率</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{timelyRate}</div>
           <div style={{ fontSize: 12, color: '#059669', marginTop: 2 }}>目标≥85%</div>
         </div>
-        <div style={{ background: '#f5f3ff', borderRadius: 10, padding: 14, border: '1px solid #ddd6fe' }}>
+        <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-info-border)' }}>
           <div style={{ fontSize: 12, color: '#7c3aed', marginBottom: 4 }}>已转随访数</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: '#7c3aed' }}>{transferredCount}</div>
           <div style={{ fontSize: 12, color: '#a855f7', marginTop: 2 }}>例</div>
         </div>
-        <div style={{ background: overdueProcessingCount > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: 10, padding: 14, border: `1px solid ${overdueProcessingCount > 0 ? '#fecaca' : '#bbf7d0'}` }}>
+        <div style={{ background: overdueProcessingCount > 0 ? 'var(--color-error-bg)' : 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: `1px solid ${overdueProcessingCount > 0 ? 'var(--color-error-border)' : 'var(--color-success-border)'}` }}>
           <div style={{ fontSize: 12, color: overdueProcessingCount > 0 ? '#dc2626' : '#059669', marginBottom: 4 }}>处理中超期数</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: overdueProcessingCount > 0 ? '#dc2626' : '#059669' }}>{overdueProcessingCount}</div>
           <div style={{ fontSize: 12, color: overdueProcessingCount > 0 ? '#f87171' : '#4ade80', marginTop: 2 }}>{overdueProcessingCount > 0 ? '需要关注' : '全部正常'}</div>
@@ -116,7 +116,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
           const Icon = tab.icon
           return (
             <button key={tab.key} onClick={() => setActiveChart(tab.key as typeof activeChart)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: `1px solid ${activeChart === tab.key ? '#1e40af' : '#e2e8f0'}`, background: activeChart === tab.key ? '#1e40af' : '#fff', color: activeChart === tab.key ? '#fff' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: `1px solid ${activeChart === tab.key ? '#1e40af' : 'var(--border-color)'}`, background: activeChart === tab.key ? '#1e40af' : 'var(--bg-card)', color: activeChart === tab.key ? '#fff' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               <Icon size={14} />{tab.label}
             </button>
           )
@@ -157,7 +157,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
             {modalityData.map((d) => (
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
-                <div style={{ flex: 1, fontSize: 12, color: '#334155' }}>{d.label}</div>
+                <div style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{d.label}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{d.value}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8', width: 40, textAlign: 'right' }}>{Math.round((d.value / totalModality) * 100)}%</div>
               </div>
@@ -188,17 +188,17 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
           {missedStats ? (
             <>
               <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                <div style={{ flex: 1, background: '#f8fafc', borderRadius: 10, padding: 14, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 10, padding: 14, border: '1px solid var(--border-color)', textAlign: 'center' }}>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>本月检查总数</div>
                   <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af' }}>{missedStats.totalExams}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>人次</div>
                 </div>
-                <div style={{ flex: 1, background: '#fef2f2', borderRadius: 10, padding: 14, border: '1px solid #fecaca', textAlign: 'center' }}>
+                <div style={{ flex: 1, background: 'var(--color-error-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-error-border)', textAlign: 'center' }}>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>漏报次数</div>
                   <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{missedStats.missedCount}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>次</div>
                 </div>
-                <div style={{ flex: 1, background: '#d1fae5', borderRadius: 10, padding: 14, border: '1px solid #a7f3d0', textAlign: 'center' }}>
+                <div style={{ flex: 1, background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--color-success-border)', textAlign: 'center' }}>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>漏报率</div>
                   <div style={{ fontSize: 24, fontWeight: 800, color: '#059669' }}>{missedStats.missedRate}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>低于目标1%</div>
@@ -214,10 +214,10 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
                       <div style={{ width: 20, height: 20, borderRadius: '50%', background: colors[idx], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff' }}>{idx + 1}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                          <span style={{ fontSize: 12, color: '#334155' }}>{item.reason}</span>
+                          <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{item.reason}</span>
                           <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{item.count}次</span>
                         </div>
-                        <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{ width: `${pct}%`, height: '100%', background: colors[idx], borderRadius: 3, transition: 'width 0.3s' }} />
                         </div>
                       </div>
@@ -247,23 +247,23 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
                   <div style={{ fontSize: 28, fontWeight: 800 }}>{notificationStats.totalCount}</div>
                   <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>例</div>
                 </div>
-                <div style={{ background: '#d1fae5', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid #a7f3d0' }}>
+                <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-success-border)' }}>
                   <div style={{ fontSize: 12, color: '#059669', marginBottom: 4 }}>10分钟内完成</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{notificationStats.completedWithin10Min}</div>
                   <div style={{ fontSize: 12, color: '#059669', marginTop: 2 }}>例</div>
                 </div>
-                <div style={{ background: '#eff6ff', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid #bfdbfe' }}>
+                <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-info-border)' }}>
                   <div style={{ fontSize: 12, color: '#1e40af', marginBottom: 4 }}>完成率</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af' }}>{notificationStats.completionRate}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>目标≥90%</div>
                 </div>
-                <div style={{ background: '#fef3c7', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid #fde68a' }}>
+                <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 14, textAlign: 'center', border: '1px solid var(--color-warning-border)' }}>
                   <div style={{ fontSize: 12, color: '#d97706', marginBottom: 4 }}>平均通报时间</div>
                   <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706' }}>{notificationStats.avgNotificationTime}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>分钟</div>
                 </div>
               </div>
-              <div style={{ background: '#f8fafc', borderRadius: 10, padding: 14, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 14, border: '1px solid var(--border-color)', marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>今日通报情况</div>
                 <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
                   <div style={{ textAlign: 'center' }}>
@@ -275,7 +275,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
                       <span>完成进度</span>
                       <span style={{ fontWeight: 700, color: '#059669' }}>{notificationStats.todayCompleted}/{notificationStats.todayCount}</span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ width: `${notificationStats.todayCount > 0 ? (notificationStats.todayCompleted / notificationStats.todayCount) * 100 : 0}%`, height: '100%', background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 100%)', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                   </div>
@@ -289,12 +289,12 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
           ) : (
             <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>加载中...</div>
           )}
-          <div style={{ background: '#eff6ff', borderRadius: 10, padding: 12, border: '1px solid #bfdbfe' }}>
+          <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 12, border: '1px solid var(--color-info-border)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>国家卫健委2024年版质控指标说明</div>
             <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
-              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: '#334155' }}>10分钟通报完成率</span>：自发现危急值至通报临床时间&lt;=10分钟的比例</div>
-              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: '#334155' }}>达标标准</span>：三级医院≥90%，二级医院≥85%</div>
-              <div>• <span style={{ fontWeight: 600, color: '#334155' }}>超时处理</span>：&gt;30分钟未通报需启动升级机制</div>
+              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>10分钟通报完成率</span>：自发现危急值至通报临床时间&lt;=10分钟的比例</div>
+              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>达标标准</span>：三级医院≥90%，二级医院≥85%</div>
+              <div>• <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>超时处理</span>：&gt;30分钟未通报需启动升级机制</div>
             </div>
           </div>
         </div>
@@ -345,16 +345,16 @@ export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) =
   return (
     <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-        <StatCard label="待处理危急值" value={pending} icon={Bell} color="#dc2626" bgColor="#fee2e2" trend={pending > 0 ? '+' + pending : undefined} />
-        <StatCard label="处理中" value={processing} icon={Clock} color="#d97706" bgColor="#fef3c7" />
-        <StatCard label="已处理" value={resolved} icon={CheckCircle} color="#059669" bgColor="#d1fae5" trend="+3" />
-        <StatCard label="超时未处理" value={overdue} icon={AlertTriangle} color="#991b1b" bgColor="#fecaca" trend={overdue > 0 ? '+' + overdue : undefined} />
+        <StatCard label="待处理危急值" value={pending} icon={Bell} color="#dc2626" bgColor="var(--color-error-bg)" trend={pending > 0 ? '+' + pending : undefined} />
+        <StatCard label="处理中" value={processing} icon={Clock} color="#d97706" bgColor="var(--color-warning-bg)" />
+        <StatCard label="已处理" value={resolved} icon={CheckCircle} color="#059669" bgColor="var(--color-success-bg)" trend="+3" />
+        <StatCard label="超时未处理" value={overdue} icon={AlertTriangle} color="#991b1b" bgColor="var(--color-error-bg)" trend={overdue > 0 ? '+' + overdue : undefined} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-        <StatCard label={apiStats ? '今日新增危急值' : '本月新增危急值'} value={thisMonth} icon={TrendingUp} color="#1e40af" bgColor="#dbeafe" />
-        <StatCard label="及时处理率" value={timelyRate} icon={Target} color="#059669" bgColor="#d1fae5" suffix="%" />
-        <StatCard label="已转随访数" value={transferred} icon={ArrowUpRight} color="#7c3aed" bgColor="#f5f3ff" />
-        <StatCard label="处理中超期数" value={overdueProcessing} icon={Timer} color={overdueProcessing > 0 ? '#dc2626' : '#059669'} bgColor={overdueProcessing > 0 ? '#fef2f2' : '#d1fae5'} />
+        <StatCard label={apiStats ? '今日新增危急值' : '本月新增危急值'} value={thisMonth} icon={TrendingUp} color="#1e40af" bgColor="var(--color-info-bg)" />
+        <StatCard label="及时处理率" value={timelyRate} icon={Target} color="#059669" bgColor="var(--color-success-bg)" suffix="%" />
+        <StatCard label="已转随访数" value={transferred} icon={ArrowUpRight} color="#7c3aed" bgColor="var(--color-info-bg)" />
+        <StatCard label="处理中超期数" value={overdueProcessing} icon={Timer} color={overdueProcessing > 0 ? '#dc2626' : '#059669'} bgColor={overdueProcessing > 0 ? 'var(--color-error-bg)' : 'var(--color-success-bg)'} />
       </div>
       <StatisticsCharts data={data} missedStats={missedStats} notificationStats={notificationStats} />
     </>

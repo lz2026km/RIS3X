@@ -73,7 +73,7 @@ export default function AsrPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader title={<><Volume2 size={20} color="#3b82f6" /> {t("title")}</>} subtitle={t("subtitle")} />
+      <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ background: "#fff", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
           <div style={{ marginBottom: 16 }}>
