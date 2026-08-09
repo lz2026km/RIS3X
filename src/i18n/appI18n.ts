@@ -1,4 +1,4 @@
-﻿/**
+/**
  * G005 放射RIS系统 v3.0.6.11-83 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()

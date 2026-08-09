@@ -1,4 +1,4 @@
-﻿apiVersion: v2
+apiVersion: v2
 name: g005-ris
 description: G005 Radiology RIS System - Enterprise Imaging Platform
 type: application
