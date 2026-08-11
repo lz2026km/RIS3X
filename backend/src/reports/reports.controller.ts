@@ -78,6 +78,12 @@ export class ReportsController {
     createReadStream(filePath).pipe(res)
   }
 
+  // [v3.0.6.11-88 P0] 单报告导出状态轮询 (ReportPage runRealExport 用)
+  @Get(':id/export-status')
+  exportStatus(@Param('id') id: string) {
+    return this.reports.exportStatus(id)
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.reports.get(id)

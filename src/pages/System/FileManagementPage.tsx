@@ -419,7 +419,7 @@ const errorBanner: React.CSSProperties = {
   marginTop: 12,
   padding: '10px 14px',
   borderRadius: 8,
-  background: '#fef2f2',
+  background: 'var(--color-error-bg)',
   border: `1px solid #fecaca`,
   color: C.danger,
   fontSize: 13,

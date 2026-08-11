@@ -30,7 +30,7 @@ export default function QrShareButton({
           boxShadow: '0 4px 16px rgba(0,0,0,0.15)', zIndex: 100, width: 180, textAlign: 'center',
         }}>
           <div style={{
-            width: 140, height: 140, margin: '0 auto 8px', background: '#f8fafc',
+            width: 140, height: 140, margin: '0 auto 8px', background: 'var(--bg-card)',
             borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: '1px solid #e2e8f0',
           }}>

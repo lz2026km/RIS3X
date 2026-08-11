@@ -440,7 +440,7 @@ export default function TemplateDesignerPage() {
     }
     const newRule: ConditionalRule = {
       id: `rule-${Date.now()}`,
-      fieldId: allFields[0].id,
+      fieldId: allFields?.[0]?.id ?? '',
       operator: "equals",
       value: "",
       targetFieldId: allFields[1].id,

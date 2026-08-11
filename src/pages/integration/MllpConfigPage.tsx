@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Space, Tag, Button, Table, Switch, message, Statistic, Row, Col, Popconfirm } from 'antd';
+import { Card, Space, Tag, Button, Table, Switch, message, Statistic, Row, Col, Popconfirm, Modal, Input } from 'antd';
 import {
   Server, Shield, Plus, Trash2, Activity, Wifi, Clock, Terminal,
 } from "lucide-react";
@@ -31,6 +31,8 @@ export const MllpConfigPage: React.FC = () => {
   const [logs, setLogs] = useState<ConnectionLogEntry[]>([]);
   const { pageData: logPageData, pagination: logPagination } = usePagination(logs, 10);
   const [loading, setLoading] = useState({ status: false, logs: false });
+  const [whitelistModalOpen, setWhitelistModalOpen] = useState(false);
+  const [newCidr, setNewCidr] = useState("");
 
   const fetchStatus = useCallback(async () => {
     setLoading((p) => ({ ...p, status: true }));
@@ -69,15 +71,20 @@ export const MllpConfigPage: React.FC = () => {
   };
 
   const handleAddWhitelist = async () => {
-    const input = prompt("输入 CIDR (如 10.0.0.0/8):");
-    if (!input) return;
-    const res = await api.post("/hl7/mllp/whitelist/add", { cidr: input.trim() });
+    const cidr = newCidr.trim();
+    if (!cidr) {
+      message.warning("请输入 CIDR");
+      return;
+    }
+    const res = await api.post("/hl7/mllp/whitelist/add", { cidr });
     if (res.success) {
       message.success("白名单已添加");
       fetchStatus();
     } else {
       message.error("添加失败");
     }
+    setNewCidr("");
+    setWhitelistModalOpen(false);
   };
 
   const handleToggleTls = async (enabled: boolean) => {
@@ -185,7 +192,7 @@ export const MllpConfigPage: React.FC = () => {
             className="shadow-sm"
             title={<Space><Shield className="w-4 h-4" /><span>IP 白名单</span></Space>}
             extra={
-              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={handleAddWhitelist}>添加</Button>
+              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={() => setWhitelistModalOpen(true)}>添加</Button>
             }
           >
             <Table
@@ -227,6 +234,26 @@ export const MllpConfigPage: React.FC = () => {
           locale={{ emptyText: "暂无日志" }}
         />
       </Card>
+
+      <Modal
+        title="添加 IP 白名单"
+        open={whitelistModalOpen}
+        onOk={() => void handleAddWhitelist()}
+        onCancel={() => { setWhitelistModalOpen(false); setNewCidr(""); }}
+        okText="添加"
+        cancelText="取消"
+        width={420}
+      >
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>CIDR (如 10.0.0.0/8)</div>
+          <Input
+            value={newCidr}
+            onChange={(e) => setNewCidr(e.target.value)}
+            placeholder="如 10.0.0.0/8"
+            onPressEnter={() => void handleAddWhitelist()}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

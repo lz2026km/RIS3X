@@ -38,6 +38,13 @@ export const workflowHandlers = [
     try { remove('null', params.id as string); } catch {}
     return HttpResponse.json({ success: true, data: {} });
   }),
+  http.put(`${API}/definitions/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const merged = { id: params.id, ...body, updatedAt: new Date().toISOString() };
+    try { create('definition' as any, merged); } catch {}
+    return HttpResponse.json({ success: true, data: merged });
+  }),
   http.post(`${API}/definitions/:id/activate`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
@@ -49,8 +56,16 @@ export const workflowHandlers = [
     await delay(delayMs());
     let item: any = null;
     try { item = get<any>('steps', params.id as string); } catch {}
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: item });
+    if (!item) {
+      item = [
+        { id: 'step-1', name: '书写', type: 'write', order: 1 },
+        { id: 'step-2', name: '审核', type: 'review', order: 2 },
+        { id: 'step-3', name: '签署', type: 'sign', order: 3 },
+        { id: 'step-4', name: '发布', type: 'publish', order: 4 },
+      ];
+      try { create('steps' as any, { id: params.id as string, steps: item }); } catch {}
+    }
+    return HttpResponse.json({ success: true, data: Array.isArray(item) ? item : (item.steps ?? []) });
   }),
   http.get(`${API}/sla-policies`, async ({ request }) => {
     await delay(delayMs());
@@ -90,5 +105,19 @@ export const workflowHandlers = [
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
     try { create('rule', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${API}/routing-rules/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const merged = { id: params.id, ...body, updatedAt: new Date().toISOString() };
+    try { create('rule' as any, merged); } catch {}
+    return HttpResponse.json({ success: true, data: merged });
+  }),
+  http.put(`${API}/sla-policies/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const merged = { id: params.id, ...body, updatedAt: new Date().toISOString() };
+    try { create('policy' as any, merged); } catch {}
+    return HttpResponse.json({ success: true, data: merged });
   }),
 ];

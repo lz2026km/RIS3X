@@ -52,12 +52,19 @@ export async function initCornerstone3D(): Promise<boolean> {
     try {
       const csCore = await import("@cornerstonejs/core");
       const csTools = await import("@cornerstonejs/tools");
-      const csDicom = await import("@cornerstonejs/dicom-image-loader");
 
-      const csDicomImageLoader = ((csDicom as unknown as { default?: unknown })
-        .default || csDicom) as CsModule;
-      if (csDicomImageLoader?.init) {
-        csDicomImageLoader.init();
+      // [v3.0.6.11-88] codec-libjpeg-turbo ESM 默认导出在部分打包器下不可用,
+      // dicom-image-loader 加载失败时隔离处理, 不影响 core/tools 初始化
+      // (视口自动回退占位帧, 页面不崩)
+      try {
+        const csDicom = await import("@cornerstonejs/dicom-image-loader");
+        const csDicomImageLoader = ((csDicom as unknown as { default?: unknown })
+          .default || csDicom) as CsModule;
+        if (csDicomImageLoader?.init) {
+          csDicomImageLoader.init();
+        }
+      } catch (e) {
+        console.warn("[Cornerstone3D] DICOM image loader unavailable, viewport 回退占位帧:", e);
       }
 
       const csCoreModule = csCore as unknown as CsModule;
@@ -74,7 +81,7 @@ export async function initCornerstone3D(): Promise<boolean> {
       // 实际注册在 useViewport 内的 csTools.addTool 调用完成
       return true;
     } catch (e) {
-      console.error("[Cornerstone3D] init failed:", e);
+      console.warn("[Cornerstone3D] init degraded, viewport 回退占位帧:", e);
       return false;
     }
   })();

@@ -177,7 +177,8 @@ export const dentalApi = {
   updateInventoryItem: (id: string, data: any) => api.put<any>(`${DENTAL_API}/inventory/${id}`, data),
 
   // [v3.0.6.11-54] Phase 2: 治疗计划 (dentalHandlers 已有端点)
-  listTreatments: (params?: { status?: string; patientId?: string; pageSize?: number }) =>
+  // [v3.0.6.11-88 Round10] 参数扩展: type(专科过滤, MSW 支持) + page(分页)
+  listTreatments: (params?: { status?: string; patientId?: string; pageSize?: number; type?: string; page?: number }) =>
     api.get<any[]>(`${DENTAL_API}/treatments?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
   getTreatment: (id: string) => api.get<any>(`${DENTAL_API}/treatments/${id}`),
   createTreatment: (data: any) => api.post<any>(`${DENTAL_API}/treatments`, data),
@@ -225,6 +226,9 @@ export const dentalApi = {
   getScheduleChairs: () => api.get<any[]>(`${DENTAL_API}/schedule/chairs`),
   getScheduleAppointments: (date?: string) =>
     api.get<any[]>(`${DENTAL_API}/schedule/appointments${date ? '?date=' + date : ''}`),
+  // [v3.0.6.11-88 Round10] 排班新建预约 (POST /dental/schedule/appointments, DentalSchedulePage 在用)
+  createScheduleAppointment: (data: any) =>
+    api.post<any>(`${DENTAL_API}/schedule/appointments`, data),
   // [G005 W3-A] 排班端点补齐: 单条预约 / 状态流转 (后端 /dental/schedule/appointments/:id、/:id/status)
   getScheduleAppointment: (id: string) =>
     api.get<any>(`${DENTAL_API}/schedule/appointments/${id}`),

@@ -751,7 +751,7 @@ function CarbonTab() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
       }}>
-        <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>碳减排构成</h4>
+        <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>碳减排构成</h4>
         <ChartContainer height={200}>
           <BarChart
             data={[
@@ -838,7 +838,7 @@ function SignatureTab() {
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
-          <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>电子签名 vs 纸质签名</h4>
+          <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>电子签名 vs 纸质签名</h4>
           <ChartContainer height={220} state={pieData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无签名占比数据">
             <PieChart>
               <Pie
@@ -890,7 +890,7 @@ function SignatureTab() {
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           border: '1px solid var(--border-color)',
         }}>
-          <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>各科室电子签名使用率排名</h4>
+          <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>各科室电子签名使用率排名</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {departments.map((dept, index) => (
               <div key={dept.name}>
@@ -1092,7 +1092,7 @@ function CostTab() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',
       }}>
-        <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>成本节约构成</h4>
+        <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>成本节约构成</h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
           <ChartContainer height={180} style={{ width: 200, flexShrink: 0 }}>
             <PieChart>
@@ -1212,7 +1212,7 @@ const PaperConsumptionDashboard = () => {
 
       {/* 部门级明细 */}
       <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 14, fontWeight: 600, color: C.text }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           各部门纸张消耗明细
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1308,7 +1308,7 @@ const EnergyMonitoring = () => {
 
       {/* 设备能耗对比 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 16 }}>设备日能耗对比（活跃 vs 待机）</div>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>设备日能耗对比（活跃 vs 待机）</div>
         <ChartContainer height={240} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备能耗数据">
           <BarChart data={chartData} barCategoryGap="25%">
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -1324,7 +1324,7 @@ const EnergyMonitoring = () => {
 
       {/* 设备明细表 */}
       <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 14, fontWeight: 600, color: C.text }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           设备能耗明细
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1427,7 +1427,7 @@ const DigitizationScorecard = () => {
 
       {/* 数字化趋势 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 16 }}>数字化采用趋势</div>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>数字化采用趋势</div>
         <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无数字化趋势数据">
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -1444,7 +1444,7 @@ const DigitizationScorecard = () => {
 
       {/* 科室排名 */}
       <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 14, fontWeight: 600, color: C.text }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           科室数字化排名
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1498,7 +1498,7 @@ const GreenRecommendations = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Lightbulb size={18} color={C.warning} /> 绿色改进建议
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -1531,7 +1531,7 @@ const GreenRecommendations = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{tip.title}</span>
+                  <span style={{ fontSize: 16, fontWeight: 600, color: C.text }}>{tip.title}</span>
                   <span style={{ padding: '2px 8px', background: `${catColor}15`, color: catColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                     {categoryLabels[tip.category]}
                   </span>
@@ -1607,7 +1607,7 @@ const ISO14001Compliance = () => {
 
       {/* ISO 检查表 */}
       <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 14, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
           <ClipboardList size={16} color={C.primary} /> ISO 14001:2015 条款清单
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1744,7 +1744,7 @@ function RunStatsTab() {
       </div>
 
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <BarChart2 size={16} color={C.primary} /> 近30天检查量趋势
         </div>
         {trend.length === 0 ? (
@@ -1766,7 +1766,7 @@ function RunStatsTab() {
 
       {byModality.length > 0 && (
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={16} color={C.green} /> 设备模态工作量分布
           </div>
           <ChartContainer height={260} state={byModality.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备模态分布数据">

@@ -464,7 +464,7 @@ export default function NuclearStatsPage() {
           {/* 12月趋势图 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: 0 }}>12月每日趋势</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>12月每日趋势</h3>
               <div style={{ display: 'flex', gap: 16 }}>
                 {[
                   { label: '检查数量', color: C.accent },
@@ -509,7 +509,7 @@ export default function NuclearStatsPage() {
 
           {/* 设备利用率排名 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>设备利用率排名</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>设备利用率排名</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {devices.slice(0, 4).map((device, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -535,7 +535,7 @@ export default function NuclearStatsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* 设备检查分布 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各类设备检查数量分布</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各类设备检查数量分布</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
                 <BarChartSVG
@@ -577,7 +577,7 @@ export default function NuclearStatsPage() {
 
           {/* 月度趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>近6月检查数量趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>近6月检查数量趋势</h3>
             <BarChartSVG
               data={monthly.map(m => ({ label: m.month, value: m.exams }))}
               width={900} height={200}
@@ -612,7 +612,7 @@ export default function NuclearStatsPage() {
 
           {/* 消耗占比 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>药物消耗占比</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>药物消耗占比</h3>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
               <PieChartSVG
                 data={drugs.map(d => ({ name: d.name, value: d.percent, color: d.color }))}
@@ -633,7 +633,7 @@ export default function NuclearStatsPage() {
 
           {/* 每日消耗趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日药物消耗趋势 (mCi)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日药物消耗趋势 (mCi)</h3>
             <BarChartSVG
               data={daily.map(d => ({ label: d.date, value: d.drug }))}
               width={1100} height={220}
@@ -654,7 +654,7 @@ export default function NuclearStatsPage() {
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderTop: `4px solid ${DEVICE_COLORS[i]}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 16 }}>
                   <div>
-                    <h4 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 4px' }}>{device.name}</h4>
+                    <h4 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 4px' }}>{device.name}</h4>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>
                       {device.name.includes('CT') ? 'PET-CT系统' : device.name.includes('SPECT') ? 'SPECT系统' : '回旋加速器'}
                     </p>
@@ -681,7 +681,7 @@ export default function NuclearStatsPage() {
 
           {/* 利用率趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日设备利用率趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日设备利用率趋势</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.utilization }))}
               width={1100} height={220}
@@ -698,7 +698,7 @@ export default function NuclearStatsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* 阳性率概览 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>阳性率统计概览</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>阳性率统计概览</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
               {[
                 { label: '平均阳性率', value: `${avgPositive}%`, color: C.accent },
@@ -726,7 +726,7 @@ export default function NuclearStatsPage() {
 
           {/* 检查类型阳性率 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各检查类型阳性率</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>各检查类型阳性率</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {[
                 { type: 'PET-CT全身', positive: 71.5, exams: 356, trend: '+2.3%' },
@@ -778,7 +778,7 @@ export default function NuclearStatsPage() {
 
           {/* SUV分布 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>SUVmax分布</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>SUVmax分布</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               {/* 病灶SUV分布 */}
               <div>
@@ -830,7 +830,7 @@ export default function NuclearStatsPage() {
 
           {/* SUV趋势 */}
           <div style={{ background: C.white, borderRadius: 12, padding: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日平均SUVmax趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: '0 0 20px' }}>12月每日平均SUVmax趋势</h3>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.suvAvg }))}
               width={1100} height={220}

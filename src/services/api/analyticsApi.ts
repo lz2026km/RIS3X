@@ -28,6 +28,8 @@ export interface OlapQueryDto {
   orderBy?: string
   limit?: number
   offset?: number
+  // [v3.0.6.11-88 Round10] 聚合粒度 (daily/weekly/monthly/quarterly/yearly, 后端 olap + MSW 均支持)
+  granularity?: string
 }
 
 export interface OlapMetadataDto {

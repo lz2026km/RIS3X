@@ -262,6 +262,8 @@ export const AiReportWriterPage: React.FC = () => {
         <Tag color="cyan">PR2</Tag>
         <Tag color="purple">v3.0.6.8-35</Tag>
         <Tag color="blue">DeepSeek-Opthalmic</Tag>
+        {/* [v3.0.6.11-88 Round10] /eye/report/ai|nlp|voice 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
 
       <Row gutter={16}>

@@ -30,6 +30,8 @@ export interface VnaObjectDto {
   wormLocked: boolean
   createdAt: string
   storageSource: 'database' | 'memory'
+  // [G-26] ILM 分层 (内存记录, 默认 hot)
+  tier?: VnaLifecycleTier
 }
 
 export interface VnaStudyDto {
@@ -70,6 +72,57 @@ export interface CreateVnaObjectInput {
   size?: number
   buffer?: Buffer
   originalName?: string
+}
+
+// ─────────────────────── G-26 ILM 影像生命周期 (VNA 分层存储) ───────────────────────
+
+export type VnaLifecycleTier = 'hot' | 'warm' | 'cold'
+
+export interface LifecyclePolicyDto {
+  id: string
+  tier: VnaLifecycleTier
+  retentionDays: number
+  description: string
+  objectCount: number
+  createdAt: string
+  storageSource: 'memory'
+}
+
+export interface LifecycleEventDto {
+  id: string
+  objectId: string
+  objectName: string
+  fromTier: VnaLifecycleTier
+  toTier: VnaLifecycleTier | null
+  action: 'migrate' | 'expire' | 'policy-applied'
+  reason?: string
+  createdAt: string
+  storageSource: 'memory'
+}
+
+export interface CreateLifecyclePolicyInput {
+  tier: VnaLifecycleTier
+  retentionDays: number
+  description?: string
+}
+
+interface LifecyclePolicyRow {
+  id: string
+  tier: VnaLifecycleTier
+  retentionDays: number
+  description: string
+  createdAt: Date
+}
+
+interface LifecycleEventRow {
+  id: string
+  objectId: string
+  objectName: string
+  fromTier: VnaLifecycleTier
+  toTier: VnaLifecycleTier | null
+  action: 'migrate' | 'expire' | 'policy-applied'
+  reason?: string
+  createdAt: Date
 }
 
 interface MemoryObject {
@@ -146,6 +199,11 @@ export class VnaService {
   private readonly storageDir = resolveStorageDir()
   private readonly storage: StorageDriver
   private readonly memory = new Map<string, MemoryObject>()
+  // [G-26] ILM 生命周期: 内存存储 + seed (策略/事件/对象分层)
+  private readonly lifecyclePolicies = new Map<string, LifecyclePolicyRow>()
+  private readonly lifecycleEvents: LifecycleEventRow[] = []
+  private readonly objectTiers = new Map<string, VnaLifecycleTier>()
+  private lifecycleSeq = 100
 
   constructor(
     private readonly prisma: PrismaService,
@@ -157,6 +215,29 @@ export class VnaService {
     } catch (err) {
       this.logger.warn(`[VNA] cannot create storage dir ${this.storageDir}: ${(err as Error).message}`)
     }
+    this.seedLifecycle()
+  }
+
+  private seedLifecycle(): void {
+    const now = Date.now()
+    const policies: Array<[string, VnaLifecycleTier, number, string]> = [
+      ['lp-hot', 'hot', 0, '热层: 最近 90 天访问的影像, 高性能 SSD 在线存储'],
+      ['lp-warm', 'warm', 90, '温层: 90 天后自动迁移, 近线存储 (HDD)'],
+      ['lp-cold', 'cold', 365, '冷层: 365 天后归档到冷存储 (磁带/对象存储), 长期保存'],
+    ]
+    for (const [id, tier, retentionDays, description] of policies) {
+      this.lifecyclePolicies.set(id, { id, tier, retentionDays, description, createdAt: new Date(now) })
+    }
+    const mkEvent = (n: number, objectId: string, objectName: string, fromTier: VnaLifecycleTier, toTier: VnaLifecycleTier | null, action: 'migrate' | 'expire' | 'policy-applied', reason: string, daysAgo: number): void => {
+      const d = new Date(now - daysAgo * 24 * 3600 * 1000)
+      this.lifecycleEvents.push({ id: `lce-${++this.lifecycleSeq}`, objectId, objectName, fromTier, toTier, action, reason, createdAt: d })
+      if (toTier) this.objectTiers.set(objectId, toTier)
+      void n
+    }
+    mkEvent(1, 'vna-seed-1', '增强扫描知情同意书.pdf', 'hot', 'warm', 'migrate', '超过热层保留期 (90 天)', 95)
+    mkEvent(2, 'vna-seed-3', 'MRI 检查申请单.pdf', 'warm', 'cold', 'migrate', '超过温层保留期 (365 天)', 400)
+    mkEvent(3, 'vna-seed-5', '碘对比剂不良反应记录.txt', 'warm', null, 'expire', '达到冷层保留上限, 标记到期归档', 370)
+    mkEvent(4, 'vna-seed-6', '影像科会诊意见.docx', 'hot', 'warm', 'policy-applied', '策略校验: 创建 90 天后纳入温层', 30)
   }
 
   private get repo(): VnaRepo {
@@ -177,6 +258,7 @@ export class VnaService {
       wormLocked: row.wormLocked,
       createdAt: new Date(row.createdAt).toISOString(),
       storageSource: source,
+      tier: this.objectTiers.get(row.id) ?? 'hot',
     }
   }
 
@@ -511,6 +593,134 @@ export class VnaService {
         studyCount: new Set(all.filter((o) => o.studyUid).map((o) => o.studyUid)).size,
         storageSource: 'memory',
       }
+    }
+  }
+
+  // ─────────────────────── G-26 ILM 影像生命周期 (内存+seed) ───────────────────────
+
+  listLifecyclePolicies(): LifecyclePolicyDto[] {
+    const counts = new Map<VnaLifecycleTier, number>()
+    for (const tier of this.objectTiers.values()) counts.set(tier, (counts.get(tier) ?? 0) + 1)
+    return Array.from(this.lifecyclePolicies.values())
+      .sort((a, b) => a.retentionDays - b.retentionDays)
+      .map((p) => ({
+        id: p.id,
+        tier: p.tier,
+        retentionDays: p.retentionDays,
+        description: p.description,
+        objectCount: counts.get(p.tier) ?? 0,
+        createdAt: p.createdAt.toISOString(),
+        storageSource: 'memory' as const,
+      }))
+  }
+
+  createLifecyclePolicy(input: CreateLifecyclePolicyInput): LifecyclePolicyDto {
+    if (input.retentionDays < 0 || input.retentionDays > 36500) {
+      throw new BadRequestException('保留天数需在 0-36500 之间')
+    }
+    const id = `lp-${++this.lifecycleSeq}`
+    const row: LifecyclePolicyRow = {
+      id,
+      tier: input.tier,
+      retentionDays: input.retentionDays,
+      description: (input.description ?? '').slice(0, 300),
+      createdAt: new Date(),
+    }
+    this.lifecyclePolicies.set(id, row)
+    this.logger.log(`[VNA] lifecycle policy ${id} created (${input.tier}, ${input.retentionDays}d)`)
+    const created = this.listLifecyclePolicies().find((p) => p.id === id)!
+    return created
+  }
+
+  updateLifecyclePolicy(id: string, input: Partial<CreateLifecyclePolicyInput>): LifecyclePolicyDto {
+    const row = this.lifecyclePolicies.get(id)
+    if (!row) throw new NotFoundException(`VNA lifecycle policy ${id} not found`)
+    if (input.tier) row.tier = input.tier
+    if (input.retentionDays != null) {
+      if (input.retentionDays < 0 || input.retentionDays > 36500) {
+        throw new BadRequestException('保留天数需在 0-36500 之间')
+      }
+      row.retentionDays = input.retentionDays
+    }
+    if (input.description != null) row.description = (input.description ?? '').slice(0, 300)
+    const updated = this.listLifecyclePolicies().find((p) => p.id === id)!
+    return updated
+  }
+
+  deleteLifecyclePolicy(id: string): { deleted: boolean } {
+    const row = this.lifecyclePolicies.get(id)
+    if (!row) throw new NotFoundException(`VNA lifecycle policy ${id} not found`)
+    this.lifecyclePolicies.delete(id)
+    this.logger.log(`[VNA] lifecycle policy ${id} deleted`)
+    return { deleted: true }
+  }
+
+  getObjectTier(id: string): VnaLifecycleTier {
+    return this.objectTiers.get(id) ?? 'hot'
+  }
+
+  async migrateObject(id: string, targetTier: VnaLifecycleTier, reason?: string): Promise<{ object: VnaObjectDto; event: LifecycleEventDto }> {
+    if (!['hot', 'warm', 'cold'].includes(targetTier)) {
+      throw new BadRequestException('targetTier 必须是 hot/warm/cold 之一')
+    }
+    const obj = await this.getObject(id)
+    const fromTier = this.getObjectTier(id)
+    if (fromTier === targetTier) {
+      return { object: obj, event: this.buildEvent(id, obj.name, fromTier, targetTier, 'migrate', reason ?? '目标层与当前层一致 (幂等)') }
+    }
+    this.objectTiers.set(id, targetTier)
+    const event = this.buildEvent(id, obj.name, fromTier, targetTier, 'migrate', reason ?? '手动迁移')
+    this.logger.log(`[VNA] object ${id} migrated ${fromTier} -> ${targetTier}`)
+    const updated = await this.getObject(id)
+    return { object: updated, event }
+  }
+
+  listLifecycleEvents(limit = 100): LifecycleEventDto[] {
+    return [...this.lifecycleEvents]
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, Math.max(1, Math.min(limit, 500)))
+      .map((e) => ({
+        id: e.id,
+        objectId: e.objectId,
+        objectName: e.objectName,
+        fromTier: e.fromTier,
+        toTier: e.toTier,
+        action: e.action,
+        reason: e.reason,
+        createdAt: e.createdAt.toISOString(),
+        storageSource: 'memory' as const,
+      }))
+  }
+
+  private buildEvent(
+    objectId: string,
+    objectName: string,
+    fromTier: VnaLifecycleTier,
+    toTier: VnaLifecycleTier | null,
+    action: 'migrate' | 'expire' | 'policy-applied',
+    reason: string,
+  ): LifecycleEventDto {
+    const row: LifecycleEventRow = {
+      id: `lce-${++this.lifecycleSeq}`,
+      objectId,
+      objectName,
+      fromTier,
+      toTier,
+      action,
+      reason,
+      createdAt: new Date(),
+    }
+    this.lifecycleEvents.push(row)
+    return {
+      id: row.id,
+      objectId: row.objectId,
+      objectName: row.objectName,
+      fromTier: row.fromTier,
+      toTier: row.toTier,
+      action: row.action,
+      reason: row.reason,
+      createdAt: row.createdAt.toISOString(),
+      storageSource: 'memory',
     }
   }
 }

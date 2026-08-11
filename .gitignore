@@ -81,3 +81,8 @@ NUL
 
 # VNA test storage
 backend/vna-storage/
+
+# Playwright artifacts
+e2e/.click-all-88-results/
+test-results/
+playwright-report/

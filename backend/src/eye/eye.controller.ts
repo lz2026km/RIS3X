@@ -19,6 +19,24 @@ const AiInferenceSchema = z.object({
   heatmapUrl: z.string().url().optional(),
 })
 const IolCalculationSchema = z.object({ lensId: z.string().min(1), axialLength: z.number().positive(), keratometry: z.number().positive() })
+// [G005 Wave4A P1] IOL 计算记录保存 (宽松校验, 前端 IolCalculatorPage 提交到病历)
+const IolCalculationRecordSchema = z.object({
+  patientId: z.string().optional(),
+  eyeSide: z.string().optional(),
+  surgeon: z.string().optional(),
+  formula: z.string().optional(),
+  iolPower: z.number().optional(),
+  iolModel: z.string().optional(),
+  al: z.number().optional(),
+  k1: z.number().optional(),
+  k2: z.number().optional(),
+  acd: z.number().optional(),
+  lt: z.number().optional(),
+  wtw: z.number().optional(),
+  cct: z.number().optional(),
+  aConstant: z.number().optional(),
+  targetRefraction: z.number().optional(),
+}).passthrough()
 const GenerateReportSchema = z.object({ studyId: z.string().min(1), template: z.string().optional() })
 const CompareStudiesSchema = z.object({ studyIds: z.array(z.string()).optional() })
 const LooseBodySchema = z.object({}).passthrough()
@@ -384,6 +402,18 @@ export class EyeController {
   @Post('iol/calculate/kane')
   calculateKane(@Body(new ZodValidationPipe(IolCalculationSchema)) data: { lensId: string; axialLength: number; keratometry: number }) {
     return this.eye.calculateKane(data)
+  }
+
+  // [G005 Wave4A P1] IOL 计算记录 (内存 + seed, IolCalculatorPage 提交到病历)
+  @Get('iol/calculations')
+  listIolCalculations() {
+    return this.eye.listIolCalculations()
+  }
+
+  @Post('iol/calculations')
+  @HttpCode(HttpStatus.CREATED)
+  saveIolCalculation(@Body(new ZodValidationPipe(IolCalculationRecordSchema)) data: Record<string, unknown>) {
+    return this.eye.saveIolCalculation(data)
   }
 
   @Get('reports')

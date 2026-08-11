@@ -18,10 +18,10 @@ function renderDiff(log: OperationLog) {
       <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>数据对比：</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ background: '#fef2f2', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
+          <div style={{ background: 'var(--color-error-bg)', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
             修改前
           </div>
-          <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: '#fef2f2', color: '#991b1b', lineHeight: 1.6 }}>
+          <pre style={{ margin: 0, padding: 12, fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: 'var(--color-error-bg)', color: '#991b1b', lineHeight: 1.6 }}>
             {log.beforeData || '(空)'}
           </pre>
         </div>
@@ -69,15 +69,15 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
 
         <div style={{ padding: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>日志ID</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.id}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作时间</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作类型</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
@@ -89,21 +89,21 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                 </span>
               </div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作用户</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userName}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>用户ID</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userId}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作模块</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>操作目标</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <div>
@@ -123,7 +123,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             )}
           </div>
 
-          <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+          <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>环境信息</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -145,7 +145,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
 
           {log.complianceLevel && (
             <div style={{
-              background: log.complianceLevel === 'critical' ? '#fef2f2' : log.complianceLevel === 'warning' ? '#fffbeb' : '#ecfdf5',
+              background: log.complianceLevel === 'critical' ? 'var(--color-error-bg)' : log.complianceLevel === 'warning' ? '#fffbeb' : '#ecfdf5',
               padding: 16, borderRadius: 8,
               border: `1px solid ${log.complianceLevel === 'critical' ? '#fecaca' : log.complianceLevel === 'warning' ? '#fde68a' : '#a7f3d0'}`,
               marginBottom: 16

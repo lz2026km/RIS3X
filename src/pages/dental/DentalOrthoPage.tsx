@@ -91,7 +91,7 @@ export const DentalOrthoPage: React.FC = () => {
       header={{
         title: '正畸管理',
         icon: <Smile size={20} color="#eb2f96" />,
-        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>],
+        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>, <Tag color="orange" key="demo">演示数据 (MSW)</Tag>],
         extra: (
           <Space>
             <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>

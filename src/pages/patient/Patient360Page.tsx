@@ -206,7 +206,7 @@ export default function Patient360Page() {
           <Button
             type="default"
             icon={<Image size={14} />}
-            onClick={() => navigate(`/fusion/prior-compare?patientId=${patient.id}`)}
+            onClick={() => navigate(`/dicom/fusion-v2?patientId=${patient.id}`)}
           >
             影像对比
           </Button>

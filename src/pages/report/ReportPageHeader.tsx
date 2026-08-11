@@ -39,7 +39,7 @@ export default function ReportPageHeader({ selectedIds, allReports, setReviewRep
           btn.innerHTML = '⏳ 创建中...'
           btn.disabled = true
           await new Promise(r => setTimeout(r, 1500))
-          const reports = JSON.parse(localStorage.getItem('g005_reports') || '[]')
+          const reports = (() => { try { return JSON.parse(localStorage.getItem('g005_reports') || '[]') } catch { return [] } })()
           reports.push({ id: `R${Date.now()}`, createdAt: new Date().toISOString(), status: '待审核' })
           localStorage.setItem('g005_reports', JSON.stringify(reports))
           btn.innerHTML = '✅ 已创建'

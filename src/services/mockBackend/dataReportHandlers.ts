@@ -72,6 +72,32 @@ let dataReports: any[] = [
 ];
 
 let insuranceAudits: any[] = [
+  // [W2-B-3] AUD001 等: InsuranceAuditPage 待审核演示记录 (详情 Modal 直调 /insurance-audits/:id)
+  {
+    id: 'AUD001', patientName: '张伟', patientId: 'P202400001', examType: 'CT增强',
+    drugName: '碘海醇注射液', drugCategory: 'CT对比剂', status: 'PENDING',
+    submitTime: '2026-07-20 08:30', reason: '申请头颅CT增强检查使用碘海醇',
+  },
+  {
+    id: 'AUD002', patientName: '李娜', patientId: 'P202400002', examType: 'MRI增强',
+    drugName: '钆喷酸葡胺注射液', drugCategory: 'MRI对比剂', status: 'PENDING',
+    submitTime: '2026-07-20 09:15', reason: '申请头颅MRI增强检查使用钆喷酸葡胺',
+  },
+  {
+    id: 'AUD003', patientName: '王磊', patientId: 'P202400003', examType: 'DSA手术',
+    drugName: '比伐卢定注射液', drugCategory: '抗凝药物', status: 'PENDING',
+    submitTime: '2026-07-20 10:20', reason: '申请使用比伐卢定注射液行脑血管DSA检查',
+  },
+  {
+    id: 'AUD004', patientName: '赵敏', patientId: 'P202400004', examType: 'CT增强',
+    drugName: '碘克沙醇注射液', drugCategory: 'CT对比剂', status: 'PENDING',
+    submitTime: '2026-07-20 11:45', reason: '申请使用碘克沙醇注射液行腹部CT增强检查',
+  },
+  {
+    id: 'AUD005', patientName: '周涛', patientId: 'P202400005', examType: 'MRI增强',
+    drugName: '钆特酸葡甲胺注射液', drugCategory: 'MRI对比剂', status: 'PENDING',
+    submitTime: '2026-07-21 08:30', reason: '申请使用钆特酸葡甲胺注射液行颈椎MRI增强检查',
+  },
   {
     id: 'IA001', patientName: '张伟', patientId: 'P202400001', examType: 'CT增强',
     drugName: '碘海醇注射液', drugCategory: 'CT对比剂', status: 'PENDING',

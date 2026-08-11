@@ -562,15 +562,6 @@ export type {
   AutoCollectionStats,
 } from "./autoCollectionApi";
 
-export { deptDashboardApi } from "./deptDashboardApi";
-export type {
-  DeptDashboardSummary,
-  DeptDashboardWorkload,
-  DeptDashboardEquipment,
-  DeptDashboardTrend,
-  DeptDashboardQueryParams,
-} from "./deptDashboardApi";
-
 export { remoteReadingApi } from "./remoteReadingApi";
 export type {
   RemoteReadingSession,

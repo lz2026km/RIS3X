@@ -1192,7 +1192,7 @@ export default function StatsReportPage() {
             <div style={styles.tableHeader}>
               <div style={styles.tableTitle}>
                 <TrendingUp size={18} /> 检查量预测趋势
-                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>forecast</span>}
+                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>预测</span>}
               </div>
               <span style={{ fontSize: 12, color: COLORS.textMuted }}>近14天实际 + 14天外推</span>
             </div>
@@ -1229,7 +1229,7 @@ export default function StatsReportPage() {
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
                   <Gauge size={18} /> 设备利用率
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>utilization</span>
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>利用率</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>
@@ -1253,7 +1253,7 @@ export default function StatsReportPage() {
               <div style={styles.tableHeader}>
                 <div style={styles.tableTitle}>
                   <Activity size={18} /> 报告准确率
-                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>accuracy</span>
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>准确率</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>

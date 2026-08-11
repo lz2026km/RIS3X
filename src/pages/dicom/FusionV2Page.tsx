@@ -156,22 +156,22 @@ function drawRoiOverlay(ctx: CanvasRenderingContext2D, annotations: RoiAnnotatio
     ctx.lineWidth = 2 / scale
     ctx.setLineDash([])
     if (ann.tool === 'rectangle' && ann.points.length >= 2) {
-      const x1 = offsetX + ann.points[0].x * scale
-      const y1 = offsetY + ann.points[0].y * scale
-      const x2 = offsetX + ann.points[1].x * scale
-      const y2 = offsetY + ann.points[1].y * scale
+      const x1 = offsetX + ann.points?.[0]?.x * scale
+      const y1 = offsetY + ann.points?.[0]?.y * scale
+      const x2 = offsetX + ann.points?.[1]?.x * scale
+      const y2 = offsetY + ann.points?.[1]?.y * scale
       ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1))
     } else if (ann.tool === 'ellipse' && ann.points.length >= 2) {
-      const cx = offsetX + ((ann.points[0].x + ann.points[1].x) / 2) * scale
-      const cy = offsetY + ((ann.points[0].y + ann.points[1].y) / 2) * scale
-      const rx = Math.abs(ann.points[1].x - ann.points[0].x) * scale / 2
-      const ry = Math.abs(ann.points[1].y - ann.points[0].y) * scale / 2
+      const cx = offsetX + ((ann.points?.[0]?.x + ann.points?.[1]?.x) / 2) * scale
+      const cy = offsetY + ((ann.points?.[0]?.y + ann.points?.[1]?.y) / 2) * scale
+      const rx = Math.abs(ann.points?.[1]?.x - ann.points?.[0]?.x) * scale / 2
+      const ry = Math.abs(ann.points?.[1]?.y - ann.points?.[0]?.y) * scale / 2
       ctx.beginPath()
       ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2)
       ctx.stroke()
     } else if (ann.tool === 'freehand' && ann.points.length > 2) {
       ctx.beginPath()
-      ctx.moveTo(offsetX + ann.points[0].x * scale, offsetY + ann.points[0].y * scale)
+      ctx.moveTo(offsetX + ann.points?.[0]?.x * scale, offsetY + ann.points?.[0]?.y * scale)
       for (let i = 1; i < ann.points.length; i++) {
         ctx.lineTo(offsetX + ann.points[i].x * scale, offsetY + ann.points[i].y * scale)
       }

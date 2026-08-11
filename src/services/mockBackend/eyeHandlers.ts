@@ -501,6 +501,15 @@ const eyePacsModule = [
     if (studyId) all = all.filter((i: any) => i.studyId === studyId);
     return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
   }),
+  // [W2B-2] 病灶分割列表 (FundusViewerPage: GET /pacs/lesion-segmentations?studyId=)
+  http.get(`${API_BASE}/pacs/lesion-segmentations`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const studyId = url.searchParams.get('studyId');
+    let all = list<any>('eye_lesion_segmentations');
+    if (studyId) all = all.filter((s: any) => s.studyId === studyId || s.studyUid === studyId);
+    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
+  }),
 ];
 
 // ============= EyeEmrModule (24 端点) =============
@@ -735,12 +744,31 @@ const eyeAiModule = [
     const all = list<any>('eye_ai_diagnoses').filter((i: any) => i.status === 'pending_review' || i.status === 'pending');
     return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
   }),
-  // 8) 推理详情
+  // 8) 推理详情 (按 id 或 studyId 查询; 未命中返回合成记录, 避免 404 破坏交互回归)
   http.get(`${API_BASE}/ai/inferences/:id`, async ({ params }) => {
     await delay(40);
-    const i = get<any>('eye_ai_diagnoses', params.id as string);
-    if (!i) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: i });
+    const id = params.id as string;
+    const byId = get<any>('eye_ai_diagnoses', id);
+    if (byId) return HttpResponse.json({ success: true, data: [byId] });
+    const all = list<any>('eye_ai_diagnoses').filter((d: any) => d.studyId === id);
+    if (all.length > 0) return HttpResponse.json({ success: true, data: all });
+    const fallback = {
+      id: `aid-${id}`,
+      studyId: id,
+      modelName: 'RetinaNet-DR',
+      modelVersion: '3.2.0',
+      vendor: '鹰瞳 Airdoc',
+      modality: 'fundus_photo',
+      eyeSide: 'OD',
+      findings: ['右眼可见微动脉瘤(约4个)', '未见明显出血及渗出'],
+      probabilities: { 无DR: 0.15, 轻度NPDR: 0.55, 中度NPDR: 0.2, 重度NPDR: 0.08, 增殖期DR: 0.02 },
+      status: 'completed',
+      confidence: 0.87,
+      result: { positive: true, severity: 'mild' },
+      inferredAt: new Date().toISOString(),
+    };
+    create('eye_ai_diagnoses', fallback);
+    return HttpResponse.json({ success: true, data: [fallback] });
   }),
 
   // 9) 热图
@@ -1706,6 +1734,49 @@ const eyeIolModule = [
     });
   }),
 
+  // 3.5) 泛化公式 (ToricPlannerPage 直接 fetch /iol/calculate/:formula, 如 Barrett-true-K)
+  http.post(`${API_BASE}/iol/calculate/:formula`, async ({ request, params }) => {
+    await delay(100);
+    const formula = params.formula as string;
+    const body = (await request.json()) as any;
+    const result = pr3CalculateIOL(formula, {
+      AL: body.AL || 23.5,
+      K1: body.K1 || 43.0,
+      K2: body.K2 || 43.5,
+      ACD: body.ACD || 3.0,
+      LT: body.LT || 4.5,
+      CCT: body.CCT || 0.55,
+      aConst: body.aConst || 118.4,
+      sf: body.sf || 1.59,
+      pACD: body.pACD,
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { formula, ...result, inputs: body, source: `IOL 公式计算 (${formula})`, calculatedAt: new Date().toISOString() },
+    });
+  }),
+
+  // [G005 Wave4A P1] IOL 计算记录保存/查询 (IolCalculatorPage 提交到病历, 内存 store)
+  http.get(`${API_BASE}/iol/calculations`, async () => {
+    await delay(80);
+    const saved = (() => { try { return JSON.parse(localStorage.getItem('g005_eye_iol_calculations') || '[]') } catch { return [] } })();
+    return HttpResponse.json({ success: true, data: Array.isArray(saved) ? saved : [] });
+  }),
+
+  http.post(`${API_BASE}/iol/calculations`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const record = {
+      id: `IOL-CALC-${Date.now()}`,
+      ...body,
+      createdAt: new Date().toISOString(),
+    };
+    const saved = (() => { try { return JSON.parse(localStorage.getItem('g005_eye_iol_calculations') || '[]') } catch { return [] } })();
+    const next = [record, ...(Array.isArray(saved) ? saved : [])].slice(0, 200);
+    try { localStorage.setItem('g005_eye_iol_calculations', JSON.stringify(next)) } catch { }
+    return HttpResponse.json({ success: true, data: record }, { status: 201 });
+  }),
+
   // 4) Hill-RBF
   
 
@@ -1925,6 +1996,31 @@ const eyeSubspecialtyDepthModule = [
   // 7) 角膜病 - BAD 指数
   
 
+  // 7) 白内障 - 晶状体混浊 LOCS III 分级 (SubspecialtyExamsPage 直接 fetch)
+  http.post(`${API_BASE}/subspecialty/cataract/lens-opacity`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; eye: string; nuclearGrade: number; corticalGrade: number; pscGrade: number; bestCorrectedVA?: string };
+    const nuclear = Math.max(0, Math.min(5, Number(body.nuclearGrade) || 0));
+    const cortical = Math.max(0, Math.min(5, Number(body.corticalGrade) || 0));
+    const psc = Math.max(0, Math.min(5, Number(body.pscGrade) || 0));
+    const total = nuclear + cortical + psc;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        eye: body.eye,
+        nuclearGrade: nuclear,
+        corticalGrade: cortical,
+        pscGrade: psc,
+        totalScore: total,
+        classification: total >= 4 ? '重度混浊，建议手术评估' : total >= 2 ? '中度混浊，定期随访' : '轻度混浊，常规随访',
+        bestCorrectedVA: body.bestCorrectedVA ?? '',
+        method: 'LOCS III 分级',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
   // 8) 接触镜 - 库存
   http.get(`${API_BASE}/contact-lens/inventory`, async () => {
     await delay(40);
@@ -1964,6 +2060,46 @@ const eyeSubspecialtyDepthModule = [
         rightEye: { distance: body.reDist, near: body.reNear, device: body.reDevice || '普通眼镜' },
         leftEye: { distance: body.leDist, near: body.leNear, device: body.leDevice || '普通眼镜' },
         deviceRecommendation: body.recommendation || '手持放大镜 4X',
+        prescribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // [W2-B-3] 屈光手术 - 处方 (RefractivePage 直调, 后端暂无此端点)
+  http.get(`${API_BASE}/subspecialty/refractive/prescription`, async () => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        prescription: {
+          rightEye: { sphere: -3.5, cylinder: -0.75, axis: 180, se: -3.875 },
+          leftEye: { sphere: -3.0, cylinder: -0.5, axis: 170, se: -3.25 },
+        },
+        recommendedProcedure: 'SMILE 全飞秒激光手术',
+        procedureRationale: '角膜厚度充足, 近视散光符合 SMILE 适应症',
+        expectedPostopVA: '1.0 (20/20)',
+        riskLevel: 'low',
+        prescribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+  http.post(`${API_BASE}/subspecialty/refractive/prescription`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const re = body?.rightEye ?? { sphere: -3.5, cylinder: -0.75, axis: 180 };
+    const le = body?.leftEye ?? { sphere: -3.0, cylinder: -0.5, axis: 170 };
+    const se = (s: number, c: number) => +(s + c / 2).toFixed(3);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        prescription: {
+          rightEye: { ...re, se: se(Number(re.sphere ?? 0), Number(re.cylinder ?? 0)) },
+          leftEye: { ...le, se: se(Number(le.sphere ?? 0), Number(le.cylinder ?? 0)) },
+        },
+        recommendedProcedure: 'SMILE 全飞秒激光手术',
+        procedureRationale: '角膜厚度充足, 近视散光符合 SMILE 适应症',
+        expectedPostopVA: '1.0 (20/20)',
+        riskLevel: 'low',
         prescribedAt: new Date().toISOString(),
       },
     });
@@ -2989,6 +3125,45 @@ const eyeW3aAlignedModule = [
     if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: s });
   }),
+  // [v3.0.6.11-88 P0] /eye/studies CRUD (后端 eye.controller: POST/PUT/DELETE)
+  http.post(`${API_BASE}/studies`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const id = body.studyId || body.id || `STU${Date.now()}`;
+    const newItem = {
+      ...body,
+      id,
+      studyId: id,
+      status: body.status || 'acquired',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    create('eye_studies', newItem);
+    auditCreate('eye_studies', newItem);
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/studies/:id`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('eye_studies', id);
+    const updated = update<any>('eye_studies', id, { ...body, updatedAt: new Date().toISOString() });
+    if (!updated) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    auditUpdate('eye_studies', before, updated);
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+  http.delete(`${API_BASE}/studies/:id`, async ({ params }) => {
+    await delay(60);
+    const ok = remove('eye_studies', params.id as string);
+    if (!ok) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { id: params.id } });
+  }),
+  // [v3.0.6.11-88 P0] GET /eye/patients/:patientId/studies (后端 @Get('patients/:patientId/studies'))
+  http.get(`${API_BASE}/patients/:patientId/studies`, async ({ params }) => {
+    await delay(60);
+    const all = list<any>('eye_studies').filter((s: any) => s.patientId === params.patientId);
+    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
+  }),
   // /eye/emr/:patientId (原 /eye/emr/records/:id, 后端 @Get('emr/:patientId'))
   http.get(`${API_BASE}/emr/:patientId`, async ({ params }) => {
     await delay(40);
@@ -3014,6 +3189,12 @@ const eyeW3aAlignedModule = [
     const all = list<any>('eye_reports');
     const result = applyQuery(all, opts, ['patientName', 'reportType']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  // [v3.0.6.11-88 P0] POST /eye/reports (后端 generateReport: { studyId, template? } → { message, data })
+  http.post(`${API_BASE}/reports`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json().catch(() => ({}))) as any;
+    return HttpResponse.json({ success: true, data: { message: 'Report generated', data: body } }, { status: 201 });
   }),
   // GET /eye/iol/lenses (后端 @Get('iol/lenses'), ULIB 常数派生镜头库)
   http.get(`${API_BASE}/iol/lenses`, async () => {

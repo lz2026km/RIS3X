@@ -425,7 +425,7 @@ export const ReportSharingSection: React.FC = () => {
 
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
-      <div style={styles.panelHeader}><span>跨机构报告分享</span><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => setShowShareModal(true)}><Share2 size={14} /> 分享报告</button></div>
+      <div style={styles.panelHeader}><span>跨机构报告分享</span><span style={{ fontSize: '11px', color: COLORS.warning }}>MSW 演示数据</span><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => setShowShareModal(true)}><Share2 size={14} /> 分享报告</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead><tr><th style={styles.th}>报告编号</th><th style={styles.th}>患者</th><th style={styles.th}>来源机构</th><th style={styles.th}>目标机构</th><th style={styles.th}>分享时间</th><th style={styles.th}>分享人</th><th style={styles.th}>知情同意</th><th style={styles.th}>访问次数</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th></tr></thead>
@@ -478,7 +478,7 @@ export const SLAAndTATSection: React.FC = () => {
   useEffect(() => { void loadSla() }, [])
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
-      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={14} /> {refreshing ? '刷新中...' : '刷新'}</button></div>
+      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><span style={{ fontSize: '11px', color: COLORS.warning }}>MSW 演示数据</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={14} /> {refreshing ? '刷新中...' : '刷新'}</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>136</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>本月分配检查</div></div>

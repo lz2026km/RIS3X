@@ -299,6 +299,8 @@ export const CaseLibraryPage: React.FC = () => {
         <Tag color="purple">v3.0.6.8-42</Tag>
         <Tag color="blue">DICOM 标注 + SR 导出</Tag>
         <Tag color="green">DICOM PS 3.15 脱敏</Tag>
+        {/* [v3.0.6.11-88 Round10] /eye/edu/* 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
 
       <Tabs

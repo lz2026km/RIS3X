@@ -12,7 +12,7 @@ export function useOperationLog(resourceType: string) {
       detail,
       timestamp: new Date().toISOString(),
     };
-    const existing = JSON.parse(localStorage.getItem('operation_logs') || '[]');
+    const existing = (() => { try { return JSON.parse(localStorage.getItem('operation_logs') || '[]') } catch { return [] } })();
     existing.push(entry);
     localStorage.setItem('operation_logs', JSON.stringify(existing.slice(-1000)));
   };

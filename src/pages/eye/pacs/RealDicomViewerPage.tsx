@@ -369,6 +369,8 @@ export const RealDicomViewerPage: React.FC = () => {
           {studyId && <Tag color="blue">{studyId}</Tag>}
           <Tag color="purple">v3.0.6.8-43</Tag>
           <Tag color="magenta">PR10 真实像素</Tag>
+          {/* [v3.0.6.11-88 Round10] /eye/pixel|pacs/measurement 后端未实现, MSW 演示数据 */}
+          <Tag color="orange">演示数据 (MSW)</Tag>
         </Space>
         <Space>
           <Select

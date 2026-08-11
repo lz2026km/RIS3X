@@ -88,6 +88,8 @@ import { deviceMgmtHandlers } from './deviceMgmtHandlers';
 import { aiPlatformHandlers } from './aiPlatformHandlers';
 // [v3.0.6.11-60] AI Orchestrator 编排平台 (模型注册/部署/工作流集成/推理任务)
 import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
+// [v3.0.6.11-88 W2B-2] 交互回归缺失 AI 端点 (providers / draft patients+templates)
+import { aiWave2BHandlers } from './aiWave2BHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -121,6 +123,14 @@ import { fhirHandlers } from './fhirHandlers';
 import { iheHandlers } from './iheHandlers';
 // [G005 P1] DICOM DIMSE (dicomDimseApi: /dicom-dimse/*)
 import { dicomDimseHandlers } from './dicomDimseHandlers';
+// [W2-B-3] Rad-Path 一致性追踪 (radpathApi: /radpath/*)
+import { radpathHandlers } from './radpathHandlers';
+// [W2-B-3] 科研平台 (researchApi: /research/*)
+import { researchHandlers } from './researchHandlers';
+// [W2-B-3] 双阅片 (dualReadApi: /dual-read/*)
+import { dualReadHandlers } from './dualReadHandlers';
+// [W2-B-3] AI 模型市场 (aiMarketplaceApi: /ai-marketplace/*)
+import { aiMarketplaceHandlers } from './aiMarketplaceHandlers';
 // [G005 P1] 影像组学 (radiomicsApi: /radiomics/*)
 import { radiomicsHandlers } from './radiomicsHandlers';
 // [v3.0.6.11-75 W3-1] HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
@@ -139,7 +149,7 @@ import { crossModalHandlers } from './crossModalHandlers';
 import { dicomShareHandlers } from './dicomShareHandlers';
 // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
 import { smartWorklistHandlers } from './smartWorklistHandlers';
-// [W3-A] 自动采集 (auto-collectionApi, 后端无 controller → MSW 支撑 + 页面标注 demo)
+// [W3-A] 自动采集 (auto-collectionApi, 后端 auto-collection.controller 已实现 → MSW 仅 dev 兜底)
 import { autoCollectionHandlers } from './autoCollectionHandlers';
 // [W3-A] 诊断符合率 (diagnosisAccuracyApi) + 乳腺影像质量管理 (mammoQcApi)
 import { diagnosisAccuracyHandlers } from './diagnosisAccuracyHandlers';
@@ -212,10 +222,19 @@ export const authHandlers = [
     await delay(80);
     const s = mockSession;
     if (!s) {
-      return HttpResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: '未登录' } },
-        { status: 401 },
-      );
+      // [W2-B-3] 演示模式回退: 未走 login 会话时返回默认演示用户
+      // (dev mock 下页面直接可用, 避免 /user/center 401 死循环)
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id: 'A001',
+          username: 'admin',
+          role: 'ADMIN',
+          fullName: '系统管理员',
+          totpEnabled: false,
+          department: '放射科',
+        },
+      });
     }
     const role = s.role ?? 'DOCTOR';
     return HttpResponse.json({
@@ -344,7 +363,8 @@ export const reportHandlers = [
           filePath: `/exports/reports/${id}.${task.format}`,
           sizeBytes: 256000,
           format: task.format,
-          downloadUrl: `${API_BASE}/reports/${id}/export.${task.format}`,
+          // [v3.0.6.11-88 P0] 下载路径对齐后端 /reports/export-files/:fileName
+          downloadUrl: `${API_BASE}/reports/export-files/${id}.${task.format}`,
         }))
       : [];
     return HttpResponse.json({
@@ -554,14 +574,30 @@ export const reportHandlers = [
   }),
 
   // [W2-3] 导出真实化: 任务状态轮询 (ReportPage 导出后轮询, 对齐后端入队+生成语义)
+  // [v3.0.6.11-88 P0] 形状对齐后端: { status: 'completed'|'processing', exportedAt?, fileUrl? } (保留 downloadUrl 兼容旧调用)
   http.get(`${API_BASE}/reports/:id/export-status`, async ({ params }) => {
     await delay(60);
     const report = get<any>('exams', params.id as string);
     if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const fileUrl = `${API_BASE}/reports/export-files/report-${params.id}.html`;
     return HttpResponse.json({
       success: true,
-      data: { status: 'COMPLETED', format: 'pdf', downloadUrl: `${API_BASE}/reports/${params.id}/export.pdf`, queuedAt: report.reportAt ?? new Date().toISOString() },
+      data: { status: 'completed', format: 'pdf', fileUrl, downloadUrl: fileUrl, exportedAt: new Date().toISOString(), queuedAt: report.reportAt ?? new Date().toISOString() },
     });
+  }),
+
+  // [v3.0.6.11-88 P0] 导出文件下载 (reportApi.downloadExportFile → GET /reports/export-files/:fileName)
+  http.get(`${API_BASE}/reports/export-files/:fileName`, async ({ params }) => {
+    await delay(80);
+    const raw = decodeURIComponent(params.fileName as string ?? '');
+    const id = raw.startsWith('report-') ? raw.replace(/^report-/, '').replace(/-\d+\.\w+$/, '') : raw.replace(/\.\w+$/, '');
+    const report = get<any>('exams', id);
+    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Export file not found' } }, { status: 404 });
+    const patient = report.patientName ?? '患者';
+    const findings = report.findings ?? report.examFindings ?? '—';
+    const impression = report.impression ?? report.diagnosis ?? '—';
+    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${patient} 放射诊断报告</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:32px;color:#1e293b"><h1 style="color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:8px">放射诊断报告</h1><p><strong>报告编号:</strong> ${id}</p><p><strong>患者:</strong> ${patient}</p><h3>检查所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${findings}</pre><h3>诊断意见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${impression}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">Generated by G005 RIS · ${new Date().toLocaleString('zh-CN')}</p></body></html>`;
+    return new HttpResponse(new TextEncoder().encode(html), { headers: { 'Content-Type': 'text/html;charset=utf-8', 'Content-Disposition': `attachment; filename="${raw}"` } });
   }),
 
   // [W2-3] 导出真实化: 下载文件本体 (GET downloadUrl → 真实 PDF/文档字节)
@@ -843,6 +879,39 @@ export const appointmentHandlers = [
       return HttpResponse.json({ success: true, data: updated });
     }
     return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  }),
+
+  // [G005 Wave4A P1] 改约 (appointmentApi.update → PATCH, 后端 UpdateSchema) / 取消 (appointmentApi.cancel → DELETE)
+  http.patch(`${API_BASE}/appointments/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const idx = appointmentRecords.findIndex((a) => a.id === params.id);
+    if (idx >= 0) {
+      const updated: any = { ...appointmentRecords[idx]!, updatedAt: new Date().toISOString() };
+      if (body.startAt) {
+        const startAt = new Date(body.startAt);
+        updated.examDate = `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, '0')}-${String(startAt.getDate()).padStart(2, '0')}`;
+        updated.examTime = `${String(startAt.getHours()).padStart(2, '0')}:${String(startAt.getMinutes()).padStart(2, '0')}`;
+      }
+      if (body.note !== undefined) updated.note = body.note;
+      if (body.state !== undefined) {
+        const stateMap: Record<string, string> = { SCHEDULED: 'pending', CONFIRMED: 'confirmed', CHECKED_IN: 'checked-in', IN_PROGRESS: 'checked-in', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled' };
+        updated.status = stateMap[String(body.state)] ?? updated.status;
+      }
+      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? updated : a));
+      return HttpResponse.json({ success: true, data: updated });
+    }
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  }),
+
+  http.delete(`${API_BASE}/appointments/:id`, async ({ params }) => {
+    await delay(150);
+    const idx = appointmentRecords.findIndex((a) => a.id === params.id);
+    if (idx >= 0) {
+      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? { ...a, status: 'cancelled', updatedAt: new Date().toISOString() } : a));
+      return HttpResponse.json({ success: true, data: { ok: true, id: params.id } });
+    }
+    return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Appointment not found' } }, { status: 404 });
   }),
 ];
 
@@ -1306,7 +1375,36 @@ export const patientHandlers = [
   // 详情 (完整 PatientDto 25 字段)
   http.get(`${API_BASE}/patients/:id`, async ({ params }) => {
     await delay(50);
-    const p = get<any>('patients', params.id as string);
+    const id = params.id as string;
+    let p = get<any>('patients', id);
+    // [W2-B-3] 测试/演示患者 TMP001 兜底 (patients/:id/360 等路由使用)
+    if (!p && id === 'TMP001') {
+      p = {
+        id: 'TMP001',
+        name: '演示患者',
+        gender: '男',
+        age: 45,
+        birthDate: '1981-06-15',
+        phone: '13800138000',
+        idCard: '11010119810615XXXX',
+        bloodType: 'A',
+        type: '门诊',
+        referringDepartment: '呼吸内科',
+        referringDoctor: '李明辉',
+        chiefComplaint: '咳嗽咳痰两周',
+        clinicalDiagnosis: '肺结节待查',
+        icd10: 'R91.1',
+        modality: 'CT',
+        bodyPart: '胸部',
+        examItem: '胸部CT平扫',
+        registeredAt: '2026-07-01T08:00:00Z',
+        examDate: '2026-07-02T09:30:00Z',
+        status: '已签发',
+        priority: '普通',
+        isVIP: false,
+        tags: [],
+      };
+    }
     if (!p) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Patient not found' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: toPatientDto(p) });
   }),
@@ -1683,7 +1781,7 @@ export const criticalValueHandlers = [
 ];
 
 // ============= Print(8) - [v3.0.6.11-81 W2-B] DICOM 胶片打印子系统 =============
-// 后端无 print controller → MSW 演示数据 (页面标注"演示数据")
+// [v3.0.6.11-88] 打印队列: 后端 print.controller 已实现 (jobs/queues/history/printers/stats), 此处仅 MSW dev 兜底
 interface PrintTask {
   id: string
   filmId: string
@@ -2077,6 +2175,39 @@ export const statsHandlers = [
     const rows = all.map((k: any) => `${k.date},${k.examCount},${k.reportCount},${k.criticalCount},${k.cosignCount},${k.avgTAT},${k.defectCount},${k.qcAvgScore}`);
     return new HttpResponse([header, ...rows].join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="stats.csv"' } });
   }),
+
+  // [W2-B-3] 预测趋势 (StatsReportPage analyticsStatsApi.getForecast)
+  //   对齐后端 stats.controller getForecast: ForecastPoint[] (date/actual/forecast/upper/lower)
+  http.get(`${API_BASE}/stats/forecast`, async () => {
+    await delay(80);
+    const days = 30;
+    const points: any[] = [];
+    for (let i = days; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const date = d.toISOString().slice(0, 10);
+      const base = 260 + Math.sin((days - i) / 4) * 60 + ((days - i) % 7) * 8;
+      points.push({
+        date,
+        actual: i > 7 ? Math.round(base) : null,
+        forecast: Math.round(base * 1.02),
+        upper: Math.round(base * 1.18),
+        lower: Math.round(base * 0.85),
+      });
+    }
+    return HttpResponse.json({ success: true, data: points });
+  }),
+
+  // [W2-B-3] 设备利用率 (StatsReportPage analyticsStatsApi.getUtilization)
+  http.get(`${API_BASE}/stats/utilization`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { current: 86.5, target: 90, max: 100 } });
+  }),
+
+  // [W2-B-3] 报告准确率 (StatsReportPage analyticsStatsApi.getAccuracy)
+  http.get(`${API_BASE}/stats/accuracy`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { value: 96.8, previous: 95.9 } });
+  }),
 ];
 
 // ============= Terms(2) =============
@@ -2124,8 +2255,28 @@ export const userHandlers = [
   // 详情 (完整 UserDto 22 字段)
   http.get(`${API_BASE}/users/:id`, async ({ params }) => {
     await delay(50);
-    const u = get<any>('doctors', params.id as string);
-    if (!u) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } }, { status: 404 });
+    const id = params.id as string;
+    const u = get<any>('doctors', id);
+    if (!u) {
+      // 对齐后端 users.controller GET /users/:id (users.service.findById): 找不到时返回合成用户,避免 404/500
+      return HttpResponse.json({
+        success: true,
+        data: {
+          id,
+          name: '未知用户',
+          fullName: '未知用户',
+          username: id.toLowerCase(),
+          role: 'DOCTOR',
+          department: '放射科',
+          title: 'DOCTOR',
+          subspecialty: 'General',
+          certifications: [],
+          active: true,
+          isActive: true,
+          permissions: ['*'],
+        },
+      });
+    }
     return HttpResponse.json({ success: true, data: toUserDto(u) });
   }),
 
@@ -2142,8 +2293,8 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: toUserDto(newUser) }, { status: 201 });
   }),
 
-  // 更新
-  http.put(`${API_BASE}/users/:id`, async ({ params, request }) => {
+  // 更新 (userApi.update 用 PATCH, 对齐后端 users.controller @Patch(':id'))
+  http.patch(`${API_BASE}/users/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;
@@ -2239,6 +2390,12 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: exams });
   }),
 
+  // [v3.0.6.11-88] 会诊统计 (后端 consultations.controller GET /consultations/stats, MSW dev 兜底; 静态子路由须在 :id 之前)
+  http.get(`${API_BASE}/consultations/stats`, async () => {
+    await delay(60);
+    return HttpResponse.json({ success: true, data: { total: 8, pendingCount: 3, repliedCount: 2, completedCount: 2, cancelledCount: 1, byType: { MDT: 2, '疑难病例': 3, '远程会诊': 2, '二次意见': 1 }, byDepartment: { '放射科': 5, '神经内科': 2, '心内科': 1 } } });
+  }),
+
   // 详情
   http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
     await delay(50);
@@ -2276,6 +2433,66 @@ export const consultationHandlers = [
     const body = (await request.json()) as { conclusion: string };
     recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'consultations', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', conclusion: body.conclusion } });
+  }),
+
+  // [v3.0.6.11-88] 邀请会诊专家 (后端 POST /consultations/:id/invite)
+  http.post(`${API_BASE}/consultations/:id/invite`, async ({ params, request }) => {
+    await delay(80);
+    const body = (await request.json()) as { doctorIds: string[] };
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'invite', entityType: 'consultations', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: { id: params.id, consultants: body.doctorIds ?? [] } });
+  }),
+
+  // [v3.0.6.11-88] 开始会诊 (后端 POST /consultations/:id/start)
+  http.post(`${API_BASE}/consultations/:id/start`, async ({ params }) => {
+    await delay(80);
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'start', entityType: 'consultations', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: '已回复' } });
+  }),
+
+  // [Wave2B] 会诊评论 (CollaborationPage: GET/POST /consultations/:id/comments)
+  http.get(`${API_BASE}/consultations/:id/comments`, async ({ params }) => {
+    await delay(60);
+    const id = params.id as string;
+    const all = list<any>('consultation_comments').filter((c: any) => c.consultationId === id);
+    if (all.length === 0) {
+      const seed = [
+        { id: `cc-${id}-1`, consultationId: id, author: '张明远', content: '右肺下叶病灶建议加做增强CT进一步评估血供情况。', createdAt: new Date(Date.now() - 3600_000).toISOString() },
+        { id: `cc-${id}-2`, consultationId: id, author: '李慧敏', content: '同意，建议同时行纵隔淋巴结穿刺活检。', createdAt: new Date(Date.now() - 1800_000).toISOString() },
+      ];
+      seed.forEach((c) => { try { create('consultation_comments', c); } catch { /* noop */ } });
+      return HttpResponse.json({ success: true, data: seed });
+    }
+    return HttpResponse.json({ success: true, data: all });
+  }),
+  http.post(`${API_BASE}/consultations/:id/comments`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { author?: string; content?: string };
+    const comment = {
+      id: `cc-${Date.now()}`,
+      consultationId: id,
+      author: body.author || '当前用户',
+      content: String(body.content || ''),
+      createdAt: new Date().toISOString(),
+    };
+    try { create('consultation_comments', comment); } catch { /* noop */ }
+    return HttpResponse.json({ success: true, data: comment }, { status: 201 });
+  }),
+  http.post(`${API_BASE}/consultations/:id/comments/:commentId/reply`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { author?: string; content?: string };
+    const reply = {
+      id: `cr-${Date.now()}`,
+      consultationId: id,
+      parentId: params.commentId as string,
+      author: body.author || '当前用户',
+      content: String(body.content || ''),
+      createdAt: new Date().toISOString(),
+    };
+    try { create('consultation_comments', reply); } catch { /* noop */ }
+    return HttpResponse.json({ success: true, data: reply }, { status: 201 });
   }),
 ];
 
@@ -3385,6 +3602,12 @@ export const defectHandlers = [
     return HttpResponse.json({ success: true, data: { code: params.code, ...(await request.json() as object) } });
   }),
   http.delete(`${API_BASE}/quality/defects/:code`, async () => new HttpResponse(null, { status: 204 })),
+  // [v3.0.6.11-88 Round10] 双无死链补齐: PATCH /quality/defects/:id/status (DefectManagementPage raw fetch, 后端暂无此端点, 演示数据)
+  http.patch(`${API_BASE}/quality/defects/:id/status`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json().catch(() => null)) as { status?: string } | null;
+    return HttpResponse.json({ success: true, data: { id: params.id, status: body?.status ?? 'open', updatedAt: new Date().toISOString() } });
+  }),
   
   
   
@@ -4039,6 +4262,7 @@ export const handlers = [
   ...aiOrchestratorHandlers,
   ...orchestratorHandlers, // [v3.0.6.11-79] 流程编排 (/orchestrator/flows/executions/sla)
   ...aiPlatformHandlers,
+  ...aiWave2BHandlers, // [v3.0.6.11-88 W2B-2] AI providers / draft patients+templates
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
   ...hl7Handlers, // [v3.0.6.11-75 W3-1] 注册 HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
@@ -4084,6 +4308,11 @@ export const handlers = [
   ...filesHandlers,
   // [W4-B] 随访计划
   ...followupHandlers,
+  // [W2-B-3] Rad-Path / 科研 / 双阅片 / AI 模型市场 (dev mock 500 修复)
+  ...radpathHandlers,
+  ...researchHandlers,
+  ...dualReadHandlers,
+  ...aiMarketplaceHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

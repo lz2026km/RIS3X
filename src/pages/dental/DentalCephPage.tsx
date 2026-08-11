@@ -254,6 +254,8 @@ export const DentalCephPage: React.FC = () => {
           <Tag color="cyan">v3.0.6.8-90</Tag>
           <Tag color="blue">Sidexis Ceph 对标</Tag>
           <Tag color="purple">Dolphin 对标</Tag>
+          {/* [v3.0.6.11-88 Round10] /dental/ceph/* 后端未实现, MSW 演示数据 */}
+          <Tag color="orange">演示数据 (MSW)</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
@@ -400,12 +402,16 @@ export const DentalCephPage: React.FC = () => {
                 size="small"
                 icon={<Save size={10} />}
                 onClick={async () => {
-                  await fetch(`/api/v1/dental/ceph/${current.id}/landmarks`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ landmarks }),
-                  });
-                  message.success("已保存");
+                  try {
+                    await fetch(`/api/v1/dental/ceph/${current.id}/landmarks`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ landmarks }),
+                    });
+                    message.success("已保存");
+                  } catch (e) {
+                    console.warn("[F03] Error:", (e as Error)?.message);
+                  }
                 }}
               >
                 保存标记

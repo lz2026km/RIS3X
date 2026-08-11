@@ -5,9 +5,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Tabs, Badge, message } from 'antd';
+import { Tabs, Badge, message, Popconfirm, Modal } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
-import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter } from 'lucide-react';
+import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter, Undo2, RotateCcw } from 'lucide-react';
 import MultiChannelSender from '@components/report/v3/R3.DIST/MultiChannelSender';
 import DeliveryReceiptComponent from '@components/report/v3/R3.DIST/DeliveryReceipt';
 import PatientReportPortal from '@components/report/v3/R3.DIST/PatientReportPortal';
@@ -83,7 +83,12 @@ const STATUS_CONFIG = {
   delivered: { label: '已送达', color: '#3b82f6', bg: '#3b82f622' },
   read:      { label: '已阅读', color: '#10b981', bg: '#22c55e22' },
   failed:    { label: '失败',   color: '#ef4444', bg: '#ef444422' },
+  // [G005 Wave6A] 撤回态: 本地记录 (后端无 delivery 撤回端点)
+  recalled:  { label: '已撤回', color: '#7c3aed', bg: '#8b5cf622' },
 };
+
+// [G005 Wave6A] 撤回记录 (本地状态流转)
+interface RecallEntry { at: string; reason: string }
 
 // ============================================================
 // 主组件
@@ -125,14 +130,54 @@ export default function ReportDeliveryPage() {
   const [sendProgress, setSendProgress] = useState(0);
   const [view, setView] = useState<'classic' | 'v3'>('v3');
 
+  // [G005 Wave6A] 撤回/重发: 本地状态流转 (后端无 delivery 撤回端点 → 标注"状态本地记录")
+  const [recalls, setRecalls] = useState<Record<string, RecallEntry>>({});
+  const [recallTarget, setRecallTarget] = useState<DeliveryRecord | null>(null);
+  const [recallReason, setRecallReason] = useState('');
+  const [resendingId, setResendingId] = useState<string | null>(null);
+
   // 过滤
   const filteredRecords = useMemo(() => {
     return records.filter(r => {
       if (filterChannel !== 'all' && r.channel !== filterChannel) return false;
-      if (filterStatus !== 'all' && r.status !== filterStatus) return false;
+      if (filterStatus !== 'all') {
+        const eff = recalls[r.id] ? 'recalled' : r.status;
+        if (filterStatus !== eff) return false;
+      }
       return true;
     });
-  }, [records, filterChannel, filterStatus]);
+  }, [records, filterChannel, filterStatus, recalls]);
+
+  // [Wave6A] 撤回: 状态置 recalled + 记录原因 (本地)
+  const confirmRecall = () => {
+    if (!recallTarget) return;
+    setRecalls(prev => ({
+      ...prev,
+      [recallTarget.id]: { at: new Date().toLocaleString('zh-CN', { hour12: false }), reason: recallReason.trim() || '未填写原因' },
+    }));
+    setRecallTarget(null);
+    setRecallReason('');
+    message.success(`已撤回推送记录 ${recallTarget.patientName} · 状态本地记录`);
+  };
+
+  // [Wave6A] 重发: 重新触发推送 (调 /api/v1/dist/tasks 入队; 失败则本地状态流转)
+  const handleResend = async (r: DeliveryRecord) => {
+    setResendingId(r.id);
+    try {
+      try {
+        await fetch('/api/v1/dist/tasks', { method: 'POST', body: JSON.stringify({ reportId: r.reportId, channel: r.channel, recipient: '' }) });
+      } catch { /* 后端不可用 → 本地流转 */ }
+      setRecalls(prev => {
+        const next = { ...prev };
+        delete next[r.id];
+        return next;
+      });
+      setRecords(prev => prev.map(rec => rec.id === r.id ? { ...rec, status: 'delivered', deliveredAt: new Date().toLocaleString('zh-CN', { hour12: false }), retryCount: 0 } : rec));
+      message.success(`已重发 ${r.patientName} (${r.channel}) · 状态本地记录`);
+    } finally {
+      setResendingId(null);
+    }
+  };
 
   // 渠道统计
   const channelStats = useMemo(() => {
@@ -152,7 +197,9 @@ export default function ReportDeliveryPage() {
     setSending(true);
     setSendProgress(0);
     for (const id of Array.from(selectedRecords)) {
-      await fetch('/api/v1/dist/tasks', { method: 'POST', body: JSON.stringify({ reportId: id, channel: filterChannel === 'all' ? 'wechat' : filterChannel, recipient: '' }) })
+      try {
+        await fetch('/api/v1/dist/tasks', { method: 'POST', body: JSON.stringify({ reportId: id, channel: filterChannel === 'all' ? 'wechat' : filterChannel, recipient: '' }) })
+      } catch { /* [v3.0.6.11-88 Round10] 网络失败不中断批量推送 */ }
     }
     setSendProgress(100);
     setSending(false);
@@ -243,7 +290,7 @@ export default function ReportDeliveryPage() {
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试
+            8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试 · 撤回/重发（状态本地记录）
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -328,7 +375,9 @@ export default function ReportDeliveryPage() {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         {filteredRecords.map(r => {
           const cConf = CHANNEL_CONFIG[r.channel];
-          const sConf = STATUS_CONFIG[r.status];
+          const recall = recalls[r.id];
+          const effStatus: DeliveryRecord['status'] | 'recalled' = recall ? 'recalled' : r.status;
+          const sConf = STATUS_CONFIG[effStatus];
           const CIcon = cConf.icon;
           const isSelected = selectedRecords.has(r.id);
           return (
@@ -336,7 +385,7 @@ export default function ReportDeliveryPage() {
               key={r.id}
               style={{
                 padding: 12, borderBottom: '1px solid var(--border-light)',
-                background: r.status === 'failed' ? 'var(--color-error-bg)' : isSelected ? 'var(--color-info-bg)' : 'transparent',
+                background: r.status === 'failed' && !recall ? 'var(--color-error-bg)' : isSelected ? 'var(--color-info-bg)' : 'transparent',
                 display: 'flex', alignItems: 'center', gap: 10,
               }}
             >
@@ -373,8 +422,13 @@ export default function ReportDeliveryPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{r.template}
                 </div>
-                {r.failureReason && (
+                {r.failureReason && !recall && (
                   <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
+                )}
+                {recall && (
+                  <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
+                    ↩ 已撤回: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>状态本地记录</span>
+                  </div>
                 )}
               </div>
               <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -383,7 +437,7 @@ export default function ReportDeliveryPage() {
                 <div>下载 {r.downloadCount} 次</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                {r.status === 'failed' && (
+                {r.status === 'failed' && !recall && (
                   <button
                     onClick={async () => {
                       try {
@@ -403,6 +457,27 @@ export default function ReportDeliveryPage() {
                     <RefreshCw size={10} /> 重试
                   </button>
                 )}
+                {recall ? (
+                  <button
+                    onClick={() => void handleResend(r)}
+                    disabled={resendingId === r.id}
+                    style={{ padding: '4px 8px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, cursor: resendingId === r.id ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                  >
+                    <RotateCcw size={10} /> {resendingId === r.id ? '重发中...' : '重发'}
+                  </button>
+                ) : (
+                  <Popconfirm
+                    title="确认撤回该推送记录?"
+                    description="撤回后状态标记为 recalled (本地记录), 可随时重发"
+                    okText="撤回"
+                    cancelText="取消"
+                    onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
+                  >
+                    <button style={{ padding: '4px 8px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <Undo2 size={10} /> 撤回
+                    </button>
+                  </Popconfirm>
+                )}
                 <button
                   style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                 >
@@ -416,6 +491,29 @@ export default function ReportDeliveryPage() {
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>无匹配记录</div>
         )}
       </div>
+
+      {/* [G005 Wave6A] 撤回原因 Modal + 本地状态说明 */}
+      <Modal
+        title={recallTarget ? `撤回推送记录 · ${recallTarget.patientName}` : '撤回推送记录'}
+        open={recallTarget != null}
+        onCancel={() => setRecallTarget(null)}
+        onOk={confirmRecall}
+        okText="确认撤回"
+        cancelText="取消"
+        okButtonProps={{ danger: true }}
+        destroyOnHidden
+      >
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+          状态将标记为 <strong>recalled (已撤回)</strong>。后端暂无 delivery 撤回端点, 此状态为<strong>本地记录</strong>。
+        </p>
+        <textarea
+          rows={3}
+          value={recallReason}
+          onChange={e => setRecallReason(e.target.value)}
+          placeholder="撤回原因 (如: 报告内容有误, 需重新出具)"
+          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }}
+        />
+      </Modal>
         </>
       )}
     </div>

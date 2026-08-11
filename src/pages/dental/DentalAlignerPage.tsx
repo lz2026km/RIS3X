@@ -177,6 +177,8 @@ export const DentalAlignerPage: React.FC = () => {
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             隐形矫治方案中心
           </span>
+          {/* [v3.0.6.11-88 Round10] /dental/ortho/aligner-plans 后端未实现, MSW 演示数据 */}
+          <Tag color="orange">演示数据 (MSW)</Tag>
           <Tag color="cyan">v3.0.6.8-92</Tag>
           <Tag color="blue">Planmeca Align 对标</Tag>
           <Tag color="purple">Invisalign 对标</Tag>

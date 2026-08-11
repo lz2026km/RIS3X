@@ -26,12 +26,31 @@ const ImageComparePage: React.FC = () => {
 
   const pair = pairs[pairIdx];
 
+  if (!pair) {
+    return (
+      <div
+        style={{
+          padding: 16,
+          background: "var(--bg-card)",
+          minHeight: "calc(100vh - 56px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "var(--text-secondary)",
+          fontSize: 14,
+        }}
+      >
+        暂无对比数据（影像对比服务不可用或未返回既往/当前检查）
+      </div>
+    );
+  }
+
   // [G005 2B] 本地移除测量项
   const removeMeasurement = (parameter: string) => {
     if (!pair) return;
     setPairs(prev => prev.map((p, i) =>
       i === pairIdx
-        ? { ...p, measurements: p.measurements.filter((m: any) => m.parameter !== parameter) }
+        ? { ...p, measurements: (p.measurements ?? []).filter((m: any) => m.parameter !== parameter) }
         : p,
     ));
     message.success(`已删除测量: ${parameter}`);
@@ -56,7 +75,7 @@ const ImageComparePage: React.FC = () => {
               style={{ width: 280 }}
               options={pairs.map((p, i) => ({
                 value: i,
-                label: `${p.patientName} - ${p.eyeSide === "OD" ? "右" : "左"}眼 (${new Date(p.priorDate).toLocaleDateString()} vs ${new Date(p.currentDate).toLocaleDateString()})`,
+                label: `${p.patientName} - ${p.eyeSide === "OD" ? "右" : "左"}眼 (${p.priorDate ? new Date(p.priorDate).toLocaleDateString() : "—"} vs ${p.currentDate ? new Date(p.currentDate).toLocaleDateString() : "—"})`,
               }))}
             />
           </Space>

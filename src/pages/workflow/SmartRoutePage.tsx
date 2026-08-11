@@ -43,6 +43,9 @@ const SmartRoutePage: React.FC = () => {
   const [recommendations, setRecommendations] = useState<DoctorRecommendation[]>([])
   const [recommending, setRecommending] = useState(false)
   const [assigningId, setAssigningId] = useState<string | null>(null)
+  const watchStudyId = Form.useWatch('studyId', recommendForm)
+  const watchPatientName = Form.useWatch('patientName', recommendForm)
+  const recommendReady = !!(watchStudyId && watchPatientName)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -98,7 +101,13 @@ const SmartRoutePage: React.FC = () => {
   }
 
   const handleRecommend = async () => {
-    const values = await recommendForm.validateFields()
+    let values: { studyId: string; patientName: string; modality: string; bodyPart: string; patientStatus: string }
+    try {
+      values = await recommendForm.validateFields()
+    } catch {
+      message.warning('请填写检查号与患者姓名')
+      return
+    }
     setRecommending(true)
     try {
       const res = await smartRouteApi.recommend({ modality: values.modality, bodyPart: values.bodyPart, patientStatus: values.patientStatus })
@@ -189,7 +198,7 @@ const SmartRoutePage: React.FC = () => {
               <Form.Item name="bodyPart" label="部位"><Select options={[{ value: 'Chest', label: '胸部' }, { value: 'Brain', label: '脑部' }, { value: 'Abdomen', label: '腹部' }, { value: 'Any', label: '任意' }]} style={{ width: 110 }} /></Form.Item>
               <Form.Item name="patientStatus" label="患者状态"><Select options={[{ value: 'Inpatient', label: '住院' }, { value: 'Outpatient', label: '门诊' }, { value: 'Emergency', label: '急诊' }, { value: 'Any', label: '任意' }]} style={{ width: 110 }} /></Form.Item>
               <Form.Item>
-                <Button type="primary" icon={<UserCheck size={14} />} loading={recommending} onClick={handleRecommend}>获取推荐医生</Button>
+                <Button type="primary" icon={<UserCheck size={14} />} loading={recommending} disabled={!recommendReady} onClick={handleRecommend}>获取推荐医生</Button>
               </Form.Item>
               <Form.Item>
                 <Button icon={<Zap size={14} />} disabled={recommendations.length === 0} onClick={() => handleAssign()}>一键分配(推荐Top1)</Button>

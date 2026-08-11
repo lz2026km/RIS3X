@@ -47,7 +47,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>24小时趋势</div>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 16 }}>24小时趋势</div>
         <ChartContainer height={80} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
             <defs>
@@ -368,7 +368,7 @@ function HipaaExportPanel({
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
         <FileCheck size={18} color={PRIMARY} />
-        <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>日志导出与报告</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: PRIMARY }}>日志导出与报告</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -489,7 +489,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Timer size={16} />操作类型耗时排名
         </div>
         <div style={{ maxHeight: 300, overflow: 'auto' }}>
@@ -519,7 +519,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />耗时分布
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -551,7 +551,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />24小时平均耗时趋势
         </div>
         <ChartContainer height={200} state={durationTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -685,7 +685,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />操作类型分布
         </div>
         <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -702,7 +702,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} />用户操作量 TOP10
         </div>
         <ChartContainer height={220} state={userStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -717,7 +717,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />24小时操作趋势
         </div>
         <ChartContainer height={180} state={hourStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
@@ -732,7 +732,7 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={16} />操作高峰时段热力图
         </div>
         <div style={{ overflow: 'auto' }}>

@@ -36,7 +36,8 @@ export default function RuleConfigPanel() {
     setLoading(true)
     try {
       const res = await cdsApi.evaluateRule(evalParams)
-      setResults(res.results)
+      // [W2-B-3] 对齐 ApiResponse 契约: results 位于 data 下
+      setResults(res.data?.results ?? [])
     } finally {
       setLoading(false)
     }

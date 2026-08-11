@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Monitor, Package, Wrench, AlertTriangle, Search, Plus,
   X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save
@@ -33,6 +33,18 @@ const maintenanceRecords = [
   { date: '2026-02-25', device: 'CT003', type: '评估报告', cost: 0, vendor: '设备科', result: '建议报废' },
   { date: '2026-02-10', device: 'DR001', type: '常规保养', cost: 12000, vendor: '飞利浦维修站', result: '合格' },
   { date: '2026-01-28', device: 'DS002', type: '故障维修', cost: 22000, vendor: '飞利浦维修站', result: '已修复' },
+]
+
+// [G005 Wave4A P1] 维保计划回退数据 (真实 API 不可用时展示)
+const mockMaintPlans = [
+  { id: 'MP-M1', deviceId: 'MR001', deviceName: 'MRI Prisma 3T', type: '故障维修', maintenanceDate: '2026-05-05', assignee: '西门子维修站', estimatedCost: 32000, status: 'PENDING', content: '故障维修' },
+  { id: 'MP-M2', deviceId: 'MR002', deviceName: 'MRI Signa Premier', type: '故障维修', maintenanceDate: '2026-05-05', assignee: 'GE维修站', estimatedCost: 45000, status: 'PENDING', content: '故障维修' },
+  { id: 'MP-M3', deviceId: 'CT001', deviceName: 'CT SOMATOM Force', type: '常规保养', maintenanceDate: '2026-05-20', assignee: '西门子维修站', estimatedCost: 28000, status: 'PENDING', content: '常规保养' },
+  { id: 'MP-M4', deviceId: 'MG002', deviceName: '乳腺钼靶 Nuance', type: '常规保养', maintenanceDate: '2026-05-08', assignee: 'GE维修站', estimatedCost: 18000, status: 'PENDING', content: '常规保养' },
+  { id: 'MP-M5', deviceId: 'DS001', deviceName: 'DSA Artis Zee', type: '常规保养', maintenanceDate: '2026-05-25', assignee: '西门子维修站', estimatedCost: 35000, status: 'PENDING', content: '常规保养' },
+  { id: 'MP-M6', deviceId: 'CT002', deviceName: 'CT SOMATOM Spark', type: '常规保养', maintenanceDate: '2026-06-15', assignee: '西门子维修站', estimatedCost: 22000, status: 'PENDING', content: '常规保养' },
+  { id: 'MP-M7', deviceId: 'DR001', deviceName: 'DR/CR 系统', type: '常规保养', maintenanceDate: '2026-06-20', assignee: '飞利浦维修站', estimatedCost: 12000, status: 'PENDING', content: '常规保养' },
+  { id: 'MP-M8', deviceId: 'MG001', deviceName: '乳腺钼靶 Pristina', type: '常规保养', maintenanceDate: '2026-05-30', assignee: 'GE维修站', estimatedCost: 16000, status: 'PENDING', content: '常规保养' },
 ]
 
 // ===== 样式 =====
@@ -128,11 +140,143 @@ export default function EquipmentLifecyclePage() {
   const [selectedMaintRecord, setSelectedMaintRecord] = useState<typeof maintenanceRecords[0] | null>(null)
   const [apiLifecycleData, setApiLifecycleData] = useState<EquipmentLifecycle[]>([])
 
+  // [G005 Wave4A P1] 维保计划/记录真实化: deviceMgmtApi 优先, 失败回退 mock (演示徽标)
+  const [maintPlans, setMaintPlans] = useState<any[]>([])
+  const [maintPlansReal, setMaintPlansReal] = useState(false)
+  const [maintRecords, setMaintRecords] = useState<any[]>([])
+  const [maintRecordsReal, setMaintRecordsReal] = useState(false)
+  const [maintEditForm, setMaintEditForm] = useState<{ id: string; deviceName: string; type: string; maintenanceDate: string; assignee: string; estimatedCost: number } | null>(null)
+
+  const loadMaintPlans = useCallback(async () => {
+    try {
+      const res = await deviceMgmtApi.listMaintenancePlans()
+      if (res.success && res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        setMaintPlans(res.data.data)
+        setMaintPlansReal(true)
+        return
+      }
+      setMaintPlansReal(false)
+      setMaintPlans([])
+    } catch {
+      setMaintPlansReal(false)
+      setMaintPlans([])
+    }
+  }, [])
+
+  // 维保记录 = 已完成(COMPLETED)的维保计划 + 兜底 mock 记录
+  const loadMaintRecords = useCallback(async () => {
+    try {
+      const res = await deviceMgmtApi.listMaintenancePlans({ status: 'COMPLETED' })
+      if (res.success && res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        setMaintRecords(res.data.data)
+        setMaintRecordsReal(true)
+        return
+      }
+      setMaintRecordsReal(false)
+      setMaintRecords([])
+    } catch {
+      setMaintRecordsReal(false)
+      setMaintRecords([])
+    }
+  }, [])
+
   useEffect(() => {
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
       if (res.success && res.data) setApiLifecycleData(res.data);
     }).catch((err) => { console.error('[F04]', err); });
-  }, []);
+    void loadMaintPlans()
+    void loadMaintRecords()
+  }, [loadMaintPlans, loadMaintRecords]);
+
+  // 维保计划操作: 确认完成 / 编辑 / 删除 (真实 API 优先, 失败回退本地)
+  const markPlanCompleted = async (id: string) => {
+    try {
+      const res = await deviceMgmtApi.updateMaintenancePlan(id, { status: 'COMPLETED' })
+      if (res.success) {
+        await loadMaintPlans()
+        await loadMaintRecords()
+        return
+      }
+    } catch { }
+    setMaintPlans(prev => prev.map(p => p.id === id ? { ...p, status: 'COMPLETED' } : p))
+  }
+  const deleteMaintPlan = async (id: string) => {
+    try {
+      const res = await deviceMgmtApi.deleteMaintenancePlan(id)
+      if (res.success) {
+        await loadMaintPlans()
+        return
+      }
+    } catch { }
+    setMaintPlans(prev => prev.filter(p => p.id !== id))
+  }
+  const saveMaintPlanEdit = async () => {
+    if (!maintEditForm) return
+    try {
+      const res = await deviceMgmtApi.updateMaintenancePlan(maintEditForm.id, {
+        deviceName: maintEditForm.deviceName,
+        type: maintEditForm.type,
+        maintenanceDate: maintEditForm.maintenanceDate,
+        assignee: maintEditForm.assignee,
+        estimatedCost: maintEditForm.estimatedCost,
+      })
+      if (res.success) {
+        await loadMaintPlans()
+        setMaintEditForm(null)
+        return
+      }
+    } catch { }
+    setMaintPlans(prev => prev.map(p => p.id === maintEditForm.id ? { ...p, ...maintEditForm } : p))
+    setMaintEditForm(null)
+  }
+
+  const daysUntil = (dateStr: string) => {
+    const diff = (new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    return Math.max(0, Math.ceil(diff))
+  }
+
+  // 维保计划展示行 (真实计划 / mock 计划)
+  const planRows: any[] = maintPlansReal && maintPlans.length > 0
+    ? maintPlans.map((p: any) => ({
+        id: p.id,
+        deviceId: p.deviceId,
+        name: p.deviceName ?? p.deviceId,
+        model: p.deviceName ?? p.deviceId,
+        type: p.type ?? '定期保养',
+        date: String(p.maintenanceDate).slice(0, 10),
+        days: daysUntil(String(p.maintenanceDate)),
+        vendor: p.assignee ?? '',
+        cost: typeof p.estimatedCost === 'number' ? p.estimatedCost : 0,
+        status: p.status ?? 'PENDING',
+        content: p.content ?? '',
+      }))
+    : mockMaintPlans.map((m: any) => ({
+        id: m.id,
+        deviceId: m.deviceId,
+        name: m.deviceName,
+        model: m.deviceName,
+        type: m.type,
+        date: String(m.maintenanceDate).slice(0, 10),
+        days: daysUntil(m.maintenanceDate),
+        vendor: m.assignee,
+        cost: m.estimatedCost,
+        status: m.status ?? 'PENDING',
+        content: m.content ?? '',
+      }))
+
+  // 维保记录展示行 (已完成计划 / mock 记录)
+  const recordRows: any[] = maintRecordsReal && maintRecords.length > 0
+    ? maintRecords.map((r: any) => ({
+        id: r.id,
+        device: r.deviceId,
+        name: r.deviceName ?? r.deviceId,
+        type: r.type ?? '常规保养',
+        cost: typeof r.estimatedCost === 'number' ? r.estimatedCost : 0,
+        vendor: r.assignee ?? '',
+        result: r.status === 'COMPLETED' ? '已完成' : '处理中',
+        date: String(r.completedAt ?? r.maintenanceDate).slice(0, 10),
+      }))
+    : maintenanceRecords.map((r) => ({ id: r.device + r.date, ...r }))
 
   // [G005 Wave2A P1] 真实数据优先: apiLifecycleData → 回退 mockDevices (演示徽标)
   const isApiData = apiLifecycleData.length > 0
@@ -176,13 +320,16 @@ export default function EquipmentLifecyclePage() {
     <div style={s.root}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <PageHeader title="放射科设备全生命周期管理" style={{ marginBottom: 24 }} />
-        {/* [G005 Wave2A P1] 数据来源徽标 */}
+        {/* [G005 Wave4A P1] 数据来源徽标 (按当前 Tab 数据源动态显示, 修复"顶部真实/Tab mock"矛盾) */}
         <span style={{
           fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10, marginBottom: 24,
-          background: isApiData ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-          color: isApiData ? '#15803d' : '#92400e'
+          background: (activeTab === '设备列表' ? isApiData : activeTab === '维保计划' ? maintPlansReal : maintRecordsReal)
+            ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+          color: (activeTab === '设备列表' ? isApiData : activeTab === '维保计划' ? maintPlansReal : maintRecordsReal)
+            ? '#15803d' : '#92400e'
         }}>
-          {isApiData ? '真实数据' : '演示数据'}
+          {(activeTab === '设备列表' ? isApiData : activeTab === '维保计划' ? maintPlansReal : maintRecordsReal)
+            ? '真实数据' : '演示数据'}
         </span>
       </div>
 
@@ -336,6 +483,9 @@ export default function EquipmentLifecyclePage() {
             <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowMaintPlanModal(true)}>
               <Plus size={16} /> 新建维保计划
             </button>
+            {!maintPlansReal && (
+              <span style={{ ...s.badge, ...s.badgeOrange }}>演示数据 (未接维保计划接口)</span>
+            )}
           </div>
           <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }}>
             <div style={s.alertTitle}>
@@ -343,28 +493,24 @@ export default function EquipmentLifecyclePage() {
               未来90天维保日历
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
-              2026年5月—7月维保计划（共 {mockDevices.filter(d => d.status !== '已报废').length} 台设备需维保）
+              {maintPlansReal
+                ? `共 ${planRows.length} 条维保计划 (来自设备维保服务)`
+                : `2026年5月—7月维保计划（共 ${mockDevices.filter(d => d.status !== '已报废').length} 台设备需维保）`}
             </div>
             <div style={{ overflowX: "auto" }}><table style={s.table}>
               <thead>
                 <tr>
-                  {['设备名称', '型号', '维保类型', '计划日期', '距今天数', '服务商', '费用', '操作'].map(h => (
+                  {['设备名称', '型号', '维保类型', '计划日期', '距今天数', '服务商', '费用', '状态', '操作'].map(h => (
                     <th key={h} style={s.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { name: 'MRI Prisma 3T', model: 'Prisma 3T', type: '故障维修', date: '2026-05-05', days: 5, vendor: '西门子维修站', cost: 32000 },
-                  { name: 'MRI Signa Premier', model: 'Signa Premier', type: '故障维修', date: '2026-05-05', days: 5, vendor: 'GE维修站', cost: 45000 },
-                  { name: 'CT SOMATOM Force', model: 'SOMATOM Force', type: '常规保养', date: '2026-05-20', days: 20, vendor: '西门子维修站', cost: 28000 },
-                  { name: '乳腺钼靶 Nuance', model: 'Senographe Nuance', type: '常规保养', date: '2026-05-08', days: 8, vendor: 'GE维修站', cost: 18000 },
-                  { name: 'DSA Artis Zee', model: 'Artis Zee', type: '常规保养', date: '2026-05-25', days: 25, vendor: '西门子维修站', cost: 35000 },
-                  { name: 'CT SOMATOM Spark', model: 'SOMATOM Spark', type: '常规保养', date: '2026-06-15', days: 46, vendor: '西门子维修站', cost: 22000 },
-                  { name: 'DR/CR 系统', model: 'DigitalDiagnost', type: '常规保养', date: '2026-06-20', days: 51, vendor: '飞利浦维修站', cost: 12000 },
-                  { name: '乳腺钼靶 Pristina', model: 'Senographe Pristina', type: '常规保养', date: '2026-05-30', days: 30, vendor: 'GE维修站', cost: 16000 },
-                ].map((m, i) => (
-                  <tr key={i}>
+                {planRows.length === 0 && (
+                  <tr><td colSpan={9} style={s.empty}>暂无维保计划，可点击"新建维保计划"创建</td></tr>
+                )}
+                {planRows.map((m, i) => (
+                  <tr key={m.id ?? i}>
                     <td style={s.td}><span style={{ fontWeight: 600 }}>{m.name}</span></td>
                     <td style={s.td}>{m.model}</td>
                     <td style={s.td}><StatusBadge status={m.type === '故障维修' ? '维保中' : '在用'} /></td>
@@ -374,10 +520,20 @@ export default function EquipmentLifecyclePage() {
                         {m.days <= 7 ? `⚠ ${m.days}天后` : `${m.days}天后`}
                       </span>
                     </td>
-                    <td style={s.td}>{m.vendor}</td>
-                    <td style={s.td}>¥{m.cost.toLocaleString()}</td>
+                    <td style={s.td}>{m.vendor || '-'}</td>
+                    <td style={s.td}>{m.cost > 0 ? `¥${Number(m.cost).toLocaleString()}` : '-'}</td>
                     <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(mockDevices.find(d => d.name === m.name) || null)}>确认</button>
+                      <StatusBadge status={m.status === 'COMPLETED' ? '已报废' : m.status === 'CANCELLED' ? '已报废' : '在用'} />
+                    </td>
+                    <td style={s.td}>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
+                          onClick={() => void markPlanCompleted(m.id)}>确认</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
+                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}>编辑</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px', color: '#dc2626' }}
+                          onClick={() => void deleteMaintPlan(m.id)}>删除</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -393,6 +549,9 @@ export default function EquipmentLifecyclePage() {
             <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowAdd(true)}>
               <Plus size={16} /> 记录维保
             </button>
+            {!maintRecordsReal && (
+              <span style={{ ...s.badge, ...s.badgeOrange }}>演示数据 (未接维保记录接口)</span>
+            )}
           </div>
           <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
@@ -403,18 +562,21 @@ export default function EquipmentLifecyclePage() {
               </tr>
             </thead>
             <tbody>
-              {maintenanceRecords.map((r, i) => {
+              {recordRows.length === 0 && (
+                <tr><td colSpan={8} style={s.empty}>暂无维保记录</td></tr>
+              )}
+              {recordRows.map((r, i) => {
                 const dev = mockDevices.find(d => d.id === r.device)
                 return (
-                  <tr key={i}>
+                  <tr key={r.id ?? i}>
                     <td style={s.td}>{r.date}</td>
                     <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)' }}>{r.device}</span></td>
-                    <td style={s.td}>{dev?.name || r.device}</td>
+                    <td style={s.td}>{r.name || dev?.name || r.device}</td>
                     <td style={s.td}><StatusBadge status={r.type === '故障维修' ? '维保中' : '在用'} /></td>
-                    <td style={s.td}>{r.cost > 0 ? `¥${r.cost.toLocaleString()}` : '-'}</td>
+                    <td style={s.td}>{r.cost > 0 ? `¥${Number(r.cost).toLocaleString()}` : '-'}</td>
                     <td style={s.td}>{r.vendor}</td>
                     <td style={s.td}>
-                      <span style={{ ...s.badge, ...(r.result === '合格' || r.result === '已修复' ? s.badgeGreen : r.result === '建议报废' ? s.badgeRed : s.badgeOrange) }}>
+                      <span style={{ ...s.badge, ...(r.result === '合格' || r.result === '已修复' || r.result === '已完成' ? s.badgeGreen : r.result === '建议报废' ? s.badgeRed : s.badgeOrange) }}>
                         {r.result}
                       </span>
                     </td>
@@ -431,10 +593,10 @@ export default function EquipmentLifecyclePage() {
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>维保成本汇总</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
               {[
-                { label: '累计维保费用', value: `¥${maintenanceRecords.filter(r => r.cost > 0).reduce((s, r) => s + r.cost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: '累计维保费用', value: `¥${recordRows.filter(r => Number(r.cost) > 0).reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: '累计配件费用', value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: '设备总价值', value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
-                { label: '维保费用占设备比', value: `${Math.round(maintenanceRecords.reduce((s, r) => s + r.cost, 0) / totalValue * 100)}%`, color: '#d97706' },
+                { label: '维保费用占设备比', value: `${totalValue > 0 ? Math.round(recordRows.reduce((s, r) => s + Number(r.cost), 0) / totalValue * 100) : 0}%`, color: '#d97706' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' as const }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
@@ -585,6 +747,44 @@ export default function EquipmentLifecyclePage() {
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowMaintPlanModal(false)}>取消</button>
               <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowMaintPlanModal(false)}>保存计划</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [G005 Wave4A P1] 编辑维保计划弹窗 */}
+      {maintEditForm && (
+        <div style={s.modal} onClick={() => setMaintEditForm(null)}>
+          <div style={s.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={s.modalTitle}>编辑维保计划 — {maintEditForm.deviceName}</div>
+              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setMaintEditForm(null)}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { label: '设备名称', key: 'deviceName' as const, placeholder: '请输入设备名称' },
+                { label: '维保类型', key: 'type' as const, placeholder: '常规保养/故障维修/配件更换' },
+                { label: '计划日期', key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
+                { label: '服务商', key: 'assignee' as const, placeholder: '请输入服务商名称' },
+                { label: '预估费用', key: 'estimatedCost' as const, placeholder: '请输入预估费用（元）' },
+              ].map(field => (
+                <div key={field.key} style={s.detailItem}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
+                  <input
+                    type={field.key === 'maintenanceDate' ? 'date' : field.key === 'estimatedCost' ? 'number' : 'text'}
+                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }}
+                    value={String(maintEditForm[field.key])}
+                    onChange={e => {
+                      const v = field.key === 'estimatedCost' ? Number(e.target.value) : e.target.value
+                      setMaintEditForm({ ...maintEditForm, [field.key]: v })
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setMaintEditForm(null)}>取消</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void saveMaintPlanEdit()}><Save size={14} />保存修改</button>
             </div>
           </div>
         </div>

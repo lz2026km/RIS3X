@@ -338,7 +338,7 @@ export default function ServiceManagement() {
             <label style={s.label}>语言偏好</label>
             <select value={prefs.language} onChange={e => setPrefs(p => ({ ...p, language: e.target.value as 'zh-CN' | 'en' }))} style={s.select}>
               <option value="zh-CN">中文</option>
-              <option value="en">English</option>
+              <option value="en">英文</option>
             </select>
           </div>
           <button

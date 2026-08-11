@@ -92,8 +92,13 @@ export const reportApi = {
     api.post<{ queued: boolean; downloadUrl?: string; format?: string }>(`/reports/${id}/export`, { format }),
 
   // [W2-3] 导出真实化: 轮询导出任务状态
+  // [v3.0.6.11-88 P0] 对齐后端派生形状 { status, exportedAt?, fileUrl? } (MSW 兼容 downloadUrl 旧字段)
   exportStatus: (id: string) =>
-    api.get<{ status: string; format?: string; downloadUrl?: string; queuedAt?: string }>(`/reports/${id}/export-status`),
+    api.get<{ status: string; format?: string; downloadUrl?: string; fileUrl?: string; exportedAt?: string; queuedAt?: string }>(`/reports/${id}/export-status`),
+
+  // [v3.0.6.11-88 P0] 导出文件下载: 走 api.getBlob (带 Authorization 头, 后端 GET /reports/export-files/:fileName)
+  downloadExportFile: (fileName: string) =>
+    api.getBlob<Blob>(`/reports/export-files/${encodeURIComponent(fileName)}`),
 
   // [W4-B] 批量报告导出: 创建任务 + 轮询状态
   batchExport: (ids: string[], format: string = 'pdf') =>

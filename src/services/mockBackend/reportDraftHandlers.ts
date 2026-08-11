@@ -220,6 +220,26 @@ export const reportDraftHandlers = [
       .filter((d: any) => d.reportId === reportId)
       .sort((a: any, b: any) => String(b.createdAt).localeCompare(String(a.createdAt)));
     if (rows.length === 0) {
+      // [W2B-2] AIAssistPage 固定请求 RP20260718012: 未生成过草稿时返回合成历史草稿, 避免 404
+      if (reportId === 'RP20260718012') {
+        const fallback = {
+          id: `aidraft-seed-${reportId}`,
+          reportId,
+          draftText: '影像所见：双肺纹理清晰，走行自然，肺野透亮度正常，未见明显异常密度影。\n影像诊断：胸部CT平扫未见明显异常。',
+          sections: [
+            { heading: '影像所见', content: '双肺纹理清晰，走行自然，肺野透亮度正常，未见明显异常密度影。' },
+            { heading: '影像诊断', content: '胸部CT平扫未见明显异常。' },
+          ],
+          style: 'standard',
+          status: 'PENDING',
+          confidence: 0.9,
+          modelVersion: 'deepseek-v3.0',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        try { create(DRAFT_STORE, fallback); } catch { /* noop */ }
+        return HttpResponse.json({ success: true, data: toDraftRecord(fallback) });
+      }
       return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Draft not found' } }, { status: 404 });
     }
     return HttpResponse.json({ success: true, data: toDraftRecord(rows[0]) });

@@ -21,6 +21,15 @@ const IOL_TYPE_LABEL: Record<string, string> = {
 
 const IOL_STATUS_LABEL: Record<string, string> = { in_stock: '在库', reserved: '预留', implanted: '已植入', expired: '过期' }
 
+// [G005 Wave5] 接触镜类型中文化 (RGP/Scleral/Soft/OK/Hybrid)
+const LENS_TYPE_LABEL: Record<string, string> = {
+  RGP: '硬性透气',
+  Scleral: '巩膜镜',
+  Soft: '软性镜',
+  OK: 'OK 塑形镜',
+  Hybrid: '混合镜',
+}
+
 export const MaterialsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('iol');
   // IOL
@@ -303,7 +312,7 @@ export const MaterialsPage: React.FC = () => {
               pagination={lensPagination.pagination}
               columns={[
                 { title: '品牌', dataIndex: 'brand' },
-                { title: '类型', dataIndex: 'type', render: (t) => <Tag color={t === 'OK' ? 'magenta' : t === 'RGP' ? 'blue' : 'green'}>{t}</Tag> },
+                { title: '类型', dataIndex: 'type', render: (t) => <Tag color={t === 'OK' ? 'magenta' : t === 'RGP' ? 'blue' : 'green'}>{LENS_TYPE_LABEL[t] ?? t}</Tag> },
                 { title: '系列', dataIndex: 'series' },
                 { title: 'BC', dataIndex: 'bc' },
                 { title: 'DIA', dataIndex: 'dia' },
@@ -315,7 +324,7 @@ export const MaterialsPage: React.FC = () => {
                   render: (_, l) => (
                     <Space>
                       <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => setLensModal({ type: 'update', data: { ...l } })}>编辑</Button>
-                      <Button type="link" size="small" onClick={() => setLensModal({ type: 'fitting', data: { id: l.id, patientId: 'P000001' } })}>试戴</Button>
+                      <Button type="link" size="small" onClick={() => setLensModal({ type: 'fitting', data: { id: l.id, patientId: patientOptions[0]?.value ?? '' } })}>试戴</Button>
                       <Button type="link" danger size="small" icon={<Trash2 size={12} />} onClick={() => handleLensDelete(l.id)}>删</Button>
                     </Space>
                   ),
@@ -444,7 +453,7 @@ export const MaterialsPage: React.FC = () => {
           <Form layout="vertical" size="small">
             <Row gutter={8}>
               <Col span={12}><Form.Item label="品牌"><Input value={lensModal.data.brand} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, brand: e.target.value } })} /></Form.Item></Col>
-              <Col span={12}><Form.Item label="类型"><Select value={lensModal.data.type} onChange={v => setLensModal({ ...lensModal, data: { ...lensModal.data, type: v } })} options={['RGP','Scleral','Soft','OK','Hybrid'].map(t => ({value:t,label:t}))} /></Form.Item></Col>
+              <Col span={12}><Form.Item label="类型"><Select value={lensModal.data.type} onChange={v => setLensModal({ ...lensModal, data: { ...lensModal.data, type: v } })} options={['RGP','Scleral','Soft','OK','Hybrid'].map(t => ({value:t,label:LENS_TYPE_LABEL[t] ?? t}))} /></Form.Item></Col>
               <Col span={12}><Form.Item label="系列"><Input value={lensModal.data.series} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, series: e.target.value } })} /></Form.Item></Col>
               <Col span={12}><Form.Item label="供应商"><Input value={lensModal.data.supplier} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, supplier: e.target.value } })} /></Form.Item></Col>
               <Col span={8}><Form.Item label="BC (mm)"><InputNumber value={lensModal.data.bc} onChange={v => setLensModal({ ...lensModal, data: { ...lensModal.data, bc: v } })} step={0.1} style={{ width: '100%' }} /></Form.Item></Col>

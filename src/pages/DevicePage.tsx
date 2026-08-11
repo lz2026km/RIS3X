@@ -329,7 +329,7 @@ function AETitleConfigPanel() {
           background: C.white, borderRadius: 12, padding: 16,
           border: `1px solid ${C.border}`, maxHeight: 520, overflowY: 'auto'
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Shield size={14} style={{ color: C.accent }} /> 应用实体名列表（{aeConfigs.length}）
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -395,7 +395,7 @@ function AETitleConfigPanel() {
           background: C.white, borderRadius: 12, padding: 16,
           border: `1px solid ${C.border}`
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Settings2 size={14} style={{ color: C.accent }} /> 应用实体名配置概览
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -470,7 +470,7 @@ function QATestPlannerPanel() {
 
       {activeQATab === 'plans' && (
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Activity size={14} style={{ color: C.accent }} /> QA/QC 测试计划列表
           </div>
           <div style={{ overflowX: 'auto' }}>
@@ -518,7 +518,7 @@ function QATestPlannerPanel() {
 
       {activeQATab === 'calendar' && (
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <CalendarDays size={14} style={{ color: C.warning }} /> QA/QC 测试日历
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
@@ -556,7 +556,7 @@ function QATestPlannerPanel() {
       {activeQATab === 'compliance' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={14} style={{ color: C.accent }} /> 设备合格率
             </div>
             <ChartContainer height={200} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无合规数据">
@@ -573,7 +573,7 @@ function QATestPlannerPanel() {
             </ChartContainer>
           </div>
           <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={14} style={{ color: C.accent }} /> 合格率详情
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1010,7 +1010,7 @@ export default function DevicePage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         {/* 实时状态看板 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Monitor size={14} style={{ color: C.accent }} /> 设备运行状态看板
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1037,7 +1037,7 @@ export default function DevicePage() {
 
         {/* 使用时长统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Timer size={14} style={{ color: C.info }} /> 使用时长统计
           </div>
           <ChartContainer height={140}>
@@ -1062,7 +1062,7 @@ export default function DevicePage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         {/* 故障率统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={14} style={{ color: C.danger }} /> 故障率统计
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1086,7 +1086,7 @@ export default function DevicePage() {
 
         {/* 开机率统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Power size={14} style={{ color: C.success }} /> 开机率统计
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1110,7 +1110,7 @@ export default function DevicePage() {
 
       {/* 今日检查量排名 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={14} style={{ color: C.accent }} /> 今日检查量排名
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1285,7 +1285,7 @@ export default function DevicePage() {
 
       {/* 维保费用统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <DollarSign size={14} style={{ color: C.success }} /> 维保费用统计（月度）
         </div>
         <ChartContainer height={200} state={MAINTENANCE_COST_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无维保费用数据">
@@ -1348,7 +1348,7 @@ export default function DevicePage() {
 
       {/* 7天检查量趋势 LineChart */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={14} style={{ color: C.accent }} /> 7天检查量趋势
         </div>
         <ChartContainer height={220} state={WEEKLY_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无7天趋势数据">
@@ -1367,7 +1367,7 @@ export default function DevicePage() {
 
       {/* 使用时段热力图 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart2 size={14} style={{ color: C.info }} /> 使用时段分布（周一~周日，8-18时）
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1403,7 +1403,7 @@ export default function DevicePage() {
 
       {/* 故障代码分类 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginTop: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertCircle size={14} style={{ color: C.danger }} /> 故障代码分类与MTBF分析
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
@@ -1538,7 +1538,7 @@ export default function DevicePage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         {/* 检查量趋势图 LineChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <TrendingUp size={14} style={{ color: C.accent }} /> 检查量趋势（近6月）
           </div>
           <ChartContainer height={200} state={examTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无检查量趋势数据">
@@ -1558,7 +1558,7 @@ export default function DevicePage() {
 
         {/* 设备利用率饼图 PieChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
             <PieChartIcon size={14} style={{ color: C.warning }} /> 设备利用率分布（按类型）
           </div>
           <ChartContainer height={200} state={utilizationPieData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无利用率分布数据">
@@ -1583,7 +1583,7 @@ export default function DevicePage() {
 
       {/* 故障停机损失统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertCircle size={14} style={{ color: C.danger }} /> 故障停机损失统计
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
@@ -1629,7 +1629,7 @@ export default function DevicePage() {
 
       {/* ROI 投资回报率计算器 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginTop: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <DollarSign size={14} style={{ color: C.success }} /> ROI 投资回报率分析
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1720,7 +1720,7 @@ export default function DevicePage() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             borderRadius: '16px 16px 0 0'
           }}>
-            <div style={{ fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Plus size={16} /> 添加维保计划
             </div>
             <button onClick={() => setShowMaintForm(false)} style={{
@@ -1820,7 +1820,7 @@ export default function DevicePage() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             borderRadius: '16px 16px 0 0'
           }}>
-            <div style={{ fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Plus size={16} /> 新增设备
             </div>
             <button onClick={() => setShowDeviceModal(false)} style={{

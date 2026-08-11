@@ -6327,9 +6327,13 @@ export default function InsuranceAuditPage() {
                 btn.innerHTML = "⏳ 添加中...";
                 btn.disabled = true;
                 await new Promise((r) => setTimeout(r, 1500));
-                const rules = JSON.parse(
-                  localStorage.getItem("g005_insurance_rules") || "[]",
-                );
+                const rules = (() => {
+                  try {
+                    return JSON.parse(
+                      localStorage.getItem("g005_insurance_rules") || "[]",
+                    )
+                  } catch { return [] }
+                })();
                 rules.push({
                   id: Date.now(),
                   examType: "CT",

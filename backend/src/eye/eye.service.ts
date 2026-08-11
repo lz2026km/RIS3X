@@ -77,6 +77,13 @@ const SEED_EYE_REFERRALS = [
   { id: 'REF-10002', patientId: 'PEYE-007', patientName: '孙浩', referringDoctor: '张明远', referringDept: '眼科', referredTo: '神经内科', referredDept: '神经内科', reason: '视野缺损待排查', diagnosis: '视野缺损待排查', urgency: 'emergent', status: 'accepted', createdAt: '2026-06-29T14:00:00.000Z', completedAt: '2026-06-30T10:00:00.000Z', response: '已安排头颅 MRI' },
 ]
 
+// [G005 Wave4A P1] IOL 计算记录 seed + 内存 store (IolCalculatorPage 提交到病历)
+const SEED_IOL_CALCULATIONS = [
+  { id: 'IOL-CALC-SEED-001', patientId: 'PEYE-005', patientName: '陈杰', eyeSide: 'OD', surgeon: '张明远', formula: 'recommended', iolPower: 21.5, iolModel: 'PanOptix TFNT00', al: 24.05, k1: 43.2, k2: 43.8, acd: 3.2, createdAt: '2026-06-28T12:05:00.000Z' },
+  { id: 'IOL-CALC-SEED-002', patientId: 'PEYE-003', patientName: '张伟', eyeSide: 'OS', surgeon: '李慧敏', formula: 'recommended', iolPower: 22.0, iolModel: 'AcrySof IQ SN60WF', al: 23.6, k1: 44.1, k2: 44.6, acd: 3.05, createdAt: '2026-07-02T15:30:00.000Z' },
+]
+const iolCalcRecords: any[] = [...SEED_IOL_CALCULATIONS]
+
 // ── [G005 W1-A] 眼科在用孤儿: 视力/眼压记录 + 危急值 + 视野 + KPI (内存 seed, 风格与 eyeHandlers.ts 一致) ──
 
 const SEED_EYE_VISION_RECORDS = [
@@ -327,6 +334,22 @@ export class EyeService {
 
   generateReport(data: { studyId: string; template?: string }) {
     return { message: 'Report generated', data }
+  }
+
+  // ── [G005 Wave4A P1] IOL 计算记录 (内存 + seed, IolCalculatorPage 提交到病历) ──
+
+  async saveIolCalculation(data: Record<string, unknown>) {
+    const record = {
+      id: `IOL-CALC-${Date.now()}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+    }
+    iolCalcRecords.unshift(record)
+    return { success: true, data: record }
+  }
+
+  async listIolCalculations() {
+    return { success: true, data: iolCalcRecords }
   }
 
   // ── [G005-P1] 核心 5 个在用孤儿 (PACS/AI/EMR/Report) ──

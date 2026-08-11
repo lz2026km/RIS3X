@@ -5,7 +5,6 @@ import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } fr
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
 import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
-import { Text, Video } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
 
 // [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
@@ -26,6 +25,9 @@ export const ConsentEducationPage: React.FC = () => {
   const [uploadModal, setUploadModal] = useState(false);
   const [viewMaterial, setViewMaterial] = useState<EducationMaterialDto | null>(null);
   const [viewConsent, setViewConsent] = useState<ConsentRecord | null>(null);
+  // [v3.0.6.11-88 Round10] 宣教材料编辑 (PATCH /education-materials/:id)
+  const [editingMaterial, setEditingMaterial] = useState<EducationMaterialDto | null>(null);
+  const [materialEditForm] = Form.useForm();
   const [sentMaterials, setSentMaterials] = useState<Set<string>>(new Set());
   const [consentForm] = Form.useForm();
   const [materialForm] = Form.useForm();
@@ -70,8 +72,8 @@ export const ConsentEducationPage: React.FC = () => {
     setError('');
     try {
       const [consentRes, materialRes] = await Promise.all([
-        consentEducationApi.listConsents(),
-        consentEducationApi.listMaterials(),
+        consentEducationApi.listRecords(),
+        consentEducationApi.listEducationMaterials(),
       ]);
       if (consentRes.success && Array.isArray(consentRes.data)) setConsents(consentRes.data);
       else setError(consentRes.error?.message ?? '同意书加载失败');
@@ -100,7 +102,7 @@ export const ConsentEducationPage: React.FC = () => {
 
   const createConsent = async () => {
     const values = await consentForm.validateFields();
-    const res = await consentEducationApi.createConsent({
+    const res = await consentEducationApi.createRecord({
       patient: values.patient,
       type: values.type,
       procedure: values.procedure,
@@ -116,11 +118,8 @@ export const ConsentEducationPage: React.FC = () => {
   };
 
   const signConsent = async (record: ConsentRecord) => {
-    const res = await consentEducationApi.updateConsent(record.id, {
-      status: 'signed',
-      signedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
-      witness: 'Dr. System',
-    });
+    // [v3.0.6.11-88 Round10] 签署走新路径 POST /records/:id/sign (后端 signConsent)
+    const res = await consentEducationApi.signRecord(record.id, 'Dr. System');
     if (res.success) {
       setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed', signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System' } : c));
       message.success('签署完成');
@@ -157,6 +156,39 @@ export const ConsentEducationPage: React.FC = () => {
     pending: consents.filter((c) => c.status === 'pending').length,
     signed: consents.filter((c) => c.status === 'signed').length,
     refused: consents.filter((c) => c.status === 'refused').length,
+  };
+
+  // [v3.0.6.11-88 Round10] 宣教材料编辑: 打开编辑 Modal 并回填表单
+  const openEditMaterial = (m: EducationMaterialDto) => {
+    setEditingMaterial(m);
+    materialEditForm.setFieldsValue({
+      title: m.title,
+      category: m.category,
+      lang: m.lang,
+      format: m.format,
+      pages: m.pages,
+      summary: m.summary ?? '',
+    });
+  };
+
+  const submitEditMaterial = async () => {
+    if (!editingMaterial) return;
+    const values = await materialEditForm.validateFields();
+    const res = await consentEducationApi.updateEducationMaterial(editingMaterial.id, {
+      title: values.title,
+      category: values.category,
+      lang: values.lang,
+      format: values.format,
+      pages: values.pages ?? 1,
+      summary: values.summary,
+    });
+    if (res.success) {
+      setMaterials((prev) => prev.map((x) => x.id === editingMaterial.id ? { ...x, ...res.data } : x));
+      message.success('宣教资料已更新');
+      setEditingMaterial(null);
+    } else {
+      message.error(res.error?.message ?? '更新失败');
+    }
   };
 
   return (
@@ -243,6 +275,7 @@ export const ConsentEducationPage: React.FC = () => {
               render: (_, r: EducationMaterialDto) => (
                 <Space>
                   <Button size="small" icon={<Eye size={10} />} onClick={() => setViewMaterial(r)}>查看</Button>
+                  <Button size="small" onClick={() => openEditMaterial(r)}>编辑</Button>
                   {sentMaterials.has(r.id)
                     ? <Tag color="green">已发送</Tag>
                     : <Button size="small" icon={<Send size={10} />} onClick={() => sendToPatient(r)}>发送患者</Button>}
@@ -301,6 +334,29 @@ export const ConsentEducationPage: React.FC = () => {
           >
             <Button icon={<UploadIcon size={12} />} block>{materialFile ? `已选附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)` : '选择附件（可选）'}</Button>
           </Upload>
+        </Form>
+      </Modal>
+
+      <Modal title={`编辑宣教资料 - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} onCancel={() => setEditingMaterial(null)} okText="保存" width={520}>
+        <Form form={materialEditForm} layout="vertical">
+          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
+            <Input placeholder="如：CT 检查须知" />
+          </Form.Item>
+          <Form.Item name="category" label="类别" rules={[{ required: true, message: '请选择类别' }]}>
+            <Select options={CATEGORIES.map((c) => ({ value: c, label: c }))} />
+          </Form.Item>
+          <Form.Item name="lang" label="语言">
+            <Select options={[{ value: 'zh-CN', label: '中文' }, { value: 'en-US', label: 'English' }]} />
+          </Form.Item>
+          <Form.Item name="format" label="格式">
+            <Select options={['PDF', 'PDF + Video', 'Video', 'Text'].map((f) => ({ value: f, label: f }))} />
+          </Form.Item>
+          <Form.Item name="pages" label="页数">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="summary" label="摘要">
+            <Input.TextArea rows={2} placeholder="资料内容摘要" />
+          </Form.Item>
         </Form>
       </Modal>
 

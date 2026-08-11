@@ -171,7 +171,7 @@ export default function AIReportDraftPage() {
     } catch (e: any) {
       message.warning(`已跳转到报告页 · ${e?.message || String(e)}`);
     }
-    navigate('/report-write-v2/' + selectedReportId);
+    navigate(`/reports/v3-write?reportId=${encodeURIComponent(selectedReportId)}`);
   };
 
   // 保存为草稿

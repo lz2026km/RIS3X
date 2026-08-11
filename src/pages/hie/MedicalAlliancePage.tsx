@@ -91,7 +91,10 @@ const MedicalAlliancePage: React.FC = () => {
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>医疗联合体管理</h1>
-      <p style={{ color: '#666', marginBottom: 24 }}>医联体成员管理、资源共享与转诊协作</p>
+      <p style={{ color: '#666', marginBottom: 24 }}>医联体成员管理、资源共享与转诊协作
+        {/* [v3.0.6.11-88 Round10] /regional/alliance-referrals 后端未实现, MSW 演示数据 */}
+        <span style={{ marginLeft: 12, fontSize: 12, padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 10 }}>转诊数据: MSW 演示</span>
+      </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb', paddingBottom: 8 }}>
         {(['members', 'referrals', 'dashboard'] as const).map(tab => (

@@ -24,23 +24,32 @@ const Hl7SiuPage: React.FC = () => {
   const [sending, setSending] = useState(false)
   const [lastValues, setLastValues] = useState<any>(null)
 
-  const handleGenerate = () => {
-    form.validateFields().then(values => {
-      const [start, end] = values.timeRange || []
-      const msg = [
-        'MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|' + new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '||SIU^S12|SIU-' + Date.now() + '|P|2.5',
-        'PID|1||' + values.patientId + '^^^HOSPITAL||' + values.patientName + '||' + (values.sex || 'M') + '||||||',
-        'SCH|1||' + values.doctorId + '^^^HOSPITAL^DR||' + values.doctorName + '|' + values.department + '|||' + (start ? start.format('YYYYMMDDHHmmss') : '') + '|' + (end ? end.format('YYYYMMDDHHmmss') : ''),
-      ].filter(Boolean).join('\r')
-      setSiuResult({
-        controlId: 'SIU-' + Date.now(),
-        messageType: 'SIU^S12',
-        message: msg,
-        bytes: Buffer.byteLength ? Buffer.byteLength(msg, 'utf8') : msg.length,
-      })
-      setLastValues(values)
-      message.success('SIU^S12 消息已生成')
+  const handleGenerate = async () => {
+    if (!form.getFieldValue('patientId')) {
+      message.warning('请输入患者ID')
+      return
+    }
+    let values: any
+    try {
+      values = await form.validateFields()
+    } catch {
+      message.warning('请完善必填信息（患者ID/姓名/医生/科室/排班时间）')
+      return
+    }
+    const [start, end] = values.timeRange || []
+    const msg = [
+      'MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|' + new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '||SIU^S12|SIU-' + Date.now() + '|P|2.5',
+      'PID|1||' + values.patientId + '^^^HOSPITAL||' + values.patientName + '||' + (values.sex || 'M') + '||||||',
+      'SCH|1||' + values.doctorId + '^^^HOSPITAL^DR||' + values.doctorName + '|' + values.department + '|||' + (start ? start.format('YYYYMMDDHHmmss') : '') + '|' + (end ? end.format('YYYYMMDDHHmmss') : ''),
+    ].filter(Boolean).join('\r')
+    setSiuResult({
+      controlId: 'SIU-' + Date.now(),
+      messageType: 'SIU^S12',
+      message: msg,
+      bytes: Buffer.byteLength ? Buffer.byteLength(msg, 'utf8') : msg.length,
     })
+    setLastValues(values)
+    message.success('SIU^S12 消息已生成')
   }
 
   // 发送：调用后端 POST /hl7/siu 生成并投递 SIU 消息

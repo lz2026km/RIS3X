@@ -1,7 +1,7 @@
 /**
  * Multi-Site / Multi-Campus Dashboard - 多站点 / 多院区管理
  * 阶段 1.5 修复: 之前是 3 KPI + 占位文字
- * [W3-A] 数据源改为 regionalApi (/regional/sites*, MSW 演示数据, 后端待实现), 失败时回退 site.ts 静态数据
+ * [W3-A] 数据源改为 regionalApi (/regional/sites*, 后端 regional.service.listSites 已实现), 失败时回退 site.ts 静态数据
  */
 import { usePagination } from "../hooks/usePagination";
 import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "../services/api/regionalApi";
@@ -148,7 +148,7 @@ export default function MultiSiteDashboardPage() {
 
       {error && <Alert type="warning" showIcon message="加载失败，已回退到本地静态数据" description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
       {!error && usingFallback && <Alert type="info" showIcon message="数据来源：演示数据（接口未返回站点，回退本地 site.ts）" style={{ marginBottom: 16 }} />}
-      {!error && !usingFallback && !loading && <Alert type="success" showIcon message="数据来源：/regional/sites（MSW 演示数据，后端待实现）" style={{ marginBottom: 16 }} />}
+      {!error && !usingFallback && !loading && <Alert type="success" showIcon message="数据来源：/regional/sites（后端 regional.service 已实现）" style={{ marginBottom: 16 }} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title="总站点" value={sites.length} prefix={<Building2 size={16} />} styles={{ content: {  color: "#1e40af"  } }} loading={loading} /></Card></Col>

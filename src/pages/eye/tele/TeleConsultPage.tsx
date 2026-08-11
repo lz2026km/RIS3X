@@ -244,6 +244,8 @@ export const TeleConsultPage: React.FC = () => {
         <Tag color="purple">v3.0.6.8-41</Tag>
         <Tag color="blue">WebRTC + 5G 边缘</Tag>
         <Tag color="green">OK镜 / 角膜塑形</Tag>
+        {/* [v3.0.6.11-88 Round10] /eye/tele/* /eye/optometry/* 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
 
       <Tabs

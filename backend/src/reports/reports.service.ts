@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
 import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
@@ -181,6 +182,30 @@ export class ReportsService {
     if (!report) throw new NotFoundException('Report not found')
     await this.queue.addReportExport({ reportId: id, format, userId })
     return { queued: true }
+  }
+
+  /**
+   * [v3.0.6.11-88 P0] 单报告导出状态: 从 Report 派生
+   * - 有 EXPORT_COMPLETED 审计记录 → completed + fileUrl (export-files 下载端点)
+   * - 无导出记录 → processing (ReportPage 轮询直至 completed)
+   */
+  async exportStatus(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const latest = await this.prisma.auditLog.findFirst({
+      where: { action: 'EXPORT_COMPLETED', resource: 'report-export', resourceId: id },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (latest) {
+      const detail = (latest.detail ?? {}) as { filePath?: string }
+      const fileName = detail.filePath ? path.basename(detail.filePath) : `report-${id}.html`
+      return {
+        status: 'completed',
+        exportedAt: latest.createdAt?.toISOString() ?? null,
+        fileUrl: `/reports/export-files/${encodeURIComponent(fileName)}`,
+      }
+    }
+    return { status: 'processing' }
   }
 
   /** [W4-B] 批量报告导出: 创建任务 + 入队, 返回 taskId (前端轮询状态) */

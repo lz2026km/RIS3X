@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-87 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-88 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-87 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-88 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -189,7 +189,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-87]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-88]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -318,6 +318,9 @@ export const translations: Translations = {
     "nav.deviceOps": "设备运维",
     "nav.hrOperations": "人事运营",
     "nav.opsDashboard": "运营看板",
+    // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
+    "nav.kpiWall": "科室 KPI 大屏",
+    "nav.vesselAnalysis": "血管分析工作台",
     "nav.cdsManagement": "CDS管理",
     "nav.cdsStatistics": "CDS统计",
     "nav.cdsGuidelines": "CDS 指南库",
@@ -2059,7 +2062,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-87 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-88 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2230,7 +2233,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-87]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-88]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -2359,6 +2362,9 @@ export const translations: Translations = {
     "nav.deviceOps": "Device Operations",
     "nav.hrOperations": "HR Operations",
     "nav.opsDashboard": "Operations Dashboard",
+    // [v3.0.6.11-88] Wave6A Department KPI wall + Vessel analysis
+    "nav.kpiWall": "Department KPI Wall",
+    "nav.vesselAnalysis": "Vessel Analysis Workbench",
     "nav.cdsManagement": "CDS Management",
     "nav.cdsStatistics": "CDS Statistics",
     "nav.cdsGuidelines": "CDS Guidelines",
@@ -3864,7 +3870,6 @@ export const translations: Translations = {
     "v3stats.exportPdf": "Export PDF",
     "v3stats.exportExcel": "Export Excel",
     "v3stats.exportCsv": "Export CSV",
-    "v3stats.statistics": "Statistics",
     // [Sprint 3] F07-F12 page i18n (en-US)
     "v3qcai.title": "AI Image QC V2",
     "v3qcai.subtitle": "Artifact/Positioning/Exposure Detailed Scoring",

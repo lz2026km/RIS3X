@@ -335,6 +335,8 @@ const COLLECTIONS = [
   'value5step',
   // [v3.0.6.11-61] 环境式 AI 报告草稿
   'ai_report_drafts',
+  // [v3.0.6.11-88 W2B-2] 会诊评论 (CollaborationPage /consultations/:id/comments)
+  'consultation_comments',
   // [W1-5] 导出审批申请 (exportApprovalHandlers 使用)
   'exportApprovals',
   // [W1-5] 收费项目 (financeHandlers 使用)

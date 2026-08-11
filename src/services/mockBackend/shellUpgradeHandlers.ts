@@ -43,6 +43,28 @@ for (const s of MOCK_STUDIES) {
 }
 
 const dicomWebHandlers = [
+  // [W2-B-3] DICOMweb 能力声明 (DicomWebPage dicomWebApi.capabilities)
+  http.get(`${API_BASE}/dicom-web/capabilities`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({
+      success: true,
+      data: {
+        qidors: true,
+        wadors: true,
+        stowrs: true,
+        upsrs: false,
+        version: '3.0.2.2',
+        qido: { search: true, limit: 100, maxResults: 10000 },
+        wado: { retrieve: true, metadata: true, frame: true, bulkData: false },
+        stow: { store: true, scp: true, scu: false },
+        transferSyntaxes: [
+          '1.2.840.10008.1.2.1',
+          '1.2.840.10008.1.2',
+          '1.2.840.10008.1.2.4.70',
+        ],
+      },
+    });
+  }),
   http.get(`${API_BASE}/dicom-web/studies`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);

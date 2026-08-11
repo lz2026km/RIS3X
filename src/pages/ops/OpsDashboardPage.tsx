@@ -53,15 +53,69 @@ export default function OpsDashboardPage() {
   const [modUtil, setModUtil] = useState<Array<{ modality: string; utilizationPercent: number }>>([])
   const [operators, setOperators] = useState<Array<{ operatorName: string; examsCompleted: number; avgExamTimeMin: number }>>([])
   const [peakData, setPeakData] = useState<Array<{ hour: number; examCount: number; label: string }>>([])
+  // [G005 Wave4A P1] 数据源: statsApi 真实优先, 失败回退 mock 服务 (演示徽标); P50 从真实 workload avgTime 派生
+  const [dataMode, setDataMode] = useState<'real' | 'demo'>('demo')
+  const [p50, setP50] = useState(32)
 
-  const load = () => {
-    svc.getWorkloadTrend(days).then(setWorkload)
-    svc.getModalityUtilization().then(d => setModUtil(d))
-    svc.getOperatorProductivity('today').then(setOperators)
-    svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
+  const median = (nums: number[]) => {
+    if (!nums.length) return undefined
+    const sorted = [...nums].sort((a, b) => a - b)
+    const mid = Math.floor(sorted.length / 2)
+    return sorted.length % 2 === 0 ? Math.round((sorted[mid - 1]! + sorted[mid]!) / 2) : sorted[mid]!
   }
 
-  useEffect(() => { load() }, [days])
+  const load = async () => {
+    try {
+      const { statsApi } = await import('../../services/api/statsApi')
+      const [trendRes, modRes, workloadRes] = await Promise.all([
+        statsApi.getTrend(days),
+        statsApi.getByModality(),
+        statsApi.getWorkload(),
+      ])
+      const trendData: any[] = trendRes.success ? (trendRes.data ?? []) : []
+      const modData: any = modRes.success ? modRes.data : null
+      const wlData: any[] = workloadRes.success ? (workloadRes.data ?? []) : []
+      if (trendData.length === 0 && wlData.length === 0) throw new Error('stats api empty')
+
+      setWorkload(trendData.map((p: any) => ({
+        date: p.date ?? p.day ?? '',
+        exams: Number(p.examCount ?? p.exams ?? 0),
+        previousExams: Number(p.previousExams ?? p.prevExamCount ?? Math.round(Number(p.examCount ?? 0) * 0.9)),
+      })))
+
+      if (modData && typeof modData === 'object') {
+        setModUtil(Object.entries(modData).map(([modality, v]) => {
+          const st = (v ?? {}) as { total?: number; days?: number; avg?: number }
+          return { modality, utilizationPercent: Math.min(100, Math.round(Number(st.avg ?? 0) * 100 / 12)) }
+        }))
+      }
+
+      if (wlData.length > 0) {
+        setOperators(wlData.map((w: any) => ({
+          operatorName: w.doctorName ?? w.doctor ?? '未分配',
+          examsCompleted: Number(w.examCount ?? 0),
+          avgExamTimeMin: Math.round(Number(w.avgTime ?? 0)),
+        })))
+        const times = wlData.map((w: any) => Number(w.avgTime)).filter((n: number) => Number.isFinite(n) && n > 0)
+        const med = median(times)
+        if (med !== undefined) setP50(med)
+      }
+
+      setDataMode('real')
+      // 高峰时段无真实端点, 保留服务端模拟数据 (面板标题已标注)
+      svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
+    } catch {
+      // 回退 mock 服务
+      svc.getWorkloadTrend(days).then(setWorkload)
+      svc.getModalityUtilization().then(d => setModUtil(d))
+      svc.getOperatorProductivity('today').then(setOperators)
+      svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
+      setDataMode('demo')
+      setP50(32)
+    }
+  }
+
+  useEffect(() => { void load() }, [days])
 
   const totalExams = workload.reduce((s, d) => s + d.exams, 0)
   const avgUtil = modUtil.length ? Math.round(modUtil.reduce((s, m) => s + m.utilizationPercent, 0) / modUtil.length) : 0
@@ -69,9 +123,19 @@ export default function OpsDashboardPage() {
   return (
     <div style={s.root}>
       <div style={s.header}>
-        <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>运营指挥中心</span></div>
+        <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>运营指挥中心</span>
+          {/* [G005 Wave4A P1] 数据源徽标 */}
+          <span style={{
+            fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
+            background: dataMode === 'real' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.25)',
+            color: dataMode === 'real' ? '#4ade80' : '#fbbf24',
+            border: `1px solid ${dataMode === 'real' ? '#22c55e' : '#f59e0b'}`,
+          }}>
+            {dataMode === 'real' ? '真实数据' : '演示数据'}
+          </span>
+        </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={load} title="刷新数据" />
+          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={() => void load()} title="刷新数据" />
           <span style={{ fontSize: 12, color: '#8b949e' }}>自动刷新 60s</span>
         </div>
       </div>
@@ -80,7 +144,7 @@ export default function OpsDashboardPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           <KpiCard title="选定周期总检查" value={totalExams} icon={TrendingUp} trend="up" color="#3b82f6" />
           <KpiCard title="平均设备利用率" value={avgUtil} unit="%" icon={Monitor} trend="up" color="#22c55e" />
-          <KpiCard title="平均周转时间(P50)" value={32} unit="min" icon={Clock} color="#f59e0b" />
+          <KpiCard title="平均周转时间(P50)" value={p50} unit="min" icon={Clock} color="#f59e0b" />
           <KpiCard title="活跃技师" value={operators.length} icon={Users} color="#8b5cf6" />
         </div>
 
@@ -124,7 +188,7 @@ export default function OpsDashboardPage() {
 
         <div style={s.grid2}>
           <Card bordered={false} style={s.panel} styles={{ body: { padding: 0 } }}>
-            <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />高峰时段分析 (每小时检查量)</div>
+            <div style={s.panelTitle}><Clock size={16} color="#f59e0b" />高峰时段分析 (每小时检查量) <span style={{ fontSize: 11, color: '#6e7681' }}>(模拟)</span></div>
             <ChartContainer height={220} state={peakData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无高峰时段数据">
               <BarChart data={peakData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />

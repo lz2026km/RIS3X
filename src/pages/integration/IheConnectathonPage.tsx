@@ -167,7 +167,7 @@ export const IheConnectathonPage: React.FC = () => {
             <Button
               size="small"
               icon={<BookOpen className="w-3 h-3" />}
-              onClick={() => navigate("/integration/ihe")}
+              onClick={() => navigate("/ihe/manager")}
             >
               查看 Profile
             </Button>

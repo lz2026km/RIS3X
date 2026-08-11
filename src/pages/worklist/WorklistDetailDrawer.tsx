@@ -849,7 +849,7 @@ export function DetailDrawer({
       >
         {/* [G005 Wave1A W9] 状态流转: worklistApi (POST /worklist/:id/checkin|start|complete|cancel) */}
         <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-          <ArrowLeftRight size={12} /> 状态流转 (worklistApi)
+          <ArrowLeftRight size={12} /> 状态流转
         </div>
         <div
           style={{

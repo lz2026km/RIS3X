@@ -118,4 +118,16 @@ export const mobileHandlers = [
     }
     return HttpResponse.json({ success: true, token: body.token.trim(), platform: body.platform ?? 'android', total: 1 })
   }),
+
+  // [W2-B-3] 推送通知列表 (MobilePushPage raw fetch, 返回 { success, data: [...] })
+  http.get(`${API_BASE}/mobile/push-notifications`, async () => {
+    await delay(120)
+    const items = [
+      { id: 'PN-001', title: '危急值提醒: 主动脉夹层可疑', body: 'CT-001 患者张志刚 胸部CT提示主动脉夹层可疑, 请立即处理', tag: 'cv-001', topic: 'critical', severity: 'critical', read: false, receivedAt: new Date(Date.now() - 30 * 60000).toISOString().replace('T', ' ').substring(0, 16) },
+      { id: 'PN-002', title: '报告已完成: 腰椎MRI', body: '患者刘芳 报告已签发, 请查看', tag: 'rp-001', topic: 'report', severity: 'info', read: false, receivedAt: new Date(Date.now() - 90 * 60000).toISOString().replace('T', ' ').substring(0, 16) },
+      { id: 'PN-003', title: '检查预约提醒', body: '患者赵敏 明日 09:30 胸部DR检查', tag: 'ap-001', topic: 'appointment', severity: 'info', read: true, receivedAt: new Date(Date.now() - 3600_000).toISOString().replace('T', ' ').substring(0, 16) },
+      { id: 'PN-004', title: '系统维护通知', body: '本周六 02:00-04:00 系统升级维护', tag: 'sy-001', topic: 'system', severity: 'warning', read: true, receivedAt: new Date(Date.now() - 7200_000).toISOString().replace('T', ' ').substring(0, 16) },
+    ]
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } })
+  }),
 ]

@@ -100,6 +100,8 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
           <Tag color="purple">Romexis 对标</Tag>
+          {/* [v3.0.6.11-88 Round10] /dental/volume/* 后端未实现, MSW 演示数据 */}
+          <Tag color="orange">演示数据 (MSW)</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}><Card size="small"><Statistic title="总 CBCT" value={studies.length} /></Card></Col>

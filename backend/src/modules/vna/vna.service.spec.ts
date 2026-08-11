@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { VnaService } from './vna.service'
 
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
@@ -186,6 +186,66 @@ describe('VnaService', () => {
       expect(ct?.seriesCount).toBe(1)
       expect(ct?.modality).toBe('CT')
       expect(ct?.storageSource).toBe('database')
+    })
+  })
+
+  describe('G-26 lifecycle (ILM tiered storage, memory + seed)', () => {
+    let service: VnaService
+
+    beforeEach(() => {
+      service = new VnaService(makePrisma())
+    })
+
+    it('seeds hot/warm/cold policies with retention days', () => {
+      const policies = service.listLifecyclePolicies()
+      expect(policies.map((p) => p.tier).sort()).toEqual(['cold', 'hot', 'warm'])
+      const hot = policies.find((p) => p.tier === 'hot')
+      expect(hot?.retentionDays).toBe(0)
+      expect(hot?.storageSource).toBe('memory')
+    })
+
+    it('create/update/delete lifecycle policy (CRUD)', () => {
+      const created = service.createLifecyclePolicy({ tier: 'cold', retentionDays: 730, description: '研究数据冷归档' })
+      expect(created.id).toMatch(/^lp-/)
+      expect(created.objectCount).toBeGreaterThanOrEqual(0)
+      const updated = service.updateLifecyclePolicy(created.id, { retentionDays: 1095 })
+      expect(updated.retentionDays).toBe(1095)
+      expect(service.deleteLifecyclePolicy(created.id)).toEqual({ deleted: true })
+      expect(() => service.updateLifecyclePolicy(created.id, { retentionDays: 1 })).toThrow(NotFoundException)
+      expect(() => service.createLifecyclePolicy({ tier: 'hot', retentionDays: -1 })).toThrow(BadRequestException)
+    })
+
+    it('migrateObject moves tier and records event; unknown object throws', async () => {
+      const created = await service.createObject({ name: 'ilm.txt', mimeType: 'text/plain', size: 10 })
+      expect(created.tier).toBe('hot')
+      const result = await service.migrateObject(created.id, 'cold', '长期保存')
+      expect(result.object.tier).toBe('cold')
+      expect(result.event.action).toBe('migrate')
+      expect(result.event.fromTier).toBe('hot')
+      expect(result.event.toTier).toBe('cold')
+      const events = service.listLifecycleEvents()
+      expect(events[0]?.objectId).toBe(created.id)
+      // 幂等: 同层迁移不改变 tier
+      const same = await service.migrateObject(created.id, 'cold')
+      expect(same.event.fromTier).toBe('cold')
+      await expect(service.migrateObject('vna-missing', 'cold')).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('objectCount per tier reflects migrations; invalid tier rejected', async () => {
+      const a = await service.createObject({ name: 'a.txt', mimeType: 'text/plain', size: 1 })
+      await service.createObject({ name: 'b.txt', mimeType: 'text/plain', size: 1 })
+      await service.migrateObject(a.id, 'warm')
+      const policies = service.listLifecyclePolicies()
+      const warm = policies.find((p) => p.tier === 'warm')
+      expect(warm?.objectCount).toBeGreaterThanOrEqual(1)
+      await expect(service.migrateObject(a.id, 'archive' as never)).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('lifecycle events seeded + limit applied', () => {
+      const events = service.listLifecycleEvents(2)
+      expect(events).toHaveLength(2)
+      expect(events[0]?.storageSource).toBe('memory')
+      expect(['migrate', 'expire', 'policy-applied']).toContain(events[0]?.action)
     })
   })
 })

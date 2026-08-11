@@ -64,3 +64,53 @@ describe('ReportsService.list (default_page_size 消费者)', () => {
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 8 }))
   })
 })
+
+// [v3.0.6.11-88 P0] exportStatus: 从 EXPORT_COMPLETED 审计记录派生状态/fileUrl
+describe('ReportsService.exportStatus', () => {
+  it('returns completed + fileUrl when an EXPORT_COMPLETED audit log exists', async () => {
+    const auditLog = {
+      findFirst: jest.fn().mockResolvedValue({
+        createdAt: new Date('2026-08-11T10:00:00Z'),
+        detail: { filePath: 'C:/data/exports/reports/report-RPT-1-1723.html' },
+      }),
+    }
+    const prisma = makePrisma({
+      report: { findUnique: jest.fn().mockResolvedValue({ id: 'RPT-1' }) },
+      auditLog,
+    })
+    const service = new ReportsService(
+      prisma as never,
+      makeQueue(),
+      makeSystemConfig({}),
+    )
+
+    const res = await service.exportStatus('RPT-1')
+
+    expect(res.status).toBe('completed')
+    expect(res.exportedAt).toBe('2026-08-11T10:00:00.000Z')
+    expect(res.fileUrl).toContain('/reports/export-files/')
+    expect(res.fileUrl).toContain('report-RPT-1-1723.html')
+    expect(auditLog.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ action: 'EXPORT_COMPLETED', resourceId: 'RPT-1' }) }),
+    )
+  })
+
+  it('returns processing when no export record exists', async () => {
+    const prisma = makePrisma({
+      report: { findUnique: jest.fn().mockResolvedValue({ id: 'RPT-2' }) },
+      auditLog: { findFirst: jest.fn().mockResolvedValue(null) },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    const res = await service.exportStatus('RPT-2')
+
+    expect(res).toEqual({ status: 'processing' })
+  })
+
+  it('throws NotFoundException for unknown report', async () => {
+    const prisma = makePrisma({ auditLog: { findFirst: jest.fn() } })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    await expect(service.exportStatus('nope')).rejects.toThrow('Report nope not found')
+  })
+})

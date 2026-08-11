@@ -164,28 +164,37 @@ export default function ReportPage() {
     for (const r of list) {
       try {
         const res = await reportApi.exportReport(r.id, 'pdf');
-        const dlUrl = res.data?.downloadUrl;
-        if (!res.success || !dlUrl) { failed++; continue; }
+        if (!res.success) { failed++; continue; }
         let ready = false;
         for (let i = 0; i < 15; i++) {
           await new Promise(s => setTimeout(s, 300));
           try {
             const statusRes = await reportApi.exportStatus(r.id);
-            if (statusRes.success && statusRes.data?.status) { ready = true; break; }
+            if (statusRes.success && statusRes.data?.status && String(statusRes.data.status).toLowerCase() === 'completed') {
+              // [v3.0.6.11-88 P0] 下载走 reportApi.downloadExportFile (Authorization 头),
+              // 文件地址优先取后端 fileUrl, MSW 兼容旧 downloadUrl 字段
+              const fileUrl = statusRes.data.fileUrl ?? statusRes.data.downloadUrl;
+              if (fileUrl) {
+                const fileName = decodeURIComponent(fileUrl.split('/').pop() ?? `${r.reportId || r.id}.pdf`);
+                const blobRes = await reportApi.downloadExportFile(fileName);
+                if (blobRes.success && blobRes.data) {
+                  const blob = blobRes.data as unknown as Blob;
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${r.reportId || r.id}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  ready = true;
+                }
+              }
+              if (ready) break;
+            }
           } catch { /* 未就绪, 继续轮询 */ }
         }
         if (!ready) { failed++; continue; }
-        const blobRes = await fetch(dlUrl);
-        if (!blobRes.ok) { failed++; continue; }
-        const blob = await blobRes.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${r.reportId || r.id}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
         done++;
       } catch { failed++; }
       setExportModal(m => ({ ...m, message: `导出中... 成功 ${done} 份 / 失败 ${failed} 份` }));

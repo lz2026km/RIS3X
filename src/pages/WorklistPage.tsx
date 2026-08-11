@@ -1150,7 +1150,7 @@ export default function WorklistPage() {
   ])
   useNavigationShortcuts([
     { sequence: ['g', 'w'], action: () => { window.location.href = '/worklist' }, description: '导航到工作列表' },
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exam' }, description: '导航到检查' },
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams' }, description: '导航到检查' },
     { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: '导航到报告' },
   ])
 

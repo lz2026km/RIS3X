@@ -52,7 +52,7 @@ export default function CdsStatisticsPage() {
   const chartData = useMemo(() => {
     if (!overview) return []
     const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
-    return overview.dailyUsage.slice(-days)
+    return (overview.dailyUsage ?? []).slice(-days)
   }, [period, overview])
 
   const maxVal = Math.max(...chartData.map(d => d.suggestions), 1)
@@ -123,7 +123,7 @@ export default function CdsStatisticsPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>常被覆盖规则 TOP 3</div>
-            {overview.topOverriddenRules.map((r, i) => (
+            {overview.topOverriddenRules?.map((r, i) => (
               <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid #21262d' : 'none' }}>
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
@@ -139,7 +139,7 @@ export default function CdsStatisticsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>热门临床路径</div>
-            {overview.topPathways.map((p, i) => (
+            {overview.topPathways?.map((p, i) => (
               <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid #21262d' : 'none' }}>
                 <RouteIcon color="#22c55e" />
                 <div style={{ flex: 1 }}>

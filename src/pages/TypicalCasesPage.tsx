@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Card } from 'antd'
+import { Card, Popconfirm, message } from 'antd'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 2,207 字符)
 // ============================================================
 // G005 放射科RIS系统 - 典型病例库 v1.0.0
@@ -14,7 +14,7 @@ import {
   Download, AlertTriangle, Share2, ThumbsUp,
   Image as ImageIcon, Bookmark, BookmarkCheck,
   Activity, Scan, Monitor, BookOpen, List,
-  FilterX, Award, Settings, RefreshCw, Edit3
+  FilterX, Award, Settings, RefreshCw, Edit3, Trash2, FolderOpen
 } from 'lucide-react'
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
@@ -169,8 +169,8 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
 // ============================================================
 // 子组件：病例卡片
 // ============================================================
-interface CaseCardProps { caseData: TypicalCase; onView: (c: TypicalCase) => void; isAdmin?: boolean }
-const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
+interface CaseCardProps { caseData: TypicalCase; onView: (c: TypicalCase) => void; onEdit?: (c: TypicalCase) => void; onDelete?: (c: TypicalCase) => void; isAdmin?: boolean }
+const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete, isAdmin }) => {
   const { t } = useTranslation('v3report')
   const [isHovered, setIsHovered] = useState(false)
   const getModalityIcon = (modality: string) => <Scan size={14} style={{ color: MODALITY_COLORS[modality] || '#64748b' }} />
@@ -238,14 +238,23 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       </div>
 
       {/* 底部统计 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${COLORS.border}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Eye size={14} /> {caseData.viewCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Heart size={14} /> {caseData.likeCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><MessageSquare size={14} /> {caseData.discussions.length}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${COLORS.border}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Eye size={14} /> {caseData.viewCount}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Heart size={14} /> {caseData.likeCount}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><MessageSquare size={14} /> {caseData.discussions.length}</span>
+          </div>
+          <div style={{ fontSize: 12, color: COLORS.textLight, display: 'flex', alignItems: 'center', gap: 6 }}>{caseData.createdAt}
+            {isAdmin && (
+              <>
+                <span role="button" onClick={(e) => { e.stopPropagation(); onEdit?.(caseData) }} style={{ cursor: 'pointer', color: COLORS.info, fontWeight: 600 }}><Edit3 size={13} /></span>
+                <Popconfirm title={t('deleteCaseConfirm')} onConfirm={(e) => { e?.stopPropagation?.(); onDelete?.(caseData) }} onCancel={(e) => e?.stopPropagation?.()} okText={t('formSave') ? '删除' : '删除'} cancelText="取消">
+                  <span role="button" onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer', color: COLORS.danger, fontWeight: 600 }}><Trash2 size={13} /></span>
+                </Popconfirm>
+              </>
+            )}
+          </div>
         </div>
-        <div style={{ fontSize: 12, color: COLORS.textLight }}>{caseData.createdAt}</div>
-      </div>
     </Card>
   )
 }
@@ -554,15 +563,28 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 }
 
 // ============================================================
-// 子组件：新增病例表单
+// 子组件：新增/编辑病例表单
 // ============================================================
-interface AddCaseFormProps { visible: boolean; onClose: () => void; onSubmit: (data: Partial<TypicalCase>) => void }
-const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit }) => {
+interface AddCaseFormProps { visible: boolean; onClose: () => void; onSubmit: (data: Partial<TypicalCase>) => void; initial?: Partial<TypicalCase> | null }
+const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit, initial }) => {
   const { t } = useTranslation('v3report')
   const [formData, setFormData] = useState({
     patientName: '', age: '', gender: '男', examType: 'CT', examName: '',
     bodyPart: '头颅', disease: '', diagnosis: '', findings: '', impression: '', tags: '', teaching: false,
   })
+
+  // [G005 2B] 打开时重置表单 (新增清空 / 编辑预填)
+  useEffect(() => {
+    if (visible) {
+      setFormData({
+        patientName: initial?.patientName ?? '', age: initial?.age != null ? String(initial.age) : '',
+        gender: initial?.gender ?? '男', examType: initial?.examType ?? 'CT', examName: initial?.examName ?? '',
+        bodyPart: initial?.bodyPart ?? '头颅', disease: initial?.disease ?? '', diagnosis: initial?.diagnosis ?? '',
+        findings: initial?.findings ?? '', impression: initial?.impression ?? '',
+        tags: Array.isArray(initial?.tags) ? initial.tags.join(',') : '', teaching: initial?.teaching ?? false,
+      })
+    }
+  }, [visible, initial])
 
   const handleSubmit = () => {
     onSubmit({
@@ -581,7 +603,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
       <Card bordered={false} style={{ width: '90%', maxWidth: 700, maxHeight: '90vh', background: COLORS.white, borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }} styles={{ body: { padding: 0 } }}>
         <div style={{ padding: '16px 20px', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.primary, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>{t('addCaseFormTitle')}</h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>{initial ? t('editCaseFormTitle') : t('addCaseFormTitle')}</h3>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, cursor: 'pointer' }}>
             <X size={18} />
           </button>
@@ -625,6 +647,7 @@ export default function TypicalCasesPage() {
   const [selectedCase, setSelectedCase] = useState<TypicalCase | null>(null)
   const [detailVisible, setDetailVisible] = useState(false)
   const [addFormVisible, setAddFormVisible] = useState(false)
+  const [editingCase, setEditingCase] = useState<TypicalCase | null>(null)
   const [isAdmin, setIsAdmin] = useState(true)
   // [G005 Wave4B] G-04 在线考试模式
   const [examModeVisible, setExamModeVisible] = useState(false)
@@ -694,6 +717,14 @@ export default function TypicalCasesPage() {
   const [bodyPartFilter, setBodyPartFilter] = useState<string[]>([])
   const [diseaseFilter, setDiseaseFilter] = useState<string[]>([])
   const [tagFilter, setTagFilter] = useState<string[]>([])
+  // [G005 2B] 分类筛选 (后端 /typical-cases/categories 按检查项目聚合)
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([])
+  const [categories, setCategories] = useState<Array<{ name: string; count: number }>>([])
+  useEffect(() => {
+    void typicalCaseApi.getCategories().then(res => {
+      if (res.success && Array.isArray(res.data)) setCategories(res.data)
+    }).catch(() => { /* 后端不可用 → 无分类筛选 */ })
+  }, [])
   const [teachingOnly, setTeachingOnly] = useState(false)
   const [sortBy, setSortBy] = useState<'latest' | 'hottest' | 'mostLiked'>('latest')
   const [showFilters, setShowFilters] = useState(true)
@@ -720,6 +751,7 @@ export default function TypicalCasesPage() {
     if (bodyPartFilter.length > 0) result = result.filter(c => bodyPartFilter.includes(c.bodyPart))
     if (diseaseFilter.length > 0) result = result.filter(c => diseaseFilter.includes(c.disease))
     if (tagFilter.length > 0) result = result.filter(c => c.tags.some(t => tagFilter.includes(t)))
+    if (categoryFilter.length > 0) result = result.filter(c => categoryFilter.includes(c.examName || c.examType))
     if (teachingOnly) result = result.filter(c => c.teaching)
     switch (sortBy) {
       case 'hottest': result.sort((a, b) => b.viewCount - a.viewCount); break
@@ -727,7 +759,7 @@ export default function TypicalCasesPage() {
       default: result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
     return result
-  }, [cases, searchKeyword, examTypeFilter, bodyPartFilter, diseaseFilter, tagFilter, teachingOnly, sortBy])
+  }, [cases, searchKeyword, examTypeFilter, bodyPartFilter, diseaseFilter, tagFilter, teachingOnly, sortBy, categoryFilter])
 
   const stats = useMemo(() => ({
     total: cases.length, teaching: cases.filter(c => c.teaching).length,
@@ -737,7 +769,8 @@ export default function TypicalCasesPage() {
   }), [cases])
 
   const handleViewDetail = useCallback((c: TypicalCase) => { setSelectedCase(c); setDetailVisible(true) }, [])
-  const handleAddCase = useCallback((data: Partial<TypicalCase>) => {
+  // [G005 2B] 新建: 调后端 createCase, 失败回退本地新增
+  const handleAddCase = useCallback(async (data: Partial<TypicalCase>) => {
     const newCase: TypicalCase = {
       id: `TC${String(cases.length + 1).padStart(3, '0')}`, patientName: data.patientName || '', age: data.age || 0,
       gender: data.gender || '男', examType: data.examType || 'CT', examName: data.examName || '',
@@ -749,8 +782,39 @@ export default function TypicalCasesPage() {
       createdAt: new Date().toISOString().split('T')[0], createdBy: '当前用户',
       status: '编辑中', verified: false,
     }
+    try {
+      const res = await typicalCaseApi.createCase({ ...newCase, id: undefined })
+      if (res.success && res.data) {
+        const created = res.data as Partial<TypicalCase>
+        setCases(prev => [{ ...newCase, ...created }, ...prev])
+        message.success('病例已通过后端 API 创建')
+        return
+      }
+    } catch (e) { /* 后端不可用 → 本地回退 */ }
     setCases(prev => [newCase, ...prev])
-  }, [cases.length])
+    message.success('病例已创建 (本地回退, 后端不可用)')
+  }, [cases.length, t])
+
+  // [G005 2B] 编辑: 调后端 updateCase, 失败回退本地更新
+  const handleEditCase = useCallback(async (data: Partial<TypicalCase>) => {
+    if (!editingCase) return
+    try {
+      const res = await typicalCaseApi.updateCase(editingCase.id, data)
+      if (res.success) message.success('病例已通过后端 API 更新')
+    } catch (e) { /* 后端不可用 → 本地回退 */ }
+    setCases(prev => prev.map(c => c.id === editingCase.id ? { ...c, ...data, id: c.id } : c))
+    setEditingCase(null)
+  }, [editingCase])
+
+  // [G005 2B] 删除: 调后端 deleteCase, 失败仍本地移除并提示
+  const handleDeleteCase = useCallback(async (c: TypicalCase) => {
+    try {
+      const res = await typicalCaseApi.deleteCase(c.id)
+      if (!res.success) message.warning('后端删除失败，仅本地移除')
+    } catch (e) { message.warning('后端不可用，仅本地移除') }
+    setCases(prev => prev.filter(x => x.id !== c.id))
+    if (selectedCase?.id === c.id) { setSelectedCase(null); setDetailVisible(false) }
+  }, [selectedCase])
 
   const toggleArrayFilter = (arr: string[], setArr: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
     if (arr.includes(val)) setArr(arr.filter(v => v !== val))
@@ -758,10 +822,10 @@ export default function TypicalCasesPage() {
   }
 
   const clearFilters = () => {
-    setSearchKeyword(''); setExamTypeFilter([]); setBodyPartFilter([]); setDiseaseFilter([]); setTagFilter([]); setTeachingOnly(false)
+    setSearchKeyword(''); setExamTypeFilter([]); setBodyPartFilter([]); setDiseaseFilter([]); setTagFilter([]); setTeachingOnly(false); setCategoryFilter([])
   }
 
-  const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly
+  const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly || categoryFilter.length > 0
 
   return (
     <div style={{ minHeight: '100vh', background: COLORS.background }}>
@@ -794,7 +858,7 @@ export default function TypicalCasesPage() {
             <Award size={16} />考试模式
           </button>
           {isAdmin && (
-            <button onClick={() => setAddFormVisible(true)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => { setEditingCase(null); setAddFormVisible(true) }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Plus size={16} />{t('addCase')}
             </button>
           )}
@@ -805,7 +869,7 @@ export default function TypicalCasesPage() {
               btn.innerHTML = t('importing');
               btn.disabled = true;
               await new Promise(r => setTimeout(r, 1500));
-              const cases = JSON.parse(localStorage.getItem('g005_typical_cases') || '[]');
+              const cases = (() => { try { return JSON.parse(localStorage.getItem('g005_typical_cases') || '[]') } catch { return [] } })();
               cases.push({ id: `TC${Date.now()}`, importTime: new Date().toISOString() });
               localStorage.setItem('g005_typical_cases', JSON.stringify(cases));
               btn.innerHTML = t('importSuccess');
@@ -928,6 +992,21 @@ export default function TypicalCasesPage() {
               </div>
             </Accordion>
 
+            {/* [G005 2B] 病例分类 (后端 getCategories) */}
+            {categories.length > 0 && (
+              <Accordion title={t('caseCategory')} icon={<FolderOpen size={14} />} count={categoryFilter.length} defaultOpen={false}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {categories.map(cat => (
+                    <label key={cat.name} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 0' }}>
+                      <input type="checkbox" checked={categoryFilter.includes(cat.name)} onChange={() => toggleArrayFilter(categoryFilter, setCategoryFilter, cat.name)} style={{ width: 14, height: 14 }} />
+                      <span style={{ fontSize: 12, color: COLORS.text, flex: 1 }}>{cat.name}</span>
+                      <span style={{ fontSize: 12, color: COLORS.textMuted }}>{cat.count}</span>
+                    </label>
+                  ))}
+                </div>
+              </Accordion>
+            )}
+
             {/* 标签筛选 */}
             <Accordion title={t('tags')} icon={<Tag size={14} />} count={tagFilter.length} defaultOpen={false}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -988,7 +1067,7 @@ export default function TypicalCasesPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
               {filteredCases.map(caseItem => (
-                <CaseCard key={caseItem.id} caseData={caseItem} onView={handleViewDetail} isAdmin={isAdmin} />
+                <CaseCard key={caseItem.id} caseData={caseItem} onView={handleViewDetail} onEdit={(c) => { setEditingCase(c); setAddFormVisible(true) }} onDelete={(c) => void handleDeleteCase(c)} isAdmin={isAdmin} />
               ))}
             </div>
           )}
@@ -996,7 +1075,7 @@ export default function TypicalCasesPage() {
       </div>
 
       <CaseDetailDrawer caseData={selectedCase} visible={detailVisible} onClose={() => setDetailVisible(false)} isAdmin={isAdmin} />
-      <AddCaseForm visible={addFormVisible} onClose={() => setAddFormVisible(false)} onSubmit={handleAddCase} />
+      <AddCaseForm visible={addFormVisible} initial={editingCase} onClose={() => { setAddFormVisible(false); setEditingCase(null) }} onSubmit={editingCase ? (d) => void handleEditCase(d) : (d) => void handleAddCase(d)} />
       <TeachingExamModal visible={examModeVisible} cases={cases} onClose={() => setExamModeVisible(false)} />
     </div>
   )

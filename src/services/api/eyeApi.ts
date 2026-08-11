@@ -94,6 +94,13 @@ export const eyeApi = {
   getStudies: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/studies${buildQuery(params)}`),
   getStudy: (id: string) => api.get(`${EYE_API}/studies/${id}`),
+  // [v3.0.6.11-88 P0] eye studies CRUD (后端 eye.controller: POST /eye/studies, PUT/DELETE /eye/studies/:id,
+  //   GET /eye/patients/:patientId/studies) — 替换原指向不存在的 /eye/pacs/studies/by-patient/*
+  createStudy: (data: any) => api.post(`${EYE_API}/studies`, data),
+  updateStudy: (id: string, data: any) => api.put(`${EYE_API}/studies/${encodeURIComponent(id)}`, data),
+  deleteStudy: (id: string) => api.delete(`${EYE_API}/studies/${encodeURIComponent(id)}`),
+  getStudiesByPatient: (patientId: string) =>
+    api.get(`${EYE_API}/patients/${encodeURIComponent(patientId)}/studies`),
   // [G005 W1-A] 危急值 (FfaViewerPage 在用) / 视野检查 (VisualFieldPage 在用)
   getCriticalValues: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/pacs/critical-values${buildQuery(params)}`),
@@ -103,8 +110,6 @@ export const eyeApi = {
     api.get(`${EYE_API}/pacs/studies/by-modality/${modality}`),
   getStudiesByLaterality: (side: "OD" | "OS" | "OU") =>
     api.get(`${EYE_API}/pacs/studies/by-laterality/${side}`),
-  getStudiesByPatient: (patientId: string) =>
-    api.get(`${EYE_API}/pacs/studies/by-patient/${patientId}`),
   getSeries: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/pacs/series${buildQuery(params)}`),
   getSeriesById: (id: string) => api.get(`${EYE_API}/pacs/series/${id}`),
@@ -271,6 +276,11 @@ export const eyeApi = {
       ? api.post(`${EYE_API}/iol/calculate/kane`, body)
       : api.post(`${EYE_API}/iol/calculate/barrett`, body)
   },
+  // [v3.0.6.11-88 P0] IOL 计算记录 (IolCalculatorPage 提交到病历; 后端 POST /eye/iol/calculations 内存+seed)
+  saveIolCalculation: (data: Record<string, any>) =>
+    api.post(`${EYE_API}/iol/calculations`, data),
+  listIolCalculations: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/iol/calculations${buildQuery(params)}`),
   // ===== IOL 库存 (后端 eye.controller: /eye/iol/inventory*) =====
   // [G005 Wave1A P0] 低库存 / 即将过期 / 出库 / 调拨 / 调整 (MaterialsPage 在用)
   getIolInventory: (params?: Record<string, any>) =>
@@ -293,7 +303,10 @@ export const eyeApi = {
   getReports: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/reports${buildQuery(params)}`),
   getReport: (id: string) => api.get(`${EYE_API}/report/reports/${id}`),
-  createReport: (data: any) => api.post(`${EYE_API}/report/reports`, data),
+  // [v3.0.6.11-88 P0] createReport 路径错位修复: 原 /eye/report/reports (仅 MSW 有)
+  //   → 后端真实 POST /eye/reports (eye.controller generateReport, GenerateReportSchema: { studyId, template? })
+  createReport: (data: { studyId: string; template?: string }) =>
+    api.post(`${EYE_API}/reports`, data),
   updateReport: (id: string, data: any) =>
     api.put(`${EYE_API}/report/reports/${id}`, data),
   submitReport: (id: string) =>

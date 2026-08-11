@@ -1,5 +1,5 @@
 // [W3-A] /api/v1/auto-collection MSW handlers
-// 后端无 auto-collection controller → 本地 MSW 支撑 (页面标注"演示数据"来源)
+// [v3.0.6.11-88] 后端 auto-collection.controller 已实现 → 本 handler 仅 dev 模式兜底 (页面标注"演示数据"来源)
 //   GET  /auto-collection/rules        · POST /auto-collection/rules
 //   PUT  /auto-collection/rules/:id    · DELETE /auto-collection/rules/:id
 //   GET  /auto-collection/stats        · GET /auto-collection/tasks

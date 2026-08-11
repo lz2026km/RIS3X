@@ -243,7 +243,7 @@ export const DentalPhotoPage: React.FC = () => {
                   <Card size="small" title="治疗后(最新)">
                     {photos.length > 0 ? (
                       <img
-                        src={photos[0].url}
+                        src={photos?.[0]?.url}
                         alt="治疗后"
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />

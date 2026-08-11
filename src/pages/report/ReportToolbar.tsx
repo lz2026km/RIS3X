@@ -230,7 +230,7 @@ export default function ReportToolbar({
             gap: 5,
             padding: "4px 10px",
             borderRadius: 6,
-            background: "#f8fafc",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
           }}
         >

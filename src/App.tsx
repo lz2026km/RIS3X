@@ -10,7 +10,7 @@ import "./styles/design-system.css";
 import { Provider, initTheme } from "./components/Provider";
 import { NProgressBar } from "./components/NProgressBar";
 import { UndoToastProvider } from "./components/UndoToast";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { RouteAwareErrorBoundary } from "./components/ErrorBoundary";
 import { AppLayout } from "./layouts/AppLayout";
 import LoginPage from "./pages/LoginPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
@@ -33,7 +33,7 @@ export default function App() {
       React.createElement(
         BrowserRouter,
         { basename },
-        React.createElement(ErrorBoundary, {
+        React.createElement(RouteAwareErrorBoundary, {
           showErrorDetails: true,
           children: React.createElement(
             NProgressBar,

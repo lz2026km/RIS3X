@@ -194,6 +194,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
         <Tag color="cyan">PR11</Tag>
         <Tag color="purple">v3.0.6.8-44</Tag>
         <Tag color="blue">OK 镜 / 离焦镜 / 阿托品</Tag>
+        {/* [v3.0.6.11-88 Round10] /eye/optometry/* 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
 
       {stats && (

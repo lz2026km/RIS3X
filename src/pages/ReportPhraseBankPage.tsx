@@ -150,10 +150,29 @@ export default function ReportPhraseBankPage() {
 
   const filledContent = selected ? renderWithPlaceholders(editedContent) : '';
 
-  // 复制到剪贴板
-  const handleCopy = (text: string) => {
-    navigator.clipboard?.writeText(text);
-    message.success('已复制到剪贴板！');
+  // 复制到剪贴板 (权限被拒时降级 execCommand / 提示)
+  const handleCopy = async (text: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        message.success('已复制到剪贴板！');
+        return;
+      }
+      throw new Error('Clipboard API unavailable');
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) { message.success('已复制到剪贴板！'); return; }
+      } catch { /* fallthrough */ }
+      message.warning('复制失败: 浏览器未授予剪贴板权限，请手动选择复制');
+    }
   };
 
   // 新建短语: API 源 → templatesApi.createSnippet; 演示源 → 本地内存

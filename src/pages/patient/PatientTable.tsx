@@ -294,7 +294,7 @@ export function PatientTable({
                   color: "#92400e",
                 }}
               >
-                {d.patients[0].name} ~ {d.patients[1].name} ({d.score}分)
+                {d.patients?.[0]?.name ?? ''} ~ {d.patients?.[1]?.name ?? ''} ({d.score}分)
               </span>
             ))}
             {visibleDuplicates.length > 3 && (
@@ -1005,7 +1005,7 @@ export function PatientTable({
                 style={{
                   marginTop: 16,
                   padding: "12px 16px",
-                  background: "#fef2f2",
+                  background: "var(--color-error-bg)",
                   border: "1px solid #fecaca",
                   borderRadius: 8,
                   display: "flex",

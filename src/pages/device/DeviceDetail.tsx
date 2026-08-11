@@ -115,7 +115,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
         <div style={{ padding: 24 }}>
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -146,7 +146,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, marginBottom: 20 }}>
             <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
+              background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -177,7 +177,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     btn.innerHTML = '⏳ 上传中...';
                     btn.disabled = true;
                     await new Promise(r => setTimeout(r, 1500));
-                    const photos = JSON.parse(localStorage.getItem('g005_device_photos') || '[]');
+                    const photos = (() => { try { return JSON.parse(localStorage.getItem('g005_device_photos') || '[]') } catch { return [] } })();
                     photos.push({ deviceId: device.id, timestamp: new Date().toISOString() });
                     localStorage.setItem('g005_device_photos', JSON.stringify(photos));
                     btn.innerHTML = '✅ 已上传';
@@ -191,7 +191,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             </div>
 
             <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
+              background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`, minWidth: 200
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -230,7 +230,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
 
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -261,7 +261,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
 
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -294,7 +294,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
             <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
+              background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -312,7 +312,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             </div>
 
             <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
+              background: 'var(--bg-card)', borderRadius: 12, padding: 18,
               border: `1px solid ${C.border}`
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -351,7 +351,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
 
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -384,7 +384,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
 
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -429,7 +429,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
           </div>
 
           <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>

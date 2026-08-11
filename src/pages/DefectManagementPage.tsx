@@ -6,7 +6,6 @@
 // ============================================================
 
 import React, { useMemo, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   AlertOctagon,
   Search,
@@ -65,7 +64,6 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const DefectManagementPage: React.FC = () => {
-  const navigate = useNavigate();
   const [keyword, setKeyword] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [severity, setSeverity] = useState<SeverityFilter>('all')
@@ -195,8 +193,10 @@ const DefectManagementPage: React.FC = () => {
     setSelected(record);
   };
 
+  // [v3.0.6.11-88] 详情路由 /defect-management/:id 不存在(死链→forbidden),
+  // 改为打开页内详情抽屉
   const goDetail = (record: DefectRecord) => {
-    navigate(`/defect-management/${record.id}`);
+    setSelected(record);
   };
 
   return (
@@ -430,10 +430,7 @@ const DefectManagementPage: React.FC = () => {
                       <Save size={12} /> 变更状态
                     </button>
                     <button
-                      onClick={() => {
-                        setSelected(null)
-                        goDetail(selected)
-                      }}
+                      onClick={() => goDetail(selected)}
                       className="text-xs px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"
                       data-testid="defect-full-detail"
                     >

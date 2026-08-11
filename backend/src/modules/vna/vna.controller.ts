@@ -21,6 +21,18 @@ const CreateObjectSchema = z.object({
   size: z.number().int().nonnegative().max(100 * 1024 * 1024).optional(),
 })
 
+// [G-26] ILM 生命周期策略 schema
+const LifecyclePolicySchema = z.object({
+  tier: z.enum(['hot', 'warm', 'cold']),
+  retentionDays: z.number().int().min(0).max(36500),
+  description: z.string().max(300).optional(),
+})
+
+const MigrateSchema = z.object({
+  targetTier: z.enum(['hot', 'warm', 'cold']),
+  reason: z.string().max(300).optional(),
+})
+
 interface UploadedFileShape {
   buffer?: Buffer
   mimetype?: string
@@ -128,5 +140,50 @@ export class VnaController {
   @ApiOperation({ summary: 'DICOM 检查归档列表 (dicomInstance 按 Study 聚合)' })
   listStudies() {
     return this.service.listStudies()
+  }
+
+  // ─────────────────────── G-26 ILM 影像生命周期 (分层存储) ───────────────────────
+
+  @Get('lifecycle-policies')
+  @ApiOperation({ summary: '生命周期分层策略列表 (hot/warm/cold + 保留天数, 内存+seed)' })
+  listLifecyclePolicies() {
+    return this.service.listLifecyclePolicies()
+  }
+
+  @Post('lifecycle-policies')
+  @ApiOperation({ summary: '新建生命周期分层策略' })
+  createLifecyclePolicy(@Body(new ZodValidationPipe(LifecyclePolicySchema)) body: z.infer<typeof LifecyclePolicySchema>) {
+    return this.service.createLifecyclePolicy(body)
+  }
+
+  @Post('lifecycle-policies/:id')
+  @ApiOperation({ summary: '更新生命周期分层策略 (PATCH 语义: 字段可缺省)' })
+  updateLifecyclePolicy(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(LifecyclePolicySchema.partial())) body: Partial<z.infer<typeof LifecyclePolicySchema>>,
+  ) {
+    return this.service.updateLifecyclePolicy(id, body)
+  }
+
+  @Delete('lifecycle-policies/:id')
+  @ApiOperation({ summary: '删除生命周期分层策略' })
+  deleteLifecyclePolicy(@Param('id') id: string) {
+    return this.service.deleteLifecyclePolicy(id)
+  }
+
+  @Post('objects/:id/migrate')
+  @ApiOperation({ summary: '对象分层迁移 (hot/warm/cold), 记录迁移事件' })
+  migrateObject(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(MigrateSchema)) body: z.infer<typeof MigrateSchema>,
+  ) {
+    return this.service.migrateObject(id, body.targetTier, body.reason)
+  }
+
+  @Get('lifecycle-events')
+  @ApiOperation({ summary: '迁移/过期事件日志 (内存, 含 seed 示例)' })
+  listLifecycleEvents(@Query('limit') limit?: string) {
+    const parsed = Number(limit)
+    return this.service.listLifecycleEvents(Number.isFinite(parsed) && parsed > 0 ? parsed : 100)
   }
 }

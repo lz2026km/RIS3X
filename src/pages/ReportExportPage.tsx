@@ -13,7 +13,6 @@ import {
 } from '../data/deliveryExportSignatureMock';
 import { exportApprovalApi } from '../services/api'; // [W1-5] 导出审批流程文件
 import { exportReport as engineExportReport, downloadExport } from '../services/exportService';
-import { API_BASE } from '../services/api/client';
 import { reportApi, type ReportDto } from '../services/api/reportApi';
 import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
 import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
@@ -115,15 +114,13 @@ export default function ReportExportPage() {
   const [batchDownloads, setBatchDownloads] = useState<Array<{ reportId: string; fileName: string; downloadUrl: string; sizeBytes: number }>>([]);
   const [batchError, setBatchError] = useState<string | null>(null);
 
-  // [W4-B] 批量下载文件 (mock/real 均经 fetch → blob, MSW 与后端均返回字节)
+  // [W4-B] 批量下载文件 (走 reportApi.downloadExportFile → api.getBlob, 携带 Authorization 头)
   const downloadBatchFile = async (d: { fileName: string; downloadUrl: string }) => {
-    const url = d.downloadUrl.startsWith('http') || d.downloadUrl.startsWith('/')
-      ? d.downloadUrl
-      : `${API_BASE}${d.downloadUrl}`;
+    const fileName = d.fileName || decodeURIComponent((d.downloadUrl.split('/').pop() ?? ''));
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
+      const res = await reportApi.downloadExportFile(fileName);
+      if (!res.success || !res.data) throw new Error('下载失败');
+      const blob = res.data as unknown as Blob;
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = objUrl;

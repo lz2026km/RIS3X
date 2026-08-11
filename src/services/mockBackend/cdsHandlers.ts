@@ -230,4 +230,77 @@ export const cdsHandlers = [
     try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
+
+  // ── 规则管理页 (CdsManagementPage): GET /cds/management ──
+  // [W2-B-3] 对齐后端 cds.controller getCdsManagement: { rules, audit }
+  http.get(`${API}/management`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({
+      success: true,
+      data: {
+        rules: [
+          { id: 'CDR001', type: 'appropriateness', name: '辐射剂量超限拦截', isActive: true, version: '1.2', updatedTime: '2026-07-20T08:00:00Z', usageCount: 128 },
+          { id: 'CDR002', type: 'pathway', name: '胸部CT肺结节随访路径', isActive: true, version: '2.0', updatedTime: '2026-07-18T08:00:00Z', usageCount: 96 },
+          { id: 'CDR003', type: 'contrast', name: '造影剂适应症检查', isActive: true, version: '1.1', updatedTime: '2026-07-15T08:00:00Z', usageCount: 243 },
+          { id: 'CDR004', type: 'drug', name: '药物交互检查', isActive: false, version: '1.0', updatedTime: '2026-06-30T08:00:00Z', usageCount: 12 },
+        ],
+        audit: [
+          { id: 'AUD-001', ruleId: 'CDR002', ruleType: 'pathway', action: 'updated', performedBy: '张主任', performedAt: '2026-07-18T09:00:00Z', details: '更新肺结节随访周期' },
+          { id: 'AUD-002', ruleId: 'CDR001', ruleType: 'appropriateness', action: 'activated', performedBy: '张主任', performedAt: '2026-07-16T09:00:00Z', details: '启用辐射剂量超限拦截' },
+          { id: 'AUD-003', ruleId: 'CDR004', ruleType: 'drug', action: 'deactivated', performedBy: '李医生', performedAt: '2026-07-01T09:00:00Z', details: '药物库升级后停用旧规则' },
+          { id: 'AUD-004', ruleId: 'CDR003', ruleType: 'contrast', action: 'created', performedBy: '张主任', performedAt: '2026-06-25T09:00:00Z', details: '创建造影剂适应症检查规则' },
+        ],
+      },
+    });
+  }),
+
+  // ── 规则评估 (RuleConfigPanel): POST /cds/rule/evaluate ──
+  // [W2-B-3] 对齐前端 cdsApi.evaluateRule: { results: RuleEvaluateResult[] }
+  http.post(`${API}/rule/evaluate`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json().catch(() => ({}))) as any;
+    const examType = String(body?.examType ?? '常规');
+    const modality = String(body?.modality ?? 'CT');
+    const age = Number(body?.age ?? 40);
+    const results: any[] = [
+      {
+        ruleId: 'contrast-001',
+        ruleName: '造影剂适应症检查',
+        priority: 1,
+        triggered: examType.includes('增强'),
+        severity: examType.includes('增强') ? 'warning' : 'info',
+        message: examType.includes('增强') ? '增强检查需确认肾功能正常 (eGFR > 30)' : '当前检查类型无需对比剂核查',
+        suggestions: examType.includes('增强') ? ['检查血清肌酐水平', '确认 eGFR > 30 mL/min/1.73m²'] : [],
+        source: 'ACR Manual on Contrast Media',
+      },
+      {
+        ruleId: 'dose-001',
+        ruleName: '辐射剂量优化',
+        priority: 2,
+        triggered: modality === 'CT' && age < 18,
+        severity: modality === 'CT' && age < 18 ? 'warning' : 'info',
+        message: modality === 'CT' && age < 18 ? '儿童CT检查建议使用低剂量协议' : '辐射剂量处于常规范围',
+        suggestions: modality === 'CT' && age < 18 ? ['启用儿童低剂量协议', '考虑MRI替代检查'] : [],
+        source: 'Image Gently Campaign',
+      },
+      {
+        ruleId: 'protocol-001',
+        ruleName: '检查协议匹配',
+        priority: 3,
+        triggered: true,
+        severity: 'info',
+        message: `推荐检查方案: ${examType}扫描`,
+        suggestions: ['标准扫描序列'],
+        source: 'RSNA Radiology Protocols',
+      },
+    ];
+    return HttpResponse.json({ success: true, data: { results } });
+  }),
+
+  // ── 规则优先级 (RuleConfigPanel): PUT /cds/rule/priority ──
+  // [W2-B-3] 对齐后端 cds.controller updateRulePriority: { success }
+  http.put(`${API}/rule/priority`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: { success: true } });
+  }),
 ];

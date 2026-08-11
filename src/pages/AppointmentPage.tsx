@@ -1798,10 +1798,14 @@ export default function AppointmentPage() {
                           btn.innerHTML = "⏳ 上传中...";
                           btn.disabled = true;
                           await new Promise((r) => setTimeout(r, 1500));
-                          const uploads = JSON.parse(
-                            localStorage.getItem("g005_appointment_uploads") ||
-                              "[]",
-                          );
+                          const uploads = (() => {
+                            try {
+                              return JSON.parse(
+                                localStorage.getItem("g005_appointment_uploads") ||
+                                  "[]",
+                              )
+                            } catch { return [] }
+                          })();
                           uploads.push({
                             name: file.name,
                             timestamp: new Date().toISOString(),

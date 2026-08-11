@@ -41,6 +41,13 @@ export const DentalAiOnnxPage: React.FC = () => {
     try {
       const ort = await import('onnxruntime-web');
       setOrtLib(ort);
+      // [v3.0.6.11-88] wasm 默认按 origin 根路径 fetch 会被 SPA 回退成 index.html
+      // (MIME/魔数错误), 显式指向 vite dev 可用的 wasm 目录, 失败时走 try-catch 回退
+      try {
+        if (import.meta.env.DEV) {
+          ort.env.wasm.wasmPaths = '/node_modules/onnxruntime-web/dist/';
+        }
+      } catch { /* wasm 配置失败不阻断, 由下方 try-catch 回退 */ }
       let sess: InferenceSession;
       try {
         const response = await fetch('/models/yolov8n-dental.onnx');

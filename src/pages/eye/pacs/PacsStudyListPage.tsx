@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, Button, Space, Input, Table, Badge } from 'antd';
-import { Image, Search, Eye } from "lucide-react";
+import { Tag, Button, Space, Input, Table, Badge, Modal, Form, Select, message, Popconfirm } from 'antd';
+import { Image, Search, Eye, Plus, Trash2 } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
@@ -40,21 +40,73 @@ const PacsStudyListPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [studies, setStudies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [createForm] = Form.useForm();
+
+  const loadStudies = async () => {
+    try {
+      const res = await eyeApi.getStudies();
+      if (res.success && Array.isArray(res.data)) {
+        setStudies(res.data);
+      }
+    } catch { /* API may not be available */ }
+  };
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
-      try {
-        const res = await eyeApi.getStudies();
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          setStudies(res.data);
-        }
-      } catch { /* API may not be available */ }
+      await loadStudies();
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // [v3.0.6.11-88 P0] 新建检查 → POST /eye/studies (后端 CreateEyeStudySchema)
+  const handleCreate = async () => {
+    try {
+      const values = await createForm.validateFields();
+      setCreating(true);
+      const res = await eyeApi.createStudy({
+        patientId: values.patientId,
+        modality: values.modality,
+        bodyPart: values.bodyPart || values.modality,
+        studyDate: new Date().toISOString(),
+        findings: values.findings ?? '',
+        impressions: values.impressions ?? '',
+      });
+      if (res.success) {
+        message.success('检查已创建');
+        setCreateOpen(false);
+        createForm.resetFields();
+        await loadStudies();
+      } else {
+        message.error(res.error?.message ?? '创建失败');
+      }
+    } catch { /* 表单校验未通过 */ } finally {
+      setCreating(false);
+    }
+  };
+
+  // [v3.0.6.11-88 P0] 删除检查 → DELETE /eye/studies/:id
+  const handleDelete = async (id: string) => {
+    setDeletingIds((prev) => new Set(prev).add(id));
+    try {
+      const res = await eyeApi.deleteStudy(id);
+      if (res.success) {
+        message.success('检查已删除');
+        await loadStudies();
+      } else {
+        message.error(res.error?.message ?? '删除失败');
+      }
+    } catch {
+      message.error('删除失败:网络错误');
+    } finally {
+      setDeletingIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    }
+  };
 
   const filtered = search
     ? studies.filter(
@@ -118,7 +170,7 @@ const PacsStudyListPage: React.FC = () => {
     {
       title: "",
       key: "action",
-      width: 80,
+      width: 150,
       render: (_: any, record: any) => (
         <Space size={4}>
           <Button
@@ -129,6 +181,21 @@ const PacsStudyListPage: React.FC = () => {
           >
             查看
           </Button>
+          <Popconfirm
+            title="删除该检查?"
+            onConfirm={() => void handleDelete(record.id)}
+            okText="删除"
+            cancelText="取消"
+          >
+            <Button
+              size="small"
+              danger
+              icon={<Trash2 className="v4-icon" size={12} />}
+              loading={deletingIds.has(record.id)}
+            >
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -143,6 +210,14 @@ const PacsStudyListPage: React.FC = () => {
         actions={
           <>
             <Tag color="blue">{studies.length} 个检查</Tag>
+            <Button
+              size="small"
+              type="primary"
+              icon={<Plus className="v4-icon" size={14} />}
+              onClick={() => setCreateOpen(true)}
+            >
+              新建检查
+            </Button>
             <Input
               prefix={<Search className="v4-icon" />}
               placeholder="搜索患者/ID..."
@@ -163,6 +238,48 @@ const PacsStudyListPage: React.FC = () => {
         pagination={studyPagination.pagination}
       scroll={{ x: 'max-content' }}
       />
+
+      {/* [v3.0.6.11-88 P0] 新建检查 (POST /eye/studies) */}
+      <Modal
+        open={createOpen}
+        title="新建检查"
+        onCancel={() => setCreateOpen(false)}
+        onOk={() => void handleCreate()}
+        confirmLoading={creating}
+        okText="创建"
+        cancelText="取消"
+        destroyOnClose
+      >
+        <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
+          <Form.Item name="patientId" label="患者 ID" rules={[{ required: true, message: '请输入患者 ID' }]}>
+            <Input placeholder="如 P000001" />
+          </Form.Item>
+          <Form.Item name="modality" label="检查类型" rules={[{ required: true, message: '请选择检查类型' }]}>
+            <Select
+              placeholder="选择检查类型"
+              options={Object.entries(MODALITY_LABELS)
+                .filter(([k]) => !['v6', 'text', 'findings_multi', 'images', 'productivity', 'clinical', 'operational', 'financial', 'critical_value', 'pending_review'].includes(k))
+                .map(([value, label]) => ({ value, label: `${label} (${value})` }))}
+            />
+          </Form.Item>
+          <Form.Item name="bodyPart" label="检查部位/眼别">
+            <Select
+              placeholder="选择眼别"
+              options={[
+                { value: 'OD', label: '右眼 (OD)' },
+                { value: 'OS', label: '左眼 (OS)' },
+                { value: 'OU', label: '双眼 (OU)' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="findings" label="检查所见">
+            <Input.TextArea rows={2} placeholder="(可选)" />
+          </Form.Item>
+          <Form.Item name="impressions" label="印象">
+            <Input.TextArea rows={2} placeholder="(可选)" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </PageContainer>
   );
 };

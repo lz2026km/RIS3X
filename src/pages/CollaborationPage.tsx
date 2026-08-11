@@ -18,6 +18,7 @@ import {
   type CollabActivity,
 } from '../data/reviewRevisionCollabMock';
 import { consultationApi } from '../services/api/consultationApi';
+import { message } from 'antd';
 
 // 评论者颜色 (按名称稳定派生)
 function colorOf(name: string): string {
@@ -242,7 +243,7 @@ export default function CollaborationPage() {
         await loadComments(selectedReportId);
         return;
       } catch (e) {
-        window.alert?.('评论发送失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        message.error('评论发送失败: ' + (e instanceof Error ? e.message : '未知错误'));
         return;
       }
     }

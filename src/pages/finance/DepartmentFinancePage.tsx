@@ -233,6 +233,29 @@ export default function DepartmentFinancePage() {
 
   const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
 
+  // [G005 2B] 导出真实化: 用已加载 financeApi 数据 (发票/财务流水) 生成 CSV, 空数据禁用+提示
+  const exportRows = reports.length > 0 ? reports : invoices
+  const handleExport = () => {
+    if (exportRows.length === 0) {
+      message.warning('暂无财务数据可导出，请先加载发票/财务流水')
+      return
+    }
+    const header = '发票号,患者,项目,总额,已付,状态,开票日期'
+    const body = exportRows.map(r => {
+      const inv = invOf(r)
+      return [inv.id, `"${String(inv.patientName).replace(/"/g, '""')}"`, `"${String(inv.examItem).replace(/"/g, '""')}"`, inv.totalAmount, inv.paidAmount, inv.status, fmtDate(inv.issuedAt)].join(',')
+    }).join('\n')
+    const csv = '\ufeff' + header + '\n' + body
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `科室财务_${period}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    message.success(`已导出 ${exportRows.length} 条财务数据`)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -244,7 +267,7 @@ export default function DepartmentFinancePage() {
               {p === 'monthly' ? '月度' : p === 'quarterly' ? '季度' : '年度'}
             </button>
           ))}
-          <button onClick={() => { const csv = '科室,收入,支出,利润\n' + ['CT','MR','DR','DSA','MG'].join('\n') + '\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `科室财务_${period}.csv`; a.click(); URL.revokeObjectURL(url); message.success('已导出 ' + a.download); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? '暂无财务数据，无法导出' : `导出 ${exportRows.length} 条财务数据`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />导出
           </button>
         </div>

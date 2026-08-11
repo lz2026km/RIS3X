@@ -91,11 +91,11 @@ export const FhirServerPage: React.FC = () => {
               <Descriptions column={2} size="small">
                 <Descriptions.Item label="状态"><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="发布者">{capability.publisher}</Descriptions.Item>
-                <Descriptions.Item label="交互">{capability.rest[0].interaction.join(', ')}</Descriptions.Item>
-                <Descriptions.Item label="安全">{capability.rest[0].security.cors ? 'CORS + SMART OAuth2 授权' : '无'}</Descriptions.Item>
+                <Descriptions.Item label="交互">{capability.rest?.[0]?.interaction?.join(', ') ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label="安全">{capability.rest?.[0]?.security?.cors ? 'CORS + SMART OAuth2 授权' : '无'}</Descriptions.Item>
               </Descriptions>
               <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>资源类型:</div>
-              {capability.rest[0].resource.map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
+              {(capability.rest?.[0]?.resource ?? []).map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
               <Alert type="info" showIcon style={{ marginTop: 12 }} message="能力声明依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。" />
             </Card> : null
           },

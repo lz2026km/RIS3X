@@ -101,8 +101,9 @@ const Viewport: React.FC<ViewportProps> = ({ plane, sliceIndex, ww, wl, mode, jo
         ctx.fillStyle = 'rgba(148,163,184,0.9)'
         ctx.fillText('加载切片...', 8, 18)
         volumeApi.mprSlice(jobId, plane, sliceIndex).then((res) => {
-          if (!res.success) return
+          if (!res.success || !res.data) return
           const p = res.data.pixelData
+          if (!p || typeof p.dataBase64 !== 'string' || !p.dataBase64) return
           cacheRef.current.set(key, { data: decodeInt16Base64(p.dataBase64), w: p.width, h: p.height })
           onTotalSlices?.(plane, res.data.totalSlices)
           setTick((t) => t + 1)

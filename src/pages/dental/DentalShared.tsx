@@ -120,12 +120,20 @@ export const DentalTreatmentTable: React.FC<{
       render: (_, t) => (
         <Space>
           <Button size="small" onClick={async () => {
-            await fetch(`/api/v1/dental/treatments/${t.id}/start`, { method: 'POST' });
-            message.success('已开始');
+            try {
+              await fetch(`/api/v1/dental/treatments/${t.id}/start`, { method: 'POST' });
+              message.success('已开始');
+            } catch (e) {
+              console.warn('[F03] Error:', (e as Error)?.message);
+            }
           }}>开始</Button>
           <Button size="small" onClick={async () => {
-            await fetch(`/api/v1/dental/treatments/${t.id}/complete`, { method: 'POST' });
-            message.success('已完成');
+            try {
+              await fetch(`/api/v1/dental/treatments/${t.id}/complete`, { method: 'POST' });
+              message.success('已完成');
+            } catch (e) {
+              console.warn('[F03] Error:', (e as Error)?.message);
+            }
           }}>完成</Button>
         </Space>
       ),

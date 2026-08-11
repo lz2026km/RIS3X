@@ -3,7 +3,7 @@
 // G005 放射科RIS系统 - 临床数据中心/中台 v1.0.0
 // 功能：患者360视图 + 跨系统数据同步 + 数据质量监控
 // ============================================================
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
@@ -746,6 +746,16 @@ const ConnectionStatusIndicator = ({ status }: { status: SystemConnectionStatus[
 }
 
 // ==================== 患者360视图组件 ====================
+// [G005 Wave4A P1] 患者列表真实化: patientApi.list 优先, 失败回退本地 initialPatients (演示徽标)
+interface PatientListRow {
+  id: string
+  name: string
+  gender: string
+  age: number
+  phone?: string
+  patientType: string
+}
+
 const Patient360View = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<Patient360Data | null>(null)
@@ -753,30 +763,62 @@ const Patient360View = () => {
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
   const [activePatientTab, setActivePatientTab] = useState('overview')
   const [timelineView, setTimelineView] = useState<'vertical' | 'horizontal'>('vertical')
-  
+  const [apiPatients, setApiPatients] = useState<PatientListRow[]>([])
+  const [patientsMode, setPatientsMode] = useState<'real' | 'demo'>('demo')
+
+  // [G005 Wave4A P1] 真实重拉患者列表 (不再随机生成)
+  const loadPatients = useCallback(async () => {
+    try {
+      const res = await patientApi.list({ skip: 0, take: 200 })
+      const raw: any = res.data
+      const rows = Array.isArray(raw)
+        ? raw
+        : raw && Array.isArray(raw.items) ? raw.items : []
+      if (rows.length > 0) {
+        setApiPatients(rows.map((p: any) => ({
+          id: p.id ?? '',
+          name: p.name ?? '未知',
+          gender: p.gender ?? '未知',
+          age: typeof p.age === 'number' ? p.age : 0,
+          phone: p.phone ?? undefined,
+          patientType: p.patientType ?? p.type ?? '门诊',
+        })))
+        setPatientsMode('real')
+        return
+      }
+      setPatientsMode('demo')
+    } catch {
+      setPatientsMode('demo')
+    }
+  }, [])
+
+  useEffect(() => { void loadPatients() }, [loadPatients])
+
+  const patientSource: PatientListRow[] = apiPatients.length > 0 ? apiPatients : (initialPatients as unknown as PatientListRow[])
+
   const filteredPatients = useMemo(() => {
-    return initialPatients.filter(p => {
-      const matchSearch = !searchTerm || 
-        p.name.includes(searchTerm) || 
+    return patientSource.filter(p => {
+      const matchSearch = !searchTerm ||
+        p.name.includes(searchTerm) ||
         p.id.includes(searchTerm) ||
-        p.phone?.includes(searchTerm)
+        (p.phone || '').includes(searchTerm)
       const matchType = patientTypeFilter === '全部' || p.patientType === patientTypeFilter
       return matchSearch && matchType
     })
-  }, [searchTerm, patientTypeFilter])
-  
+  }, [patientSource, searchTerm, patientTypeFilter])
+
   const patientStats = useMemo(() => ({
-    totalPatients: initialPatients.length,
-    activePatients: initialPatients.filter(p => {
+    totalPatients: patientSource.length,
+    activePatients: patientSource.filter(p => {
       const lastExam = initialRadiologyExams.find(e => e.patientId === p.id)
       return lastExam && (Date.now() - new Date(lastExam.examDate).getTime()) < 30 * 86400000
     }).length,
-    newThisMonth: initialPatients.filter(p => {
+    newThisMonth: patientSource.filter(p => {
       const lastExam = initialRadiologyExams.find(e => e.patientId === p.id)
       return lastExam && (Date.now() - new Date(lastExam.examDate).getTime()) < 30 * 86400000
     }).length,
     criticalCases: initialRadiologyExams.filter(e => e.criticalFinding).length,
-  }), [])
+  }), [patientSource])
   
   const patientData = selectedPatient ? generatePatient360(selectedPatient.patientId) : null
   const timelineEvents = patientData ? generateTimelineEvents(patientData) : []
@@ -832,6 +874,16 @@ const Patient360View = () => {
           <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
             <User size={18} color={COLORS.primary} />
             患者列表
+            {/* [G005 Wave4A P1] 数据源徽标 */}
+            <span style={{
+              marginLeft: 'auto',
+              ...styles.badge(
+                patientsMode === 'real' ? COLORS.success : COLORS.warning,
+                patientsMode === 'real' ? COLORS.successLight : COLORS.warningLight
+              ),
+            }}>
+              {patientsMode === 'real' ? '真实数据' : '演示数据'}
+            </span>
           </div>
           
           {/* 搜索过滤 */}
@@ -902,10 +954,10 @@ const Patient360View = () => {
                 {patientData.name} - {patientData.patientId}
               </span>
               <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-                {patientData.diagnoses[0]?.source && <DataSourceBadge source={patientData.diagnoses[0].source} />}
-                {patientData.exams[0]?.source && <DataSourceBadge source={patientData.exams[0].source} />}
-                {patientData.labResults[0]?.source && <DataSourceBadge source={patientData.labResults[0].source} />}
-                {patientData.medications[0]?.source && <DataSourceBadge source={patientData.medications[0].source} />}
+                {patientData.diagnoses?.[0]?.source && <DataSourceBadge source={patientData.diagnoses[0]?.source} />}
+                {patientData.exams?.[0]?.source && <DataSourceBadge source={patientData.exams[0]?.source} />}
+                {patientData.labResults?.[0]?.source && <DataSourceBadge source={patientData.labResults[0]?.source} />}
+                {patientData.medications?.[0]?.source && <DataSourceBadge source={patientData.medications[0]?.source} />}
               </div>
             </div>
             
@@ -1236,10 +1288,22 @@ const CrossSystemSync = () => {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [lastSyncTime, setLastSyncTime] = useState(new Date().toLocaleTimeString('zh-CN'))
   const [systemConnections, setSystemConnections] = useState<SystemConnectionStatus[]>(generateSystemConnectionStatus())
-  
-  useEffect(() => {
-    setSyncRecords(generateSyncRecords())
+
+  // [G005 Wave4A P1] 同步记录改为持久化存储 (首次生成后不再随机重排, 刷新=真实重拉)
+  const loadSyncRecords = useCallback(() => {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_sync_records') || '') } catch { return null } })()
+    if (Array.isArray(saved) && saved.length > 0) {
+      setSyncRecords(saved)
+      return
+    }
+    const records = generateSyncRecords()
+    try { localStorage.setItem('g005_clinical_sync_records', JSON.stringify(records)) } catch { }
+    setSyncRecords(records)
   }, [])
+
+  useEffect(() => {
+    loadSyncRecords()
+  }, [loadSyncRecords])
   
   useEffect(() => {
     if (!autoRefresh) return
@@ -1340,6 +1404,8 @@ const CrossSystemSync = () => {
         <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
           <Server size={18} color={COLORS.primary} />
           跨系统数据同步监控
+          {/* [G005 Wave4A P1] 演示数据徽标 (本区块为本地模拟同步, 未接真实集成) */}
+          <span style={styles.badge(COLORS.warning, COLORS.warningLight)}>演示数据</span>
           {hasAlerts && (
             <span style={{
               marginLeft: '12px',
@@ -1463,6 +1529,7 @@ const CrossSystemSync = () => {
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
           <Network size={18} color={COLORS.primary} />
           同步记录
+          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>演示数据</span>
         </div>
         
         <div style={styles.searchBar}>
@@ -1487,7 +1554,7 @@ const CrossSystemSync = () => {
             <option value="失败">失败</option>
             <option value="待同步">待同步</option>
           </select>
-          <button style={styles.btnOutline(COLORS.primary)} onClick={() => setSyncRecords(generateSyncRecords())}>
+          <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadSyncRecords()}>
             <RefreshCw size={14} />
             刷新
           </button>
@@ -1535,9 +1602,11 @@ const CrossSystemSync = () => {
                       btn.innerHTML = '⏳ 重试中';
                       btn.disabled = true;
                       await new Promise(r => setTimeout(r, 1500));
-                      const syncs = JSON.parse(localStorage.getItem('g005_clinical_sync') || '[]');
-                      const idx = syncs.findIndex((s: any) => s.id === record.id);
-                      if (idx >= 0) { syncs[idx] = { ...syncs[idx], status: '同步中', errorMsg: '' }; localStorage.setItem('g005_clinical_sync', JSON.stringify(syncs)); }
+                      setSyncRecords(prev => {
+                        const next = prev.map(s => s.id === record.id ? { ...s, status: '同步中' as SyncStatus, errorMsg: undefined } : s)
+                        try { localStorage.setItem('g005_clinical_sync_records', JSON.stringify(next)) } catch { }
+                        return next
+                      })
                       btn.innerHTML = '✅ 已重试';
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
@@ -1552,9 +1621,11 @@ const CrossSystemSync = () => {
                       btn.innerHTML = '⏳ 暂停中';
                       btn.disabled = true;
                       await new Promise(r => setTimeout(r, 1500));
-                      const syncs = JSON.parse(localStorage.getItem('g005_clinical_sync') || '[]');
-                      const idx = syncs.findIndex((s: any) => s.id === record.id);
-                      if (idx >= 0) { syncs[idx] = { ...syncs[idx], status: '已暂停' }; localStorage.setItem('g005_clinical_sync', JSON.stringify(syncs)); }
+                      setSyncRecords(prev => {
+                        const next = prev.map(s => s.id === record.id ? { ...s, status: '待同步' as SyncStatus, errorMsg: undefined } : s)
+                        try { localStorage.setItem('g005_clinical_sync_records', JSON.stringify(next)) } catch { }
+                        return next
+                      })
                       btn.innerHTML = '✅ 已暂停';
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
@@ -1577,10 +1648,22 @@ const DataQualityMonitor = () => {
   const [qualityMetrics, setQualityMetrics] = useState<QualityMetric[]>([])
   const [categoryFilter, setCategoryFilter] = useState('全部')
   const [levelFilter, setLevelFilter] = useState('全部')
-  
-  useEffect(() => {
-    setQualityMetrics(generateQualityMetrics())
+
+  // [G005 Wave4A P1] 质量指标持久化存储: 首次生成后不再随机重排, 刷新=真实重拉
+  const loadQualityMetrics = useCallback(() => {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_quality_metrics') || '') } catch { return null } })()
+    if (Array.isArray(saved) && saved.length > 0) {
+      setQualityMetrics(saved)
+      return
+    }
+    const metrics = generateQualityMetrics()
+    try { localStorage.setItem('g005_clinical_quality_metrics', JSON.stringify(metrics)) } catch { }
+    setQualityMetrics(metrics)
   }, [])
+
+  useEffect(() => {
+    loadQualityMetrics()
+  }, [loadQualityMetrics])
   
   const qualityDimensions = useMemo(() => generateQualityDimensions(), [])
   
@@ -1857,6 +1940,7 @@ const DataQualityMonitor = () => {
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
           <LineChart size={18} color={COLORS.primary} />
           质量指标明细
+          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>演示数据</span>
         </div>
         
         <div style={styles.searchBar}>
@@ -1875,7 +1959,7 @@ const DataQualityMonitor = () => {
             <option value="中">中</option>
             <option value="差">差</option>
           </select>
-          <button style={styles.btnOutline(COLORS.primary)} onClick={() => setQualityMetrics(generateQualityMetrics())}>
+          <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadQualityMetrics()}>
             <RefreshCw size={14} />
             刷新
           </button>
@@ -1943,7 +2027,10 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
     // Load recent searches from localStorage
     const saved = localStorage.getItem('g005_cdr_recent_searches')
     if (saved) {
-      setRecentSearches(JSON.parse(saved))
+      try {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) setRecentSearches(parsed as string[])
+      } catch { }
     }
   }, [])
   
@@ -2280,7 +2367,7 @@ export default function ClinicalDataPage() {
             btn.innerHTML = '⏳...';
             btn.disabled = true;
             await new Promise(r => setTimeout(r, 1500));
-            const reminders = JSON.parse(localStorage.getItem('g005_clinical_reminders') || '{"enabled":false}');
+            const reminders: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_reminders') || '{"enabled":false}') } catch { return { enabled: false } } })();
             reminders.enabled = !reminders.enabled;
             localStorage.setItem('g005_clinical_reminders', JSON.stringify(reminders));
             btn.innerHTML = reminders.enabled ? '✅ 提醒已开启' : '🔔 提醒已关闭';
@@ -2295,7 +2382,7 @@ export default function ClinicalDataPage() {
             btn.innerHTML = '⏳...';
             btn.disabled = true;
             await new Promise(r => setTimeout(r, 1500));
-            const settings = JSON.parse(localStorage.getItem('g005_clinical_settings') || '{}');
+            const settings: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_settings') || '{}') } catch { return {} } })();
             localStorage.setItem('g005_clinical_settings', JSON.stringify({ ...settings, lastOpened: new Date().toISOString() }));
             btn.innerHTML = '✅ 已打开设置';
             setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);

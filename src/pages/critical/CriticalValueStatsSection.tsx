@@ -125,7 +125,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'trend' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>本月危急值数量趋势（近7天）</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 12 }}>本月危急值数量趋势（近7天）</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 100 }}>
             {trendData.map((d, idx) => (
               <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -168,7 +168,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'time' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>处理时效分布</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 12 }}>处理时效分布</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 100 }}>
             {timeData.map((d) => (
               <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -184,7 +184,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'missed' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>漏报率统计</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 12 }}>漏报率统计</div>
           {missedStats ? (
             <>
               <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
@@ -234,7 +234,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'notification' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Timer size={16} style={{ color: '#1e40af' }} />
             10分钟通报完成率统计
             <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>国家卫健委2024年版质控指标</span>

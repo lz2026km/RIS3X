@@ -146,7 +146,13 @@ const VolumeViewerPage: React.FC = () => {
       message.error(res.error?.message || '重建请求失败')
       return
     }
-    const { jobId: newJobId, volume, source } = res.data
+    const d = res?.data
+    if (!d) {
+      setReconstructing(false)
+      message.error('重建响应缺少数据')
+      return
+    }
+    const { jobId: newJobId, volume, source } = d
     setJobId(newJobId)
     setVolumeDims(volume)
     setJobSource(source)

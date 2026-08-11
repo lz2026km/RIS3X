@@ -19,6 +19,39 @@ export interface VnaObject {
   wormLocked: boolean
   createdAt: string
   storageSource: 'database' | 'memory'
+  // [G-26] ILM 分层 (默认 hot)
+  tier?: VnaLifecycleTier
+}
+
+// [G-26] ILM 影像生命周期 (VNA 分层存储: hot/warm/cold)
+export type VnaLifecycleTier = 'hot' | 'warm' | 'cold'
+
+export interface LifecyclePolicy {
+  id: string
+  tier: VnaLifecycleTier
+  retentionDays: number
+  description: string
+  objectCount: number
+  createdAt: string
+  storageSource: 'memory'
+}
+
+export interface LifecycleEvent {
+  id: string
+  objectId: string
+  objectName: string
+  fromTier: VnaLifecycleTier
+  toTier: VnaLifecycleTier | null
+  action: 'migrate' | 'expire' | 'policy-applied'
+  reason?: string
+  createdAt: string
+  storageSource: 'memory'
+}
+
+export const TIER_LABEL: Record<VnaLifecycleTier, string> = {
+  hot: '热层 (SSD 在线)',
+  warm: '温层 (近线 HDD)',
+  cold: '冷层 (冷归档)',
 }
 
 export interface VnaStudy {
@@ -97,4 +130,22 @@ export const vnaApi = {
       return null
     }
   },
+
+  // ─────────────────────── [G-26] ILM 影像生命周期 ───────────────────────
+
+  getLifecyclePolicies: () => api.get<LifecyclePolicy[]>('/vna/lifecycle-policies'),
+
+  createLifecyclePolicy: (data: { tier: VnaLifecycleTier; retentionDays: number; description?: string }) =>
+    api.post<LifecyclePolicy>('/vna/lifecycle-policies', data),
+
+  updateLifecyclePolicy: (id: string, data: Partial<{ tier: VnaLifecycleTier; retentionDays: number; description?: string }>) =>
+    api.post<LifecyclePolicy>(`/vna/lifecycle-policies/${id}`, data),
+
+  deleteLifecyclePolicy: (id: string) => api.delete<{ deleted: boolean }>(`/vna/lifecycle-policies/${id}`),
+
+  migrateObject: (id: string, targetTier: VnaLifecycleTier, reason?: string) =>
+    api.post<{ object: VnaObject; event: LifecycleEvent }>(`/vna/objects/${id}/migrate`, { targetTier, reason }),
+
+  getLifecycleEvents: (limit = 100) =>
+    api.get<LifecycleEvent[]>(`/vna/lifecycle-events?limit=${limit}`),
 }

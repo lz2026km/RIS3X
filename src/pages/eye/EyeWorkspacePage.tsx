@@ -41,7 +41,7 @@ interface QuickLink {
 }
 
 const KPI_CARDS: KpiCard[] = [
-  { key: 'appt', title: '今日预约', Icon: Calendar, color: '#2563eb', href: '/eye/ris/appointments' },
+  { key: 'appt', title: '今日预约', Icon: Calendar, color: '#2563eb', href: '/appointments' },
   { key: 'exam', title: '今日检查', Icon: ScanLine, color: '#10b981', href: '/eye/pacs/studies' },
   { key: 'rpt', title: '待写报告', Icon: FileText, color: '#f59e0b', href: '/eye/report/drafts' },
   { key: 'crit', title: '危急值', Icon: AlertTriangle, color: '#ef4444', href: '/eye/ris/emergency' },
@@ -175,7 +175,7 @@ const EyeWorkspacePage: React.FC = () => {
         actions={
           <button
             type="button"
-            onClick={() => navigate('/eye/ris/appointments?action=new')}
+            onClick={() => navigate('/appointments?action=new')}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -282,7 +282,7 @@ const EyeWorkspacePage: React.FC = () => {
             size="small"
             title="今日手术安排"
             extra={
-              <a onClick={() => navigate('/eye/ris/surgeries')} style={{ fontSize: 12 }}>
+              <a onClick={() => navigate('/eye/ris')} style={{ fontSize: 12 }}>
                 查看全部 <ArrowRight size={12} className="v4-icon" />
               </a>
             }
@@ -300,7 +300,7 @@ const EyeWorkspacePage: React.FC = () => {
             size="small"
             title="待办事项"
             extra={
-              <a onClick={() => navigate('/worklist/inbox')} style={{ fontSize: 12 }}>
+              <a onClick={() => navigate('/worklist')} style={{ fontSize: 12 }}>
                 工作清单 <ArrowRight size={12} className="v4-icon" />
               </a>
             }

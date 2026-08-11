@@ -101,7 +101,8 @@ const MipPage: React.FC = () => {
         ctx.fillText('计算 MIP...', 8, 18)
         volumeApi.mipProjection(jobId, 'axial', thickness).then((res) => {
           if (!res.success) return
-          const p = res.data.pixelData
+          const p = res.data?.pixelData
+          if (!p?.dataBase64 || !p.width || !p.height) return
           cacheRef.current.set(key, { data: decodeInt16Base64(p.dataBase64), w: p.width, h: p.height })
           setTick((t) => t + 1)
         })

@@ -532,7 +532,7 @@ const HeatmapChart: React.FC = () => {
             { label: '50-69%', color: C.heatmapLow },
             { label: '<50%', color: C.heatmapVeryLow },
           ].map((item, i) => (
-            <g key={item.label} transform={`translate(${i * 80}, 0)}`}>
+            <g key={item.label} transform={`translate(${i * 80}, 0)`}>
               <rect x={0} y={0} width={16} height={16} fill={item.color} rx={2} />
               <text x={22} y={13} fill={C.textLight} fontSize={10}>{item.label}</text>
             </g>
@@ -692,7 +692,7 @@ const BookingRateChart: React.FC = () => {
           borderTop: `1px solid ${C.border}`,
         }}
       >
-        <h4 style={{ margin: '0 0 12px', color: C.textDark, fontSize: 13, fontWeight: 600 }}>
+        <h4 style={{ margin: '0 0 12px', color: C.textDark, fontSize: 16, fontWeight: 600 }}>
           每日满员次数统计 (30天)
         </h4>
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
@@ -810,7 +810,7 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
 
       {/* 故障记录列表 */}
       <div>
-        <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
           <AlertTriangle size={16} color={C.warning} />
           故障维修记录
         </h4>

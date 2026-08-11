@@ -94,7 +94,7 @@ export const DicomSrPage: React.FC = () => {
     setEncapsulating(false)
     if (res.success && res.data) {
       setPdfDoc(res.data)
-      message.success('PDF 封装成功 (Encapsulated PDF Storage)')
+      message.success('PDF 封装成功')
     } else {
       message.error(res.error?.message || 'PDF 封装失败')
     }
@@ -238,7 +238,7 @@ export const DicomSrPage: React.FC = () => {
                 <Text copyable style={{ fontSize: 12 }}>{srDoc.sopInstanceUID}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="状态">
-                <Tag color="green">{srDoc.status}</Tag>
+                <Tag color={srDoc.status === 'draft' ? 'orange' : 'green'}>{srDoc.status === 'draft' ? '草稿' : srDoc.status === 'finalized' ? '已定稿' : srDoc.status}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="已生成">{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
@@ -267,7 +267,7 @@ export const DicomSrPage: React.FC = () => {
         title={
           <Space>
             <FilePlus2 size={14} />
-            <span>Encapsulated PDF 封装 (G-01)</span>
+            <span>PDF 封装 (G-01)</span>
             <Tag color="purple">1.2.840.10008.5.1.4.1.1.104.1</Tag>
           </Space>
         }
@@ -328,7 +328,7 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label="Study UID">
                 <Text copyable style={{ fontSize: 12 }}>{pdfDoc.studyInstanceUid}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="大小">{pdfDoc.size} bytes</Descriptions.Item>
+              <Descriptions.Item label="大小">{pdfDoc.size} 字节</Descriptions.Item>
               <Descriptions.Item label="来源">
                 <Tag color={pdfDoc.generatedFrom === 'input' ? 'green' : pdfDoc.generatedFrom === 'url' ? 'blue' : 'orange'}>
                   {pdfDoc.generatedFrom === 'input' ? 'Base64 输入' : pdfDoc.generatedFrom === 'url' ? 'URL 引用' : '报告文本流兜底'}

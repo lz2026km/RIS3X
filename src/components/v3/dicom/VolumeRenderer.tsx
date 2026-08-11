@@ -75,6 +75,8 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
   const [coronalIdx, setCoronalIdx] = useState(32)
 
   const volumeTexRef = useRef<THREE.Data3DTexture | null>(null)
+  const [webglError, setWebglError] = useState<string | null>(null)
+  const [webgl2Ok, setWebgl2Ok] = useState(true)
 
   useEffect(() => {
     const data = createSyntheticVolume(VOLUME_SIZE)
@@ -86,12 +88,30 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
     const w = mountRef.current.clientWidth
     const h = mountRef.current.clientHeight || 500
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    renderer.setSize(w, h)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.setClearColor(0x0f172a, 1)
-    mountRef.current.appendChild(renderer.domElement)
+    let renderer: THREE.WebGLRenderer | null = null
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    } catch (err) {
+      console.warn('[VolumeRenderer] WebGL init failed, degrade to 2D view:', err)
+      setWebglError(err instanceof Error ? err.message : 'WebGL 不可用')
+      return
+    }
+    try {
+      renderer.setSize(w, h)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setClearColor(0x0f172a, 1)
+      mountRef.current.appendChild(renderer.domElement)
+    } catch (err) {
+      console.warn('[VolumeRenderer] WebGL setup failed, degrade to 2D view:', err)
+      try { if (mountRef.current?.contains(renderer.domElement)) mountRef.current.removeChild(renderer.domElement) } catch { /* noop */ }
+      renderer.dispose()
+      setWebglError(err instanceof Error ? err.message : 'WebGL 初始化失败')
+      return
+    }
     rendererRef.current = renderer
+    try {
+      setWebgl2Ok(renderer.capabilities.isWebGL2)
+    } catch { setWebgl2Ok(false) }
 
     const scene = new THREE.Scene()
     sceneRef.current = scene
@@ -176,9 +196,19 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
     }
 
     if (mode === 'VR' || mode === 'MIP') {
+      // texture3D/sampler3D 需要 WebGL2; 同步读取 renderer 能力避免首次渲染用 stale state,
+      // WebGL1 下跳过体积着色器, 仅保留线框盒子降级视图
+      let isWebGL2 = false
+      try { isWebGL2 = rendererRef.current?.capabilities.isWebGL2 === true } catch { isWebGL2 = false }
+      if (!isWebGL2) {
+        setWebgl2Ok(false)
+        return
+      }
       if (volumeTexRef.current) {
         const geo = new THREE.BoxGeometry(2, 2, 2)
+        // WebGL2 下 THREE 按 GLSL ES 3.00 编译: texture3D 已移除, 必须用 texture(sampler3D, vec3)
         const mat = new THREE.ShaderMaterial({
+          glslVersion: THREE.GLSL3,
           uniforms: {
             uVolume: { value: volumeTexRef.current },
             uWw: { value: ww },
@@ -189,7 +219,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
             uCameraPos: { value: cameraRef.current ? cameraRef.current.position : new THREE.Vector3(0, 0, 3) },
           },
           vertexShader: `
-            varying vec3 vPosition;
+            out vec3 vPosition;
             void main() {
               vPosition = position;
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -204,7 +234,8 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
             uniform float uBrightness;
             uniform float uMode;
             uniform vec3 uCameraPos;
-            varying vec3 vPosition;
+            in vec3 vPosition;
+            out vec4 fragColor;
 
             void main() {
               vec3 dir = normalize(uCameraPos - vPosition);
@@ -219,7 +250,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
                 vec3 pos = start + dir * t * 1.732;
                 if (pos.x < -1.0 || pos.x > 1.0 || pos.y < -1.0 || pos.y > 1.0 || pos.z < -1.0 || pos.z > 1.0) break;
                 vec3 uvw = pos * 0.5 + 0.5;
-                float v = texture3D(uVolume, uvw).r;
+                float v = texture(uVolume, uvw).r;
                 float normalized = (v - (uWc - uWw * 0.5)) / uWw;
                 normalized = clamp(normalized + uBrightness, 0.0, 1.0);
 
@@ -235,9 +266,9 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
               }
 
               if (uMode < 0.5) {
-                gl_FragColor = vec4(vec3(maxVal * 0.3, maxVal * 0.5, maxVal * 0.8), 1.0);
+                fragColor = vec4(vec3(maxVal * 0.3, maxVal * 0.5, maxVal * 0.8), 1.0);
               } else {
-                gl_FragColor = accum;
+                fragColor = accum;
               }
             }
           `,
@@ -251,7 +282,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
         volumeRef.current = mesh
       }
     }
-  }, [mode, ww, wc, opacity, brightness, axialIdx, sagittalIdx, coronalIdx])
+  }, [mode, ww, wc, opacity, brightness, axialIdx, sagittalIdx, coronalIdx, webgl2Ok])
 
   const handleReset = useCallback(() => {
     setWw(1500); setWc(500); setOpacity(1); setBrightness(0); setZoom(1)
@@ -275,6 +306,8 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
           <Eye size={14} />
           <span>容积渲染</span>
           <Tag color={mode === 'VR' ? 'purple' : mode === 'MIP' ? 'cyan' : 'blue'}>{mode}</Tag>
+          {webglError && <Tag color="orange">WebGL 不可用，已降级 2D 视图</Tag>}
+          {!webgl2Ok && !webglError && <Tag color="orange">WebGL2 不可用，体积渲染已降级</Tag>}
           {seriesUid && <Tag color="geekblue">{seriesUid.slice(0, 16)}...</Tag>}
         </Space>
       }
@@ -293,7 +326,13 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
         style={{ marginBottom: 8 }}
         block
       />
-      <div ref={mountRef} style={{ flex: 1, minHeight: 360, borderRadius: 6, overflow: 'hidden', position: 'relative', background: '#0f172a' }} />
+      <div ref={mountRef} style={{ flex: 1, minHeight: 360, borderRadius: 6, overflow: 'hidden', position: 'relative', background: '#0f172a' }}>
+        {webglError && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>
+            WebGL 初始化失败，已降级为 2D 视图（{webglError}）
+          </div>
+        )}
+      </div>
       <Row gutter={8} style={{ marginTop: 8 }}>
         <Col span={6}>
           <Tooltip title="窗宽"><Space style={{ width: '100%' }}><small>WW</small><Slider value={ww} min={100} max={4000} step={10} onChange={setWw} /></Space></Tooltip>

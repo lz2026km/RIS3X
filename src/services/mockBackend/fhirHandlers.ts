@@ -103,6 +103,22 @@ const SEED_SUBSCRIPTIONS: any[] = [
   },
 ];
 
+// [W2-B-3] 兼容 /integration/fhir-server 页面直调 (FhirServerPage 用 raw fetch 调
+//   /api/v1/fhir/{Patient|Observation|DiagnosticReport|Practitioner|ImagingStudy|Bundle})
+//   后端真实路径为 /fhir/r4/*, 此处为 demo 模式下的无 /r4 前缀兜底。
+const API_NO_R4 = "/api/v1/fhir";
+const SEED_GENERIC_RESOURCES: Record<string, any[]> = {
+  Patient: SEED_PATIENTS,
+  Observation: SEED_OBSERVATIONS,
+  DiagnosticReport: SEED_REPORTS,
+  Practitioner: [
+    { resourceType: "Practitioner", id: "PR-001", name: [{ family: "张明远", given: ["张明远"] }], telecom: [{ system: "phone", value: "13800138001" }] },
+    { resourceType: "Practitioner", id: "PR-002", name: [{ family: "李慧敏", given: ["李慧敏"] }], telecom: [{ system: "phone", value: "13800138002" }] },
+  ],
+  ImagingStudy: SEED_STUDIES,
+  Bundle: [],
+};
+
 const bundle = (entries: any[]) => ({
   resourceType: "Bundle",
   type: "searchset",
@@ -349,5 +365,24 @@ export const fhirHandlers = [
   http.post(`${API}/auth/revoke`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: { success: true } });
+  }),
+
+  // [W2-B-3] 无 /r4 前缀的资源浏览 (FhirServerPage raw fetch, 直接返回 Bundle 本体)
+  http.get(`${API_NO_R4}/:type`, async ({ params, request }) => {
+    await delay(delayMs());
+    const type = String(params.type ?? 'Patient');
+    const items = SEED_GENERIC_RESOURCES[type] ?? [];
+    const sp = urlParams(request);
+    const name = sp.get("name")?.toLowerCase();
+    let result = items;
+    if (name) result = items.filter((r) => JSON.stringify(r).toLowerCase().includes(name));
+    return HttpResponse.json(bundle(result));
+  }),
+  http.post(`${API_NO_R4}/:type`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json().catch(() => ({}))) as any;
+    const type = String(params.type ?? 'Patient');
+    const resource = { resourceType: type, id: uuidv4(), ...body };
+    return HttpResponse.json(resource, { status: 201 });
   }),
 ];

@@ -710,7 +710,7 @@ export default function ExamPage() {
     SHORTCUTS.CANCEL(() => { if (modal.visible) closeModal(); }),
   ]);
   useNavigationShortcuts([
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exam'; }, description: '导航到检查' },
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams'; }, description: '导航到检查' },
   ]);
 
   // ==================== 渲染组件 ====================

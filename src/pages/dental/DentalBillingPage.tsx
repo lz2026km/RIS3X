@@ -43,8 +43,10 @@ export const DentalBillingPage: React.FC = () => {
       }
       throw new Error('listInvoices 空/不可用');
     } catch {
-      const d = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r => r.json());
-      if (d.success) setInvoices(d.data || []);
+      try {
+        const d = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r => r.json());
+        if (d.success) setInvoices(d.data || []);
+      } catch { /* keep empty */ }
     }
   };
 
@@ -120,6 +122,8 @@ export const DentalBillingPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>收费/划价/医保</span>
         <Tag color="cyan">v3.0.6.8-95</Tag>
         <Tag color="blue">牙医管家 对标</Tag>
+        {/* [v3.0.6.11-88 Round10] /dental/billing/* 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="今日收入" prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
@@ -155,8 +159,10 @@ export const DentalBillingPage: React.FC = () => {
                   <Divider style={{margin:'8px 0'}} />
                   <div style={{display:'flex',justifyContent:'space-between',fontWeight:600}}><span>合计</span><span>¥{newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)}</span></div>
                   <Button type="primary" block style={{marginTop:8}} icon={<DollarSign size={14}/>} onClick={async()=>{
-                    const r=await fetch('/api/v1/dental/billing/invoices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientId:selectedPatient,items:newInvoice.items,total:newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)})});
-                    const d=await r.json();if(d.success){message.success('账单已创建');setNewInvoice({patientId:selectedPatient,items:[]})}
+                    try {
+                      const r=await fetch('/api/v1/dental/billing/invoices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientId:selectedPatient,items:newInvoice.items,total:newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)})});
+                      const d=await r.json();if(d.success){message.success('账单已创建');setNewInvoice({patientId:selectedPatient,items:[]})}
+                    } catch { message.error('账单创建失败'); }
                   }}>创建账单</Button>
                 </Card>
               </Col>
@@ -164,8 +170,10 @@ export const DentalBillingPage: React.FC = () => {
                 <Card size="small" title="实时医保验算">
                   <InputNumber placeholder="输入总金额" style={{width:'100%',marginBottom:8}} />
                   <Button block icon={<Calculator size={14}/>} onClick={async()=>{
-                    const r = await fetch('/api/v1/dental/billing/insurance-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientId:selectedPatient,insuranceType:'城镇职工',feeTotal:newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)})});
-                    const d=await r.json();if(d.success)message.info(`医保报销: ¥${d.data.insuranceCover}, 自付: ¥${d.data.selfPay}`);
+                    try {
+                      const r = await fetch('/api/v1/dental/billing/insurance-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientId:selectedPatient,insuranceType:'城镇职工',feeTotal:newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)})});
+                      const d=await r.json();if(d.success)message.info(`医保报销: ¥${d.data.insuranceCover}, 自付: ¥${d.data.selfPay}`);
+                    } catch { message.error('医保预核验失败'); }
                   }}>医保预核验</Button>
                   <Divider style={{margin:'8px 0'}} />
                   <div style={{fontSize:12,color:'var(--text-secondary)'}}>

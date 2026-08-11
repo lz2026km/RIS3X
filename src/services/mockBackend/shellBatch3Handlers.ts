@@ -535,6 +535,90 @@ export const shellBatch3Handlers = [
     return HttpResponse.json(ok(item), { status: 201 });
   }),
 
+  // [v3.0.6.11-88 Round10] 新路径 /records* + /education-materials* (与后端 consent-education.controller 对齐, 同存储)
+  http.get(`${API_BASE}/consent-education/records`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const combined = [...items, ...CONSENTS.filter((c) => !items.some((i) => i.id === c.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/consent-education/records`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = {
+      id: `C-${Date.now()}`,
+      patient: body?.patient ?? '新患者',
+      type: body?.type ?? 'General',
+      procedure: body?.procedure ?? '标准诊疗流程',
+      signedAt: null,
+      status: 'pending',
+      witness: null,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    try { create('consents', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.get(`${API_BASE}/consent-education/records/:id`, async ({ params }) => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const found = items.find((i) => i.id === params.id) ?? CONSENTS.find((i) => i.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '记录不存在' } }, { status: 404 });
+    return HttpResponse.json(ok(found));
+  }),
+  http.patch(`${API_BASE}/consent-education/records/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const existing = items.find((i) => i.id === params.id) ?? CONSENTS.find((i) => i.id === params.id) ?? { id: params.id };
+    const updated = { ...existing, ...body };
+    try { update('consents', params.id as string, updated); } catch {}
+    return HttpResponse.json(ok(updated));
+  }),
+  http.post(`${API_BASE}/consent-education/records/:id/sign`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const existing = items.find((i) => i.id === params.id) ?? CONSENTS.find((i) => i.id === params.id) ?? { id: params.id };
+    const updated = { ...existing, status: 'signed', signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), signedBy: body?.signer ?? '当前用户', witness: existing.witness ?? '护士站' };
+    try { update('consents', params.id as string, updated); } catch {}
+    return HttpResponse.json(ok(updated));
+  }),
+  http.get(`${API_BASE}/consent-education/education-materials`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(EDUCATION_MATERIALS));
+  }),
+  http.get(`${API_BASE}/consent-education/education-materials/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const found = EDUCATION_MATERIALS.find((m) => m.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '材料不存在' } }, { status: 404 });
+    return HttpResponse.json(ok(found));
+  }),
+  http.post(`${API_BASE}/consent-education/education-materials`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = {
+      id: `M-${Date.now()}`,
+      lang: body?.lang ?? 'zh-CN',
+      category: body?.category ?? 'General',
+      pages: body?.pages ?? 1,
+      views: 0,
+      format: body?.format ?? 'PDF',
+      createdAt: new Date().toISOString().slice(0, 10),
+      ...body,
+    };
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.patch(`${API_BASE}/consent-education/education-materials/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const existing = EDUCATION_MATERIALS.find((m) => m.id === params.id) ?? { id: params.id };
+    return HttpResponse.json(ok({ ...existing, ...body }));
+  }),
+
   // ========== Dental AI findings ==========
   http.get(`${API_BASE}/dental/ai-findings`, async () => {
     await delay(delayMs());

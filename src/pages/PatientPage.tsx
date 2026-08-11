@@ -426,8 +426,8 @@ export default function PatientPage() {
     () =>
       duplicatePatients.filter(
         (d) =>
-          !dismissedDuplicateIds.has(d.patients[0].id) &&
-          !dismissedDuplicateIds.has(d.patients[1].id),
+          !dismissedDuplicateIds.has(d.patients?.[0]?.id ?? '') &&
+          !dismissedDuplicateIds.has(d.patients?.[1]?.id ?? ''),
       ),
     [duplicatePatients, dismissedDuplicateIds],
   );

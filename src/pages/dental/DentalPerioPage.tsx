@@ -12,6 +12,8 @@ import {
 import { Plus } from "lucide-react";
 import { DentalPageLayout, EmptyState, TreatmentActions } from "./DentalShared";
 import type { DentalTreatment } from "./DentalShared";
+// [v3.0.6.11-88 Round10] raw fetch → dentalApi.listTreatments/createTreatment (后端 /dental/treatments 真实存在)
+import { dentalApi } from "../../services/api/dentalApi";
 
 export const DentalPerioPage: React.FC = () => {
   const [treats, setT] = useState<DentalTreatment[]>([]);
@@ -23,12 +25,11 @@ export const DentalPerioPage: React.FC = () => {
   const [form] = Form.useForm();
   const load = () => {
     setLoading(true);
-    fetch(`/api/v1/dental/treatments?type=Periodontal&page=${page}&pageSize=${PAGE_SIZE}`)
-      .then((r) => r.json())
+    dentalApi.listTreatments({ type: 'Periodontal', page, pageSize: PAGE_SIZE })
       .then((d) => {
         if (d.success) {
           setT(d.data);
-          setTotal(d.meta?.total ?? d.data?.length ?? 0);
+          setTotal((d.meta as { total?: number } | undefined)?.total ?? d.data?.length ?? 0);
         }
         setLoading(false);
       })
@@ -40,18 +41,13 @@ export const DentalPerioPage: React.FC = () => {
   const onCreate = async () => {
     try {
       const v = await form.validateFields();
-      const r = await fetch("/api/v1/dental/treatments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...v, type: "Periodontal" }),
-      });
-      const d = await r.json();
+      const d = await dentalApi.createTreatment({ ...v, type: "Periodontal" });
       if (d.success) {
         message.success("已创建牙周治疗");
         setModalOpen(false);
         form.resetFields();
         load();
-      } else message.error(d.message || "创建失败");
+      } else message.error(d.error?.message || "创建失败");
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }

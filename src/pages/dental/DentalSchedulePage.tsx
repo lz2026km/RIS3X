@@ -34,7 +34,8 @@ export const DentalSchedulePage: React.FC = () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [psrSaving, setPsrSaving] = useState(false);
-  const [psrRec, setPsrRec] = useState({ patientId: 'P100001', quadrant: 1, probingDepths: [2,2,2,2,2,2], bleeding: [false,false,false,false,false,false], mobility: 0, psrCode: 1, note: '' });
+  // [G005 2B] 默认患者: 用已加载 patients 列表首条 (加载完成后回填, 不再写死 P100001)
+  const [psrRec, setPsrRec] = useState({ patientId: '', quadrant: 1, probingDepths: [2,2,2,2,2,2], bleeding: [false,false,false,false,false,false], mobility: 0, psrCode: 1, note: '' });
   // [G005 Wave1B] 历史 PSR 记录: dentalApi.listPsrRecords (GET /dental/chart/:patientId/psr)
   const [psrHistory, setPsrHistory] = useState<any[]>([]);
   const [psrLoading, setPsrLoading] = useState(false);
@@ -52,7 +53,10 @@ export const DentalSchedulePage: React.FC = () => {
       setAppts(a.data || []);
       setStats(s.data);
       if (p.success && Array.isArray(p.data)) {
-        setPatients(p.data.map((pt: any) => ({ value: pt.id || pt.patientId, label: `${pt.name} (${pt.id || pt.patientId})` })));
+        const opts = p.data.map((pt: any) => ({ value: pt.id || pt.patientId, label: `${pt.name} (${pt.id || pt.patientId})` }));
+        setPatients(opts);
+        // [G005 2B] 未手动选择时用首条患者作默认 (真实数据, 不再回退硬编码 3 人)
+        setPsrRec(prev => (prev.patientId || opts.length === 0) ? prev : { ...prev, patientId: opts[0]?.value ?? '' });
       }
       if (d.success && Array.isArray(d.data)) {
         setDentists(d.data.map((dt: any) => ({ value: dt.name || dt.id, label: dt.name || dt.id })));
@@ -62,8 +66,13 @@ export const DentalSchedulePage: React.FC = () => {
 
   useEffect(() => { fetchData(); }, [selectedDate]);
 
-  // [G005 Wave1B] 加载历史 PSR 记录 (切换患者时刷新)
+  // [G005 Wave1B] 加载历史 PSR 记录 (切换患者时刷新; 患者未加载完成时跳过, 避免 /chart//psr 空路由)
   useEffect(() => {
+    if (!psrRec.patientId) {
+      setPsrHistory([]);
+      setPsrLoading(false);
+      return;
+    }
     let cancelled = false;
     setPsrLoading(true);
     void dentalApi.listPsrRecords(psrRec.patientId).then((res: any) => {
@@ -83,23 +92,19 @@ export const DentalSchedulePage: React.FC = () => {
     try {
       const values = await form.validateFields();
       setSubmitting(true);
-      const res = await fetch('/api/v1/dental/schedule/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          date: values.date?.format?.('YYYY-MM-DD') || selectedDate,
-          status: 'scheduled',
-        }),
+      // [v3.0.6.11-88 Round10] raw fetch → dentalApi.createScheduleAppointment (后端 POST /dental/schedule/appointments 真实存在)
+      const res = await dentalApi.createScheduleAppointment({
+        ...values,
+        date: values.date?.format?.('YYYY-MM-DD') || selectedDate,
+        status: 'scheduled',
       });
-      const data = await res.json();
-      if (data.success) {
+      if (res.success) {
         message.success('预约已创建');
         form.resetFields();
         setCreateModal(false);
         await fetchData();
       } else {
-        message.error('创建失败: ' + (data.error?.message || '未知错误'));
+        message.error('创建失败: ' + (res.error?.message || '未知错误'));
       }
     } catch (e) { console.error('[F04]', e); }
     setSubmitting(false);
@@ -174,7 +179,7 @@ export const DentalSchedulePage: React.FC = () => {
 
 
                 <Form layout="vertical" size="small">
-                  <Form.Item label="患者"><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients.length > 0 ? patients : [{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} placeholder="选择患者" /></Form.Item>
+                  <Form.Item label="患者"><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients} placeholder="选择患者" /></Form.Item>
                   <Form.Item label="象限"><Segmented value={psrRec.quadrant} onChange={v=>setPsrRec({...psrRec,quadrant:v as number})} options={[{value:1,label:'右上'},{value:2,label:'左上'},{value:3,label:'左下'},{value:4,label:'右下'}]} /></Form.Item>
                   <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>6点探诊深度 (mm)</div>
                   <Row gutter={4}>

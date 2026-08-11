@@ -104,7 +104,7 @@ const MllpMonitorPage: React.FC = () => {
             <Badge status={status?.running ? 'processing' : 'default'} text={status?.running ? '运行中' : '已停止'} />
             <Tag color="purple">v3.0.6.11-75</Tag>
             <Tag color="cyan">30s 自动轮询</Tag>
-            <Button size="small" icon={<BookOpen size={12} />} onClick={() => navigate('/integration/connectathon')}>IHE Connectathon</Button>
+            <Button size="small" icon={<BookOpen size={12} />} onClick={() => navigate('/integration/ihe-connectathon')}>IHE Connectathon</Button>
             <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchAll()}>刷新</Button>
           </Space>
         </div>

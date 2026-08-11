@@ -7,6 +7,7 @@ import { reportDefinitions } from '../data/reportDefinitions'
 import { ReportDefinition } from '../data/reportDefinitions'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { datareportApi } from '../services/api/datareportApi'
+import { olapApi } from '../services/api/analyticsApi'
 import { generateReportInsight } from '../services/reportAiInsight'
 import {
   Layout, Typography, Input, Select, DatePicker, Button, Card,
@@ -123,20 +124,17 @@ export default function DataReportCenterPage() {
     const startDate = dateRange[0]?.format('YYYY-MM-DD') || '2026-01-01'
     const endDate = dateRange[1]?.format('YYYY-MM-DD') || '2026-12-31'
     try {
-      const r = await fetch('/api/v1/olap/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dimensions: ['date', 'modality'],
-          measures: ['exam_count', 'exam_revenue'],
-          filters: [
-            { dimension: 'date', operator: 'between', value: [startDate, endDate] },
-          ],
-          granularity: granularity,
-        }),
+      // [v3.0.6.11-88 Round10] raw fetch → olapApi.query (后端 olap.controller @Post('query') 真实存在)
+      const r = await olapApi.query({
+        dimensions: ['date', 'modality'],
+        measures: ['exam_count', 'exam_revenue'],
+        filters: [
+          { dimension: 'date', operator: 'between', value: [startDate, endDate] },
+        ],
+        granularity: granularity,
       })
-      const data = await r.json()
-      if (data?.rows?.length > 0) {
+      const data = r.data as { rows?: Record<string, unknown>[] } | null
+      if (r.success && data?.rows?.length) {
         setOlapData(data.rows)
       } else {
         setOlapData(null)

@@ -228,6 +228,10 @@ const CvQcPage = lazy(() => import("../pages/cardiac/CvQcPage"));
 const DeviceOpsPage = lazy(() => import("../pages/ops/DeviceOpsPage"));
 const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
 const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
+// [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
+const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
+// [v3.0.6.11-88] Wave6A 血管分析工作台
+const VesselAnalysisPage = lazy(() => import("../pages/cardiac/VesselAnalysisPage"));
 const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
 const CdsStatisticsPage = lazy(() => import("../pages/cds/CdsStatisticsPage"));
 // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -898,6 +902,10 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   // [v3.0.6.11-40] A15 专科模块路由角色映射
   "/mammo/breast-specialty": ["医生", "主任", "管理员"],
   "/cardiac/cardiac-specialty": ["医生", "主任", "管理员"],
+  // [v3.0.6.11-88] Wave6A 血管分析工作台
+  "/cardiac/vessel-analysis": ["医生", "主任", "管理员"],
+  // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
+  "/ops/kpi-wall": ["主任", "管理员"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -1072,6 +1080,8 @@ export const routes: RouteObject[] = [
   wrapped("/ops/devices", React.createElement(DeviceOpsPage)),
   wrapped("/ops/hr", React.createElement(HrOperationsPage)),
   wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
+  // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏 (大屏看板)
+  wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1095,6 +1105,8 @@ export const routes: RouteObject[] = [
       lazy(() => import("../pages/cardiac/CardiacSpecialtyPage")),
     ),
   ),
+  // [v3.0.6.11-88] Wave6A 血管分析工作台 (cardiac 域扩展)
+  wrapped("/cardiac/vessel-analysis", React.createElement(VesselAnalysisPage)),
   wrapped(
     "/ortho-specialty",
     React.createElement(lazy(() => import("../pages/OrthoSpecialtyPage"))),

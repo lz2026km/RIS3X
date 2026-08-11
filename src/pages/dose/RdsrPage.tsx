@@ -18,7 +18,8 @@ export default function RdsrPage() {
     setLoading(true)
     try {
       const res = await rdsrApi.parse(undefined, "CT")
-      setRdsrResult(res)
+      if (res.success && res.data) setRdsrResult(res.data as RdsrResult)
+      else setRdsrResult(null)
     } finally {
       setLoading(false)
     }
@@ -26,13 +27,14 @@ export default function RdsrPage() {
 
   const handleLoadDrls = async () => {
     const res = await rdsrApi.getDrls()
-    setDrls(res)
+    setDrls(Array.isArray(res.data) ? (res.data as DrlEntry[]) : [])
     setActiveTab("drls")
   }
 
   const handleLoadStats = async () => {
     const res = await rdsrApi.getStats()
-    setStats(res)
+    if (res.success && res.data) setStats(res.data as RdsrStats)
+    else setStats(null)
     setActiveTab("stats")
   }
 
@@ -150,19 +152,19 @@ export default function RdsrPage() {
             {stats ? (
               <>
                 <StatCardGrid columns={4} gap={12}>
-                  <StatCard label={t("totalExams")} value={stats.totalExams} icon={<Activity size={20} />} color="#3b82f6" />
-                  <StatCard label={t("avgCtdivol")} value={`${stats.avgCtdivol.toFixed(1)} mGy`} icon={<Calculator size={20} />} color="#10b981" />
-                  <StatCard label={t("avgDlp")} value={`${stats.avgDlp.toFixed(0)} mGy·cm`} icon={<BarChart3 size={20} />} color="#8b5cf6" />
-                  <StatCard label={t("alerts")} value={stats.warningCount + stats.criticalCount} icon={<AlertTriangle size={20} />} color={stats.criticalCount > 0 ? "#dc2626" : "#f59e0b"} subValue={`${t("warning")} ${stats.warningCount} / ${t("critical")} ${stats.criticalCount}`} />
+                  <StatCard label={t("totalExams")} value={stats.totalExams ?? 0} icon={<Activity size={20} />} color="#3b82f6" />
+                  <StatCard label={t("avgCtdivol")} value={`${Number(stats.avgCtdivol ?? 0).toFixed(1)} mGy`} icon={<Calculator size={20} />} color="#10b981" />
+                  <StatCard label={t("avgDlp")} value={`${Number(stats.avgDlp ?? 0).toFixed(0)} mGy·cm`} icon={<BarChart3 size={20} />} color="#8b5cf6" />
+                  <StatCard label={t("alerts")} value={(stats.warningCount ?? 0) + (stats.criticalCount ?? 0)} icon={<AlertTriangle size={20} />} color={(stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#f59e0b"} subValue={`${t("warning")} ${stats.warningCount ?? 0} / ${t("critical")} ${stats.criticalCount ?? 0}`} />
                 </StatCardGrid>
 
-                {stats.trend.length > 0 && (
+                {Array.isArray(stats.trend) && stats.trend.length > 0 && (
                   <div style={{ marginTop: 16 }}>
                     <h4 style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{t("trend")}</h4>
                     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100, padding: "0 8px" }}>
                       {stats.trend.map((p, i) => {
-                        const h = (p.avgCtdivol / (stats.maxCtdivol || 1)) * 80
-                        const h2 = (p.avgDlp / (stats.maxDlp || 1)) * 80
+                        const h = (Number(p.avgCtdivol ?? 0) / (Number(stats.maxCtdivol) || 1)) * 80
+                        const h2 = (Number(p.avgDlp ?? 0) / (Number(stats.maxDlp) || 1)) * 80
                         return (
                           <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                             <div style={{ width: "100%", maxWidth: 28, height: 80, background: "#f1f5f9", borderRadius: "3px 3px 0 0", position: "relative", overflow: "hidden" }}>
@@ -170,10 +172,10 @@ export default function RdsrPage() {
                               <div style={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: `${h2}%`, background: "#10b981", borderRadius: "0 3px 0 0", transition: "height 0.3s" }} />
                             </div>
                             <div style={{ display: "flex", gap: 4 }}>
-                              <span style={{ fontSize: 8, color: "#3b82f6" }}>{p.avgCtdivol.toFixed(0)}</span>
-                              <span style={{ fontSize: 8, color: "#10b981" }}>{p.avgDlp.toFixed(0)}</span>
+                              <span style={{ fontSize: 8, color: "#3b82f6" }}>{Number(p.avgCtdivol ?? 0).toFixed(0)}</span>
+                              <span style={{ fontSize: 8, color: "#10b981" }}>{Number(p.avgDlp ?? 0).toFixed(0)}</span>
                             </div>
-                            <span style={{ fontSize: 8, color: "#94a3b8" }}>{p.date.slice(5)}</span>
+                            <span style={{ fontSize: 8, color: "#94a3b8" }}>{String(p.date ?? "").slice(5)}</span>
                           </div>
                         )
                       })}
@@ -185,11 +187,11 @@ export default function RdsrPage() {
                   </div>
                 )}
 
-                {stats.warningCount + stats.criticalCount > 0 && (
-                  <div style={{ marginTop: 12, padding: 12, background: stats.criticalCount > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                    <AlertTriangle size={16} color={stats.criticalCount > 0 ? "#dc2626" : "#f59e0b"} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: stats.criticalCount > 0 ? "#dc2626" : "#92400e" }}>
-                      {t("overThreshold")}: {t("warning")} {stats.warningCount}, {t("critical")} {stats.criticalCount}
+                {(stats.warningCount ?? 0) + (stats.criticalCount ?? 0) > 0 && (
+                  <div style={{ marginTop: 12, padding: 12, background: (stats.criticalCount ?? 0) > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                    <AlertTriangle size={16} color={(stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#f59e0b"} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: (stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#92400e" }}>
+                      {t("overThreshold")}: {t("warning")} {stats.warningCount ?? 0}, {t("critical")} {stats.criticalCount ?? 0}
                     </span>
                   </div>
                 )}

@@ -245,13 +245,18 @@ export const DicomDimsePage: React.FC = () => {
     setStoreLoading(true)
     const formData = new FormData()
     formData.append('file', file)
-    const res = await fetch('/api/v1/dicom-dimse/store', { method: 'POST', body: formData })
-    if (res.ok) {
-      setStoreResults(prev => [...prev, { fileName: file.name, status: 'SUCCESS', sizeBytes: file.size }])
-      message.success('C-STORE 成功')
-    } else {
+    try {
+      const res = await fetch('/api/v1/dicom-dimse/store', { method: 'POST', body: formData })
+      if (res.ok) {
+        setStoreResults(prev => [...prev, { fileName: file.name, status: 'SUCCESS', sizeBytes: file.size }])
+        message.success('C-STORE 成功')
+      } else {
+        setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])
+        message.error('C-STORE 失败')
+      }
+    } catch {
       setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])
-      message.error('C-STORE 失败')
+      message.error('C-STORE 网络错误')
     }
     setStoreLoading(false)
   }
@@ -474,6 +479,8 @@ export const DicomDimsePage: React.FC = () => {
         <Radio size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 管理</span>
         <Tag color="blue">v3.0</Tag>
+        {/* [v3.0.6.11-88 Round10] C-STORE 本地文件上传为演示行为 (后端 /dicom-dimse/store 为 JSON 协议) */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
       <Alert title="DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 服务；v3.0.6.11-86 新增 TLS 安全 (G-03) 与 MPPS 检查进度 (G-05)" type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />

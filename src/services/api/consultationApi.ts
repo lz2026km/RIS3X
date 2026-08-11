@@ -41,6 +41,16 @@ export interface ConsultationCommentDto {
   parentId?: string
 }
 
+export interface ConsultationStatsDto {
+  total: number
+  pendingCount: number
+  repliedCount: number
+  completedCount: number
+  cancelledCount: number
+  byType: Record<string, number>
+  byDepartment: Record<string, number>
+}
+
 export const consultationApi = {
   // [Wave1B] 后端已实现 (consultations.controller) — 页面在用 (ConsultationPage/QCPage)
   list: (params?: { status?: string; priority?: string }) =>
@@ -91,4 +101,16 @@ export const consultationApi = {
   // [Wave1B] 后端已实现 (consultations.controller) — 当前无页面引用
   complete: (id: string, notes?: string) =>
     api.post<ConsultationDto>(`/consultations/${id}/complete`, { notes }),
+
+  // [v3.0.6.11-88] 后端已实现: GET /consultations/stats
+  getStats: () =>
+    api.get<ConsultationStatsDto>('/consultations/stats'),
+
+  // [v3.0.6.11-88] 后端已实现: POST /consultations/:id/invite ({ doctorIds: string[] })
+  invite: (id: string, doctorIds: string[]) =>
+    api.post<ConsultationDto>(`/consultations/${id}/invite`, { doctorIds }),
+
+  // [v3.0.6.11-88] 后端已实现: POST /consultations/:id/start
+  start: (id: string) =>
+    api.post<ConsultationDto>(`/consultations/${id}/start`),
 }

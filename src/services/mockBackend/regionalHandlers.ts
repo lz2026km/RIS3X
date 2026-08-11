@@ -174,6 +174,17 @@ export const regionalHandlers = [
     const result = applyQuery([{ id: 'MA001', name: '东华区医联体', level: '区域', type: '紧密型', memberCount: 4, status: 'ACTIVE' }] as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+
+  // [W2-B-3] 医联体转诊记录 (MedicalAlliancePage raw fetch, 后端暂无此端点)
+  http.get(`${API}/alliance-referrals`, async () => {
+    await delay(delayMs());
+    const items = [
+      { id: 'REF-001', patientName: '张伟', patientId: 'P000023', fromMemberId: 'MA001', fromMemberName: '东华区第一医院', toMemberId: 'MA002', toMemberName: '西城区人民医院', diagnosis: '肺结节性质待定', priority: 'normal', status: 'pending', createdAt: '2026-08-01T09:30:00Z' },
+      { id: 'REF-002', patientName: '王芳', patientId: 'P000047', fromMemberId: 'MA002', fromMemberName: '西城区人民医院', toMemberId: 'MA001', toMemberName: '东华区第一医院', diagnosis: '颅内占位', priority: 'urgent', status: 'accepted', createdAt: '2026-07-30T14:00:00Z', completedAt: '' },
+      { id: 'REF-003', patientName: '李强', patientId: 'P000088', fromMemberId: 'MA003', fromMemberName: '高新区中心医院', toMemberId: 'MA001', toMemberName: '东华区第一医院', diagnosis: '冠脉CTA异常', priority: 'normal', status: 'completed', createdAt: '2026-07-28T10:00:00Z', completedAt: '2026-07-29T16:30:00Z' },
+    ];
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
   http.get(`${API}/integration/:name`, async ({ request, params }) => {
     await delay(delayMs());
     const url = new URL(request.url);
@@ -181,6 +192,28 @@ export const regionalHandlers = [
     const name = String(params.name);
     const data = SEED_INTEGRATION_STATUS[name] ?? { status: 'UNKNOWN', lastSync: '', error: `未配置 ${name}` };
     return HttpResponse.json({ success: true, data });
+  }),
+
+  // [v3.0.6.11-88 Round10] 双无死链补齐: /regional/share-records + /regional/sla-data
+  //   (RegionalReportList raw fetch, 后端 regional.controller 暂无此端点, 演示数据)
+  http.get(`${API}/share-records`, async () => {
+    await delay(delayMs());
+    const items = [
+      { id: 'SH-001', reportId: 'RPT-20260701', patientName: '张伟', institution: '东华区第一医院', targetInstitution: '西城区人民医院', sharedDate: '2026-07-08 09:32', sharedBy: '王建华', status: 'active', consent: true, accessCount: 3 },
+      { id: 'SH-002', reportId: 'RPT-20260702', patientName: '王芳', institution: '西城区人民医院', targetInstitution: '高新区中心医院', sharedDate: '2026-07-07 14:03', sharedBy: '李慧敏', status: 'active', consent: true, accessCount: 1 },
+      { id: 'SH-003', reportId: 'RPT-20260628', patientName: '刘敏', institution: '东华区第一医院', targetInstitution: '南港区第二医院', sharedDate: '2026-07-02 10:15', sharedBy: '张明远', status: 'revoked', consent: true, accessCount: 0 },
+    ];
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
+  http.get(`${API}/sla-data`, async () => {
+    await delay(delayMs());
+    const items = [
+      { id: 'SLA-001', siteName: '东华区第一医院', assignedExams: 42, completedExams: 39, avgTAT: '2.4h', slaTarget: '2h', slaCompliance: 96 },
+      { id: 'SLA-002', siteName: '西城区人民医院', assignedExams: 31, completedExams: 27, avgTAT: '3.2h', slaTarget: '3h', slaCompliance: 88 },
+      { id: 'SLA-003', siteName: '高新区中心医院', assignedExams: 28, completedExams: 26, avgTAT: '1.6h', slaTarget: '1h', slaCompliance: 94 },
+      { id: 'SLA-004', siteName: '南港区第二医院', assignedExams: 35, completedExams: 24, avgTAT: '4.1h', slaTarget: '2h', slaCompliance: 74 },
+    ];
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
   }),
 
   // ── [G005-P1] 医联体影像页在用孤儿 ──

@@ -7,10 +7,11 @@ import { usePagination } from '../hooks/usePagination'
 import { invalidateApiCache } from '../services/api/client'
 import {
   vnaApi, type VnaObject, type VnaObjectType, type VnaStats, type VnaStudy, type PatientArchive,
+  type VnaLifecycleTier, type LifecyclePolicy, type LifecycleEvent, TIER_LABEL,
 } from '../services/api/vnaApi'
 import { UploadOutlined } from '@ant-design/icons'
 import {
-  Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, Modal, Popconfirm,
+  Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, Modal, Popconfirm,
   Row, Select, Space, Statistic, Table, Tabs, Tag, Timeline, Typography, Upload, message,
 } from 'antd'
 import {
@@ -27,13 +28,23 @@ import {
   ShieldCheck,
   User,
   Database as DatabaseIcon,
+  Layers as LayersIcon,
 } from 'lucide-react'
-import { Inbox, Trash2 } from 'lucide-react'
+import { Inbox, Trash2, ArrowRight } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const { Text } = Typography
 
 const TYPE_LABEL: Record<VnaObjectType, string> = { document: '文档', image: '图像' }
+
+// [G-26] ILM 分层标签
+const TIER_TAG: Record<VnaLifecycleTier, { color: string; label: string }> = {
+  hot: { color: 'red', label: '热层' },
+  warm: { color: 'orange', label: '温层' },
+  cold: { color: 'blue', label: '冷层' },
+}
+
+const TIER_ORDER: VnaLifecycleTier[] = ['hot', 'warm', 'cold']
 
 function formatSize(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B'
@@ -84,6 +95,17 @@ const VNADashboardPage: React.FC = () => {
   const [patientArchive, setPatientArchive] = useState<PatientArchive | null>(null)
   const [patientLoading, setPatientLoading] = useState(false)
 
+  // [G-26] ILM 生命周期
+  const [policies, setPolicies] = useState<LifecyclePolicy[]>([])
+  const [events, setEvents] = useState<LifecycleEvent[]>([])
+  const [lifecycleLoading, setLifecycleLoading] = useState(false)
+  const [policyModalOpen, setPolicyModalOpen] = useState(false)
+  const [editingPolicy, setEditingPolicy] = useState<LifecyclePolicy | null>(null)
+  const [policySaving, setPolicySaving] = useState(false)
+  const [policyForm] = Form.useForm()
+  const [migrateTarget, setMigrateTarget] = useState<{ object: VnaObject; tier: VnaLifecycleTier } | null>(null)
+  const [migrating, setMigrating] = useState(false)
+
   const previewRevoked = useRef<Set<string>>(new Set())
 
   const loadStats = useCallback(async () => {
@@ -119,6 +141,19 @@ const VNADashboardPage: React.FC = () => {
     }
   }, [])
 
+  // [G-26] 生命周期数据
+  const loadLifecycle = useCallback(async () => {
+    setLifecycleLoading(true)
+    try {
+      const [pRes, eRes] = await Promise.all([vnaApi.getLifecyclePolicies(), vnaApi.getLifecycleEvents(100)])
+      if (pRes.success) setPolicies(pRes.data)
+      else message.error(pRes.error?.message || '生命周期策略加载失败')
+      if (eRes.success) setEvents(eRes.data)
+    } finally {
+      setLifecycleLoading(false)
+    }
+  }, [])
+
   const refreshArchive = useCallback(async () => {
     await invalidateApiCache('/vna/objects')
     await invalidateApiCache('/vna/stats')
@@ -126,14 +161,16 @@ const VNADashboardPage: React.FC = () => {
     void loadObjects()
     void loadStats()
     void loadStudies()
-  }, [loadObjects, loadStats, loadStudies])
+    void loadLifecycle()
+  }, [loadObjects, loadStats, loadStudies, loadLifecycle])
 
   useEffect(() => {
     document.title = 'VNA 厂商中立归档 - G005 RIS'
     void loadStats()
     void loadObjects()
     void loadStudies()
-  }, [loadStats, loadObjects, loadStudies])
+    void loadLifecycle()
+  }, [loadStats, loadObjects, loadStudies, loadLifecycle])
 
   const revokePreview = useCallback((url: string | null) => {
     if (url && !previewRevoked.current.has(url)) {
@@ -245,6 +282,66 @@ const VNADashboardPage: React.FC = () => {
     }
   }, [refreshArchive])
 
+  // ─────────────────────── [G-26] ILM 生命周期 ───────────────────────
+
+  const openPolicyModal = useCallback((policy: LifecyclePolicy | null) => {
+    setEditingPolicy(policy)
+    if (policy) {
+      policyForm.setFieldsValue({ tier: policy.tier, retentionDays: policy.retentionDays, description: policy.description })
+    } else {
+      policyForm.resetFields()
+      policyForm.setFieldsValue({ tier: 'warm', retentionDays: 90 })
+    }
+    setPolicyModalOpen(true)
+  }, [policyForm])
+
+  const handlePolicySave = useCallback(async () => {
+    const values = await policyForm.validateFields()
+    setPolicySaving(true)
+    try {
+      const payload = { tier: values.tier as VnaLifecycleTier, retentionDays: Number(values.retentionDays), description: values.description }
+      const res = editingPolicy
+        ? await vnaApi.updateLifecyclePolicy(editingPolicy.id, payload)
+        : await vnaApi.createLifecyclePolicy(payload)
+      if (res.success) {
+        message.success(editingPolicy ? `策略 ${res.data.tier} 已更新` : `策略 ${res.data.tier} 已创建`)
+        setPolicyModalOpen(false)
+        void loadLifecycle()
+      } else {
+        message.error(res.error?.message || '策略保存失败')
+      }
+    } finally {
+      setPolicySaving(false)
+    }
+  }, [policyForm, editingPolicy, loadLifecycle])
+
+  const handlePolicyDelete = useCallback(async (policy: LifecyclePolicy) => {
+    const res = await vnaApi.deleteLifecyclePolicy(policy.id)
+    if (res.success) {
+      message.success(`策略 ${policy.tier} 已删除`)
+      void loadLifecycle()
+    } else {
+      message.error(res.error?.message || '策略删除失败')
+    }
+  }, [loadLifecycle])
+
+  const handleMigrate = useCallback(async () => {
+    if (!migrateTarget) return
+    setMigrating(true)
+    try {
+      const res = await vnaApi.migrateObject(migrateTarget.object.id, migrateTarget.tier, '手动迁移 (G-26 ILM)')
+      if (res.success) {
+        message.success(`${migrateTarget.object.name} → ${TIER_LABEL[migrateTarget.tier]}`)
+        setMigrateTarget(null)
+        void refreshArchive()
+      } else {
+        message.error(res.error?.message || '迁移失败')
+      }
+    } finally {
+      setMigrating(false)
+    }
+  }, [migrateTarget, refreshArchive])
+
   // ─────────────────────── 患者归档视图 ───────────────────────
 
   const handleQueryPatient = useCallback(async () => {
@@ -337,7 +434,25 @@ const VNADashboardPage: React.FC = () => {
     { title: 'WORM', dataIndex: 'wormLocked', key: 'worm', width: 90, render: (v: boolean) => v
       ? <Tag color="purple" icon={<Lock size={12} />}>已锁定</Tag>
       : <Tag icon={<LockOpen size={12} />}>未锁定</Tag> },
-    { title: '操作', key: 'actions', width: 220, render: (_: unknown, r: VnaObject) => actionRender(r) },
+    // [G-26] ILM 分层
+    { title: '存储层', dataIndex: 'tier', key: 'tier', width: 90, render: (v: VnaLifecycleTier | undefined, r: VnaObject) => {
+      const tier = (v ?? r.tier ?? 'hot') as VnaLifecycleTier
+      const conf = TIER_TAG[tier]
+      return <Tag color={conf.color}>{conf.label}</Tag>
+    } },
+    { title: '操作', key: 'actions', width: 280, render: (_: unknown, r: VnaObject) => (
+      <Space size={4}>
+        {actionRender(r)}
+        <Button
+          size="small"
+          type="link"
+          icon={<LayersIcon size={13} />}
+          onClick={() => setMigrateTarget({ object: r, tier: 'warm' })}
+        >
+          迁移
+        </Button>
+      </Space>
+    ) },
   ]
 
   return (
@@ -515,6 +630,76 @@ const VNADashboardPage: React.FC = () => {
                 </div>
               ),
             },
+            {
+              key: 'lifecycle',
+              label: `生命周期 (${policies.length})`,
+              children: (
+                <div data-testid="vna-lifecycle-panel">
+                  <Alert
+                    style={{ marginBottom: 16 }}
+                    type="info"
+                    showIcon
+                    title="G-26 ILM 影像生命周期 · VNA 分层存储"
+                    description="hot 热层 (SSD 在线) → warm 温层 (近线 HDD) → cold 冷层 (冷归档)。策略/事件为内存 + seed 存储, 迁移操作实时生效并记录事件日志。"
+                  />
+                  <Space style={{ marginBottom: 12 }} wrap>
+                    <Button type="primary" icon={<Plus size={14} />} onClick={() => openPolicyModal(null)}>新建策略</Button>
+                    <Button icon={<RefreshCw size={14} />} loading={lifecycleLoading} onClick={() => void loadLifecycle()}>刷新</Button>
+                    <Text type="secondary">共 {policies.length} 条策略 · {events.length} 条事件</Text>
+                  </Space>
+                  <Card size="small" title="分层策略" style={{ marginBottom: 16 }}>
+                    <Table
+                      data-testid="vna-lifecycle-policies"
+                      rowKey="id"
+                      size="small"
+                      loading={lifecycleLoading}
+                      dataSource={policies}
+                      pagination={false}
+                      columns={[
+                        { title: '层', dataIndex: 'tier', key: 'tier', width: 100, render: (v: VnaLifecycleTier) => <Tag color={TIER_TAG[v]?.color}>{TIER_TAG[v]?.label}</Tag> },
+                        { title: '保留天数', dataIndex: 'retentionDays', key: 'retentionDays', width: 110, render: (v: number) => v === 0 ? '即时 (0 天)' : `${v} 天` },
+                        { title: '说明', dataIndex: 'description', key: 'desc', ellipsis: true },
+                        { title: '对象数', dataIndex: 'objectCount', key: 'count', width: 80 },
+                        { title: '操作', key: 'ops', width: 150, render: (_: unknown, r: LifecyclePolicy) => (
+                          <Space size={4}>
+                            <Button size="small" type="link" onClick={() => openPolicyModal(r)}>编辑</Button>
+                            <Popconfirm title="删除该分层策略?" okText="删除" cancelText="取消" okButtonProps={{ danger: true }} onConfirm={() => void handlePolicyDelete(r)}>
+                              <Button size="small" type="link" danger>删除</Button>
+                            </Popconfirm>
+                          </Space>
+                        ) },
+                      ]}
+                    />
+                  </Card>
+                  <Card size="small" title="迁移/过期事件日志">
+                    <Table
+                      data-testid="vna-lifecycle-events"
+                      rowKey="id"
+                      size="small"
+                      dataSource={events}
+                      pagination={{ pageSize: 8, showSizeChanger: false }}
+                      columns={[
+                        { title: '时间', dataIndex: 'createdAt', key: 'at', width: 160, render: (v: string) => formatDate(v) },
+                        { title: '对象', dataIndex: 'objectName', key: 'name', ellipsis: true },
+                        { title: '动作', dataIndex: 'action', key: 'action', width: 110, render: (v: LifecycleEvent['action']) => (
+                          <Tag color={v === 'migrate' ? 'geekblue' : v === 'expire' ? 'red' : 'cyan'}>
+                            {v === 'migrate' ? '迁移' : v === 'expire' ? '过期' : '策略应用'}
+                          </Tag>
+                        ) },
+                        { title: '分层变化', key: 'tiers', width: 160, render: (_: unknown, r: LifecycleEvent) => (
+                          <Space size={4}>
+                            <Tag color={TIER_TAG[r.fromTier]?.color}>{TIER_TAG[r.fromTier]?.label}</Tag>
+                            <ArrowRight size={12} />
+                            {r.toTier ? <Tag color={TIER_TAG[r.toTier]?.color}>{TIER_TAG[r.toTier]?.label}</Tag> : <Tag>已过期</Tag>}
+                          </Space>
+                        ) },
+                        { title: '原因', dataIndex: 'reason', key: 'reason', ellipsis: true },
+                      ]}
+                    />
+                  </Card>
+                </div>
+              ),
+            },
           ]}
         />
       </Card>
@@ -630,6 +815,62 @@ const VNADashboardPage: React.FC = () => {
           </>
         )}
       </Drawer>
+
+      {/* [G-26] 分层策略 Modal */}
+      <Modal
+        title={editingPolicy ? `编辑策略 · ${TIER_LABEL[editingPolicy.tier]}` : '新建分层策略'}
+        open={policyModalOpen}
+        onCancel={() => setPolicyModalOpen(false)}
+        onOk={() => void handlePolicySave()}
+        confirmLoading={policySaving}
+        okText="保存"
+        cancelText="取消"
+        destroyOnHidden
+      >
+        <Form form={policyForm} layout="vertical">
+          <Form.Item name="tier" label="存储层" rules={[{ required: true, message: '请选择存储层' }]}>
+            <Select
+              options={TIER_ORDER.map((t) => ({ value: t, label: `${TIER_TAG[t].label} · ${TIER_LABEL[t]}` }))}
+            />
+          </Form.Item>
+          <Form.Item name="retentionDays" label="保留天数 (进入该层前的天数, 0 = 即时)" rules={[{ required: true, message: '请输入保留天数' }]}>
+            <InputNumber style={{ width: '100%' }} min={0} max={36500} />
+          </Form.Item>
+          <Form.Item name="description" label="说明">
+            <Input.TextArea rows={2} maxLength={300} placeholder="策略说明" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* [G-26] 对象迁移 Modal */}
+      <Modal
+        title="对象分层迁移"
+        open={migrateTarget != null}
+        onCancel={() => setMigrateTarget(null)}
+        onOk={() => void handleMigrate()}
+        confirmLoading={migrating}
+        okText="迁移"
+        cancelText="取消"
+        destroyOnHidden
+      >
+        {migrateTarget && (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Descriptions column={1} size="small" bordered>
+              <Descriptions.Item label="对象">{migrateTarget.object.name}</Descriptions.Item>
+              <Descriptions.Item label="当前层">
+                <Tag color={TIER_TAG[migrateTarget.object.tier ?? 'hot'].color}>{TIER_TAG[migrateTarget.object.tier ?? 'hot'].label}</Tag>
+              </Descriptions.Item>
+            </Descriptions>
+            <Text>目标存储层:</Text>
+            <Select
+              style={{ width: '100%' }}
+              value={migrateTarget.tier}
+              onChange={(t: VnaLifecycleTier) => setMigrateTarget({ ...migrateTarget, tier: t })}
+              options={TIER_ORDER.map((t) => ({ value: t, label: `${TIER_TAG[t].label} · ${TIER_LABEL[t]}` }))}
+            />
+          </Space>
+        )}
+      </Modal>
     </div>
   )
 }

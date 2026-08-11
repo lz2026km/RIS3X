@@ -165,6 +165,8 @@ export const ToricPlannerPage: React.FC = () => {
         <Tag color="cyan">PR3</Tag>
         <Tag color="purple">v3.0.6.8-36</Tag>
         <Tag color="blue">Barrett II / Kane / Hill-RBF 真实</Tag>
+        {/* [v3.0.6.11-88 Round10] /eye/iol/toric|predict 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
       </Space>
 
       <Tabs

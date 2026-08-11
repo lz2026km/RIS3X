@@ -46,11 +46,43 @@ const IolCalculatorPage: React.FC = () => {
 
   // 兜底:页面级记录最近一次结果
   const [lastSummary, setLastSummary] = useState<{ formula: string; iolPower: number } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const handleSaveToPatient = (record: { formula: string; iolPower: number }) => {
+  // [v3.0.6.11-88 P0] 提交到病历: 真实 POST /eye/iol/calculations, 失败回退本地记录 + 提示
+  const handleSaveToPatient = async (record: { formula: string; iolPower: number }, surgeon?: string) => {
     setLastSummary(record);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2500);
+    setSaveError(null);
+    setSaving(true);
+    try {
+      const { eyeApi } = await import('@/services/api/eyeApi');
+      const res = await eyeApi.saveIolCalculation({
+        patientId: patientId ?? undefined,
+        patientName: undefined,
+        eyeSide: eyeSide ?? undefined,
+        surgeon: surgeon ?? undefined,
+        formula: record.formula,
+        iolPower: record.iolPower,
+        iolModel: initialInput.iolModel,
+        al: initialInput.al,
+        k1: initialInput.k1,
+        k2: initialInput.k2,
+        acd: initialInput.acd,
+        lt: initialInput.lt,
+        wtw: initialInput.wtw,
+        cct: initialInput.cct,
+        aConstant: initialInput.aConstant,
+      });
+      if (!res.success) throw new Error('API 保存失败');
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 2500);
+    } catch {
+      setSaveError('后端保存失败，计算结果已保留在本地（待接入 EMR 写回）');
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 2500);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -77,7 +109,7 @@ const IolCalculatorPage: React.FC = () => {
             <Form
               layout="inline"
               onFinish={(values) => {
-                handleSaveToPatient({ formula: 'recommended', iolPower: Number(values.iolPower) || 0 });
+                void handleSaveToPatient({ formula: 'recommended', iolPower: Number(values.iolPower) || 0 }, values.surgeon);
               }}
             >
               <Form.Item name="surgeon" label="术者" rules={[{ required: true, message: '请选择术者' }]}>
@@ -95,7 +127,7 @@ const IolCalculatorPage: React.FC = () => {
                 <InputNumber min={0} max={40} step={0.5} placeholder="如 21.0" style={{ width: 120 }} />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" icon={<CheckCircle2 size={14} />}>
+                <Button type="primary" htmlType="submit" icon={<CheckCircle2 size={14} />} loading={saving}>
                   提交到病历
                 </Button>
               </Form.Item>
@@ -103,9 +135,9 @@ const IolCalculatorPage: React.FC = () => {
             {submitted && (
               <Alert
                 style={{ marginTop: 8 }}
-                type="success"
+                type={saveError ? 'warning' : 'success'}
                 showIcon
-                title={`已提交${patientId ? `至患者 ${patientId}` : '计算结果'}`}
+                title={saveError ?? `已提交${patientId ? `至患者 ${patientId}` : '计算结果'}`}
               />
             )}
           </Card>

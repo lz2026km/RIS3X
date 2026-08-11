@@ -1,7 +1,7 @@
 // @ts-nocheck
 // 影像预约管理系统 - 患者影像检查预约管理
 // 功能：预约列表、改约/取消、冲突检测、预约统计
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { replayOrderEvent } from '../utils/orderStateAdapter'
 import {
   CalendarClock, ListOrdered, AlertTriangle, Search, Filter, RefreshCw,
@@ -135,9 +135,53 @@ const generateMockAppointments = (): Appointment[] => {
   ]
 }
 
+// [G005 Wave4A P1] 预约 DTO → 页面 Appointment 形状 (兼容后端 startAt/state 与 mock 本地形状)
+const mapAppointmentDto = (d: any): Appointment => {
+  if (d.examDate && d.status && d.patientName) {
+    return { ...d, priority: d.priority === 'STAT' ? 'critical' : d.priority === 'URGENT' ? 'urgent' : (d.priority ?? 'normal') }
+  }
+  const start = d.startAt ? new Date(d.startAt) : new Date()
+  const fmtDate = (dt: Date) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+  const stateMap: Record<string, Appointment['status']> = {
+    SCHEDULED: 'pending', CONFIRMED: 'confirmed', CHECKED_IN: 'checked-in',
+    IN_PROGRESS: 'checked-in', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
+  }
+  return {
+    id: d.id,
+    patientId: d.patientId ?? '',
+    patientName: d.patientName ?? '未知患者',
+    patientInitials: getNameInitials(d.patientName ?? ''),
+    gender: d.gender ?? '未知',
+    age: d.age ?? 0,
+    idCard: d.idCard ?? '',
+    phone: d.phone ?? '',
+    examItemId: '',
+    examItemName: d.bodyPart ? `${d.modality} ${d.bodyPart}` : (d.modality ?? '检查'),
+    modality: d.modality ?? '',
+    bodyPart: d.bodyPart ?? '',
+    examDate: fmtDate(start),
+    examTime: `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`,
+    deviceId: d.deviceId ?? '',
+    deviceName: d.deviceName ?? '',
+    roomId: '',
+    roomName: d.room ?? '',
+    referringDoctorId: '',
+    referringDoctorName: d.referringDoctor ?? '',
+    clinicalDiagnosis: d.note ?? '',
+    notes: d.note ?? '',
+    status: stateMap[d.state] ?? 'pending',
+    priority: d.priority === 'URGENT' ? 'urgent' : d.priority === 'STAT' ? 'critical' : 'normal',
+    createdAt: d.createdAt ?? '',
+    updatedAt: d.updatedAt ?? '',
+  }
+}
+
 // ==================== 主组件 ====================
 export default function AppointmentManagementPage() {
   const [appointments, setAppointments] = useState<Appointment[]>(generateMockAppointments())
+  const [dataSource, setDataSource] = useState<'real' | 'demo'>('demo')
+  const [listLoading, setListLoading] = useState(false)
+  const [listError, setListError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
   const [searchKeyword, setSearchKeyword] = useState('')
   const [filterModality, setFilterModality] = useState('全部')
@@ -150,6 +194,30 @@ export default function AppointmentManagementPage() {
     monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1))
     return monday
   })
+
+  // [G005 Wave4A P1] 真实加载预约列表 (appointmentApi.list), 失败回退本地 mock + 演示徽标
+  const loadAppointments = useCallback(async (silent = false) => {
+    if (!silent) setListLoading(true)
+    try {
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.list({ take: 100 })
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setAppointments(res.data.map(mapAppointmentDto))
+        setDataSource('real')
+        setListError(null)
+      } else {
+        setListError('预约服务暂不可用，当前展示演示数据')
+        setDataSource('demo')
+      }
+    } catch {
+      setListError('预约服务暂不可用，当前展示演示数据')
+      setDataSource('demo')
+    } finally {
+      setListLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadAppointments() }, [loadAppointments])
 
   // 弹窗状态
   const [showDetailModal, setShowDetailModal] = useState(false)
@@ -187,6 +255,7 @@ export default function AppointmentManagementPage() {
         createdById: 'cur-user',
       })
       if (res.success) {
+        setDataSource('real')
         const deviceName = createForm.deviceName || `${createForm.modality}设备`
         const newApt: Appointment = {
           id: `IMG-${String(appointments.length + 1).padStart(3, '0')}`,
@@ -327,8 +396,8 @@ export default function AppointmentManagementPage() {
     return conflicts
   }
 
-  // 改约操作
-  const handleReschedule = () => {
+  // 改约操作 ([G005 Wave4A P1] 真实 API 优先, 失败回退本地 + 演示徽标)
+  const handleReschedule = async () => {
     if (!selectedAppointment || !rescheduleData.examDate || !rescheduleData.examTime) return
 
     const updatedApt: Appointment = {
@@ -345,18 +414,35 @@ export default function AppointmentManagementPage() {
       return
     }
 
+    try {
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.update(selectedAppointment.id, {
+        startAt: `${rescheduleData.examDate}T${rescheduleData.examTime}:00`,
+        endAt: `${rescheduleData.examDate}T${rescheduleData.examTime}:30`,
+      })
+      if (res.success && (res.data === null || typeof res.data === 'object')) setDataSource('real')
+      else setDataSource('demo')
+    } catch { setDataSource('demo') }
+
     setAppointments(prev => prev.map(a => a.id === selectedAppointment.id ? updatedApt : a))
     setShowRescheduleModal(false)
     setSelectedAppointment(null)
     setRescheduleData({ examDate: '', examTime: '', deviceId: '' })
   }
 
-  // 取消操作
-  const handleCancel = () => {
+  // 取消操作 ([G005 Wave4A P1] 真实 API 优先, 失败回退本地 + 演示徽标)
+  const handleCancel = async () => {
     if (!selectedAppointment || !cancelReason) return
 
     // orderMachine: approved/scheduled/confirmed → cancelled via CANCEL (with reason)
     replayOrderEvent(selectedAppointment.status, { type: 'CANCEL', reason: cancelReason, by: 'system' })
+
+    try {
+      const { appointmentApi } = await import('../services/api/appointmentApi')
+      const res = await appointmentApi.cancel(selectedAppointment.id)
+      if (res.success && (res.data === null || typeof res.data === 'object')) setDataSource('real')
+      else setDataSource('demo')
+    } catch { setDataSource('demo') }
 
     setAppointments(prev => prev.map(a =>
       a.id === selectedAppointment.id
@@ -687,11 +773,31 @@ export default function AppointmentManagementPage() {
     <div style={styles.container}>
       {/* 头部 */}
       <div style={styles.header}>
-        <div style={styles.headerTitle}>
-          <CalendarClock size={28} />
-          影像预约管理
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={styles.headerTitle}>
+            <CalendarClock size={28} />
+            影像预约管理
+          </div>
+          {/* [G005 Wave4A P1] 数据源徽标 */}
+          <span style={{
+            fontSize: '12px', fontWeight: 600, padding: '3px 12px', borderRadius: 12,
+            background: dataSource === 'real' ? 'rgba(22,163,74,0.25)' : 'rgba(245,158,11,0.3)',
+            color: dataSource === 'real' ? '#d1fae5' : '#fde68a',
+            border: `1px solid ${dataSource === 'real' ? '#34d399' : '#fbbf24'}`,
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: dataSource === 'real' ? '#34d399' : '#fbbf24',
+            }} />
+            {dataSource === 'real' ? '真实数据' : '演示数据'}
+          </span>
+          {listLoading && <span style={{ fontSize: 12, opacity: 0.85 }}>加载中...</span>}
         </div>
-        <div style={styles.headerSubtitle}>患者影像检查预约管理 · 预约列表 · 改约/取消 · 冲突检测 · 预约统计</div>
+        <div style={styles.headerSubtitle}>
+          患者影像检查预约管理 · 预约列表 · 改约/取消 · 冲突检测 · 预约统计
+          {listError && <span style={{ marginLeft: 12, opacity: 0.9 }}>({listError})</span>}
+        </div>
       </div>
 
       <div style={styles.main}>
@@ -1239,7 +1345,7 @@ export default function AppointmentManagementPage() {
               </button>
               <button
                 style={styles.actionBtn('primary')}
-                onClick={handleReschedule}
+                onClick={() => void handleReschedule()}
                 disabled={!rescheduleData.examDate || !rescheduleData.examTime}
               >
                 <Check size={14} /> 确认改约
@@ -1333,7 +1439,7 @@ export default function AppointmentManagementPage() {
               </button>
               <button
                 style={styles.actionBtn('danger')}
-                onClick={handleCancel}
+                onClick={() => void handleCancel()}
                 disabled={!cancelReason}
               >
                 <XCircle size={14} /> 确认取消

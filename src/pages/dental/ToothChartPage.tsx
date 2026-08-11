@@ -53,6 +53,28 @@ export const ToothChartPage: React.FC = () => {
     Implant: "#13c2c2",
   };
 
+  // [G005 Wave5] 牙位状态中文化 (Healthy/Caries/Restored/Missing/Crown/RootCanal/Implant)
+  const STATUS_LABELS: Record<string, string> = {
+    Healthy: "健康",
+    Caries: "龋齿",
+    Restored: "充填",
+    Missing: "缺失",
+    Crown: "全冠",
+    RootCanal: "根管治疗",
+    Implant: "种植",
+  };
+
+  // [G005 Wave5] 牙面状态中文化 (Healthy/Caries-Mild/Caries-Moderate/Caries-Severe/Restored/Filling/Sealant)
+  const SURFACE_LABELS: Record<string, string> = {
+    Healthy: "健康",
+    "Caries-Mild": "轻度龋",
+    "Caries-Moderate": "中度龋",
+    "Caries-Severe": "重度龋",
+    Restored: "充填",
+    Filling: "充填",
+    Sealant: "窝沟封闭",
+  };
+
   return (
     <div style={{ padding: 24, background: "var(--bg-card)" }}>
       <Space style={{ marginBottom: 16 }}>
@@ -118,7 +140,7 @@ export const ToothChartPage: React.FC = () => {
                   return (
                     <Tooltip
                       key={t}
-                      title={`FDI ${t}: ${tooth?.status || "缺失"} ${hasCaries ? " (龋齿)" : ""}`}
+                      title={`FDI ${t}: ${STATUS_LABELS[tooth?.status || "Missing"]}${hasCaries ? " (龋齿)" : ""}`}
                     >
                       <div
                         onClick={() =>
@@ -162,7 +184,7 @@ export const ToothChartPage: React.FC = () => {
                 <div>
                   状?{" "}
                   <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>
-                    {chart.teeth[activeTooth].status}
+                    {STATUS_LABELS[chart.teeth[activeTooth].status] ?? chart.teeth[activeTooth].status}
                   </Tag>
                 </div>
                 <div>
@@ -176,12 +198,12 @@ export const ToothChartPage: React.FC = () => {
                           : "orange"
                       }
                     >
-                      {s}: {chart.teeth[activeTooth].surfaces[s]}
+                      {s}: {SURFACE_LABELS[chart.teeth[activeTooth].surfaces[s]] ?? chart.teeth[activeTooth].surfaces[s]}
                     </Tag>
                   ))}
                 </div>
                 {chart.teeth[activeTooth].cariesGrade && (
-                  <div>龋齿分级: {chart.teeth[activeTooth].cariesGrade}</div>
+                  <div>龋齿分级: {chart.teeth[activeTooth].cariesGrade} 级</div>
                 )}
                 {chart.teeth[activeTooth].periodontal && (
                   <Card size="small" title="牙周" style={{ marginTop: 8 }}>

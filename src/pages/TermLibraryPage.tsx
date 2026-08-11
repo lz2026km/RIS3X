@@ -706,8 +706,8 @@ export default function TermLibraryPage() {
           </div>
           <select value={selectedLang} onChange={e => setSelectedLang(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
             <option value="zh">中文</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
+            <option value="en">英文</option>
+            <option value="ja">日文</option>
           </select>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -715,9 +715,9 @@ export default function TermLibraryPage() {
           <thead>
             <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>中文</th>
-              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>English</th>}
-              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>日本語</th>}
-              {!bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>{selectedLang === 'en' ? 'English' : '日本語'}</th>}
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>英文</th>}
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>日文</th>}
+              {!bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>{selectedLang === 'en' ? '英文' : '日文'}</th>}
               <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>准确度</th>
             </tr>
           </thead>
@@ -905,9 +905,9 @@ export default function TermLibraryPage() {
   // ============ 渲染 ============
   return (
     <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
-      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /terms controller, 数据由 MSW 演示数据提供 */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #fcd34d' }}>
-        演示数据（后端待实现）：本页词库数据由 MSW 演示数据提供，后端暂无 /terms 接口
+      {/* [v3.0.6.11-88] 已接入真实 API: 后端 term-entry.controller (/terms 全 11 端点) 已实现 */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #a7f3d0' }}>
+        已接入真实 API：本页词库数据来自后端 /terms 接口（MSW 仅 dev 模式兜底）
       </div>
       {loading && <LoadingBanner message="正在从 API 加载术语库..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}

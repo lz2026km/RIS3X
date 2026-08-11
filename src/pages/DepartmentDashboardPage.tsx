@@ -100,7 +100,7 @@ const todayStats = {
   urgentConsult: 8,
 };
 
-// 模拟实时数据更新
+// 时钟刷新 (仅展示当前时间, 数据本身为示例/接口获取)
 const useRealtimeData = () => {
   const [time, setTime] = useState(() => new Date());
   
@@ -118,6 +118,31 @@ const DepartmentDashboardPage: React.FC = () => {
   const currentTime = useRealtimeData();
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
+  // [G005 Wave4A P1] KPI 真实化: statsApi.getDaily/getWorkload 优先, 失败回退 todayStats (演示徽标)
+  const [kpi, setKpi] = useState({ ...todayStats });
+  const [dataMode, setDataMode] = useState<'real' | 'demo'>('demo');
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { statsApi } = await import('../services/api/statsApi');
+        const [daily, workload] = await Promise.all([statsApi.getDaily(), statsApi.getWorkload()]);
+        if (cancelled) return;
+        if (daily.success && daily.data && workload.success && Array.isArray(workload.data) && workload.data.length > 0) {
+          setKpi(prev => ({
+            ...prev,
+            totalPatients: daily.data.examCount ?? prev.totalPatients,
+            completedToday: daily.data.reportCount ?? prev.completedToday,
+            pendingReports: daily.data.defectCount ?? prev.pendingReports,
+            activeDevices: workload.data.length > 0 ? workload.data.length : prev.activeDevices,
+          }));
+          setDataMode('real');
+        }
+      } catch { /* 保持演示数据 */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const dataAvailable = devices.length > 0;
 
@@ -289,32 +314,43 @@ const DepartmentDashboardPage: React.FC = () => {
     <div style={styles.container}>
       {/* 头部 */}
       <div style={styles.header}>
-        <div style={styles.headerTitle}>放射科实时看板</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={styles.headerTitle}>放射科实时看板</div>
+          {/* [G005 Wave4A P1] 数据源徽标 */}
+          <span style={{
+            fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
+            background: dataMode === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+            color: dataMode === 'real' ? '#15803d' : '#92400e',
+          }}>
+            {dataMode === 'real' ? '真实数据' : '演示数据'}
+          </span>
+        </div>
         <div style={styles.headerSubtitle}>
           科室: 放射科 (RIS) | v0.7.0 | {currentTime.toLocaleString('zh-CN')}
+          {dataMode === 'demo' && <span style={{ marginLeft: 8 }}>(示例数据, 未接实时接口)</span>}
         </div>
       </div>
 
       {/* 统计卡片 */}
       <div style={styles.statsGrid}>
         <div style={styles.statCard}>
-          <div style={styles.statValue}>{todayStats.totalPatients}</div>
+          <div style={styles.statValue}>{kpi.totalPatients}</div>
           <div style={styles.statLabel}>今日接诊总数</div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statValue}>{todayStats.completedToday}</div>
+          <div style={styles.statValue}>{kpi.completedToday}</div>
           <div style={styles.statLabel}>已完成检查</div>
         </div>
         <div style={styles.statCard}>
-          <div style={{...styles.statValue, color: '#ef4444'}}>{todayStats.pendingReports}</div>
+          <div style={{...styles.statValue, color: '#ef4444'}}>{kpi.pendingReports}</div>
           <div style={styles.statLabel}>待撰写报告</div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statValue}>{todayStats.avgWaitTime}</div>
+          <div style={styles.statValue}>{kpi.avgWaitTime}</div>
           <div style={styles.statLabel}>平均候检时间</div>
         </div>
         <div style={styles.statCard}>
-          <div style={{...styles.statValue, color: '#22c55e'}}>{todayStats.activeDevices}/{todayStats.totalDevices}</div>
+          <div style={{...styles.statValue, color: '#22c55e'}}>{kpi.activeDevices}/{kpi.totalDevices}</div>
           <div style={styles.statLabel}>设备运行状态</div>
         </div>
       </div>
@@ -405,7 +441,7 @@ const DepartmentDashboardPage: React.FC = () => {
         color: 'var(--text-secondary)',
         fontSize: '13px',
       }}>
-        放射科信息系统 (RIS) v0.7.0 | 实时数据更新 | 如有异常请联系: 放射科信息中心 ☎ 8001
+        放射科信息系统 (RIS) v0.7.0 | 示例数据 (设备/统计为演示数据, 未接实时接口) | 如有异常请联系: 放射科信息中心 ☎ 8001
       </div>
     </div>
   );

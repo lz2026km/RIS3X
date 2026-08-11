@@ -95,9 +95,14 @@ const VrPage: React.FC = () => {
     pendingRef.current = window.setTimeout(() => {
       volumeApi.vrImage(jobId, { preset, opacity, rotation }).then((res) => {
         if (myId !== renderTickRef.current) return
-        if (!res.success) { setRealError(true); return }
+        if (!res.success) { setRealError(true); setMode('synthetic'); return }
+        const p = res.data?.pixelData
+        if (!p?.dataBase64 || !res.data?.width || !res.data?.height) {
+          setRealError(true)
+          setMode('synthetic')
+          return
+        }
         setRealError(false)
-        const p = res.data.pixelData
         const rgba = decodeRgbaBase64(p.dataBase64)
         const imgData = new ImageData(new Uint8ClampedArray(rgba), res.data.width, res.data.height)
         drawImageDataCentered(ctx, imgData, w, h)

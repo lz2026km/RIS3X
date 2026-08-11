@@ -64,6 +64,10 @@ function resolveRoleMeta(r: string): { color: string; label: string; description
   return ROLE_META[r as Role] ?? ROLE_META[ROLE_ALIAS[r] ?? 'DOCTOR']
 }
 
+function resolveRoleKey(r: string): Role {
+  return ROLE_ALIAS[r] ?? (ROLE_META[r as Role] ? (r as Role) : 'DOCTOR')
+}
+
 export interface UserManagementProps {
   users: UserAccount[]
   onCreate?: (u: Omit<UserAccount, 'id' | 'createdAt' | 'failedLogins'>) => void
@@ -291,32 +295,37 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         footer={null}
         data-testid="user-perm-modal"
       >
-        {permModal && (
-          <Space orientation="vertical" size={8} style={{ width: '100%' }}>
-            <Alert
-              type="info"
-              showIcon
-              title={`角色 ${ROLE_META[permModal.role].label} 默认权限`}
-              description={
-                <Space wrap>
-                  {ROLE_PERMISSIONS[permModal.role].map((p) => <Tag key={p}>{p}</Tag>)}
-                </Space>
-              }
-            />
-            {permModal.customPermissions && permModal.customPermissions.length > 0 && (
+        {permModal && (() => {
+          const roleKey = resolveRoleKey(permModal.role)
+          const roleMeta = ROLE_META[roleKey]
+          const rolePerms = ROLE_PERMISSIONS[roleKey] ?? []
+          return (
+            <Space orientation="vertical" size={8} style={{ width: '100%' }}>
               <Alert
-                type="warning"
+                type="info"
                 showIcon
-                title="自定义覆盖"
+                title={`角色 ${roleMeta.label} 默认权限`}
                 description={
                   <Space wrap>
-                    {permModal.customPermissions.map((p) => <Tag key={p} color="orange">{p}</Tag>)}
+                    {rolePerms.map((p) => <Tag key={p}>{p}</Tag>)}
                   </Space>
                 }
               />
-            )}
-          </Space>
-        )}
+              {permModal.customPermissions && permModal.customPermissions.length > 0 && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  title="自定义覆盖"
+                  description={
+                    <Space wrap>
+                      {permModal.customPermissions.map((p) => <Tag key={p} color="orange">{p}</Tag>)}
+                    </Space>
+                  }
+                />
+              )}
+            </Space>
+          )
+        })()}
       </Modal>
     </div>
   )

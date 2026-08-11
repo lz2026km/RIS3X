@@ -220,6 +220,8 @@ export default function MobilePushPage() {
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>移动端推送管理</div>
             <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>推送通知配置 · 历史记录 · 测试</div>
+            {/* [v3.0.6.11-88 Round10] /mobile/push-notifications 后端未实现, MSW 演示数据 */}
+            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>数据源: MSW 演示数据</div>
           </div>
           <div style={{
             width: 44, height: 44, borderRadius: 10,

@@ -35,12 +35,12 @@ const COLORS = {
   success: '#059669',
   successBg: '#ecfdf5',
   danger: '#dc2626',
-  dangerBg: '#fef2f2',
+  dangerBg: 'var(--color-error-bg)',
   warning: '#d97706',
   text: '#1e293b',
   textMuted: '#64748b',
   border: '#e2e8f0',
-  bg: '#f8fafc',
+  bg: 'var(--bg-card)',
 }
 
 const EXAM_RECORDS_KEY = 'g005_exam_records'

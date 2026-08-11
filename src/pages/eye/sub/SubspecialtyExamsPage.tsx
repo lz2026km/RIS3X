@@ -4,6 +4,8 @@
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
 import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save } from 'lucide-react';
 import { Inbox } from 'lucide-react'
+// [v3.0.6.11-88 Round10] 接触镜验配走 API 层 (后端 POST /eye/contact-lens/fitting)
+import { eyeApi } from '../../../services/api/eyeApi'
 import React, { useState } from 'react';
 
 const {  } = Input;
@@ -34,6 +36,8 @@ export const StrabismusPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>斜视专科</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">同视机 + 三棱镜</Tag>
@@ -128,6 +132,8 @@ export const NeuroOphthalmologyPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>神经眼科</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">色觉 + PVEP</Tag>
@@ -200,6 +206,8 @@ export const OcularOncologyPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Compass size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼眶肿瘤</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">Hertel 眼突计</Tag>
@@ -252,6 +260,8 @@ export const CorneaPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>角膜病</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">Pentacam + BAD 指数</Tag>
@@ -293,12 +303,9 @@ export const ContactLensFittingPage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/contact-lens/fitting', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', lensType, brand, bc, dia, power }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('接触镜试戴记录保存'); }
+      // [v3.0.6.11-88 Round10] raw fetch → eyeApi.contactLensFitting (后端 POST /eye/contact-lens/fitting 真实存在)
+      const res = await eyeApi.contactLensFitting({ patientId: 'P000001', lensType, brand, bc, dia, power });
+      if (res.success) { setResult(res.data); message.success('接触镜试戴记录保存'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -306,6 +313,8 @@ export const ContactLensFittingPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Glasses size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>接触镜验配</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">RGP / Scleral / OK镜</Tag>
@@ -371,6 +380,8 @@ export const LowVisionPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Accessibility size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>低视力康复</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">助视器处方</Tag>
@@ -443,6 +454,8 @@ export const CataractPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>白内障专科</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-83</Tag>
         <Tag color="blue">LOCS III 分级</Tag>
@@ -504,6 +517,8 @@ export const RefractivePage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Zap size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>屈光手术专科</span>
+        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
+        <Tag color="orange">演示数据 (MSW)</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-83</Tag>
         <Tag color="blue">LASIK / ICL / SMILE</Tag>

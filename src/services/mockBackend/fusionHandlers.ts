@@ -93,7 +93,7 @@ export const fusionHandlers = [
                 weightKg: 70,
                 injectedDoseMbg: 370,
                 injectionToScanMin: 60,
-                formula: 'SUV = (pixelActivityMBq/ml) / (injectedDoseMBq / bodyWeightKg)',
+                formula: 'SUV = 像素活度(MBq/ml) ÷ (注射剂量(MBq) ÷ 体重(kg))',
                 unit: 'g/ml',
               },
             }

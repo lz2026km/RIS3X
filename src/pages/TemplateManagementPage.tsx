@@ -379,7 +379,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <TrendingUp size={18} color={C.accent} />
-                <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>使用趋势（近12个月）</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>使用趋势（近12个月）</span>
               </div>
               <div style={{ height: 180, display: 'flex', alignItems: 'flex-end', gap: 6, padding: '0 8px' }}>
                 {usageTrend.map((v, i) => (
@@ -394,7 +394,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
-                <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>最常用模板 TOP 5</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>最常用模板 TOP 5</span>
               </div>
               {sortedByUsage.slice(0, 5).map((t, i) => (
                 <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.borderLight}` }}>
@@ -413,7 +413,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <BarChart2 size={18} color={C.primary} />
-                <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>概览</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>概览</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div style={{ background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
@@ -438,7 +438,7 @@ export default function TemplateManagementPage() {
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Star size={18} color={C.warning} />
-                <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>用户满意度</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>用户满意度</span>
               </div>
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
                 <div style={{ fontSize: 36, fontWeight: 800, color: C.warning }}>4.5</div>
@@ -544,7 +544,7 @@ export default function TemplateManagementPage() {
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowShareModal(false)}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${C.borderLight}` }}>
-                <div style={{ fontSize: 15, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> 新建分享</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> 新建分享</div>
                 <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 4 }}>×</button>
               </div>
               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>

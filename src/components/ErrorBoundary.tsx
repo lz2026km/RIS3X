@@ -1,4 +1,5 @@
-import { Component, ErrorInfo, ReactNode, createContext, useContext, useState, useCallback } from 'react'
+import { Component, ErrorInfo, ReactNode, createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { AlertCircle, RefreshCw, Home, FileQuestion } from 'lucide-react'
 
 interface ErrorBoundaryProps {
@@ -95,6 +96,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 }
 
 export default ErrorBoundary
+
+/**
+ * 路由感知错误边界: 监听 pathname 变化自动重置, 防止单页崩溃锁死全站
+ * (ErrorBoundary 为类组件, 通过 ref 调用其 handleRetry, 无需重挂载子树)
+ */
+export function RouteAwareErrorBoundary(props: ErrorBoundaryProps) {
+  const location = useLocation()
+  const ref = useRef<ErrorBoundary | null>(null)
+  const prevPath = useRef<string>(location.pathname)
+  useEffect(() => {
+    if (prevPath.current !== location.pathname) {
+      prevPath.current = location.pathname
+      ref.current?.handleRetry()
+    }
+  }, [location.pathname])
+  return <ErrorBoundary ref={ref} {...props} />
+}
 
 interface ErrorBoundaryProviderProps {
   children: ReactNode

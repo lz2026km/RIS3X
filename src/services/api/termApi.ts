@@ -1,7 +1,7 @@
-import { api } from './client'
+﻿import { api } from './client'
 
-// [G005 W1-C] MOCK_ONLY: 后端无 /terms controller,
-// 全部 11 方法由 MSW (src/services/mockBackend/handlers.ts Terms 段) 支撑演示数据, 后端待实现。
+// [v3.0.6.11-88] 后端 term-entry.controller 已实现 /terms 全 11 端点 (list/search/suggestions/synonyms/
+// translations/extracted/category-tree + CRUD), 以下方法走真实 API; MSW (handlers.ts Terms 段) 仅 dev 模式兜底。
 
 export interface TermDto {
   id: string
@@ -17,47 +17,47 @@ export interface TermDto {
 }
 
 export const termApi = {
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   list: (params?: { category?: string; search?: string }) =>
     api.get<TermDto[]>(`/terms?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getById: (id: string) =>
     api.get<TermDto>(`/terms/${id}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   create: (data: Partial<TermDto>) =>
     api.post<TermDto>('/terms', data),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   update: (id: string, data: Partial<TermDto>) =>
     api.put<TermDto>(`/terms/${id}`, data),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   delete: (id: string) =>
     api.delete<TermDto>(`/terms/${id}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   search: (q: string) =>
     api.get<TermDto[]>(`/terms/search?q=${encodeURIComponent(q)}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getSuggestions: (params?: { modality?: string; search?: string }) =>
     api.get<TermSuggestionDto[]>(`/terms/suggestions?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getSynonymRelations: () =>
     api.get<SynonymRelationDto[]>('/terms/synonyms'),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getTranslations: (params?: { search?: string }) =>
     api.get<TranslationDto[]>(`/terms/translations?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getExtractedTerms: () =>
     api.get<ExtractedTermDto[]>('/terms/extracted'),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [v3.0.6.11-88] 后端 term-entry.controller 已实现
   getCategoryTree: () =>
     api.get<CategoryTreeNodeDto[]>('/terms/category-tree'),
 }
