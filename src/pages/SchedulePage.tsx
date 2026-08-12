@@ -699,14 +699,6 @@ export default function SchedulePage() {
   })
   const [swapError, setSwapError] = useState('')
   const [, setHolidayError] = useState('')
-  const [, setShowExportModal] = useState(false)
-  const [, setExportProgress] = useState(0)
-  const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  useEffect(() => { return () => { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
-  const handleExport = useCallback(() => {
-    setShowExportModal(true); setExportProgress(0)
-    exportIntervalRef.current = setInterval(() => { setExportProgress(prev => { if (prev >= 100) { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current); exportIntervalRef.current = null; setTimeout(() => setShowExportModal(false), 500); return 100 }; return prev + 25 }) }, 150)
-  }, [])
 
   // Phase 4b - 自动排班状态
   const [autoResult, setAutoResult] = useState<AutoScheduleCandidate[][] | null>(null)
@@ -736,6 +728,48 @@ export default function SchedulePage() {
   // 生成排班数据
   const [allSchedules, setAllSchedules] = useState(() => generateWeekSchedule(weekDates))
   useEffect(() => { setAllSchedules(generateWeekSchedule(weekDates)) }, [weekDates])
+
+  // [G005 Wave2A P1] 导出排班: 用当前周排班数据生成真实 CSV 并下载, 进度弹窗完成后关闭
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [exportProgress, setExportProgress] = useState(0)
+  const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(() => { return () => { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
+  const handleExport = useCallback(() => {
+    setShowExportModal(true); setExportProgress(0)
+    const headers = ['人员', '职称', '日期', '星期', '班次', '班次时间', '设备', '状态']
+    const rows = allSchedules.map(s => [
+      s.staffName,
+      STAFF_LIST.find(x => x.id === s.staffId)?.title || s.role || '',
+      s.date,
+      formatDateCht(new Date(s.date + 'T00:00:00')),
+      SHIFT_CONFIG[s.shift]?.label || s.shift,
+      SHIFT_CONFIG[s.shift]?.time || '',
+      s.modality,
+      s.status === 'confirmed' ? '已确认' : s.status,
+    ])
+    const csv = [headers, ...rows]
+      .map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+      .join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `排班表-${formatDateObj(currentWeekStart)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    let p = 0
+    exportIntervalRef.current = setInterval(() => {
+      p = Math.min(p + 25, 100)
+      setExportProgress(p)
+      if (p >= 100) {
+        if (exportIntervalRef.current) clearInterval(exportIntervalRef.current)
+        exportIntervalRef.current = null
+        setTimeout(() => setShowExportModal(false), 500)
+      }
+    }, 120)
+  }, [allSchedules, currentWeekStart])
 
   // 筛选后的排班数据
   const filteredSchedules = useMemo(() => {
@@ -1055,8 +1089,11 @@ export default function SchedulePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <CalendarClock size={28} style={{ color: C.primary }} />
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0 }}>
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 科室排班管理
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
+                  演示数据（排班表本地生成，员工/设备来自真实接口）
+                </span>
               </h1>
               <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 0' }}>
                 技师/医师班次管理、节假日配置、代班换班
@@ -2637,6 +2674,33 @@ export default function SchedulePage() {
                 <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
                 <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />提交申请</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== 导出排班弹窗 ========== */}
+      {showExportModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>导出排班</h3>
+              <button onClick={() => setShowExportModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} style={{ color: C.textMid }} />
+              </button>
+            </div>
+            <div style={{ fontSize: 13, color: C.textMid, marginBottom: 12 }}>
+              {exportProgress < 100 ? `正在生成周排班 CSV (${allSchedules.length} 条记录)...` : '导出完成, CSV 文件已下载。'}
+            </div>
+            <div style={{ height: 8, background: C.bgLight, borderRadius: 4, overflow: 'hidden', marginBottom: 20 }}>
+              <div style={{ width: `${exportProgress}%`, height: '100%', background: C.primary, borderRadius: 4, transition: 'width 0.15s ease-out' }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {exportProgress >= 100 ? (
+                <button onClick={() => setShowExportModal(false)} style={btnStyle(C.primary)}>关闭</button>
+              ) : (
+                <button onClick={() => setShowExportModal(false)} style={{ padding: '6px 10px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13 }}>取消</button>
+              )}
             </div>
           </div>
         </div>

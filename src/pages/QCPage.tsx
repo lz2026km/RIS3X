@@ -1250,7 +1250,7 @@ export default function QCPage() {
                 <Clock size={18} color={WARNING} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.timeoutCount')}</span>
               </div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: WARNING }}>{timeoutData.length}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{timeoutData.length}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>占今日报告 {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -1258,7 +1258,7 @@ export default function QCPage() {
                 <AlertTriangle size={18} color={DANGER} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.severeTimeout')}</span>
               </div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: DANGER }}>{timeoutData.filter(t => t.severity === '严重').length}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{timeoutData.filter(t => t.severity === '严重').length}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>延迟超过3小时</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -1266,7 +1266,7 @@ export default function QCPage() {
                 <TrendingUp size={18} color={ACCENT} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.avgDelay')}</span>
               </div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: ACCENT }}>{Math.round(timeoutData.reduce((s, t) => s + t.delayMinutes, 0) / timeoutData.length)}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: ACCENT }}>{Math.round(timeoutData.reduce((s, t) => s + t.delayMinutes, 0) / timeoutData.length)}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>分钟/例</div>
             </div>
           </div>
@@ -2519,7 +2519,7 @@ export default function QCPage() {
                       <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--border-color)" strokeWidth="20" strokeLinecap="round" />
                       <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" strokeWidth="20" strokeLinecap="round" strokeDasharray={`${overallQualityScore * 1.6} 160`} />
                     </svg>
-                    <div style={{ position: 'absolute', bottom: 20, fontSize: 32, fontWeight: 800, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
+                    <div style={{ position: 'absolute', bottom: 20, fontSize: 28, fontWeight: 700, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
                   </div>
                   <div style={{ fontSize: 13, color: GRAY, marginTop: 8 }}>{t('qc.overallScore')}</div>
                 </div>

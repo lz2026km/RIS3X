@@ -97,6 +97,23 @@ const EyeWorkspacePage: React.FC = () => {
 
   // [G005 Wave1A P0] IOL 库存摘要: GET /eye/iol/inventory + low-stock + expiring
   const [iolSummary, setIolSummary] = useState<{ total: number; lowStock: number; expiring: number }>({ total: 0, lowStock: 0, expiring: 0 });
+  // [Wave1B P2] IOL 计算记录: GET /eye/iol/calculations (listIolCalculations)
+  const [iolRecords, setIolRecords] = useState<any[]>([]);
+  const [iolRecordsLoading, setIolRecordsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setIolRecordsLoading(true);
+      try {
+        const res = await eyeApi.listIolCalculations({ limit: 10 });
+        if (!cancelled && res.success && Array.isArray(res.data)) setIolRecords(res.data as any[]);
+      } catch { /* 静默 */ } finally {
+        if (!cancelled) setIolRecordsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -274,6 +291,57 @@ const EyeWorkspacePage: React.FC = () => {
             </Space>
           </Col>
         </Row>
+      </Card>
+
+      {/* [Wave1B P2] IOL 计算记录: GET /eye/iol/calculations (eyeApi.listIolCalculations) */}
+      <Card
+        size="small"
+        title={<Space><FileText size={15} color="#10b981" />IOL 计算记录</Space>}
+        style={{ marginBottom: 16 }}
+        extra={
+          <a onClick={() => navigate('/eye/ris/iol-calculator')} style={{ fontSize: 12 }}>
+            IOL 计算器 <ArrowRight size={12} className="v4-icon" />
+          </a>
+        }
+      >
+        <Spin spinning={iolRecordsLoading}>
+          {iolRecords.length === 0 ? (
+            <Empty
+              description="暂无计算记录 (GET /eye/iol/calculations)"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              style={{ padding: '8px 0' }}
+            />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {iolRecords.slice(0, 10).map((r: any, i: number) => (
+                <div
+                  key={r.id ?? i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '6px 10px',
+                    background: 'var(--bg-primary)',
+                    borderRadius: 6,
+                    fontSize: 12,
+                  }}
+                >
+                  <Tag color="green">{r.formula ?? r.method ?? 'IOL'}</Tag>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {r.iolPower != null ? `${r.iolPower}D` : (r.power != null ? `${r.power}D` : '-')}
+                  </span>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {r.patientName || r.patientId || '未绑定患者'}
+                    {r.eyeSide ? ` · ${r.eyeSide}` : ''}
+                  </Text>
+                  <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>
+                    {r.createdAt ? new Date(r.createdAt).toLocaleString('zh-CN') : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Spin>
       </Card>
 
       <Row gutter={[12, 12]}>

@@ -14,7 +14,7 @@ import {
   Button,
   message,
 } from "antd";
-import { HeartPulse, RefreshCw, Cpu, Eye } from "lucide-react";
+import { HeartPulse, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
 const cadRadsColor: Record<string, string> = {
@@ -32,6 +32,8 @@ const CardiacAiPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retraining, setRetraining] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [batchLoading, setBatchLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -66,6 +68,29 @@ const CardiacAiPage: React.FC = () => {
       message.error((e as Error)?.message ?? "重训提交失败");
     } finally {
       setRetraining(false);
+    }
+  };
+
+  const handleBatch = async (status: "confirmed" | "rejected") => {
+    if (selectedRowKeys.length === 0) return;
+    setBatchLoading(true);
+    try {
+      const res = await aiDiagnosisApi.batchConfirm(
+        selectedRowKeys.map(String),
+        status,
+        "cardiac-ai",
+      );
+      if (res.success) {
+        message.success(`批量${status === "confirmed" ? "确认" : "驳回"} ${selectedRowKeys.length} 条`);
+        setSelectedRowKeys([]);
+        await load();
+      } else {
+        message.error(res.error?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? `批量${status === "confirmed" ? "确认" : "驳回"}失败`);
+    } finally {
+      setBatchLoading(false);
     }
   };
 
@@ -153,6 +178,28 @@ const CardiacAiPage: React.FC = () => {
         >
           重训模型
         </Button>
+        {selectedRowKeys.length > 0 && (
+          <>
+            <Button
+              size="small"
+              type="primary"
+              icon={<Check size={14} />}
+              loading={batchLoading}
+              onClick={() => void handleBatch("confirmed")}
+            >
+              批量确认 ({selectedRowKeys.length})
+            </Button>
+            <Button
+              size="small"
+              danger
+              icon={<X size={14} />}
+              loading={batchLoading}
+              onClick={() => void handleBatch("rejected")}
+            >
+              批量驳回 ({selectedRowKeys.length})
+            </Button>
+          </>
+        )}
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
@@ -199,6 +246,10 @@ const CardiacAiPage: React.FC = () => {
             columns={columns}
             pagination={false}
             size="small"
+            rowSelection={{
+              selectedRowKeys,
+              onChange: (keys) => setSelectedRowKeys(keys),
+            }}
           scroll={{ x: 'max-content' }}
           />
         </Spin>

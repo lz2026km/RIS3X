@@ -14,6 +14,7 @@ import {
   Alert,
   Empty,
   message,
+  Input,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -26,6 +27,7 @@ import {
   Download,
   Activity,
   RefreshCw,
+  Layers,
 } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Inbox } from 'lucide-react'
@@ -74,6 +76,69 @@ export default function TatDashboardPage() {
   const [doctorRows, setDoctorRows] = useState<DoctorTatRow[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const [selectedModality, setSelectedModality] = useState<string>("");
+  // [Wave1B P2] 多维分析: olapApi.listCubes / drillDown / getChartData
+  const [cubes, setCubes] = useState<{ id: string; name: string; dimensions: string[]; measures: string[] }[]>([]);
+  const [selectedCube, setSelectedCube] = useState<string>("");
+  const [drillDimension, setDrillDimension] = useState<string>("modality");
+  const [drillValue, setDrillValue] = useState<string>("");
+  const [drillMeasures, setDrillMeasures] = useState<string[]>(["exam_count"]);
+  const [drillRows, setDrillRows] = useState<Record<string, unknown>[]>([]);
+  const [drillColumns, setDrillColumns] = useState<Array<{ code: string; name: string }>>([]);
+  const [drillLoading, setDrillLoading] = useState(false);
+  const [drillError, setDrillError] = useState("");
+
+  const loadCubes = useCallback(async () => {
+    try {
+      const res = await olapApi.listCubes();
+      if (res.success && Array.isArray(res.data)) {
+        setCubes(res.data);
+        if (res.data.length > 0) setSelectedCube((prev) => prev || (res.data[0]?.id ?? ""));
+      }
+    } catch { /* 立方体不可用不阻断 */ }
+  }, []);
+
+  useEffect(() => {
+    void loadCubes();
+  }, [loadCubes]);
+
+  const handleDrillDown = async () => {
+    if (!selectedCube) {
+      message.warning("请选择数据立方体");
+      return;
+    }
+    if (!drillValue.trim()) {
+      message.warning("请输入钻取维度值 (如: CT)");
+      return;
+    }
+    setDrillLoading(true);
+    setDrillError("");
+    try {
+      const res = await olapApi.drillDown({
+        cube: selectedCube,
+        dimension: drillDimension,
+        value: drillValue.trim(),
+        measures: drillMeasures,
+      });
+      if (res.success && res.data && Array.isArray(res.data.rows)) {
+        setDrillRows(res.data.rows);
+        setDrillColumns(Array.isArray(res.data.columns) ? res.data.columns : []);
+      } else {
+        setDrillError(res.error?.message ?? "钻取失败");
+        setDrillRows([]);
+        setDrillColumns([]);
+      }
+    } catch (e) {
+      setDrillError((e as Error)?.message ?? "钻取失败");
+      setDrillRows([]);
+      setDrillColumns([]);
+    } finally {
+      setDrillLoading(false);
+    }
+  };
+
+  const selectedCubeMeta = cubes.find((c) => c.id === selectedCube);
+  const chartMeasure = drillMeasures[0] ?? drillColumns[0]?.code ?? "exam_count";
+  const drillChartMax = Math.max(...drillRows.map((r) => Number(r[chartMeasure]) || 0), 1);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -668,6 +733,90 @@ export default function TatDashboardPage() {
               scroll={{ x: 700 }}
               locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" /> }}
             />
+          </Card>
+
+          {/* [Wave1B P2] 多维分析: olapApi.listCubes + drillDown + 柱状图 (简化版) */}
+          <Card
+            title={<Space><Layers size={16} />多维分析 (OLAP 钻取)</Space>}
+            size="small"
+            style={{ borderRadius: 8, marginTop: 16 }}
+            extra={
+              <Space>
+                <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadCubes()}>刷新立方体</Button>
+                <Button size="small" type="primary" icon={<BarChart3 size={12} />} loading={drillLoading} onClick={() => void handleDrillDown()}>钻取</Button>
+              </Space>
+            }
+          >
+            <Space wrap style={{ marginBottom: 12 }}>
+              <Select
+                style={{ width: 220 }}
+                placeholder="选择数据立方体"
+                value={selectedCube || undefined}
+                onChange={setSelectedCube}
+                options={cubes.map((c) => ({ value: c.id, label: c.name || c.id }))}
+              />
+              <Select
+                style={{ width: 160 }}
+                value={drillDimension}
+                onChange={setDrillDimension}
+                options={(selectedCubeMeta?.dimensions ?? ["modality", "doctor", "department", "date"]).map((d) => ({ value: d, label: d }))}
+              />
+              <Input
+                style={{ width: 140 }}
+                placeholder="维度值 (如: CT)"
+                value={drillValue}
+                onChange={(e) => setDrillValue(e.target.value)}
+                onPressEnter={() => void handleDrillDown()}
+              />
+              <Select
+                style={{ width: 200 }}
+                mode="multiple"
+                placeholder="度量"
+                value={drillMeasures}
+                onChange={setDrillMeasures}
+                options={(selectedCubeMeta?.measures ?? ["exam_count", "report_count", "avg_report_time", "report_timely_rate"]).map((m) => ({ value: m, label: m }))}
+              />
+            </Space>
+            {drillError && <Alert type="error" showIcon style={{ marginBottom: 12 }} message={drillError} />}
+            {drillRows.length === 0 && !drillError ? (
+              <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="选择立方体与维度值后点击「钻取」查看下钻结果" />
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 16 }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>柱状图: {chartMeasure}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {drillRows.slice(0, 15).map((r, i) => {
+                      const label = String(r[drillColumns[0]?.code ?? "dimension"] ?? r.dimension ?? `行${i + 1}`)
+                      const val = Number(r[chartMeasure]) || 0
+                      return (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ width: 90, fontSize: 12, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                          <div style={{ flex: 1, height: 16, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
+                            <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "#2563eb", borderRadius: 4, transition: "width 0.3s" }} />
+                          </div>
+                          <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: "#334155", textAlign: "right" }}>{val}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <Table
+                    size="small"
+                    rowKey={(_, i) => String(i ?? 0)}
+                    dataSource={drillRows}
+                    pagination={false}
+                    scroll={{ x: 560 }}
+                    columns={[
+                      ...(drillColumns.length > 0
+                        ? drillColumns.map((c) => ({ title: c.name || c.code, key: c.code, dataIndex: c.code }))
+                        : [{ title: "维度", key: "dimension", render: (_: unknown, r: Record<string, unknown>) => String(r.dimension ?? r[drillDimension] ?? "-") }]),
+                      { title: chartMeasure, key: chartMeasure, render: (_: unknown, r: Record<string, unknown>) => Number(r[chartMeasure]) || 0 },
+                    ]}
+                  />
+                </div>
+              </div>
+            )}
           </Card>
         </Spin>
       </div>

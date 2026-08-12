@@ -61,6 +61,10 @@ export const dualReadApi = {
   arbitrate: (id: string, data: ArbitrateDto) =>
     api.post<DualReadAssignment>(`/dual-read/arbitrate/${id}`, data),
 
+  // [Wave1B P2] 无 id 变体: POST /dual-read/arbitrate (id 由 body 携带, 后端已对齐)
+  arbitrateNoId: (data: ArbitrateDto & { id: string }) =>
+    api.post<DualReadAssignment>("/dual-read/arbitrate", data),
+
   submitReader: (id: string, data: SubmitDualReadDto) =>
     api.post<DualReadAssignment>(`/dual-read/${id}/reader`, data),
 

@@ -7,12 +7,14 @@ import { reportDefinitions } from '../data/reportDefinitions'
 import { ReportDefinition } from '../data/reportDefinitions'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { datareportApi } from '../services/api/datareportApi'
-import { olapApi } from '../services/api/analyticsApi'
+import { olapApi, analyticsStatsApi } from '../services/api/analyticsApi'
+import { statsApi } from '../services/api/statsApi'
+import { biApi } from '../services/api/biApi'
 import { generateReportInsight } from '../services/reportAiInsight'
 import {
   Layout, Typography, Input, Select, DatePicker, Button, Card,
   Tag, message, Tooltip, Space, Switch,
-  Menu, Collapse, Empty, Spin,
+  Menu, Collapse, Empty, Spin, Checkbox, Alert,
 } from 'antd'
 import {
   BarChart3,
@@ -34,6 +36,9 @@ import {
   Star,
   StarOff,
   Database,
+  SlidersHorizontal,
+  Save,
+  Trash2,
 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
@@ -77,6 +82,300 @@ function buildTreeData(defs: ReportDefinition[]) {
   }))
 }
 
+// ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 自定义报表生成器 (简化版) ═══════════
+
+const CUSTOM_FIELDS: Array<{ key: string; label: string; measure: string; olap: boolean }> = [
+  { key: 'exam_count', label: '检查量', measure: 'exam_count', olap: true },
+  { key: 'report_count', label: '报告量', measure: 'report_count', olap: true },
+  { key: 'exam_revenue', label: '收入', measure: 'exam_revenue', olap: true },
+  { key: 'workload', label: '工作量', measure: 'device_daily_exams', olap: true },
+  { key: 'device_usage_rate', label: '设备利用率', measure: 'device_usage_rate', olap: true },
+  { key: 'report_timely_rate', label: '及时率', measure: 'report_timely_rate', olap: true },
+  { key: 'positive_rate', label: '准确率', measure: 'positive_rate', olap: true },
+]
+
+const CUSTOM_PERIODS = [
+  { label: '日', value: 'daily' },
+  { label: '周', value: 'weekly' },
+  { label: '月', value: 'monthly' },
+]
+
+const DEF_STORAGE_KEY = 'g005-custom-report-defs'
+
+interface CustomReportDef {
+  id: string
+  name: string
+  fields: string[]
+  period: string
+  start: string
+  end: string
+}
+
+function loadSavedDefs(): CustomReportDef[] {
+  try {
+    const raw = localStorage.getItem(DEF_STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+// 快照回退: 单个周期值 (statsApi / biApi / analyticsStatsApi)
+async function fetchFieldSnapshot(fieldKey: string): Promise<{ value: number; source: string }> {
+  try {
+    switch (fieldKey) {
+      case 'exam_count': {
+        const r = await statsApi.getDaily()
+        return { value: Number(r.data?.examCount ?? 0), source: 'statsApi.daily' }
+      }
+      case 'report_count': {
+        const r = await statsApi.getDaily()
+        return { value: Number(r.data?.reportCount ?? 0), source: 'statsApi.daily' }
+      }
+      case 'exam_revenue': {
+        const r = await statsApi.getDaily()
+        const count = Number(r.data?.examCount ?? 0)
+        return { value: Math.round(count * 1250), source: 'statsApi.daily·估算' }
+      }
+      case 'workload': {
+        const r = await statsApi.getWorkload()
+        const total = Array.isArray(r.data) ? r.data.reduce((s, w) => s + Number(w.examCount ?? 0), 0) : 0
+        return { value: total, source: 'statsApi.workload' }
+      }
+      case 'device_usage_rate': {
+        const r = await analyticsStatsApi.getUtilization()
+        const v = (r.data as { data?: unknown } | null)?.data ?? r.data
+        return { value: Number((v as { current?: number } | null)?.current ?? 0), source: 'stats.utilization' }
+      }
+      case 'report_timely_rate': {
+        const r = await biApi.getKpi()
+        const kpi = (r.data as { data?: { completionRate?: number } } | null)?.data
+        return { value: Number(kpi?.completionRate ?? 0), source: 'biApi.kpi' }
+      }
+      case 'positive_rate': {
+        const r = await analyticsStatsApi.getAccuracy()
+        const v = (r.data as { data?: unknown } | null)?.data ?? r.data
+        return { value: Number((v as { value?: number } | null)?.value ?? 0), source: 'stats.accuracy' }
+      }
+      default:
+        return { value: 0, source: 'unknown' }
+    }
+  } catch {
+    return { value: 0, source: '回退失败' }
+  }
+}
+
+function CustomReportBuilder() {
+  const [fields, setFields] = useState<string[]>(['exam_count', 'report_count'])
+  const [period, setPeriod] = useState('daily')
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([dayjs().subtract(30, 'day'), dayjs()])
+  const [rows, setRows] = useState<Record<string, unknown>[]>([])
+  const [loading, setLoading] = useState(false)
+  const [usingFallback, setUsingFallback] = useState(false)
+  const [sourceLabel, setSourceLabel] = useState<string | null>(null)
+  const [defName, setDefName] = useState('')
+  const [savedDefs, setSavedDefs] = useState<CustomReportDef[]>(loadSavedDefs)
+
+  const selectedFields = useMemo(() => CUSTOM_FIELDS.filter((f) => fields.includes(f.key)), [fields])
+
+  const loadData = useCallback(async () => {
+    if (selectedFields.length === 0) {
+      setRows([])
+      return
+    }
+    setLoading(true)
+    setUsingFallback(false)
+    setSourceLabel(null)
+    const startDate = dateRange[0]?.format('YYYY-MM-DD') || dayjs().subtract(30, 'day').format('YYYY-MM-DD')
+    const endDate = dateRange[1]?.format('YYYY-MM-DD') || dayjs().format('YYYY-MM-DD')
+    const measures = selectedFields.filter((f) => f.olap).map((f) => f.measure)
+    try {
+      const res = await olapApi.query({
+        dimensions: ['date'],
+        measures,
+        filters: [{ dimension: 'date', operator: 'between', value: [startDate, endDate] }],
+        granularity: period,
+      })
+      const olapRows = (res.data as { rows?: Array<Record<string, unknown>> } | null)?.rows
+      if (res.success && Array.isArray(olapRows) && olapRows.length > 0) {
+        const mapped = olapRows.map((r) => {
+          const out: Record<string, unknown> = { period: String(r.date ?? r.period ?? '') }
+          for (const f of selectedFields) {
+            let v = r[f.measure]
+            if (f.measure === 'exam_revenue') v = Number(v ?? 0)
+            if (typeof v === 'number') v = Number.isInteger(v) && f.measure !== 'exam_revenue' ? v : Math.round(Number(v) * 100) / 100
+            out[f.label] = v ?? 0
+          }
+          return out
+        })
+        setRows(mapped)
+        setSourceLabel(`OLAP ${period}聚合 (olapApi.query)`)
+        return
+      }
+    } catch {
+      /* 回退到快照 */
+    }
+    // 失败回退: 单行快照 (statsApi/biApi/analyticsStatsApi)
+    const snapshots = await Promise.all(selectedFields.map((f) => fetchFieldSnapshot(f.key)))
+    const row: Record<string, unknown> = { period: `${startDate} ~ ${endDate} (快照)` }
+    const sources = new Set<string>()
+    selectedFields.forEach((f, i) => {
+      row[f.label] = snapshots[i]!.value
+      sources.add(snapshots[i]!.source)
+    })
+    setRows([row])
+    setUsingFallback(true)
+    setSourceLabel(`快照回退 (${[...sources].join(', ')})`)
+    setLoading(false)
+  }, [selectedFields, dateRange, period])
+
+  useEffect(() => {
+    void loadData()
+  }, [loadData])
+
+  const handleExportCsv = useCallback(() => {
+    if (!rows.length) { message.warning('暂无预览数据'); return }
+    const keys = Object.keys(rows[0]!)
+    const header = keys.join(',')
+    const body = rows.map((row) => keys.map((k) => String(row[k] ?? '')).join(',')).join('\n')
+    const blob = new Blob(['\uFEFF' + header + '\n' + body], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `custom-report-${dayjs().format('YYYYMMDD-HHmmss')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    message.success('CSV 导出成功')
+  }, [rows])
+
+  const handleSaveDef = useCallback(() => {
+    if (!defName.trim()) { message.warning('请输入报表名称'); return }
+    const def: CustomReportDef = {
+      id: `cr-${Date.now()}`,
+      name: defName.trim(),
+      fields,
+      period,
+      start: dateRange[0]?.format('YYYY-MM-DD') || '',
+      end: dateRange[1]?.format('YYYY-MM-DD') || '',
+    }
+    const next = [...savedDefs.filter((d) => d.name !== def.name), def]
+    localStorage.setItem(DEF_STORAGE_KEY, JSON.stringify(next))
+    setSavedDefs(next)
+    setDefName('')
+    message.success(`报表定义「${def.name}」已保存 (localStorage)`)
+  }, [defName, fields, period, dateRange, savedDefs])
+
+  const handleLoadDef = useCallback((def: CustomReportDef) => {
+    setFields(def.fields)
+    setPeriod(def.period)
+    if (def.start && def.end) setDateRange([dayjs(def.start), dayjs(def.end)])
+    message.success(`已加载定义「${def.name}」`)
+  }, [])
+
+  const handleDeleteDef = useCallback((id: string) => {
+    const next = savedDefs.filter((d) => d.id !== id)
+    localStorage.setItem(DEF_STORAGE_KEY, JSON.stringify(next))
+    setSavedDefs(next)
+    message.success('报表定义已删除')
+  }, [savedDefs])
+
+  const chartRows = useMemo(() => {
+    if (!rows.length) return []
+    return rows.map((r) => ({ ...r, name: r.period }))
+  }, [rows])
+  const chartYKeys = selectedFields.map((f) => f.label)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Card
+        size="small"
+        title={<Space><SlidersHorizontal size={14} />报表定义配置<Text type="secondary" style={{ fontSize: 12 }}>字段 · 周期 · 日期区间</Text></Space>}
+        style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <Text strong style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>指标字段 (多选)</Text>
+            <Checkbox.Group
+              value={fields}
+              onChange={(vals) => setFields(vals as string[])}
+              options={CUSTOM_FIELDS.map((f) => ({ label: f.label, value: f.key }))}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <Space>
+              <Text strong style={{ fontSize: 12 }}>周期</Text>
+              <Select value={period} onChange={setPeriod} size="small" style={{ width: 80 }} options={CUSTOM_PERIODS} />
+            </Space>
+            <Space>
+              <Text strong style={{ fontSize: 12 }}>日期区间</Text>
+              <DatePicker.RangePicker value={dateRange} onChange={(d) => { if (d?.[0] && d?.[1]) setDateRange([d[0], d[1]]) }} size="small" />
+            </Space>
+            <Space>
+              <Text strong style={{ fontSize: 12 }}>报表名称</Text>
+              <Input size="small" value={defName} onChange={(e) => setDefName(e.target.value)} placeholder="如: 月度检查收入分析" style={{ width: 180 }} />
+              <Button size="small" icon={<Save size={12} />} onClick={handleSaveDef}>保存定义</Button>
+            </Space>
+          </div>
+          {savedDefs.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Text strong style={{ fontSize: 12 }}>已保存定义:</Text>
+              {savedDefs.map((d) => (
+                <Tag key={d.id} color="blue" style={{ cursor: 'pointer' }} onClick={() => handleLoadDef(d)}>
+                  {d.name}
+                  <Trash2 size={10} style={{ marginLeft: 4, verticalAlign: -1 }} onClick={(e) => { e.stopPropagation(); handleDeleteDef(d.id) }} />
+                </Tag>
+              ))}
+            </div>
+          )}
+          <Alert
+            type={usingFallback ? 'warning' : 'success'}
+            showIcon
+            message={sourceLabel ?? (selectedFields.length ? '加载中...' : '请至少选择一个指标字段')}
+            description={usingFallback ? 'OLAP 接口不可用, 已回退到 statsApi/biApi 快照 (单行估算数据)' : '数据来源: OLAP 聚合接口 (olapApi.query)'}
+          />
+        </div>
+      </Card>
+
+      <Card
+        size="small"
+        title={<Space><BarChart3 size={14} />预览 <Tag style={{ fontSize: 10 }}>{rows.length} 行</Tag></Space>}
+        extra={
+          <Space size={4}>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>刷新</Button>
+            <Button size="small" type="primary" icon={<Download size={12} />} onClick={handleExportCsv} disabled={!rows.length}>导出 CSV</Button>
+          </Space>
+        }
+        style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+      >
+        {chartRows.length > 0 ? (
+          <>
+            <Chart type="bar" data={chartRows as Record<string, unknown>[]} xKey="name" yKeys={chartYKeys} height={280} />
+            <ProTable<Record<string, unknown>>
+              columns={Object.keys(chartRows[0] ?? {}).map((key) => ({
+                key,
+                dataIndex: key,
+                title: key,
+                width: key === 'period' ? 200 : 140,
+                render: (val: unknown) => typeof val === 'number' ? (Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2)) : String(val ?? '-'),
+              }))}
+              dataSource={chartRows}
+              rowKey={(r) => String(r.period ?? '')}
+              loading={loading}
+              showToolbar={false}
+              pagination={{ pageSize: 10, showSizeChanger: false }}
+              scroll={{ x: 'max-content', y: 260 }}
+              size="small"
+            />
+          </>
+        ) : (
+          <Empty image={<Inbox size={40} style={{ opacity: 0.4 }} />} description="选择字段后自动生成预览" />
+        )}
+      </Card>
+    </div>
+  )
+}
+
 const PAGE_SIZE = 20
 
 export default function DataReportCenterPage() {
@@ -94,6 +393,8 @@ export default function DataReportCenterPage() {
   const [fullscreen, setFullscreen] = useState(false)
   const [tablePage, setTablePage] = useState(1)
   const [loading, setLoading] = useState(false)
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 视图切换: 标准报表 / 自定义报表
+  const [viewMode, setViewMode] = useState<'standard' | 'custom'>('standard')
 
   const currentReport = useMemo(
     () => reportDefinitions.find((r) => r.id === selectedReportId),
@@ -332,6 +633,16 @@ export default function DataReportCenterPage() {
           )}
         </Space>
         <Space size={8}>
+          <Select
+            value={viewMode}
+            onChange={setViewMode}
+            size="small"
+            options={[
+              { label: '标准报表', value: 'standard' },
+              { label: '自定义报表', value: 'custom' },
+            ]}
+            style={{ width: 120, background: 'rgba(255,255,255,0.15)', borderRadius: 6 }}
+          />
           <RangePicker
             value={dateRange}
             onChange={(dates) => {
@@ -462,7 +773,9 @@ export default function DataReportCenterPage() {
           </div>
         </Sider>
         <Content style={{ padding: 16, overflow: 'auto', height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)' }}>
-          {currentReport ? (
+          {viewMode === 'custom' ? (
+            <CustomReportBuilder />
+          ) : currentReport ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>

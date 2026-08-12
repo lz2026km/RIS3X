@@ -1,7 +1,7 @@
 // [v3.0.6.8-95] Phase 4: 收费/划价/医保系统
 // 对标: 领健·牙医管家
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider, Form, Input } from 'antd';
 import { DollarSign, FileText, XCircle, Printer, Calculator } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
 // [G005 Wave1B] 发票列表: dentalApi.listInvoices (GET /dental/invoices), 失败回退 billing 端点
@@ -22,6 +22,9 @@ export const DentalBillingPage: React.FC = () => {
   const [payModal, setPayModal] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>(DEFAULT_METHOD);
+  // [G005 Wave1A P1] 开票: dentalApi.createInvoice (POST /dental/invoices, 后端真实)
+  const [invoiceModal, setInvoiceModal] = useState<{ open: boolean; saving: boolean }>({ open: false, saving: false });
+  const [invoiceForm] = Form.useForm();
   // [G005 2B] 受控分页: 费用项目目录 / 账单列表
   const { pageData: pagedCatalog, pagination: catalogPagination } = usePagination(catalog, 8);
   const { pageData: pagedInvoices, pagination: invoicesPagination } = usePagination(invoices, 10);
@@ -98,6 +101,37 @@ export const DentalBillingPage: React.FC = () => {
     setBusy(false);
   };
 
+  // [G005 Wave1A P1] 开票: dentalApi.createInvoice (POST /dental/invoices, 后端真实)
+  const handleCreateInvoice = async () => {
+    let values: any = {};
+    try { values = await invoiceForm.validateFields(); } catch { return; }
+    setInvoiceModal(prev => ({ ...prev, saving: true }));
+    try {
+      const res = await dentalApi.createInvoice({
+        patientId: values.patientId,
+        items: [{
+          code: values.itemCode || 'GEN',
+          name: values.itemName,
+          amount: values.amount,
+          quantity: values.quantity || 1,
+        }],
+        insuranceClaim: false,
+      });
+      if (res.success) {
+        message.success(`发票已创建: ${res.data?.[0]?.invoiceNumber ?? ''}`);
+        setInvoiceModal({ open: false, saving: false });
+        invoiceForm.resetFields();
+        await loadInvoices();
+      } else {
+        message.error(res.error?.message ?? '开票失败');
+        setInvoiceModal(prev => ({ ...prev, saving: false }));
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? '开票失败');
+      setInvoiceModal(prev => ({ ...prev, saving: false }));
+    }
+  };
+
   const handlePrint = (invoice: any) => {
     const rows = (invoice.items || []).map((i: any) => `<tr><td>${i.name}</td><td style="text-align:right">${i.qty || 1}</td><td style="text-align:right">¥${i.unitPrice ?? 0}</td><td style="text-align:right">¥${((i.unitPrice ?? 0) * (i.qty || 1)).toFixed(2)}</td></tr>`).join('');
     const win = window.open('', '_blank', 'width=640,height=480');
@@ -124,6 +158,7 @@ export const DentalBillingPage: React.FC = () => {
         <Tag color="blue">牙医管家 对标</Tag>
         {/* [v3.0.6.11-88 Round10] /dental/billing/* 后端未实现, MSW 演示数据 */}
         <Tag color="orange">演示数据 (MSW)</Tag>
+        <Button size="small" type="primary" icon={<DollarSign size={14} />} onClick={() => { invoiceForm.resetFields(); setInvoiceModal({ open: true, saving: false }); }}>开票</Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="今日收入" prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
@@ -142,7 +177,7 @@ export const DentalBillingPage: React.FC = () => {
               <Col span={8}>
                 <Card size="small" title="费用项目选择">
                   <Select showSearch placeholder="搜索项目..." style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
-                  <Table dataSource={pagedCatalog} rowKey="code" size="small" pagination={catalogPagination}
+                  <Table dataSource={pagedCatalog} rowKey="code" size="small" pagination={catalogPagination} scroll={{ x: 'max-content' }}
                     columns={[{title:'项目',dataIndex:'name',width:140},{title:'价格',dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insuranceType',render:(t:string)=><Tag color={t==='甲类'?'green':t==='乙类'?'blue':'red'}>{t}</Tag>},{title:'',render:(_,r:any)=><Button size="small" onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})}>+</Button>}]} />
                 </Card>
               </Col>
@@ -211,6 +246,31 @@ export const DentalBillingPage: React.FC = () => {
           <div style={{color:'var(--text-secondary)',marginBottom:16}}>收现金额</div>
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>
+      </Modal>
+      <Modal title="开票 (dentalApi.createInvoice)" open={invoiceModal.open} onCancel={() => setInvoiceModal({ open: false, saving: false })} onOk={() => void handleCreateInvoice()} confirmLoading={invoiceModal.saving} width={440}>
+        <Form form={invoiceForm} layout="vertical" size="small" style={{ marginTop: 8 }} initialValues={{ patientId: selectedPatient, itemCode: 'DENTAL-001', quantity: 1 }}>
+          <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
+            <Select options={[{ value: 'P100001', label: '张伟' }, { value: 'P100002', label: '李娜' }, { value: 'P100003', label: '王芳' }]} />
+          </Form.Item>
+          <Form.Item label="项目名称" name="itemName" rules={[{ required: true, message: '请输入项目名称' }]}>
+            <Input placeholder="如: 全瓷冠修复" />
+          </Form.Item>
+          <Form.Item label="项目编码" name="itemCode">
+            <Input placeholder="如: DENTAL-001" />
+          </Form.Item>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item label="金额 (¥)" name="amount" rules={[{ required: true, message: '请输入金额' }]}>
+                <InputNumber style={{ width: '100%' }} min={0.01} precision={2} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="数量" name="quantity">
+                <InputNumber style={{ width: '100%' }} min={1} max={99} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
     </div>
   );

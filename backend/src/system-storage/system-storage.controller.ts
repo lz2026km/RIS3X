@@ -38,6 +38,19 @@ const StorageTestSchema = z
   })
   .optional()
 
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 存储容量阈值预警配置
+const StorageAlertsConfigSchema = z
+  .object({
+    warnPercent: z.number().min(1).max(100),
+    criticalPercent: z.number().min(1).max(100),
+    notifyChannels: z.array(z.enum(['email', 'sms', 'wechat', 'dingtalk', 'app'])).min(1).max(5),
+  })
+  .superRefine((v, ctx) => {
+    if (v.warnPercent >= v.criticalPercent) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['criticalPercent'], message: '严重阈值必须大于警告阈值' })
+    }
+  })
+
 // [W5] 系统管理配置项: 数组 [ { key, value } ] 或 { configs: [...] } 两种形状均可
 const AdminConfigItemSchema = z.object({ key: z.string().min(1), value: z.unknown() })
 const AdminConfigsSaveSchema = z
@@ -69,6 +82,17 @@ export class SystemStorageController {
   @Post('storage-config/test')
   test(@Body(new ZodValidationPipe(StorageTestSchema)) body?: z.infer<typeof StorageTestSchema>) {
     return this.service.testConnection(body)
+  }
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 存储容量阈值预警
+  @Get('storage/alerts-config')
+  getAlertsConfig() {
+    return this.service.getAlertsConfig()
+  }
+
+  @Put('storage/alerts-config')
+  saveAlertsConfig(@Body(new ZodValidationPipe(StorageAlertsConfigSchema)) body: z.infer<typeof StorageAlertsConfigSchema>) {
+    return this.service.updateAlertsConfig(body)
   }
 
   @Get('admin/configs')

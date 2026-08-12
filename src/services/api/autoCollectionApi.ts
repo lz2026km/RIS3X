@@ -94,6 +94,13 @@ export const autoCollectionApi = {
   listTasks: (params?: { ruleId?: string; status?: string; page?: number; pageSize?: number }) =>
     api.get<AutoCollectionTask[]>(`/auto-collection/tasks?${new URLSearchParams(params ?? {}).toString()}`),
 
+  // [Wave1B P2] 创建采集任务 (后端 POST /auto-collection/tasks, CreateTaskSchema: ruleId?/sourceType?)
+  createTask: async (data: { name?: string; ruleId?: string; sourceType?: 'DICOM' | 'HL7' | 'FTP'; sourceConfig?: Record<string, unknown> }) => {
+    const res = await api.post<AutoCollectionTask>('/auto-collection/tasks', data)
+    await invalidateApiCache('/auto-collection/tasks')
+    return res
+  },
+
   // [Wave1B] 后端已实现 (auto-collection.controller)
   getTask: (id: string) =>
     api.get<AutoCollectionTask>(`/auto-collection/tasks/${id}`),

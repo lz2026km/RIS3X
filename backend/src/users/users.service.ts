@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { hash } from 'bcrypt'
+import { randomBytes } from 'crypto'
 import { PrismaService } from '../prisma/prisma.service'
 
 const publicUserSelect = {
@@ -68,6 +69,16 @@ export class UsersService {
     const existing = await this.prisma.user.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`User ${id} not found`)
     return this.prisma.user.update({ where: { id }, data: { active: false }, select: publicUserSelect })
+  }
+
+  // [G005 Wave2A P1] 重置密码: 内存生成一次性临时密码, 持久化其哈希并仅返回明文一次
+  async resetPassword(id: string) {
+    const existing = await this.prisma.user.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`User ${id} not found`)
+    const temporaryPassword = `${randomBytes(6).toString('base64url')}A1!`
+    const passwordHash = await hash(temporaryPassword, 10)
+    await this.prisma.user.update({ where: { id }, data: { passwordHash } })
+    return { id, username: existing.username, temporaryPassword }
   }
 
   async getActivity(userId: string) {

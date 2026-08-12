@@ -3,7 +3,7 @@
  * GET/PUT /system/storage-config  读取/保存存储配置 (SystemConfig 表)
  * POST /system/storage-config/test 连通性测试 (可用请求体里的配置或已保存配置)
  */
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
@@ -25,6 +25,13 @@ export interface StorageStatsDto {
   usedBytes?: number
   truncated?: boolean
   latencyMs?: number
+}
+
+/** [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 存储容量阈值预警配置 */
+export interface StorageAlertsConfig {
+  warnPercent: number
+  criticalPercent: number
+  notifyChannels: string[]
 }
 
 export interface AdminConfigItem {
@@ -57,12 +64,28 @@ const STATS_MAX_KEYS = 5000
 
 @Injectable()
 export class SystemStorageService {
+  private readonly logger = new Logger(SystemStorageService.name)
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 容量阈值预警配置 (内存 + 环境 seed 回退)
+  private alertsConfig: StorageAlertsConfig
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly configService: StorageConfigService,
     private readonly systemConfig: SystemConfigService,
-  ) {}
+  ) {
+    const warn = Number(this.config.get<string>('STORAGE_ALERT_WARN_PERCENT', '80'))
+    const critical = Number(this.config.get<string>('STORAGE_ALERT_CRITICAL_PERCENT', '90'))
+    const channels = (this.config.get<string>('STORAGE_ALERT_CHANNELS', 'email,sms') ?? 'email,sms')
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean)
+    this.alertsConfig = {
+      warnPercent: Number.isFinite(warn) ? Math.min(100, Math.max(1, warn)) : 80,
+      criticalPercent: Number.isFinite(critical) ? Math.min(100, Math.max(1, critical)) : 90,
+      notifyChannels: channels.length ? channels : ['email'],
+    }
+  }
 
   async getConfig(): Promise<{
     config: StorageConfigDto
@@ -249,6 +272,30 @@ export class SystemStorageService {
     } catch {
       return null
     }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 存储容量阈值预警 ═══════════
+
+  getAlertsConfig(): StorageAlertsConfig {
+    return { ...this.alertsConfig }
+  }
+
+  updateAlertsConfig(dto: Partial<StorageAlertsConfig>): StorageAlertsConfig {
+    this.alertsConfig = {
+      warnPercent: dto.warnPercent ?? this.alertsConfig.warnPercent,
+      criticalPercent: dto.criticalPercent ?? this.alertsConfig.criticalPercent,
+      notifyChannels: dto.notifyChannels ?? this.alertsConfig.notifyChannels,
+    }
+    if (this.alertsConfig.warnPercent > this.alertsConfig.criticalPercent) {
+      this.alertsConfig = {
+        ...this.alertsConfig,
+        warnPercent: this.alertsConfig.criticalPercent,
+      }
+    }
+    this.logger.log(
+      `Storage alerts config updated: warn=${this.alertsConfig.warnPercent}% critical=${this.alertsConfig.criticalPercent}% channels=${this.alertsConfig.notifyChannels.join(',')}`,
+    )
+    return { ...this.alertsConfig }
   }
 
   private resolveLocalRoot(): string {

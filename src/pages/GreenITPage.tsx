@@ -380,7 +380,7 @@ function StatCard({ title, value, unit, icon, trend, trendValue, color = C.prima
           }}>
             {trend === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
             <span>{trendValue}</span>
-            <span style={{ color: C.textLight }}>vs上月</span>
+            <span style={{ color: C.textLight }}>较上月</span>
           </div>
         )}
       </div>
@@ -1586,21 +1586,21 @@ const ISO14001Compliance = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>审核就绪评分</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
         </div>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>完全合规</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: C.success, marginTop: 4 }}>{compliant}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>{compliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
         </div>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>部分合规</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: C.warning, marginTop: 4 }}>{partial}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.warning, marginTop: 4 }}>{partial}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
         </div>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>不合规</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
         </div>
       </div>

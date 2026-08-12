@@ -177,6 +177,23 @@ function toV1Result(r: QcImageAiScoreV2Result): QcImageAiResult {
   }
 }
 
+// [Wave1B P2] V1 评分请求体 (后端 POST /qc/image-ai/score, ScoreSchema 对齐)
+export interface QcImageAiScoreV1Dto {
+  instanceId: string;
+  modality: string;
+  motionArtifact: number;
+  metalArtifact: number;
+  ringArtifact: number;
+  exposureLow: number;
+  exposureNormal: number;
+  exposureOver: number;
+  positioningCorrect: number;
+  positioningMildRotation: number;
+  positioningSevereOffset: number;
+  overall: number;
+  operatorId?: string;
+}
+
 export const qcImageAiApi = {
   // [G005 Wave1A W9] V1 方法改指 V2 真实路由 (backend/src/modules/qc/image-ai.controller.ts):
   //   listResults -> GET /qc/image-ai/result-v2 (V2 评分记录列表, 内部映射回 V1 展示形状)
@@ -217,6 +234,10 @@ export const qcImageAiApi = {
   },
 
   // [v3.0.6.11-50] V2 端点 (backend/src/modules/qc/image-ai.controller.ts)
+
+  // [Wave1B P2] V1 评分兼容封装 (页面用 score-v2, 本方法备用): POST /qc/image-ai/score
+  scoreV1: (data: QcImageAiScoreV1Dto) =>
+    api.post<QcImageAiScoreV2Result>("/qc/image-ai/score", data),
 
   scoreV2: (data: QcImageAiScoreV2Dto) =>
     api.post<QcImageAiScoreV2Result>("/qc/image-ai/score-v2", data),

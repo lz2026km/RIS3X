@@ -21,4 +21,8 @@ export const userApi = {
 
   getActivity: (id: string) =>
     api.get<{ recentActions: Array<{ action: string; timestamp: string; details: string }> }>(`/users/${id}/activity`),
+
+  // [G005 Wave2A P1] 重置密码: 后端生成一次性临时密码并返回
+  resetPassword: (id: string) =>
+    api.post<{ id: string; username: string; temporaryPassword: string }>(`/users/${id}/reset-password`),
 }

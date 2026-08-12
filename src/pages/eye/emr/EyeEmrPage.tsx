@@ -163,28 +163,16 @@ const EyeEmrPage: React.FC = () => {
                     <Row gutter={12}>
                       <Col span={8}>
                         <Card size="small" title="视力">
-                          <Table
+                          <Descriptions
                             size="small"
-                            pagination={false}
-                            dataSource={[
-                              {
-                                type: "UCVA",
-                                od: selected.visionOd[0],
-                                os: selected.visionOs[0],
-                              },
-                              {
-                                type: "BCVA",
-                                od: selected.visionOd[1],
-                                os: selected.visionOs[1],
-                              },
+                            column={2}
+                            items={[
+                              { label: "右眼裸眼视力 (UCVA OD)", children: selected.visionOd[0] },
+                              { label: "右眼矫正视力 (BCVA OD)", children: selected.visionOd[1] },
+                              { label: "左眼裸眼视力 (UCVA OS)", children: selected.visionOs[0] },
+                              { label: "左眼矫正视力 (BCVA OS)", children: selected.visionOs[1] },
                             ]}
-                            rowKey="type"
-                            columns={[
-                              { title: "", dataIndex: "type", width: 50 },
-                              { title: "OD", render: (_, r) => r.od },
-                              { title: "OS", render: (_, r) => r.os },
-                            ]}
-            scroll={{ x: 'max-content' }} />
+                          />
                         </Card>
                         <Card
                           size="small"

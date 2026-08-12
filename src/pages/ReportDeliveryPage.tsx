@@ -70,7 +70,7 @@ function reportToDeliveryRecord(r: ReportDto): DeliveryRecord {
 const CHANNEL_CONFIG: Record<DeliveryChannel, { label: string; icon: any; color: string; bg: string; description: string }> = {
   wechat: { label: '微信',     icon: MessageSquare, color: '#07c160', bg: '#22c55e22', description: '微信公众号/小程序推送' },
   sms:    { label: '短信',     icon: Smartphone,    color: '#3b82f6', bg: '#3b82f622', description: '短信推送（含链接）' },
-  email:  { label: '邮件',     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: 'Email 含 PDF 附件' },
+  email:  { label: '邮件',     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: '邮件含 PDF 附件' },
   inApp:  { label: '站内',     icon: Bell,          color: '#7c3aed', bg: '#8b5cf622', description: '患者 App 消息' },
   dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#06b6d422', description: 'DICOM SR 推送到 PACS' },
   paper:  { label: '纸质打印', icon: Printer,        color: 'var(--text-secondary)', bg: 'var(--bg-deep)', description: '实体报告打印' },
@@ -85,6 +85,10 @@ const STATUS_CONFIG = {
   failed:    { label: '失败',   color: '#ef4444', bg: '#ef444422' },
   // [G005 Wave6A] 撤回态: 本地记录 (后端无 delivery 撤回端点)
   recalled:  { label: '已撤回', color: '#7c3aed', bg: '#8b5cf622' },
+};
+
+const TEMPLATE_LABEL: Record<string, string> = {
+  standard: '标准', simplified: '自定义', patient: '紧急',
 };
 
 // [G005 Wave6A] 撤回记录 (本地状态流转)
@@ -135,6 +139,8 @@ export default function ReportDeliveryPage() {
   const [recallTarget, setRecallTarget] = useState<DeliveryRecord | null>(null);
   const [recallReason, setRecallReason] = useState('');
   const [resendingId, setResendingId] = useState<string | null>(null);
+  // [G005 Wave2A P1] 推送记录详情 (全字段展示)
+  const [detailTarget, setDetailTarget] = useState<DeliveryRecord | null>(null);
 
   // 过滤
   const filteredRecords = useMemo(() => {
@@ -173,7 +179,7 @@ export default function ReportDeliveryPage() {
         return next;
       });
       setRecords(prev => prev.map(rec => rec.id === r.id ? { ...rec, status: 'delivered', deliveredAt: new Date().toLocaleString('zh-CN', { hour12: false }), retryCount: 0 } : rec));
-      message.success(`已重发 ${r.patientName} (${r.channel}) · 状态本地记录`);
+      message.success(`已重发 ${r.patientName}（${CHANNEL_CONFIG[r.channel]?.label ?? r.channel}）· 状态本地记录`);
     } finally {
       setResendingId(null);
     }
@@ -235,11 +241,11 @@ export default function ReportDeliveryPage() {
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
             {recordsSource === 'api' ? (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
-                {recordsLoading ? '加载中...' : `reportApi.list 派生 · ${records.length} 条`}
+                {recordsLoading ? '加载中...' : `接口数据派生 · ${records.length} 条`}
               </span>
             ) : (
               <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
-                静态演示数据（reportApi 无 delivery 端点，派生失败回退）
+                静态演示数据（接口无推送端点，派生失败回退）
               </span>
             )}
           </h1>
@@ -420,7 +426,7 @@ export default function ReportDeliveryPage() {
                   }}>{sConf.label}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{r.template}
+                  {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{TEMPLATE_LABEL[r.template] ?? r.template}
                 </div>
                 {r.failureReason && !recall && (
                   <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
@@ -468,7 +474,7 @@ export default function ReportDeliveryPage() {
                 ) : (
                   <Popconfirm
                     title="确认撤回该推送记录?"
-                    description="撤回后状态标记为 recalled (本地记录), 可随时重发"
+                    description="撤回后状态标记为『已撤回』（本地记录），可随时重发"
                     okText="撤回"
                     cancelText="取消"
                     onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
@@ -479,6 +485,7 @@ export default function ReportDeliveryPage() {
                   </Popconfirm>
                 )}
                 <button
+                  onClick={() => setDetailTarget(r)}
                   style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                 >
                   <Eye size={10} /> 详情
@@ -504,7 +511,7 @@ export default function ReportDeliveryPage() {
         destroyOnHidden
       >
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          状态将标记为 <strong>recalled (已撤回)</strong>。后端暂无 delivery 撤回端点, 此状态为<strong>本地记录</strong>。
+          状态将标记为 <strong>已撤回</strong>。后端暂无撤回端点，此状态为<strong>本地记录</strong>。
         </p>
         <textarea
           rows={3}
@@ -513,6 +520,51 @@ export default function ReportDeliveryPage() {
           placeholder="撤回原因 (如: 报告内容有误, 需重新出具)"
           style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }}
         />
+      </Modal>
+
+      {/* [G005 Wave2A P1] 推送记录详情 Modal (全字段) */}
+      <Modal
+        title="推送记录详情"
+        open={detailTarget != null}
+        onCancel={() => setDetailTarget(null)}
+        onOk={() => setDetailTarget(null)}
+        okText="关闭"
+        cancelButtonProps={{ style: { display: 'none' } }}
+        destroyOnHidden
+      >
+        {detailTarget && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {[
+              { label: '患者姓名', value: detailTarget.patientName },
+              { label: '报告编号', value: detailTarget.reportId },
+              { label: '推送渠道', value: CHANNEL_CONFIG[detailTarget.channel]?.label ?? detailTarget.channel },
+              { label: '推送模板', value: TEMPLATE_LABEL[detailTarget.template] ?? detailTarget.template },
+              { label: '推送状态', value: recalls[detailTarget.id] ? STATUS_CONFIG.recalled.label : STATUS_CONFIG[detailTarget.status]?.label },
+              { label: '推送时间', value: detailTarget.deliveredAt || '-' },
+              { label: '阅读时间', value: detailTarget.openedAt ?? '-' },
+              { label: '下载次数', value: `${detailTarget.downloadCount} 次` },
+              { label: '通知医生', value: detailTarget.notifyDoctor },
+              { label: '患者手机', value: detailTarget.patientPhone ?? '-' },
+              { label: '患者邮箱', value: detailTarget.patientEmail ?? '-' },
+              { label: '患者微信', value: detailTarget.patientWechat ?? '-' },
+              { label: '失败原因', value: detailTarget.failureReason ?? '-' },
+              { label: '重试次数', value: `${detailTarget.retryCount} 次` },
+            ].map(item => (
+              <div key={item.label} style={{ padding: '8px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{item.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{item.value}</div>
+              </div>
+            ))}
+            {recalls[detailTarget.id] && (() => {
+              const recall = recalls[detailTarget.id]!;
+              return (
+                <div style={{ gridColumn: 'span 2', padding: '8px 10px', background: '#ede9fe', border: '1px solid #ddd6fe', borderRadius: 6, fontSize: 12, color: '#7c3aed' }}>
+                  撤回记录: {recall.reason} · {recall.at} · <span style={{ color: 'var(--text-secondary)' }}>状态本地记录</span>
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </Modal>
         </>
       )}

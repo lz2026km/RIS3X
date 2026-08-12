@@ -132,6 +132,27 @@ export interface TriggerWorkflowEventDto {
   payload?: Record<string, unknown>;
 }
 
+// [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端 POST /ai-platform/denoise)
+export interface AiPlatformDenoiseDto {
+  imageBase64?: string;
+  studyId?: string;
+  modelId?: string;
+  strength?: number;
+}
+
+export interface AiPlatformDenoiseResult {
+  denoisedBase64?: string | null;
+  psnr: number;
+  ssim: number;
+  elapsedMs: number;
+  algorithm: string;
+  source: "backend" | "synthetic" | "msw";
+  width?: number;
+  height?: number;
+  modelId?: string;
+  strength?: number;
+}
+
 function unwrap<T>(res: { success: boolean; data: unknown }): T {
   const body = res.data as { data?: T } | T | null;
   if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
@@ -237,6 +258,12 @@ export const aiPlatformApi = {
   getStats: async () => {
     const res = await api.get<unknown>("/ai-platform/stats");
     return { ...res, data: unwrap<AiPlatformStats>(res) };
+  },
+
+  // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端: 确定性中值滤波/合成帧 + PSNR/SSIM)
+  denoise: async (data: AiPlatformDenoiseDto) => {
+    const res = await api.post<unknown>("/ai-platform/denoise", data);
+    return { ...res, data: unwrap<AiPlatformDenoiseResult>(res) };
   },
 
   // [v3.0.6.11-50] 对接后端 GET /ai-platform/medical-devices (aiplatform.controller)

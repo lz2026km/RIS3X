@@ -55,3 +55,11 @@ export const TriggerWorkflowEventSchema = z.object({
   bodyPart: z.string().optional(),
   payload: z.record(z.unknown()).optional(),
 })
+
+// [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (POST /ai-platform/denoise)
+export const DenoiseImageSchema = z.object({
+  imageBase64: z.string().max(20_000_000).optional(),
+  studyId: z.string().max(200).optional(),
+  modelId: z.string().max(120).optional(),
+  strength: z.number().min(0).max(100).optional(),
+})

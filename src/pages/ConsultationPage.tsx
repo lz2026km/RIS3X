@@ -1066,6 +1066,10 @@ export default function ConsultationPage() {
       {/* 录音录像会诊 Tab */}
       {activeTab === '录音录像会诊' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* [G005 W2-B P2] 后端暂无录像/存档端点, 列表为演示数据 */}
+          <div style={{ background: '#fffbeb', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d' }}>
+            演示数据：后端暂无录音录像存档端点，本区列表为本地演示数据（会诊列表仍来自 /consultations 真实接口）
+          </div>
           {/* Stat Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {recordingStatCards.map(card => (
@@ -1416,6 +1420,7 @@ export default function ConsultationPage() {
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />录音录像存档列表
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>演示数据</span>
             </h3>
 
             <div style={{ overflowX: 'auto' }}>

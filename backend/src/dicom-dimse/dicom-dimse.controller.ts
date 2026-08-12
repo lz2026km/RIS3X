@@ -5,7 +5,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { DicomDimseService } from './dicom-dimse.service'
 import { z } from 'zod'
-import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, MppsSchema, NodeTlsSchema, TlsConfigSchema, UploadS3Schema } from './dto'
+import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, MppsSchema, NodeTlsSchema, TlsConfigSchema, TransferEnqueueSchema, UploadS3Schema } from './dto'
 
 @ApiTags('dicom-dimse')
 @ApiBearerAuth()
@@ -78,5 +78,49 @@ export class DicomDimseController {
   @ApiOperation({ summary: 'MPPS 检查进度列表' })
   listMpps() {
     return this.service.listMpps()
+  }
+
+  // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 ═══════════
+
+  @Get('transfers')
+  @ApiOperation({ summary: 'DICOM C-STORE 传输队列列表 (内存 + seed)' })
+  listTransfers() {
+    return this.service.listTransfers()
+  }
+
+  @Post('transfers')
+  @ApiOperation({ summary: '入队 DICOM C-STORE 传输任务 (studyUid + 目标 AE)' })
+  enqueueTransfer(@Body(new ZodValidationPipe(TransferEnqueueSchema)) body: z.infer<typeof TransferEnqueueSchema>) {
+    return this.service.enqueueTransfer(body)
+  }
+
+  @Get('transfers/stats')
+  @ApiOperation({ summary: '传输队列统计 (各状态数量 / 成功率 / 平均进度)' })
+  transferStats() {
+    return this.service.getTransferStats()
+  }
+
+  @Post('transfers/:id/retry')
+  @ApiOperation({ summary: '重试失败/暂停的传输任务' })
+  retryTransfer(@Param('id') id: string) {
+    return this.service.retryTransfer(id)
+  }
+
+  @Post('transfers/:id/pause')
+  @ApiOperation({ summary: '暂停传输任务' })
+  pauseTransfer(@Param('id') id: string) {
+    return this.service.pauseTransfer(id)
+  }
+
+  @Post('transfers/:id/resume')
+  @ApiOperation({ summary: '恢复传输任务' })
+  resumeTransfer(@Param('id') id: string) {
+    return this.service.resumeTransfer(id)
+  }
+
+  @Post('transfers/:id/cancel')
+  @ApiOperation({ summary: '取消传输任务' })
+  cancelTransfer(@Param('id') id: string) {
+    return this.service.cancelTransfer(id)
   }
 }

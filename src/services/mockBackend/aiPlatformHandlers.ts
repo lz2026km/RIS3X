@@ -319,4 +319,30 @@ export const aiPlatformHandlers = [
     const result = applyQuery(marketplaceApps, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+
+  // ----- [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (对齐 backend aiplatform.service.denoiseImage) -----
+  // SW 环境无 canvas: 返回服务端指标, 图像由页面本地确定性滤波渲染 (标注 msw 模拟)
+  http.post(`${API}/denoise`, async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    await delay(delayMs(180, 420));
+    const strength = Math.max(0, Math.min(100, Number(body?.strength ?? 50)));
+    const modelId = String(body?.modelId ?? 'unet');
+    const psnr = Math.round((22 + (100 - strength) * 0.16) * 10) / 10;
+    const ssim = Math.round(Math.min(0.98, 0.7 + (100 - strength) * 0.0024) * 1000) / 1000;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        denoisedBase64: null,
+        psnr,
+        ssim,
+        elapsedMs: 160 + Math.round(strength * 4),
+        algorithm: 'median-3x3 (msw 模拟)',
+        source: 'msw',
+        modelId,
+        strength,
+        width: 256,
+        height: 256,
+      },
+    });
+  }),
 ];

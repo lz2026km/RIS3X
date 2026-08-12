@@ -18,6 +18,11 @@ const ArbitrateSchema = z.object({
   report: z.string().min(1),
 })
 
+// [Wave1B P2] 无 id 变体 (POST /dual-read/arbitrate): id 由 body 携带
+const ArbitrateByIdSchema = ArbitrateSchema.extend({
+  id: z.string().min(1),
+})
+
 const ReaderSchema = z.object({
   readerId: z.string().optional(),
   readerNumber: z.union([z.literal(1), z.literal(2)]),
@@ -38,10 +43,9 @@ export class DualReadController {
 
   @Post('arbitrate')
   arbitrate(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(ArbitrateSchema)) body: z.infer<typeof ArbitrateSchema>,
+    @Body(new ZodValidationPipe(ArbitrateByIdSchema)) body: z.infer<typeof ArbitrateByIdSchema>,
   ) {
-    return this.service.arbitrate(id, body.arbitratorId, body.arbitratorName, body.report)
+    return this.service.arbitrate(body.id, body.arbitratorId, body.arbitratorName, body.report)
   }
 
   @Post('arbitrate/:id')

@@ -85,6 +85,9 @@ export const DentalCadPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [marginPoints, setMarginPoints] = useState<number[][]>([]);
   const [drawing, setDrawing] = useState(false);
+  // [G005 Wave1A P1] 铣削单元真实列表: dentalApi.getCadMillingUnits
+  const [millingUnits, setMillingUnits] = useState<any[]>([]);
+  const [selMillUnit, setSelMillUnit] = useState("sirona-mcxl");
 
   useEffect(() => {
     Promise.all([
@@ -96,6 +99,12 @@ export const DentalCadPage: React.FC = () => {
       }),
       dentalApi.getCadShades().then((r) => {
         if (r) setShades(r);
+      }),
+      dentalApi.getCadMillingUnits().then((r) => {
+        if (Array.isArray(r)) {
+          setMillingUnits(r);
+          if (r.length > 0 && r.some((u: any) => u.id === selMillUnit)) setSelMillUnit(r[0].id);
+        }
       }),
     ]).catch((err) => {
       console.error("[F04]", err);
@@ -141,6 +150,26 @@ export const DentalCadPage: React.FC = () => {
     message.success("边缘线已保存");
   };
 
+  // [G005 Wave1A P1] 解剖保存: dentalApi.saveAnatomy (PUT /dental/cad/design/:id/anatomy)
+  const handleSaveAnatomy = async () => {
+    if (!current) return;
+    setBusy(true);
+    try {
+      const res = await dentalApi.saveAnatomy(current.id, {
+        occlusalAnatomy: current?.occlusalAnatomy ?? "anatomic",
+        thickness: current?.thickness ?? 1.5,
+        cementGap: current?.cementGap ?? 30,
+        material: current?.material ?? "zirconia",
+        updatedBy: "current-doctor",
+      });
+      if (res && res.success === false) throw new Error(res.error?.message ?? "保存失败");
+      message.success("解剖数据已保存");
+    } catch (e: any) {
+      message.error(e?.message ?? "保存失败");
+    }
+    setBusy(false);
+  };
+
   const handlePreview = async () => {
     if (!current) return;
     setBusy(true);
@@ -157,9 +186,9 @@ export const DentalCadPage: React.FC = () => {
     if (!current) return;
     setBusy(true);
     try {
-      await dentalApi.submitMill(current.id, "sirona-mcxl");
+      await dentalApi.submitMill(current.id, selMillUnit);
       await dentalApi.updateCadStatus(current.id, "milling");
-      message.success("已提交至研磨机");
+      message.success(`已提交至研磨机: ${selMillUnit}`);
       setMode("list");
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -502,6 +531,14 @@ export const DentalCadPage: React.FC = () => {
                 >
                   保存边缘
                 </Button>
+                <Button
+                  size="small"
+                  onClick={() => void handleSaveAnatomy()}
+                  icon={<Save size={10} />}
+                  loading={busy}
+                >
+                  保存解剖
+                </Button>
               </Space>
             }
           >
@@ -615,23 +652,31 @@ export const DentalCadPage: React.FC = () => {
               </div>
             )}
             <Divider style={{ margin: "8px 0" }} />
-            <Space style={{ width: "100%", justifyContent: "space-between" }}>
-              <Space>
-                <Button
-                  icon={<Eye size={14} />}
-                  onClick={handlePreview}
-                  loading={busy}
-                >
-                  3D 预览
-                </Button>
-                <Button
-                  icon={<Download size={14} />}
-                  onClick={handleSubmitMill}
-                  loading={busy}
-                >
-                  提交研磨
-                </Button>
-              </Space>
+              <Space style={{ width: "100%", justifyContent: "space-between" }}>
+                <Space>
+                  <Button
+                    icon={<Eye size={14} />}
+                    onClick={handlePreview}
+                    loading={busy}
+                  >
+                    3D 预览
+                  </Button>
+                  <Select
+                    size="small"
+                    value={selMillUnit}
+                    onChange={setSelMillUnit}
+                    style={{ width: 150 }}
+                    placeholder="铣削单元"
+                    options={millingUnits.map((u: any) => ({ value: u.id, label: u.name }))}
+                  />
+                  <Button
+                    icon={<Download size={14} />}
+                    onClick={handleSubmitMill}
+                    loading={busy}
+                  >
+                    提交研磨
+                  </Button>
+                </Space>
               <Button
                 onClick={() => void handleExportStl()}
                 icon={<Download size={14} />}

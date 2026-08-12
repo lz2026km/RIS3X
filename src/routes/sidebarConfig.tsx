@@ -1514,7 +1514,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/ris/iop",
-        icon: <Activity size={18} />,
+        icon: <Gauge size={18} />,
         labelKey: "nav.eyeIop",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -2175,7 +2175,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-88] Wave6A 血管分析工作台 (心脏组)
       {
         path: "/cardiac/vessel-analysis",
-        icon: React.createElement(Activity, { size: 18 }),
+        icon: React.createElement(HeartPulse, { size: 18 }),
         labelKey: "nav.vesselAnalysis",
         roles: ["医生", "主任", "管理员"],
       },

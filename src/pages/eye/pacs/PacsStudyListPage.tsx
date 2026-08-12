@@ -259,7 +259,7 @@ const PacsStudyListPage: React.FC = () => {
               placeholder="选择检查类型"
               options={Object.entries(MODALITY_LABELS)
                 .filter(([k]) => !['v6', 'text', 'findings_multi', 'images', 'productivity', 'clinical', 'operational', 'financial', 'critical_value', 'pending_review'].includes(k))
-                .map(([value, label]) => ({ value, label: `${label} (${value})` }))}
+                .map(([value, label]) => ({ value, label }))}
             />
           </Form.Item>
           <Form.Item name="bodyPart" label="检查部位/眼别">

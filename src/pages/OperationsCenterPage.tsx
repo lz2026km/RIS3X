@@ -424,8 +424,8 @@ const s: Record<string, React.CSSProperties> = {
     margin: '0 auto 8px',
   },
   qualityValue: {
-    fontSize: 32,
-    fontWeight: 800,
+    fontSize: 28,
+    fontWeight: 700,
     color: '#f1f5f9',
   },
   qualityLabel: {
@@ -509,7 +509,7 @@ function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
       <div style={{ ...s.kpiTrend, color: trendColor }}>
         <TrendIcon size={16} />
         <span>{diff > 0 ? '+' : ''}{diff} ({percent}%)</span>
-        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>vs昨日</span>
+        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>较昨日</span>
       </div>
     </div>
   )

@@ -157,7 +157,7 @@ export default function AccountsReceivablePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>应收账款管理</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>应收账款管理</span></div>
         <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? '暂无应收数据, 无法导出' : '基于 financeApi.listInvoices 真实数据导出'} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
       </div>
 
@@ -176,16 +176,16 @@ export default function AccountsReceivablePage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>应收总额</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#3b82f6' }}>¥{summary.total.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>¥{summary.total.toLocaleString()}</div>
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>逾期金额</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#ef4444' }}>¥{summary.overdue.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>¥{summary.overdue.toLocaleString()}</div>
         </div>
         {summary.byAging.map(b => (
           <div key={b.key} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{b.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: b.color }}>¥{b.amount.toLocaleString()}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: b.color }}>¥{b.amount.toLocaleString()}</div>
             <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{b.count} 笔</div>
           </div>
         ))}

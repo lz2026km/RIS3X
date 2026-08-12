@@ -715,6 +715,18 @@ const FHIRReportPanel = () => {
   const [exportSuccess, setExportSuccess] = useState(false)
 
   const handleFHIRExport = () => {
+    const bundle = {
+      ...JSON.parse(JSON.stringify(mockFHIRBundle)),
+      timestamp: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/fhir+json;charset=utf-8' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `fhir-bundle-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
     setExportSuccess(true)
     setTimeout(() => setExportSuccess(false), 3000)
   }

@@ -1,7 +1,7 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button } from 'antd';
+import { Card, Space, Tag, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal } from 'antd';
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
@@ -24,24 +24,45 @@ export const DentalEmrPage: React.FC = () => {
   const [panoImages, setPanoImages] = useState<any[]>([]);
   const [periaImages, setPeriaImages] = useState<any[]>([]);
   const [imgLoading, setImgLoading] = useState(false);
-  // [G005 2B] 受控分页: 治疗记录 / 预约 / 费用 / 影像 表
-  const { pageData: pagedTreatments, pagination: treatmentsPagination } = usePagination(treatments, 10);
-  const { pageData: pagedAppts, pagination: apptsPagination } = usePagination(appts, 10);
-  const { pageData: pagedBills, pagination: billsPagination } = usePagination(bills, 10);
-  const { pageData: pagedImages, pagination: imagesPagination } = usePagination([...panoImages, ...periaImages], 10);
+  // [G005 Wave1A P1] 影像详情: getStudy / getPanoramic / getPeriapical / listBitewing
+  const [bitewingImages, setBitewingImages] = useState<any[]>([]);
+  const [imgDetail, setImgDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const loadImages = async () => {
     setImgLoading(true);
     try {
-      const [pa, pe] = await Promise.allSettled([
+      const [pa, pe, bw] = await Promise.allSettled([
         dentalApi.listPanoramic(),
         dentalApi.listPeriapical(),
+        dentalApi.listBitewing(),
       ]);
       if (pa.status === 'fulfilled' && Array.isArray(pa.value)) setPanoImages(pa.value);
       if (pe.status === 'fulfilled' && Array.isArray(pe.value)) setPeriaImages(pe.value);
+      if (bw.status === 'fulfilled' && Array.isArray(bw.value)) setBitewingImages(bw.value);
     } catch { /* 演示回退: 保留空列表 */ }
     setImgLoading(false);
   };
+
+  const openImageDetail = async (img: any) => {
+    setImgDetail(img);
+    setDetailLoading(true);
+    try {
+      const fetchers: Record<string, (id: string) => any> = {
+        Panoramic: dentalApi.getPanoramic,
+        Periapical: dentalApi.getPeriapical,
+      };
+      const fetcher = fetchers[img.modality] ?? dentalApi.getStudy;
+      const res = await fetcher(img.id);
+      if (res?.success && res.data) setImgDetail(res.data);
+    } catch { /* 保留列表行数据 */ }
+    setDetailLoading(false);
+  };
+  // [G005 2B] 受控分页: 治疗记录 / 预约 / 费用 / 影像 表
+  const { pageData: pagedTreatments, pagination: treatmentsPagination } = usePagination(treatments, 10);
+  const { pageData: pagedAppts, pagination: apptsPagination } = usePagination(appts, 10);
+  const { pageData: pagedBills, pagination: billsPagination } = usePagination(bills, 10);
+  const { pageData: pagedImages, pagination: imagesPagination } = usePagination([...panoImages, ...periaImages, ...bitewingImages], 10);
 
   useEffect(() => {
     if (tab === 'images' && panoImages.length === 0 && periaImages.length === 0) void loadImages();
@@ -152,13 +173,41 @@ export const DentalEmrPage: React.FC = () => {
               {key:'rx', label:<span><Pill size={12}/>处方 ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
               {key:'consents', label:<span><FileText size={12}/>知情同意 ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?'已签署':'待签署'} /></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
               {key:'recalls', label:<span><AlertTriangle size={12}/>回访 ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{r.date} | 方式: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?'已发送':'待发送'} /></div>} /></List.Item>} />},
-              {key:'images', label:<span><Eye size={12}/>影像 ({panoImages.length + periaImages.length})</span>, children:<Spin spinning={imgLoading}>
+              {key:'images', label:<span><Eye size={12}/>影像 ({panoImages.length + periaImages.length + bitewingImages.length})</span>, children:<Spin spinning={imgLoading}>
                 <Table dataSource={pagedImages} rowKey="id" size="small" pagination={imagesPagination}
-                  columns={[{title:'类型',dataIndex:'modality',width:100,render:(m:string)=><Tag color={m==='Panoramic'?'purple':'blue'}>{({Panoramic:'全景片',Periapical:'根尖片'})[m] || m}</Tag>},{title:'患者',dataIndex:'patientName'},{title:'部位',dataIndex:'region',width:80},{title:'拍摄日期',dataIndex:'acquisitionDate',width:110,render:(v:string)=>v?.slice(0,10)},({title:'状态',dataIndex:'status',width:90,render:(s:string)=><Badge status={s==='reported'?'success':s==='reviewed'?'processing':'default'} text={s} />}),( {title:'缩略图',dataIndex:'thumbnail',width:90,render:(t:string)=><a href={t} target="_blank" rel="noreferrer"><Button size="small" type="link">查看</Button></a>})]} 
+                  columns={[{title:'类型',dataIndex:'modality',width:100,render:(m:string)=><Tag color={m==='Panoramic'?'purple':m==='Bitewing'?'cyan':'blue'}>{({Panoramic:'全景片',Periapical:'根尖片',Bitewing:'咬合翼片'})[m] || m}</Tag>},{title:'患者',dataIndex:'patientName'},{title:'部位',dataIndex:'region',width:80},{title:'拍摄日期',dataIndex:'acquisitionDate',width:110,render:(v:string)=>v?.slice(0,10)},({title:'状态',dataIndex:'status',width:90,render:(s:string)=><Badge status={s==='reported'?'success':s==='reviewed'?'processing':'default'} text={s} />}),( {title:'缩略图',dataIndex:'thumbnail',width:90,render:(t:string)=><a href={t} target="_blank" rel="noreferrer"><Button size="small" type="link">查看</Button></a>}),{title:'操作',width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>void openImageDetail(r)}>详情</Button>}]} 
                   scroll={{ x: 'max-content' }}/>
               </Spin>},
             ]} />
           </Card>
+          <Modal
+            title={`影像详情 - ${imgDetail?.id ?? ''}`}
+            open={!!imgDetail}
+            onCancel={() => setImgDetail(null)}
+            footer={<Button onClick={() => setImgDetail(null)}>关闭</Button>}
+            width={560}
+          >
+            {detailLoading ? <Spin /> : imgDetail && (
+              <Descriptions bordered size="small" column={2}>
+                <Descriptions.Item label="模态"><Tag color={imgDetail.modality === 'Panoramic' ? 'purple' : imgDetail.modality === 'Bitewing' ? 'cyan' : 'blue'}>{imgDetail.modality}</Tag></Descriptions.Item>
+                <Descriptions.Item label="状态">{imgDetail.status || '-'}</Descriptions.Item>
+                <Descriptions.Item label="患者">{imgDetail.patientName || '-'}</Descriptions.Item>
+                <Descriptions.Item label="部位">{imgDetail.region || '-'}</Descriptions.Item>
+                <Descriptions.Item label="设备">{imgDetail.deviceModel || '-'}</Descriptions.Item>
+                <Descriptions.Item label="FOV">{imgDetail.fieldOfView || '-'}</Descriptions.Item>
+                <Descriptions.Item label="体素">{imgDetail.voxelSize ? `${imgDetail.voxelSize} mm` : '-'}</Descriptions.Item>
+                <Descriptions.Item label="辐射剂量">{imgDetail.radiationDose ? `${imgDetail.radiationDose} mSv` : '-'}</Descriptions.Item>
+                <Descriptions.Item label="拍摄日期" span={2}>{imgDetail.acquisitionDate ? new Date(imgDetail.acquisitionDate).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+                <Descriptions.Item label="指征" span={2}>{imgDetail.indications || '-'}</Descriptions.Item>
+                {imgDetail.aiAnalysis && (
+                  <Descriptions.Item label="AI 分析" span={2}>龋齿 {imgDetail.aiAnalysis.cariesDetected ?? 0} 处 · 骨量 {imgDetail.aiAnalysis.boneLossLevel ?? '-'} · 置信度 {(imgDetail.aiAnalysis.confidence ?? 0) * 100}%</Descriptions.Item>
+                )}
+                {imgDetail.thumbnail && (
+                  <Descriptions.Item label="影像" span={2}><a href={imgDetail.thumbnail} target="_blank" rel="noreferrer">打开原图</a></Descriptions.Item>
+                )}
+              </Descriptions>
+            )}
+          </Modal>
         </>
       )}
     </div>

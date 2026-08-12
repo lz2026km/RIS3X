@@ -70,8 +70,8 @@ const StaffCard = ({ staff, isSelected, onClick }) => {
   );
 };
 
-export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, roleFilter, setRoleFilter, searchKeyword, setSearchKeyword, onEdit }) {
-  const filteredStaff = DEPT_STAFF.filter((s) => {
+export default function DepartmentStaffList({ selectedStaff, setSelectedStaff, roleFilter, setRoleFilter, searchKeyword, setSearchKeyword, onEdit, extraStaff = [] }) {
+  const filteredStaff = [...DEPT_STAFF, ...extraStaff].filter((s) => {
     const matchRole = roleFilter === "all" || s.role === roleFilter;
     const matchSearch = !searchKeyword || s.name.includes(searchKeyword) || s.title.includes(searchKeyword);
     return matchRole && matchSearch;

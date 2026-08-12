@@ -60,6 +60,8 @@ export const DentalImplant3DPage: React.FC = () => {
   const [implantModal, setImplantModal] = useState<{ open: boolean; data: any; saving: boolean }>({ open: false, data: null, saving: false });
   const [selBrand, setSelBrand] = useState("straumann");
   const [selModel, setSelModel] = useState("BLT-RC-4.1x10");
+  // [G005 Wave1A P1] 规划编辑 (updateImplantModel / updateImplantPlacement)
+  const [planEdit, setPlanEdit] = useState<any>({ entryX: 150, entryY: 120, angle: 0 });
   // [G005 2B] 写死患者真实化: dentalApi.listPatients + 新建规划患者/牙位受控
   const [patients, setPatients] = useState<any[]>([]);
   const [selPatient, setSelPatient] = useState("");
@@ -156,6 +158,7 @@ export const DentalImplant3DPage: React.FC = () => {
     setMode("plan");
     // [v3.0.6.8-105] 修复: ?set selBrand, 加载 models, 然后?plan ?model 覆盖
     setSelBrand(plan.brand);
+    setPlanEdit({ entryX: plan.entryPoint?.x ?? 150, entryY: plan.entryPoint?.y ?? 120, angle: plan.angleMesioDistal ?? 0 });
     try {
       const ms = await dentalApi.getImplantModels(plan.brand);
       if (Array.isArray(ms)) {
@@ -193,6 +196,41 @@ export const DentalImplant3DPage: React.FC = () => {
       setMode("list");
     } catch (e: any) {
       message.error(e.message);
+    }
+    setBusy(false);
+  };
+
+  // [G005 Wave1A P1] 保存规划参数: updateImplantModel + updateImplantPlacement
+  const handleSavePlanEdit = async () => {
+    if (!current) return;
+    setBusy(true);
+    try {
+      const a = await dentalApi.updateImplantModel(current.id, selBrand, selModel);
+      if (!a.success) throw new Error(a.error?.message ?? "模型保存失败");
+      const b = await dentalApi.updateImplantPlacement(current.id, {
+        entryPoint: { x: planEdit.entryX, y: planEdit.entryY, z: current.entryPoint?.z ?? 80 },
+        angleMesioDistal: planEdit.angle,
+      });
+      if (!b.success) throw new Error(b.error?.message ?? "位置保存失败");
+      message.success("规划参数已保存 (模型/位置)");
+    } catch (e: any) {
+      message.error(e?.message ?? "保存失败");
+    }
+    setBusy(false);
+  };
+
+  // [G005 Wave1A P1] 神经标记: markImplantNerve
+  const handleMarkNerve = async () => {
+    if (!current) return;
+    setBusy(true);
+    try {
+      const res = await dentalApi.markImplantNerve(current.id, [
+        { x: 150, y: 115, z: 35, label: "下牙槽神经" },
+      ]);
+      if (!res.success) throw new Error(res.error?.message ?? "标记失败");
+      message.success(`神经已标记 (${res.data?.markedPoints?.length ?? 1} 点)`);
+    } catch (e: any) {
+      message.error(e?.message ?? "标记失败");
     }
     setBusy(false);
   };
@@ -244,6 +282,7 @@ export const DentalImplant3DPage: React.FC = () => {
       });
       setCurrent(plan);
       setMode("plan");
+      setPlanEdit({ entryX: 150, entryY: 120, angle: 0 });
       message.success("新建 3D 规划");
     } catch (e: any) {
       message.error(e.message);
@@ -672,10 +711,11 @@ export const DentalImplant3DPage: React.FC = () => {
               <Col span={8}>
                 <Form.Item label="穿出 x" style={{ margin: 0 }}>
                   <InputNumber
-                    value={current.entryPoint?.x}
+                    value={planEdit.entryX}
                     min={0}
                     max={300}
                     step={0.5}
+                    onChange={(v) => setPlanEdit({ ...planEdit, entryX: v ?? 0 })}
                     style={{ width: "100%" }}
                   />
                 </Form.Item>
@@ -683,10 +723,11 @@ export const DentalImplant3DPage: React.FC = () => {
               <Col span={8}>
                 <Form.Item label="穿出 y" style={{ margin: 0 }}>
                   <InputNumber
-                    value={current.entryPoint?.y}
+                    value={planEdit.entryY}
                     min={0}
                     max={300}
                     step={0.5}
+                    onChange={(v) => setPlanEdit({ ...planEdit, entryY: v ?? 0 })}
                     style={{ width: "100%" }}
                   />
                 </Form.Item>
@@ -694,15 +735,26 @@ export const DentalImplant3DPage: React.FC = () => {
               <Col span={8}>
                 <Form.Item label="角度 MD °" style={{ margin: 0 }}>
                   <InputNumber
-                    value={current.angleMesioDistal}
+                    value={planEdit.angle}
                     min={-30}
                     max={30}
                     step={0.5}
+                    onChange={(v) => setPlanEdit({ ...planEdit, angle: v ?? 0 })}
                     style={{ width: "100%" }}
                   />
                 </Form.Item>
               </Col>
             </Row>
+            <Button
+              type="primary"
+              block
+              icon={<Save size={14} />}
+              style={{ marginTop: 8 }}
+              loading={busy}
+              onClick={() => void handleSavePlanEdit()}
+            >
+              保存规划参数 (模型/位置)
+            </Button>
           </Card>
         </Col>
         <Col span={12}>
@@ -841,15 +893,25 @@ export const DentalImplant3DPage: React.FC = () => {
             )}
             <Divider style={{ margin: "8px 0" }} />
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
-              {current.status === "planning" && (
+              <Space wrap>
                 <Button
-                  type="primary"
-                  icon={<Save size={14} />}
-                  onClick={handleApprove}
+                  size="small"
+                  icon={<Crosshair size={14} />}
+                  loading={busy}
+                  onClick={() => void handleMarkNerve()}
                 >
-                  审批规划
+                  标记神经
                 </Button>
-              )}
+                {current.status === "planning" && (
+                  <Button
+                    type="primary"
+                    icon={<Save size={14} />}
+                    onClick={handleApprove}
+                  >
+                    审批规划
+                  </Button>
+                )}
+              </Space>
               <Button
                 icon={<Download size={14} />}
                 loading={busy}

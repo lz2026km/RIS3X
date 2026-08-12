@@ -1,6 +1,6 @@
 ﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AiPlatformService } from './aiplatform.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import {
@@ -8,6 +8,7 @@ import {
   CreateAiJobSchema,
   CreateAiOrchestrationSchema,
   CreateWorkflowIntegrationSchema,
+  DenoiseImageSchema,
   DeployAiModelSchema,
   GenerateStructuredReportSchema,
   TestAiModelSchema,
@@ -78,6 +79,14 @@ export class AiPlatformController {
 
   @Post('jobs')
   triggerAiJob(@Body(new ZodValidationPipe(CreateAiJobSchema)) body: Record<string, unknown>) { return this.svc.triggerAiJob(body) }
+
+  // ==================== [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 ====================
+
+  @Post('denoise')
+  @ApiOperation({ summary: 'DL 降噪: 无真实模型时确定性中值滤波/合成帧 + PSNR/SSIM 指标' })
+  denoiseImage(@Body(new ZodValidationPipe(DenoiseImageSchema)) body: Record<string, unknown>) {
+    return this.svc.denoiseImage(body)
+  }
 
   // ==================== 既有端点 ====================
 

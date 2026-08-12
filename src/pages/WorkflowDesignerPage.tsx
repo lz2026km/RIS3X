@@ -285,7 +285,7 @@ export default function WorkflowDesignerPage() {
           { title: '版本', dataIndex: 'version', key: 'version' },
           { title: '日期', dataIndex: 'updatedAt', key: 'updatedAt' },
           { title: '状态', dataIndex: 'active', key: 'active', render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? 'active' : 'inactive'}</Tag> },
-        ]} dataSource={definitions.map(d => ({ ...d, key: d.id }))} rowKey="id" pagination={false} />
+        ]} dataSource={definitions.map(d => ({ ...d, key: d.id }))} rowKey="id" pagination={false} scroll={{ x: 'max-content' }} />
       </Modal>
       <Modal title="新建步骤" open={showNewStep} onCancel={() => setShowNewStep(false)} onOk={async () => {
         if (!currentDefId) { message.warning('请先保存工作流'); return; }

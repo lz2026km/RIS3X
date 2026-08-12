@@ -25,15 +25,17 @@ import {
   Download,
   Upload,
   UserCheck,
+  PlusCircle,
   Merge as MergeIcon,
   Split as SplitIcon,
 } from "lucide-react";
-import { initialRadiologyExams } from "../data/initialData";
+import { initialRadiologyExams, initialPatients } from "../data/initialData";
 import { examApi } from "../services/api";
 import type { ImportExamRow } from "../services/api";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
+import { Modal, Form, Input, Select, Popconfirm, message } from "antd";
 import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
 import { useOperationLog } from "../hooks/useOperationLog";
@@ -713,6 +715,50 @@ export default function ExamPage() {
     { sequence: ['g', 'e'], action: () => { window.location.href = '/exams'; }, description: '导航到检查' },
   ]);
 
+  // [Wave1B P2] 新建检查: examApi.create → 刷新列表
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creatingExam, setCreatingExam] = useState(false);
+  const [createExamForm] = Form.useForm();
+
+  const handleCreateExam = async () => {
+    const values = await createExamForm.validateFields();
+    setCreatingExam(true);
+    try {
+      const res = await examApi.create({
+        patientId: values.patientId,
+        accessionNumber: values.accessionNumber || `EX-${Date.now()}`,
+        modality: values.modality,
+        bodyPart: values.bodyPart,
+        scheduledAt: values.scheduledAt || new Date().toISOString().slice(0, 10),
+      });
+      if (!res.success) throw new Error(res.error?.message ?? "创建失败");
+      message.success(`检查已创建: ${res.data.id ?? res.data.examId}`);
+      setShowCreateModal(false);
+      createExamForm.resetFields();
+      await reloadExams();
+    } catch (e) {
+      message.error((e as Error)?.message ?? "创建失败");
+    } finally {
+      setCreatingExam(false);
+    }
+  };
+
+  // [Wave1B P2] 删除检查: examApi.delete → 刷新列表
+  const [deletingExamId, setDeletingExamId] = useState<string | null>(null);
+  const handleDeleteExam = async (exam: RadiologyExam) => {
+    setDeletingExamId(exam.id);
+    try {
+      const res = await examApi.delete(exam.id);
+      if (!res.success) throw new Error(res.error?.message ?? "删除失败");
+      message.success(`检查已删除: ${exam.accessionNumber}`);
+      await reloadExams();
+    } catch (e) {
+      message.error((e as Error)?.message ?? "删除失败");
+    } finally {
+      setDeletingExamId(null);
+    }
+  };
+
   // ==================== 渲染组件 ====================
   // Tab栏
   const TabBar = () => (
@@ -972,6 +1018,28 @@ export default function ExamPage() {
 
       {/* [W4-A] 批量导入导出 */}
       <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+        {/* [Wave1B P2] 新建检查: examApi.create */}
+        <button
+          onClick={() => {
+            createExamForm.resetFields();
+            setShowCreateModal(true);
+          }}
+          style={{
+            padding: "8px 14px",
+            border: "1px solid #2563eb",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            backgroundColor: "#2563eb18",
+            color: "#2563eb",
+          }}
+        >
+          <PlusCircle size={13} /> 新建检查
+        </button>
         <button
           onClick={() => setShowImportModal(true)}
           style={{
@@ -1391,6 +1459,35 @@ export default function ExamPage() {
                       >
                         <SplitIcon size={10} /> 拆分
                       </button>
+                      {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
+                      <Popconfirm
+                        title="删除该检查?"
+                        description={`确定删除检查 "${exam.accessionNumber}" 吗？`}
+                        okText="删除"
+                        cancelText="取消"
+                        okButtonProps={{ danger: true }}
+                        onConfirm={() => void handleDeleteExam(exam)}
+                      >
+                        <button
+                          title="删除检查"
+                          disabled={deletingExamId === exam.id}
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: 4,
+                            border: "1px solid #dc2626",
+                            backgroundColor: "var(--bg-card)",
+                            color: "#dc2626",
+                            fontSize: 12,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            opacity: deletingExamId === exam.id ? 0.5 : 1,
+                          }}
+                        >
+                          <X size={10} /> 删除
+                        </button>
+                      </Popconfirm>
                     </div>
                   </td>
                   {/* 闭环状态时间轴 */}
@@ -3086,6 +3183,41 @@ export default function ExamPage() {
           </div>
         </div>
       )}
+
+      {/* [Wave1B P2] 新建检查 Modal: examApi.create */}
+      <Modal
+        title="新建检查"
+        open={showCreateModal}
+        onOk={() => void handleCreateExam()}
+        onCancel={() => setShowCreateModal(false)}
+        confirmLoading={creatingExam}
+        okText="创建"
+        cancelText="取消"
+        width={480}
+      >
+        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ modality: "CT", bodyPart: "胸部" }}>
+          <Form.Item name="patientId" label="患者" rules={[{ required: true, message: "请选择患者" }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              placeholder="选择患者 (姓名 / ID)"
+              options={initialPatients.slice(0, 100).map((p) => ({
+                value: p.id,
+                label: `${p.name} (${p.id})`,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+            <Select options={MODALITY_LIST.filter((m) => m !== "全部").map((m) => ({ value: m, label: m }))} />
+          </Form.Item>
+          <Form.Item name="bodyPart" label="部位" rules={[{ required: true, message: "请输入检查部位" }]}>
+            <Input placeholder="如：胸部 / 头颅 / 腹部" />
+          </Form.Item>
+          <Form.Item name="accessionNumber" label="检查号 (留空自动生成)">
+            <Input placeholder="如：ACC-20260812-001" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

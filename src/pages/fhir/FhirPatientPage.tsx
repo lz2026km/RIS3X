@@ -332,6 +332,7 @@ export const FhirPatientPage: React.FC = () => {
             dataSource={pagedEverything}
             rowKey={(r) => `${r.resourceType}-${r.id}`}
             size="small"
+            scroll={{ x: 'max-content' }}
             pagination={everythingPagination}
             columns={[
               { title: '资源类型', dataIndex: 'resourceType', render: (v: string) => <Tag color="blue">{v}</Tag> },

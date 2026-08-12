@@ -72,7 +72,7 @@ function StatCard({ label, value, icon, color, bgColor }: StatCardProps) {
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1 }}>
+        <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1 }}>
           {value}
         </div>
         <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
@@ -819,6 +819,27 @@ export default function PatientPage() {
     setActiveTab("detail");
   };
 
+  // [Wave1B P2] 删除患者: patientApi.delete → 本地移除 + 刷新列表
+  const handleDeletePatient = async (patient: Patient) => {
+    try {
+      const res = await patientApi.delete(patient.id);
+      if (!res.success) throw new Error(res.error?.message ?? "删除失败");
+      setToast({ show: true, type: "success", message: `患者 ${patient.name} 已删除` });
+      setPatients((prev) => prev.filter((p) => p.id !== patient.id));
+      if (selectedPatient?.id === patient.id) {
+        setSelectedPatient(null);
+        setActiveTab("list");
+      }
+      void (async () => {
+        const r = await patientApi.list({});
+        const list = Array.isArray(r.data) ? r.data : (r.data?.items ?? []);
+        if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
+      })();
+    } catch (e) {
+      setToast({ show: true, type: "error", message: (e as Error)?.message ?? "删除失败" });
+    }
+  };
+
   const handleExport = async () => {
     // [W4-A] 优先走后端 CSV 导出, 失败时回退本地导出
     try {
@@ -1222,8 +1243,8 @@ export default function PatientPage() {
                 <div style={{ textAlign: "center" }}>
                   <div
                     style={{
-                      fontSize: 24,
-                      fontWeight: 800,
+                      fontSize: 28,
+                      fontWeight: 700,
                       color:
                         result.confidence >= 90
                           ? "#16a34a"
@@ -1492,8 +1513,8 @@ export default function PatientPage() {
           <div style={{ textAlign: "center" }}>
             <div
               style={{
-                fontSize: 20,
-                fontWeight: 800,
+                fontSize: 28,
+                fontWeight: 700,
                 color:
                   result.confidence >= 90
                     ? "#16a34a"
@@ -1613,7 +1634,7 @@ export default function PatientPage() {
           }}
         >
           <Gauge size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>累计检查次数</div>
@@ -1629,8 +1650,8 @@ export default function PatientPage() {
           <Percent size={24} color="#16a34a" style={{ marginBottom: 8 }} />
           <div
             style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 28,
+              fontWeight: 700,
               color: result.examStats.positiveRate > 30 ? "#dc2626" : "#16a34a",
             }}
           >
@@ -2412,6 +2433,7 @@ export default function PatientPage() {
             }}
             onViewPatient={handleViewPatient}
             onEditPatient={handleEditPatient}
+            onDeletePatient={handleDeletePatient}
             exams={exams}
             visibleDuplicates={visibleDuplicates}
             onDismissAllDuplicates={() =>

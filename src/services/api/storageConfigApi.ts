@@ -38,6 +38,15 @@ export interface StorageTestResponse {
   latencyMs?: number
 }
 
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 存储容量阈值预警配置
+export type NotifyChannel = 'email' | 'sms' | 'wechat' | 'dingtalk' | 'app'
+
+export interface StorageAlertsConfig {
+  warnPercent: number
+  criticalPercent: number
+  notifyChannels: NotifyChannel[]
+}
+
 export const storageConfigApi = {
   get: () => api.get<StorageConfigResponse>('/system/storage-config'),
 
@@ -46,6 +55,12 @@ export const storageConfigApi = {
 
   test: (config?: StorageConfigDto) =>
     api.post<StorageTestResponse>('/system/storage-config/test', config ?? {}),
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 容量阈值预警
+  getAlertsConfig: () => api.get<StorageAlertsConfig>('/system/storage/alerts-config'),
+
+  saveAlertsConfig: (config: StorageAlertsConfig) =>
+    api.put<StorageAlertsConfig>('/system/storage/alerts-config', config),
 }
 
 export default storageConfigApi

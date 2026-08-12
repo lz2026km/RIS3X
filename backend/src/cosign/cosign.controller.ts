@@ -48,6 +48,9 @@ export class CosignController {
   @Post('rules')
   createCosignRule(@Body(new ZodValidationPipe(CreateCosignRuleSchema)) body: Record<string, unknown>) { return this.svc.createCosignRule(body) }
 
+  @Delete('rules/:key')
+  deleteCosignRule(@Param('key') key: string) { return this.svc.deleteCosignRule(key) }
+
   @Get('stats')
   getCosignStats() { return this.svc.getCosignStats() }
 }

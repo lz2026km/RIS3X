@@ -139,7 +139,7 @@ export const DentalTreatmentTable: React.FC<{
       ),
     });
   }
-  return <Table dataSource={data} rowKey="id" columns={baseColumns} pagination={false} size={size} />;
+  return <Table dataSource={data} rowKey="id" columns={baseColumns} pagination={false} size={size} scroll={{ x: 'max-content' }} />;
 };
 
 /** 口腔治疗页面通用容器 */

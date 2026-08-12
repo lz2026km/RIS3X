@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch } from 'antd'
-import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save } from 'lucide-react'
-import { dicomDimseApi, type DicomTlsConfig, type MppsRecord } from '../../services/api/dicomApi'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch, Progress, Statistic, Row, Col } from 'antd'
+import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save, ListOrdered, Pause, Play, RotateCcw, Ban } from 'lucide-react'
+import { dicomDimseApi, type DicomTlsConfig, type MppsRecord, type TransferRecord, type TransferStats } from '../../services/api/dicomApi'
 import { usePagination } from '../../hooks/usePagination'
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
@@ -18,7 +18,23 @@ const ECHO_COLUMNS: any[] = [
   { title: '端口', dataIndex: 'port', key: 'port' },
   { title: '设备', dataIndex: 'modality', key: 'modality' },
   { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircle size={14} /> : <XCircle size={14} />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
+  // [G005 v3.0.6.11-90 Wave 4B (G-10)] 在线状态列 (轮询 C-ECHO 结果): 在线/离线/未知
+  {
+    title: '在线状态',
+    dataIndex: 'status',
+    key: 'online',
+    render: (v: string | null) => v === 'SUCCESS'
+      ? <Tag color="green" icon={<CheckCircle size={14} />}>在线</Tag>
+      : v === 'FAIL'
+        ? <Tag color="red" icon={<XCircle size={14} />}>离线</Tag>
+        : <Tag color="default">未知</Tag>,
+  },
+  {
+    title: '上次检测',
+    dataIndex: 'lastCheckedAt',
+    key: 'lastCheckedAt',
+    render: (v: string | null) => v ? new Date(v).toLocaleTimeString() : '-',
+  },
 ]
 
 const MWL_COLUMNS = [
@@ -77,6 +93,18 @@ const TLS_NODE_COLUMNS = [
   ) },
 ]
 
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] 传输队列状态/标签映射
+const TRANSFER_STATUS_META: Record<string, { color: string; label: string }> = {
+  queued: { color: 'default', label: '排队中' },
+  sending: { color: 'processing', label: '发送中' },
+  paused: { color: 'warning', label: '已暂停' },
+  failed: { color: 'error', label: '失败' },
+  completed: { color: 'success', label: '已完成' },
+  canceled: { color: 'default', label: '已取消' },
+}
+
+const TRANSFER_PRIORITY_COLOR: Record<string, string> = { HIGH: 'red', NORMAL: 'blue', LOW: 'default' }
+
 interface DimseDevice {
   aeTitle: string
   ip: string
@@ -84,15 +112,19 @@ interface DimseDevice {
   modality: string
   pingMs: number | null
   status: string | null
+  lastCheckedAt: string | null
   _echoing: boolean
 }
 
 const INITIAL_DEVICES: DimseDevice[] = [
-  { aeTitle: 'CT_SCANNER_01', ip: '192.168.1.101', port: 11112, modality: 'CT', pingMs: null, status: null, _echoing: false },
-  { aeTitle: 'MR_SCANNER_02', ip: '192.168.1.102', port: 11113, modality: 'MR', pingMs: null, status: null, _echoing: false },
-  { aeTitle: 'XA_LAB_01', ip: '192.168.1.103', port: 11114, modality: 'XA', pingMs: null, status: null, _echoing: false },
-  { aeTitle: 'US_UNIT_01', ip: '192.168.1.104', port: 11115, modality: 'US', pingMs: null, status: null, _echoing: false },
+  { aeTitle: 'CT_SCANNER_01', ip: '192.168.1.101', port: 11112, modality: 'CT', pingMs: null, status: null, lastCheckedAt: null, _echoing: false },
+  { aeTitle: 'MR_SCANNER_02', ip: '192.168.1.102', port: 11113, modality: 'MR', pingMs: null, status: null, lastCheckedAt: null, _echoing: false },
+  { aeTitle: 'XA_LAB_01', ip: '192.168.1.103', port: 11114, modality: 'XA', pingMs: null, status: null, lastCheckedAt: null, _echoing: false },
+  { aeTitle: 'US_UNIT_01', ip: '192.168.1.104', port: 11115, modality: 'US', pingMs: null, status: null, lastCheckedAt: null, _echoing: false },
 ]
+
+// [G005 v3.0.6.11-90 Wave 4B (G-10)] 在线状态轮询间隔
+const POLL_INTERVAL_MS = 30_000
 
 export const DicomDimsePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('echo')
@@ -127,6 +159,71 @@ export const DicomDimsePage: React.FC = () => {
   const [mppsLoading, setMppsLoading] = useState(false)
   const [mppsSending, setMppsSending] = useState(false)
   const mppsPagination = usePagination(mppsRecords, 10)
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列状态
+  const [transfers, setTransfers] = useState<TransferRecord[]>([])
+  const [transferStats, setTransferStats] = useState<TransferStats | null>(null)
+  const [transferLoading, setTransferLoading] = useState(false)
+  const [transferModal, setTransferModal] = useState(false)
+  const [transferForm] = Form.useForm()
+  const [transferSubmitting, setTransferSubmitting] = useState(false)
+  const transferPagination = usePagination(transfers, 10)
+  // [G005 v3.0.6.11-90 Wave 4B (G-10)] 在线状态轮询
+  const [autoPoll, setAutoPoll] = useState(true)
+  const [pollRunning, setPollRunning] = useState(false)
+  const devicesRef = useRef(devices)
+  const pollRunningRef = useRef(false)
+
+  useEffect(() => { devicesRef.current = devices }, [devices])
+
+  // 轮询: 串行 C-ECHO, 失败静默降级 (状态未知 + 记时间), 不产生 console.error
+  const pollDevices = useCallback(async () => {
+    if (pollRunningRef.current) return
+    const list = devicesRef.current
+    if (!list.length) return
+    pollRunningRef.current = true
+    setPollRunning(true)
+    try {
+      // 节点过多 (>10) 时全部串行, 逐节点节流避免并发打满
+      for (const device of list) {
+        const res = await dicomDimseApi.cEcho({ calledAeTitle: device.aeTitle })
+        const payload = (res.data as { data?: unknown })?.data ?? res.data
+        const ok = res.success && (payload as any)?.statusCode === 0
+        setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle
+          ? {
+              ...d,
+              status: ok ? 'SUCCESS' : null,
+              pingMs: ok ? ((payload as any)?.pingMs ?? d.pingMs) : d.pingMs,
+              lastCheckedAt: new Date().toISOString(),
+            }
+          : d))
+        await new Promise<void>(resolve => setTimeout(resolve, 150))
+      }
+    } catch {
+      // 静默降级: 保持现有数据, 不中断
+    } finally {
+      pollRunningRef.current = false
+      setPollRunning(false)
+    }
+  }, [])
+
+  // [G005 v3.0.6.11-90 Wave 4B (G-10)] 每 30s 自动轮询, 组件卸载 clearInterval
+  useEffect(() => {
+    if (!autoPoll) return
+    void pollDevices()
+    const timer = setInterval(() => { void pollDevices() }, POLL_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [autoPoll, pollDevices])
+
+  const loadTransfers = useCallback(async () => {
+    setTransferLoading(true)
+    const [listRes, statsRes] = await Promise.all([
+      dicomDimseApi.listTransfers().catch(() => ({ success: false as const, data: undefined as TransferRecord[] | undefined })),
+      dicomDimseApi.getTransferStats().catch(() => ({ success: false as const, data: undefined as TransferStats | undefined })),
+    ])
+    if (listRes.success && Array.isArray(listRes.data)) setTransfers(listRes.data)
+    if (statsRes.success && statsRes.data) setTransferStats(statsRes.data)
+    setTransferLoading(false)
+  }, [])
 
   const loadTlsConfig = useCallback(async () => {
     setTlsLoading(true)
@@ -163,6 +260,7 @@ export const DicomDimsePage: React.FC = () => {
   useEffect(() => {
     void loadTlsConfig()
     void loadMpps()
+    void loadTransfers()
     let cancelled = false
     Promise.all(devices.map(d => dicomDimseApi.getNodeTls(d.aeTitle)
       .then(r => ({ ae: d.aeTitle, enabled: !!r.data?.tlsEnabled }))
@@ -209,17 +307,52 @@ export const DicomDimsePage: React.FC = () => {
     setMppsSending(false)
   }
 
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] 传输队列操作
+  const runTransferAction = async (id: string, action: 'retry' | 'pause' | 'resume' | 'cancel') => {
+    const apiCall = {
+      retry: dicomDimseApi.retryTransfer,
+      pause: dicomDimseApi.pauseTransfer,
+      resume: dicomDimseApi.resumeTransfer,
+      cancel: dicomDimseApi.cancelTransfer,
+    }[action]
+    const res = await apiCall(id)
+    if (res.success) {
+      message.success(`传输任务 ${id} 已${action === 'retry' ? '重试' : action === 'pause' ? '暂停' : action === 'resume' ? '恢复' : '取消'}`)
+      void loadTransfers()
+    } else {
+      message.error(res.error?.message ?? '操作失败')
+    }
+  }
+
+  const handleEnqueueTransfer = async () => {
+    try {
+      const values = await transferForm.validateFields()
+      setTransferSubmitting(true)
+      const res = await dicomDimseApi.enqueueTransfer({ studyUid: values.studyUid, targetAe: values.targetAe, priority: values.priority })
+      if (res.success) {
+        message.success(`传输任务已入队: ${res.data.id} → ${values.targetAe}`)
+        setTransferModal(false)
+        transferForm.resetFields()
+        void loadTransfers()
+      } else {
+        message.error(res.error?.message ?? '入队失败')
+      }
+    } catch { /* 校验失败忽略 */ }
+    setTransferSubmitting(false)
+  }
+
   const handleEcho = async (device: DimseDevice) => {
     setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d))
     const start = performance.now()
     const res = await dicomDimseApi.cEcho({ calledAeTitle: device.aeTitle })
     const elapsed = Math.round(performance.now() - start)
+    const now = new Date().toISOString()
     if (res.success) {
       // [G005 P1] 响应形状统一: 后端直接返回 C-ECHO 对象 (无 data 双包裹)
       const payload = (res.data as { data?: unknown })?.data ?? res.data
-      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: (payload as any)?.pingMs ?? elapsed, status: 'SUCCESS', _echoing: false } : d))
+      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: (payload as any)?.pingMs ?? elapsed, status: 'SUCCESS', lastCheckedAt: now, _echoing: false } : d))
     } else {
-      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: elapsed, status: 'FAIL', _echoing: false } : d))
+      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: elapsed, status: 'FAIL', lastCheckedAt: now, _echoing: false } : d))
     }
   }
 
@@ -284,7 +417,7 @@ export const DicomDimsePage: React.FC = () => {
   const handleAddDevice = async () => {
     try {
       const values = await deviceForm.validateFields()
-      setDevices(prev => [...prev, { ...values, pingMs: null, status: null, _echoing: false }])
+      setDevices(prev => [...prev, { ...values, pingMs: null, status: null, lastCheckedAt: null, _echoing: false }])
       setDeviceModal(false)
       deviceForm.resetFields()
       message.success('设备已添加')
@@ -298,6 +431,9 @@ export const DicomDimsePage: React.FC = () => {
       children: (
         <Card size="small" title="DICOM 设备列表" extra={
           <Space>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>自动轮询 30s</span>
+            <Switch size="small" checked={autoPoll} onChange={setAutoPoll} />
+            <Button icon={<RefreshCw size={14} />} loading={pollRunning} onClick={() => void pollDevices()}>刷新状态</Button>
             <Button icon={<Plus size={14} />} onClick={() => setDeviceModal(true)}>添加设备</Button>
             <Button icon={<RefreshCw size={14} />} onClick={() => setDevices(INITIAL_DEVICES)}>重置</Button>
           </Space>
@@ -471,6 +607,67 @@ export const DicomDimsePage: React.FC = () => {
         </>
       ),
     },
+    {
+      key: 'transfers',
+      label: <Space><ListOrdered />传输队列</Space>,
+      children: (
+        <>
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+            {[
+              { title: '队列总数', value: transferStats?.total ?? 0, color: '#1e40af' },
+              { title: '活跃任务', value: transferStats?.activeCount ?? 0, color: '#0891b2' },
+              { title: '发送中', value: transferStats?.sending ?? 0, color: '#2563eb' },
+              { title: '失败', value: transferStats?.failed ?? 0, color: '#dc2626' },
+              { title: '已完成', value: transferStats?.completed ?? 0, color: '#059669' },
+              { title: '成功率', value: transferStats?.successRate != null ? `${transferStats.successRate}%` : '-', color: '#7c3aed' },
+            ].map(s => (
+              <Col span={4} key={s.title}><Card size="small"><Statistic title={s.title} value={s.value} valueStyle={{ color: s.color, fontSize: 18 }} /></Card></Col>
+            ))}
+          </Row>
+          <Card size="small" title="DICOM C-STORE 发送队列 (内存 + seed 回退)" extra={
+            <Space>
+              <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void loadTransfers()} loading={transferLoading}>刷新</Button>
+              <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setTransferModal(true)}>新建传输</Button>
+            </Space>
+          }>
+            <Table scroll={{ x: 'max-content' }}
+              dataSource={transferPagination.pageData}
+              rowKey="id"
+              loading={transferLoading}
+              pagination={transferPagination.pagination}
+              columns={[
+                { title: '任务 ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? 'seed' : '队列'}</Tag></Space> },
+                { title: '目标 AE', dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{v}</Tag> },
+                { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
+                { title: '进度', key: 'progress', width: 180, render: (_: unknown, r: TransferRecord) => (
+                  <Progress percent={r.progress} size="small" status={r.status === 'failed' ? 'exception' : r.status === 'completed' ? 'success' : r.status === 'paused' ? 'normal' : 'active'} format={(p) => `${r.completedInstances}/${r.totalInstances} (${p ?? 0}%)`} />
+                ) },
+                { title: '更新时间', dataIndex: 'updatedAt', key: 'updatedAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
+                { title: '错误', dataIndex: 'error', key: 'error', ellipsis: true, render: (v?: string) => v ? <span style={{ color: '#dc2626', fontSize: 12 }}>{v}</span> : '-' },
+                { title: '操作', key: 'action', width: 230, render: (_: unknown, r: TransferRecord) => (
+                  <Space size={4} wrap>
+                    {['failed', 'paused', 'canceled'].includes(r.status) && (
+                      <Button size="small" icon={<RotateCcw size={12} />} onClick={() => void runTransferAction(r.id, 'retry')}>重试</Button>
+                    )}
+                    {['sending', 'queued'].includes(r.status) && (
+                      <Button size="small" icon={<Pause size={12} />} onClick={() => void runTransferAction(r.id, 'pause')}>暂停</Button>
+                    )}
+                    {r.status === 'paused' && (
+                      <Button size="small" icon={<Play size={12} />} onClick={() => void runTransferAction(r.id, 'resume')}>恢复</Button>
+                    )}
+                    {r.status !== 'completed' && r.status !== 'canceled' && (
+                      <Button size="small" danger icon={<Ban size={12} />} onClick={() => void runTransferAction(r.id, 'cancel')}>取消</Button>
+                    )}
+                  </Space>
+                ) },
+              ]}
+            />
+          </Card>
+        </>
+      ),
+    },
   ]
 
   return (
@@ -507,6 +704,27 @@ export const DicomDimsePage: React.FC = () => {
               </Select>
             </Form.Item>
           </div>
+        </Form>
+      </Modal>
+
+      <Modal title="新建 DICOM C-STORE 传输" open={transferModal} onCancel={() => setTransferModal(false)} onOk={() => void handleEnqueueTransfer()} confirmLoading={transferSubmitting}>
+        <Form form={transferForm} layout="vertical" size="small">
+          <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
+            <Input placeholder="1.2.840.xxxxx" />
+          </Form.Item>
+          <Form.Item name="targetAe" label="目标 AE" rules={[{ required: true, message: '请选择目标 AE' }]}>
+            <Select placeholder="选择目标 AE Title">
+              {devices.map(d => <Select.Option key={d.aeTitle} value={d.aeTitle}>{d.aeTitle} ({d.modality})</Select.Option>)}
+              <Select.Option value="PACS_ARCHIVE">PACS_ARCHIVE (归档)</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="priority" label="优先级" initialValue="NORMAL">
+            <Select>
+              <Select.Option value="HIGH">高</Select.Option>
+              <Select.Option value="NORMAL">普通</Select.Option>
+              <Select.Option value="LOW">低</Select.Option>
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
     </div>

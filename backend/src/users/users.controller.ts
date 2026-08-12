@@ -1,6 +1,6 @@
 ﻿import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { UsersService } from './users.service'
@@ -55,5 +55,12 @@ export class UsersController {
   @Get(':id/activity')
   getActivity(@Param('id') id: string) {
     return this.users.getActivity(id)
+  }
+
+  // [G005 Wave2A P1] 重置密码: 生成一次性临时密码并更新密码哈希, 仅返回一次 { temporaryPassword }
+  @Post(':id/reset-password')
+  @ApiOperation({ summary: '重置密码 (生成一次性临时密码并返回)' })
+  resetPassword(@Param('id') id: string) {
+    return this.users.resetPassword(id)
   }
 }

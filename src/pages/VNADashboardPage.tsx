@@ -428,7 +428,7 @@ const VNADashboardPage: React.FC = () => {
       <Tag color={v === 'image' ? 'cyan' : 'orange'}>{TYPE_LABEL[v]}</Tag>
     ) },
     { title: '患者 ID', dataIndex: 'patientId', key: 'patientId', width: 100, render: (v: string | null) => v ?? <Text type="secondary">-</Text> },
-    { title: 'MIME', dataIndex: 'mimeType', key: 'mime', width: 150, ellipsis: true },
+    { title: 'MIME 类型', dataIndex: 'mimeType', key: 'mime', width: 150, ellipsis: true },
     { title: '大小', dataIndex: 'size', key: 'size', width: 90, render: (v: number) => formatSize(v) },
     { title: '归档时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
     { title: 'WORM', dataIndex: 'wormLocked', key: 'worm', width: 90, render: (v: boolean) => v
@@ -640,7 +640,7 @@ const VNADashboardPage: React.FC = () => {
                     type="info"
                     showIcon
                     title="G-26 ILM 影像生命周期 · VNA 分层存储"
-                    description="hot 热层 (SSD 在线) → warm 温层 (近线 HDD) → cold 冷层 (冷归档)。策略/事件为内存 + seed 存储, 迁移操作实时生效并记录事件日志。"
+                    description="热层 (SSD 在线) → 温层 (近线 HDD) → 冷层 (冷归档)。策略/事件为内存 + 种子存储, 迁移操作实时生效并记录事件日志。"
                   />
                   <Space style={{ marginBottom: 12 }} wrap>
                     <Button type="primary" icon={<Plus size={14} />} onClick={() => openPolicyModal(null)}>新建策略</Button>
@@ -652,6 +652,7 @@ const VNADashboardPage: React.FC = () => {
                       data-testid="vna-lifecycle-policies"
                       rowKey="id"
                       size="small"
+                      scroll={{ x: 'max-content' }}
                       loading={lifecycleLoading}
                       dataSource={policies}
                       pagination={false}
@@ -676,6 +677,7 @@ const VNADashboardPage: React.FC = () => {
                       data-testid="vna-lifecycle-events"
                       rowKey="id"
                       size="small"
+                      scroll={{ x: 'max-content' }}
                       dataSource={events}
                       pagination={{ pageSize: 8, showSizeChanger: false }}
                       columns={[

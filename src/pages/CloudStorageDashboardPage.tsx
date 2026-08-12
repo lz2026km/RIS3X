@@ -5,11 +5,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Typography, Space, Alert,
-  Radio, Form, Input, Button, message,
+  Radio, Form, Input, Button, message, InputNumber, Select,
 } from "antd";
 import {
   Cloud, Database, Archive, HardDrive, Layers, Activity, Clock, TrendingUp, AlertCircle,
-  CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw,
+  CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw, BellRing,
 } from "lucide-react";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
@@ -18,9 +18,18 @@ import {
   type StorageConfigDto,
   type StorageStatsDto,
   type StorageTestResponse,
+  type StorageAlertsConfig,
 } from "../services/api/storageConfigApi";
 
 const { Text } = Typography;
+
+const NOTIFY_CHANNEL_LABELS: Record<string, string> = {
+  email: "邮件",
+  sms: "短信",
+  wechat: "企业微信",
+  dingtalk: "钉钉",
+  app: "站内信",
+};
 
 const TIER_COLORS: Record<string, string> = { hot: "#dc2626", warm: "#f59e0b", cold: "#3b82f6" };
 const TIER_LABELS: Record<string, string> = { hot: "热存", warm: "温存", cold: "冷归档" };
@@ -66,13 +75,84 @@ function StorageMonitorTab() {
   const usedPct = (totalUsed / totalCapacity) * 100;
   // [W3-C] 受控分页: 归档任务表
   const jobsPagination = usePagination(ARCHIVE_JOBS, 10);
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 容量阈值预警配置
+  const [alertsConfig, setAlertsConfig] = useState<StorageAlertsConfig | null>(null);
+  const [alertsLoading, setAlertsLoading] = useState(true);
+  const [alertsSaving, setAlertsSaving] = useState(false);
+  const [alertsForm] = Form.useForm<StorageAlertsConfig>();
+
+  const loadAlertsConfig = async () => {
+    setAlertsLoading(true);
+    const res = await storageConfigApi.getAlertsConfig();
+    if (res.success && res.data) {
+      setAlertsConfig(res.data);
+      alertsForm.setFieldsValue(res.data);
+    }
+    setAlertsLoading(false);
+  };
+
+  useEffect(() => { void loadAlertsConfig(); }, []);
+
+  const saveAlertsConfig = async () => {
+    try {
+      const values = await alertsForm.validateFields();
+      setAlertsSaving(true);
+      const res = await storageConfigApi.saveAlertsConfig(values);
+      if (res.success && res.data) {
+        setAlertsConfig(res.data);
+        message.success(`容量预警配置已保存: 警告 ${res.data.warnPercent}% / 严重 ${res.data.criticalPercent}%`);
+      } else {
+        message.error(res.error?.message ?? "容量预警配置保存失败");
+      }
+    } catch {
+      /* 校验失败忽略 */
+    }
+    setAlertsSaving(false);
+  };
+
+  const warnPct = alertsConfig?.warnPercent ?? 80;
+  const criticalPct = alertsConfig?.criticalPercent ?? 90;
+  const capacityLevel = usedPct >= criticalPct ? "critical" : usedPct >= warnPct ? "warn" : "ok";
 
   return (
     <>
+      <Card
+        size="small"
+        title={<Space><BellRing size={16} />容量预警配置<Text type="secondary" style={{ fontSize: 12 }}>警告/严重阈值 · 超限通知渠道 (内存 + 环境 seed 回退)</Text></Space>}
+        extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={alertsSaving} onClick={() => void saveAlertsConfig()}>保存</Button>}
+        style={{ marginBottom: 16 }}
+        loading={alertsLoading}
+      >
+        <Form form={alertsForm} layout="inline" initialValues={{ warnPercent: 80, criticalPercent: 90, notifyChannels: ["email", "sms"] }}>
+          <Form.Item name="warnPercent" label="警告阈值 (%)" rules={[{ required: true, message: "必填" }]}>
+            <InputNumber min={1} max={100} style={{ width: 90 }} />
+          </Form.Item>
+          <Form.Item name="criticalPercent" label="严重阈值 (%)" rules={[{ required: true, message: "必填" }]}>
+            <InputNumber min={1} max={100} style={{ width: 90 }} />
+          </Form.Item>
+          <Form.Item name="notifyChannels" label="通知渠道" rules={[{ required: true, message: "至少选择一个渠道" }]}>
+            <Select mode="multiple" placeholder="选择通知渠道" style={{ minWidth: 260 }} options={Object.entries(NOTIFY_CHANNEL_LABELS).map(([value, label]) => ({ value, label }))} />
+          </Form.Item>
+        </Form>
+      </Card>
+
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title="总对象数" value={totalObjects} styles={{ content: { color: "#0ea5e9" } }} /></Card></Col>
         <Col span={4}><Card><Statistic title="总容量 (TB)" value={(totalCapacity / 1024).toFixed(1)} styles={{ content: { color: "#1e40af" } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="已用 (TB)" value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: { color: "#dc2626" } }} /></Card></Col>
+        <Col span={4}>
+          <Card>
+            <Statistic title="已用 (TB)" value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: { color: capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#059669" } }} />
+            {capacityLevel !== "ok" && (
+              <Alert
+                type={capacityLevel === "critical" ? "error" : "warning"}
+                showIcon
+                icon={<AlertCircle size={14} />}
+                style={{ marginTop: 8, padding: "4px 8px" }}
+                message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? `严重: 已用容量超过严重阈值 ${criticalPct}%` : `警告: 已用容量超过警告阈值 ${warnPct}%`}</span>}
+              />
+            )}
+          </Card>
+        </Col>
         <Col span={4}><Card><Statistic title="24h 写入" value="42.8 MB" styles={{ content: { color: "#10b981" } }} /></Card></Col>
         <Col span={4}><Card><Statistic title="24h 读取" value="124.2 MB" styles={{ content: { color: "#0891b2" } }} /></Card></Col>
         <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
@@ -99,16 +179,22 @@ function StorageMonitorTab() {
                 { title: "层级", dataIndex: "tier", key: "tier", width: 80, render: (t: string) => <Tag color={TIER_COLORS[t]}>{TIER_LABELS[t]}</Tag> },
                 { title: "类型", dataIndex: "type", key: "type", width: 100, render: (t: string) => t },
                 { title: "区域", dataIndex: "region", key: "region", width: 140 },
-                { title: "容量使用", key: "usage", width: 180, render: (_: any, r: any) => {
+                { title: "容量使用", key: "usage", width: 200, render: (_: any, r: any) => {
                   const pct = (r.usedGb / r.capacityGb) * 100;
                   return <Progress percent={pct} size="small" status={pct > 80 ? "exception" : "active"} format={(p) => `${(p ?? 0).toFixed(1)}%`} />;
+                } },
+                { title: "超限标记", key: "over", width: 90, render: (_: any, r: any) => {
+                  const pct = (r.usedGb / r.capacityGb) * 100;
+                  if (pct >= criticalPct) return <Tag color="red">严重超限</Tag>;
+                  if (pct >= warnPct) return <Tag color="orange">容量预警</Tag>;
+                  return <Tag>正常</Tag>;
                 } },
                 { title: "对象数", dataIndex: "objectsCount", key: "obj", width: 110, render: (n: number) => n.toLocaleString() },
                 { title: "读延迟", dataIndex: "readLatencyMs", key: "rl", width: 90, render: (n: number) => `${n} ms` },
                 { title: "写延迟", dataIndex: "writeLatencyMs", key: "wl", width: 90, render: (n: number) => `${n} ms` },
                 { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const st = STATUS_MAP[s] ?? { color: "gray", label: s }; return <Tag color={st.color}>{st.label}</Tag> } },
               ]}
-           
+            
             />
           </Card>
         </Col>

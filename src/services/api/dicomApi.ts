@@ -243,6 +243,44 @@ export interface MppsRecord {
   source: 'mpps' | 'exam'
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface TransferRecord {
+  id: string
+  studyUid: string
+  targetAe: string
+  status: 'queued' | 'sending' | 'paused' | 'failed' | 'completed' | 'canceled'
+  progress: number
+  totalInstances: number
+  completedInstances: number
+  priority: 'HIGH' | 'NORMAL' | 'LOW'
+  createdAt: string
+  updatedAt: string
+  error?: string
+  source: 'queue' | 'seed'
+}
+
+export interface TransferStats {
+  total: number
+  queued: number
+  sending: number
+  paused: number
+  failed: number
+  completed: number
+  canceled: number
+  activeCount: number
+  successRate: number
+  avgProgress: number
+}
+
+export interface EnqueueTransferRequest {
+  studyUid: string
+  targetAe: string
+  priority?: 'HIGH' | 'NORMAL' | 'LOW'
+}
+
 export const dicomDimseApi = {
   cEcho: (body: CEchoRequest) =>
     api.post<DimseResponse>('/dicom-dimse/echo', body),
@@ -276,6 +314,26 @@ export const dicomDimseApi = {
     api.post<MppsRecord>('/dicom-dimse/mpps', body),
 
   listMpps: () => api.get<MppsRecord[]>('/dicom-dimse/mpps'),
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列
+  listTransfers: () => api.get<TransferRecord[]>('/dicom-dimse/transfers'),
+
+  enqueueTransfer: (body: EnqueueTransferRequest) =>
+    api.post<TransferRecord>('/dicom-dimse/transfers', body),
+
+  getTransferStats: () => api.get<TransferStats>('/dicom-dimse/transfers/stats'),
+
+  retryTransfer: (id: string) =>
+    api.post<TransferRecord>(`/dicom-dimse/transfers/${encodeURIComponent(id)}/retry`),
+
+  pauseTransfer: (id: string) =>
+    api.post<TransferRecord>(`/dicom-dimse/transfers/${encodeURIComponent(id)}/pause`),
+
+  resumeTransfer: (id: string) =>
+    api.post<TransferRecord>(`/dicom-dimse/transfers/${encodeURIComponent(id)}/resume`),
+
+  cancelTransfer: (id: string) =>
+    api.post<TransferRecord>(`/dicom-dimse/transfers/${encodeURIComponent(id)}/cancel`),
 }
 
 // ══════════════════════════════════════════════════════════════════════════

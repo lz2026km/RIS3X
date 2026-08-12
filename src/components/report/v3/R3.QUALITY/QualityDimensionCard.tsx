@@ -15,6 +15,7 @@ import type {
   ScoreTemplateResult,
   ScoringThresholdConfig,
   ScoringGrade,
+  ScoringEvaluationResult,
 } from '../../../../types/R3/R3.QUALITY.SCORING';
 import {
   Card,
@@ -37,6 +38,7 @@ import {
   Tooltip,
   Modal,
   Alert,
+  Descriptions,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -577,6 +579,19 @@ const HistoryTab: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [filterGrade, setFilterGrade] = useState<ScoringGrade | undefined>();
   const [filterTrigger, setFilterTrigger] = useState<ScoreHistoryEntry['trigger'] | undefined>();
+  const [detail, setDetail] = useState<{ entry: ScoreHistoryEntry; result: ScoringEvaluationResult | null } | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const openDetail = async (entry: ScoreHistoryEntry) => {
+    setDetail({ entry, result: null });
+    setDetailLoading(true);
+    try {
+      const res = await scoringService.getScoreById(entry.scoreId);
+      setDetail({ entry, result: res });
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -650,7 +665,7 @@ const HistoryTab: React.FC = () => {
       key: 'action',
       width: 90,
       render: (_, r) => (
-        <Button size="small" icon={<Eye size={12} />} onClick={() => message.info(`查看评分 ${r.scoreId}`)}>
+        <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>
           详情
         </Button>
       ),
@@ -716,6 +731,79 @@ const HistoryTab: React.FC = () => {
           size="small"
         />
       </Card>
+      <Modal
+        title={`评分明细 ${detail?.entry.scoreId ?? ''}`}
+        open={!!detail}
+        footer={null}
+        onCancel={() => setDetail(null)}
+        width={720}
+      >
+        {detail && (
+          <Spin spinning={detailLoading}>
+            <Descriptions bordered size="small" column={2}>
+              <Descriptions.Item label="患者">{detail.entry.patientName}</Descriptions.Item>
+              <Descriptions.Item label="检查">{detail.entry.modality}</Descriptions.Item>
+              <Descriptions.Item label="医生">{detail.entry.doctorName}</Descriptions.Item>
+              <Descriptions.Item label="科室">{detail.entry.department}</Descriptions.Item>
+              <Descriptions.Item label="触发">{detail.entry.trigger}</Descriptions.Item>
+              <Descriptions.Item label="评价时间">
+                {new Date(detail.entry.evaluatedAt).toLocaleString('zh-CN')}
+              </Descriptions.Item>
+              <Descriptions.Item label="总分">
+                <strong style={{ color: (detail.result?.totalScore ?? detail.entry.totalScore) >= 90 ? '#16a34a' : (detail.result?.totalScore ?? detail.entry.totalScore) >= 75 ? '#2563eb' : '#dc2626' }}>
+                  {detail.result?.totalScore ?? detail.entry.totalScore}
+                </strong>
+              </Descriptions.Item>
+              <Descriptions.Item label="等级">
+                <Tag color={detail.result ? (detail.result.grade === 'A' ? 'green' : detail.result.grade === 'B' ? 'blue' : detail.result.grade === 'C' ? 'gold' : 'red') : undefined}>
+                  {detail.result?.grade ?? detail.entry.grade}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="分类均分" span={2}>
+                完整 {detail.result?.categoryScores.completeness ?? detail.entry.categoryScores.completeness} / 准确 {detail.result?.categoryScores.accuracy ?? detail.entry.categoryScores.accuracy} / 及时 {detail.result?.categoryScores.timeliness ?? detail.entry.categoryScores.timeliness}
+              </Descriptions.Item>
+              {detail.result && (
+                <>
+                  <Descriptions.Item label="可发布">
+                    <Tag color={detail.result.publishable ? 'green' : 'red'}>{detail.result.publishable ? '是' : '否'}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="奖励资格">
+                    <Tag color={detail.result.bonusEligible ? 'gold' : 'default'}>{detail.result.bonusEligible ? '有' : '无'}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="模型版本">{detail.result.modelVersion}</Descriptions.Item>
+                  <Descriptions.Item label="评估耗时">{detail.result.durationMs} ms</Descriptions.Item>
+                  {detail.result.hardFailTriggered.length > 0 && (
+                    <Descriptions.Item label="一票否决" span={2}>
+                      {detail.result.hardFailTriggered.map((h) => (
+                        <Tag color="red" key={h}>{h}</Tag>
+                      ))}
+                    </Descriptions.Item>
+                  )}
+                </>
+              )}
+            </Descriptions>
+            {detail.result && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontWeight: 600, marginBottom: 8 }}>维度明细 (15 维度)</div>
+                <Table
+                  size="small"
+                  rowKey="key"
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                  dataSource={Object.entries(detail.result.dimensionScores).map(([key, score]) => ({ key, score }))}
+                  columns={[
+                    { title: '维度', dataIndex: 'key', key: 'key' },
+                    { title: '得分', dataIndex: 'score', key: 'score', width: 90 },
+                  ]}
+                />
+              </div>
+            )}
+            {!detail.result && !detailLoading && (
+              <Alert style={{ marginTop: 12 }} type="warning" showIcon message="无完整评估明细（历史归档，仅保留汇总信息）" />
+            )}
+          </Spin>
+        )}
+      </Modal>
     </div>
   );
 };
@@ -725,7 +813,70 @@ const ReportTab: React.FC = () => {
   const [scoreId, setScoreId] = useState<string>('');
   const [format, setFormat] = useState<'pdf' | 'word' | 'excel' | 'html'>('pdf');
   const [generating, setGenerating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [reportUrl, setReportUrl] = useState<string>('');
+
+  const saveBlob = (blob: Blob, filename: string, note?: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (note) message.info(note);
+  };
+
+  const buildMockHtml = () => {
+    const genAt = new Date().toLocaleString('zh-CN');
+    return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>质控评分报告 ${scoreId}</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; margin: 32px; color: #1e293b; }
+  h1 { font-size: 20px; } table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+  td, th { border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 13px; text-align: left; }
+  th { background: #f1f5f9; }
+</style>
+</head>
+<body>
+<h1>质控评分报告</h1>
+<p>评分 ID: <b>${scoreId}</b> &nbsp; 格式: <b>${format.toUpperCase()}</b> &nbsp; 生成时间: ${genAt}</p>
+<p style="color:#64748b">说明: 后端为 Mock URL，本文件为本地生成的模拟内容，可打印为 PDF。</p>
+<table>
+  <tr><th>分类</th><th>原始分</th><th>权重</th><th>加权分</th></tr>
+  <tr><td>完整性 completeness</td><td>90</td><td>0.4</td><td>36.0</td></tr>
+  <tr><td>准确性 accuracy</td><td>92</td><td>0.4</td><td>36.8</td></tr>
+  <tr><td>及时性 timeliness</td><td>88</td><td>0.2</td><td>17.6</td></tr>
+  <tr><td colspan="3"><b>总分</b></td><td><b>90</b></td></tr>
+</table>
+<p>等级: <b>A</b> &nbsp; 可发布: 是 &nbsp; 奖励资格: 有 &nbsp; 15 维度明细见评分详情。</p>
+</body>
+</html>`;
+  };
+
+  const download = async () => {
+    if (!reportUrl) return;
+    setDownloading(true);
+    try {
+      const resp = await fetch(reportUrl);
+      if (!resp.ok) throw new Error('mock-url');
+      const blob = await resp.blob();
+      saveBlob(blob, `quality-score-${scoreId}.${format}`);
+      message.success(`${format.toUpperCase()} 报告已下载`);
+    } catch {
+      saveBlob(
+        new Blob([buildMockHtml()], { type: 'text/html;charset=utf-8' }),
+        `quality-score-${scoreId}-${format}.html`,
+        `后端为 Mock URL，已生成本地模拟文件（${format.toUpperCase()} 内容为 HTML，可打印为 PDF）`,
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const generate = async () => {
     if (!scoreId) {
@@ -799,7 +950,7 @@ const ReportTab: React.FC = () => {
             生成报告
           </Button>
           {reportUrl && (
-            <Button icon={<Download size={12} />} onClick={() => message.info('Mock 下载: ' + reportUrl)}>
+            <Button icon={<Download size={12} />} loading={downloading} onClick={download}>
               下载 {format.toUpperCase()}
             </Button>
           )}
@@ -810,7 +961,12 @@ const ReportTab: React.FC = () => {
             type="success"
             showIcon
             title="报告已生成"
-            description={<code style={{ fontSize: 12 }}>{reportUrl}</code>}
+            description={
+              <Space direction="vertical" size={4}>
+                <code style={{ fontSize: 12 }}>{reportUrl}</code>
+                <Tag color="orange">演示数据: 后端为 Mock URL，下载时生成本地模拟文件</Tag>
+              </Space>
+            }
           />
         )}
       </Card>

@@ -1,9 +1,10 @@
 // G005 放射科RIS系统 - 检查模板管理页面 v1.0.0
 // 功能：CT/MRI/X线报告模板维护，含搜索、新增/编辑/删除、预览功能
-import { useState, useMemo, useEffect } from 'react'
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 (JSON/文本, templatesApi 真实数据)
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { templatesApi } from '../services/api/templatesApi'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe } from 'lucide-react'
+import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download } from 'lucide-react'
 
 const C = {
   primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
@@ -118,14 +119,19 @@ export default function TemplateManagementPage() {
   const pageSize = 10
   const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share'>('manage')
 
-  useEffect(() => {
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入文件输入
+  const importFileRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  const loadApiTemplates = useCallback(() => {
     templatesApi.list().then((res: any) => {
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         const mapped = res.data.map((d: any) => ({
           id: d.id,
           code: d.category + '-' + d.bodyPart,
           name: d.name,
-          modality: 'CT',
+          modality: d.modality || 'CT',
           category: d.category,
           subCategory: d.bodyPart,
           content: d.body,
@@ -141,6 +147,95 @@ export default function TemplateManagementPage() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    loadApiTemplates()
+  }, [loadApiTemplates])
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导出: 当前全部模板 (templatesApi.list 真实数据) → JSON Blob
+  const handleExportTemplates = async () => {
+    setExporting(true)
+    try {
+      const res = await templatesApi.list()
+      const items = Array.isArray(res.data) && res.data.length > 0 ? res.data : templates
+      const exportData = items.map((t: any) => ({
+        name: t.name,
+        category: t.category,
+        content: t.body ?? t.content,
+        modality: t.modality ?? 'CT',
+        bodyPart: t.bodyPart,
+        tags: t.tags ?? [],
+      }))
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `report-templates-${new Date().toISOString().slice(0, 10)}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      showToast(`已导出 ${exportData.length} 条模板 (JSON)`)
+    } catch {
+      showToast('批量导出失败: 请检查模板数据')
+    }
+    setExporting(false)
+  }
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入: JSON/文本解析 → 逐条 templatesApi.create
+  const handleImportTemplates = async (file: File) => {
+    setImporting(true)
+    try {
+      const text = await file.text()
+      let parsed: any
+      try {
+        parsed = JSON.parse(text)
+      } catch {
+        throw new Error('文件不是合法 JSON')
+      }
+      const items: any[] = Array.isArray(parsed) ? parsed : Array.isArray(parsed.templates) ? parsed.templates : []
+      if (items.length === 0) throw new Error('未解析到模板数据 (期望数组, 元素含 name/category/content/modality)')
+      let ok = 0
+      let failed = 0
+      const firstError: string[] = []
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i] ?? {}
+        const name = String(it.name ?? '').trim()
+        const content = String(it.content ?? it.body ?? '').trim()
+        const category = String(it.category ?? 'general').trim() || 'general'
+        const modality = String(it.modality ?? 'CT').trim() || 'CT'
+        if (!name || !content) {
+          failed++
+          firstError.push(`第 ${i + 1} 条缺少 name/content`)
+          continue
+        }
+        try {
+          const res = await templatesApi.create({
+            name,
+            category,
+            bodyPart: String(it.bodyPart ?? category ?? 'general'),
+            body: content,
+            modality,
+            createdById: 'current',
+            tags: Array.isArray(it.tags) ? it.tags : [],
+          })
+          if (res.success) ok++
+          else { failed++; firstError.push(`第 ${i + 1} 条: ${res.error?.message ?? '创建失败'}`) }
+        } catch {
+          failed++
+          firstError.push(`第 ${i + 1} 条: 网络错误`)
+        }
+      }
+      if (ok > 0) {
+        showToast(`批量导入完成: 成功 ${ok} 条${failed > 0 ? `, 失败 ${failed} 条` : ''}`)
+        loadApiTemplates()
+      } else {
+        showToast(`批量导入失败: ${firstError[0] ?? '全部失败'}`)
+      }
+    } catch (e) {
+      showToast(`批量导入失败: ${(e as Error).message}`)
+    }
+    setImporting(false)
+    if (importFileRef.current) importFileRef.current.value = ''
+  }
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -586,6 +681,14 @@ export default function TemplateManagementPage() {
           <h1 style={styles.title}>检查模板管理</h1>
         </div>
         <button style={styles.addBtn} onClick={handleAdd}><Plus size={18} /><span>新增模板</span></button>
+        {/* [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 */}
+        <input ref={importFileRef} type="file" accept=".json,.txt,application/json,text/plain" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleImportTemplates(f) }} />
+        <button onClick={() => importFileRef.current?.click()} disabled={importing} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: importing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: importing ? 0.6 : 1 }}>
+          <Upload size={16} /><span>{importing ? '导入中...' : '批量导入'}</span>
+        </button>
+        <button onClick={() => void handleExportTemplates()} disabled={exporting} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#7c3aed', border: '1px solid #7c3aed', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: exporting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: exporting ? 0.6 : 1 }}>
+          <Download size={16} /><span>{exporting ? '导出中...' : '批量导出'}</span>
+        </button>
         <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>可视化设计器 (R2)</span>
         </button>

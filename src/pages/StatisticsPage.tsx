@@ -2136,22 +2136,126 @@ export default function StatisticsPage() {
     setRefreshKey((k) => k + 1)
   }
 
-  // 导出报表处理
+  // 导出CSV工具
+  const downloadCsv = (filename: string, sections: Array<{ title: string; rows: (string | number)[][] }>) => {
+    const lines: string[] = []
+    sections.forEach((s) => {
+      lines.push(`### ${s.title}`)
+      s.rows.forEach((r) => lines.push(r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')))
+      lines.push('')
+    })
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  // 导出报表处理（真实CSV：当前页统计卡/趋势/分布数据）
   const handleExportReport = () => {
     setExportModal({ visible: true, text: t('statistics.exporting') })
     setTimeout(() => {
-      setExportModal({ visible: false, text: '' })
-      showToast(t('statistics.exportSuccess'), 'success')
-    }, 2000)
+      try {
+        downloadCsv('放射科统计报表.csv', [
+          {
+            title: '检查量趋势(近7天)',
+            rows: [['日期', '检查量', '报告量', '危急值'], ...sevenDayData.map((d) => [d.day, d.exams, d.reports, d.critical])],
+          },
+          {
+            title: '时段分布',
+            rows: [['时段', '检查量'], ...timeSlotData.map((d) => [d.slot, d.exams])],
+          },
+          {
+            title: '检查部位分布(TOP10)',
+            rows: [['部位', '数量'], ...bodyPartData.map((d) => [d.part, d.count])],
+          },
+          {
+            title: '患者类型分布',
+            rows: [['类型', '占比(%)'], ...patientTypeData.map((d) => [d.name, d.value])],
+          },
+          {
+            title: '各模态阳性率',
+            rows: [['模态', '阳性率(%)'], ...positiveRateData.map((d) => [d.modality, d.rate])],
+          },
+          {
+            title: '阳性率排名(TOP8)',
+            rows: [['排名', '检查类型', '阳性率(%)', '估算量', '趋势'], ...positiveRateRanking.map((d) => [d.rank, d.type, d.rate, d.count, d.trend])],
+          },
+          {
+            title: '医生工作量TOP7',
+            rows: [['医生', '报告量', '复核量', '平均耗时(min)', '危急值'], ...doctorWorkloadData.map((d) => [d.name, d.written, d.reviewed, d.avgTime, d.critical])],
+          },
+          {
+            title: '质控评分趋势(近7天)',
+            rows: [['日期', '均分'], ...qualityScoreData.map((d) => [d.day, d.score])],
+          },
+          {
+            title: '质控等级分布',
+            rows: [['等级', '占比(%)'], ...qualityDistribution.map((d) => [d.name, d.value])],
+          },
+          {
+            title: '设备效率',
+            rows: [['设备', '日检查量', '平均耗时(min)', '利用率(%)', '故障数', '状态'], ...deviceEfficiencyData.map((d) => [d.name, d.exams, d.avgTime, d.utilization, d.faults, d.status])],
+          },
+        ])
+        showToast(t('statistics.exportSuccess'), 'success')
+      } catch {
+        showToast(t('statistics.apiError'), 'error')
+      } finally {
+        setExportModal({ visible: false, text: '' })
+      }
+    }, 400)
   }
 
-  // 导出经营报表处理
+  // 导出经营报表处理（真实CSV：经营总览/成本/月度收支/科室效益）
   const handleExportBusinessReport = () => {
     setExportModal({ visible: true, text: t('statistics.exportingBusiness') })
     setTimeout(() => {
-      setExportModal({ visible: false, text: '' })
-      showToast(t('statistics.exportBusinessSuccess'), 'success')
-    }, 2000)
+      try {
+        downloadCsv('放射科经营报表.csv', [
+          {
+            title: '经营总览',
+            rows: [
+              ['指标', '数值'],
+              ['总收入(元)', businessStats.totalRevenue],
+              ['总成本(元)', businessStats.totalCost],
+              ['净利润(元)', businessStats.netProfit],
+              ['利润率(%)', businessStats.profitRate],
+              ['人均收入(元)', businessStats.perCapitaRevenue],
+              ['人均利润(元)', businessStats.perCapitaProfit],
+              ['成本率(%)', businessStats.costRate],
+              ['收入同比', businessStats.yoyRevenue],
+              ['利润同比', businessStats.yoyProfit],
+            ],
+          },
+          {
+            title: '成本构成',
+            rows: [['项目', '金额(元)', '占比(%)'], ...costBreakdown.map((d) => [d.name, d.value, d.percent])],
+          },
+          {
+            title: '月度收支(万元)',
+            rows: [['月份', '收入', '成本', '利润'], ...monthlyProfitData.map((d) => [d.month, d.revenue, d.cost, d.profit])],
+          },
+          {
+            title: '人均产出趋势(万元)',
+            rows: [['月份', '人均收入', '人均利润'], ...perCapitaTrend.map((d) => [d.month, d.revenue / 10000, d.profit / 10000])],
+          },
+          {
+            title: '科室效益',
+            rows: [['科室', '收入(元)', '成本(元)', '利润(元)', '人数', '人均利润(元)', '利润率(%)'], ...efficiencyMetrics.map((dept) => [dept.dept, dept.revenue, dept.cost, dept.profit, dept.staff, dept.perCapita, ((dept.profit / dept.revenue) * 100).toFixed(1)])],
+          },
+        ])
+        showToast(t('statistics.exportBusinessSuccess'), 'success')
+      } catch {
+        showToast(t('statistics.apiError'), 'error')
+      } finally {
+        setExportModal({ visible: false, text: '' })
+      }
+    }, 400)
   }
 
   const tabs = [

@@ -40,7 +40,7 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
       </div>
       {trend && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? '#22c55e' : '#ef4444' }}>
-          {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}vs 昨日
+          {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}较昨日
         </div>
       )}
     </Card>

@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.2 - 用户角色权限管理
  * 对标:RBAC / NIST 800-53 AC
  */
-import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert } from 'antd'
+import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert, Popconfirm } from 'antd'
 import { Shield, User, Lock, Edit, Trash2, Plus, CheckCircle, XCircle, KeyRound } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
@@ -196,9 +196,17 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
                   <Button size="small" type="text" icon={<Shield size={12} />} onClick={() => setPermModal(u)} data-testid={`user-perm-${id}`}>
                     权限
                   </Button>
-                  <Button size="small" type="text" icon={<Lock size={12} />} onClick={() => onResetPassword?.(id)} data-testid={`user-reset-${id}`}>
-                    重置密码
-                  </Button>
+                  <Popconfirm
+                    title="确认重置该用户密码?"
+                    description="系统将生成一次性临时密码, 需转交用户"
+                    okText="重置"
+                    cancelText="取消"
+                    onConfirm={() => onResetPassword?.(id)}
+                  >
+                    <Button size="small" type="text" icon={<Lock size={12} />} data-testid={`user-reset-${id}`}>
+                      重置密码
+                    </Button>
+                  </Popconfirm>
                   <Button size="small" type="text" danger icon={<Trash2 size={12} />} onClick={() => onDelete?.(id)}>
                     删除
                   </Button>

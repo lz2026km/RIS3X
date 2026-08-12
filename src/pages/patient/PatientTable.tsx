@@ -1,5 +1,6 @@
 
-import { ChevronLeft, ChevronRight, CheckSquare, Square, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckSquare, Square, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle, Trash2 } from 'lucide-react';
+import { Popconfirm } from 'antd';
 import type { Patient } from "../../types";
 import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
@@ -162,6 +163,8 @@ export interface PatientTableProps {
   onPageSizeChange?: (size: number) => void;
   onViewPatient: (patient: Patient) => void;
   onEditPatient: (patient: Patient) => void;
+  // [Wave1B P2] 删除患者 (patientApi.delete)
+  onDeletePatient?: (patient: Patient) => void;
   exams: RadiologyExam[];
   visibleDuplicates: DuplicateMatch[];
   onDismissAllDuplicates: () => void;
@@ -183,6 +186,7 @@ export function PatientTable({
   onPageSizeChange,
   onViewPatient,
   onEditPatient,
+  onDeletePatient,
   exams,
   visibleDuplicates,
   onDismissAllDuplicates,
@@ -815,6 +819,40 @@ export function PatientTable({
                           <FileText size={14} />
                           报告
                         </button>
+                        {/* [Wave1B P2] 删除患者: patientApi.delete (Popconfirm danger) */}
+                        {onDeletePatient && (
+                          <Popconfirm
+                            title="删除该患者?"
+                            description={`确定删除患者 "${p.name}" 吗？关联数据将一并处理。`}
+                            okText="删除"
+                            cancelText="取消"
+                            okButtonProps={{ danger: true }}
+                            onConfirm={() => onDeletePatient(p)}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              aria-label={`删除患者 ${p.name}`}
+                              style={{
+                                padding: "6px 10px",
+                                background: "#fef2f2",
+                                color: "#dc2626",
+                                border: "none",
+                                borderRadius: 4,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 4,
+                              }}
+                            >
+                              <Trash2 size={14} />
+                              删除
+                            </button>
+                          </Popconfirm>
+                        )}
                       </div>
                     </td>
                   </tr>

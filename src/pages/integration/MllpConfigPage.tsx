@@ -198,6 +198,7 @@ export const MllpConfigPage: React.FC = () => {
             <Table
               size="small"
               rowKey="cidr"
+              scroll={{ x: 'max-content' }}
               dataSource={(status?.whitelist ?? []).map((c) => ({ cidr: c }))}
               columns={whitelistColumns}
               pagination={false}

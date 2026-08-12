@@ -178,7 +178,7 @@ const KpiWallPage: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
           {topDoctors.map((d, i) => (
             <div key={d.doctorId ?? d.doctorName + i} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: 12, background: i < 3 ? 'rgba(251,191,36,0.15)' : 'rgba(59,130,246,0.15)', color: i < 3 ? '#fbbf24' : '#60a5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: i < 3 ? 'rgba(251,191,36,0.15)' : 'rgba(59,130,246,0.15)', color: i < 3 ? '#fbbf24' : '#60a5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 700 }}>
                 {i + 1}
               </div>
               <div style={{ flex: 1 }}>
@@ -187,7 +187,7 @@ const KpiWallPage: React.FC = () => {
                   <div style={{ flex: 1, height: 10, background: 'rgba(148,163,184,0.15)', borderRadius: 5 }}>
                     <div style={{ width: `${Math.round(((d.reportCount ?? 0) / max) * 100)}%`, height: '100%', background: i < 3 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#2563eb,#60a5fa)', borderRadius: 5 }} />
                   </div>
-                  <span style={{ fontSize: 24, fontWeight: 800, color: '#e2e8f0' }}>{d.reportCount ?? 0}</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: '#e2e8f0' }}>{d.reportCount ?? 0}</span>
                 </div>
                 <div style={{ marginTop: 6, color: '#94a3b8', fontSize: 14 }}>检查 {d.examCount ?? 0} 项 · 平均 {d.avgTime ?? 0} min/份</div>
               </div>
@@ -218,7 +218,7 @@ const KpiWallPage: React.FC = () => {
             const inUse = room.status === 'occupied'
             return (
               <div key={room.id} style={{ background: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24, borderLeft: `5px solid ${s.color}` }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: '#f1f5f9' }}>{room.roomNo}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#f1f5f9' }}>{room.roomNo}</div>
                 <div style={{ margin: '10px 0', fontSize: 16, color: s.color, fontWeight: 700 }}>{s.text}</div>
                 {inUse ? (
                   <>
@@ -244,9 +244,9 @@ const KpiWallPage: React.FC = () => {
     <div style={{ minHeight: '100vh', background: BG, color: '#e2e8f0', position: 'relative' }}>
       {/* 顶部 */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '18px 36px', borderBottom: `1px solid ${BORDER}`, background: 'rgba(255,255,255,0.02)' }}>
-        <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: 1 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: 1 }}>
           <span style={{ color: '#38bdf8' }}>放射科</span> KPI 墙屏
-          <span style={{ fontSize: 14, color: '#64748b', fontWeight: 400, marginLeft: 14 }}>G005 Wave6A · 15s 自动轮播</span>
+          <span style={{ fontSize: 14, color: '#64748b', fontWeight: 400, marginLeft: 14 }}>G005 · 15 秒自动轮播</span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ fontSize: 22, fontWeight: 700, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
@@ -278,6 +278,7 @@ const KpiWallPage: React.FC = () => {
             <Empty
               description={<span style={{ color: '#94a3b8' }}>数据加载失败或为空 (已回退空态)</span>}
               style={{ marginBottom: 16 }}
+              image={<AlertTriangle size={48} style={{ opacity: 0.4 }} />}
             />
             <Button type="primary" icon={<RefreshCw size={14} />} onClick={() => setRetryTick((t) => t + 1)}>重试</Button>
           </div>

@@ -394,6 +394,11 @@ const dentalTreatmentModule = [
     const result = applyQuery(MOCK_DENTAL_TREATMENTS, opts, ['patientName', 'diagnosis', 'type']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+  // [G005 Wave1A P1] 治疗类型字典 (必须在 treatments/:id 之前, 避免被 :id 捕获)
+  http.get(`${DENTAL_API}/treatments/types`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: ['Restorative','Endodontic','Periodontal','Implant','Orthodontic','Extraction','Surgery','Pediatric'] });
+  }),
   http.get(`${DENTAL_API}/treatments/:id`, async ({ params }) => {
     await delay(40);
     const t = MOCK_DENTAL_TREATMENTS.find(x => x.id === params.id) || get<any>('dental_treatments', params.id as string);
@@ -420,17 +425,6 @@ const dentalTreatmentModule = [
     await delay(40);
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'Completed', completedAt: new Date().toISOString() } });
   }),
-  
-  
-  
-  http.get(`${DENTAL_API}/treatments/types`, async () => {
-    await delay(20);
-    return HttpResponse.json({ success: true, data: ['Restorative','Endodontic','Periodontal','Implant','Orthodontic','Extraction','Surgery','Pediatric'] });
-  }),
-  
-  
-  
-  
   
   
   http.get(`${DENTAL_API}/ortho/plans`, async () => {

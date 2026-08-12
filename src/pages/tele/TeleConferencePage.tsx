@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Card, Row, Col, Typography, Empty, Button, Input, Space, message, Spin, Tag } from 'antd'
 import { Search, Video, LogOut, Users, Loader2, Inbox } from 'lucide-react'
 import { RemoteViewer } from '../../components/tele/RemoteViewer'
-import { teleApi, type TeleSession, type TeleSignalMessage } from '../../services/api'
+import { teleApi, patientApi, examApi, type TeleSession, type TeleSignalMessage } from '../../services/api'
 import { useTranslation } from 'react-i18next'
 
 const { Title, Text } = Typography
@@ -21,6 +21,14 @@ const mockStudies: StudyInfo[] = [
   { uid: '1.2.3.4.5.2', patientName: 'Li Si', patientId: 'P002', modality: 'MR', date: '2026-07-11', description: '脑部MRI' },
   { uid: '1.2.3.4.5.3', patientName: 'Wang Wu', patientId: 'P003', modality: 'DX', date: '2026-07-12', description: '胸部X光' },
 ]
+
+const toListItems = (raw: unknown): unknown[] => {
+  if (Array.isArray(raw)) return raw
+  if (raw && typeof raw === 'object' && Array.isArray((raw as { items?: unknown[] }).items)) {
+    return (raw as { items: unknown[] }).items
+  }
+  return []
+}
 
 export const TeleConferencePage: React.FC = () => {
   const { t } = useTranslation('tele')
@@ -51,7 +59,49 @@ export const TeleConferencePage: React.FC = () => {
     userName: `Dr. ${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
   }))
 
-  const filteredStudies = mockStudies.filter(s =>
+  // [G005 W2-B P2] 患者/检查列表接真实接口 (patientApi.list + examApi.list), 失败回退演示数据
+  const [studies, setStudies] = useState<StudyInfo[]>(mockStudies)
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [exRes, ptRes] = await Promise.all([
+          examApi.list({}),
+          patientApi.list({}),
+        ])
+        if (cancelled) return
+        const exams = toListItems(exRes.data as unknown)
+        const patients = toListItems(ptRes.data as unknown)
+        if (exams.length === 0) return
+        const patientMap = new Map<string, string>()
+        patients.forEach((p) => {
+          const pd = p as { id?: string; patientId?: string; name?: string; patientName?: string }
+          const key = pd.patientId ?? pd.id
+          if (key) patientMap.set(key, pd.patientName ?? pd.name ?? key)
+        })
+        const list: StudyInfo[] = exams.slice(0, 20).map((e, i) => {
+          const ed = e as { id?: string; examId?: string; patientId?: string; patientName?: string; modality?: string; bodyPart?: string; scheduledAt?: string }
+          return {
+            uid: ed.id ?? ed.examId ?? `study-${i}`,
+            patientName: ed.patientName ?? patientMap.get(ed.patientId ?? '') ?? ed.patientId ?? '未知患者',
+            patientId: ed.patientId ?? '',
+            modality: ed.modality ?? 'CT',
+            date: ed.scheduledAt ? ed.scheduledAt.slice(0, 10) : '',
+            description: ed.bodyPart ?? '影像检查',
+          }
+        })
+        setStudies(list)
+        setDataSource('api')
+      } catch {
+        /* 接口失败时保留演示数据 */
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const filteredStudies = studies.filter(s =>
     s.patientName.toLowerCase().includes(searchText.toLowerCase()) ||
     s.patientId.toLowerCase().includes(searchText.toLowerCase())
   )
@@ -138,7 +188,7 @@ export const TeleConferencePage: React.FC = () => {
       }
       setSession(res.data)
       setSessionId(res.data.id)
-      setActiveStudy(mockStudies.find(s => s.uid === selectedStudies[0]) ?? null)
+      setActiveStudy(studies.find(s => s.uid === selectedStudies[0]) ?? null)
       setConferenceStarted(true)
     } catch (e) {
       setSessionError((e as Error)?.message ?? t('createFailed', '创建会议失败'))
@@ -204,7 +254,14 @@ export const TeleConferencePage: React.FC = () => {
         <Row gutter={16}>
           <Col span={10}>
             <Card
-              title={<span style={{ color: '#e2e8f0' }}>{t('patientSearch', '患者与检查搜索')}</span>}
+              title={
+                <Space size={8}>
+                  <span style={{ color: '#e2e8f0' }}>{t('patientSearch', '患者与检查搜索')}</span>
+                  <Tag color={dataSource === 'api' ? 'green' : 'orange'}>
+                    {dataSource === 'api' ? '数据源: 患者/检查接口' : '演示数据'}
+                  </Tag>
+                </Space>
+              }
               style={{ background: '#1e293b', borderColor: '#334155', color: '#e2e8f0' }}
               headStyle={{ borderBottom: '1px solid #334155' }}
             >
@@ -262,7 +319,7 @@ export const TeleConferencePage: React.FC = () => {
                     <Text style={{ color: '#64748b', fontSize: 12 }}>{t('noSelection', '请从左侧选择检查')}</Text>
                   ) : (
                     selectedStudies.map(uid => {
-                      const s = mockStudies.find(st => st.uid === uid)
+                      const s = studies.find(st => st.uid === uid)
                       return s ? (
                         <div key={uid} style={{ padding: '4px 8px', background: '#0f172a', borderRadius: 4, marginBottom: 4, fontSize: 12, color: '#cbd5e1' }}>
                           {s.patientName} - {s.description} ({s.modality})

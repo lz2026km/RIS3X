@@ -14,6 +14,7 @@ import {
   Cell, Legend, AreaChart, Area,
 } from "recharts";
 import { PageContainer } from "../components/common";
+import { message } from "antd";
 // [W2-A] 真实 API: userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
 import { userApi } from "../services/api/userApi";
 import { deviceApi } from "../services/api/deviceApi";
@@ -22,7 +23,7 @@ import { statsApi } from "../services/api/statsApi";
 
 import DepartmentHeader from './department/DepartmentHeader';
 import DepartmentStats from './department/DepartmentStats';
-import DepartmentStaffList from './department/DepartmentStaffList';
+import DepartmentStaffList, { DEPT_STAFF } from './department/DepartmentStaffList';
 import DepartmentSchedule from './department/DepartmentSchedule';
 import DepartmentFinanceSummary from './department/DepartmentFinanceSummary';
 
@@ -139,6 +140,12 @@ export default function DepartmentPage() {
   const [deptStaff, setDeptStaff] = useState([]);
   const [credentials, setCredentials] = useState(STAFF_CREDENTIALS);
   const [staffForReview, setStaffForReview] = useState(DEPT_STAFF_FOR_REVIEW);
+  // [G005 Wave2A P1] 添加/编辑人员表单 (受控) + 本地新增人员
+  const [localStaff, setLocalStaff] = useState([]);
+  const [addForm, setAddForm] = useState({ name: "", role: "physician", title: "", dept: "放射科" });
+  const [addError, setAddError] = useState("");
+  const [editForm, setEditForm] = useState({ name: "", role: "physician", title: "", dept: "放射科" });
+  const [exportDone, setExportDone] = useState(false);
 
   // [W2-A] userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
   const loadDeptData = useCallback(async () => {
@@ -279,9 +286,95 @@ export default function DepartmentPage() {
 
   const handleSubmitReview = (id) => { setReviews((prev) => prev.map((r) => r.id === id ? { ...r, score: reviewScore, comment: reviewForm.comment || "已评审", reviewDate: "2026-05-01", status: "completed" } : r)); setReviewScore(0); };
 
+  // [G005 Wave2A P1] 角色 → 后端枚举 (userApi)
+  const ROLE_TO_API = { director: "DIRECTOR", vice_director: "DIRECTOR", physician: "DOCTOR", technician: "TECHNICIAN", nurse: "NURSE", intern: "TECHNICIAN" };
+
+  // [G005 Wave2A P1] 添加人员: userApi.create 真实创建 (后端 users 有 POST), 失败回退本地列表
+  const handleAddStaff = async () => {
+    if (!addForm.name.trim()) { setAddError("请填写姓名"); return; }
+    const newStaff = {
+      id: `S${Date.now().toString().slice(-5)}`, name: addForm.name.trim(), role: addForm.role,
+      title: addForm.title.trim() || "医师", dept: addForm.dept.trim() || "放射科",
+      phone: "-", email: "-", status: "online", joinDate: new Date().toISOString().slice(0, 10),
+    };
+    const applyLocal = (suffix) => {
+      setLocalStaff((prev) => [newStaff, ...prev]);
+      setDeptStaff((prev) => [newStaff, ...prev]);
+      message.success(`已添加人员「${newStaff.name}」 ${suffix}`);
+      setShowAddModal(false);
+      setAddForm({ name: "", role: "physician", title: "", dept: "放射科" });
+      setAddError("");
+    };
+    try {
+      const res = await userApi.create({
+        username: `user_${Date.now().toString().slice(-6)}`,
+        password: `Ris@${Date.now().toString().slice(-6)}`,
+        fullName: newStaff.name,
+        role: ROLE_TO_API[addForm.role] || "DOCTOR",
+        department: newStaff.dept,
+      });
+      if (res.success) { applyLocal("(userApi 创建)"); return; }
+    } catch { /* 后端不可用 → 本地记录 */ }
+    applyLocal("(本地记录)");
+  };
+
+  // [G005 Wave2A P1] 编辑人员: 预填表单 → userApi.update → 失败回退本地
+  const handleEditStaff = () => {
+    if (!selectedStaff) return;
+    const updated = { ...selectedStaff, name: editForm.name.trim(), role: editForm.role, title: editForm.title.trim(), dept: editForm.dept.trim() };
+    const applyLocal = (suffix) => {
+      setSelectedStaff(updated);
+      setLocalStaff((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+      message.success(`已更新人员「${updated.name}」 ${suffix}`);
+      setShowEditModal(false);
+    };
+    void (async () => {
+      try {
+        const res = await userApi.update(selectedStaff.id, { fullName: updated.name, role: ROLE_TO_API[editForm.role] || "DOCTOR", department: updated.dept });
+        if (res.success) { applyLocal("(userApi)"); return; }
+      } catch { /* 后端不可用 → 本地记录 */ }
+      applyLocal("(本地记录)");
+    })();
+  };
+
+  // [G005 Wave2A P1] 导出报表: 使用页面已加载数据生成真实 CSV 并下载
+  const handleExportReport = () => {
+    setShowExportModal(true);
+    setExportDone(false);
+    setTimeout(() => {
+      const staffSource = deptStaff.length > 0 ? deptStaff : DEPT_STAFF;
+      const csvLines = [
+        ["影像科室管理报表"],
+        ["导出时间", new Date().toLocaleString("zh-CN", { hour12: false })],
+        ["人员列表", `${staffSource.length}人`],
+        ["姓名", "职称", "角色", "科室"],
+        ...staffSource.map((s) => [s.name, s.title || s.role, s.role, s.dept || "-"]),
+        [],
+        ["质控标准"],
+        ["指标", "目标", "当前", "状态"],
+        ...qcStandards.map((q) => [q.item, q.target, q.current, q.status === "pass" ? "达标" : "不达标"]),
+        [],
+        ["危急值规则"],
+        ["名称", "检查类型", "阈值", "等级", "说明"],
+        ...criticalValues.map((c) => [c.type, c.modality || "-", c.threshold, c.alertLevel === "critical" ? "危" : "急", c.description]),
+      ];
+      const csv = csvLines.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `科室报表-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setExportDone(true);
+    }, 400);
+  };
+
   return (
     <PageContainer background="gray" maxWidth="full" padding={16} testId="department-page">
-      <DepartmentHeader onExport={() => setShowExportModal(true)} onAdd={() => setShowAddModal(true)} />
+      <DepartmentHeader onExport={() => handleExportReport()} onAdd={() => setShowAddModal(true)} />
       <DepartmentStats />
       {/* [W2-A] 数据源状态条 */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
@@ -306,7 +399,7 @@ export default function DepartmentPage() {
           <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
         ))}
       </div>
-      {activeTab === "staff" && <DepartmentStaffList selectedStaff={selectedStaff} setSelectedStaff={setSelectedStaff} roleFilter={roleFilter} setRoleFilter={setRoleFilter} searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword} onEdit={() => setShowEditModal(true)} />}
+      {activeTab === "staff" && <DepartmentStaffList selectedStaff={selectedStaff} setSelectedStaff={setSelectedStaff} roleFilter={roleFilter} setRoleFilter={setRoleFilter} searchKeyword={searchKeyword} setSearchKeyword={setSearchKeyword} onEdit={() => { if (selectedStaff) { setEditForm({ name: selectedStaff.name, role: selectedStaff.role, title: selectedStaff.title, dept: selectedStaff.dept }); setShowEditModal(true); } }} extraStaff={localStaff} />}
       {activeTab === "performance" && <DepartmentFinanceSummary activeTab="performance" />}
       {activeTab === "attendance" && <DepartmentSchedule />}
       {activeTab === "kpi" && <DepartmentFinanceSummary activeTab="kpi" />}
@@ -485,21 +578,86 @@ export default function DepartmentPage() {
       )}
 
       {/* Modals */}
+      {showAddModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>添加人员</div>
+              <button onClick={() => setShowAddModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+            </div>
+            {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{addError}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                { label: "姓名", key: "name", placeholder: "请输入姓名" },
+                { label: "职称", key: "title", placeholder: "如: 主治医师" },
+                { label: "科室", key: "dept", placeholder: "如: CT组" },
+              ].map((f) => (
+                <div key={f.key}>
+                  <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
+                  <input type="text" value={addForm[f.key]} onChange={(e) => setAddForm({ ...addForm, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                </div>
+              ))}
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>角色</label>
+                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }}>
+                  {[["physician", "医师"], ["technician", "技师"], ["nurse", "护士"], ["director", "主任"], ["vice_director", "副主任"], ["intern", "实习生"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </div>
+              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>保存将调用 userApi 创建真实用户 (POST /users); 后端不可用时本地记录。</div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+                <button onClick={() => setShowAddModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
+                <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><UserPlus size={13} /> 保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {showExportModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>导出报表</div>
-            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在导出报表，请稍候...</div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}><button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>关闭</button></div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>
+              {exportDone ? "导出完成, CSV 报表已下载。" : "正在生成 CSV 报表 (人员/质控/危急值), 请稍候..."}
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              {exportDone ? (
+                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>关闭</button>
+              ) : (
+                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
+              )}
+            </div>
           </div>
         </div>
       )}
       {showEditModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>编辑人员</div>
-            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在编辑人员: {selectedStaff?.name}</div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}><button onClick={() => setShowEditModal(false)} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>关闭</button></div>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>编辑人员 — {selectedStaff?.name}</div>
+              <button onClick={() => setShowEditModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                { label: "姓名", key: "name", placeholder: "请输入姓名" },
+                { label: "职称", key: "title", placeholder: "如: 主治医师" },
+                { label: "科室", key: "dept", placeholder: "如: CT组" },
+              ].map((f) => (
+                <div key={f.key}>
+                  <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
+                  <input type="text" value={editForm[f.key]} onChange={(e) => setEditForm({ ...editForm, [f.key]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                </div>
+              ))}
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>角色</label>
+                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }}>
+                  {[["physician", "医师"], ["technician", "技师"], ["nurse", "护士"], ["director", "主任"], ["vice_director", "副主任"], ["intern", "实习生"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+                <button onClick={() => setShowEditModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
+                <button onClick={handleEditStaff} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Edit3 size={13} /> 保存</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

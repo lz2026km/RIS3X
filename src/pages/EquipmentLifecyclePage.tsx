@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Monitor, Package, Wrench, AlertTriangle, Search, Plus,
-  X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save
+  X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save,
+  ClipboardList, Edit3, Eye
 } from 'lucide-react'
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
-import { Card } from 'antd'
+import { Card, message } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
@@ -140,6 +141,18 @@ export default function EquipmentLifecyclePage() {
   const [selectedMaintRecord, setSelectedMaintRecord] = useState<typeof maintenanceRecords[0] | null>(null)
   const [apiLifecycleData, setApiLifecycleData] = useState<EquipmentLifecycle[]>([])
 
+  // [G005 Wave2A P1] 本地设备/计划列表 (API 创建失败时的回退展示源)
+  const [localDevices, setLocalDevices] = useState<typeof mockDevices>(mockDevices)
+  const [localPlans, setLocalPlans] = useState<any[]>([])
+  // [G005 Wave2A P1] 保存设备表单 (受控)
+  const emptyDeviceForm = { name: '', model: '', dept: '', modality: 'CT', status: '在用' }
+  const [deviceForm, setDeviceForm] = useState(emptyDeviceForm)
+  // [G005 Wave2A P1] 报废原因 (受控)
+  const [scrapReason, setScrapReason] = useState('')
+  // [G005 Wave2A P1] 维保计划表单 (受控)
+  const emptyMaintPlanForm = { deviceName: '', type: '常规保养', maintenanceDate: '', assignee: '', estimatedCost: '', owner: '', content: '' }
+  const [maintPlanForm, setMaintPlanForm] = useState(emptyMaintPlanForm)
+
   // [G005 Wave4A P1] 维保计划/记录真实化: deviceMgmtApi 优先, 失败回退 mock (演示徽标)
   const [maintPlans, setMaintPlans] = useState<any[]>([])
   const [maintPlansReal, setMaintPlansReal] = useState(false)
@@ -188,6 +201,100 @@ export default function EquipmentLifecyclePage() {
     void loadMaintRecords()
   }, [loadMaintPlans, loadMaintRecords]);
 
+  // [G005 Wave2A P1] 刷新设备列表 (真实 API)
+  const loadLifecycle = useCallback(async () => {
+    try {
+      const res = await deviceMgmtApi.listEquipmentLifecycle()
+      if (res.success && res.data) setApiLifecycleData(res.data)
+    } catch { /* 保持现有数据 */ }
+  }, [])
+
+  // [G005 Wave2A P1] 保存设备: deviceMgmtApi 真实创建 → 失败回退本地列表
+  const handleSaveDevice = async () => {
+    if (!deviceForm.name || !deviceForm.model) {
+      message.warning('请填写设备名称与型号')
+      return
+    }
+    try {
+      const res = await deviceMgmtApi.create({
+        code: `LC-${Date.now().toString().slice(-8)}`,
+        name: deviceForm.name,
+        modality: deviceForm.modality,
+        location: deviceForm.dept || '放射科',
+        manufacturer: deviceForm.model,
+      })
+      if (res.success) {
+        await loadLifecycle()
+        message.success(`设备「${deviceForm.name}」已添加`)
+        setShowAdd(false)
+        setDeviceForm(emptyDeviceForm)
+        return
+      }
+    } catch { /* 回退本地 */ }
+    setLocalDevices(prev => [{
+      id: `LC-${Date.now().toString().slice(-8)}`, name: deviceForm.name, model: deviceForm.model,
+      serial: '-', vendor: '-', purchaseDate: new Date().toISOString().slice(0, 10), dept: deviceForm.dept || '放射科',
+      status: deviceForm.status, useCount: 0, lastUse: '-', nextMaint: '-', lifeMonth: 0, deptRate: 0,
+      totalCost: 0, maintCost: 0, spareCost: 0,
+    }, ...prev])
+    message.success(`设备「${deviceForm.name}」已添加 (演示数据)`)
+    setShowAdd(false)
+    setDeviceForm(emptyDeviceForm)
+  }
+
+  // [G005 Wave2A P1] 确认报废: updateEquipmentLifecycle 状态流转 → 失败回退本地
+  const handleConfirmScrap = async () => {
+    if (!deviceToScrap) return
+    try {
+      const res = await deviceMgmtApi.updateEquipmentLifecycle(deviceToScrap.id, { status: 'RETIRED', notes: scrapReason })
+      if (res.success) {
+        await loadLifecycle()
+        message.success(`设备「${deviceToScrap.name}」已确认报废`)
+        setShowScrap(false)
+        setScrapReason('')
+        return
+      }
+    } catch { /* 回退本地 */ }
+    if (isApiData) {
+      setApiLifecycleData(prev => prev.map(d => (d.id === deviceToScrap.id ? { ...d, status: 'RETIRED' } : d)))
+    } else {
+      setLocalDevices(prev => prev.map(d => (d.id === deviceToScrap.id ? { ...d, status: '已报废' } : d)))
+    }
+    message.success(`设备「${deviceToScrap.name}」已标记报废 (演示数据)`)
+    setShowScrap(false)
+    setScrapReason('')
+  }
+
+  // [G005 Wave2A P1] 保存维保计划: createMaintenancePlan → 失败回退本地
+  const handleSaveMaintPlan = async () => {
+    if (!maintPlanForm.deviceName || !maintPlanForm.maintenanceDate) {
+      message.warning('请填写设备名称与计划日期')
+      return
+    }
+    const dto = {
+      deviceName: maintPlanForm.deviceName,
+      type: maintPlanForm.type || '常规保养',
+      maintenanceDate: maintPlanForm.maintenanceDate,
+      assignee: maintPlanForm.assignee,
+      estimatedCost: Number(maintPlanForm.estimatedCost) || 0,
+      content: maintPlanForm.content,
+    }
+    try {
+      const res = await deviceMgmtApi.createMaintenancePlan(dto)
+      if (res.success) {
+        await loadMaintPlans()
+        message.success(`维保计划「${maintPlanForm.deviceName}」已创建`)
+        setShowMaintPlanModal(false)
+        setMaintPlanForm(emptyMaintPlanForm)
+        return
+      }
+    } catch { /* 回退本地 */ }
+    setLocalPlans(prev => [{ id: `MP-${Date.now()}`, deviceId: maintPlanForm.deviceName, ...dto, status: 'PENDING' }, ...prev])
+    message.success(`维保计划「${maintPlanForm.deviceName}」已创建 (演示数据)`)
+    setShowMaintPlanModal(false)
+    setMaintPlanForm(emptyMaintPlanForm)
+  }
+
   // 维保计划操作: 确认完成 / 编辑 / 删除 (真实 API 优先, 失败回退本地)
   const markPlanCompleted = async (id: string) => {
     try {
@@ -235,34 +342,23 @@ export default function EquipmentLifecyclePage() {
     return Math.max(0, Math.ceil(diff))
   }
 
-  // 维保计划展示行 (真实计划 / mock 计划)
-  const planRows: any[] = maintPlansReal && maintPlans.length > 0
-    ? maintPlans.map((p: any) => ({
-        id: p.id,
-        deviceId: p.deviceId,
-        name: p.deviceName ?? p.deviceId,
-        model: p.deviceName ?? p.deviceId,
-        type: p.type ?? '定期保养',
-        date: String(p.maintenanceDate).slice(0, 10),
-        days: daysUntil(String(p.maintenanceDate)),
-        vendor: p.assignee ?? '',
-        cost: typeof p.estimatedCost === 'number' ? p.estimatedCost : 0,
-        status: p.status ?? 'PENDING',
-        content: p.content ?? '',
-      }))
-    : mockMaintPlans.map((m: any) => ({
-        id: m.id,
-        deviceId: m.deviceId,
-        name: m.deviceName,
-        model: m.deviceName,
-        type: m.type,
-        date: String(m.maintenanceDate).slice(0, 10),
-        days: daysUntil(m.maintenanceDate),
-        vendor: m.assignee,
-        cost: m.estimatedCost,
-        status: m.status ?? 'PENDING',
-        content: m.content ?? '',
-      }))
+  // 维保计划展示行 (真实计划 / 本地新增 / mock 计划)
+  const planSource: any[] = maintPlansReal && maintPlans.length > 0
+    ? maintPlans
+    : (localPlans.length > 0 ? localPlans : mockMaintPlans)
+  const planRows: any[] = planSource.map((m: any) => ({
+    id: m.id,
+    deviceId: m.deviceId,
+    name: m.deviceName ?? m.deviceId,
+    model: m.deviceName ?? m.deviceId,
+    type: m.type ?? '定期保养',
+    date: String(m.maintenanceDate).slice(0, 10),
+    days: daysUntil(String(m.maintenanceDate)),
+    vendor: m.assignee ?? '',
+    cost: typeof m.estimatedCost === 'number' ? m.estimatedCost : 0,
+    status: m.status ?? 'PENDING',
+    content: m.content ?? '',
+  }))
 
   // 维保记录展示行 (已完成计划 / mock 记录)
   const recordRows: any[] = maintRecordsReal && maintRecords.length > 0
@@ -298,7 +394,7 @@ export default function EquipmentLifecyclePage() {
         maintCost: 0,
         spareCost: 0,
       }))
-    : mockDevices
+    : localDevices
 
   const filtered = lifecycleRows.filter(d => {
     const matchSearch = (d.name?.includes(search) || d.model?.includes(search) || d.id?.includes(search))
@@ -397,8 +493,8 @@ export default function EquipmentLifecyclePage() {
                         <div style={s.alertDate}>还剩 {days} 天</div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}>预约维保</button>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}>记录</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}><Plus size={14} />预约维保</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}><ClipboardList size={14} />记录</button>
                       </div>
                     </div>
                   )
@@ -464,7 +560,7 @@ export default function EquipmentLifecyclePage() {
                   </td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}>详情</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}><Eye size={14} />详情</button>
                       {d.status !== '已报废' && (
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setDeviceToScrap(d); setShowScrap(true) }}>报废</button>
                       )}
@@ -528,11 +624,11 @@ export default function EquipmentLifecyclePage() {
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => void markPlanCompleted(m.id)}>确认</button>
+                          onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />确认</button>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}>编辑</button>
+                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />编辑</button>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px', color: '#dc2626' }}
-                          onClick={() => void deleteMaintPlan(m.id)}>删除</button>
+                          onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />删除</button>
                       </div>
                     </td>
                   </tr>
@@ -581,7 +677,7 @@ export default function EquipmentLifecyclePage() {
                       </span>
                     </td>
                     <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}>详情</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}><Eye size={14} />详情</button>
                     </td>
                   </tr>
                 )
@@ -677,16 +773,32 @@ export default function EquipmentLifecyclePage() {
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowAdd(false)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {['设备名称', '设备型号', '序列号', '厂商', '购置日期', '使用科室', '采购金额'].map(field => (
-                <div key={field} style={s.detailItem}>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field}</div>
-                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} placeholder={`请输入${field}`} />
+              {[
+                { label: '设备名称', key: 'name' as const, placeholder: '请输入设备名称' },
+                { label: '设备型号', key: 'model' as const, placeholder: '请输入设备型号' },
+                { label: '使用科室', key: 'dept' as const, placeholder: '请输入使用科室' },
+              ].map(field => (
+                <div key={field.key} style={s.detailItem}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
+                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm[field.key]} onChange={e => setDeviceForm({ ...deviceForm, [field.key]: e.target.value })} placeholder={field.placeholder} />
                 </div>
               ))}
+              <div style={s.detailItem}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>检查模态</div>
+                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.modality} onChange={e => setDeviceForm({ ...deviceForm, modality: e.target.value })}>
+                  {['CT', 'MR', 'DR', 'DSA', 'MG', 'US', 'PET'].map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div style={s.detailItem}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>设备状态</div>
+                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.status} onChange={e => setDeviceForm({ ...deviceForm, status: e.target.value })}>
+                  {['在用', '空闲', '维保中'].map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowAdd(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setShowAdd(false)}><Save size={14} />保存设备</button>
+              <button style={{ ...s.btn, ...s.btnSuccess, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void handleSaveDevice()}><Save size={14} />保存设备</button>
             </div>
           </div>
         </div>
@@ -704,12 +816,16 @@ export default function EquipmentLifecyclePage() {
               确定要报废以下设备吗？报废后设备将从在用列表移除。<br />
               <strong>{deviceToScrap.name}</strong>（{deviceToScrap.id}）
             </div>
-            <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 20 }}>
+            <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 12 }}>
               报废后设备将进入待处理状态，相关维保记录将保留存档。
             </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+            <div style={s.detailItem}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>报废原因</div>
+              <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={scrapReason} onChange={e => setScrapReason(e.target.value)} placeholder="请输入报废原因 (如: 设备老化, 维修成本过高)" />
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 20 }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowScrap(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnDanger }} onClick={() => setShowScrap(false)}>确认报废</button>
+              <button style={{ ...s.btn, ...s.btnDanger }} onClick={() => void handleConfirmScrap()}>确认报废</button>
             </div>
           </div>
         </div>
@@ -725,28 +841,34 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: '设备名称', placeholder: '请选择设备' },
-                { label: '维保类型', placeholder: '常规保养/故障维修/配件更换' },
-                { label: '计划日期', placeholder: 'YYYY-MM-DD' },
-                { label: '服务商', placeholder: '请输入服务商名称' },
-                { label: '预估费用', placeholder: '请输入预估费用（元）' },
-                { label: '负责人', placeholder: '请输入负责人姓名' },
+                { label: '设备名称', key: 'deviceName' as const, placeholder: '请选择设备' },
+                { label: '维保类型', key: 'type' as const, placeholder: '常规保养/故障维修/配件更换' },
+                { label: '计划日期', key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
+                { label: '服务商', key: 'assignee' as const, placeholder: '请输入服务商名称' },
+                { label: '预估费用', key: 'estimatedCost' as const, placeholder: '请输入预估费用（元）' },
+                { label: '负责人', key: 'owner' as const, placeholder: '请输入负责人姓名' },
               ].map(field => (
                 <div key={field.label} style={s.detailItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
-                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} placeholder={field.placeholder} />
+                  <input
+                    type={field.key === 'maintenanceDate' ? 'date' : field.key === 'estimatedCost' ? 'number' : 'text'}
+                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }}
+                    value={maintPlanForm[field.key]}
+                    onChange={e => setMaintPlanForm({ ...maintPlanForm, [field.key]: e.target.value })}
+                    placeholder={field.placeholder}
+                  />
                 </div>
               ))}
             </div>
             <div style={{ marginTop: 8 }}>
               <div style={s.detailItem}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>备注说明</div>
-                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} placeholder="请输入备注说明" />
+                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={maintPlanForm.content} onChange={e => setMaintPlanForm({ ...maintPlanForm, content: e.target.value })} placeholder="请输入备注说明" />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowMaintPlanModal(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowMaintPlanModal(false)}>保存计划</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void handleSaveMaintPlan()}><Save size={14} />保存计划</button>
             </div>
           </div>
         </div>

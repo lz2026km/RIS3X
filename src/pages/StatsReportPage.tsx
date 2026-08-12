@@ -471,6 +471,9 @@ export default function StatsReportPage() {
   const [analyticsLive, setAnalyticsLive] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
   const [csvNote, setCsvNote] = useState('')
+  // [Wave1B P2] 模态分布: statsApi.getTopModalities (GET /stats/top-modalities)
+  const [topModalities, setTopModalities] = useState<any[]>([])
+  const [topModalitiesLive, setTopModalitiesLive] = useState(false)
 
   const loadStats = useCallback(async (days: number) => {
     setLoading(true)
@@ -482,6 +485,13 @@ export default function StatsReportPage() {
         biApi.getDeviceOee(14),
         statsApi.getTopDevices(15),
       ])
+      // [Wave1B P2] 模态 TOP N: statsApi.getTopModalities (GET /stats/top-modalities)
+      statsApi.getTopModalities(10).then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setTopModalities(res.data)
+          setTopModalitiesLive(true)
+        }
+      }).catch(() => { /* 模态分布不可用不阻断 */ })
       // [W1-B] 周报: GET /stats/weekly (独立请求, 失败不阻断主流程)
       statsApi.getWeekly().then(res => {
         if (res.success && res.data) {
@@ -1149,19 +1159,19 @@ export default function StatsReportPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, padding: '0 0 12px' }}>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.primary }}>{weekly.totalExams}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{weekly.totalExams}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>检查总数</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.success }}>{weekly.totalReports}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.success }}>{weekly.totalReports}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>报告总数</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.danger }}>{weekly.totalCritical}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.danger }}>{weekly.totalCritical}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>危急值</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>日均检查</div>
             </div>
           </div>
@@ -1181,6 +1191,38 @@ export default function StatsReportPage() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* [Wave1B P2] 模态分布: statsApi.getTopModalities (GET /stats/top-modalities) */}
+      {topModalities.length > 0 && (
+        <div style={{ ...styles.tableCard, marginBottom: 16 }}>
+          <div style={styles.tableHeader}>
+            <div style={styles.tableTitle}>
+              <Radio size={18} /> 模态分布 (Top {topModalities.length})
+              {topModalitiesLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>实时</span>}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '14px 16px' }}>
+            {topModalities.map((m: any, i: number) => {
+              const count = Number(m.count ?? m.examCount ?? 0)
+              const name = String(m.modality ?? m.name ?? `模态${i + 1}`)
+              const max = Math.max(...topModalities.map((x: any) => Number(x.count ?? x.examCount ?? 0)), 1)
+              const color = MODALITY_COLORS[name] || COLORS.primaryLight
+              return (
+                <div key={i} style={{ flex: '1 1 140px', minWidth: 130, padding: 10, background: COLORS.bgGray, borderRadius: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: color }}>{name}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: COLORS.textDark }}>{count}</span>
+                  </div>
+                  <div style={{ height: 8, background: 'rgba(148,163,184,0.25)', borderRadius: 4, marginTop: 8, overflow: 'hidden' }}>
+                    <div style={{ width: `${(count / max) * 100}%`, height: '100%', background: color, borderRadius: 4 }} />
+                  </div>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 6 }}>{((count / max) * 100).toFixed(0)}% (相对最高)</div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -1233,7 +1275,7 @@ export default function StatsReportPage() {
                 </div>
               </div>
               <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
+                <div style={{ fontSize: 28, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
                   {(utilization.current ?? 0).toFixed(1)}%
                 </div>
                 <div style={{ height: 10, background: COLORS.bgGray, borderRadius: 5, overflow: 'hidden', marginTop: 10 }}>
@@ -1257,7 +1299,7 @@ export default function StatsReportPage() {
                 </div>
               </div>
               <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: (accuracy.previous ?? 0) <= accuracy.value ? COLORS.success : COLORS.danger }}>
                   {accuracy.previous != null && (
                     <>

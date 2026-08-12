@@ -31,6 +31,22 @@ export interface MppsRecord {
   source: 'mpps' | 'exam'
 }
 
+/** [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输任务记录 */
+export interface TransferRecord {
+  id: string
+  studyUid: string
+  targetAe: string
+  status: 'queued' | 'sending' | 'paused' | 'failed' | 'completed' | 'canceled'
+  progress: number // 0-100
+  totalInstances: number
+  completedInstances: number
+  priority: 'HIGH' | 'NORMAL' | 'LOW'
+  createdAt: string
+  updatedAt: string
+  error?: string
+  source: 'queue' | 'seed'
+}
+
 @Injectable()
 export class DicomDimseService {
   private readonly logger = new Logger(DicomDimseService.name)
@@ -43,6 +59,9 @@ export class DicomDimseService {
   private readonly nodeTls = new Map<string, boolean>()
   // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 记录 (内存)
   private readonly mppsRecords = new Map<string, MppsRecord>()
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 (内存; key = 任务 id)
+  private readonly transfers = new Map<string, TransferRecord>()
+  private transferSeq = 0
 
   constructor(
     private readonly prisma: PrismaService,
@@ -62,6 +81,38 @@ export class DicomDimseService {
     for (const entry of nodeTlsSeed.split(';').filter(Boolean)) {
       const [ae, flag] = entry.split('=')
       if (ae && flag !== undefined) this.nodeTls.set(ae.trim(), flag.trim() === 'true')
+    }
+    // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] 传输队列 seed (DIMSE_TRANSFER_SEED 或默认样例)
+    const transferSeed = this.config.get<string>('DIMSE_TRANSFER_SEED', '')
+    const seedRaw = transferSeed
+      ? transferSeed.split('|').filter(Boolean).map((part) => {
+          const [studyUid, targetAe, status, progress] = part.split(',')
+          return { studyUid, targetAe, status, progress: Number(progress) || 0 }
+        })
+      : [
+          { studyUid: '1.2.840.114350.1.1.20260801.001', targetAe: 'CT_SCANNER_01', status: 'sending', progress: 42 },
+          { studyUid: '1.2.840.114350.1.1.20260801.002', targetAe: 'MR_SCANNER_02', status: 'queued', progress: 0 },
+          { studyUid: '1.2.840.114350.1.1.20260731.003', targetAe: 'XA_LAB_01', status: 'completed', progress: 100 },
+          { studyUid: '1.2.840.114350.1.1.20260730.004', targetAe: 'US_UNIT_01', status: 'failed', progress: 35 },
+        ]
+    for (const seed of seedRaw) {
+      if (!seed.studyUid || !seed.targetAe) continue
+      const now = new Date().toISOString()
+      const id = `TR-${String(++this.transferSeq).padStart(4, '0')}`
+      this.transfers.set(id, {
+        id,
+        studyUid: seed.studyUid,
+        targetAe: seed.targetAe,
+        status: (seed.status ?? 'queued') as TransferRecord['status'],
+        progress: seed.progress,
+        totalInstances: 12,
+        completedInstances: Math.round((seed.progress / 100) * 12),
+        priority: 'NORMAL',
+        createdAt: now,
+        updatedAt: now,
+        source: 'seed',
+        error: seed.status === 'failed' ? 'DICOM Association 超时 (seed 回退)' : undefined,
+      })
     }
     this.supportedStorageSopClasses = new Set([
       '1.2.840.10008.5.1.4.1.1.1',    // CR Image
@@ -417,6 +468,119 @@ export class DicomDimseService {
 
   listMpps(): MppsRecord[] {
     return [...this.mppsRecords.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  // ═══════════ [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 ═══════════
+
+  listTransfers(): TransferRecord[] {
+    return [...this.transfers.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  enqueueTransfer(dto: { studyUid: string; targetAe: string; priority?: 'HIGH' | 'NORMAL' | 'LOW' }): TransferRecord {
+    if (this.transfers.size >= 200) {
+      throw new BadRequestException('传输队列已满 (上限 200), 请先清理已完成任务')
+    }
+    const now = new Date().toISOString()
+    const id = `TR-${String(++this.transferSeq).padStart(4, '0')}`
+    const total = 8 + (this.transferSeq % 17)
+    const record: TransferRecord = {
+      id,
+      studyUid: dto.studyUid,
+      targetAe: dto.targetAe,
+      status: 'queued',
+      progress: 0,
+      totalInstances: total,
+      completedInstances: 0,
+      priority: dto.priority ?? 'NORMAL',
+      createdAt: now,
+      updatedAt: now,
+      source: 'queue',
+    }
+    this.transfers.set(id, record)
+    this.logger.log(`Transfer enqueued: ${id} study=${dto.studyUid} -> ${dto.targetAe}`)
+    return { ...record }
+  }
+
+  private findTransfer(id: string): TransferRecord {
+    const record = this.transfers.get(id)
+    if (!record) throw new NotFoundException(`Transfer ${id} not found`)
+    return record
+  }
+
+  retryTransfer(id: string): TransferRecord {
+    const record = this.findTransfer(id)
+    if (record.status === 'sending') throw new BadRequestException(`传输 ${id} 正在进行中`)
+    const updated: TransferRecord = {
+      ...record,
+      status: 'sending',
+      progress: record.status === 'failed' ? 0 : record.progress,
+      completedInstances: record.status === 'failed' ? 0 : record.completedInstances,
+      error: undefined,
+      updatedAt: new Date().toISOString(),
+    }
+    this.transfers.set(id, updated)
+    this.logger.log(`Transfer retried: ${id}`)
+    return { ...updated }
+  }
+
+  pauseTransfer(id: string): TransferRecord {
+    const record = this.findTransfer(id)
+    if (record.status !== 'sending' && record.status !== 'queued') {
+      throw new BadRequestException(`仅 queued/sending 状态可暂停, 当前: ${record.status}`)
+    }
+    const updated: TransferRecord = { ...record, status: 'paused', updatedAt: new Date().toISOString() }
+    this.transfers.set(id, updated)
+    return { ...updated }
+  }
+
+  resumeTransfer(id: string): TransferRecord {
+    const record = this.findTransfer(id)
+    if (record.status !== 'paused') throw new BadRequestException(`仅 paused 状态可恢复, 当前: ${record.status}`)
+    const updated: TransferRecord = { ...record, status: 'sending', updatedAt: new Date().toISOString() }
+    this.transfers.set(id, updated)
+    return { ...updated }
+  }
+
+  cancelTransfer(id: string): TransferRecord {
+    const record = this.findTransfer(id)
+    if (record.status === 'completed') throw new BadRequestException(`传输 ${id} 已完成, 不可取消`)
+    const updated: TransferRecord = { ...record, status: 'canceled', updatedAt: new Date().toISOString() }
+    this.transfers.set(id, updated)
+    return { ...updated }
+  }
+
+  getTransferStats(): {
+    total: number
+    queued: number
+    sending: number
+    paused: number
+    failed: number
+    completed: number
+    canceled: number
+    activeCount: number
+    successRate: number
+    avgProgress: number
+  } {
+    const all = [...this.transfers.values()]
+    const count = (s: TransferRecord['status']) => all.filter((t) => t.status === s).length
+    const done = all.filter((t) => t.status === 'completed' || t.status === 'failed' || t.status === 'canceled')
+    const successRate = done.length > 0 ? Math.round((count('completed') / done.length) * 100) : 0
+    const inFlight = all.filter((t) => t.status !== 'completed' && t.status !== 'canceled')
+    const avgProgress = inFlight.length > 0
+      ? Math.round(inFlight.reduce((s, t) => s + t.progress, 0) / inFlight.length)
+      : 0
+    return {
+      total: all.length,
+      queued: count('queued'),
+      sending: count('sending'),
+      paused: count('paused'),
+      failed: count('failed'),
+      completed: count('completed'),
+      canceled: count('canceled'),
+      activeCount: count('queued') + count('sending') + count('paused'),
+      successRate,
+      avgProgress,
+    }
   }
 
   private async deriveMppsFromExam(studyUid: string): Promise<{

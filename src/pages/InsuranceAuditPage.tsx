@@ -2473,7 +2473,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   kpiValue: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 700,
     color: "var(--color-primary-800)",
     lineHeight: 1.2,
@@ -2804,7 +2804,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: "column",
   },
   voucherStatValue: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 700,
   },
   voucherStatLabel: {
@@ -3006,7 +3006,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   fundKpiValue: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 700,
     color: "var(--color-primary-800)",
     lineHeight: 1.2,
@@ -5405,7 +5405,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 22, fontWeight: 800, color: card.color }}
+                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>
@@ -5750,7 +5750,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 22, fontWeight: 800, color: card.color }}
+                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>
@@ -6085,7 +6085,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 22, fontWeight: 800, color: card.color }}
+                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>

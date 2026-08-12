@@ -16,6 +16,7 @@ import {
   Badge,
   Divider,
   List,
+  Modal,
 } from "antd";
 import { CheckCircle2, Download, Eye, Layers, Save } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
@@ -41,6 +42,13 @@ export const DentalGuidePage: React.FC = () => {
     material: "resin-print",
     sleeveType: "",
   });
+  // [G005 Wave1A P1] 套筒配置: dentalApi.updateGuideSleeve (PUT /dental/guide/:id/sleeve)
+  const [sleeveModal, setSleeveModal] = useState<{ open: boolean; guide: any; sleeveType: string; saving: boolean }>({ open: false, guide: null, sleeveType: "", saving: false });
+
+  const loadGuides = async () => {
+    const list = await dentalApi.listSurgicalGuides();
+    if (Array.isArray(list)) setGuides(list);
+  };
 
   useEffect(() => {
     dentalApi
@@ -122,6 +130,26 @@ export const DentalGuidePage: React.FC = () => {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
     setBusy(false);
+  };
+
+  const handleUpdateSleeve = async () => {
+    const g = sleeveModal.guide;
+    if (!g?.id) return;
+    setSleeveModal(prev => ({ ...prev, saving: true }));
+    try {
+      const res = await dentalApi.updateGuideSleeve(g.id, sleeveModal.sleeveType);
+      if (res.success) {
+        message.success(`套筒已更新: ${sleeveModal.sleeveType}`);
+        setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false });
+        await loadGuides();
+      } else {
+        message.error(res.error?.message ?? '套筒更新失败');
+        setSleeveModal(prev => ({ ...prev, saving: false }));
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? '套筒更新失败');
+      setSleeveModal(prev => ({ ...prev, saving: false }));
+    }
   };
 
   return (
@@ -287,6 +315,16 @@ export const DentalGuidePage: React.FC = () => {
                                 预览
                               </Button>
                             )}
+                            {g.status === "designing" && (
+                              <Button
+                                size="small"
+                                type="primary"
+                                icon={<Save size={10} />}
+                                onClick={() => setSleeveModal({ open: true, guide: g, sleeveType: g.sleeveType || sleeves[0]?.type || "", saving: false })}
+                              >
+                                配置套筒
+                              </Button>
+                            )}
                             <Button
                               size="small"
                               icon={<Download size={10} />}
@@ -397,6 +435,28 @@ export const DentalGuidePage: React.FC = () => {
           },
         ]}
       />
+      <Modal
+        title={`配置金属套筒 - ${sleeveModal.guide?.id ?? ''}`}
+        open={sleeveModal.open}
+        onCancel={() => setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false })}
+        onOk={() => void handleUpdateSleeve()}
+        confirmLoading={sleeveModal.saving}
+        width={400}
+      >
+        <div style={{ fontSize: 13, marginBottom: 8 }}>
+          导板: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}
+        </div>
+        <Select
+          value={sleeveModal.sleeveType}
+          onChange={(v) => setSleeveModal(prev => ({ ...prev, sleeveType: v }))}
+          style={{ width: '100%' }}
+          placeholder="选择套筒型号"
+          options={sleeves.map((s: any) => ({
+            value: s.type,
+            label: `${s.type} (Ø${s.diameter}mm × ${s.height}mm)`,
+          }))}
+        />
+      </Modal>
     </div>
   );
 };

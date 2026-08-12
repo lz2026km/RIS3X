@@ -154,6 +154,13 @@ export class CosignService {
     return { data: [data] }
   }
 
+  // [Wave1B P2] 删除会签规则 (systemConfig key 删除)
+  async deleteCosignRule(key: string) {
+    const count = await this.prisma.systemConfig.deleteMany({ where: { key } })
+    if (count.count === 0) throw new NotFoundException(`会签规则 ${key} 不存在`)
+    return { data: { deleted: count.count } }
+  }
+
   async getCosignStats() {
     const [pending, logs] = await Promise.all([
       this.prisma.report.count({ where: { state: 'CO_SIGN_REVIEW' } }),

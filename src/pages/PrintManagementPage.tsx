@@ -1651,7 +1651,7 @@ export default function PrintManagementPage() {
                 <div style={{ fontSize: 13, color: C.textDark }}>{stat.label}</div>
                 {stat.total > 0 && <div style={{ fontSize: 12, color: C.textLight }}>总共 {stat.total} 项</div>}
               </div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
             </div>
           ))}
         </div>
@@ -1878,7 +1878,7 @@ export default function PrintManagementPage() {
                 border: `1px solid ${stat.color}30`, textAlign: 'center'
               }}
             >
-              <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{stat.label}</div>
             </div>
           ))}
@@ -3411,7 +3411,7 @@ export default function PrintManagementPage() {
             </div>
             <div>
               <div style={{ fontSize: 12, color: C.textMid }}>{stat.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: C.textDark }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
                 {stat.value}
                 <span style={{ fontSize: 12, fontWeight: 400, color: C.textLight }}> {stat.unit}</span>
               </div>

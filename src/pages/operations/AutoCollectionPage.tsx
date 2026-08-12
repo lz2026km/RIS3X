@@ -66,6 +66,10 @@ const AutoCollectionPage: React.FC = () => {
   const [taskAction, setTaskAction] = useState<'start' | 'stop' | 'run' | null>(null)
   const [logs, setLogs] = useState<AutoCollectionLog[]>([])
   const [logsLoading, setLogsLoading] = useState(false)
+  // [Wave1B P2] 新建任务: createTask (POST /auto-collection/tasks)
+  const [taskCreateOpen, setTaskCreateOpen] = useState(false)
+  const [taskCreating, setTaskCreating] = useState(false)
+  const [taskForm] = Form.useForm()
   // [G005 2B] 受控分页
   const rulePage = usePagination(rules, 10)
   const taskPage = usePagination(tasks, 10)
@@ -290,6 +294,31 @@ const AutoCollectionPage: React.FC = () => {
     }
   }
 
+  // [Wave1B P2] 新建采集任务: createTask (POST /auto-collection/tasks)
+  const handleCreateTask = async () => {
+    const values = await taskForm.validateFields()
+    setTaskCreating(true)
+    try {
+      const res = await autoCollectionApi.createTask({
+        name: values.name,
+        ruleId: values.ruleId || undefined,
+        sourceType: values.sourceType ?? 'DICOM',
+        sourceConfig: values.sourceConfig ? { target: values.sourceConfig } : {},
+      })
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || '创建失败')
+      message.success(`任务已创建: ${res.data.id}`)
+      setTaskCreateOpen(false)
+      taskForm.resetFields()
+      await fetchTasks()
+      if (stats) await fetchStats()
+      await fetchLogs()
+    } catch (e) {
+      message.error((e as Error)?.message || '创建失败')
+    } finally {
+      setTaskCreating(false)
+    }
+  }
+
   const columns = [
     { title: '规则名', dataIndex: 'name', key: 'name' },
     { title: '触发方式', dataIndex: 'triggerType', key: 'triggerType', render: (v: string) => <Tag>{TRIGGER_TYPE_LABEL[v] ?? v}</Tag> },
@@ -343,7 +372,10 @@ const AutoCollectionPage: React.FC = () => {
         title={<Space><History size={14} />采集任务</Space>}
         size="small"
         style={{ marginTop: 12 }}
-        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => { fetchTasks(); fetchStats(); }}>刷新</Button>}
+        extra={<Space>
+          <Button size="small" type="primary" icon={<Play size={12} />} onClick={() => { taskForm.resetFields(); setTaskCreateOpen(true); }}>新建任务</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { fetchTasks(); fetchStats(); }}>刷新</Button>
+        </Space>}
       >
         <Table
           rowKey="id"
@@ -469,6 +501,37 @@ const AutoCollectionPage: React.FC = () => {
           </Form.Item>
           <Form.Item name="enabled" label="创建后立即启用" valuePropName="checked">
             <Switch />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* [Wave1B P2] 新建任务 Modal: createTask (名称/源类型/源配置) */}
+      <Modal
+        title="新建采集任务"
+        open={taskCreateOpen}
+        onOk={() => void handleCreateTask()}
+        onCancel={() => setTaskCreateOpen(false)}
+        okText="创建"
+        cancelText="取消"
+        confirmLoading={taskCreating}
+        width={480}
+      >
+        <Form form={taskForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ sourceType: 'DICOM' }}>
+          <Form.Item name="name" label="任务名称" rules={[{ required: true, message: '请输入任务名称' }]}>
+            <Input placeholder="如：夜间 DICOM 自动归档" />
+          </Form.Item>
+          <Form.Item name="sourceType" label="源类型" rules={[{ required: true }]}>
+            <Select options={[
+              { value: 'DICOM', label: 'DICOM' },
+              { value: 'HL7', label: 'HL7' },
+              { value: 'FTP', label: 'FTP' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="ruleId" label="关联规则 (可选)">
+            <Select allowClear placeholder="选择采集规则" options={rules.map((r) => ({ value: r.id, label: r.name }))} />
+          </Form.Item>
+          <Form.Item name="sourceConfig" label="源配置 (可选)">
+            <Input placeholder="如：目标路径 /mnt/pacs/inbox" />
           </Form.Item>
         </Form>
       </Modal>

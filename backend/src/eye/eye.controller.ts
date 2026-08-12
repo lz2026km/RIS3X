@@ -259,9 +259,27 @@ export class EyeController {
     return this.eye.listRisSurgeries()
   }
 
+  // [G005 Wave1A P1] 排程手术 (EyeRisPage 在用; 兼容 {patientId,date,type,notes} 与页面字段)
+  @Post('ris/surgeries')
+  @HttpCode(HttpStatus.CREATED)
+  createRisSurgery(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.createRisSurgery(body)
+  }
+
+  @Delete('ris/surgeries/:id')
+  deleteRisSurgery(@Param('id') id: string) {
+    return this.eye.deleteRisSurgery(id)
+  }
+
   @Get('ris/referrals')
   listRisReferrals() {
     return this.eye.listRisReferrals()
+  }
+
+  // [G005 Wave1A P1] 接受转诊 (EyeRisPage 在用)
+  @Post('ris/referrals/:id/accept')
+  acceptRisReferral(@Param('id') id: string) {
+    return this.eye.acceptRisReferral(id)
   }
 
   // ── [G005-P1] 眼料: IOL 库存 (low-stock/expiring 必须在 :id 之前) ──

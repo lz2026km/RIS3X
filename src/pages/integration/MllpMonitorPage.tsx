@@ -153,7 +153,7 @@ const MllpMonitorPage: React.FC = () => {
           <Card size="small" title={<Space><Network size={14} />连接事件</Space>}>
             {loading ? <Spin /> : logs.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <Table
-                rowKey="id" size="small" pagination={logsPagination.pagination}
+                rowKey="id" size="small" scroll={{ x: 'max-content' }} pagination={logsPagination.pagination}
                 dataSource={logsPagination.pageData}
                 columns={[
                   { title: '事件', dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{EVENT_LABEL[v] ?? v}</Tag> },

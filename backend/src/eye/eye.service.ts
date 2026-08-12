@@ -77,6 +77,10 @@ const SEED_EYE_REFERRALS = [
   { id: 'REF-10002', patientId: 'PEYE-007', patientName: '孙浩', referringDoctor: '张明远', referringDept: '眼科', referredTo: '神经内科', referredDept: '神经内科', reason: '视野缺损待排查', diagnosis: '视野缺损待排查', urgency: 'emergent', status: 'accepted', createdAt: '2026-06-29T14:00:00.000Z', completedAt: '2026-06-30T10:00:00.000Z', response: '已安排头颅 MRI' },
 ]
 
+// [G005 Wave1A P1] RIS 手术/转诊可变内存 store (EyeRisPage 排程/取消/接受转诊)
+const eyeSurgeryRecords: any[] = [...SEED_EYE_SURGERIES]
+const eyeReferralRecords: any[] = [...SEED_EYE_REFERRALS]
+
 // [G005 Wave4A P1] IOL 计算记录 seed + 内存 store (IolCalculatorPage 提交到病历)
 const SEED_IOL_CALCULATIONS = [
   { id: 'IOL-CALC-SEED-001', patientId: 'PEYE-005', patientName: '陈杰', eyeSide: 'OD', surgeon: '张明远', formula: 'recommended', iolPower: 21.5, iolModel: 'PanOptix TFNT00', al: 24.05, k1: 43.2, k2: 43.8, acd: 3.2, createdAt: '2026-06-28T12:05:00.000Z' },
@@ -786,11 +790,49 @@ export class EyeService {
   }
 
   async listRisSurgeries() {
-    return { success: true, data: SEED_EYE_SURGERIES }
+    return { success: true, data: eyeSurgeryRecords }
   }
 
   async listRisReferrals() {
-    return { success: true, data: SEED_EYE_REFERRALS }
+    return { success: true, data: eyeReferralRecords }
+  }
+
+  // ── [G005 Wave1A P1] RIS 写操作: 手术排程 / 取消 / 转诊接受 (EyeRisPage 在用) ──
+
+  async createRisSurgery(body: Record<string, unknown>) {
+    const item = {
+      id: `SURG-${Date.now()}`,
+      patientId: (body.patientId as string) ?? `PEYE-${Math.floor(Math.random() * 900) + 100}`,
+      patientName: (body.patientName as string) ?? '未命名患者',
+      procedure: (body.type as string) ?? (body.procedure as string) ?? '眼科手术',
+      eyeSide: (body.eyeSide as string) ?? 'OD',
+      surgeonId: (body.surgeonId as string) ?? 'D001',
+      surgeonName: (body.surgeonName as string) ?? '张明远',
+      scheduledDate: (body.date as string) ?? (body.scheduledDate as string) ?? new Date().toISOString().slice(0, 10),
+      orRoom: (body.orRoom as string) ?? '手术室 1',
+      status: 'scheduled',
+      preOpDiagnosis: (body.preOpDiagnosis as string) ?? '',
+      anesthesiaType: (body.anesthesiaType as string) ?? 'local',
+      estimatedDuration: Number(body.estimatedDuration ?? 60),
+      notes: (body.notes as string) ?? '',
+      createdAt: new Date().toISOString(),
+    }
+    eyeSurgeryRecords.unshift(item)
+    return { success: true, data: item }
+  }
+
+  async deleteRisSurgery(id: string) {
+    const idx = eyeSurgeryRecords.findIndex((s: any) => s.id === id)
+    if (idx >= 0) eyeSurgeryRecords.splice(idx, 1)
+    return { success: true, data: { id, deleted: idx >= 0 } }
+  }
+
+  async acceptRisReferral(id: string) {
+    const item = eyeReferralRecords.find((r: any) => r.id === id)
+    if (!item) return { success: true, data: null }
+    item.status = 'accepted'
+    item.acceptedAt = new Date().toISOString()
+    return { success: true, data: item }
   }
 
   // ── [G005-P1] 眼料: IOL 库存 ──

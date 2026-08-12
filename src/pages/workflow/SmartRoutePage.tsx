@@ -201,7 +201,7 @@ const SmartRoutePage: React.FC = () => {
                 <Button type="primary" icon={<UserCheck size={14} />} loading={recommending} disabled={!recommendReady} onClick={handleRecommend}>获取推荐医生</Button>
               </Form.Item>
               <Form.Item>
-                <Button icon={<Zap size={14} />} disabled={recommendations.length === 0} onClick={() => handleAssign()}>一键分配(推荐Top1)</Button>
+                <Button icon={<Zap size={14} />} disabled={recommendations.length === 0} onClick={() => handleAssign()}>一键分配（推荐第一名）</Button>
               </Form.Item>
             </Form>
             <Alert type="info" showIcon style={{ marginBottom: 16 }}

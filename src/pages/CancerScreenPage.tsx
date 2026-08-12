@@ -39,7 +39,7 @@ const s: Record<string, React.CSSProperties> = {
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden',
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
+  statValue: { fontSize: 28, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
@@ -844,7 +844,7 @@ const CancerScreenPage = () => {
               </div>
               <div style={{ marginTop: 16, padding: '12px 16px', background: riskBgColors[currentRisk], borderRadius: 10, textAlign: 'center', border: `2px solid ${riskColors[currentRisk]}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: riskColors[currentRisk] }}>评估结果</div>
-                <div style={{ fontSize: 32, fontWeight: 800, color: riskColors[currentRisk], lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: riskColors[currentRisk], lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
                 <div style={{ fontSize: 12, color: riskColors[currentRisk], opacity: 0.8, marginTop: 4 }}>风险评分: {currentScore} 分</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
@@ -975,7 +975,7 @@ const CancerScreenPage = () => {
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{item.type}筛查</div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>占比{Math.round(item.count / 100).toLocaleString()}%</div>
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count.toLocaleString()}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.count.toLocaleString()}</div>
                   </div>
                 )
               })}

@@ -36,6 +36,9 @@ export const METRICS = [
   { id: 'consultation_count', name: '会诊量', dimension: 'performance', aggregation: 'sum', format: 'number', unit: '例', description: '会诊例数(按检查量4%估算)' },
   { id: 'ai_adoption_rate', name: 'AI采纳率', dimension: 'ai', aggregation: 'avg', format: 'percent', unit: '%', description: 'AI辅助建议被医生采纳的比例' },
   { id: 'workload_avg', name: '人均工作量', dimension: 'performance', aggregation: 'avg', format: 'decimal', unit: '例', description: '单台设备日均检查量' },
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 自定义报表字段补充 (与 backend olap.service MEASURE_SQL_MAP 对齐)
+  { id: 'device_daily_exams', name: '设备日均检查量', dimension: 'device', aggregation: 'avg', format: 'number', unit: '例', description: '设备每天平均检查数' },
+  { id: 'report_timely_rate', name: '报告及时率', dimension: 'report', aggregation: 'avg', format: 'percent', unit: '%', description: '规定时间内签发报告占比' },
 ];
 
 const METRIC_IDS = new Set(METRICS.map((m) => m.id));
@@ -68,6 +71,9 @@ const MEASURE_TO_KPI: Record<string, MeasureCfg> = {
   consultation_count:     { kpiIds: ['kpi-001'], agg: 'derived', transform: (sum) => Math.round(sum * 0.04) },
   ai_adoption_rate:       { kpiIds: ['kpi-051'], agg: 'avg' },
   workload_avg:           { kpiIds: ['kpi-041'], agg: 'avg' },
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-4)] 自定义报表字段 (kpi-012 及时签发率 / kpi-041 单台日均检查量)
+  report_timely_rate:     { kpiIds: ['kpi-012'], agg: 'avg' },
+  device_daily_exams:     { kpiIds: ['kpi-041'], agg: 'avg' },
 };
 
 // ============================================================
@@ -323,6 +329,74 @@ export const olapHandlers = [
       generatedAt: new Date().toISOString(),
       query: body,
       source: result.source,
+    });
+  }),
+
+  // ============================================================
+  // [Wave1B P2] OLAP 4 扩展 (对齐后端 olap.controller: cubes / drill-down / chart)
+  // ============================================================
+  http.get('/api/v1/olap/cubes', async () => {
+    await delay(60);
+    const dimensionIds = DIMENSIONS.map((d) => d.id);
+    const measureIds = METRICS.map((m) => m.id);
+    const now = new Date().toISOString();
+    return HttpResponse.json([
+      { id: 'tat', name: 'TAT 报告时效', dimensions: dimensionIds, measures: measureIds, lastUpdated: now },
+      { id: 'exam-volume', name: '检查量分析', dimensions: dimensionIds, measures: measureIds, lastUpdated: now },
+      { id: 'quality', name: '质控评分', dimensions: dimensionIds, measures: measureIds, lastUpdated: now },
+    ]);
+  }),
+
+  // 钻取: 按 (cube, dimension, value) 返回下钻行 (确定性伪数据, 标注 source)
+  http.post('/api/v1/olap/drill-down', async ({ request }) => {
+    await delay(90);
+    const body = (await request.json()) as {
+      cube?: string;
+      dimension?: string;
+      value?: string | number;
+      measures?: string[];
+    };
+    const dimension = body?.dimension || 'modality';
+    const value = String(body?.value ?? '');
+    const measures: string[] = (body?.measures || ['exam_count', 'report_count']).filter((m) => METRIC_IDS.has(m));
+    const base = ['CT', 'MR', 'DR', 'MG', 'DSA'].indexOf(value.toUpperCase()) >= 0 ? 520 : 380;
+    const members = dimension === 'modality' ? ['CT', 'MR', 'DR', 'MG', 'DSA'] : [`${value} A`, `${value} B`, `${value} C`];
+    let h = 0;
+    for (let i = 0; i < value.length; i++) h = (h * 31 + value.charCodeAt(i)) >>> 0;
+    const rows = members.map((member, i) => {
+      const row: Record<string, unknown> = { [dimension]: member };
+      const rnd = (n: number) => 60 + ((h + i * 97 + n * 13) % 40);
+      for (const m of measures) {
+        row[m] = m === 'avg_report_time' ? rnd(3) : m === 'report_timely_rate' ? rnd(9) : Math.round((base + ((h + i * 53) % 160)) / (m === 'report_count' ? 1.05 : 1));
+      }
+      return row;
+    });
+    const columns = [
+      { code: dimension, name: dimension, type: 'dimension' },
+      ...measures.map((m) => {
+        const found = METRICS.find((mm) => mm.id === m);
+        return { code: m, name: found?.name || m, type: 'measure' };
+      }),
+    ];
+    return HttpResponse.json({ columns, rows, total: rows.length, source: 'msw-drilldown' });
+  }),
+
+  // 图表数据: { labels, datasets }
+  http.post('/api/v1/olap/chart', async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { measures?: string[] };
+    const measures: string[] = (body?.measures || ['exam_count']).filter((m) => METRIC_IDS.has(m));
+    const labels = ['CT', 'MR', 'DR', 'MG', 'DSA'];
+    return HttpResponse.json({
+      labels,
+      datasets: measures.map((m, di) => {
+        const found = METRICS.find((mm) => mm.id === m);
+        return {
+          label: found?.name || m,
+          values: labels.map((_, i) => Math.round(420 + ((i * 137 + di * 61) % 230))),
+          type: 'bar',
+        };
+      }),
     });
   }),
 ];

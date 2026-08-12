@@ -22,6 +22,19 @@ export const DentalTreatmentPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const [detailItem, setDetailItem] = useState<any>(null);
+  // [G005 Wave1A P1] 治疗类型字典: dentalApi.listTreatmentTypes (GET /dental/treatments/types, 后端真实)
+  const [treatmentTypes, setTreatmentTypes] = useState<any[]>([]);
+
+  useEffect(() => {
+    void dentalApi.listTreatmentTypes().then((res: any) => {
+      if (res.success && Array.isArray(res.data)) setTreatmentTypes(res.data);
+    }).catch(() => { /* 保留硬编码回退 */ });
+  }, []);
+
+  const typeOptions = (treatmentTypes.length > 0
+    ? treatmentTypes.map((t: any) => (typeof t === 'string' ? { value: t, label: t } : { value: t.category ?? t.name, label: t.name }))
+    : [['Restorative', '修复性'], ['Endodontic', '根管'], ['Orthodontic', '正畸'], ['Implant', '种植'], ['Extraction', '拔除'], ['Prosthodontic', '修复冠桥']].map(([value, label]) => ({ value, label }))
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -195,7 +208,7 @@ export const DentalTreatmentPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label="治疗类型" name="type" initialValue="Restorative">
-                <Select options={[['Restorative', '修复性'], ['Endodontic', '根管'], ['Orthodontic', '正畸'], ['Implant', '种植'], ['Extraction', '拔除'], ['Prosthodontic', '修复冠桥']].map(([value, label]) => ({ value, label }))} />
+                <Select options={typeOptions} />
               </Form.Item>
             </Col>
             <Col span={24}>

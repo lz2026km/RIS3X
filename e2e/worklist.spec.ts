@@ -24,9 +24,8 @@ async function ensureLoggedIn(page: any) {
 test.describe('Worklist V3 (E2E)', () => {
   test('访问 /worklist 渲染主表 + 双视图切换', async ({ page }) => {
     await ensureLoggedIn(page)
-    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 })
-    await page.waitForTimeout(3000)
-    await expect(page.getByRole('heading', { name: '检查工作列表' })).toBeVisible({ timeout: 10000 })
+    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await expect(page.getByRole('heading', { name: '检查工作列表' })).toBeVisible({ timeout: 30000 })
     const bodyText = await page.locator('body').textContent()
     const hasSearch = bodyText?.includes('搜索') || bodyText?.includes('患者') || bodyText?.includes('查找')
     expect(hasSearch).toBeTruthy()
@@ -34,16 +33,16 @@ test.describe('Worklist V3 (E2E)', () => {
 
   test('点击高级筛选打开抽屉', async ({ page }) => {
     await ensureLoggedIn(page)
-    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 })
-    await page.waitForTimeout(3000)
+    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await expect(page.locator('body')).toContainText(/工作|检查|患者/, { timeout: 30000 })
     await page.getByText('筛选').first().click({ trial: false }).catch(() => {})
-    await expect(page.locator('text=高级筛选').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('text=高级筛选').first()).toBeVisible({ timeout: 15000 })
   })
 
   test('批量操作空态显示"未选中"', async ({ page }) => {
     await ensureLoggedIn(page)
-    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 })
-    await page.waitForTimeout(3000)
+    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await expect(page.locator('body')).toContainText(/工作|检查|患者/, { timeout: 30000 })
     const bodyText = await page.locator('body').textContent()
     const hasBatch = bodyText?.includes('未选中') || bodyText?.includes('全选') || bodyText?.includes('批量') || bodyText?.includes('选中') || bodyText?.includes('检查工作列表')
     expect(hasBatch).toBeTruthy()

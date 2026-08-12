@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Card, Empty, Select, Spin, Tag } from 'antd'
-import { Activity, AlertTriangle, Heart, RefreshCw, Stethoscope } from 'lucide-react'
+import { Activity, AlertTriangle, Heart, HeartPulse, RefreshCw, Stethoscope } from 'lucide-react'
 import { cardiacAiApi, type CardiacAiResult, type CardiacStenosis } from '../../services/api/cardiacAiApi'
 
 // 演示回退数据 (仅当真实接口不可用时)
@@ -61,6 +61,14 @@ const SEVERITY_COLOR: Record<string, string> = {
   normal: '#16a34a', mild: '#ca8a04', moderate: '#ea580c', severe: '#dc2626', occluded: '#7f1d1d',
 }
 
+const SEVERITY_LABEL: Record<string, string> = {
+  normal: '正常', mild: '轻度', moderate: '中度', severe: '重度', occluded: '闭塞',
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  reviewed: '已审核', auto: '自动', confirmed: '已确认',
+}
+
 function maxSeverity(lesions: CardiacStenosis[]): { pct: number; color: string } {
   let pct = 0
   for (const l of lesions) pct = Math.max(pct, l.stenosisPercent ?? 0)
@@ -72,10 +80,30 @@ function maxSeverity(lesions: CardiacStenosis[]): { pct: number; color: string }
 }
 
 // 从 stenosis 派生: 每个 vessel 的病灶列表 + 钙化派生积分 (calcified 病灶 × 100, 标注)
+// [Wave1B P2] 血管名归一化: 后端 vessel 名可能是中文 (如 '左前降支(LAD)') → 提取括号内缩写或映射中文名 → SVG 树键 (LAD/LCX/RCA/LM)
+function normalizeVesselKey(name: string | undefined | null): string {
+  const raw = (name ?? '').trim()
+  if (!raw) return 'OTHER'
+  const code = raw.match(/\(([A-Z]{2,4})\)/)
+  if (code?.[1]) return code[1]
+  const CN_MAP: Array<[string, string]> = [
+    ['左前降支', 'LAD'], ['前降支', 'LAD'],
+    ['左旋支', 'LCX'], ['左回旋支', 'LCX'], ['回旋支', 'LCX'], ['旋支', 'LCX'],
+    ['右冠状动脉', 'RCA'], ['右冠', 'RCA'],
+    ['左主干', 'LM'], ['左冠主干', 'LM'],
+  ]
+  for (const [cn, code2] of CN_MAP) {
+    if (raw.includes(cn)) return code2
+  }
+  const upper = raw.toUpperCase()
+  if (['LAD', 'LCX', 'RCA', 'LM'].includes(upper)) return upper
+  return 'OTHER'
+}
+
 function deriveVessels(r: CardiacAiResult): Record<string, CardiacStenosis[]> {
   const map: Record<string, CardiacStenosis[]> = {}
   for (const s of r.stenosis ?? []) {
-    const key = (s.vessel || 'OTHER').toUpperCase()
+    const key = normalizeVesselKey(s.vessel)
     if (!map[key]) map[key] = []
     map[key].push(s)
   }
@@ -135,11 +163,11 @@ const VesselAnalysisPage: React.FC = () => {
               background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
               color: dataSource === 'real' ? '#16a34a' : '#1e40af',
               border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}` }}>
-              {dataSource === 'real' ? 'cardiacAiApi 真实数据' : '演示数据 (回退)'}
+              {dataSource === 'real' ? '真实接口数据' : '演示数据 (回退)'}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            Wave6A · 冠脉分段图 (SVG 血管树) · 狭窄/钙化由 vessel.segments 派生 (cardiacAiApi 无独立 vessel 字段)
+            冠脉分段图 (SVG 血管树) · 狭窄/钙化由分段数据派生
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -158,13 +186,13 @@ const VesselAnalysisPage: React.FC = () => {
         <Alert style={{ marginBottom: 16 }} type="warning" showIcon
           title="真实接口不可用, 已回退演示数据"
           description={error}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>}
+          action={<Button size="small" icon={<RefreshCw size={14} />} onClick={() => void load()}>重试</Button>}
         />
       )}
 
       <Spin spinning={loading}>
         {!selected ? (
-          <Empty description="暂无血管分析病例" style={{ padding: 60 }} />
+          <Empty description="暂无血管分析病例" style={{ padding: 60 }} image={<HeartPulse size={48} style={{ opacity: 0.4 }} />} />
         ) : (
           <>
             {/* KPI 行 */}
@@ -217,7 +245,7 @@ const VesselAnalysisPage: React.FC = () => {
                 <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
                   {Object.entries(SEVERITY_COLOR).map(([sev, color]) => (
                     <span key={sev} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 5, background: color }} /> {sev}
+                      <span style={{ width: 10, height: 10, borderRadius: 5, background: color }} /> {SEVERITY_LABEL[sev] ?? sev}
                     </span>
                   ))}
                 </div>
@@ -235,7 +263,7 @@ const VesselAnalysisPage: React.FC = () => {
                         <div key={`${l.vessel}-${l.segment}-${i}`} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-light)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{l.vessel} {l.segment}</span>
-                            <Tag color="error" style={{ margin: 0 }}>{l.severity}</Tag>
+                            <Tag color="error" style={{ margin: 0 }}>{SEVERITY_LABEL[l.severity] ?? l.severity}</Tag>
                             {l.calcified && <Tag color="purple" style={{ margin: 0 }}>钙化</Tag>}
                             <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: severityColor }}>{l.stenosisPercent}%</span>
                           </div>
@@ -248,7 +276,7 @@ const VesselAnalysisPage: React.FC = () => {
                   </div>
                 )}
                 <div style={{ marginTop: 12, fontSize: 11, color: 'var(--text-secondary)' }}>
-                  钙化积分 = 钙化病灶数 × 100 (派生估算, 标注) · 数据源: {dataSource === 'real' ? 'cardiacAiApi 真实结果' : '演示回退'}
+                  钙化积分 = 钙化病灶数 × 100 (派生估算, 标注) · 数据源: {dataSource === 'real' ? '真实接口结果' : '演示回退'}
                 </div>
               </Card>
             </div>
@@ -264,7 +292,7 @@ const VesselAnalysisPage: React.FC = () => {
               <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Tag>模型 {selected.modelVersion}</Tag>
                 <Tag color="blue">EF {selected.ejectionFraction ?? '--'}%</Tag>
-                <Tag color="geekblue">状态 {selected.status}</Tag>
+                <Tag color="geekblue">状态 {STATUS_LABEL[selected.status] ?? selected.status}</Tag>
                 <Tag>{new Date(selected.createdAt ?? '').toLocaleDateString('zh-CN')}</Tag>
               </div>
             </Card>

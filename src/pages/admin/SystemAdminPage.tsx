@@ -203,7 +203,7 @@ export const SystemAdminPage: React.FC = () => {
             },
             { key:'roles', label:'角色权限', children:
               <Card size="small" title={`${roles.length} 角色`}>
-                <Table dataSource={pagedRoles} rowKey="name" pagination={rolesPagination}
+                <Table dataSource={pagedRoles} rowKey="name" pagination={rolesPagination} scroll={{ x: 'max-content' }}
                   columns={[
                     {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},

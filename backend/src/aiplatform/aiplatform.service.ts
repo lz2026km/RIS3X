@@ -2,6 +2,16 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+import {
+  decodePng,
+  encodePng,
+  hashString,
+  medianFilter,
+  psnr,
+  ssim,
+  syntheticFrame,
+  SYNTHETIC_SIZE,
+} from './denoise-processor'
 
 export type AiModelStatus = 'REGISTERED' | 'DEPLOYED' | 'UNDEPLOYED' | 'FAILED'
 
@@ -296,6 +306,74 @@ export class AiPlatformService {
           .slice(-14),
       },
     }
+  }
+
+  // ==================== [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (确定性, 无真实模型) ====================
+
+  async denoiseImage(body: Record<string, unknown>) {
+    const startedAt = Date.now()
+    const modelId = String(body['modelId'] ?? 'unet')
+    const strength = Math.max(0, Math.min(100, Number(body['strength'] ?? 50)))
+    const rawBase64 = typeof body['imageBase64'] === 'string' ? String(body['imageBase64']) : ''
+    const dataUrl =
+      rawBase64.includes('base64,') ? rawBase64.slice(rawBase64.indexOf('base64,') + 7) : rawBase64
+    const studyId = typeof body['studyId'] === 'string' ? String(body['studyId']) : undefined
+    const seed = hashString(rawBase64 || studyId || `G005-DL-DENOISE:${strength}`) >>> 0
+
+    const decoded = dataUrl
+      ? (() => {
+          try {
+            return decodePng(Buffer.from(dataUrl, 'base64'))
+          } catch {
+            return null
+          }
+        })()
+      : null
+
+    if (decoded) {
+      // 真实图: 3x3 中值滤波, strength >= 50 时二次滤波 (更强平滑)
+      const passes = strength >= 50 ? 2 : 1
+      let filtered: Uint8Array = new Uint8Array(decoded.data)
+      for (let i = 0; i < passes; i++) {
+        filtered = medianFilter(filtered, decoded.width, decoded.height, decoded.channels)
+      }
+      const channels = decoded.channels === 4 ? 3 : decoded.channels
+      const denoised = new Uint8Array(decoded.width * decoded.height * channels)
+      for (let p = 0; p < decoded.width * decoded.height; p++) {
+        for (let c = 0; c < channels; c++) denoised[p * channels + c] = filtered[p * decoded.channels + c]!
+      }
+      const result = {
+        denoisedBase64: encodePng(decoded.width, decoded.height, denoised, channels === 1 ? 1 : 3).toString('base64'),
+        psnr: Math.round(psnr(decoded.data, filtered) * 10) / 10,
+        ssim: Math.round(ssim(decoded.data, filtered) * 10000) / 10000,
+        elapsedMs: Date.now() - startedAt,
+        algorithm: passes >= 2 ? 'median-3x3-x2' : 'median-3x3',
+        source: 'backend' as const,
+        width: decoded.width,
+        height: decoded.height,
+        modelId,
+        strength,
+      }
+      await this.audit('DENOISE', 'ai-denoise', { ...result, denoisedBase64: undefined })
+      return { data: result }
+    }
+
+    // 无图/解码失败 → 种子化合成帧: 去噪结果 = 幻影 (确定性恢复), 指标对比 噪声帧 vs 幻影
+    const { noisy, clean } = syntheticFrame(seed, strength)
+    const result = {
+      denoisedBase64: encodePng(SYNTHETIC_SIZE, SYNTHETIC_SIZE, clean, 1).toString('base64'),
+      psnr: Math.round(psnr(noisy, clean) * 10) / 10,
+      ssim: Math.round(ssim(noisy, clean) * 10000) / 10000,
+      elapsedMs: Date.now() - startedAt,
+      algorithm: 'synthetic-phantom',
+      source: 'synthetic' as const,
+      width: SYNTHETIC_SIZE,
+      height: SYNTHETIC_SIZE,
+      modelId,
+      strength,
+    }
+    await this.audit('DENOISE', 'ai-denoise', { ...result, denoisedBase64: undefined })
+    return { data: result }
   }
 
   // ==================== 审计记录 ====================

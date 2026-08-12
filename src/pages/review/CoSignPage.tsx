@@ -12,6 +12,12 @@ import {
   Input,
   message,
   Descriptions,
+  Form,
+  Select,
+  InputNumber,
+  Switch,
+  Popconfirm,
+  Alert,
 } from "antd";
 import {
   Users,
@@ -22,11 +28,15 @@ import {
   RefreshCw,
   User,
   Eye,
+  Settings2,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import {
   coSignApi,
   type CoSignItem,
   type CoSignStats,
+  type CoSignRule,
 } from "../../services/api/cosignApi";
 
 const statusColor: Record<string, string> = {
@@ -51,6 +61,75 @@ const CoSignPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   // [W2-C] 受控分页
   const [itemPage, setItemPage] = useState(1);
+  // [Wave1B P2] 会签规则: 列表 / 新建 / 删除 (coSignApi.getRules·createRule·deleteRule)
+  const [rules, setRules] = useState<CoSignRule[]>([]);
+  const [rulesLoading, setRulesLoading] = useState(false);
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const [ruleCreateOpen, setRuleCreateOpen] = useState(false);
+  const [ruleSaving, setRuleSaving] = useState(false);
+  const [ruleDeletingKey, setRuleDeletingKey] = useState<string | null>(null);
+  const [ruleError, setRuleError] = useState("");
+  const [ruleForm] = Form.useForm();
+
+  const fetchRules = useCallback(async () => {
+    setRulesLoading(true);
+    try {
+      const res = await coSignApi.getRules();
+      if (res.success) setRules(res.data);
+    } catch {
+      setRules([]);
+    } finally {
+      setRulesLoading(false);
+    }
+  }, []);
+
+  const handleCreateRule = async () => {
+    const values = await ruleForm.validateFields();
+    setRuleSaving(true);
+    setRuleError("");
+    try {
+      const res = await coSignApi.createRule({
+        name: values.name,
+        modality: values.modality,
+        threshold: values.threshold ?? "ALL",
+        cosignerIds: String(values.cosignerIds ?? "")
+          .split(/[,，\s]+/)
+          .map((s: string) => s.trim())
+          .filter(Boolean),
+        minReviewers: Number(values.minReviewers) || 1,
+        requireCoSign: values.requireCoSign !== false,
+      });
+      if (res.success) {
+        message.success("会签规则已创建");
+        setRuleCreateOpen(false);
+        ruleForm.resetFields();
+        await fetchRules();
+      } else {
+        setRuleError(res.error?.message ?? "创建失败");
+      }
+    } catch {
+      setRuleError("创建失败");
+    } finally {
+      setRuleSaving(false);
+    }
+  };
+
+  const handleDeleteRule = async (key: string) => {
+    setRuleDeletingKey(key);
+    try {
+      const res = await coSignApi.deleteRule(key);
+      if (res.success) {
+        message.success("会签规则已删除");
+        setRules((prev) => prev.filter((r) => r.key !== key));
+      } else {
+        message.error(res.error?.message ?? "删除失败");
+      }
+    } catch {
+      message.error("删除失败");
+    } finally {
+      setRuleDeletingKey(null);
+    }
+  };
 
   const fetchPending = useCallback(async () => {
     setLoading(true);
@@ -253,15 +332,27 @@ const CoSignPage: React.FC = () => {
       </Row>
       <Card
         extra={
-          <Button
-            icon={<RefreshCw size={14} />}
-            onClick={() => {
-              fetchPending();
-              fetchStats();
-            }}
-          >
-            刷新
-          </Button>
+          <Space>
+            {/* [Wave1B P2] 会签规则配置入口 */}
+            <Button
+              icon={<Settings2 size={14} />}
+              onClick={() => {
+                setShowRulesModal(true);
+                void fetchRules();
+              }}
+            >
+              会签规则
+            </Button>
+            <Button
+              icon={<RefreshCw size={14} />}
+              onClick={() => {
+                fetchPending();
+                fetchStats();
+              }}
+            >
+              刷新
+            </Button>
+          </Space>
         }
       >
         <Table
@@ -350,6 +441,115 @@ const CoSignPage: React.FC = () => {
           onChange={(e) => setRejectReason(e.target.value)}
           placeholder="请输入拒绝原因..."
         />
+      </Modal>
+
+      {/* [Wave1B P2] 会签规则管理: coSignApi.getRules / createRule / deleteRule */}
+      <Modal
+        title={<Space><Settings2 size={16} color="#722ed1" />会签规则</Space>}
+        open={showRulesModal}
+        onCancel={() => setShowRulesModal(false)}
+        footer={
+          <Space>
+            <Button
+              type="primary"
+              icon={<Plus size={14} />}
+              onClick={() => {
+                setRuleError("");
+                ruleForm.resetFields();
+                setRuleCreateOpen(true);
+              }}
+            >
+              新建规则
+            </Button>
+            <Button onClick={() => setShowRulesModal(false)}>关闭</Button>
+          </Space>
+        }
+        width={720}
+      >
+        <Alert
+          style={{ marginBottom: 12 }}
+          type="info"
+          showIcon
+          message="规则存储于后端 systemConfig (GET/POST /cosign/rules + DELETE /cosign/rules/:key)"
+        />
+        <Table
+          rowKey="key"
+          dataSource={rules}
+          size="small"
+          loading={rulesLoading}
+          pagination={false}
+          locale={{ emptyText: "暂无会签规则" }}
+          columns={[
+            { title: "规则名", dataIndex: "name", key: "name" },
+            { title: "模态", dataIndex: "modality", key: "modality", render: (m: string) => <Tag color="blue">{m}</Tag> },
+            { title: "阈值", dataIndex: "threshold", key: "threshold", render: (t: string) => <Tag>{t}</Tag> },
+            { title: "会签医师", dataIndex: "cosignerIds", key: "cosignerIds", render: (ids: string[]) => (ids ?? []).join(", ") || "-" },
+            { title: "最少复核", dataIndex: "minReviewers", key: "minReviewers", render: (v: number) => v ?? 1 },
+            { title: "强制会签", dataIndex: "requireCoSign", key: "requireCoSign", render: (v: boolean) => (v === false ? "否" : "是") },
+            {
+              title: "操作",
+              key: "actions",
+              width: 90,
+              render: (_: unknown, r: CoSignRule) => (
+                <Popconfirm title="删除该规则?" onConfirm={() => void handleDeleteRule(r.key)}>
+                  <Button size="small" danger icon={<Trash2 size={12} />} loading={ruleDeletingKey === r.key} />
+                </Popconfirm>
+              ),
+            },
+          ]}
+        />
+      </Modal>
+
+      <Modal
+        title="新建会签规则"
+        open={ruleCreateOpen}
+        onOk={() => void handleCreateRule()}
+        onCancel={() => setRuleCreateOpen(false)}
+        confirmLoading={ruleSaving}
+        okText="创建"
+        width={520}
+      >
+        <Form
+          form={ruleForm}
+          layout="vertical"
+          size="small"
+          style={{ marginTop: 12 }}
+          initialValues={{ modality: "CT", threshold: "ALL", minReviewers: 1, requireCoSign: true }}
+        >
+          <Form.Item name="name" label="规则名称" rules={[{ required: true, message: "请输入规则名称" }]}>
+            <Input placeholder="如：危急报告强制双签" />
+          </Form.Item>
+          <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+            <Select
+              options={["CT", "MR", "DR", "DSA", "MG", "GI", "US"].map((m) => ({ value: m, label: m }))}
+            />
+          </Form.Item>
+          <Form.Item name="threshold" label="触发阈值" rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: "CRITICAL", label: "危急值" },
+                { value: "URGENT", label: "紧急" },
+                { value: "ALL", label: "全部" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="cosignerIds" label="会签医师 ID (逗号分隔)" rules={[{ required: true, message: "至少 1 名会签医师" }]}>
+            <Input placeholder="如：dr-005, dr-009" />
+          </Form.Item>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="minReviewers" label="最少复核人数">
+                <InputNumber min={1} max={10} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="requireCoSign" label="强制会签" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
+          {ruleError && <Alert type="error" showIcon message={ruleError} style={{ marginBottom: 8 }} />}
+        </Form>
       </Modal>
     </div>
   );

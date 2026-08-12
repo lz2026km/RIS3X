@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 import { UserManagement, type UserAccount } from '../components/v3/admin/UserManagement'
 import { generateId } from '../data/simulationStore'
 import { PermissionGate } from '../components/common/PermissionGate'
@@ -82,8 +82,37 @@ export default function UserManagementPage() {
   }
 
   const onResetPassword = async (id: string) => {
-    message.success(`密码已重置 (临时密码已下发至手机)`)
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
+    const user = users.find((u) => u.id === id)
+    const showTemp = (temp: string, fromApi: boolean) => {
+      Modal.info({
+        title: fromApi ? '密码已重置 (后端真实生成)' : '密码已重置 (本地记录)',
+        content: (
+          <div>
+            <p style={{ marginBottom: 8 }}>
+              用户 <strong>{user?.username ?? id}</strong> 的临时密码为:
+            </p>
+            <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2, padding: '8px 0', color: fromApi ? '#16a34a' : '#d97706', fontFamily: 'monospace' }}>
+              {temp}
+            </p>
+            <p style={{ fontSize: 12, color: '#94a3b8' }}>
+              {fromApi
+                ? '临时密码仅显示一次, 请立即转交用户。失败登录计数已清零。'
+                : '后端 reset-password 接口待接入 (Round 11), 临时密码仅本地展示。失败登录计数已清零。'}
+            </p>
+          </div>
+        ),
+        okText: '我已记录',
+      })
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
+    }
+    try {
+      const res = await userApi.resetPassword(id)
+      if (res.success && res.data?.temporaryPassword) {
+        showTemp(res.data.temporaryPassword, true)
+        return
+      }
+    } catch { /* 后端不可用 → 本地生成 */ }
+    showTemp(`Ris${Date.now().toString().slice(-6)}@a1`, false)
   }
 
   const onSave = async () => {

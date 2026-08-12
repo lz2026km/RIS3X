@@ -426,6 +426,7 @@ const EyeAiPage: React.FC = () => {
                       <Card size="small" title={<span>各病种AI诊断分布 <Tag color={distSource === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }}>{distSource === 'api' ? 'API' : '演示'}</Tag></span>}>
                         <Table
                           size="small"
+                          scroll={{ x: 'max-content' }}
                           pagination={distPagination.pagination}
                           dataSource={distPagination.pageData}
                           rowKey="condition"

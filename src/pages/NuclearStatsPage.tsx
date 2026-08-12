@@ -602,7 +602,7 @@ export default function NuclearStatsPage() {
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderLeft: `4px solid ${item.color}` }}>
                 <p style={{ fontSize: 13, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
-                  <span style={{ fontSize: 32, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
+                  <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
                   <span style={{ fontSize: 14, color: C.textMuted }}>{item.unit}</span>
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>用途：{item.usage}</p>
@@ -668,11 +668,11 @@ export default function NuclearStatsPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>检查量</p>
-                    <p style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
+                    <p style={{ fontSize: 28, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
                   </div>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>利用率</p>
-                    <p style={{ fontSize: 20, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
+                    <p style={{ fontSize: 28, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
                   </div>
                 </div>
               </div>
@@ -708,7 +708,7 @@ export default function NuclearStatsPage() {
               ].map((item, i) => (
                 <div key={i} style={{ background: C.background, padding: 16, borderRadius: 10, textAlign: 'center' }}>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
-                  <p style={{ fontSize: 24, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
+                  <p style={{ fontSize: 28, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
                 </div>
               ))}
             </div>
@@ -771,7 +771,7 @@ export default function NuclearStatsPage() {
                   </div>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{item.label}</p>
                 </div>
-                <p style={{ fontSize: 32, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
+                <p style={{ fontSize: 28, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
               </div>
             ))}
           </div>

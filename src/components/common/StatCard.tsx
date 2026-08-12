@@ -63,7 +63,7 @@ export function StatCard({
   const sizeCfg = SIZE_MAP[size];
 
   const baseStyle: CSSProperties = {
-    background: "var(--color-gray-0, #ffffff)",
+    background: "var(--bg-card)",
     borderRadius: 12,
     padding: sizeCfg.padding,
     boxSizing: "border-box",

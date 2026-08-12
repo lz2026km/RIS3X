@@ -54,6 +54,10 @@ export const kioskApi = {
   checkIn: (data: KioskCheckInRequest) =>
     api.post<KioskCheckInResultDto>('/kiosk/check-in', data),
 
+  // [Wave1B P2] 主路径封装: POST /kiosk/patients/:id/checkin (患者 ID 走路径参数)
+  checkinById: (id: string, data: Omit<KioskCheckInRequest, 'patientId'>) =>
+    api.post<KioskCheckInResultDto>(`/kiosk/patients/${encodeURIComponent(id)}/checkin`, data),
+
   todayStats: () =>
     api.get<KioskTodayStatsDto>('/kiosk/today-stats'),
 

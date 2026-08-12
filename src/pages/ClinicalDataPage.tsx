@@ -132,7 +132,7 @@ const COLORS = {
   danger: '#dc2626',
   dangerLight: '#fee2e2',
   bgGray: '#f1f5f9',
-  cardWhite: '#ffffff',
+  cardWhite: 'var(--bg-card)',
   textDark: '#1f2937',
   textMuted: '#6b7280',
   border: 'var(--border-color)',
@@ -173,7 +173,7 @@ const styles = {
     alignItems: 'center',
     gap: '12px',
     fontSize: '20px',
-    fontWeight: 600,
+    fontWeight: 700,
   },
   headerSubtitle: {
     fontSize: '12px',
@@ -229,7 +229,7 @@ const styles = {
     color: active ? '#fff' : COLORS.textMuted,
   }),
   card: {
-    backgroundColor: COLORS.cardWhite,
+    backgroundColor: 'var(--bg-card)',
     borderRadius: '12px',
     padding: '20px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -269,7 +269,7 @@ const styles = {
     color: '#fff',
   }),
   statValue: {
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 700,
     color: COLORS.textDark,
   },
@@ -602,10 +602,10 @@ const generateSystemConnectionStatus = (): SystemConnectionStatus[] => [
 ]
 
 const generateQualityDimensions = () => [
-  { dimension: '完整性', subDimension: 'Completeness', score: 94.5, level: '优' as QualityLevel, trend: 'up' as const, description: '数据字段完整程度', metrics: ['患者信息完整率', '检查报告完整率', '诊断信息完整率'] },
-  { dimension: '及时性', subDimension: 'Timeliness', score: 91.2, level: '良' as QualityLevel, trend: 'stable' as const, description: '数据更新时效性', metrics: ['实时同步及时率', '报告出具及时率', '危急值通知及时率'] },
-  { dimension: '准确性', subDimension: 'Accuracy', score: 97.1, level: '优' as QualityLevel, trend: 'up' as const, description: '数据准确可信程度', metrics: ['身份信息准确率', '检查数据准确率', '报告数据准确率'] },
-  { dimension: '一致性', subDimension: 'Consistency', score: 88.3, level: '良' as QualityLevel, trend: 'down' as const, description: '跨系统数据一致程度', metrics: ['跨系统数据一致率', '历史数据一致率', '诊断编码标准化率'] },
+  { dimension: '完整性', subDimension: '完整度', score: 94.5, level: '优' as QualityLevel, trend: 'up' as const, description: '数据字段完整程度', metrics: ['患者信息完整率', '检查报告完整率', '诊断信息完整率'] },
+  { dimension: '及时性', subDimension: '及时度', score: 91.2, level: '良' as QualityLevel, trend: 'stable' as const, description: '数据更新时效性', metrics: ['实时同步及时率', '报告出具及时率', '危急值通知及时率'] },
+  { dimension: '准确性', subDimension: '准确度', score: 97.1, level: '优' as QualityLevel, trend: 'up' as const, description: '数据准确可信程度', metrics: ['身份信息准确率', '检查数据准确率', '报告数据准确率'] },
+  { dimension: '一致性', subDimension: '一致度', score: 88.3, level: '良' as QualityLevel, trend: 'down' as const, description: '跨系统数据一致程度', metrics: ['跨系统数据一致率', '历史数据一致率', '诊断编码标准化率'] },
 ]
 
 const searchCDRData = (query: string): CDRSearchResult[] => {
@@ -1447,22 +1447,22 @@ const CrossSystemSync = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ padding: '12px', backgroundColor: COLORS.successLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>在线系统</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>/{systemConnections.length} 个</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>性能下降</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需关注</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>离线系统</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需处理</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: 'var(--color-info-bg)', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>同步记录</div>
-            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
             <div style={{ fontSize: '10px', color: connectionStats.totalErrors > 0 ? COLORS.danger : COLORS.textMuted, marginTop: '2px' }}>
               {connectionStats.totalErrors} 个错误
             </div>
@@ -1754,7 +1754,7 @@ const DataQualityMonitor = () => {
               
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                  <span style={{ fontSize: '32px', fontWeight: 700, color: colors.color }}>
+                  <span style={{ fontSize: '28px', fontWeight: 700, color: colors.color }}>
                     {dim.score}
                   </span>
                   <span style={{ fontSize: '14px', color: COLORS.textMuted }}>分</span>

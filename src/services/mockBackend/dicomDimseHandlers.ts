@@ -57,6 +57,52 @@ let mockTlsConfig: any = {
 const mockNodeTls = new Map<string, boolean>();
 const mockMpps = new Map<string, any>();
 
+// [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] C-STORE 传输队列内存态 (与 backend seed 对齐)
+let transferSeq = 0;
+const makeTransfer = (partial: Partial<any> = {}): any => {
+  const now = new Date().toISOString();
+  const total = partial.totalInstances ?? 12;
+  const progress = partial.progress ?? 0;
+  return {
+    id: `TR-${String(++transferSeq).padStart(4, "0")}`,
+    studyUid: partial.studyUid ?? `1.2.840.114350.1.1.${Date.now()}`,
+    targetAe: partial.targetAe ?? "PACS_ARCHIVE",
+    status: partial.status ?? "queued",
+    progress,
+    totalInstances: total,
+    completedInstances: partial.completedInstances ?? Math.round((progress / 100) * total),
+    priority: partial.priority ?? "NORMAL",
+    createdAt: now,
+    updatedAt: now,
+    source: partial.source ?? "queue",
+    error: partial.status === "failed" ? "DICOM Association 超时 (MSW)" : undefined,
+  };
+};
+let mockTransfers: any[] = [
+  makeTransfer({ studyUid: "1.2.840.114350.1.1.20260801.001", targetAe: "CT_SCANNER_01", status: "sending", progress: 42, source: "seed" }),
+  makeTransfer({ studyUid: "1.2.840.114350.1.1.20260801.002", targetAe: "MR_SCANNER_02", status: "queued", progress: 0, source: "seed" }),
+  makeTransfer({ studyUid: "1.2.840.114350.1.1.20260731.003", targetAe: "XA_LAB_01", status: "completed", progress: 100, source: "seed" }),
+  makeTransfer({ studyUid: "1.2.840.114350.1.1.20260730.004", targetAe: "US_UNIT_01", status: "failed", progress: 35, source: "seed" }),
+];
+
+const transferStats = () => {
+  const count = (s: string) => mockTransfers.filter((t) => t.status === s).length;
+  const done = mockTransfers.filter((t) => ["completed", "failed", "canceled"].includes(t.status));
+  const inFlight = mockTransfers.filter((t) => !["completed", "canceled"].includes(t.status));
+  return {
+    total: mockTransfers.length,
+    queued: count("queued"),
+    sending: count("sending"),
+    paused: count("paused"),
+    failed: count("failed"),
+    completed: count("completed"),
+    canceled: count("canceled"),
+    activeCount: count("queued") + count("sending") + count("paused"),
+    successRate: done.length ? Math.round((count("completed") / done.length) * 100) : 0,
+    avgProgress: inFlight.length ? Math.round(inFlight.reduce((s, t) => s + t.progress, 0) / inFlight.length) : 0,
+  };
+};
+
 export const dicomDimseHandlers = [
   http.post(`${API}/echo`, async ({ request }) => {
     const body = (await request.json().catch(() => ({}))) as any;
@@ -181,5 +227,73 @@ export const dicomDimseHandlers = [
     await delay(delayMs(40, 120));
     const list = [...mockMpps.values()].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
     return HttpResponse.json({ success: true, data: list });
+  }),
+
+  // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] C-STORE 传输队列
+  http.get(`${API}/transfers`, async () => {
+    await delay(delayMs(40, 120));
+    return HttpResponse.json({ success: true, data: [...mockTransfers].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))) });
+  }),
+
+  http.post(`${API}/transfers`, async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    await delay(delayMs(60, 180));
+    if (!body?.studyUid || !body?.targetAe) {
+      return HttpResponse.json({ success: false, error: { code: "VALIDATION_ERROR", message: "studyUid / targetAe 必填" } }, { status: 400 });
+    }
+    const record = makeTransfer({ studyUid: body.studyUid, targetAe: body.targetAe, priority: body.priority });
+    mockTransfers.push(record);
+    return HttpResponse.json({ success: true, data: record });
+  }),
+
+  http.get(`${API}/transfers/stats`, async () => {
+    await delay(delayMs(40, 120));
+    return HttpResponse.json({ success: true, data: transferStats() });
+  }),
+
+  http.post(`${API}/transfers/:id/retry`, async ({ params }) => {
+    await delay(delayMs(60, 180));
+    const id = String(params.id);
+    const t = mockTransfers.find((x) => x.id === id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND", message: `Transfer ${id} not found` } }, { status: 404 });
+    if (t.status === "sending") return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: `传输 ${id} 正在进行中` } }, { status: 400 });
+    t.status = "sending";
+    if (t.status === "failed") { t.progress = 0; t.completedInstances = 0; }
+    t.error = undefined;
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
+  }),
+
+  http.post(`${API}/transfers/:id/pause`, async ({ params }) => {
+    await delay(delayMs(60, 180));
+    const id = String(params.id);
+    const t = mockTransfers.find((x) => x.id === id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND", message: `Transfer ${id} not found` } }, { status: 404 });
+    if (!["sending", "queued"].includes(t.status)) return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: `仅 queued/sending 状态可暂停, 当前: ${t.status}` } }, { status: 400 });
+    t.status = "paused";
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
+  }),
+
+  http.post(`${API}/transfers/:id/resume`, async ({ params }) => {
+    await delay(delayMs(60, 180));
+    const id = String(params.id);
+    const t = mockTransfers.find((x) => x.id === id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND", message: `Transfer ${id} not found` } }, { status: 404 });
+    if (t.status !== "paused") return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: `仅 paused 状态可恢复, 当前: ${t.status}` } }, { status: 400 });
+    t.status = "sending";
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
+  }),
+
+  http.post(`${API}/transfers/:id/cancel`, async ({ params }) => {
+    await delay(delayMs(60, 180));
+    const id = String(params.id);
+    const t = mockTransfers.find((x) => x.id === id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: "NOT_FOUND", message: `Transfer ${id} not found` } }, { status: 404 });
+    if (t.status === "completed") return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: `传输 ${id} 已完成, 不可取消` } }, { status: 400 });
+    t.status = "canceled";
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
   }),
 ];
