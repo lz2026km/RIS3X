@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
 import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
+import { reportApi } from '../services/api/reportApi';
 
 interface FollowUpPatient {
   id: string;
@@ -90,7 +91,8 @@ export default function FollowUpPage() {
     return () => { cancelled = true; };
   }, [followUpList.length]);
 
-  const [newPlan, setNewPlan] = useState({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true });
+  // [v3.0.6.11-92 Wave1B P0] reportId/examId: 报告→随访关联 (报告详情入口带入)
+  const [newPlan, setNewPlan] = useState({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true, reportId: undefined as string | undefined, examId: undefined as string | undefined });
 
   const filteredList = followUpList.filter(item => {
     const keywordMatch = searchKeyword === '' || 
@@ -106,6 +108,34 @@ export default function FollowUpPage() {
   useEffect(() => {
     const pid = new URLSearchParams(window.location.search).get('patientId');
     if (pid) setSearchKeyword(pid);
+  }, []);
+
+  // [v3.0.6.11-92 Wave1B P0] 报告详情"创建随访"入口: /follow-up?patientId=..&reportId=..
+  // 解析报告 → 预填创建弹窗 (患者/报告关联)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const reportId = q.get('reportId');
+    const pid = q.get('patientId');
+    if (!reportId) return;
+    let cancelled = false;
+    reportApi.getById(reportId).then(async (res) => {
+      if (cancelled || !res.success || !res.data) return;
+      const r = res.data as any;
+      const patientId = String(r.patientId ?? pid ?? '');
+      const patientName = String(r.patientName ?? '');
+      setNewPlan(f => ({
+        ...f,
+        patientId,
+        patientName,
+        reportId: String(r.id ?? reportId),
+        examId: r.examId ? String(r.examId) : undefined,
+        planDate: new Date().toISOString().slice(0, 10),
+        note: `来源报告: ${String(r.reportId ?? r.id ?? reportId)} 创建随访`,
+      }));
+      if (patientId) setSearchKeyword(patientId);
+      setShowCreateModal(true);
+    }).catch(() => { /* 报告加载失败不阻塞页面 */ });
+    return () => { cancelled = true; };
   }, []);
 
   const stats = {
@@ -155,6 +185,8 @@ export default function FollowUpPage() {
       const res = await followupApi.create({
         patientId: newPlan.patientId,
         patientName: newPlan.patientName,
+        reportId: newPlan.reportId,
+        examId: newPlan.examId,
         planDate: newPlan.planDate,
         intervalDays: Number(newPlan.intervalDays) || 30,
         note: newPlan.note,
@@ -163,7 +195,7 @@ export default function FollowUpPage() {
       if (res.success && res.data) {
         setFollowUpList(list => [mapPlan(res.data as any), ...list]);
         setShowCreateModal(false);
-        setNewPlan({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true });
+        setNewPlan({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true, reportId: undefined, examId: undefined });
         setLoadError(null);
       }
     } catch (err) {

@@ -126,6 +126,7 @@ export default function RadiologistAnnualQCPage() {
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 12px" }}>
               对比分析: {selected.name} vs 科室平均 (6 个月)
+              <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (本地生成器)</span>
             </h3>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
@@ -232,7 +233,9 @@ export default function RadiologistAnnualQCPage() {
             </div>
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>月度质控趋势</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>月度质控趋势
+                <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (本地生成器)</span>
+              </h3>
               {selectedHistory.length > 0 ? (
                 <div>
                   <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 8, padding: "0 8px" }}>

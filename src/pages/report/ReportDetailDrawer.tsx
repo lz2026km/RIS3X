@@ -7,6 +7,7 @@ import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline } from '../../components/report'
 import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
+import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE } from './reportUtils'
 
 const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
@@ -59,9 +60,16 @@ export interface ReportDetailDrawerProps {
   onDeliver?: (r: RadiologyReport) => void
   onCritical?: (r: RadiologyReport) => void
   onCompare?: (r: RadiologyReport) => void
+  // [v3.0.6.11-92 Wave1B P0] 报告→随访入口
+  onCreateFollowUp?: (r: RadiologyReport) => void
+  // [v3.0.6.11-92 Wave1B P0] 报告特殊态: 补充报告/整改/跨院区重分配/升级
+  onSupplement?: (r: RadiologyReport) => void
+  onRectify?: (r: RadiologyReport) => void
+  onRedistribute?: (r: RadiologyReport) => void
+  onEscalate?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare }: ReportDetailDrawerProps) {
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
@@ -307,6 +315,32 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           {onCritical && (
             <button onClick={() => onCritical(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #dc2626', background: 'var(--color-error-bg)', color: 'var(--color-error)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <Zap size={13} /> 转危急值
+            </button>
+          )}
+          {onCreateFollowUp && (
+            <button onClick={() => onCreateFollowUp(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Activity size={13} /> 创建随访
+            </button>
+          )}
+          {/* [v3.0.6.11-92 Wave1B P0] 报告特殊态按钮 (按状态启用, 对齐 backend REPORT_TRANSITIONS) */}
+          {onSupplement && CAN_SUPPLEMENT.includes(reportStatus) && (
+            <button onClick={() => onSupplement(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FileText size={13} /> 补充报告
+            </button>
+          )}
+          {onRectify && CAN_RECTIFY.includes(reportStatus) && (
+            <button onClick={() => onRectify(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #f59e0b', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <History size={13} /> 整改
+            </button>
+          )}
+          {onRedistribute && CAN_REDISTRIBUTE.includes(reportStatus) && (
+            <button onClick={() => onRedistribute(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: 'rgba(124,58,237,0.12)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Activity size={13} /> 跨院区重分配
+            </button>
+          )}
+          {onEscalate && CAN_ESCALATE.includes(reportStatus) && (
+            <button onClick={() => onEscalate(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #dc2626', background: 'var(--color-error-bg)', color: 'var(--color-error)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Zap size={13} /> 升级
             </button>
           )}
           <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>

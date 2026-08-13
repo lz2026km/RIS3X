@@ -50,7 +50,6 @@ import {
   UserCircle,
   History,
   Search,
-  Sliders,
   Wand2,
   Download,
   Send,
@@ -82,6 +81,7 @@ import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-reac
 import { ScanEye, Images, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
 import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, BadgeCheck, Flame, Building2, Share2, Library, HardDrive, QrCode, Ruler, CalendarCheck, AlertTriangle } from 'lucide-react';
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge } from 'lucide-react';
+import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -205,7 +205,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/write-report",
-        icon: <Edit3 size={18} />,
+        icon: <PenLine size={18} />,
         labelKey: "nav.writeReport",
         roles: ["医生", "主任", "管理员",],
       },
@@ -279,7 +279,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/report-score-rule",
-        icon: <Sliders size={18} />,
+        icon: <Gauge size={18} />,
         labelKey: "nav.scoreRule",
         roles: ["医生", "主任", "管理员",],
       },
@@ -297,7 +297,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/critical-value-rule",
-        icon: <Sliders size={18} />,
+        icon: <ToggleRight size={18} />,
         labelKey: "nav.cvRule",
         roles: ["医生", "主任", "管理员",],
       },
@@ -327,7 +327,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/publish",
-        icon: <FileStack size={18} />,
+        icon: <Send size={18} />,
         labelKey: "nav.publish",
         roles: ["医生", "主任", "管理员",],
       },
@@ -381,7 +381,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/cds/management",
-        icon: <Sliders size={18} />,
+        icon: <Settings2 size={18} />,
         labelKey: "nav.cdsManagement",
         roles: ["医生", "主任", "管理员",],
       },
@@ -394,7 +394,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/cds/alerts",
-        icon: <Bell size={18} />,
+        icon: <BellRing size={18} />,
         labelKey: "nav.cdsAlertCenter",
         roles: ["医生", "主任", "管理员",],
       },
@@ -412,7 +412,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/cds/rule-config",
-        icon: <Sliders size={18} />,
+        icon: <ListFilter size={18} />,
         labelKey: "nav.ruleConfig",
         roles: ["主任", "管理员"],
       },
@@ -492,7 +492,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-79] W2-A 危急值接收端门户
       {
         path: "/critical-value-receiver",
-        icon: <Bell size={18} />,
+        icon: <BellRing size={18} />,
         labelKey: "nav.criticalValueReceiver",
         roles: ["医生", "主任", "管理员", "护士"],
       },
@@ -509,7 +509,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/routing-rules",
-        icon: <GitBranch size={18} />,
+        icon: <Route size={18} />,
         labelKey: "nav.routingRules",
         roles: ["管理员"],
       },
@@ -553,7 +553,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/smart-routing",
-        icon: <GitBranch size={18} />,
+        icon: <Route size={18} />,
         labelKey: "nav.smartRouting",
         roles: ["管理员", "主任"],
       },
@@ -594,7 +594,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/fusion",
-        icon: <Layers size={18} />,
+        icon: <GitMerge size={18} />,
         labelKey: "nav.dicomFusion",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -644,7 +644,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/dbt",
-        icon: <Layers size={18} />,
+        icon: <Grid3X3 size={18} />,
         labelKey: "nav.dbt",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -752,7 +752,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/fusion/manager",
-        icon: <Layers size={18} />,
+        icon: <Boxes size={18} />,
         labelKey: "nav.fusionManager",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -909,19 +909,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/template-designer",
-        icon: <FileStack size={18} />,
+        icon: <PenSquare size={18} />,
         labelKey: "nav.templateDesigner",
         roles: ["主任", "管理员"],
       },
       {
         path: "/template-inheritance",
-        icon: <FileStack size={18} />,
+        icon: <Files size={18} />,
         labelKey: "nav.templateInheritance",
         roles: ["主任", "管理员"],
       },
       {
         path: "/template-category",
-        icon: <FileStack size={18} />,
+        icon: <FolderTree size={18} />,
         labelKey: "nav.templateCategory",
         roles: ["主任", "管理员"],
       },
@@ -1053,7 +1053,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/fhir/subscription",
-        icon: <Bell size={18} />,
+        icon: <Radio size={18} />,
         labelKey: "nav.fhirSubscription",
         roles: ["管理员"],
       },
@@ -1186,7 +1186,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/mobile/push",
-        icon: <Bell size={18} />,
+        icon: <Smartphone size={18} />,
         labelKey: "nav.mobilePush",
         roles: ["护士", "医生", "管理员",],
       },
@@ -1823,7 +1823,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 MPR重建
       {
         path: "/dental/viewer/mpr",
-        icon: React.createElement(Layers, { size: 18 }),
+        icon: React.createElement(Box, { size: 18 }),
         labelKey: "nav.dentalMpr",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1851,7 +1851,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 口腔影像融合
       {
         path: "/dental/rad-fusion",
-        icon: React.createElement(Layers, { size: 18 }),
+        icon: React.createElement(SquareStack, { size: 18 }),
         labelKey: "nav.dentalRadFusion",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1863,7 +1863,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/mammo/operations",
-        icon: <Heart size={18} />,
+        icon: <Layers size={18} />,
         labelKey: "nav.mammoOperations",
         roles: ["主任", "管理员"],
       },
@@ -1935,7 +1935,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/report-templates",
-        icon: <FileStack size={18} />,
+        icon: <FileType2 size={18} />,
         labelKey: "nav.reportTemplates",
         roles: ["医生", "主任", "技师", "管理员", "护士"],
       },
@@ -1959,7 +1959,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/emr-templates",
-        icon: <FileStack size={18} />,
+        icon: <FileUp size={18} />,
         labelKey: "nav.emrTemplates",
         roles: ["医生", "主任", "管理员"],
       },
@@ -1995,7 +1995,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/notif-tpl-dict",
-        icon: <Bell size={18} />,
+        icon: <NotebookText size={18} />,
         labelKey: "nav.notifTplDict",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2073,7 +2073,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/clinical-pathways",
-        icon: <GitBranch size={18} />,
+        icon: <Map size={18} />,
         labelKey: "nav.clinicalPathways",
         roles: ["医生", "主任", "管理员", "护士"],
       },
@@ -2085,7 +2085,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/ai-fusion-workspace",
-        icon: <GitMerge size={18} />,
+        icon: <Blend size={18} />,
         labelKey: "nav.aiFusionWorkspace",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2109,7 +2109,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/report-workflow",
-        icon: <GitBranch size={18} />,
+        icon: <Workflow size={18} />,
         labelKey: "nav.reportWorkflow",
         roles: ["医生", "主任", "管理员"],
       },
@@ -2163,13 +2163,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/mammo/breast-specialty",
-        icon: React.createElement(Heart, { size: 18 }),
+        icon: React.createElement(Ribbon, { size: 18 }),
         labelKey: "nav.breastSpecialty",
         roles: ["医生", "主任", "管理员"],
       },
       {
         path: "/cardiac/cardiac-specialty",
-        icon: React.createElement(Heart, { size: 18 }),
+        icon: React.createElement(HeartPulse, { size: 18 }),
         labelKey: "nav.cardiacSpecialty",
         roles: ["医生", "主任", "管理员"],
       },
@@ -2219,7 +2219,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/admin/config",
-        icon: <Sliders size={18} />,
+        icon: <Cog size={18} />,
         labelKey: "nav.clinicalConfig",
         roles: ["管理员"],
       },

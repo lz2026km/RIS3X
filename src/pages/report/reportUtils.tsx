@@ -38,6 +38,12 @@ export const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG']
 export const STATUSES = ['全部', '待分配', '已分配', '书写中', '已提交', '初审中', '初审通过', '终审中', '已审核', '签发中', '已签发', '已发布', '修订中', '已修订', '已撤回', '已驳回', '已归档']
 export const PRIORITIES = ['全部', '紧急', '危重', '普通']
 
+// [v3.0.6.11-92 Wave1B P0] 报告特殊态按钮启用条件 (对齐 backend REPORT_TRANSITIONS)
+export const CAN_SUPPLEMENT = ['已签发', '已发布'] // SIGNED/PUBLISHED → SUPPLEMENTING
+export const CAN_RECTIFY = ['已签发'] // SIGNED → RECTIFYING
+export const CAN_REDISTRIBUTE = ['已分配'] // ASSIGNED → REDISTRIBUTING
+export const CAN_ESCALATE = ['已提交', '待审核', '初审中', '初审通过', '终审中', '已审核'] // 审核链 → ESCALATED
+
 export const ANOMALY_KEYWORDS = ['结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出', '积水', '压迫', '突出', '钙化', '增粗', '模糊', '不张', '增厚']
 
 

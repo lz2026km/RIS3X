@@ -399,7 +399,7 @@ export default function RadiologyQCDashboardPage() {
             gap: 6,
           }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: overviewStats.dataSource === "real" ? "#059669" : "#d97706", display: "inline-block" }} />
-            {overviewStats.dataSource === "real" ? "真实数据源" : "演示数据"}
+            {overviewStats.dataSource === "real" ? "真实数据源" : "本地数据"}
           </span>
           {overviewStats.dataSource === "real" && overviewStats.period && (
             <span style={{ color: "#64748b" }}>统计周期: {overviewStats.period} · 合格率 {overviewStats.passedRate}% · 甲级率 {overviewStats.excellentRate}%</span>
@@ -467,6 +467,7 @@ export default function RadiologyQCDashboardPage() {
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
               <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>下钻分析</h3>
+              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>本地数据 (由本地绩效数据派生)</span>
               <div style={{ display: "flex", gap: 6 }}>
                 {DRILL_METRICS.map((m) => (
                   <button
@@ -695,6 +696,7 @@ export default function RadiologyQCDashboardPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <TrendingUp size={18} color="#1e40af" />
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>30 天 KPI 时序</h3>
+                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>本地数据</span>
               </div>
               <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 4, padding: "0 8px" }}>
                 {DAILY_KPI_PRE.slice(-30).map((d, i) => (
@@ -778,7 +780,12 @@ export default function RadiologyQCDashboardPage() {
         {(activeTab === "workflow" || activeTab === "equipment" || activeTab === "personnel" || activeTab === "operations" || activeTab === "ai" || activeTab === "cqi") && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 40, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <CheckCircle size={48} color="#10b981" style={{ margin: "0 auto 12px" }} />
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 8px" }}>{activeTab === "workflow" ? "流程质控" : activeTab === "equipment" ? "设备质控" : activeTab === "personnel" ? "人员质控" : activeTab === "operations" ? "运营质控" : activeTab === "ai" ? "AI 质控" : "CQI 持续改进"}</h3>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{activeTab === "workflow" ? "流程质控" : activeTab === "equipment" ? "设备质控" : activeTab === "personnel" ? "人员质控" : activeTab === "operations" ? "运营质控" : activeTab === "ai" ? "AI 质控" : "CQI 持续改进"}</h3>
+              {(activeTab === "ai" || activeTab === "cqi") && (
+                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (硬编码示例)</span>
+              )}
+            </div>
             <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>详细数据已加载 (共 {DAILY_KPI_PRE.length} 天 / {personnelQC.topPerformers.length} 名医生 / {DEVICE_MASTER.length} 台设备)</p>
             <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, maxWidth: 800, margin: "16px auto 0" }}>
               {activeTab === "ai" ? (

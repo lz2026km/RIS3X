@@ -459,7 +459,7 @@ function QATestPlannerPanel() {
             display: 'flex', alignItems: 'center', gap: 4,
             padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
             fontSize: 12.5, fontWeight: activeQATab === tab.id ? 700 : 500,
-            background: activeQATab === tab.id ? C.primary : '#f0f4f8',
+            background: activeQATab === tab.id ? C.primary : 'var(--bg-primary)',
             color: activeQATab === tab.id ? '#fff' : C.textMid,
             transition: 'all 0.2s'
           }}>
@@ -484,7 +484,7 @@ function QATestPlannerPanel() {
               </thead>
               <tbody>
                 {QA_TEST_PLANS.map((p, i) => (
-                  <tr key={p.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
+                  <tr key={p.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                     <td style={{ padding: '8px 10px', fontWeight: 600, color: C.textDark }}>{p.deviceName}</td>
                     <td style={{ padding: '8px 10px', color: C.textMid }}>{p.testType}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textLight }}>{p.frequency}</td>
@@ -1124,7 +1124,7 @@ export default function DevicePage() {
             </thead>
             <tbody>
               {TODAY_RANKING.map((item, i) => (
-                <tr key={item.rank} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
+                <tr key={item.rank} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                   <td style={{ padding: '9px 10px', textAlign: 'center' }}>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -1449,7 +1449,7 @@ export default function DevicePage() {
             </thead>
             <tbody>
               {FAULT_CODES.map((f, i) => (
-                <tr key={f.code} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
+                <tr key={f.code} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                   <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 12.5, color: C.textMid }}>{f.code}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                     <span style={{
@@ -1613,7 +1613,7 @@ export default function DevicePage() {
             </thead>
             <tbody>
               {DOWNTIME_DATA.map((item, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
+                <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                   <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{item.deviceName}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', color: item.faultCount >= 3 ? C.danger : C.textMid }}>{item.faultCount}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', color: item.downtimeHours > 24 ? C.danger : C.textMid }}>{item.downtimeHours}h</td>
@@ -1648,7 +1648,7 @@ export default function DevicePage() {
                 const roi = d.purchaseCost > 0 ? ((annualProfit / d.purchaseCost) * 100) : 0
                 const payback = annualProfit > 0 ? d.purchaseCost / annualProfit : 99
                 return (
-                  <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
+                  <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
                     <td style={{ padding: '8px 8px', fontWeight: 600, color: C.textDark }}>{d.deviceName}</td>
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.purchaseCost / 10000).toFixed(0)}万</td>
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.success }}>¥{(d.annualRevenue / 10000).toFixed(0)}万</td>
@@ -1866,7 +1866,7 @@ export default function DevicePage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>状态</label>
                 <input value="空闲 (新增默认)" disabled style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: '#f8fafc'
+                  fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: 'var(--bg-primary)'
                 }} />
               </div>
             </div>

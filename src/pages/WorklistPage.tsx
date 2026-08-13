@@ -1,6 +1,7 @@
 import { Card } from 'antd'
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useFocusTrap } from '../a11y/SkipLink'
+import { useNavigate } from 'react-router-dom'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
   Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
@@ -253,6 +254,8 @@ function MiniSparkline({ data, color }: { data?: { value: number }[]; color: str
 // ============================================================
 export default function WorklistPage() {
   const { log } = useOperationLog('worklist')
+  // [G005 放射流程P0] 详情抽屉"书写报告"→ 跳转完整书写页 (保留内联快速弹窗组件不动)
+  const navigate = useNavigate()
 
   const [viewMode, setViewMode] = useState<ViewMode>('list')
 
@@ -1587,8 +1590,8 @@ export default function WorklistPage() {
         onAssignDoctor={(exam) => setDoctorSelectModalExam(exam)}
         onViewRequisition={(exam) => setRequisitionExam(exam)}
         onWriteReport={(exam) => {
-          setReportModalExam(exam)
-          setReportForm({ findings: '', conclusion: '' })
+          // [G005 放射流程P0] 检查→报告: 改跳完整书写页 (原内联弹窗保留组件不删)
+          navigate(`/reports/v3-write?examId=${encodeURIComponent(exam.id)}&patientId=${encodeURIComponent(exam.patientId)}`)
         }}
         onStartExam={handleStartExam}
         onCancelExam={handleCancelExam}

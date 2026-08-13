@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, Row, Col, Tag, Table, Space, Button, Spin } from "antd";
 import { Image, Download, ZoomIn, Maximize, Target } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
@@ -15,6 +15,51 @@ const FundusViewerPage: React.FC = () => {
   const [lesions, setLesions] = useState<LesionSegmentationDto[]>([]);
   const [keyImages, setKeyImages] = useState<KeyImageDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoom, setZoom] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const el = viewerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  const handleExport = () => {
+    if (!study) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1200;
+    canvas.height = 700;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "bold 28px sans-serif";
+    ctx.fillText("眼底彩照查看器 - 导出摘要", 40, 60);
+    ctx.font = "20px sans-serif";
+    ctx.fillStyle = "#94a3b8";
+    [
+      `患者: ${study.patientName}  眼别: ${study.eyeSide ?? "-"}  设备: ${study.device}`,
+      `检查类型: ${MODALITY_LABELS[study.modality] || study.modality}  检查日期: ${new Date(study.studyDate).toLocaleString()}`,
+      `测量项: ${measurements.length}  病灶标注: ${lesions.length}  关键影像: ${keyImages.length}`,
+      `AI 诊断: ${aiDiag.length} 条`,
+    ].forEach((l, i) => ctx.fillText(l, 40, 120 + i * 36));
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `fundus_${study.patientName || "export"}.png`;
+    a.click();
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -84,22 +129,23 @@ const FundusViewerPage: React.FC = () => {
             }
             extra={
               <Space>
-                <Button size="small" icon={<ZoomIn size={14} />}>
+                <Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(1)}>
                   1:1
                 </Button>
-                <Button size="small" icon={<Maximize size={14} />}>
+                <Button size="small" icon={<Maximize size={14} />} onClick={toggleFullscreen}>
                   全屏
                 </Button>
-                <Button size="small" icon={<Download size={14} />}>
+                <Button size="small" icon={<Download size={14} />} onClick={handleExport}>
                   导出
                 </Button>
               </Space>
             }
           >
             <div
+              ref={viewerRef}
               style={{
                 background: "#0f172a",
-                height: 420,
+                height: isFullscreen ? "100vh" : 420,
                 borderRadius: 8,
                 display: "flex",
                 alignItems: "center",
@@ -107,6 +153,8 @@ const FundusViewerPage: React.FC = () => {
                 color: "var(--text-secondary)",
                 flexDirection: "column",
                 gap: 8,
+                transform: zoom !== 1 ? `scale(${zoom})` : undefined,
+                transition: "transform 0.2s",
               }}
             >
               <Target size={48} />

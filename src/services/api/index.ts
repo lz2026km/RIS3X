@@ -22,7 +22,7 @@ export {
   v3QualityReportApi,
   v3PacsApi,
 } from "./v3Api";
-export type { AiGenerateDto, AiReviewDto, AiScoreDto } from "./v3Api";
+export type { AiReviewDto } from "./v3Api";
 
 export { examApi } from "./examApi";
 export type { ExamDto, CreateExamDto, UpdateExamDto } from "./examApi";

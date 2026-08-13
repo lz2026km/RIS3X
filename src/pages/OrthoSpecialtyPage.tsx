@@ -195,7 +195,7 @@ const OrthoSpecialtyPage = () => {
               ].map(item => (
                 <div key={item.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.label}</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-800)' }}>{item.value}</div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-800)' }}>{item.value}</div>
                   <div style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{item.status}</div>
                 </div>
               ))}
@@ -235,7 +235,7 @@ const OrthoSpecialtyPage = () => {
                 { label: '桡骨远端', value: '6.3%', color: '#16a34a' },
               ].map(f => (
                 <div key={f.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: f.color }}>{f.value}</div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: f.color }}>{f.value}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{f.label} 10年风险</div>
                 </div>
               ))}

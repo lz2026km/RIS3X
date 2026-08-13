@@ -728,6 +728,24 @@ export class DentalService {
     return { success: true, data: item }
   }
 
+  /**
+   * [v3.0.6.11-92 Wave2A P1] 导板套筒配置: PUT /dental/guide/:id/sleeve
+   * { sleeveType, diameter, height, angle } 内存 store + seed 更新; 记录不存在返回 NOT_FOUND
+   */
+  async updateGuideSleeve(id: string, body: { sleeveType?: string; diameter?: number; height?: number; angle?: number }) {
+    const guide: any = SEED_SURGICAL_GUIDES.find(g => g.id === id)
+    if (!guide) return { success: false, error: { code: 'NOT_FOUND', message: `Surgical guide ${id} not found` } }
+    if (body.sleeveType !== undefined) guide.sleeveType = String(body.sleeveType)
+    if (body.diameter !== undefined) guide.diameter = Number(body.diameter)
+    if (body.height !== undefined) guide.height = Number(body.height)
+    if (body.angle !== undefined) guide.angle = Number(body.angle)
+    guide.updatedAt = new Date().toISOString()
+    return {
+      success: true,
+      data: { id, sleeveType: guide.sleeveType, diameter: guide.diameter, height: guide.height, angle: guide.angle, updatedAt: guide.updatedAt },
+    }
+  }
+
   async exportSurgicalGuide(id: string) {
     return { success: true, data: { url: `/dental/guides/${id}.stl`, format: 'STL', size: '3.5 MB', estimatedPrintTime: '4h' } }
   }

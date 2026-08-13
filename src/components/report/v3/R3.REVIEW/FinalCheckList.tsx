@@ -3,6 +3,12 @@
  * 80 点 (15+ 检查项 / 临床一致性 / 终评 / 双驳回 / 笔记 / 工作量 / 既往 / 多签 / 急诊 / 工作流)
  */
 import { finalCheckService } from '../../../../services/review/finalCheckService';
+// [G005 Wave3A P2] PACS 急诊通道: 真实触发端点 + 配置/记录
+import {
+  emergencyChannelApi,
+  type EmergencyChannelConfig,
+  type EmergencyTriggerRecord,
+} from '../../../../services/api/emergencyChannelApi';
 import type { ReviewTask, ReviewFilter } from '../../../../types/R3/R3.REVIEW';
 import type {
   FinalCheckList as FinalCheckListModel, FinalCheckStatus, FinalCheckCategory,
@@ -142,6 +148,11 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const [prior, setPrior] = useState<PriorReportComparison | null>(null);
   const [multiSigs, setMultiSigs] = useState<FinalMultiSignatureRequest[]>([]);
   const [emergencies, setEmergencies] = useState<EmergencyReviewRequest[]>([]);
+  // [G005 Wave3A P2] 急诊通道配置 + 触发记录 (真实端点)
+  const [emConfig, setEmConfig] = useState<EmergencyChannelConfig | null>(null);
+  const [emRecords, setEmRecords] = useState<EmergencyTriggerRecord[]>([]);
+  const [emConfigSaving, setEmConfigSaving] = useState(false);
+  const [emPatientFilter, setEmPatientFilter] = useState('');
   const [config, setConfig] = useState<FinalCheckWorkflowConfig | null>(null);
   const [rejectTarget, setRejectTarget] = useState<FinalRejectTarget>('initial');
   const [rejectReason, setRejectReason] = useState('');
@@ -175,6 +186,24 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
     } finally {
       setLoading(false);
     }
+    // [G005 Wave3A P2] 急诊通道配置 + 触发记录 (独立加载, 失败不影响主列表)
+    emergencyChannelApi.getConfig().then((res) => { if (res.success) setEmConfig(res.data); });
+    void loadEmRecords('');
+  };
+
+  const loadEmRecords = async (patientId: string) => {
+    try {
+      const res = await emergencyChannelApi.listRecords(patientId ? { patientId } : {});
+      if (res.success) {
+        const raw = (res as { data?: unknown }).data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray((raw as { data?: unknown })?.data)
+            ? (raw as { data: EmergencyTriggerRecord[] }).data
+            : [];
+        setEmRecords(list);
+      }
+    } catch { /* 通道服务不可用时保留旧数据 */ }
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [filter.stage, filter.status, filter.priority]);
@@ -274,17 +303,55 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const handleTriggerEmergency = async () => {
     if (!activeList) return;
     const v = await emForm.validateFields();
+    // [G005 Wave3A P2] 先走真实急诊通道端点 (创建触发记录 + 模拟通知), 失败回退本地 review 模拟
+    let realOk = false;
+    try {
+      const real = await emergencyChannelApi.trigger({
+        patientId: activeList.patientId,
+        patientName: selectedTask?.patientName ?? '当前患者',
+        type: v.trigger,
+        reason: v.description,
+        triggeredBy: 'D001',
+      });
+      if (real.success) {
+        realOk = true;
+        setEmRecords((prev) => [real.data, ...prev.filter((r) => r.id !== real.data.id)]);
+      }
+    } catch { /* 通道服务不可用 → 回退 */ }
     try {
       const created = await finalCheckService.triggerEmergencyReview(
-        activeList.taskId, activeList.reportId, 'P-AUTO', '当前患者',
+        activeList.taskId, activeList.reportId, activeList.patientId, selectedTask?.patientName ?? '当前患者',
         'D001', '当前医生', v.trigger, v.severity, v.description, v.channels,
       );
       setEmergencies((prev) => [created, ...prev]);
-      setEmOpen(false);
-      emForm.resetFields();
-      message.success('已触发急诊审核通道');
     } catch (e: unknown) {
       message.error('触发失败: ' + (e instanceof Error ? e.message : '未知错误'));
+      return;
+    }
+    setEmOpen(false);
+    emForm.resetFields();
+    message.success(realOk ? '已触发急诊通道, 通知已模拟送达' : '已触发急诊审核通道(通道端点不可用, 已本地记录)');
+  };
+
+  const updateChannelConfig = (type: EmergencyChannelConfig['channels'][number]['type'], patch: Partial<EmergencyChannelConfig['channels'][number]>) => {
+    setEmConfig((prev) => (prev ? { ...prev, channels: prev.channels.map((c) => (c.type === type ? { ...c, ...patch } : c)) } : prev));
+  };
+
+  const handleSaveChannelConfig = async () => {
+    if (!emConfig) return;
+    setEmConfigSaving(true);
+    try {
+      const res = await emergencyChannelApi.saveConfig(emConfig);
+      if (res.success) {
+        setEmConfig(res.data);
+        message.success('急诊通道配置已保存');
+      } else {
+        message.error('保存失败: ' + (res.error?.message ?? '未知错误'));
+      }
+    } catch (e: unknown) {
+      message.error('保存失败: ' + (e instanceof Error ? e.message : '未知错误'));
+    } finally {
+      setEmConfigSaving(false);
     }
   };
 
@@ -354,23 +421,23 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <Tag color={cat.color}>{cat.label}</Tag>
                       <Tag color={sv.color}>{sv.label}</Tag>
                       {it.mandatory && <Tag color="red">必查</Tag>}
-                      <span style={{ fontSize: 12, color: '#64748b' }}>{it.code}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{it.code}</span>
                     </Space>
                   }
                   description={
                     <div>
-                      <div style={{ fontSize: 12, color: '#475569' }}>{it.description}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{it.description}</div>
                       {it.evidence && (
-                        <div style={{ fontSize: 12, color: '#0c4a6e', background: 'var(--color-info-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-info)', background: 'var(--color-info-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           🔍 {it.evidence}
                         </div>
                       )}
                       {it.remark && (
-                        <div style={{ fontSize: 12, color: '#7c2d12', background: 'var(--color-warning-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-warning)', background: 'var(--color-warning-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           💬 {it.remark}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
                         分值 {it.score}/{it.maxScore} · 权重 {it.weight} · {it.autoCheckable ? '自动' : '人工'} · {it.checkedBy ? `复核 ${it.checkedBy} · ${timeAgo(it.checkedAt)}` : '未复核'}
                       </div>
                     </div>
@@ -433,7 +500,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                         <Tag color={c.severity === 'critical' ? 'red' : c.severity === 'major' ? 'orange' : 'blue'}>{c.severity}</Tag>
                         <span style={{ fontSize: 12 }}>{c.field}:</span>
                         <span style={{ fontSize: 12, color: '#dc2626' }}>报告 "{c.reported}"</span>
-                        <span style={{ fontSize: 12, color: '#64748b' }}>→</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>→</span>
                         <span style={{ fontSize: 12, color: '#10b981' }}>期望 "{c.expected}"</span>
                         {c.autoDetected && <Tag color="cyan" style={{ fontSize: 12 }}>自动检测</Tag>}
                       </Space>
@@ -456,7 +523,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag color={d.status === 'consistent' ? 'success' : 'warning'}>{d.status}</Tag>
                   </Space>
                 </Space>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
                   {d.findings.join(' · ')}
                 </div>
               </div>
@@ -500,7 +567,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <span style={{ fontSize: 12, fontWeight: 600 }}>加权 {d.weighted}</span>
                   </Space>
                 </Space>
-                {d.comment && <div style={{ fontSize: 12, color: '#64748b' }}>💬 {d.comment}</div>}
+                {d.comment && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>💬 {d.comment}</div>}
               </div>
             ))}
             {scoring.hardFailures.length > 0 && (
@@ -568,7 +635,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag>{n.visibility}</Tag>
                     {n.pinned && <Tag color="gold" icon={<Pin size={10} />}>置顶</Tag>}
                     {n.resolvedAt && <Tag color="green" icon={<CheckCircle2 size={10} />}>已解决</Tag>}
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{timeAgo(n.createdAt)}</span>
                   </Space>
                 }
                 description={
@@ -606,7 +673,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <strong>{w.reviewerName}</strong>
                   <Tag color={w.reviewerTitle === 'chief' ? 'purple' : 'blue'}>{w.reviewerTitle}</Tag>
                   <Tag color={w.reviewerStatus === 'online' ? 'green' : w.reviewerStatus === 'away' ? 'orange' : 'default'}>{w.reviewerStatus}</Tag>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{w.date}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{w.date}</span>
                 </Space>
               }
               description={
@@ -645,7 +712,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             </Descriptions>
             <Divider style={{ margin: '8px 0' }} />
             <strong>AI 摘要:</strong>
-            <div style={{ fontSize: 12, padding: 8, background: '#f0f9ff', borderRadius: 4, marginTop: 4 }}>{prior.aiSummary}</div>
+            <div style={{ fontSize: 12, padding: 8, background: 'var(--color-info-bg)', borderRadius: 4, marginTop: 4 }}>{prior.aiSummary}</div>
             {prior.recommendedAction && (
               <Alert type="info" showIcon style={{ marginTop: 8 }} title="建议" description={prior.recommendedAction} />
             )}
@@ -662,11 +729,11 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <Tag color={f.change === 'new' ? 'red' : f.change === 'enlarged' ? 'orange' : f.change === 'stable' || f.change === 'unchanged' ? 'green' : 'blue'}>{f.change}</Tag>
                     </Space>
                     <div style={{ fontSize: 12 }}>
-                      <span style={{ color: '#64748b' }}>现:</span> <span style={{ color: '#0c4a6e' }}>{f.currentValue}</span>
-                      <span style={{ color: '#94a3b8', margin: '0 6px' }}>→</span>
-                      <span style={{ color: '#64748b' }}>旧:</span> <span style={{ color: '#7c2d12' }}>{f.priorValue}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>现:</span> <span style={{ color: 'var(--color-info)' }}>{f.currentValue}</span>
+                      <span style={{ color: 'var(--text-muted)', margin: '0 6px' }}>→</span>
+                      <span style={{ color: 'var(--text-muted)' }}>旧:</span> <span style={{ color: 'var(--color-warning)' }}>{f.priorValue}</span>
                     </div>
-                    {f.detail && <div style={{ fontSize: 12, color: '#475569' }}>📝 {f.detail}</div>}
+                    {f.detail && <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>📝 {f.detail}</div>}
                   </Space>
                 </List.Item>
               )}
@@ -692,7 +759,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <Tag color="purple">{m.id}</Tag>
                   <Tag color={m.trigger === 'critical' ? 'red' : m.trigger === 'special' ? 'purple' : 'blue'}>{m.trigger}</Tag>
                   <Tag color={m.status === 'completed' ? 'green' : m.status === 'in-progress' ? 'blue' : 'default'}>{m.status}</Tag>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>截止 {fmtTime(m.expiresAt)}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>截止 {fmtTime(m.expiresAt)}</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>📝 {m.reason}</div>
                 <Timeline style={{ marginTop: 8 }}>
@@ -703,8 +770,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <Space>
                         <Tag color="blue">#{s.order} {s.role}</Tag>
                         {s.required && <Tag color="red">必签</Tag>}
-                        {s.signerName ? <strong>{s.signerName}</strong> : <span style={{ color: '#94a3b8' }}>待签</span>}
-                        {s.signedAt && <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(s.signedAt)}</span>}
+                        {s.signerName ? <strong>{s.signerName}</strong> : <span style={{ color: 'var(--text-muted)' }}>待签</span>}
+                        {s.signedAt && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{timeAgo(s.signedAt)}</span>}
                         {s.certificateId && <Tag color="cyan">{s.certificateId}</Tag>}
                         {s.status === 'pending' && <Button size="small" type="primary" onClick={() => handleSignSlot(m, s.id)}>签</Button>}
                       </Space>
@@ -723,29 +790,124 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
     <div data-testid="final-checklist-emergency" role="region" aria-label="急诊审核通道">
       <Space style={{ marginBottom: 8 }}>
         <Button danger size="small" icon={<Phone size={12} />} onClick={() => setEmOpen(true)}>触发急诊通道</Button>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>触发将走真实急诊通道端点并模拟通知</span>
       </Space>
-      {emergencies.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无急诊任务" /> : (
+      {/* [G005 Wave3A P2] 通道配置卡 */}
+      {emConfig && (
+        <Card size="small" style={{ marginBottom: 12 }} title={
+          <Space><Settings2 size={14} /><span>急诊通道配置</span><Tag color="purple">emergency-channel/config</Tag></Space>
+        } extra={
+          <Button type="primary" size="small" loading={emConfigSaving} onClick={handleSaveChannelConfig}>保存配置</Button>
+        }>
+          <Row gutter={[12, 8]}>
+            {emConfig.channels.map((c) => (
+              <Col span={12} key={c.type} data-testid={`em-channel-${c.type}`}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                  <Tag color={CHANNEL_META[c.type].color} style={{ marginRight: 0 }}>{CHANNEL_META[c.type].label}</Tag>
+                  <Switch size="small" checked={c.enabled} onChange={(v) => updateChannelConfig(c.type, { enabled: v })} />
+                  <Select
+                    size="small"
+                    style={{ width: 90 }}
+                    value={c.priority}
+                    onChange={(v) => updateChannelConfig(c.type, { priority: v })}
+                    options={[1, 2, 3, 4, 5, 6].map((p) => ({ value: p, label: `优先${p}` }))}
+                    aria-label={`${c.type} 优先级`}
+                  />
+                  <Input
+                    size="small"
+                    style={{ width: 130 }}
+                    value={c.targetRole}
+                    onChange={(e) => updateChannelConfig(c.type, { targetRole: e.target.value })}
+                    placeholder="目标角色"
+                    aria-label={`${c.type} 目标角色`}
+                  />
+                </div>
+              </Col>
+            ))}
+          </Row>
+          <Divider style={{ margin: '10px 0' }} />
+          <Space align="start" wrap>
+            <Space>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>自动触发</span>
+              <Switch size="small" checked={emConfig.autoTrigger.enabled} onChange={(v) => setEmConfig((prev) => (prev ? { ...prev, autoTrigger: { ...prev.autoTrigger, enabled: v } } : prev))} />
+            </Space>
+            <Input.TextArea
+              rows={2}
+              style={{ width: 320 }}
+              value={emConfig.autoTrigger.keywords.join('\n')}
+              onChange={(e) => setEmConfig((prev) => (prev ? { ...prev, autoTrigger: { ...prev.autoTrigger, keywords: e.target.value.split('\n').map((k) => k.trim()).filter(Boolean) } } : prev))}
+              placeholder="自动触发关键词 (每行一个)"
+              aria-label="自动触发关键词"
+            />
+          </Space>
+        </Card>
+      )}
+      {/* [G005 Wave3A P2] 触发记录列表 (按患者查历史) */}
+      <Card size="small" title={
+        <Space><Activity size={14} /><span>触发记录</span><Tag color="purple">emergency-channel/records</Tag></Space>
+      } extra={
+        <Space>
+          <Input
+            size="small"
+            prefix={<Search size={12} />}
+            placeholder="按患者ID查历史"
+            value={emPatientFilter}
+            onChange={(e) => setEmPatientFilter(e.target.value)}
+            onPressEnter={() => void loadEmRecords(emPatientFilter.trim())}
+            style={{ width: 180 }}
+            allowClear
+          />
+          <Button size="small" onClick={() => void loadEmRecords(emPatientFilter.trim())}>查询</Button>
+        </Space>
+      }>
+        {emRecords.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无触发记录" /> : (
+          <List
+            size="small"
+            dataSource={emRecords}
+            renderItem={(r) => (
+              <List.Item key={r.id} style={{ padding: '8px 4px', borderBottom: '1px solid var(--border-light)' }}>
+                <Space orientation="vertical" size={2} style={{ width: '100%' }}>
+                  <Space wrap>
+                    <Tag color={r.status === 'completed' ? 'green' : r.status === 'acknowledged' ? 'blue' : 'orange'}>{r.status}</Tag>
+                    <Tag>{r.id}</Tag>
+                    <strong style={{ fontSize: 12 }}>{r.patientName || r.patientId}</strong>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(r.triggeredAt)} · {r.triggeredBy}</span>
+                  </Space>
+                  <div style={{ fontSize: 12 }}>📝 {r.reason}</div>
+                  <Space wrap>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>通道:</span>
+                    {(r.channels ?? []).map((c) => <Tag key={c} color={CHANNEL_META[c].color}>{CHANNEL_META[c].label}</Tag>)}
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>通知 {(r.notifications ?? []).length} 次 (模拟)</span>
+                  </Space>
+                </Space>
+              </List.Item>
+            )}
+          />
+        )}
+      </Card>
+      {emergencies.length > 0 && (
+        <Card size="small" title={<Space><Bell size={14} /><span>急诊审核任务</span></Space>} style={{ marginTop: 12 }}>
         <List
           dataSource={emergencies}
           renderItem={(e) => (
             <List.Item
               key={e.id}
-              style={{ padding: 10, background: e.severity === 'life-threatening' ? '#fef2f2' : '#fffbeb', borderRadius: 6, marginBottom: 6, border: `1px solid ${e.severity === 'life-threatening' ? '#fecaca' : '#fed7aa'}` }}
+              style={{ padding: 10, background: e.severity === 'life-threatening' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', borderRadius: 6, marginBottom: 6, border: `1px solid ${e.severity === 'life-threatening' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}` }}
             >
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space wrap>
                   <Bell size={14} color={e.severity === 'life-threatening' ? '#dc2626' : '#f59e0b'} />
                   <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity}</Tag>
                   <Tag color={e.status === 'completed' ? 'green' : e.status === 'in-review' ? 'blue' : 'default'}>{e.status}</Tag>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>{e.description}</div>
                 <Space wrap>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>通道:</span>
-                  {e.channels.map((c) => <Tag key={c} color={CHANNEL_META[c].color}>{CHANNEL_META[c].label}</Tag>)}
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>通道:</span>
+                  {(e.channels ?? []).map((c) => <Tag key={c} color={CHANNEL_META[c].color}>{CHANNEL_META[c].label}</Tag>)}
                 </Space>
                 <Space wrap>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>目标:</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>目标:</span>
                   {e.targets.map((t) => (
                     <Tag key={t.reviewerId} color={t.acknowledgedAt ? 'green' : 'orange'}>
                       {t.reviewerName} {t.acknowledgedAt ? `✓ ${timeAgo(t.acknowledgedAt)}` : '⏳'}
@@ -756,6 +918,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             </List.Item>
           )}
         />
+        </Card>
       )}
     </div>
   );
@@ -803,10 +966,10 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag>{s.code}</Tag>
                     {s.required && <Tag color="red">必走</Tag>}
                     {s.skippable && <Tag color="orange">可跳过</Tag>}
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>SLA {s.slaMinutes} 分钟</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>SLA {s.slaMinutes} 分钟</span>
                   </Space>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>准入: {s.rolesAllowed.join(' / ')}</div>
-                  <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>出口: {s.exitCriteria.join(' · ')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>准入: {s.rolesAllowed.join(' / ')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>出口: {s.exitCriteria.join(' · ')}</div>
                 </Timeline.Item>
               ))}
             </Timeline>
@@ -876,7 +1039,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             { value: 'urgent', label: '加急' },
             { value: 'routine', label: '常规' },
           ]} aria-label="优先级筛" />
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>显示 {tasks.length} · 清单 {lists.length}</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>显示 {tasks.length} · 清单 {lists.length}</span>
         </Space>
       </div>
 
@@ -896,7 +1059,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   onClick={() => onSelect?.(t)}
                   style={{
                     cursor: 'pointer', padding: '10px 12px', borderRadius: 6, marginBottom: 4,
-                    background: t.id === selectedId ? '#eff6ff' : t.isOverdue ? '#fef2f2' : 'transparent',
+                    background: t.id === selectedId ? 'var(--color-pending-bg)' : t.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                     borderLeft: t.id === selectedId ? '3px solid #7c3aed' : t.isOverdue ? '3px solid #dc2626' : '3px solid transparent',
                   }}
                   data-testid={`final-check-item-${t.id}`}
@@ -918,9 +1081,9 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       </Space>
                     }
                     description={
-                      <div style={{ fontSize: 12, color: '#64748b' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         <User size={10} /> {t.authorTitle} {t.authorName} · 初评 <strong>{t.initialReviewScore ?? '-'}</strong>
-                        <div style={{ fontSize: 12, color: t.isOverdue ? '#dc2626' : '#64748b' }}>
+                        <div style={{ fontSize: 12, color: t.isOverdue ? '#dc2626' : 'var(--text-muted)' }}>
                           <Clock size={10} /> {t.isOverdue ? `超时 ${Math.abs(t.hoursToDeadline)}h` : `${t.hoursToDeadline}h`} · 提交 {timeAgo(t.submittedAt)}
                         </div>
                       </div>

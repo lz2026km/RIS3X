@@ -429,16 +429,6 @@ export const aiDiagnosisHandlers = [
     await delay(80);
     return HttpResponse.json(ok(lungStats()));
   }),
-  http.get(`${API_BASE}/ai-diagnosis/lung-cad`, async () => {
-    await delay(120);
-    return HttpResponse.json(ok(clone(lungResults)));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/lung-cad/:id`, async ({ params }) => {
-    await delay(80);
-    const r = lungResults.find((x) => x.id === params.id);
-    if (!r) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Lung CAD result ${params.id} not found` } }, { status: 404 });
-    return HttpResponse.json(ok(clone(r)));
-  }),
   http.post(`${API_BASE}/ai-diagnosis/lung-cad/analyze/:studyId`, async ({ params }) => {
     await delay(400);
     return HttpResponse.json(ok(clone(analyzeLung(String(params.studyId)))));
@@ -468,16 +458,6 @@ export const aiDiagnosisHandlers = [
   http.get(`${API_BASE}/ai-diagnosis/breast-cad/stats`, async () => {
     await delay(80);
     return HttpResponse.json(ok(breastStats()));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/breast-cad`, async () => {
-    await delay(120);
-    return HttpResponse.json(ok(clone(breastResults)));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/breast-cad/:id`, async ({ params }) => {
-    await delay(80);
-    const r = breastResults.find((x) => x.id === params.id);
-    if (!r) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Breast CAD result ${params.id} not found` } }, { status: 404 });
-    return HttpResponse.json(ok(clone(r)));
   }),
   http.post(`${API_BASE}/ai-diagnosis/breast-cad/analyze/:studyId`, async ({ params }) => {
     await delay(400);
@@ -526,16 +506,6 @@ export const aiDiagnosisHandlers = [
     await delay(80);
     return HttpResponse.json(ok(fractureStats()));
   }),
-  http.get(`${API_BASE}/ai-diagnosis/fracture-cad`, async () => {
-    await delay(120);
-    return HttpResponse.json(ok(clone(fractureResults)));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/fracture-cad/:id`, async ({ params }) => {
-    await delay(80);
-    const r = fractureResults.find((x) => x.id === params.id);
-    if (!r) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Fracture CAD result ${params.id} not found` } }, { status: 404 });
-    return HttpResponse.json(ok(clone(r)));
-  }),
   http.post(`${API_BASE}/ai-diagnosis/fracture-cad/analyze/:studyId`, async ({ params }) => {
     await delay(400);
     const studyId = String(params.studyId);
@@ -583,16 +553,6 @@ export const aiDiagnosisHandlers = [
   http.get(`${API_BASE}/ai-diagnosis/cardiac-ai/stats`, async () => {
     await delay(80);
     return HttpResponse.json(ok(cardiacStats()));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/cardiac-ai`, async () => {
-    await delay(120);
-    return HttpResponse.json(ok(clone(cardiacResults)));
-  }),
-  http.get(`${API_BASE}/ai-diagnosis/cardiac-ai/:id`, async ({ params }) => {
-    await delay(80);
-    const r = cardiacResults.find((x) => x.id === params.id);
-    if (!r) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Cardiac AI result ${params.id} not found` } }, { status: 404 });
-    return HttpResponse.json(ok(clone(r)));
   }),
   http.post(`${API_BASE}/ai-diagnosis/cardiac-ai/analyze/:studyId`, async ({ params }) => {
     await delay(400);

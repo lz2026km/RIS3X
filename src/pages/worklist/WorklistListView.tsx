@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Inbox } from 'lucide-react'
+import { useNavigate } from "react-router-dom";
 
 const STATUS_CONFIG: Record<
   string,
@@ -205,6 +206,7 @@ export function ListView({
 }: ListViewProps) {
   // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
   const listPagination = usePagination(exams, 10);
+  const navigate = useNavigate();
   const columns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
       title: "优先级",
@@ -436,10 +438,22 @@ export function ListView({
       title: "操作",
       dataIndex: "id",
       key: "actions",
-      width: 300,
+      width: 340,
       fixed: "right",
       render: (_value, exam) => (
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {/* [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片 */}
+          <Button
+            type="link"
+            size="small"
+            icon={<ImageIcon size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`);
+            }}
+          >
+            阅片
+          </Button>
           <Button
             type="link"
             size="small"

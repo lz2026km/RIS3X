@@ -16,6 +16,7 @@ interface OrthoPlan {
 }
 
 const STAGE_NAMES = ['初诊评估', '诊断记录', '矫治设计', '矫治器佩戴', '主动矫治', '精细调整', '保持期'];
+const STATUS_LABELS: Record<string, string> = { Planned: '计划中', Active: '进行中', InProgress: '进行中', Completed: '已完成' };
 
 export const DentalOrthoPage: React.FC = () => {
   const [plans, setPlans] = useState<OrthoPlan[]>([]);
@@ -119,7 +120,7 @@ export const DentalOrthoPage: React.FC = () => {
               { title: '诊断', dataIndex: 'diagnosis' },
               { title: '计划', dataIndex: 'plan' },
               { title: '费用', render: (_, t: OrthoPlan) => '¥' + (t.cost ?? 0) },
-              { title: '状态', dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{s || 'Planned'}</Tag> },
+              { title: '状态', dataIndex: 'status', render: (s: string) => <Tag color={statusColor(s)}>{STATUS_LABELS[s] ?? (s || '计划中')}</Tag> },
               {
                 title: '治疗阶段',
                 dataIndex: 'status',
@@ -188,7 +189,7 @@ export const DentalOrthoPage: React.FC = () => {
               <Descriptions.Item label="诊断">{detail.diagnosis}</Descriptions.Item>
               <Descriptions.Item label="计划">{detail.plan}</Descriptions.Item>
               <Descriptions.Item label="费用">¥{detail.cost ?? 0}</Descriptions.Item>
-              <Descriptions.Item label="当前状态"><Tag color={statusColor(detail.status)}>{detail.status || 'Planned'}</Tag></Descriptions.Item>
+              <Descriptions.Item label="当前状态"><Tag color={statusColor(detail.status)}>{STATUS_LABELS[detail.status ?? ''] ?? (detail.status || '计划中')}</Tag></Descriptions.Item>
             </Descriptions>
             <Steps
               current={stageIndex(detail.status)}

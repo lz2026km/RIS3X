@@ -52,7 +52,8 @@ const toHistoryExam = (dto: ExamDto & Record<string, unknown>): RadiologyExam =>
     clinicalDiagnosis: dto.clinicalDiagnosis ? String(dto.clinicalDiagnosis) : undefined,
     deviceId: dto.deviceId ? String(dto.deviceId) : undefined,
     roomId: dto.roomId ? String(dto.roomId) : undefined,
-    status: normalizeExamStatus(String(dto.status ?? 'SCHEDULED')) as RadiologyExam['status'],
+    // [v3.0.6.11-92 Wave1B P0] 兼容后端 exam.state 字段 (worklistApi 返回 raw exam)
+    status: normalizeExamStatus(String(dto.status ?? dto.state ?? 'SCHEDULED')) as RadiologyExam['status'],
     imagesAcquired: Number(dto.imageCount ?? 0),
     accessionNumber: String(dto.accessionNumber ?? ''),
     createdTime: String(dto.scheduledAt ?? ''),
@@ -69,6 +70,11 @@ const STATUS_CONFIG: Record<
   IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中" },
   COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成" },
   CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消" },
+  // [v3.0.6.11-92 Wave1B P0] 影像质控回写状态 (backend worklist PATCH :id/state)
+  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "图像可用" },
+  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "质控退回" },
+  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "待报告" },
+  PENDING_REPORT: { bg: "#0ea5e922", color: "#0369a1", label: "待报告" },
   已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
   待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "待检查" },
   检查中: { bg: "#ec489922", color: "#db2777", label: "检查中" },
@@ -77,6 +83,7 @@ const STATUS_CONFIG: Record<
   已发布: { bg: "#22c55e22", color: "#047857", label: "已发布" },
   已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停" },
   质控退回: { bg: "#ef444422", color: "#ef4444", label: "质控退回" },
+  图像可用: { bg: "#10b98122", color: "#0f766e", label: "图像可用" },
 };
 
 const PRIORITY_CONFIG: Record<

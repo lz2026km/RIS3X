@@ -223,7 +223,7 @@ export const DentalSchedulePage: React.FC = () => {
               </Card>
             </Col>
             <Col span={14}>
-              <Card size="small" title={<Space>历史 PSR 记录 <Tag color="blue">listPsrRecords</Tag></Space>}>
+              <Card size="small" title={<Space>历史 PSR 记录</Space>}>
                 {psrLoading ? (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="加载中..." />
                 ) : psrHistory.length === 0 ? (

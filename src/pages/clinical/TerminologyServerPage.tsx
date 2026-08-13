@@ -2,6 +2,7 @@
 // [v3.0.6.11-60] Batch 3: snomedApi 概念检索 + terminologyApi 映射/系统状态
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
+import { usePagination } from '../../hooks/usePagination';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
 import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -17,6 +18,8 @@ export const TerminologyServerPage: React.FC = () => {
   const [error, setError] = useState('');
   const [mappingModal, setMappingModal] = useState(false);
   const [mappingForm] = Form.useForm();
+  // [v3.0.6.11-92] 概念检索结果受控分页
+  const { pageData: resultsPage, pagination: resultsPagination } = usePagination(results, 10);
 
   const loadMeta = useCallback(async () => {
     setLoading(true);
@@ -138,9 +141,9 @@ export const TerminologyServerPage: React.FC = () => {
           <Button size="small" onClick={() => { setResults([]); setQuery('') }}>清空</Button>
         </Space>
         <Table scroll={{ x: 'max-content' }}
-          dataSource={results}
+          dataSource={resultsPage}
           rowKey="conceptId"
-          pagination={false}
+          pagination={resultsPagination}
           size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入关键词检索 SNOMED-CT 概念" /> }}
           columns={[

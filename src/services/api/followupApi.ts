@@ -7,6 +7,9 @@ export interface FollowUpPlan {
   id: string
   patientId: string
   patientName: string
+  // [v3.0.6.11-92 Wave1B P0] 报告→随访关联 (报告详情"创建随访"入口带入)
+  reportId?: string
+  examId?: string
   planDate: string
   intervalDays: number
   nextDate: string
@@ -21,6 +24,8 @@ export interface FollowUpPlan {
 export interface CreateFollowUpPlanDto {
   patientId: string
   patientName: string
+  reportId?: string
+  examId?: string
   planDate: string
   intervalDays?: number
   status?: FollowUpStatus

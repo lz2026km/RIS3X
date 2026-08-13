@@ -62,7 +62,7 @@ const styles = {
   imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 8 },
   slider: { width: '100%', margin: '4px 0' },
   voucherBtn: { padding: '12px 24px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', background: '#059669', color: '#fff' },
-  voucherCode: { marginTop: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 18, fontWeight: 700, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
+  voucherCode: { marginTop: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 16, fontWeight: 600, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
   statRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 },
   todoItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' },
 }
@@ -664,7 +664,7 @@ export default function SelfServicePortal() {
                     fontWeight: booking.modality === m.value ? 700 : 500,
                   }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 800 }}>{m.value}</div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}</div>
                   <div style={{ fontSize: 11, marginTop: 4, color: '#94a3b8' }}>{m.label}</div>
                 </button>
               ))}
@@ -1129,12 +1129,12 @@ export default function SelfServicePortal() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
           <div style={{
             width: 56, height: 56, borderRadius: '50%', background: '#1e40af', color: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700,
           }}>
             {(user?.name ?? '患').slice(0, 1)}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>患者编号：{user?.id ?? '-'}</div>
           </div>
         </div>

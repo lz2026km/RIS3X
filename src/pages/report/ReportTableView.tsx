@@ -1,11 +1,12 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Button, Empty, Skeleton, Tag, Dropdown, Popconfirm } from 'antd'
-import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History } from 'lucide-react'
+import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
 import { formatDateTime } from '../../utils/date';
 import { usePagination } from '../../hooks/usePagination';
+import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE } from './reportUtils';
 
 const PRIMARY = '#1e40af'
 const DANGER = '#dc2626'
@@ -78,6 +79,12 @@ export interface ReportTableViewProps {
   // [G005 W2-C] 行删除 (Popconfirm) / 审计轨迹
   onDelete?: (report: RadiologyReport) => void
   onAudit?: (report: RadiologyReport) => void
+  // [v3.0.6.11-92 Wave1B P0] 创建随访 / 报告特殊态
+  onCreateFollowUp?: (report: RadiologyReport) => void
+  onSupplement?: (report: RadiologyReport) => void
+  onRectify?: (report: RadiologyReport) => void
+  onRedistribute?: (report: RadiologyReport) => void
+  onEscalate?: (report: RadiologyReport) => void
   deletingIds?: Set<string>
   loading?: boolean
 }
@@ -102,6 +109,11 @@ export default function ReportTableView({
   onCompare,
   onDelete,
   onAudit,
+  onCreateFollowUp,
+  onSupplement,
+  onRectify,
+  onRedistribute,
+  onEscalate,
   deletingIds,
   loading = false,
 }: ReportTableViewProps) {
@@ -164,6 +176,12 @@ export default function ReportTableView({
           ...(onCritical ? [{ key: 'critical', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={12} /> 转危急值</span> }] : []),
           ...(onCompare ? [{ key: 'compare', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><GitCompare size={12} /> 版本对比</span> }] : []),
           ...(onAudit ? [{ key: 'audit', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><History size={12} /> 审计轨迹</span> }] : []),
+          ...(onCreateFollowUp ? [{ key: 'followup', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={12} /> 创建随访</span> }] : []),
+          // [v3.0.6.11-92 Wave1B P0] 报告特殊态 (按状态启用, 对齐 backend REPORT_TRANSITIONS)
+          ...(onSupplement && CAN_SUPPLEMENT.includes(report.status) ? [{ key: 'supplement', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 补充报告</span> }] : []),
+          ...(onRectify && CAN_RECTIFY.includes(report.status) ? [{ key: 'rectify', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={12} /> 整改</span> }] : []),
+          ...(onRedistribute && CAN_REDISTRIBUTE.includes(report.status) ? [{ key: 'redistribute', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowLeftRight size={12} /> 跨院区重分配</span> }] : []),
+          ...(onEscalate && CAN_ESCALATE.includes(report.status) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> 升级</span> }] : []),
         ]
         return (
           <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -184,6 +202,11 @@ export default function ReportTableView({
                     else if (key === 'critical') onCritical?.(report)
                     else if (key === 'compare') onCompare?.(report)
                     else if (key === 'audit') onAudit?.(report)
+                    else if (key === 'followup') onCreateFollowUp?.(report)
+                    else if (key === 'supplement') onSupplement?.(report)
+                    else if (key === 'rectify') onRectify?.(report)
+                    else if (key === 'redistribute') onRedistribute?.(report)
+                    else if (key === 'escalate') onEscalate?.(report)
                   },
                 }}
                 trigger={['click']}
@@ -216,7 +239,7 @@ export default function ReportTableView({
         )
       },
     },
-  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView]);
+  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate]);
 
   return (
     <ProTable<RadiologyReport>

@@ -1,12 +1,18 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
-import { WorklistService, WORKLIST_STATES, type AssignDto, type WorklistListParams } from './worklist.service'
+import { WorklistService, WORKLIST_STATES, QC_STATES, type AssignDto, type WorklistListParams } from './worklist.service'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { z } from 'zod'
 
 const CancelBodySchema = z.object({
   reason: z.string().max(500).optional(),
+})
+
+// [v3.0.6.11-92 Wave1B P0] 影像质控回写: PATCH /worklist/:id/state { state: IMAGE_READY|QC_REJECT|QC_PASS, note? }
+const UpdateQcStateSchema = z.object({
+  state: z.enum(QC_STATES),
+  note: z.string().max(500).optional(),
 })
 
 const ListQuerySchema = z.object({
@@ -75,6 +81,14 @@ export class WorklistController {
       modality: body.modality,
       scheduledAt: body.scheduledAt,
     })
+  }
+
+  @Patch(':id/state')
+  updateQcState(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateQcStateSchema)) body: z.infer<typeof UpdateQcStateSchema>,
+  ) {
+    return this.service.updateQcState(id, body.state, body.note)
   }
 
   @Post('batch-assign')

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   Scan, Monitor, Radio, Clock, AlertTriangle,
   CheckSquare, Square, Images, LayoutGrid,
@@ -89,6 +89,7 @@ interface CardViewProps {
 }
 
 export const CardView = React.memo(function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewProps) {
+  const [visibleCount, setVisibleCount] = useState(20)
   const toggleSelect = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation()
     const newSet = new Set(selectedIds)
@@ -103,7 +104,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
       gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
       gap: 16,
     }}>
-      {exams.map(exam => {
+      {exams.slice(0, visibleCount).map(exam => {
         const device = getDeviceById(exam.deviceId ?? '')
         const room = getRoomById(exam.roomId ?? '')
         const sc = STATUS_CONFIG[exam.status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: displayExamStatus(exam.status) }
@@ -283,6 +284,25 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
         }}>
           <LayoutGrid size={48} style={{ margin: '0 auto 16px', display: 'block', opacity: 0.4 }} />
           <div style={{ fontSize: 14, fontWeight: 500 }}>暂无检查记录</div>
+        </div>
+      )}
+      {visibleCount < exams.length && (
+        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '12px 0' }}>
+          <button
+            onClick={() => setVisibleCount(c => c + 20)}
+            style={{
+              padding: '8px 24px',
+              background: 'var(--bg-card)',
+              color: '#1e40af',
+              border: '1px solid #1e40af',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            加载更多 (剩余 {exams.length - visibleCount} 条)
+          </button>
         </div>
       )}
     </div>

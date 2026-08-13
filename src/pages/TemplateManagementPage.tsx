@@ -9,7 +9,7 @@ import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2,
 const C = {
   primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
   accent: '#0891b2', accentLight: '#06b6d4', white: '#ffffff',
-  bg: 'var(--bg-deep)', bgLight: 'var(--content-bg)', border: 'var(--border-color)', borderLight: '#e5e5e5',
+  bg: 'var(--bg-deep)', bgLight: 'var(--content-bg)', border: 'var(--border-color)', borderLight: 'var(--border-color)',
   textDark: 'var(--text-primary)', textMid: 'var(--text-secondary)', textLight: 'var(--text-muted)',
   success: '#059669', successLight: 'var(--color-success-bg)', warning: '#d97706', warningLight: 'var(--color-warning-bg)',
   danger: '#dc2626', dangerLight: 'var(--color-error-bg)', info: '#2563eb', infoLight: 'var(--color-info-bg)',
@@ -384,7 +384,7 @@ export default function TemplateManagementPage() {
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（版本）</span>
-          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
+          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
           {draftVersion && (
@@ -580,7 +580,7 @@ export default function TemplateManagementPage() {
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（分享）</span>
-          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
+          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             <option value="全部">全部模板</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
@@ -645,7 +645,7 @@ export default function TemplateManagementPage() {
               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>模板</label>
-                  <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white }}>
+                  <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)' }}>
                     {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
                   </select>
                 </div>

@@ -14,6 +14,8 @@ export interface MockFollowUpPlan {
   id: string
   patientId: string
   patientName: string
+  reportId?: string
+  examId?: string
   planDate: string
   intervalDays: number
   nextDate: string
@@ -90,6 +92,8 @@ export const followupHandlers = [
       id: `FU-${Date.now()}`,
       patientId: body.patientId ?? '',
       patientName: body.patientName ?? '',
+      reportId: body.reportId || undefined,
+      examId: body.examId || undefined,
       planDate,
       intervalDays,
       nextDate: isoDate(next),

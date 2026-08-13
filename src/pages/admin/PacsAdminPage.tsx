@@ -18,6 +18,7 @@ import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Tras
 import React, { useCallback, useEffect, useState } from 'react'
 // [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
 import { usePagination } from '../../hooks/usePagination'
+import { displayExamStatus } from '../../utils/statusMaps'
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -278,7 +279,7 @@ const PacsAdminPage: React.FC = () => {
     { title: '患者ID', dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span> },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
     { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v || '-' },
-    { title: '状态', dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{v === 'COMPLETED' ? '已完成' : v === 'IN_PROGRESS' ? '进行中' : v}</Tag> },
+    { title: '状态', dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{displayExamStatus(v)}</Tag> },
     { title: '预约时间', dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 

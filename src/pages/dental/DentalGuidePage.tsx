@@ -137,7 +137,7 @@ export const DentalGuidePage: React.FC = () => {
     if (!g?.id) return;
     setSleeveModal(prev => ({ ...prev, saving: true }));
     try {
-      const res = await dentalApi.updateGuideSleeve(g.id, sleeveModal.sleeveType);
+      const res = await dentalApi.updateGuideSleeve(g.id, { sleeveType: sleeveModal.sleeveType });
       if (res.success) {
         message.success(`套筒已更新: ${sleeveModal.sleeveType}`);
         setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false });

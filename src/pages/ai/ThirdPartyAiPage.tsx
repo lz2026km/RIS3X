@@ -429,7 +429,7 @@ const ThirdPartyAiPage: React.FC = () => {
             />
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label="连通状态">
-                <Badge status={testResult.reachable ? "success" : "error"} text={testResult.reachable ? "OK" : "TIMEOUT"} />
+                <Badge status={testResult.reachable ? "success" : "error"} text={testResult.reachable ? "正常" : "超时"} />
               </Descriptions.Item>
               <Descriptions.Item label="延迟">{testResult.latencyMs} ms</Descriptions.Item>
               <Descriptions.Item label="超时阈值">{testResult.timeoutMs} ms</Descriptions.Item>

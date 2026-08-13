@@ -288,9 +288,9 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                 style={{
                   padding: 12,
                   marginBottom: 8,
-                  background: rule.enabled ? '#f0fdf4' : '#f8fafc',
+                  background: rule.enabled ? 'var(--color-success-bg)' : 'var(--bg-card)',
                   borderRadius: 6,
-                  border: '1px solid ' + (rule.enabled ? '#bbf7d0' : '#e2e8f0'),
+                  border: '1px solid ' + (rule.enabled ? 'var(--color-success-border)' : 'var(--border-color)'),
                 }}
                 actions={[
                   <Switch
@@ -325,7 +325,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                         width: 40,
                         height: 40,
                         borderRadius: 8,
-                        background: rule.fromLevel === 'critical' ? '#fee2e2' : '#fef3c7',
+                        background: rule.fromLevel === 'critical' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -351,11 +351,11 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                       <div
                         style={{
                           fontSize: 12,
-                          color: '#475569',
+                          color: 'var(--text-secondary)',
                           padding: '4px 8px',
-                          background: '#fff',
+                          background: 'var(--bg-card)',
                           borderRadius: 4,
-                          border: '1px dashed #cbd5e1',
+                          border: '1px dashed var(--border-color)',
                         }}
                       >
                         📧 {rule.messageTemplate}

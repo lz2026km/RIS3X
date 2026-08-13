@@ -268,4 +268,59 @@ describe('WorklistService', () => {
       await expect(service.checkIn('E1')).rejects.toBeInstanceOf(BadRequestException)
     })
   })
+
+  // [v3.0.6.11-92 Wave1B P0] 影像质控回写 exam 状态机 (PATCH /worklist/:id/state)
+  describe('updateQcState (影像质控回写)', () => {
+    it('IMAGE_READY: COMPLETED → IMAGE_READY (图像可用)', async () => {
+      const update = jest.fn().mockResolvedValue({ ...exam, state: 'IMAGE_READY' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'COMPLETED' }), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.updateQcState('E1', 'IMAGE_READY', '质控通过')
+      expect(res.state).toBe('IMAGE_READY')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ state: 'IMAGE_READY' }),
+      }))
+    })
+
+    it('QC_REJECT: IMAGE_READY → QC_REJECT (质控退回)', async () => {
+      const update = jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'IMAGE_READY' }), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.updateQcState('E1', 'QC_REJECT', '伪影超标')
+      expect(res.state).toBe('QC_REJECT')
+    })
+
+    it('QC_PASS: QC_REJECT → PENDING_REPORT (质控通过 → 待报告, 对齐 examMachine)', async () => {
+      const update = jest.fn().mockResolvedValue({ ...exam, state: 'PENDING_REPORT' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'QC_REJECT' }), update },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.updateQcState('E1', 'QC_PASS')
+      expect(res.state).toBe('PENDING_REPORT')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ state: 'PENDING_REPORT' }),
+      }))
+    })
+
+    it('rejects qc-transition from non-image states (SCHEDULED/ARRIVED/IN_PROGRESS/CANCELLED)', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'IN_PROGRESS' }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.updateQcState('E1', 'IMAGE_READY')).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('throws NotFoundException for unknown exam', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue(null) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.updateQcState('nope', 'IMAGE_READY')).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
 })

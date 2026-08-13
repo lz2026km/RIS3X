@@ -9,6 +9,9 @@
 
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
+// [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
+import { emergencyChannelHandlers } from './emergencyChannelHandlers';
+import { deptHandlers } from './deptHandlers';
 // [v3.0.6.11-79] W1-A 文件管理 (upload-url / upload / upload-complete / download)
 import { filesHandlers } from './filesHandlers';
 import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
@@ -1277,6 +1280,33 @@ export const worklistHandlers = [
 
   // 批量改派
   
+
+  // [v3.0.6.11-92 Wave1B P0] 影像质控回写: PATCH /worklist/:id/state { state: IMAGE_READY|QC_REJECT|QC_PASS, note? }
+  // 与后端 worklist.controller.updateQcState 对齐: QC_PASS → PENDING_REPORT, 仅允许 COMPLETED 后影像态流转
+  http.patch(`${API_BASE}/worklist/:id/state`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { state?: string; note?: string };
+    const state = String(body.state ?? '').toUpperCase();
+    if (!['IMAGE_READY', 'QC_REJECT', 'QC_PASS'].includes(state)) {
+      return HttpResponse.json({ success: false, message: `Invalid qc state: ${body.state}` }, { status: 400 });
+    }
+    let before = get<any>('exams', id);
+    if (!before) {
+      before = list<any>('exams').find((e) => String(e.accessionNumber ?? e.studyId ?? '') === id) ?? null;
+    }
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    const target = state === 'QC_PASS' ? 'PENDING_REPORT' : state;
+    if (!canTransitionWorklist(before.status, target)) {
+      return HttpResponse.json({ success: false, message: `Cannot qc-transition from ${before.status} to ${target}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: target, state: target, qcNote: body.note ?? '', qcAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('worklist', updated, before.status, target);
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'qc', entityType: 'worklist', entityId: id, fromState: before.status, toState: target, metadata: { note: body.note } });
+    }
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
 
   // 删除
   http.delete(`${API_BASE}/worklist/:id`, async ({ params }) => {
@@ -4304,6 +4334,9 @@ export const handlers = [
   // [W3-2] AI 分检 / 跨科室治疗计划
   ...aiTriageHandlers,
   ...treatmentPlanHandlers,
+  // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理 (MSW 内存 + 种子)
+  ...emergencyChannelHandlers,
+  ...deptHandlers,
   // [v3.0.6.11-79] W1-A 文件管理
   ...filesHandlers,
   // [W4-B] 随访计划

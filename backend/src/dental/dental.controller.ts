@@ -315,6 +315,12 @@ export class DentalController {
   @Post('guide')
   createSurgicalGuide(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createSurgicalGuide(body) }
 
+  // [v3.0.6.11-92 Wave2A P1] 导板套筒配置: PUT /dental/guide/:id/sleeve (DentalGuidePage 补发套筒, 对齐 MSW dentalHandlers)
+  @Put('guide/:id/sleeve')
+  updateGuideSleeve(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { sleeveType?: string; diameter?: number; height?: number; angle?: number }) {
+    return this.svc.updateGuideSleeve(id, body)
+  }
+
   @Post('guide/:id/export')
   exportSurgicalGuide(@Param('id') id: string) { return this.svc.exportSurgicalGuide(id) }
 

@@ -17,7 +17,7 @@ const SUCCESS = '#059669'
 const WARNING = '#d97706'
 const DANGER = '#dc2626'
 const GRAY = '#64748b'
-const LIGHT_BG = '#f8fafc'
+const LIGHT_BG = 'var(--bg-card)'
 const BORDER = '#e2e8f0'
 const WHITE = '#ffffff'
 
@@ -557,7 +557,7 @@ export default function ConsultationPage() {
             padding: '10px 24px',
             borderRadius: 8,
             border: activeTab === '会诊列表' ? 'none' : `1px solid ${BORDER}`,
-            background: activeTab === '会诊列表' ? PRIMARY : WHITE,
+            background: activeTab === '会诊列表' ? PRIMARY : 'var(--bg-card)',
             color: activeTab === '会诊列表' ? WHITE : GRAY,
             fontSize: 14,
             fontWeight: 600,
@@ -576,7 +576,7 @@ export default function ConsultationPage() {
             padding: '10px 24px',
             borderRadius: 8,
             border: activeTab === '录音录像会诊' ? 'none' : `1px solid ${BORDER}`,
-            background: activeTab === '录音录像会诊' ? PRIMARY : WHITE,
+            background: activeTab === '录音录像会诊' ? PRIMARY : 'var(--bg-card)',
             color: activeTab === '录音录像会诊' ? WHITE : GRAY,
             fontSize: 14,
             fontWeight: 600,
@@ -605,12 +605,12 @@ export default function ConsultationPage() {
           {/* Stat Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
             {statCards.map(card => (
-              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -620,10 +620,10 @@ export default function ConsultationPage() {
           {/* Main Layout */}
           <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 16, alignItems: 'start' }}>
             {/* Left Panel - Consultation List */}
-            <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: `1px solid ${BORDER}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               {/* Search */}
               <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}`, background: LIGHT_BG }}>
-                <div style={{ background: WHITE, borderRadius: 8, border: `1px solid ${BORDER}`, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${BORDER}`, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Search size={14} color={GRAY} />
                   <input
                     value={search}
@@ -647,7 +647,7 @@ export default function ConsultationPage() {
                         padding: '4px 12px',
                         borderRadius: 16,
                         border: isActive ? 'none' : `1px solid ${BORDER}`,
-                        background: isActive ? PRIMARY : WHITE,
+                        background: isActive ? PRIMARY : 'var(--bg-card)',
                         color: isActive ? WHITE : GRAY,
                         fontSize: 12,
                         fontWeight: 600,
@@ -690,12 +690,12 @@ export default function ConsultationPage() {
                         padding: '14px 16px',
                         borderBottom: `1px solid ${BORDER}`,
                         cursor: 'pointer',
-                        background: isSelected ? '#eff6ff' : idx % 2 === 0 ? WHITE : '#fafbfc',
+                        background: isSelected ? '#eff6ff' : idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card)',
                         borderLeft: isSelected ? `3px solid ${ACCENT}` : '3px solid transparent',
                         transition: 'all 0.15s',
                       }}
                       onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'var(--color-info-bg)' }}
-                      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = idx % 2 === 0 ? WHITE : '#fafbfc' }}
+                      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card)' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -761,14 +761,14 @@ export default function ConsultationPage() {
             {/* Right Panel - Consultation Detail */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {!selected ? (
-                <div style={{ background: WHITE, borderRadius: 12, padding: 60, textAlign: 'center', border: `1px solid ${BORDER}` }}>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 60, textAlign: 'center', border: `1px solid ${BORDER}` }}>
                   <AlertCircle size={48} color={GRAY} style={{ marginBottom: 12, opacity: 0.4 }} />
                   <div style={{ fontSize: 15, color: GRAY }}>请从左侧选择一个会诊记录查看详情</div>
                 </div>
               ) : (
                 <>
                   {/* Header Info Card */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -831,7 +831,7 @@ export default function ConsultationPage() {
                           <button onClick={() => void handleAccept()} disabled={acceptingId === selected.id} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: acceptingId === selected.id ? 0.6 : 1 }}>
                             <CheckCircle size={15} />{acceptingId === selected.id ? '开始中...' : '接受会诊'}
                           </button>
-                          <button onClick={handleReject} style={{ padding: '8px 20px', background: WHITE, color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button onClick={handleReject} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                             <X size={15} />拒绝会诊
                           </button>
                         </>
@@ -842,7 +842,7 @@ export default function ConsultationPage() {
                         </button>
                       )}
                       {(selected.status === '待回复' || selected.status === '已回复') && (
-                        <button onClick={() => void handleCancelConsultation()} disabled={cancellingId === selected.id} style={{ padding: '8px 20px', background: WHITE, color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: cancellingId === selected.id ? 0.6 : 1 }}>
+                        <button onClick={() => void handleCancelConsultation()} disabled={cancellingId === selected.id} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: cancellingId === selected.id ? 0.6 : 1 }}>
                           <X size={15} />{cancellingId === selected.id ? '取消中...' : '取消会诊'}
                         </button>
                       )}
@@ -853,7 +853,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Patient & Exam Info */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <User size={16} color={ACCENT} />患者与检查信息
                     </h3>
@@ -910,7 +910,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Purpose & Clinical Info */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Stethoscope size={16} color={ACCENT} />会诊目的与临床信息
                     </h3>
@@ -932,7 +932,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Timeline */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Clock3 size={16} color={ACCENT} />会诊进度时间轴
                     </h3>
@@ -949,7 +949,7 @@ export default function ConsultationPage() {
                               width: 36,
                               height: 36,
                               borderRadius: '50%',
-                              background: node.status === 'done' ? ACCENT : node.status === 'current' ? WHITE : LIGHT_BG,
+                              background: node.status === 'done' ? ACCENT : node.status === 'current' ? 'var(--bg-card)' : 'var(--bg-card)',
                               border: `2px solid ${node.status === 'done' ? ACCENT : node.status === 'current' ? ACCENT : BORDER}`,
                               display: 'flex',
                               alignItems: 'center',
@@ -977,7 +977,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Conclusion */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <MessageSquare size={16} color={ACCENT} />会诊结论区
                     </h3>
@@ -1028,7 +1028,7 @@ export default function ConsultationPage() {
                   </div>
 
                   {/* Consultation Evaluation */}
-                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <ThumbsUp size={16} color={ACCENT} />会诊评价
@@ -1073,12 +1073,12 @@ export default function ConsultationPage() {
           {/* Stat Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {recordingStatCards.map(card => (
-              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -1087,7 +1087,7 @@ export default function ConsultationPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* 会诊录音录像控制面板 */}
-            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Video size={16} color={ACCENT} />会诊录音录像控制面板
               </h3>
@@ -1235,7 +1235,7 @@ export default function ConsultationPage() {
                     textAlign: 'center',
                   }}>
                     <div style={{ fontSize: 12, color: GRAY }}>录制时长</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: recordingStatus === '录制中' ? DANGER : PRIMARY, fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: recordingStatus === '录制中' ? DANGER : PRIMARY, fontFamily: 'monospace' }}>
                       {formatTime(recordingSeconds)}
                     </div>
                   </div>
@@ -1259,7 +1259,7 @@ export default function ConsultationPage() {
             </div>
 
             {/* 录像预览区 */}
-            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Film size={16} color={ACCENT} />录像预览区
               </h3>
@@ -1417,7 +1417,7 @@ export default function ConsultationPage() {
           </div>
 
           {/* 录音录像存档列表 */}
-          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />录音录像存档列表
               <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>演示数据</span>
@@ -1442,7 +1442,7 @@ export default function ConsultationPage() {
                     <tr
                       key={archive.id}
                       style={{
-                        background: idx % 2 === 0 ? WHITE : '#fafbfc',
+                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card)',
                         borderBottom: `1px solid ${BORDER}`,
                       }}
                     >
@@ -1536,7 +1536,7 @@ export default function ConsultationPage() {
       {/* Rating Modal */}
       {showRatingModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>会诊质量详细评分</h3>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
@@ -1594,7 +1594,7 @@ export default function ConsultationPage() {
       {/* Video Playback Modal */}
       {videoModalOpen && selectedArchive && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 4px' }}>录像播放 - {selectedArchive.patientName}</h3>
@@ -1844,7 +1844,7 @@ export default function ConsultationPage() {
       {/* Upload Modal */}
       {showUploadModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>补充资料上传</h3>
               <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
@@ -1894,7 +1894,7 @@ export default function ConsultationPage() {
       {/* [G005 2B] Invite Expert Modal (POST /consultations/:id/invite) */}
       {showInviteModal && selected && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>邀请会诊专家</h3>
               <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
@@ -1926,7 +1926,7 @@ export default function ConsultationPage() {
       {/* Conclusion Modal */}
       {showConclusionModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>确认会诊结论</h3>
               <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
@@ -1962,7 +1962,7 @@ export default function ConsultationPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && deleteTarget && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: DANGER, margin: 0 }}>确认删除存档</h3>
               <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>

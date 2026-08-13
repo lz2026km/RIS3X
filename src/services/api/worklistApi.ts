@@ -49,4 +49,11 @@ export const worklistApi = {
     await invalidateWorklist()
     return res
   },
+
+  // [v3.0.6.11-92 Wave1B P0] 影像质控回写 exam 状态: PATCH /worklist/:id/state (IMAGE_READY|QC_REJECT|QC_PASS)
+  updateState: async (id: string, state: 'IMAGE_READY' | 'QC_REJECT' | 'QC_PASS', note?: string) => {
+    const res = await api.patch(`/worklist/${id}/state`, note ? { state, note } : { state })
+    await invalidateWorklist()
+    return res
+  },
 }

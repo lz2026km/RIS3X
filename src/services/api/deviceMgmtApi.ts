@@ -215,9 +215,6 @@ export const deviceMgmtApi = {
   listEquipmentLifecycle: () =>
     api.get<EquipmentLifecycle[]>('/device-mgmt/equipment-lifecycle'),
 
-  getEquipmentLifecycle: (id: string) =>
-    api.get<EquipmentLifecycle>(`/device-mgmt/equipment-lifecycle/${id}`),
-
   updateEquipmentLifecycle: async (id: string, dto: UpdateEquipmentLifecycleDto) => {
     const res = await api.put<EquipmentLifecycle>(`/device-mgmt/equipment-lifecycle/${id}`, dto)
     await invalidateApiCacheByPrefix('/device-mgmt/equipment-lifecycle')

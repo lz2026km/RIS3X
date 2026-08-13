@@ -312,7 +312,8 @@ export const dicomDimseApi = {
   cEcho: (body: CEchoRequest) =>
     api.post<DimseResponse>('/dicom-dimse/echo', body),
 
-  cStore: (body: CStoreRequest) =>
+  // [v3.0.6.11-92] W2-B P2: 支持 FormData 文件上传 (multipart, DicomDimsePage C-STORE 迁移)
+  cStore: (body: CStoreRequest | FormData) =>
     api.post<DimseResponse>('/dicom-dimse/store', body),
 
   cFind: (body: CFindMwlRequest) =>

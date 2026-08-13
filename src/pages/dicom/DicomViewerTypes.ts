@@ -120,7 +120,7 @@ export type ExamItem = {
 
 export const PRIMARY = '#1e40af'
 export const PRIMARY_LIGHT = '#2563eb'
-export const CARD_BG = '#ffffff'
+export const CARD_BG = 'var(--bg-card)'
 export const PANEL_BG = '#f0f4f8'
 
 /** @deprecated Use getPresetsForModality from utils/modalityPresets instead */

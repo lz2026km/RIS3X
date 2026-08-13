@@ -351,8 +351,6 @@ export const eyeApi = {
   // ===== Subspecialty =====
   getSubspecialtyRecords: (sub: string, params?: Record<string, any>) =>
     api.get(`${EYE_API}/subspecialty/${sub}/records${buildQuery(params)}`),
-  getSubspecialtyRecord: (sub: string, id: string) =>
-    api.get(`${EYE_API}/subspecialty/${sub}/records/${id}`),
   createSubspecialtyRecord: (sub: string, data: any) =>
     api.post(`${EYE_API}/subspecialty/${sub}/records`, data),
   // [G005 Wave1A P0] 亚专科检查动作 (SubspecialtyExamsPage 真实化, 后端 eye-subspecialty 模块)

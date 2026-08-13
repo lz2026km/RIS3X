@@ -86,24 +86,12 @@ export const reportQualityApi = {
   evaluate: (data: EvaluateDto) =>
     api.post<QualityEvaluation>("/reports/quality/evaluate", data),
 
-  getHistory: (reportId: string) =>
-    api.get<QualityEvaluation[]>(`/reports/quality/history/${reportId}`),
-
   getTrend: (reportId: string, days?: number) =>
     api.get<QualityEvaluation[]>(
       `/reports/quality/trend/${reportId}?days=${days ?? 30}`,
     ),
 
-  reEvaluate: (reportId: string, data: EvaluateDto) =>
-    api.post<QualityEvaluation>(
-      `/reports/quality/re-evaluate/${reportId}`,
-      data,
-    ),
-
   // ── Score rules (report-quality-ext.controller) ──
-
-  getScoreRules: () =>
-    api.get<ListPayload<ScoreRule>>("/report-quality-ext/score-rules"),
 
   createScoreRule: async (data: unknown) => {
     const res = await api.post<ScoreRule>(

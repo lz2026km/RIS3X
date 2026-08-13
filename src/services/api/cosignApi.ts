@@ -85,9 +85,7 @@ export const coSignApi = {
   reject: (id: string, data: { reason: string }) =>
     api.post<{ success: boolean }>(`/cosign/pending/${id}/reject`, data),
 
-  getHistory: () =>
-    api.get<CoSignItem[]>('/cosign/history'),
-
+  // [v3.0.6.11-92] W2-B P2: getHistory 0 引用已删 (cosignService.getHistory 为本地 service)
   getStats: () =>
     api.get<CoSignStats>('/cosign/stats'),
 

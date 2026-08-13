@@ -79,6 +79,36 @@ describe('FollowUpService', () => {
     expect(created.nextDate.startsWith('2026-10-09')).toBe(true)
   })
 
+  // [v3.0.6.11-92 Wave1B P0] 报告→随访关联: create 携带 reportId/examId 并回显
+  it('persists reportId/examId association from report detail entry', async () => {
+    mockPrisma.followUpPlan.create.mockImplementation(({ data }: any) =>
+      Promise.resolve({ ...row, ...data }),
+    )
+    const created = await svc.create({
+      patientId: 'p1',
+      patientName: '张三',
+      planDate: '2026-08-10',
+      intervalDays: 30,
+      reminderEnabled: true,
+      reportId: 'RPT-100',
+      examId: 'E-88',
+      note: '来源报告: RPT-100 创建随访',
+    })
+    expect(created.reportId).toBe('RPT-100')
+    expect(created.examId).toBe('E-88')
+    expect(mockPrisma.followUpPlan.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ reportId: 'RPT-100', examId: 'E-88' }) }),
+    )
+  })
+
+  it('lists plans without reportId/examId (legacy rows) without crashing', async () => {
+    mockPrisma.followUpPlan.findMany.mockResolvedValue([row])
+    mockPrisma.followUpPlan.count.mockResolvedValue(1)
+    const result = await svc.list({})
+    expect(result.items[0].reportId).toBeUndefined()
+    expect(result.items[0].examId).toBeUndefined()
+  })
+
   it('throws NotFoundException when completing a missing plan', async () => {
     mockPrisma.followUpPlan.findUnique.mockResolvedValue(null)
     await expect(svc.complete('nope')).rejects.toBeInstanceOf(NotFoundException)

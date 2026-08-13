@@ -34,6 +34,8 @@ export class FollowUpService {
     id: string
     patientId: string
     patientName: string
+    reportId: string | null
+    examId: string | null
     planDate: Date
     intervalDays: number
     nextDate: Date
@@ -49,6 +51,8 @@ export class FollowUpService {
       id: plan.id,
       patientId: plan.patientId,
       patientName: plan.patientName,
+      reportId: plan.reportId ?? undefined,
+      examId: plan.examId ?? undefined,
       planDate: plan.planDate.toISOString(),
       intervalDays: plan.intervalDays,
       nextDate: plan.nextDate.toISOString(),
@@ -93,6 +97,9 @@ export class FollowUpService {
         tenantId: currentTenantId(),
         patientId: dto.patientId,
         patientName: dto.patientName,
+        // [v3.0.6.11-92 Wave1B P0] 报告/检查关联 (报告详情"创建随访"入口带入)
+        reportId: dto.reportId ?? null,
+        examId: dto.examId ?? null,
         planDate,
         intervalDays: dto.intervalDays ?? 30,
         nextDate,
@@ -110,6 +117,8 @@ export class FollowUpService {
     const data: Prisma.FollowUpPlanUpdateInput = {}
     if (dto.patientId !== undefined) data.patientId = dto.patientId
     if (dto.patientName !== undefined) data.patientName = dto.patientName
+    if (dto.reportId !== undefined) data.reportId = dto.reportId
+    if (dto.examId !== undefined) data.examId = dto.examId
     if (dto.planDate !== undefined) data.planDate = toDate(dto.planDate)
     if (dto.intervalDays !== undefined) data.intervalDays = dto.intervalDays
     if (dto.status !== undefined) data.status = dto.status

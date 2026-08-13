@@ -129,6 +129,9 @@ import { SystemAdminModule } from "./modules/system-admin/system-admin.module";
 // [G005 Wave1A P0] MSW-only 真实化: 眼科教学病例库 + 亚专科 + 牙科收费字典
 import { EyeEduModule } from "./modules/eye-edu/eye-edu.module";
 import { EyeSubspecialtyModule } from "./modules/eye-subspecialty/eye-subspecialty.module";
+// [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
+import { EmergencyChannelModule } from "./modules/emergency-channel/emergency-channel.module";
+import { DeptAnnouncementModule } from "./modules/dept-announcement/dept-announcement.module";
 
 @Module({
   imports: [
@@ -273,6 +276,8 @@ import { EyeSubspecialtyModule } from "./modules/eye-subspecialty/eye-subspecial
     SystemAdminModule,
     EyeEduModule,
     EyeSubspecialtyModule,
+    EmergencyChannelModule,
+    DeptAnnouncementModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -363,7 +363,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
 
   if (!selectedPatient) {
     return (
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 60, textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 60, textAlign: 'center' }}>
         <User size={48} color="#cbd5e1" style={{ marginBottom: 16 }} />
         <div style={{ fontSize: 14, color: '#64748b' }}>请从患者列表选择一个患者查看详情</div>
         <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
@@ -495,7 +495,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>检查统计</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-info-bg)', borderRadius: 8 }}>

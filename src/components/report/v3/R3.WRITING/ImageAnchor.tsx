@@ -9,7 +9,7 @@ import type { ImageAnchor } from '@types/R3/R3.WRITING';
 import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
 import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog , Type} from 'lucide-react';
 import { Inbox } from 'lucide-react'
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 
 interface Props {
   reportId: string;
@@ -87,6 +87,24 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
   const [zoom, setZoom] = useState(1);
   const [frameMode, setFrameMode] = useState<'single' | 'cine'>('single');
   const [cineFrame, _setCineFrame] = useState(1);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onFs);
+    return () => document.removeEventListener('fullscreenchange', onFs);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = viewerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, []);
 
   const filtered = useMemo(() => {
     if (!showOnlyKey) return anchors;
@@ -183,7 +201,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
 
         <div className="grid grid-cols-3 gap-3">
           {/* 图像区 */}
-          <div className="col-span-2 border border-slate-200 rounded bg-slate-900 relative overflow-hidden" style={{ minHeight: 360 }}>
+          <div className="col-span-2 border border-slate-200 rounded bg-slate-900 relative overflow-hidden" style={{ minHeight: isFullscreen ? '100vh' : 360 }} ref={viewerRef}>
             {selected ? (
               <>
                 <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
@@ -197,7 +215,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                 <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                   <Button size="small" icon={<Pin className="w-3 h-3" />} onClick={() => handlePin(selected.id)} />
                   <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={() => handleInsert(selected)} />
-                  <Button size="small" icon={<Maximize2 className="w-3 h-3" />} />
+                  <Button size="small" type={isFullscreen ? 'primary' : 'default'} icon={<Maximize2 className="w-3 h-3" />} onClick={toggleFullscreen} />
                   {frameMode === 'cine' && (
                     <>
                       <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(暂未实现)')} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />

@@ -4,10 +4,11 @@
  */
 import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
 import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
+import { worklistApi } from '../../services/api/worklistApi'
 import {
-  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty,
+  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty, type TableProps,
 } from 'antd'
-import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw } from 'lucide-react'
+import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw, XCircle } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BarChart3 } from 'lucide-react'
 
@@ -32,6 +33,33 @@ export default function ImageQualityControlPage() {
   const [scoring, setScoring] = useState(false)
   // [W2-C] 受控分页
   const [resultPage, setResultPage] = useState(1)
+  // [v3.0.6.11-92 Wave1B P0] 质控回写 busy key (质控通过/驳回 → worklistApi.updateState)
+  const [qcBusy, setQcBusy] = useState('')
+
+  // [v3.0.6.11-92 Wave1B P0] 质控通过/驳回 → 写回 exam 状态 (通过 → IMAGE_READY 图像可用, 驳回 → QC_REJECT)
+  const handleQc = async (r: QcImageAiResult, state: 'IMAGE_READY' | 'QC_REJECT') => {
+    const key = `${r.id}:${state === 'IMAGE_READY' ? 'pass' : 'reject'}`
+    if (qcBusy) return
+    setQcBusy(key)
+    try {
+      const res = await worklistApi.updateState(
+        r.studyId,
+        state,
+        state === 'QC_REJECT' ? `影像质控驳回: AI 评分 ${r.score}/${r.maxScore}` : '影像质控通过',
+      )
+      if (res.success) {
+        message.success(state === 'IMAGE_READY' ? `检查 ${r.studyId} 质控通过, 图像已可用` : `检查 ${r.studyId} 质控驳回`)
+        setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: state === 'IMAGE_READY' ? 'accepted' : 'rejected' } : x)))
+        void load()
+      } else {
+        message.error(res.error?.message ?? '质控操作失败')
+      }
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : '质控操作失败')
+    } finally {
+      setQcBusy('')
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -91,7 +119,7 @@ export default function ImageQualityControlPage() {
     }
   }
 
-  const columns = [
+  const columns: TableProps<QcImageAiResult>['columns'] = [
     { title: '检查号', dataIndex: 'studyId', width: 150, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
     { title: '患者', dataIndex: 'patientName', width: 90 },
     { title: '模态', dataIndex: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
@@ -105,6 +133,15 @@ export default function ImageQualityControlPage() {
       ) },
     { title: '问题数', key: 'issues', width: 70, render: (_: unknown, r: QcImageAiResult) => <Tag color="orange">{r.issues?.length ?? 0}</Tag> },
     { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label ?? v}</Tag> },
+    {
+      title: '质控回写', key: 'qc', width: 140, fixed: 'right',
+      render: (_: unknown, r: QcImageAiResult) => (
+        <Space size={4}>
+          <Button size="small" type="primary" ghost icon={<CheckCircle size={12} />} loading={qcBusy === `${r.id}:pass`} onClick={() => void handleQc(r, 'IMAGE_READY')}>通过</Button>
+          <Button size="small" danger ghost icon={<XCircle size={12} />} loading={qcBusy === `${r.id}:reject`} onClick={() => void handleQc(r, 'QC_REJECT')}>驳回</Button>
+        </Space>
+      ),
+    },
   ]
 
   return (

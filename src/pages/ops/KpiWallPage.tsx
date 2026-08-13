@@ -138,7 +138,7 @@ const KpiWallPage: React.FC = () => {
                   <div style={{ flex: 1, height: 14, background: 'rgba(148,163,184,0.15)', borderRadius: 7 }}>
                     <div style={{ width: `${Math.round(((d.reportCount ?? 0) / max) * 100)}%`, height: '100%', background: i < 3 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : '#3b82f6', borderRadius: 7 }} />
                   </div>
-                  <span style={{ width: 90, textAlign: 'right', fontSize: 18, fontWeight: 700, color: '#e2e8f0' }}>{d.reportCount ?? 0} 份</span>
+                  <span style={{ width: 90, textAlign: 'right', fontSize: 20, fontWeight: 700, color: '#e2e8f0' }}>{d.reportCount ?? 0} 份</span>
                 </div>
               )
             })}
@@ -249,7 +249,7 @@ const KpiWallPage: React.FC = () => {
           <span style={{ fontSize: 14, color: '#64748b', fontWeight: 400, marginLeft: 14 }}>G005 · 15 秒自动轮播</span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
             {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'long' })}
           </div>
           <Button type="primary" ghost icon={<RefreshCw size={14} />} onClick={() => setRetryTick((t) => t + 1)} loading={loading}>刷新</Button>

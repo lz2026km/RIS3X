@@ -70,15 +70,9 @@ export const qcextApi = {
   getQcDashboard: () =>
     api.get<QcDashboardDto>('/qc-ext/dashboard'),
 
-  getQcDashboardItem: (id: string) =>
-    api.get<QcDashboardDto>(`/qc-ext/dashboard/${id}`),
-
   // Image QC
   listQcImages: () =>
     api.get<QcImageDto[]>('/qc-ext/image'),
-
-  getQcImage: (id: string) =>
-    api.get<QcImageDto>(`/qc-ext/image/${id}`),
 
   rateQcImage: async (id: string, data: { score: number; issues?: string[] }) => {
     const res = await api.post<QcImageDto>(`/qc-ext/image/${id}/rate`, data)

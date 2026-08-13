@@ -8,7 +8,8 @@ const REPORT_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
   submitted: ['reviewed', 'rejected', 'revised'],
   reviewed: ['cosigned', 'published', 'rejected', 'revised'],
   cosigned: ['published', 'rejected'],
-  published: ['revised'], // 已发布只能修订
+  // [v3.0.6.11-92 Wave2A P1] 补发自环: 已发布可重新发布 (对齐后端 REPORT_TRANSITIONS.PUBLISHED)
+  published: ['revised', 'published'],
   rejected: ['draft', 'submitted'],
   revised: ['submitted', 'reviewed'],
 };
@@ -87,7 +88,11 @@ const WORKLIST_TRANSITIONS: Record<string, string[]> = {
   SCHEDULED: ['ARRIVED', 'CANCELLED'],
   ARRIVED: ['IN_PROGRESS', 'CANCELLED'],
   IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
-  COMPLETED: [],
+  COMPLETED: ['IMAGE_READY'],
+  IMAGE_READY: ['QC_PASS', 'QC_REJECT'],
+  QC_REJECT: ['IMAGE_READY'],
+  QC_PASS: [],
+  PENDING_REPORT: [],
   CANCELLED: [],
 };
 

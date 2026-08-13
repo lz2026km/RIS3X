@@ -325,6 +325,43 @@ export default function ReportPage() {
 
   // [W2-C] 审计轨迹: reportApi.auditTrail → Drawer 展示修订历史
   const handleAuditTrail = (r: RadiologyReport) => { setAuditReport(r); };
+
+  // [v3.0.6.11-92 Wave1B P0] 报告→随访入口: 携带 patientId + reportId
+  const handleCreateFollowUp = (r: RadiologyReport) => {
+    const q = new URLSearchParams()
+    if (r.patientId) q.set('patientId', r.patientId)
+    q.set('reportId', r.id)
+    navigate(`/follow-up?${q.toString()}`);
+  };
+
+  // [v3.0.6.11-92 Wave1B P0] 报告特殊态: 补充报告/整改/跨院区重分配/升级 (失败回退提示)
+  const handleReportSpecial = async (r: RadiologyReport, action: 'supplement' | 'rectify' | 'redistribute' | 'escalate', reason?: string) => {
+    try {
+      const res =
+        action === 'supplement'
+          ? await reportApi.supplement(r.id, reason)
+          : action === 'rectify'
+            ? await reportApi.rectify(r.id, reason)
+            : action === 'redistribute'
+              ? await reportApi.redistribute(r.id, reason)
+              : await reportApi.escalate(r.id, reason);
+      if (res.success) {
+        setAllReports(prev => prev.map(x => {
+          if (x.id !== r.id) return x
+          if (action === 'supplement') return { ...x, status: '补充中' }
+          if (action === 'rectify') return { ...x, status: '整改中' }
+          if (action === 'redistribute') return { ...x, status: '重新分配中' }
+          return { ...x, status: '已升级' }
+        }));
+        showToast(`报告 ${r.reportId} ${action === 'supplement' ? '已进入补充流程' : action === 'rectify' ? '已进入整改' : action === 'redistribute' ? '已发起跨院区重分配' : '已升级'}`, 'success');
+      } else {
+        showToast(`${actionLabel(action)}失败:${res.error?.message ?? res.message ?? '未知错误'}`, 'error');
+      }
+    } catch (e) {
+      showToast(`${actionLabel(action)}失败:${e instanceof Error ? e.message : '网络错误'}`, 'error');
+    }
+  };
+  const actionLabel = (a: string) => a === 'supplement' ? '补充报告' : a === 'rectify' ? '整改' : a === 'redistribute' ? '跨院区重分配' : '升级';
   const handleToggleSelect = useCallback((id: string) => { setSelectedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }, []);
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
@@ -382,14 +419,14 @@ export default function ReportPage() {
 
         <div className="no-print">
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} deletingIds={deletingIds} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} deletingIds={deletingIds} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 

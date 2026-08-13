@@ -163,7 +163,7 @@ export const reviewService = {
   },
 
   async approveInitial(taskId: string, reviewerId: string, reviewerName: string, score: number, comment: string): Promise<ReviewTask> {
-    // [W2-B] 真实化: reportApi.review (REVIEWED 流转) → 失败回退 Mock
+    // [v3.0.6.11-92 Wave1B P0] 真实化: reportApi.review(type=initial) → FINAL_REVIEW (不再直接跳 REVIEWED) → 失败回退 Mock
     try {
       const res = await reportApi.review(taskId, { type: 'initial', doctorId: reviewerId, doctorName: reviewerName, suggestion: comment, score });
       if (res.success && res.data) {
@@ -200,9 +200,9 @@ export const reviewService = {
   },
 
   async approveFinal(taskId: string, reviewerId: string, reviewerName: string, score: number, comment: string, needsCosign: boolean): Promise<ReviewTask> {
-    // [W2-B] 真实化: reportApi.review → 失败回退 Mock
+    // [v3.0.6.11-92 Wave1B P0] 真实化: reportApi.review(type=final) → CO_SIGN_REVIEW(需双签)/REVIEWED → 失败回退 Mock
     try {
-      const res = await reportApi.review(taskId, { type: 'final', doctorId: reviewerId, doctorName: reviewerName, suggestion: comment, score });
+      const res = await reportApi.review(taskId, { type: 'final', needsCosign, doctorId: reviewerId, doctorName: reviewerName, suggestion: comment, score });
       if (res.success && res.data) {
         const t = inMemoryTasks.find((x) => x.id === taskId);
         if (t) {
@@ -242,6 +242,24 @@ export const reviewService = {
   },
 
   async completeCosign(taskId: string, reviewerId: string, reviewerName: string, certificateId: string): Promise<ReviewTask> {
+    // [v3.0.6.11-92 Wave1B P0] 双签通过 → reportApi.completeCosignReview (CO_SIGN_REVIEW → REVIEWED) → 失败回退 Mock
+    try {
+      const res = await reportApi.completeCosignReview(taskId);
+      if (res.success && res.data) {
+        const t = inMemoryTasks.find((x) => x.id === taskId);
+        if (t) {
+          t.cosignReviewerId = reviewerId;
+          t.cosignReviewerName = reviewerName;
+          t.cosignAt = new Date().toISOString();
+          t.cosignCertificateId = certificateId;
+          t.stage = 'sign';
+          t.status = 'pending';
+        }
+        return taskFromReport(res.data, 'sign');
+      }
+    } catch {
+      /* 回退 Mock */
+    }
     await wait();
     const t = inMemoryTasks.find((x) => x.id === taskId);
     if (!t) throw new Error('Task not found');

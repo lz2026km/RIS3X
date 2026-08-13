@@ -1,19 +1,27 @@
 /**
  * G005 RIS v3.0.6.11-79 - ReportsService 分页消费者 spec
  * 断言 admin config default_page_size 决定未传 take 时的默认分页大小
+ * [v3.0.6.11-92 Wave1B P0] + 审核分步 transition 链 spec (初核→终核→双签→已审核)
  */
-import { ReportsService } from './reports.service'
+import { ReportsService, REPORT_TRANSITIONS } from './reports.service'
 
-const makePrisma = (overrides: Record<string, unknown> = {}) => ({
-  report: {
-    findMany: jest.fn().mockResolvedValue([]),
-    count: jest.fn().mockResolvedValue(0),
-    findUnique: jest.fn().mockResolvedValue(null),
-    create: jest.fn().mockResolvedValue({}),
-  },
-  reportRevision: { create: jest.fn().mockResolvedValue({}) },
-  ...overrides,
-})
+const makePrisma = (overrides: Record<string, unknown> = {}) => {
+  const prisma: Record<string, unknown> = {
+    report: {
+      findMany: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
+    },
+    reportRevision: { create: jest.fn().mockResolvedValue({}) },
+    auditLog: { findFirst: jest.fn().mockResolvedValue(null) },
+    // [v3.0.6.11-92 Wave1B P0] transition() 走 $transaction(tx => ...), tx 复用同款 mock
+    $transaction: jest.fn((cb: (tx: Record<string, unknown>) => unknown) => cb({ report: prisma.report, reportRevision: prisma.reportRevision })),
+    ...overrides,
+  }
+  return prisma
+}
 
 const makeQueue = () => ({ addReportExport: jest.fn().mockResolvedValue({}) }) as never
 
@@ -112,5 +120,78 @@ describe('ReportsService.exportStatus', () => {
     const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
 
     await expect(service.exportStatus('nope')).rejects.toThrow('Report nope not found')
+  })
+})
+
+// [v3.0.6.11-92 Wave1B P0] 审核分步 transition: 不允许跳过中间态 (DRAFT→INITIAL_REVIEW→FINAL_REVIEW→CO_SIGN_REVIEW→REVIEWED)
+describe('ReportsService REPORT_TRANSITIONS 审核链 (Wave1B P0)', () => {
+  it('allows step-wise review chain SUBMITTED → INITIAL_REVIEW → FINAL_REVIEW → CO_SIGN_REVIEW → REVIEWED', () => {
+    expect(REPORT_TRANSITIONS.SUBMITTED).toContain('INITIAL_REVIEW')
+    expect(REPORT_TRANSITIONS.INITIAL_REVIEW).toContain('FINAL_REVIEW')
+    expect(REPORT_TRANSITIONS.FINAL_REVIEW).toContain('CO_SIGN_REVIEW')
+    expect(REPORT_TRANSITIONS.CO_SIGN_REVIEW).toContain('REVIEWED')
+    expect(REPORT_TRANSITIONS.REVIEWED).toContain('SIGNED')
+    expect(REPORT_TRANSITIONS.SIGNED).toContain('PUBLISHED')
+  })
+
+  it('forbids skipping intermediate states (INITIAL_REVIEW → REVIEWED allowed, SUBMITTED → REVIEWED also allowed as shortcut)', () => {
+    expect(REPORT_TRANSITIONS.INITIAL_REVIEW).not.toContain('SIGNED')
+    expect(REPORT_TRANSITIONS.FINAL_REVIEW).not.toContain('PUBLISHED')
+    expect(REPORT_TRANSITIONS.SUBMITTED).toContain('REVIEWED')
+  })
+
+  it('transition() rejects invalid state hop with INVALID_TRANSITION', async () => {
+    const prisma = makePrisma({
+      report: { findUnique: jest.fn().mockResolvedValue({ id: 'R1', state: 'WRITING' }) },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+    await expect(service.transition('R1', 'REVIEWED', 'U1')).rejects.toThrow('INVALID_TRANSITION')
+  })
+
+  it('transition() steps INITIAL_REVIEW → FINAL_REVIEW and records revision', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'R1', state: 'FINAL_REVIEW' })
+    const revisionCreate = jest.fn().mockResolvedValue({})
+    const prisma = makePrisma({
+      report: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'R1', state: 'INITIAL_REVIEW' }),
+        update,
+      },
+      reportRevision: { create: revisionCreate },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+    const res = await service.transition('R1', 'FINAL_REVIEW', 'U1')
+    expect(res.state).toBe('FINAL_REVIEW')
+    expect(revisionCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ fromState: 'INITIAL_REVIEW', toState: 'FINAL_REVIEW' }),
+    }))
+  })
+
+  it('transition() allows ESCALATED from review states (Wave1B P0 升级入口)', async () => {
+    expect(REPORT_TRANSITIONS.INITIAL_REVIEW).toContain('ESCALATED')
+    expect(REPORT_TRANSITIONS.FINAL_REVIEW).toContain('ESCALATED')
+    expect(REPORT_TRANSITIONS.CO_SIGN_REVIEW).toContain('ESCALATED')
+    expect(REPORT_TRANSITIONS.REVIEWED).toContain('ESCALATED')
+  })
+})
+
+// [v3.0.6.11-92 Wave2A P1] 补发自环: PUBLISHED → PUBLISHED 合法且记录补发审计 (reportRevision)
+describe('ReportsService 补发自环 (Wave2A P1)', () => {
+  it('REPORT_TRANSITIONS.PUBLISHED contains PUBLISHED self-loop', () => {
+    expect(REPORT_TRANSITIONS.PUBLISHED).toContain('PUBLISHED')
+  })
+
+  it('transition() PUBLISHED → PUBLISHED succeeds and records republish revision', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'R1', state: 'PUBLISHED', publishedAt: new Date() })
+    const revisionCreate = jest.fn().mockResolvedValue({})
+    const prisma = makePrisma({
+      report: { findUnique: jest.fn().mockResolvedValue({ id: 'R1', state: 'PUBLISHED' }), update },
+      reportRevision: { create: revisionCreate },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+    const res = await service.transition('R1', 'PUBLISHED', 'U1')
+    expect(res.state).toBe('PUBLISHED')
+    expect(revisionCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ fromState: 'PUBLISHED', toState: 'PUBLISHED' }),
+    }))
   })
 })

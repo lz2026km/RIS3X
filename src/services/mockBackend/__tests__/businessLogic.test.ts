@@ -38,6 +38,12 @@ describe('canTransitionReport', () => {
     expect(canTransitionReport('published', 'revised')).toBe(true);
   });
 
+  // [v3.0.6.11-92 Wave2A P1] 补发自环: 已发布可重新发布
+  it('published → published returns true (补发自环)', () => {
+    expect(canTransitionReport('published', 'published')).toBe(true);
+    expect(transitionReport({ id: 'rpt-1', status: 'published' as const }, 'published').status).toBe('published');
+  });
+
   it('published → draft returns false', () => {
     expect(canTransitionReport('published', 'draft')).toBe(false);
   });

@@ -380,13 +380,14 @@ export const DicomDimsePage: React.FC = () => {
     const formData = new FormData()
     formData.append('file', file)
     try {
-      const res = await fetch('/api/v1/dicom-dimse/store', { method: 'POST', body: formData })
-      if (res.ok) {
+      // [v3.0.6.11-92] W2-B P2: raw fetch → dicomDimseApi.cStore (multipart 兼容)
+      const res = await dicomDimseApi.cStore(formData)
+      if (res.success) {
         setStoreResults(prev => [...prev, { fileName: file.name, status: 'SUCCESS', sizeBytes: file.size }])
         message.success('C-STORE 成功')
       } else {
         setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])
-        message.error('C-STORE 失败')
+        message.error(res.error?.message ?? 'C-STORE 失败')
       }
     } catch {
       setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])

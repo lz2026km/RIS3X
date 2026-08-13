@@ -713,10 +713,22 @@ const dentalGuideModule = [
     try { create('surgical_guides', newGuide); } catch {}
     return HttpResponse.json({ success: true, data: newGuide }, { status: 201 });
   }),
+  // [v3.0.6.11-92 Wave2A P1] 导板套筒配置: 与后端 PUT /dental/guide/:id/sleeve 对齐 (store 更新 + 404)
   http.put(`${DENTAL_API}/guide/:id/sleeve`, async ({ params, request }) => {
     await delay(40);
+    const id = params.id as string;
     const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: params.id, sleeve: body.sleeveType } });
+    const guide = get<any>('surgical_guides', id) ?? MOCK_SURGICAL_GUIDES.find((g: any) => g.id === id) ?? null;
+    if (!guide) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Surgical guide ${id} not found` } }, { status: 404 });
+    }
+    const patch: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+    if (body.sleeveType !== undefined) patch.sleeveType = body.sleeveType;
+    if (body.diameter !== undefined) patch.diameter = Number(body.diameter);
+    if (body.height !== undefined) patch.height = Number(body.height);
+    if (body.angle !== undefined) patch.angle = Number(body.angle);
+    const updated = update<any>('surgical_guides', id, patch) ?? Object.assign(guide, patch);
+    return HttpResponse.json({ success: true, data: { id, sleeveType: updated.sleeveType, updatedAt: updated.updatedAt } });
   }),
   http.post(`${DENTAL_API}/guide/:id/export`, async ({ params }) => {
     await delay(300);

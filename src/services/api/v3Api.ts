@@ -2,6 +2,9 @@
 //
 // 背景: /writing /dist /ai-assist /quality /analytics /integration/cda /pacs/studies
 //       后端全无 (仅存在于 MSW mock 层); 62 方法中仅 ~20 在用。
+// [v3.0.6.11-92] W2-B P2: 删除 31 个 0 引用 MOCK_ONLY 死方法 (v3DistApi 6 / v3AiAssistApi 5 /
+//       v3IntegrationApi 8 / v3WritingApi.listRadLex|preScore / v3QualityReportApi 4 /
+//       v3AnalyticsApi 2 / v3PacsApi 2 / v3AiPlatformApi.generate|score)。
 // 处理:
 //   - 在用方法 → 改调真实后端 API (templatesApi / reportApi / aiDraftApi / fhirApi /
 //     analyticsStatsApi / aiPlatformApi / dicomWebApi), 复用现有方法而非新路径。
@@ -26,10 +29,6 @@ function mockOk<T>(data: T): Promise<ApiResponse<T>> {
       ? { total: data.length, page: 1, pageSize: data.length, totalPages: 1 }
       : undefined,
   })
-}
-
-function mockErr<T>(code: string, message: string): Promise<ApiResponse<T>> {
-  return Promise.resolve({ success: false, data: null as unknown as T, error: { code, message } })
 }
 
 // ============= v3 写作 (12 方法) =============
@@ -81,22 +80,16 @@ export const v3WritingApi = {
     }
   },
 
-  // ── MOCK_ONLY: 后端无短语库 / RadLex / 预评分端点 ──
+  // ── MOCK_ONLY: 后端无短语库 / RadLex / 预评分端点 (listPhrases 仍被 ReportWritePage 使用)
   listPhrases: () =>
     mockOk([
       { id: 'p-1', text: '双肺透光度增加，肺纹理增多', category: 'finding' },
       { id: 'p-2', text: '未见明显异常', category: 'conclusion' },
       { id: 'p-3', text: '建议定期随访', category: 'recommendation' },
     ]),
-  listRadLex: () =>
-    mockOk([
-      { code: 'RID1234', term: '肺结节', category: 'finding' },
-      { code: 'RID5678', term: '毛刺征', category: 'morphology' },
-    ]),
-  preScore: () => mockErr('NOT_SUPPORTED', '后端无 /writing 预评分端点 (W1-B 清理)'),
 }
 
-// ============= v3 分发 (8 方法) =============
+// ============= v3 分发 (2 方法) =============
 export const v3DistApi = {
   // MOCK_ONLY: 后端无 /dist/* 端点
   listChannels: () =>
@@ -104,26 +97,15 @@ export const v3DistApi = {
       { id: 'ch-1', name: '院内打印', type: 'print', status: 'active' },
       { id: 'ch-2', name: '短信推送', type: 'sms', status: 'active' },
     ]),
-  getChannel: (id: string) => mockOk({ id, name: '渠道', type: 'print', status: 'active' }),
   listTasks: () =>
     mockOk([
       { id: 't-1', reportId: 'RPT-DEMO-1', channel: 'print', status: 'delivered', recipient: '住院部' },
       { id: 't-2', reportId: 'RPT-DEMO-2', channel: 'sms', status: 'queued', recipient: '门诊' },
     ]),
-  getTask: (id: string) => mockOk({ id, reportId: 'RPT-DEMO-1', channel: 'print', status: 'queued', recipient: '-' }),
-  retryTask: (id: string) => mockOk({ id, status: 'queued' }),
-  listQueues: () => mockOk([{ id: 'q-1', name: '默认队列', depth: 0 }]),
-  listHL7Messages: () => mockOk([]),
-  listDeliveryReceipts: () => mockOk([]),
 }
 
-// ============= v3 集成 (10 方法) =============
+// ============= v3 集成 (2 方法) =============
 export const v3IntegrationApi = {
-  // MOCK_ONLY: 后端无 /integration/cda
-  listCDA: () => mockOk([]),
-  parseCDA: () => mockErr('NOT_SUPPORTED', '后端无 /integration/cda (W1-B 清理)'),
-  downloadCDA: () => mockErr('NOT_SUPPORTED', '后端无 /integration/cda (W1-B 清理)'),
-
   // REAL: 后端 FHIR R4 (fhir.controller: GET /fhir/r4/Patient)
   listFHIR: async () => {
     const res = await fhirApi.searchPatient()
@@ -140,31 +122,17 @@ export const v3IntegrationApi = {
     }
   },
 
-  listXDSRegistrries: () => mockOk([]),
-  registerXDS: () => mockErr('NOT_SUPPORTED', '后端无 /integration/xds (W1-B 清理)'),
-  listHISOrders: () => mockOk([]),
-
-  // REAL: 后端 FHIR R4 DiagnosticReport (fhir.controller)
-  getFHIRDiagnosticReport: (id: string) => fhirApi.readDiagnosticReport(id),
-
   // MOCK_ONLY: 后端无 webhook 端点
   listWebhooks: () => mockOk([]),
-  createWebhook: (data: any) => mockOk({ id: `wh-${Date.now()}`, ...data, status: 'active' }),
 }
 
-// ============= v3 AI 协助 (6 方法) =============
+// ============= v3 AI 协助 (1 方法) =============
 export const v3AiAssistApi = {
   // REAL: 后端 AI 辅助建议 (ai-platform.controller: GET /ai-platform/assist)
   listDrafts: () => aiPlatformApi.listAssist(),
-  // MOCK_ONLY: 后端无预审/风险/DDX/同意端点
-  getDraft: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
-  preReview: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
-  riskScore: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
-  getDifferential: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
-  getConsent: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
 }
 
-// ============= v3 质控 (5 方法) =============
+// ============= v3 质控 (1 方法) =============
 export const v3QualityReportApi = {
   // MOCK_ONLY: 后端无 /quality/reports 列表端点 (真实质控为 /reports/quality/evaluate)
   listReports: () =>
@@ -172,22 +140,15 @@ export const v3QualityReportApi = {
       { id: 'qc-1', period: 'month', score: 92, publishedAt: '2026-07-01' },
       { id: 'qc-2', period: 'quarter', score: 88, publishedAt: '2026-07-15' },
     ]),
-  getReport: (id: string) => mockOk({ id, period: 'month', score: 92 }),
-  getReportSections: () => mockOk([]),
-  exportReport: () => mockOk({ url: '' }),
-  getReportConfigs: () => mockOk([]),
 }
 
-// ============= v3 PACS (3 方法) =============
+// ============= v3 PACS (1 方法) =============
 export const v3PacsApi = {
   // REAL: 后端 DICOMWeb (dicom-web.controller: GET /dicom-web/studies)
   listStudies: (params?: any) => dicomWebApi.searchStudies(params),
-  // MOCK_ONLY: 后端无 /pacs/studies/:uid / verify
-  getStudy: () => mockErr('NOT_SUPPORTED', '后端无 /pacs/studies/:uid (W1-B 清理)'),
-  verifyWado: () => mockErr('NOT_SUPPORTED', '后端无 /pacs/studies/:uid/verify (W1-B 清理)'),
 }
 
-// ============= v3 Analytics (3 方法) =============
+// ============= v3 Analytics (1 方法) =============
 export const v3AnalyticsApi = {
   // REAL: 后端 /stats/dashboard (stats.controller)
   getDashboard: async (_params?: { period?: string }) => {
@@ -206,19 +167,10 @@ export const v3AnalyticsApi = {
       },
     }
   },
-  // MOCK_ONLY: 后端无 /analytics/* 端点
-  getABTestResults: () => mockOk([]),
-  getErrorLog: () => mockOk([]),
 }
 
-// ============= v3 AI Platform (4 方法) =============
-// REAL: 后端 modules/ai (ai.controller.ts: POST /ai/generate|review|score, GET /ai/providers)
-export interface AiGenerateDto {
-  templateId: string
-  patientId: string
-  findings: string
-  clinicalHistory?: string
-}
+// ============= v3 AI Platform (2 方法) =============
+// REAL: 后端 modules/ai (ai.controller.ts: POST /ai/review, GET /ai/providers)
 
 export interface AiReviewDto {
   reportText: string
@@ -226,20 +178,9 @@ export interface AiReviewDto {
   conclusion: string
 }
 
-export interface AiScoreDto {
-  reportId: string
-  criteria?: string[]
-}
-
 export const v3AiPlatformApi = {
-  generate: (dto: AiGenerateDto) =>
-    api.post<any>('/ai/generate', dto),
-
   review: (dto: AiReviewDto) =>
     api.post<any>('/ai/review', dto),
-
-  score: (dto: AiScoreDto) =>
-    api.post<any>('/ai/score', dto),
 
   getProviders: () =>
     api.get<{ providers: string[]; active: string }>('/ai/providers'),

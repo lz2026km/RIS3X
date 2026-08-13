@@ -7,6 +7,7 @@ import {
   AlertCircle as AlertCircleIcon, Edit3, Save, FileText, Monitor, Timer,
   CalendarCheck, CalendarX, Briefcase, UserPlus, RefreshCw, Star, Zap,
   TrendingDown, Eye, Minus, Printer,
+  Megaphone, CalendarClock, Pin, PinOff, Trash2,
 } from "lucide-react";
 import {
   BarChart as DeptBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -20,6 +21,8 @@ import { userApi } from "../services/api/userApi";
 import { deviceApi } from "../services/api/deviceApi";
 import { criticalExtApi } from "../services/api/criticalExtApi";
 import { statsApi } from "../services/api/statsApi";
+// [G005 Wave3A P2] 科室公告 + 值班管理 (dept-announcement module)
+import { deptApi } from "../services/api/deptApi";
 
 import DepartmentHeader from './department/DepartmentHeader';
 import DepartmentStats from './department/DepartmentStats';
@@ -146,6 +149,20 @@ export default function DepartmentPage() {
   const [addError, setAddError] = useState("");
   const [editForm, setEditForm] = useState({ name: "", role: "physician", title: "", dept: "放射科" });
   const [exportDone, setExportDone] = useState(false);
+  // [G005 Wave3A P2] 公告管理
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [activeAnnouncements, setActiveAnnouncements] = useState<any[]>([]);
+  const [showAnnounceModal, setShowAnnounceModal] = useState(false);
+  const [announceEditId, setAnnounceEditId] = useState(null);
+  const [announceForm, setAnnounceForm] = useState({ title: "", content: "", category: "notice", pinned: false, expiresAt: "" });
+  const [announceError, setAnnounceError] = useState("");
+  // [G005 Wave3A P2] 值班管理
+  const [onCallMonth, setOnCallMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [onCallCalendar, setOnCallCalendar] = useState<any>({ month: "", days: [] });
+  const [showOnCallModal, setShowOnCallModal] = useState(false);
+  const [onCallEditId, setOnCallEditId] = useState(null);
+  const [onCallForm, setOnCallForm] = useState({ date: new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: "DAY", role: "" });
+  const [onCallError, setOnCallError] = useState("");
 
   // [W2-A] userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
   const loadDeptData = useCallback(async () => {
@@ -245,10 +262,133 @@ export default function DepartmentPage() {
 
   useEffect(() => { void loadDeptData(); }, [loadDeptData]);
 
+  // [G005 Wave3A P2] 公告 + 值班 API 加载 (dept-announcement module)
+  const asArray = (v: any): any[] => (Array.isArray(v) ? v : Array.isArray(v?.data) ? v.data : Array.isArray(v?.items) ? v.items : []);
+  const loadDeptMeta = useCallback(async () => {
+    const [annR, activeR] = await Promise.allSettled([
+      deptApi.listAnnouncements(),
+      deptApi.listActiveAnnouncements(),
+    ]);
+    if (annR.status === "fulfilled" && annR.value.success) setAnnouncements(asArray(annR.value.data));
+    if (activeR.status === "fulfilled" && activeR.value.success) setActiveAnnouncements(asArray(activeR.value.data));
+  }, []);
+
+  const loadOnCallCalendar = useCallback(async (month: string) => {
+    const [calR, listR] = await Promise.allSettled([deptApi.getCalendar(month), deptApi.listSchedules(month)]);
+    if (calR.status === "fulfilled" && calR.value.success) setOnCallCalendar(calR.value.data);
+    const list = listR.status === "fulfilled" && listR.value.success ? asArray(listR.value.data) : [];
+    setOnCallCalendar((prev: any) => ({ ...prev, days: ((prev && prev.days) || []).map((d: any) => ({ ...d, schedules: list.filter((s: any) => s.date === d.date) })) }));
+  }, []);
+
+  useEffect(() => { void loadDeptMeta(); }, [loadDeptMeta]);
+  useEffect(() => { void loadOnCallCalendar(onCallMonth); }, [onCallMonth, loadOnCallCalendar]);
+
+  // [G005 Wave3A P2] 公告 CRUD
+  const handleAnnounceSave = async () => {
+    if (!announceForm.title.trim()) { setAnnounceError("请填写公告标题"); return; }
+    if (announceForm.content.trim().length < 5) { setAnnounceError("公告内容至少 5 个字符"); return; }
+    const payload: any = {
+      title: announceForm.title.trim(),
+      content: announceForm.content.trim(),
+      category: announceForm.category,
+      pinned: announceForm.pinned,
+      expiresAt: announceForm.expiresAt || undefined,
+      author: "当前用户",
+    };
+    try {
+      const res = announceEditId
+        ? await deptApi.updateAnnouncement(announceEditId, payload)
+        : await deptApi.createAnnouncement(payload);
+      if (!res.success) { setAnnounceError(res.error?.message || "保存失败"); return; }
+      setShowAnnounceModal(false);
+      setAnnounceEditId(null);
+      setAnnounceForm({ title: "", content: "", category: "notice", pinned: false, expiresAt: "" });
+      setAnnounceError("");
+      message.success(announceEditId ? "公告已更新" : "公告已发布");
+      void loadDeptMeta();
+    } catch (e) {
+      setAnnounceError(e instanceof Error ? e.message : "保存失败");
+    }
+  };
+
+  const handleAnnounceTogglePin = async (item: any) => {
+    try {
+      const res = await deptApi.updateAnnouncement(item.id, { pinned: !item.pinned });
+      if (res.success) {
+        setAnnouncements((prev: any[]) => prev.map((a) => (a.id === item.id ? { ...a, pinned: res.data.pinned } : a)));
+        message.success(res.data.pinned ? "已置顶" : "已取消置顶");
+        void loadDeptMeta();
+      }
+    } catch { /* 忽略 */ }
+  };
+
+  const handleAnnounceDelete = async (id: string) => {
+    try {
+      const res = await deptApi.deleteAnnouncement(id);
+      if (res.success) {
+        setAnnouncements((prev: any[]) => prev.filter((a) => a.id !== id));
+        message.success("公告已删除");
+        void loadDeptMeta();
+      }
+    } catch { /* 忽略 */ }
+  };
+
+  const openAnnounceEdit = (item: any) => {
+    setAnnounceEditId(item.id);
+    setAnnounceForm({ title: item.title, content: item.content, category: item.category, pinned: item.pinned, expiresAt: item.expiresAt || "" });
+    setAnnounceError("");
+    setShowAnnounceModal(true);
+  };
+
+  // [G005 Wave3A P2] 值班 CRUD
+  const handleOnCallSave = async () => {
+    if (!onCallForm.date) { setOnCallError("请选择日期"); return; }
+    if (!onCallForm.doctorId.trim() || !onCallForm.doctorName.trim()) { setOnCallError("请填写医生ID与姓名"); return; }
+    const payload = { date: onCallForm.date, doctorId: onCallForm.doctorId.trim(), doctorName: onCallForm.doctorName.trim(), shift: onCallForm.shift, role: onCallForm.role || undefined };
+    try {
+      const res = onCallEditId ? await deptApi.updateSchedule(onCallEditId, payload) : await deptApi.createSchedule(payload as any);
+      if (!res.success) { setOnCallError(res.error?.message || "保存失败"); return; }
+      setShowOnCallModal(false);
+      setOnCallEditId(null);
+      setOnCallError("");
+      message.success(onCallEditId ? "值班已更新" : "值班已新增");
+      void loadOnCallCalendar(onCallMonth);
+    } catch (e) {
+      setOnCallError(e instanceof Error ? e.message : "保存失败");
+    }
+  };
+
+  const handleOnCallDelete = async (id: string) => {
+    try {
+      const res = await deptApi.deleteSchedule(id);
+      if (res.success) {
+        message.success("值班已删除");
+        void loadOnCallCalendar(onCallMonth);
+      }
+    } catch { /* 忽略 */ }
+  };
+
+  const openOnCallEdit = (item: any) => {
+    setOnCallEditId(item.id);
+    setOnCallForm({ date: item.date, doctorId: item.doctorId, doctorName: item.doctorName, shift: item.shift, role: item.role || "" });
+    setOnCallError("");
+    setShowOnCallModal(true);
+  };
+
+  const openOnCallAdd = (date?: string, shift?: string) => {
+    setOnCallEditId(null);
+    setOnCallForm({ date: date || new Date().toISOString().slice(0, 10), doctorId: "", doctorName: "", shift: shift || "DAY", role: "" });
+    setOnCallError("");
+    setShowOnCallModal(true);
+  };
+
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" };
   const pB = { padding: 16 };
   const tb = (a) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
+  // [G005 Wave3A P2] 公告/值班 tab 内嵌小按钮与表头样式
+  const miniBtn = (color) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 });
+  const thStyle = { padding: "8px 10px", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 };
 
   const toggleOrg = (id) => setExpandedOrgs((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
 
@@ -375,6 +515,19 @@ export default function DepartmentPage() {
   return (
     <PageContainer background="gray" maxWidth="full" padding={16} testId="department-page">
       <DepartmentHeader onExport={() => handleExportReport()} onAdd={() => setShowAddModal(true)} />
+      {/* [G005 Wave3A P2] 活动公告条 (dept-announcements/active) */}
+      {activeAnnouncements.length > 0 && (
+        <div data-testid="dept-active-announcements" style={{ display: "flex", flexDirection: "column", gap: 6, margin: "0 16px 12px", padding: "10px 14px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8 }}>
+          {activeAnnouncements.slice(0, 3).map((a) => (
+            <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+              {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.info} />}
+              <strong style={{ color: C.textDark, whiteSpace: "nowrap" }}>{a.title}</strong>
+              <span style={{ color: C.textMid, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.content}</span>
+              <span style={{ color: C.textLight, fontSize: 12, whiteSpace: "nowrap" }}>{a.author} · 至 {a.expiresAt}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <DepartmentStats />
       {/* [W2-A] 数据源状态条 */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
@@ -395,7 +548,7 @@ export default function DepartmentPage() {
         <span style={{ color: "#9ca3af" }}>同行评审区块为内置演示数据</span>
       </div>
       <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "var(--bg-card)", overflowX: "auto", whiteSpace: "nowrap" }}>
-        {[["staff","人员管理",Users],["performance","绩效统计",BarChart3],["attendance","考勤管理",Calendar],["config","科室配置",Settings],["org","组织架构",Users],["credentials","资质管理",Award],["kpi","KPI仪表盘",BarChart3],["review","同行评审",Eye]].map(([id,label,Icon]) => (
+        {[["staff","人员管理",Users],["performance","绩效统计",BarChart3],["attendance","考勤管理",Calendar],["config","科室配置",Settings],["org","组织架构",Users],["credentials","资质管理",Award],["kpi","KPI仪表盘",BarChart3],["review","同行评审",Eye],["announce","公告管理",Megaphone],["oncall","值班管理",CalendarClock]].map(([id,label,Icon]) => (
           <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
         ))}
       </div>
@@ -577,6 +730,109 @@ export default function DepartmentPage() {
         </div>
       )}
 
+      {/* [G005 Wave3A P2] 公告管理 tab */}
+      {activeTab === "announce" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
+          <div style={panel}>
+            <div style={pH}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}><Megaphone size={14} color={C.primary} />科室公告</span>
+              <span style={{ fontSize: 12, color: C.textLight }}>dept-announcements API · {announcements.length} 条</span>
+              <button onClick={() => { setAnnounceEditId(null); setAnnounceForm({ title: "", content: "", category: "notice", pinned: false, expiresAt: "" }); setAnnounceError(""); setShowAnnounceModal(true); }} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> 发布公告</button>
+            </div>
+            <div style={pB}>
+              {announcements.length === 0 ? (
+                <div style={{ textAlign: "center", padding: 40, color: C.textLight }}>暂无公告, 点击右上角发布</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {announcements.map((a) => (
+                    <div key={a.id} style={{ padding: 12, background: a.pinned ? "#fffbeb" : C.bgLight, borderRadius: 6, border: `1px solid ${a.pinned ? "#fde68a" : C.borderLight}`, borderLeft: `4px solid ${a.pinned ? C.warning : C.primary}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.primary} />}
+                        <strong style={{ fontSize: 14, color: C.textDark }}>{a.title}</strong>
+                        <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: a.category === "urgent" ? C.dangerBg : C.infoBg, color: a.category === "urgent" ? C.danger : C.info }}>
+                          {{ notice: "通知", meeting: "会议", policy: "制度", urgent: "紧急", other: "其他" }[a.category] || a.category}
+                        </span>
+                        {a.pinned && <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: C.warningBg, color: C.warning }}>置顶</span>}
+                        <span style={{ fontSize: 12, color: C.textLight, marginLeft: "auto" }}>{a.author} · {String(a.createdAt).slice(0, 16).replace("T", " ")} · 至 {a.expiresAt}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: C.textMid, marginTop: 6 }}>{a.content}</div>
+                      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                        <button onClick={() => void handleAnnounceTogglePin(a)} style={miniBtn(a.pinned ? C.warning : C.info)}><PinOff size={11} /> {a.pinned ? "取消置顶" : "置顶"}</button>
+                        <button onClick={() => openAnnounceEdit(a)} style={miniBtn(C.primary)}><Edit3 size={11} /> 编辑</button>
+                        <button onClick={() => void handleAnnounceDelete(a.id)} style={miniBtn(C.danger)}><Trash2 size={11} /> 删除</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [G005 Wave3A P2] 值班管理 tab */}
+      {activeTab === "oncall" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 16 }}>
+          <div style={panel}>
+            <div style={pH}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}><CalendarClock size={14} color={C.primary} />值班管理 · {onCallCalendar.month || onCallMonth}</span>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input type="month" value={onCallMonth} onChange={(e) => setOnCallMonth(e.target.value || new Date().toISOString().slice(0, 7))} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} aria-label="选择月份" />
+                <button onClick={() => openOnCallAdd()} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> 新增值班</button>
+              </div>
+            </div>
+            <div style={pB}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "var(--bg-card)" }}>
+                    <th style={{ ...thStyle, textAlign: "left" }}>日期</th>
+                    <th style={thStyle}>白班 (DAY)</th>
+                    <th style={thStyle}>夜班 (NIGHT)</th>
+                    <th style={thStyle}>周末班 (WEEKEND)</th>
+                    <th style={thStyle}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {onCallCalendar.days.map((d) => (
+                    <tr key={d.date} style={{ background: d.isToday ? "#eff6ff" : "transparent" }}>
+                      <td style={{ padding: "8px 10px", borderBottom: `1px solid ${C.borderLight}`, color: d.isToday ? C.primary : C.textDark, fontWeight: d.isToday ? 700 : 400, whiteSpace: "nowrap" }}>
+                        {d.date} {d.weekday}{d.isToday ? " (今天)" : ""}
+                      </td>
+                      {["DAY", "NIGHT", "WEEKEND"].map((shift) => {
+                        const list = d.schedules.filter((s: any) => s.shift === shift);
+                        return (
+                          <td key={shift} style={{ padding: "6px 10px", borderBottom: `1px solid ${C.borderLight}`, textAlign: "center" }}>
+                            {list.length === 0 ? (
+                              <button onClick={() => openOnCallAdd(d.date, shift)} title={`${d.date} 添加${shift}`} style={{ ...miniBtn(C.textLight), fontSize: 11 }}>+</button>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
+                                {list.map((s: any) => (
+                                  <span key={s.id} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "2px 8px", borderRadius: 4, background: C.primaryLighter, fontSize: 12, color: C.textDark }}>
+                                    {s.doctorName} ({s.role})
+                                    <button onClick={() => openOnCallEdit(s)} title="编辑" style={{ border: "none", background: "none", cursor: "pointer", color: C.info, padding: 0 }}><Edit3 size={11} /></button>
+                                    <button onClick={() => void handleOnCallDelete(s.id)} title="删除" style={{ border: "none", background: "none", cursor: "pointer", color: C.danger, padding: 0 }}><Trash2 size={11} /></button>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td style={{ padding: "6px 10px", borderBottom: `1px solid ${C.borderLight}`, textAlign: "center" }}>
+                        <button onClick={() => openOnCallAdd(d.date)} style={miniBtn(C.primary)}><Plus size={11} /> 添加</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {onCallCalendar.days.length === 0 && (
+                    <tr><td colSpan={5} style={{ textAlign: "center", padding: 40, color: C.textLight }}>该月暂无排班数据</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modals */}
       {showAddModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
@@ -677,6 +933,83 @@ export default function DepartmentPage() {
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
                 <button onClick={() => setShowReviewModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
                 <button onClick={handleAssignReview} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>分配</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* [G005 Wave3A P2] 发布/编辑公告 Modal */}
+      {showAnnounceModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 440, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{announceEditId ? "编辑公告" : "发布公告"}</div>
+              <button onClick={() => setShowAnnounceModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+            </div>
+            {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{announceError}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>标题 *</label>
+                <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder="请输入公告标题" style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+              </div>
+              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>内容 * (≥5字)</label>
+                <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder="请输入公告内容" style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none", resize: "vertical" }} />
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>分类</label>
+                  <select value={announceForm.category} onChange={(e) => setAnnounceForm({ ...announceForm, category: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                    {[["notice", "通知"], ["meeting", "会议"], ["policy", "制度"], ["urgent", "紧急"], ["other", "其他"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>有效期至</label>
+                  <input type="date" value={announceForm.expiresAt} onChange={(e) => setAnnounceForm({ ...announceForm, expiresAt: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }} />
+                </div>
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.textMid }}>
+                <input type="checkbox" checked={announceForm.pinned} onChange={(e) => setAnnounceForm({ ...announceForm, pinned: e.target.checked })} style={{ width: 15, height: 15 }} />
+                置顶显示
+              </label>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+                <button onClick={() => setShowAnnounceModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
+                <button onClick={() => void handleAnnounceSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> 保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* [G005 Wave3A P2] 新增/编辑值班 Modal */}
+      {showOnCallModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 420, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{onCallEditId ? "编辑值班" : "新增值班"}</div>
+              <button onClick={() => setShowOnCallModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+            </div>
+            {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{onCallError}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>日期 *</label>
+                  <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }} />
+                </div>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>班次 *</label>
+                  <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                    <option value="DAY">白班 (DAY)</option><option value="NIGHT">夜班 (NIGHT)</option><option value="WEEKEND">周末班 (WEEKEND)</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>医生ID *</label>
+                  <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder="如 D-LI" style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                </div>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>医生姓名 *</label>
+                  <input type="text" value={onCallForm.doctorName} onChange={(e) => setOnCallForm({ ...onCallForm, doctorName: e.target.value })} placeholder="如 李天宇" style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                </div>
+              </div>
+              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>角色</label>
+                <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder="如 首诊医师 / 主诊医师 / 二线值班" style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+              </div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
+                <button onClick={() => setShowOnCallModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
+                <button onClick={() => void handleOnCallSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> 保存</button>
               </div>
             </div>
           </div>

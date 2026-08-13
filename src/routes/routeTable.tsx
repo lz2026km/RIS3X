@@ -941,6 +941,7 @@ export const routes: RouteObject[] = [
   wrapped("/exams", React.createElement(ExamPage)),
   wrapped("/reports", React.createElement(ReportPage)),
   wrapped("/write-report", React.createElement(ReportWritePage)),
+  wrapped("/report/write", React.createElement(ReportWritePage)), // [v3.0.6.11-92 Wave1B P0] 移动端医生工作台 /report/write 目标路由
   wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
   wrapped("/statistics", React.createElement(StatisticsPage)),
   wrapped("/critical-value", React.createElement(CriticalValuePage)),

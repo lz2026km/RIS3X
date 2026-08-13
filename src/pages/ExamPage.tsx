@@ -28,6 +28,7 @@ import {
   PlusCircle,
   Merge as MergeIcon,
   Split as SplitIcon,
+  Eye,
 } from "lucide-react";
 import { initialRadiologyExams, initialPatients } from "../data/initialData";
 import { examApi } from "../services/api";
@@ -40,6 +41,7 @@ import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
 import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
+import { useNavigate } from "react-router-dom";
 
 // ==================== 常量配置 ====================
 const PRIMARY = "#1e40af"; // 浅蓝
@@ -260,6 +262,8 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
 
 // ==================== 主组件 ====================
 export default function ExamPage() {
+  // [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片
+  const navigate = useNavigate();
   // 分页状态
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -1420,8 +1424,27 @@ export default function ExamPage() {
                           </button>
                         </>
                       )}
-                      {(exam.status === "已报告" ||
-                        exam.status === "待报告") && (
+                  {/* [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片 */}
+                  <button
+                    onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
+                    title="阅片"
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: 4,
+                      border: "1px solid var(--border-color)",
+                      backgroundColor: "var(--bg-card)",
+                      color: "var(--text-secondary)",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <Eye size={10} /> 阅片
+                  </button>
+                  {(exam.status === "已报告" ||
+                    exam.status === "待报告") && (
                         <button
                           onClick={() => openModal(exam, "quality")}
                           style={{

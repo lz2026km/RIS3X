@@ -3,8 +3,14 @@ import { PrismaService } from '../../prisma/prisma.service'
 import { createNoopGateway, NotificationsGateway } from '../../notifications/notifications.gateway'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 
-export const WORKLIST_STATES = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const
+export const WORKLIST_STATES = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'PENDING_REPORT'] as const
 export type WorklistState = (typeof WORKLIST_STATES)[number]
+
+// [v3.0.6.11-92 Wave1B P0] 影像质控回写目标态 (前端 qcImageAiApi → worklistApi.updateState)
+export const QC_STATES = ['IMAGE_READY', 'QC_REJECT', 'QC_PASS'] as const
+export type QcState = (typeof QC_STATES)[number]
+// 允许质控流转的源态 (检查已完成后的影像阶段)
+const QC_ALLOWED_FROM = ['COMPLETED', 'IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'PENDING_REPORT']
 
 export interface WorklistListParams {
   page?: number
@@ -241,6 +247,29 @@ export class WorklistService {
       include: { patient: true },
     })
     this.notifyWorklistChanged('cancel', id)
+    return result
+  }
+
+  /**
+   * [v3.0.6.11-92 Wave1B P0] 影像质控回写 exam 状态机:
+   *   IMAGE_READY → exam.state = IMAGE_READY (图像可用)
+   *   QC_REJECT   → exam.state = QC_REJECT (质控退回)
+   *   QC_PASS     → exam.state = PENDING_REPORT (质控通过 → 待报告, 对齐 examMachine QC_PASS → pendingReport)
+   * 仅允许从 COMPLETED / IMAGE_READY / QC_REJECT / QC_PASS / PENDING_REPORT 流转。
+   * 注: note 为质控备注, Exam 无持久化列, 仅用于审计/通知 (不落库)。
+   */
+  async updateQcState(id: string, state: QcState, note?: string) {
+    const exam = await this.getExam(id)
+    if (!QC_ALLOWED_FROM.includes(exam.state)) {
+      throw new BadRequestException(`Exam ${id} 当前状态 ${exam.state} 不允许质控流转 (仅 ${QC_ALLOWED_FROM.join('/')})`)
+    }
+    const target: WorklistState = state === 'QC_PASS' ? 'PENDING_REPORT' : state
+    const result = this.prisma.exam.update({
+      where: { id },
+      data: { state: target },
+      include: { patient: true, device: true },
+    })
+    this.notifyWorklistChanged(`qc=${state}${note ? `:${note}` : ''}`, id)
     return result
   }
 }

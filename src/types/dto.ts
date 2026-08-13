@@ -54,6 +54,8 @@ export interface ReportDto {
   signatureHash?: string
   rejectReason?: string
   reviseReason?: string
+  // [v3.0.6.11-92 Wave1B P0] 后端 reports.service.toReportDto 已返回 state (ReportState 大写枚举)
+  state?: string
 }
 
 export interface ExamDto {

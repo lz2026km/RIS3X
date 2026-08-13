@@ -884,7 +884,8 @@ const XDSIntegration: React.FC = () => {
   };
 
   const handleRetrieveDoc = (_doc: DocumentEntry) => {
-    // Wire to xdsService.retrieve(doc.id) in v3.0.6
+    // [v3.0.6.11-92] xdsService 仅有 list/query/register 方法, 后端无 XDS.b Retrieve (ITI-43) 数据源
+    message.info("文档检索服务待接入 (XDS Retrieve 数据源未就绪)");
   };
 
   return (

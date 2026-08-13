@@ -13,24 +13,24 @@ import { GSOF_MODE_LABELS, GSOF_DOC_TEXT, type GsofMode } from '../../utils/gsdf
 
 const s = {
   centerArea: { flex: 1, display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', background: '#0f172a', position: 'relative' as const },
-  roiToolbar: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', flexShrink: 0, flexWrap: 'wrap' as const },
-  roiToolBtn: { padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
+  roiToolbar: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap' as const },
+  roiToolBtn: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
   roiToolBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  roiToolDivider: { width: 1, height: 24, background: '#e2e8f0', margin: '0 4px' },
-  roiLabel: { fontSize: 12, color: '#64748b', fontWeight: 600, marginRight: 4, whiteSpace: 'nowrap' as const },
+  roiToolDivider: { width: 1, height: 24, background: 'var(--border-color)', margin: '0 4px' },
+  roiLabel: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginRight: 4, whiteSpace: 'nowrap' as const },
   exportBtn: { padding: '6px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' },
-  topToolbar: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', flexShrink: 0, flexWrap: 'wrap' as const },
-  topToolbarSection: { display: 'flex', alignItems: 'center', gap: 4, paddingRight: 8, borderRight: '1px solid #e2e8f0' },
+  topToolbar: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', flexShrink: 0, flexWrap: 'wrap' as const },
+  topToolbarSection: { display: 'flex', alignItems: 'center', gap: 4, paddingRight: 8, borderRight: '1px solid var(--border-color)' },
   topToolbarSectionLast: { display: 'flex', alignItems: 'center', gap: 4 },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' as const },
-  select: { padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', outline: 'none' },
+  label: { fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' as const },
+  select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', outline: 'none' },
   slider: { width: 80, accentColor: PRIMARY } as React.CSSProperties,
   sliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600 },
-  imgCounter: { fontSize: 13, fontWeight: 700, color: '#1e293b' },
+  imgCounter: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' },
   toolBtn: { background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
-  layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
+  layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
   layoutBtnActive: { background: PRIMARY, borderColor: PRIMARY },
-  presetBtn: { padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' } as React.CSSProperties,
+  presetBtn: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' } as React.CSSProperties,
   presetBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   imageMain: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' as const, overflow: 'hidden', background: '#0a0a0a' },
   imageWrapper: { position: 'relative' as const, display: 'flex', alignItems: 'center', justifyContent: 'center' },
@@ -45,9 +45,9 @@ const s = {
   compareDividerHandle: { width: 12, height: 40, background: PRIMARY, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'col-resize', color: '#fff' },
   compareLabel: { position: 'absolute' as const, top: 8, left: 8, background: 'rgba(30,58,95,0.9)', color: '#fff', padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, zIndex: 10 },
   compareLabelRight: { left: 'auto', right: 8 },
-  compareToolbarBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
-  compareToolbarBtnActive: { background: '#3b82f6', borderColor: '#3b82f6', color: '#fff' },
-  fullscreenBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
+  compareToolbarBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s' },
+  compareToolbarBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
+  fullscreenBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
   mipCanvasContainer: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', position: 'relative' as const, overflow: 'hidden' },
   vrCanvasContainer: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', position: 'relative' as const, overflow: 'hidden' },
   diffRegion: { position: 'absolute' as const, border: '2px dashed #ef4444', background: 'rgba(239,68,68,0.15)', borderRadius: 4 },
@@ -64,26 +64,26 @@ const s = {
   measureMenuItem: { width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'transparent', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' } as React.CSSProperties,
   pseudoColorPanel: { position: 'absolute' as const, left: 60, top: 320, width: 180, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
   pseudoColorPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
-  pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569', transition: 'all 0.15s', marginBottom: 4 },
+  pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-secondary)', transition: 'all 0.15s', marginBottom: 4 },
   pseudoColorBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   pseudoColorPreview: { width: 24, height: 24, borderRadius: 4, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 },
   gsofPanel: { position: 'absolute' as const, left: 60, top: 260, width: 240, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 12 },
   gsofPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
-  gsofDoc: { fontSize: 11, color: '#64748b', lineHeight: 1.6, marginTop: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' },
+  gsofDoc: { fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, marginTop: 8, padding: '8px 10px', background: 'var(--bg-primary)', borderRadius: 6, border: '1px solid var(--border-color)' },
   annotationPanel: { position: 'absolute' as const, left: 60, top: 200, width: 200, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
   annotationPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   annotationTypeRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 },
-  annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
+  annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
   annotationTypeBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  annotationTypeBtnLabel: { fontSize: 8, color: '#64748b', textAlign: 'center' as const },
+  annotationTypeBtnLabel: { fontSize: 8, color: 'var(--text-muted)', textAlign: 'center' as const },
   annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 },
   annotationColorBtn: { width: 24, height: 24, borderRadius: 4, border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.15s' },
   annotationColorBtnActive: { border: '2px solid #1e40af', transform: 'scale(1.1)' },
   annotationFontSizeRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 },
-  annotationFontSizeLabel: { fontSize: 12, color: '#64748b', flexShrink: 0 },
-  annotationFontSizeInput: { flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', width: 50 },
-  annotationListItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: '#f8fafc', borderRadius: 6, marginBottom: 4, border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.15s' },
-  annotationListItemSelected: { border: '2px solid #3b82f6', background: '#eff6ff' },
+  annotationFontSizeLabel: { fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 },
+  annotationFontSizeInput: { flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', width: 50 },
+  annotationListItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: '1px solid var(--border-color)', cursor: 'pointer', transition: 'all 0.15s' },
+  annotationListItemSelected: { border: '2px solid var(--color-pending-border)', background: 'var(--color-pending-bg)' },
   annotationListItemLocked: { opacity: 0.7 },
   annotationListItemActions: { display: 'flex', gap: 4, marginLeft: 'auto' },
   annotationActionBtn: { width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2, transition: 'all 0.15s' } as React.CSSProperties,
@@ -265,13 +265,13 @@ export default function ViewportArea(props: Props) {
         <div style={s.topToolbarSection}>
           <span style={s.label}>{t('dcm.imageLabel')}</span>
           <span style={s.imgCounter}>{imageIndex + 1} / {images.length}</span>
-          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid #cbd5e1', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} /></button>
-          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid #cbd5e1', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} /></button>
+          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} /></button>
+          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} /></button>
         </div>
         <div style={s.topToolbarSection}>
           <span style={s.label}>{t('dcm.layoutLabel')}</span>
           {(['1x1', '2x2', '1x2', '2x1'] as LayoutMode[]).map(l => (
-            <button key={l} style={{ ...s.layoutBtn, ...(layout === l ? s.layoutBtnActive : {}) }} onClick={() => handleLayoutChange(l)}><Grid3x3 size={14} color={layout === l ? '#fff' : '#64748b'} /></button>
+            <button key={l} style={{ ...s.layoutBtn, ...(layout === l ? s.layoutBtnActive : {}) }} onClick={() => handleLayoutChange(l)}><Grid3x3 size={14} color={layout === l ? '#fff' : 'var(--text-muted)'} /></button>
           ))}
         </div>
         <div style={s.topToolbarSection}>
@@ -283,14 +283,14 @@ export default function ViewportArea(props: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
           <button style={{ ...s.compareToolbarBtn, ...(selectedHistoryExams.length > 0 ? s.compareToolbarBtnActive : {}) }} onClick={enterCompareMode}><History size={14} />{t('dcm.historyTab')}</button>
         </div>
-        <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 8 }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : '#64748b'} /></button>
+        <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 8 }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : 'var(--text-muted)'} /></button>
         {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 校准开关 */}
         <button
           style={{
             width: 28, height: 28, borderRadius: 6, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: gsofEnabled || showGsofPanel ? '1px solid #1e40af' : '1px solid #cbd5e1',
-            background: gsofEnabled || showGsofPanel ? PRIMARY : '#fff',
+            border: gsofEnabled || showGsofPanel ? '1px solid #1e40af' : '1px solid var(--border-color)',
+            background: gsofEnabled || showGsofPanel ? PRIMARY : 'var(--bg-card)',
             transition: 'all 0.15s',
           }}
           onClick={() => setShowGsofPanel(!showGsofPanel)}
@@ -298,7 +298,7 @@ export default function ViewportArea(props: Props) {
           data-testid="gsof-toggle"
           aria-pressed={gsofEnabled}
         >
-          <MonitorCheck size={14} color={gsofEnabled || showGsofPanel ? '#fff' : '#64748b'} />
+          <MonitorCheck size={14} color={gsofEnabled || showGsofPanel ? '#fff' : 'var(--text-muted)'} />
         </button>
         <button style={s.fullscreenBtn} onClick={toggleFullscreen}>{isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
       </div>
@@ -379,7 +379,7 @@ export default function ViewportArea(props: Props) {
                 <input type="number" value={Math.round(wl)} onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }} style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }} />
               </div>
               <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
-              <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? 'Invert ' : ''}Bright:{brightness}% Contrast:{contrast}%</span>
+              <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? '反色 ' : ''}亮度:{brightness}% 对比度:{contrast}%</span>
               {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : 'CT值'}</span>}
               {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}</span>}
               {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? '标准'} (PS3.14)</span>}
@@ -462,7 +462,7 @@ export default function ViewportArea(props: Props) {
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>重置</button>
-              <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: '#475569', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
+              <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: 'var(--text-secondary)', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
             </div>
           </div>
         )}
@@ -477,7 +477,7 @@ export default function ViewportArea(props: Props) {
             <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>
               <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>清除测量</button>
             </div>
-            <button style={{ ...s.measureMenuItem, color: '#64748b', justifyContent: 'center' }} onClick={closeMeasureMenu}>关闭 (Esc)</button>
+            <button style={{ ...s.measureMenuItem, color: 'var(--text-muted)', justifyContent: 'center' }} onClick={closeMeasureMenu}>关闭 (Esc)</button>
           </div>
         )}
 
@@ -492,7 +492,7 @@ export default function ViewportArea(props: Props) {
                 {pseudoColorMode === mode && <CheckCircle size={12} />}
               </button>
             ))}
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: '#64748b', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
           </div>
         )}
 
@@ -501,23 +501,23 @@ export default function ViewportArea(props: Props) {
           <div ref={gsofPanelRef} role="dialog" aria-modal="true" aria-label="GSOF 校准设置" style={s.gsofPanel} onClick={e => e.stopPropagation()} data-testid="gsof-panel">
             <div style={s.gsofPanelTitle}><Gauge size={14} color={PRIMARY} />GSOF 灰阶校准</div>
             <button
-              style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : '#475569', marginBottom: 8 }}
+              style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : 'var(--text-secondary)', marginBottom: 8 }}
               onClick={() => setGsofEnabled(!gsofEnabled)}
               aria-pressed={gsofEnabled}
               data-testid="gsof-enable-toggle"
             >
               <MonitorCheck size={14} />{gsofEnabled ? 'GSOF 校准已启用' : '启用 GSOF 校准'}
             </button>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 6 }}>对比度档位</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6 }}>对比度档位</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }} role="group" aria-label="GSOF 对比度档位">
               {(Object.keys(GSOF_MODE_LABELS) as GsofMode[]).map(mode => (
                 <button
                   key={mode}
                   style={{
                     padding: '4px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, textAlign: 'center', cursor: 'pointer',
-                    border: gsofMode === mode ? '1px solid #1e40af' : '1px solid #cbd5e1',
+                    border: gsofMode === mode ? '1px solid #1e40af' : '1px solid var(--border-color)',
                     background: gsofMode === mode ? PRIMARY : 'var(--bg-card)',
-                    color: gsofMode === mode ? '#fff' : '#475569',
+                    color: gsofMode === mode ? '#fff' : 'var(--text-secondary)',
                     transition: 'all 0.15s',
                   }}
                   onClick={() => setGsofMode(mode)}
@@ -528,7 +528,7 @@ export default function ViewportArea(props: Props) {
               ))}
             </div>
             <div style={s.gsofDoc}>{GSOF_DOC_TEXT}</div>
-            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: '#64748b', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>关闭 (Esc)</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: 'var(--text-muted)', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>关闭 (Esc)</button>
           </div>
         )}
       </div>

@@ -674,7 +674,7 @@ const EyeRisPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card size="small" title="危急值闭环流程">
+          <Card size="small" title={<Space>危急值闭环流程<Tag color="orange" style={{ fontSize: 11 }}>演示数据 (示例流程)</Tag></Space>}>
             <Timeline
               items={[
                 {

@@ -85,6 +85,19 @@ function StorageMonitorTab() {
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [alertsSaving, setAlertsSaving] = useState(false);
   const [alertsForm] = Form.useForm<StorageAlertsConfig>();
+  // [v3.0.6.11-92] 24h 读写从真实存储统计派生(30 天日均近似), 无真实数据则标注示例值
+  const [storageStats, setStorageStats] = useState<StorageStatsDto | null>(null);
+  useEffect(() => {
+    storageConfigApi.get().then(res => { if (res.success && res.data) setStorageStats(res.data.active); }).catch(() => {});
+  }, []);
+  const twentyFourH = useMemo(() => {
+    const used = storageStats?.usedBytes;
+    if (used && used > 0) {
+      const write = used / 30;
+      return { write, read: write * 3, derived: true };
+    }
+    return { write: 42.8 * 1024 * 1024, read: 124.2 * 1024 * 1024, derived: false };
+  }, [storageStats]);
 
   const loadAlertsConfig = async () => {
     setAlertsLoading(true);
@@ -158,8 +171,20 @@ function StorageMonitorTab() {
             )}
           </Card>
         </Col>
-        <Col span={4}><Card><Statistic title="24h 写入" value="42.8 MB" styles={{ content: { color: "#10b981" } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="24h 读取" value="124.2 MB" styles={{ content: { color: "#0891b2" } }} /></Card></Col>
+        <Col span={4}>
+          <Card>
+            <Tooltip title={twentyFourH.derived ? "由真实存储统计按 30 天日均近似 (读取≈写入×3)" : "后端无 24h 吞吐字段, 展示示例值"}>
+              <Statistic title="24h 写入" prefix={twentyFourH.derived ? "≈ " : "示例值 "} value={formatBytes(twentyFourH.write)} styles={{ content: { color: "#10b981" } }} />
+            </Tooltip>
+          </Card>
+        </Col>
+        <Col span={4}>
+          <Card>
+            <Tooltip title={twentyFourH.derived ? "由真实存储统计按 30 天日均近似 (读取≈写入×3)" : "后端无 24h 吞吐字段, 展示示例值"}>
+              <Statistic title="24h 读取" prefix={twentyFourH.derived ? "≈ " : "示例值 "} value={formatBytes(twentyFourH.read)} styles={{ content: { color: "#0891b2" } }} />
+            </Tooltip>
+          </Card>
+        </Col>
         <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
       </Row>
 
@@ -742,7 +767,7 @@ function StorageBucketsTab() {
               ),
             },
             {
-              title: "Provider",
+              title: "提供商",
               dataIndex: "provider",
               key: "provider",
               width: 120,
@@ -819,7 +844,7 @@ function StorageBucketsTab() {
           >
             <Input placeholder="g005-backup" prefix={<Cloud size={13} />} />
           </Form.Item>
-          <Form.Item name="provider" label="Provider" rules={[{ required: true, message: "请选择 Provider" }]}>
+          <Form.Item name="provider" label="提供商" rules={[{ required: true, message: "请选择提供商" }]}>
             <Select
               options={[
                 { value: "s3", label: "AWS S3" },

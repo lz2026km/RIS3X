@@ -311,7 +311,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
             </div>
 
             <div style={{ minHeight: 100 }}>
-              {columnExams.map(exam => (
+              {columnExams.slice(0, 20).map(exam => (
                 <KanbanCard
                   key={exam.id}
                   exam={exam}
@@ -323,6 +323,11 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
                   smartScore={smartScores.get(exam.id)}
                 />
               ))}
+              {columnExams.length > 20 && (
+                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 11, padding: '8px 0' }}>
+                  还有 {columnExams.length - 20} 条未显示
+                </div>
+              )}
               {columnExams.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 12, padding: '20px 0' }}>
                   暂无记录

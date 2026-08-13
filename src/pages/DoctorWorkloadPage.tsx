@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { DOCTOR_WORKLOADS, type DoctorWorkload } from '../data/knowledgeStatsMock';
 import { statsApi } from '../services/api/statsApi';
+import { biApi } from '../services/api/biApi';
 
 // ============================================================
 // 主组件
@@ -24,6 +25,9 @@ export default function DoctorWorkloadPage() {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(doctors[0]?.doctorId || null);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'ranking' | 'totalReports' | 'qualityScore' | 'avgSignTime'>('ranking');
+  // [v3.0.6.11-92] W2-B P2: RVU 列 (biApi.getPhysicianRvu, 按医生名匹配, 无则 0; 失败回退不阻断)
+  const [rvuByDoctor, setRvuByDoctor] = useState<Record<string, number>>({});
+  const [totalRvu, setTotalRvu] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +67,25 @@ export default function DoctorWorkloadPage() {
         if (!cancelled) setError(e instanceof Error ? e.message : '工作量接口不可用');
       } finally {
         if (!cancelled) setLoading(false);
+      }
+    })();
+    void (async () => {
+      try {
+        const res = await biApi.getPhysicianRvu();
+        if (cancelled || !res.success) return;
+        const env = res.data as any;
+        const physicians = Array.isArray(env?.data?.physicians) ? env.data.physicians : Array.isArray(env?.physicians) ? env.physicians : [];
+        if (physicians.length === 0) return;
+        const map: Record<string, number> = {};
+        for (const p of physicians) {
+          if (p?.doctorName) map[p.doctorName] = Number(p.rvu) || 0;
+        }
+        if (!cancelled) {
+          setRvuByDoctor(map);
+          setTotalRvu(Number(env?.data?.totalRvu ?? env?.totalRvu) || 0);
+        }
+      } catch {
+        // RVU 失败回退不阻断
       }
     })();
     return () => { cancelled = true; };
@@ -192,15 +215,22 @@ export default function DoctorWorkloadPage() {
                         {d.trendValue}%
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
                       <div><strong style={{ color: '#1e40af' }}>{d.totalReports}</strong> 份</div>
                       <div><strong style={{ color: '#10b981' }}>{d.qualityScore}</strong> 分</div>
                       <div><strong style={{ color: '#7c3aed' }}>{d.avgSignTime}m</strong> 签</div>
+                      <div><strong style={{ color: '#b45309' }}>{rvuByDoctor[d.doctorName] ?? 0}</strong> RVU</div>
                     </div>
                   </div>
                 </div>
               );
             })}
+            {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU) */}
+            <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
+              <span><strong style={{ color: 'var(--text-primary)' }}>合计</strong> · {filtered.length} 人</span>
+              <span>报告 <strong style={{ color: '#1e40af' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> 份</span>
+              <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
+            </div>
           </div>
         </div>
 

@@ -141,6 +141,8 @@ export function AppDrawer({
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
+    // [G005 放射流程P0] 面板须高于遮罩层, 否则点击被 overlay 拦截
+    zIndex: zIndex ? zIndex + 1 : "calc(var(--z-modal, 500) + 1)",
   };
 
   let panelStyle: CSSProperties;

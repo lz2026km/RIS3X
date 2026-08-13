@@ -1715,6 +1715,9 @@ model FollowUpPlan {
   tenantId        String    @map("tenant_id")
   patientId       String    @map("patient_id")
   patientName     String    @map("patient_name")
+  // [v3.0.6.11-92 Wave1B P0] 报告→随访关联 (报告详情"创建随访"入口)
+  reportId        String?   @map("report_id")
+  examId          String?   @map("exam_id")
   planDate        DateTime  @map("plan_date")
   intervalDays    Int       @default(30) @map("interval_days")
   nextDate        DateTime  @map("next_date")
@@ -1729,6 +1732,7 @@ model FollowUpPlan {
   @@index([patientId])
   @@index([status])
   @@index([nextDate])
+  @@index([reportId])
   @@map("follow_up_plans")
 }
 

@@ -205,7 +205,7 @@ export function AppResult({ status, title, subTitle, extra }: AppResultProps) {
       status={status}
       title={title}
       subTitle={subTitle}
-      extra={extra ?? <Button type="primary">返回</Button>}
+      extra={extra}
     />
   );
 }

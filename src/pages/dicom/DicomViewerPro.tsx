@@ -9,9 +9,9 @@ import { dicomWebApi, type DicomWebStudy, type DicomWebSeries } from '../../serv
 import {
   Select, Space, Tag, Button, Spin, Alert, Empty, Row, Col, Typography, Segmented, message,
 } from 'antd'
-import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X } from 'lucide-react'
+import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X, PenLine } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Inbox } from 'lucide-react'
 import { DICOM_SAMPLES, type DicomSample } from '../../data/dicomSamples'
 import {
@@ -68,6 +68,7 @@ interface HangingState {
 }
 
 const DicomViewerProPage: React.FC = () => {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const presetStudyUid = searchParams.get('studyUid') ?? undefined
   const presetExamId = searchParams.get('examId') ?? undefined
@@ -342,6 +343,16 @@ const DicomViewerProPage: React.FC = () => {
                 data-testid="hp-auto-apply"
               >
                 自动挂片
+              </Button>
+              {/* [G005 放射流程P0] 阅片→报告: 从当前 study 直达完整书写页 */}
+              <Button
+                size="small"
+                type="primary"
+                icon={<PenLine size={12} />}
+                onClick={() => navigate(`/reports/v3-write?examId=${encodeURIComponent(presetExamId ?? selectedStudy?.patientID ?? '')}&studyUid=${encodeURIComponent(studyUid ?? '')}`)}
+                data-testid="viewer-write-report"
+              >
+                写报告
               </Button>
             </Space>
           </Col>

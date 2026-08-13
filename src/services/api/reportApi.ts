@@ -52,10 +52,32 @@ export const reportApi = {
   // [v3.0.6.11-73] P0 21 态对齐: 提交审核 (WRITING/SUBMITTED → INITIAL_REVIEW)
   submitForReview: (id: string) => transition(id, 'INITIAL_REVIEW'),
 
-  review: async (id: string, _data?: { type: 'initial' | 'final'; doctorId: string; doctorName: string; suggestion: string; score: number }) => {
-    const res = await transition(id, 'REVIEWED')
-    return res
+  // [v3.0.6.11-92 Wave1B P0] 审核分级 transition (修复跳中间态断链):
+  //   初核通过 → FINAL_REVIEW, 终核通过 → CO_SIGN_REVIEW(需双签)/REVIEWED;
+  //   无 type 时 (ReviewCheckPage/ReportReviewPage 通用调用) 按报告当前状态推导下一步
+  review: async (id: string, data?: { type?: 'initial' | 'final'; doctorId?: string; doctorName?: string; suggestion?: string; score?: number; needsCosign?: boolean }) => {
+    if (data?.type === 'initial') return transition(id, 'FINAL_REVIEW')
+    if (data?.type === 'final') return transition(id, data.needsCosign ? 'CO_SIGN_REVIEW' : 'REVIEWED')
+    try {
+      const cur = await api.get<ReportDto>(`/reports/${id}`)
+      const state = cur.data?.state as ReportState | undefined
+      if (state === 'INITIAL_REVIEW') return transition(id, 'FINAL_REVIEW')
+      if (state === 'FINAL_REVIEW') return transition(id, 'CO_SIGN_REVIEW')
+      if (state === 'CO_SIGN_REVIEW') return transition(id, 'REVIEWED')
+      return transition(id, 'REVIEWED')
+    } catch {
+      return transition(id, 'REVIEWED')
+    }
   },
+
+  // [v3.0.6.11-92 Wave1B P0] 双签通过 → REVIEWED (分步链 CO_SIGN_REVIEW → REVIEWED)
+  completeCosignReview: (id: string) => transition(id, 'REVIEWED'),
+
+  // [v3.0.6.11-92 Wave1B P0] 报告特殊态入口: 补充/整改/跨院区重分配/升级
+  supplement: (id: string, note?: string) => transition(id, 'SUPPLEMENTING', note),
+  rectify: (id: string, reason?: string) => transition(id, 'RECTIFYING', reason),
+  redistribute: (id: string, reason?: string) => transition(id, 'REDISTRIBUTING', reason),
+  escalate: (id: string, reason?: string) => transition(id, 'ESCALATED', reason),
 
   sign: async (id: string) => transition(id, 'SIGNED'),
 

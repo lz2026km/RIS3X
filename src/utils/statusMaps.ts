@@ -13,6 +13,11 @@ export const EXAM_STATUS_MAP: Record<string, string> = {
   IN_PROGRESS: '检查中',
   COMPLETED: '已完成',
   CANCELLED: '已取消',
+  // [v3.0.6.11-92 Wave2A P1] 影像质控扩展态 (backend WORKLIST_STATES, PATCH /worklist/:id/state)
+  IMAGE_READY: '图像可用',
+  QC_REJECT: '质控退回',
+  QC_PASS: '质控通过',
+  PENDING_REPORT: '待报告',
 }
 
 /** 历史中文状态 / 旧 mock 状态机 / 报告态 → 规范英文状态 (迁移期兼容) */

@@ -403,7 +403,43 @@ export default function ReportWritePage() {
     let cancelled = false;
     (async () => {
       const queryId = searchParams.get('reportId');
+      const presetExamId = searchParams.get('examId');
+      const presetStudyUid = searchParams.get('studyUid');
       let target: string | null = queryId;
+      // [G005 放射流程P0] 阅片→报告: 无 reportId 但有 examId → 查该检查已有报告, 无则从检查数据新建报告预填
+      if (!target && presetExamId) {
+        try {
+          const listRes = await reportApi.list({ take: '100' });
+          const arr = listRes.success
+            ? (Array.isArray(listRes.data)
+                ? listRes.data
+                : ((listRes.data as { items?: unknown[] })?.items ?? []))
+            : [];
+          const byExam = arr.find((r) => String((r as any)?.examId ?? '') === presetExamId);
+          if (byExam) {
+            target = (byExam as any).reportId || (byExam as any).id;
+          } else {
+            const examRes = await examApi.getById(presetExamId);
+            if (examRes.success && examRes.data) {
+              const d = examRes.data;
+              const user = getCurrentUser();
+              const createRes = await reportApi.create({
+                examId: presetExamId,
+                patientId: d.patientId || d.examId,
+                patientName: d.patientName,
+                modality: d.modality,
+                bodyPart: d.bodyPart,
+                radiologistId: user?.id,
+                findings: '',
+                conclusion: '',
+              });
+              if (createRes.success && createRes.data) target = createRes.data.reportId || createRes.data.id;
+            }
+          }
+        } catch {
+          // 加载失败回退下方现有逻辑
+        }
+      }
       if (!target) {
         const listRes = await reportApi.list({ take: '20' });
         if (listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
@@ -434,6 +470,7 @@ export default function ReportWritePage() {
           reportId: d.reportId || d.id,
           patientId: d.patientId || c.patientId,
           examId: d.examId || c.examId,
+          studyUid: presetStudyUid ?? c.studyUid,
           modality: d.modality || c.modality,
           bodyPart: d.bodyPart || c.bodyPart,
           patientName: d.patientName || '',

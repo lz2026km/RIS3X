@@ -160,6 +160,36 @@ describe('DentalService [G005 W1-A] 在用孤儿端点', () => {
     expect((await svc.getScanModel('SCAN-1')).data.format).toBe('STL')
   })
 
+  // [v3.0.6.11-92 Wave2A P1] 导板套筒配置: PUT /dental/guide/:id/sleeve
+  it('导板套筒: 更新已存在导板 sleeveType/diameter/height/angle', async () => {
+    const { prisma } = makePrisma()
+    const svc = new DentalService(prisma)
+    const guide = await svc.createSurgicalGuide({ patientId: 'PDNT-001', toothNo: '46' })
+    const res: any = await svc.updateGuideSleeve(guide.data.id, { sleeveType: 'BLT-RC-4.8', diameter: 5.0, height: 6.0, angle: 15 })
+    expect(res.success).toBe(true)
+    expect(res.data.sleeveType).toBe('BLT-RC-4.8')
+    expect(res.data.diameter).toBe(5.0)
+    expect(res.data.height).toBe(6.0)
+    expect(res.data.angle).toBe(15)
+    const list = await svc.listSurgicalGuides()
+    const updated: any = list.data.find((g: any) => g.id === guide.data.id)
+    expect(updated.sleeveType).toBe('BLT-RC-4.8')
+    expect(updated.updatedAt).toBeTruthy()
+  })
+
+  it('导板套筒: 部分字段更新 (仅 sleeveType) + 不存在返回 NOT_FOUND', async () => {
+    const { prisma } = makePrisma()
+    const svc = new DentalService(prisma)
+    const guide = await svc.createSurgicalGuide({ patientId: 'PDNT-001', toothNo: '46' })
+    const res: any = await svc.updateGuideSleeve(guide.data.id, { sleeveType: 'NP-RP-4.3' })
+    expect(res.success).toBe(true)
+    expect(res.data.sleeveType).toBe('NP-RP-4.3')
+    expect(res.data.diameter).toBeUndefined()
+    const missing: any = await svc.updateGuideSleeve('GUIDE-NOPE', { sleeveType: 'x' })
+    expect(missing.success).toBe(false)
+    expect(missing.error.code).toBe('NOT_FOUND')
+  })
+
   it('口腔 AI 检测返回演示结果', async () => {
     const { prisma } = makePrisma()
     const svc = new DentalService(prisma)

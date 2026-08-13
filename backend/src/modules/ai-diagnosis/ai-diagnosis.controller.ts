@@ -101,18 +101,6 @@ export class AiDiagnosisController {
     return this.service.reviewLungCad(id, dto)
   }
 
-  @Get('lung-cad')
-  @ApiOperation({ summary: 'Lung CAD result list (alias)' })
-  listLungCadAlias() {
-    return this.service.listLungCad()
-  }
-
-  @Get('lung-cad/:id')
-  @ApiOperation({ summary: 'Lung CAD result detail (alias)' })
-  getLungCadAlias(@Param('id') id: string) {
-    return this.service.getLungCad(id)
-  }
-
   // ── 乳腺 CAD ──────────────────────────────────────────────────────────────
   @Get('breast-cad/results')
   @ApiOperation({ summary: 'Breast CAD result list' })
@@ -145,18 +133,6 @@ export class AiDiagnosisController {
     @Body(new ZodValidationPipe(BreastReviewSchema)) dto: BreastCadReviewDto,
   ) {
     return this.service.reviewBreastCad(id, dto)
-  }
-
-  @Get('breast-cad')
-  @ApiOperation({ summary: 'Breast CAD result list (alias)' })
-  listBreastCadAlias() {
-    return this.service.listBreastCad()
-  }
-
-  @Get('breast-cad/:id')
-  @ApiOperation({ summary: 'Breast CAD result detail (alias)' })
-  getBreastCadAlias(@Param('id') id: string) {
-    return this.service.getBreastCad(id)
   }
 
   // ── 骨折 CAD ──────────────────────────────────────────────────────────────
@@ -193,18 +169,6 @@ export class AiDiagnosisController {
     return this.service.reviewFractureCad(id, dto)
   }
 
-  @Get('fracture-cad')
-  @ApiOperation({ summary: 'Fracture CAD result list (alias)' })
-  listFractureCadAlias() {
-    return this.service.listFractureCad()
-  }
-
-  @Get('fracture-cad/:id')
-  @ApiOperation({ summary: 'Fracture CAD result detail (alias)' })
-  getFractureCadAlias(@Param('id') id: string) {
-    return this.service.getFractureCad(id)
-  }
-
   // ── 心脏 AI ───────────────────────────────────────────────────────────────
   @Get('cardiac-ai/results')
   @ApiOperation({ summary: 'Cardiac AI result list' })
@@ -237,18 +201,6 @@ export class AiDiagnosisController {
     @Body(new ZodValidationPipe(CardiacReviewSchema)) dto: CardiacAiReviewDto,
   ) {
     return this.service.reviewCardiacAi(id, dto)
-  }
-
-  @Get('cardiac-ai')
-  @ApiOperation({ summary: 'Cardiac AI result list (alias)' })
-  listCardiacAiAlias() {
-    return this.service.listCardiacAi()
-  }
-
-  @Get('cardiac-ai/:id')
-  @ApiOperation({ summary: 'Cardiac AI result detail (alias)' })
-  getCardiacAiAlias(@Param('id') id: string) {
-    return this.service.getCardiacAi(id)
   }
 
   // ── 统计与准确率 ──────────────────────────────────────────────────────────

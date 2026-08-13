@@ -145,7 +145,9 @@ export const dentalApi = {
   getGuideMaterials: () => api.get<any[]>(`${DENTAL_API}/guide/materials`),
   listSurgicalGuides: () => api.get<any[]>(`${DENTAL_API}/guide/list`),
   createSurgicalGuide: (data: any) => api.post<any>(`${DENTAL_API}/guide`, data),
-  updateGuideSleeve: (id: string, sleeveType: string) => api.put<any>(`${DENTAL_API}/guide/${id}/sleeve`, { sleeveType }),
+  // [v3.0.6.11-92 Wave2A P1] 导板套筒配置: PUT /dental/guide/:id/sleeve (sleeveType/diameter/height/angle, 后端+MSW 均已支持)
+  updateGuideSleeve: (id: string, data: { sleeveType?: string; diameter?: number; height?: number; angle?: number }) =>
+    api.put<any>(`${DENTAL_API}/guide/${id}/sleeve`, data),
   exportSurgicalGuide: (id: string) => api.post<any>(`${DENTAL_API}/guide/${id}/export`),
   checkImplantPrices: (brand: string, models: string[]) =>
     api.get<any[]>(`${DENTAL_API}/implant/inventory/price-check?brand=${brand}&models=${models.join(',')}`),
