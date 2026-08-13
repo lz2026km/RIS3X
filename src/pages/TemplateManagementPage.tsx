@@ -192,7 +192,7 @@ export default function TemplateManagementPage() {
         throw new Error('文件不是合法 JSON')
       }
       const items: any[] = Array.isArray(parsed) ? parsed : Array.isArray(parsed.templates) ? parsed.templates : []
-      if (items.length === 0) throw new Error('未解析到模板数据 (期望数组, 元素含 name/category/content/modality)')
+      if (items.length === 0) throw new Error('未解析到模板数据（请确认文件为 JSON 数组）')
       let ok = 0
       let failed = 0
       const firstError: string[] = []
@@ -204,7 +204,7 @@ export default function TemplateManagementPage() {
         const modality = String(it.modality ?? 'CT').trim() || 'CT'
         if (!name || !content) {
           failed++
-          firstError.push(`第 ${i + 1} 条缺少 name/content`)
+          firstError.push(`第 ${i + 1} 条缺少模板名称/内容`)
           continue
         }
         try {
@@ -383,7 +383,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockVersions)</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（版本）</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
@@ -536,7 +536,7 @@ export default function TemplateManagementPage() {
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>用户满意度</span>
               </div>
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <div style={{ fontSize: 36, fontWeight: 800, color: C.warning }}>4.5</div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>4.5</div>
                 <div style={{ fontSize: 12, color: C.textLight }}>/ 5.0</div>
                 <div style={{ display: 'flex', gap: 2, justifyContent: 'center', margin: '6px 0' }}>
                   {[1, 2, 3, 4, 5].map(s => <span key={s} style={{ color: s <= 4 ? C.warning : C.border, fontSize: 18 }}>★</span>)}
@@ -579,7 +579,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockShares)</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（分享）</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
             <option value="全部">全部模板</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}

@@ -184,7 +184,7 @@ const TeleSignPage: React.FC = () => {
       </Modal>
 
       {/* [W1-B] 发起签署会话: POST /tele-sign/session */}
-      <Modal title="发起签署会话 (POST /tele-sign/session)" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
+      <Modal title="发起签署会话" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
         <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
           <Form.Item label="报告ID" name="reportId" rules={[{ required: true, message: '请输入报告ID' }]}>
             <Input placeholder="如 R20260718-001" />

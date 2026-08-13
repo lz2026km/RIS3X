@@ -144,7 +144,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
 
   return (
     <div style={{ display: 'flex', height: '100%', background: 'var(--bg-card)' }}>
-      <aside style={{ width: 280, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 12 }}>
+      <aside style={{ width: 280, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <span style={{ fontWeight: 700, color: '#1e40af' }}>规则列表 ({rules.length})</span>
           <button onClick={handleAdd} disabled={readonly} style={addBtnStyle}>
@@ -187,7 +187,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
       </aside>
       <main style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
         {selected ? (
-          <div style={{ background: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
               <div>
                 <label style={labelStyle}>规则名称</label>
@@ -325,13 +325,13 @@ function flatten(group: RuleConditionGroup): RuleCondition[] {
 }
 
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 };
-const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, color: '#1e40af', background: '#fff' };
+const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, color: '#1e40af', background: 'var(--bg-card)' };
 const sectionStyle: React.CSSProperties = { marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 };
 const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: '#1e40af', fontSize: 13 };
-const addBtnStyle: React.CSSProperties = { background: '#fff', border: '1px solid #cbd5e1', color: '#1e40af', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
+const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: '#1e40af', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
 
 const tabBtnStyle = (active: boolean): React.CSSProperties => ({
-  background: active ? '#1e40af' : '#fff',
+  background: active ? '#1e40af' : 'var(--bg-card)',
   color: active ? '#fff' : '#1e40af',
   border: '1px solid #cbd5e1',
   padding: '4px 10px',

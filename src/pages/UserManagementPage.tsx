@@ -97,7 +97,7 @@ export default function UserManagementPage() {
             <p style={{ fontSize: 12, color: '#94a3b8' }}>
               {fromApi
                 ? '临时密码仅显示一次, 请立即转交用户。失败登录计数已清零。'
-                : '后端 reset-password 接口待接入 (Round 11), 临时密码仅本地展示。失败登录计数已清零。'}
+                : '后端重置密码接口待接入, 临时密码仅本地展示。失败登录计数已清零。'}
             </p>
           </div>
         ),
@@ -164,7 +164,7 @@ export default function UserManagementPage() {
               fontSize: 14,
             }}
           >
-            🔒 您当前角色没有用户管理权限 (user.manage),无法新增/编辑/删除用户。请联系系统管理员。
+            🔒 您当前角色没有用户管理权限,无法新增/编辑/删除用户。请联系系统管理员。
           </div>
         }
       >

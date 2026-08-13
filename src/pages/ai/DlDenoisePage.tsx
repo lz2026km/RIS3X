@@ -6,6 +6,8 @@ import { aiPlatformApi, type AiPlatformDenoiseResult } from '../../services/api/
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
 
+const ALGORITHM_LABELS: Record<string, string> = { median: '中值滤波' }
+
 type ModelType = 'cnn' | 'unet' | 'gan' | 'transformer'
 // [G005 v3.0.6.11-90 Wave 4B (G-10)] 数据源: preview=本地预览 real=真实后端 fallback=演示回退
 type DataSource = 'preview' | 'real' | 'fallback'
@@ -210,7 +212,7 @@ const DlDenoisePage: React.FC = () => {
         <Sparkles size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>深度学习降噪</span>
         <Tag color="cyan">深度学习降噪</Tag>
-        {dataSource === 'real' && <Tag color="green">真实后端 · {serverResult?.algorithm ?? 'median'}</Tag>}
+        {dataSource === 'real' && <Tag color="green">真实后端 · {ALGORITHM_LABELS[serverResult?.algorithm ?? 'median'] ?? serverResult?.algorithm ?? '中值滤波'}</Tag>}
         {dataSource === 'fallback' && <Tag color="orange">演示回退 · 本地渲染</Tag>}
         {dataSource === 'preview' && <Tag color="gold">本地预览 · 参数实时可调</Tag>}
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>

@@ -911,6 +911,7 @@ const dentalEmrModule = [
 ];
 
 // [v3.0.6.8-95] Phase 4: 收费/划价/医保 (15 端点)
+// [G005 Wave1A P0] 后端 dental 模块已实现同路径, 本模块仅 dev 兜底
 const dentalBillingModule = [
   http.get(`${DENTAL_API}/billing/fee-catalog`, async () => {
     await delay(30);

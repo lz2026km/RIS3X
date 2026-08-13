@@ -3,6 +3,7 @@ import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptio
 import { Plus } from 'lucide-react';
 import { DentalPageLayout, EmptyState } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
+import { usePagination } from '@/hooks/usePagination';
 
 export const DentalInventoryPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -11,6 +12,8 @@ export const DentalInventoryPage: React.FC = () => {
   const [form] = Form.useForm();
   const [detail, setDetail] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
+  // [G005 Wave2B P2] 库存列表受控分页 (usePagination, pageSize 10)
+  const { pageData, pagination } = usePagination(items, 10);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,7 +94,7 @@ export const DentalInventoryPage: React.FC = () => {
       {items.length === 0 ? (
         <EmptyState tip="暂无库存项" onCreate={() => setModalOpen(true)} createLabel="新增库存" />
       ) : (
-        <Table dataSource={items} rowKey="id" size="small" columns={[
+        <Table dataSource={pageData} rowKey="id" size="small" pagination={pagination} columns={[
           { title: 'ID', dataIndex: 'id', width: 100 },
           { title: '名称', dataIndex: 'name' },
           { title: '类别', dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },

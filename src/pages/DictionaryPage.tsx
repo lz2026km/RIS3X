@@ -829,7 +829,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockMappings)</span></div>
+          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（映射）</span></div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
             <div style={s.searchBox}>
               <Search size={15} color="var(--text-secondary)" />
@@ -901,7 +901,7 @@ export default function DictionaryPage() {
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <div style={s.chartCard}>
-            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockFhirSystems/mockConcepts)</span></div>
+            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（术语）</span></div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               <div style={s.searchBox}>
                 <Search size={15} color="var(--text-secondary)" />
@@ -1022,7 +1022,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><History size={16} /> 字典版本管理 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockVersionHistory)</span></div>
+          <div style={s.chartTitle}><History size={16} /> 字典版本管理 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（版本）</span></div>
           <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
             <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
               {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
@@ -1301,7 +1301,7 @@ export default function DictionaryPage() {
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1 }}>
             <div style={s.chartCard}>
-              <div style={s.chartTitle}><TrendingUp size={16} /> 使用趋势 (近6个月) <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockUsageStats)</span></div>
+              <div style={s.chartTitle}><TrendingUp size={16} /> 使用趋势 (近6个月) <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据（使用统计）</span></div>
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
                 {mockUsageStats[0].trend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>

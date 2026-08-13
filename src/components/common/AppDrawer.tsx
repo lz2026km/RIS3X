@@ -136,7 +136,7 @@ export function AppDrawer({
 
   const panelBase: CSSProperties = {
     position: "fixed",
-    background: "#fff",
+    background: "var(--bg-card)",
     boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
     display: "flex",
     flexDirection: "column",
@@ -192,7 +192,7 @@ export function AppDrawer({
           <div
             style={{
               padding: "14px 20px",
-              borderBottom: "1px solid #e2e8f0",
+              borderBottom: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -223,8 +223,8 @@ export function AppDrawer({
                   width: 32,
                   height: 32,
                   borderRadius: 8,
-                  border: "1px solid #e2e8f0",
-                  background: "#fff",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--bg-card)",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -247,7 +247,7 @@ export function AppDrawer({
           <div
             style={{
               padding: "12px 20px",
-              borderTop: "1px solid #e2e8f0",
+              borderTop: "1px solid var(--border-color)",
               background: "#f8fafc",
               display: "flex",
               gap: 10,

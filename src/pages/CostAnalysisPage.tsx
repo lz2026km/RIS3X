@@ -102,7 +102,7 @@ export default function CostAnalysisPage() {
             revenue: m.revenue,
             cost: Math.round(m.revenue * costPerRevenue),
           })),
-          source: 'financeApi 实时',
+          source: '财务接口实时',
         })
       } else {
         setLive(null)
@@ -377,8 +377,8 @@ export default function CostAnalysisPage() {
       {activeTab === 'benefit' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            <CostCard title="年度总收入" value={formatCurrency(benefitTotals.revenue)} subtitle={live ? 'financeApi 实时聚合' : '近12个月累计'} icon={TrendingUp} trend="up" trendValue={benefitTrendLabel || '+18.2%'} color="#22c55e" />
-            <CostCard title="年度总成本" value={formatCurrency(benefitTotals.cost)} subtitle={live ? 'financeApi 实时聚合' : '近12个月累计'} icon={DollarSign} color="#ef4444" />
+            <CostCard title="年度总收入" value={formatCurrency(benefitTotals.revenue)} subtitle={live ? '财务接口实时聚合' : '近12个月累计'} icon={TrendingUp} trend="up" trendValue={benefitTrendLabel || '+18.2%'} color="#22c55e" />
+            <CostCard title="年度总成本" value={formatCurrency(benefitTotals.cost)} subtitle={live ? '财务接口实时聚合' : '近12个月累计'} icon={DollarSign} color="#ef4444" />
             <CostCard title="年度总利润" value={formatCurrency(benefitTotals.profit)} subtitle="收入-成本" icon={TrendingUp} trend="up" trendValue="+22.5%" color="#22c55e" />
             <CostCard title="利润率" value={formatPercent(benefitTotals.marginPct)} subtitle="利润/收入" icon={BarChart3} color="#3b82f6" />
           </div>

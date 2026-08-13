@@ -4,6 +4,10 @@
 // (/ai-diagnosis/cardiac-ai, 见 pages/cardiac/cardiacAiAdapter.ts), 本文件全部方法 MOCK_ONLY
 // 保留为演示回退 (真实接口失败时兜底), 保持 import 兼容。
 // 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
+// [G005 v3.0.6.11-91 W1-B P1 第12轮] 死封装清理:
+//   · getAnalyses: CardiacSpecialtyPage/CvDatabasePage 仅作真实接口失败后的本地演示回退
+//     (直接返回 DEMO_ANALYSES, 不发起网络请求 → 无 404) → 标注 DEPRECATED (回退保留)。
+//   · 其余 9 方法 0 引用 (无页面调用) → 标注 DEPRECATED 保留清理标记。
 import type { ApiResponse } from './types';
 
 export type CoronarySegmentName = 'LM' | 'LAD-p' | 'LAD-m' | 'LAD-d' | 'LCX-p' | 'LCX-m' | 'LCX-d' | 'RCA-p' | 'RCA-m' | 'RCA-d';
@@ -117,7 +121,8 @@ const DEMO_ANALYSES: CardiacAnalysis[] = [
 ];
 
 export const cardiacSpecialtyApi = {
-  // MOCK_ONLY: 本地演示数据
+  // ===== DEPRECATED (第12轮): 仅 getAnalyses 作页面演示回退, 其余 9 方法 0 引用 =====
+  // MOCK_ONLY: 本地演示数据, 不发网络请求 (避免 404)
   getCoronaryAnalysis: (studyId: string) =>
     mockOk<CoronarySegment[]>(DEMO_ANALYSES.find(a => a.id === studyId)?.coronarySegments ?? []),
   analyzeCoronary: (studyId: string) =>
@@ -130,6 +135,7 @@ export const cardiacSpecialtyApi = {
     mockOk<{ lvEf: number; rvEf: number }>({ lvEf: DEMO_ANALYSES.find(a => a.id === studyId)?.lvFunction?.efPercent ?? 55, rvEf: 58 }),
   getValveAssessment: (studyId: string) =>
     mockOk<ValveAssessment[]>(DEMO_ANALYSES.find(a => a.id === studyId)?.valves ?? []),
+  // DEPRECATED: 页面仅作演示回退 (返回本地 DEMO_ANALYSES, 不调 API)
   getAnalyses: (_params?: Record<string, any>) =>
     mockOk<CardiacAnalysis[]>(DEMO_ANALYSES),
   getAnalysis: (id: string) =>

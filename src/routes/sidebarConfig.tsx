@@ -81,6 +81,7 @@ import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Hea
 import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
 import { ScanEye, Images, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
 import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, BadgeCheck, Flame, Building2, Share2, Library, HardDrive, QrCode, Ruler, CalendarCheck, AlertTriangle } from 'lucide-react';
+import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -284,7 +285,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/report-defect-library",
-        icon: <AlertOctagon size={18} />,
+        icon: <Bug size={18} />,
         labelKey: "nav.defectLibrary",
         roles: ["医生", "主任", "管理员",],
       },
@@ -440,7 +441,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/defect-management",
-        icon: <AlertOctagon size={18} />,
+        icon: <ListChecks size={18} />,
         labelKey: "nav.defectManagement",
         roles: ["主任", "管理员"],
       },
@@ -502,7 +503,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/workflow-designer",
-        icon: <GitBranch size={18} />,
+        icon: <Workflow size={18} />,
         labelKey: "nav.workflowDesigner",
         roles: ["管理员"],
       },
@@ -533,7 +534,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/orchestrator",
-        icon: <GitBranch size={18} />,
+        icon: <Route size={18} />,
         labelKey: "nav.orchestrator",
         roles: ["管理员", "主任"],
       },
@@ -619,13 +620,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-41] A12 影像处理补齐: MPR / MIP / VR / 后处理 / DBT
       {
         path: "/dicom/mpr",
-        icon: <Layers size={18} />,
+        icon: <Box size={18} />,
         labelKey: "nav.mpr",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       {
         path: "/dicom/mip",
-        icon: <Layers size={18} />,
+        icon: <Grid3X3 size={18} />,
         labelKey: "nav.mip",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -707,7 +708,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [P1-fix] 删除上方已重复的 cross-modal-search 条目
       {
         path: "/dicom/sr-manager",
-        icon: <FileText size={18} />,
+        icon: <ScrollText size={18} />,
         labelKey: "nav.dicomSr",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -732,7 +733,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/sr-report",
-        icon: <FileText size={18} />,
+        icon: <FileSignature size={18} />,
         labelKey: "nav.srReport",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -745,7 +746,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/sr-templates",
-        icon: <FileText size={18} />,
+        icon: <ScrollText size={18} />,
         labelKey: "nav.dicomSrTemplates",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -774,7 +775,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ai-structured-report",
-        icon: <FileText size={18} />,
+        icon: <FileCheck2 size={18} />,
         labelKey: "nav.aiStructuredReport",
         roles: ["医生", "主任", "管理员",],
       },
@@ -842,7 +843,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [Sprint 4] F13 AI Marketplace
       {
         path: "/ai-marketplace",
-        icon: <Cpu size={18} />,
+        icon: <Store size={18} />,
         labelKey: "nav.aiMarketplace",
         roles: ["医生", "主任", "管理员",],
       },
@@ -997,7 +998,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/regional-report",
-        icon: <FileText size={18} />,
+        icon: <Globe size={18} />,
         labelKey: "nav.regionalReport",
         roles: ["管理员"],
       },
@@ -1103,7 +1104,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [audit-fix-2026-07-28] IHE/HL7 管理
       {
         path: "/ihe/manager",
-        icon: <Network size={18} />,
+        icon: <Cable size={18} />,
         labelKey: "nav.iheManager",
         roles: ["主任", "管理员", "技师"],
       },
@@ -1120,7 +1121,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/integration/dimse",
-        icon: <Network size={18} />,
+        icon: <Link2 size={18} />,
         labelKey: "nav.dimse",
         roles: ["技师", "管理员", "医生", "主任"],
       },
@@ -1299,7 +1300,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ops/devices",
-        icon: <Cpu size={18} />,
+        icon: <Server size={18} />,
         labelKey: "nav.deviceOps",
         roles: ["主任", "管理员"],
       },
@@ -1563,7 +1564,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/sub/strabismus",
-        icon: <Eye size={18} />,
+        icon: <ScanEye size={18} />,
         labelKey: "nav.eyeStrabismus",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1581,31 +1582,31 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/sub/cornea",
-        icon: <Eye size={18} />,
+        icon: <Scan size={18} />,
         labelKey: "nav.eyeCornea",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/eye/sub/contact-lens",
-        icon: <Eye size={18} />,
+        icon: <Glasses size={18} />,
         labelKey: "nav.eyeContactLens",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/eye/sub/low-vision",
-        icon: <Eye size={18} />,
+        icon: <EyeOff size={18} />,
         labelKey: "nav.eyeLowVision",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/eye/sub/cataract",
-        icon: <Eye size={18} />,
+        icon: <Sparkles size={18} />,
         labelKey: "nav.eyeCataract",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/eye/sub/refractive",
-        icon: <Eye size={18} />,
+        icon: <Focus size={18} />,
         labelKey: "nav.eyeRefractive",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -2048,7 +2049,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom-sr-manager",
-        icon: <FileText size={18} />,
+        icon: <FileSignature size={18} />,
         labelKey: "nav.dicomSrManager",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2084,7 +2085,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/ai-fusion-workspace",
-        icon: <Layers size={18} />,
+        icon: <GitMerge size={18} />,
         labelKey: "nav.aiFusionWorkspace",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2126,7 +2127,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/v3-report-hub",
-        icon: <FileText size={18} />,
+        icon: <LayoutGrid size={18} />,
         labelKey: "nav.v3ReportHub",
         roles: ["医生", "主任", "管理员"],
       },
@@ -2297,7 +2298,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/system/compliance",
-        icon: <ShieldCheck size={18} />,
+        icon: <BadgeCheck size={18} />,
         labelKey: "nav.systemCompliance",
         roles: ["管理员", "主任"],
       },
@@ -2321,7 +2322,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/equipment-lifecycle",
-        icon: <Cpu size={18} />,
+        icon: <Wrench size={18} />,
         labelKey: "nav.equipmentLifecycle",
         roles: ["技师", "管理员"],
       },
@@ -2357,7 +2358,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/contrast/adverse-reactions",
-        icon: <AlertOctagon size={18} />,
+        icon: <AlertTriangle size={18} />,
         labelKey: "nav.adverseReactions",
         roles: ["技师", "管理员"],
       },
@@ -2375,7 +2376,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/contrast/quality-compliance",
-        icon: <ShieldCheck size={18} />,
+        icon: <ClipboardCheck size={18} />,
         labelKey: "nav.contrastQualityCompliance",
         roles: ["技师", "管理员"],
       },

@@ -153,6 +153,19 @@ export interface AiPlatformDenoiseResult {
   strength?: number;
 }
 
+// [G005 v3.0.6.11-91 W1-B P1 第12轮] 模型测试结果 (后端 aiplatform.service.testAiModel:
+// POST /ai-platform/models/:id/test, TestAiModelSchema: { timeoutMs? }, 返回 { data: [AiTestResult] })
+export interface AiPlatformTestResult {
+  id: string;
+  reachable: boolean;
+  latencyMs: number;
+  timeoutMs: number;
+  status: string;
+  message: string;
+  endpoint: string | null;
+  testedAt: string;
+}
+
 function unwrap<T>(res: { success: boolean; data: unknown }): T {
   const body = res.data as { data?: T } | T | null;
   if (body && typeof body === "object" && "data" in body && (body as { data: unknown }).data !== undefined) {
@@ -253,6 +266,12 @@ export const aiPlatformApi = {
         message: "后端 aiplatform 未实现任务取消(仅模拟队列)",
       },
     }),
+
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 模型连通性测试 (后端 POST /ai-platform/models/:id/test)
+  testModel: async (id: string, timeoutMs?: number) => {
+    const res = await api.post<unknown>(`/ai-platform/models/${id}/test`, timeoutMs ? { timeoutMs } : {});
+    return { ...res, data: unwrapOne<AiPlatformTestResult>(res) };
+  },
 
   // [W1-B] 后端新增 GET /ai-platform/stats (由 aiModel/aiJob/auditLog 聚合)
   getStats: async () => {

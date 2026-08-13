@@ -88,7 +88,7 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
   }
 
   return (
-    <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 12, background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+    <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 12, background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       {offline && (
         <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-offline-badge">
           <Tag icon={<WifiOff size={12} />} color="warning">离线模式</Tag>

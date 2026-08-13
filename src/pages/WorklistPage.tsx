@@ -4,6 +4,7 @@ import { useFocusTrap } from '../a11y/SkipLink'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
   Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
+  Download, CloudDownload, CheckCircle2,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar,
@@ -11,6 +12,7 @@ import {
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
+import { dicomWebApi } from '../services/api/dicomApi'
 import { ChartContainer } from '../components/charts'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { realtime } from '../services/realtime'
@@ -570,6 +572,71 @@ export default function WorklistPage() {
       return true
     })
   }, [exams, filtersKey])
+
+  // ============================================================
+  // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取 (工作列表 prefetch)
+  //  - 顶部「预取」按钮: 勾选行或全部 → POST /dicom-web/prefetch → 状态提示
+  //  - 「预取状态」指示条: cached/total 进度 + 完成后 Tag
+  //  - 行内「预取」状态列: 按 GET /dicom-web/prefetch/status 结果渲染
+  //  - studyUid 以检查记录 id 近似 (工作列表数据源无 studyInstanceUID)
+  // ============================================================
+  const [prefetchStatusMap, setPrefetchStatusMap] = useState<Record<string, 'cached' | 'queued' | 'none'>>({})
+  const [prefetchStats, setPrefetchStats] = useState<{ total: number; cached: number; pending: number } | null>(null)
+  const [prefetchBusy, setPrefetchBusy] = useState(false)
+  const [prefetchMsg, setPrefetchMsg] = useState<string | null>(null)
+  const prefetchMsgTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showPrefetchMsg = useCallback((msg: string) => {
+    setPrefetchMsg(msg)
+    if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current)
+    prefetchMsgTimer.current = setTimeout(() => setPrefetchMsg(null), 5000)
+  }, [])
+
+  useEffect(() => () => {
+    if (prefetchMsgTimer.current) clearTimeout(prefetchMsgTimer.current)
+  }, [])
+
+  const refreshPrefetchStatus = useCallback(async () => {
+    try {
+      await invalidateApiCacheByPrefix('/dicom-web/prefetch')
+      const res = await dicomWebApi.prefetchStatus()
+      if (res.success && res.data) {
+        const map: Record<string, 'cached' | 'queued' | 'none'> = {}
+        for (const s of res.data.studies ?? []) map[s.studyUid] = s.status
+        setPrefetchStatusMap(map)
+        setPrefetchStats({ total: res.data.total, cached: res.data.cached, pending: res.data.pending })
+      }
+    } catch { /* 预取状态不可用不阻断 */ }
+  }, [])
+
+  useEffect(() => { void refreshPrefetchStatus() }, [refreshPrefetchStatus])
+
+  const handlePrefetch = useCallback(async (scope: 'selected' | 'all') => {
+    if (prefetchBusy) return
+    const source = scope === 'selected'
+      ? exams.filter(e => selectedIds.has(e.id))
+      : filteredExams.length > 0 ? filteredExams : exams
+    const studyUids = source.map(e => e.id).filter(Boolean)
+    if (studyUids.length === 0) {
+      showPrefetchMsg(scope === 'selected' ? '请先勾选要预取的检查' : '当前列表无检查可预取')
+      return
+    }
+    setPrefetchBusy(true)
+    try {
+      const res = await dicomWebApi.prefetch(studyUids)
+      if (res.success && res.data) {
+        showPrefetchMsg(`影像预取已提交: 新入队 ${res.data.queued} 项, 已缓存 ${res.data.cached} 项`)
+      } else {
+        showPrefetchMsg(res.error?.message ?? '预取提交失败')
+      }
+      await refreshPrefetchStatus()
+    } catch (err) {
+      showPrefetchMsg(err instanceof Error ? err.message : '预取服务不可用')
+    } finally {
+      setPrefetchBusy(false)
+      setTimeout(() => { void refreshPrefetchStatus() }, 3000)
+    }
+  }, [prefetchBusy, exams, filteredExams, selectedIds, refreshPrefetchStatus, showPrefetchMsg])
 
   const computeSmartScoreInput = useCallback((exam: RadiologyExam) => {
     const waitMs = exam.createdTime ? Date.now() - new Date(exam.createdTime).getTime() : 0
@@ -1223,8 +1290,75 @@ export default function WorklistPage() {
           >
             刷新列表
           </AppButton>
+
+          {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取按钮 (勾选行或全部) */}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <AppButton
+              variant="default"
+              size="compact"
+              onClick={() => void handlePrefetch('selected')}
+              disabled={prefetchBusy}
+              icon={<Download size={12} />}
+              testId="prefetch-selected"
+              title={`预取已勾选的 ${selectedIds.size} 项检查影像`}
+            >
+              预取{selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+            </AppButton>
+            <AppButton
+              variant="default"
+              size="compact"
+              onClick={() => void handlePrefetch('all')}
+              disabled={prefetchBusy}
+              icon={<CloudDownload size={12} />}
+              testId="prefetch-all"
+              title="预取当前列表全部检查影像"
+            >
+              预取全部
+            </AppButton>
+          </div>
         </div>
       </div>
+
+      {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 预取状态指示条: cached/total 进度 + 完成 Tag */}
+      {prefetchStats && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+          borderRadius: 12, padding: '10px 16px', marginBottom: 12, fontSize: 12,
+        }} data-testid="prefetch-status-bar">
+          <span style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <CloudDownload size={13} /> 影像预取
+          </span>
+          <div style={{ flex: 1, minWidth: 160, background: 'var(--bg-deep)', borderRadius: 999, height: 8, overflow: 'hidden', position: 'relative' }}>
+            <div style={{
+              height: '100%', width: `${prefetchStats.total > 0 ? Math.round((prefetchStats.cached / prefetchStats.total) * 100) : 0}%`,
+              background: prefetchStats.pending > 0 ? '#3b82f6' : '#22c55e', transition: 'width 0.4s',
+            }} />
+          </div>
+          <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+            已缓存 <b style={{ color: prefetchStats.pending > 0 ? '#2563eb' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
+            {prefetchStats.pending > 0 && <span style={{ color: '#d97706', marginLeft: 6 }}>排队中 {prefetchStats.pending}</span>}
+          </span>
+          {prefetchStats.pending === 0 && prefetchStats.total > 0 && (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 10px', borderRadius: 999,
+              background: '#dcfce7', color: '#059669', fontWeight: 700, whiteSpace: 'nowrap',
+            }} data-testid="prefetch-done-tag">
+              <CheckCircle2 size={12} /> 预取完成
+            </span>
+          )}
+          {prefetchBusy && <span style={{ color: '#64748b', whiteSpace: 'nowrap' }}>提交中...</span>}
+        </div>
+      )}
+      {prefetchMsg && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8,
+          padding: '8px 14px', marginBottom: 12, fontSize: 12, color: '#1e40af',
+        }} data-testid="prefetch-msg" role="status">
+          <CheckCircle size={13} /> {prefetchMsg}
+        </div>
+      )}
 
       <CheckInBar
         onCheckIn={handleCheckIn}
@@ -1349,7 +1483,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12,
           padding: '10px 16px', marginBottom: 16, fontSize: 12,
         }} styles={{ body: { padding: 0 } }}>
-          <span style={{ fontWeight: 700, color: '#1e40af' }}>服务器统计 (GET /worklist/stats)</span>
+          <span style={{ fontWeight: 700, color: '#1e40af' }}>服务器统计</span>
           <span style={{ color: 'var(--text-secondary)' }}>总量: <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
           {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
             <span key={status} style={{
@@ -1410,6 +1544,7 @@ export default function WorklistPage() {
           onViewRequisition={setRequisitionExam}
           onViewHistory={(exam) => { setHistoryDrawerTab('history'); setSelectedExam(exam) }}
           onCriticalValueClick={handleCriticalValueClick}
+          prefetchStatus={prefetchStatusMap}
         />
       )}
 

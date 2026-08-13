@@ -7,8 +7,8 @@ import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../serv
 import {
   Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, Statistic, message,
 } from 'antd'
-import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw } from 'lucide-react'
-import React, { useState } from 'react'
+import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw, DatabaseZap } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SearchX } from 'lucide-react'
 
@@ -35,6 +35,47 @@ const CrossModalSearchPage: React.FC = () => {
   const [searched, setSearched] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [indexStatus, setIndexStatus] = useState<{ totalDocuments: number; lastIndexedAt?: string; status: string } | null>(null)
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 重建索引 + 搜索建议 (crossModalApi.reindex / getSuggestions)
+  const [reindexing, setReindexing] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestionLoading, setSuggestionLoading] = useState(false)
+
+  useEffect(() => {
+    void loadIndexStatus()
+  }, [])
+
+  // 搜索建议: 输入 ≥2 字符后 300ms 防抖调用 getSuggestions
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 2) { setSuggestions([]); return }
+    setSuggestionLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await crossModalApi.getSuggestions(q)
+        if (res.success && Array.isArray(res.data)) setSuggestions(res.data.slice(0, 6))
+        else setSuggestions([])
+      } catch { setSuggestions([]) }
+      finally { setSuggestionLoading(false) }
+    }, 300)
+    return () => { clearTimeout(timer) }
+  }, [query])
+
+  const handleReindex = async () => {
+    setReindexing(true)
+    try {
+      const res = await crossModalApi.reindex()
+      if (res.success) {
+        message.success('索引重建已触发')
+        await loadIndexStatus()
+      } else {
+        message.error(res.error?.message ?? '重建索引失败')
+      }
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : '重建索引失败')
+    } finally {
+      setReindexing(false)
+    }
+  }
 
   const classify = (r: CrossModalSearchResult): ResultType => {
     const m = (r.matchedField ?? 'study').toLowerCase()
@@ -189,8 +230,21 @@ const CrossModalSearchPage: React.FC = () => {
               <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>搜索</Button>
               <Button icon={<ScanSearch size={14} />} onClick={handleSimilarButton} disabled={results.length === 0}>相似检索</Button>
               <Button icon={<RefreshCw size={14} />} onClick={() => void loadIndexStatus()}>索引状态</Button>
+              <Button icon={<DatabaseZap size={14} />} loading={reindexing} onClick={() => void handleReindex()}>重建索引</Button>
               <Text type="secondary" style={{ fontSize: 12 }}>支持文本 + 患者 + 模态混合检索</Text>
             </Space>
+          </Col>
+          <Col span={24}>
+            {suggestionLoading ? (
+              <Spin size="small" />
+            ) : suggestions.length > 0 ? (
+              <Space size={6} wrap>
+                <Text type="secondary" style={{ fontSize: 12 }}>搜索建议:</Text>
+                {suggestions.map((s) => (
+                  <Tag key={s} color="blue" style={{ cursor: 'pointer' }} onClick={() => setQuery(s)}>{s}</Tag>
+                ))}
+              </Space>
+            ) : null}
           </Col>
         </Row>
       </Card>

@@ -22,6 +22,8 @@ import {
   History,
   UserCheck,
   AlertOctagon,
+  CheckCircle2,
+  CloudDownload,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Inbox } from 'lucide-react'
@@ -105,6 +107,8 @@ interface ListViewProps {
   onViewRequisition?: (exam: RadiologyExam) => void;
   onViewHistory?: (exam: RadiologyExam) => void;
   onCriticalValueClick?: (exam: RadiologyExam) => void;
+  /** [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 行内影像预取状态: examId -> cached/queued/none */
+  prefetchStatus?: Record<string, 'cached' | 'queued' | 'none'>;
 }
 
 // 影像缩略图预览: 有 thumbnail 用图, 无则显示模态图标 + 帧数
@@ -197,6 +201,7 @@ export function ListView({
   onViewRequisition,
   onViewHistory,
   onCriticalValueClick,
+  prefetchStatus,
 }: ListViewProps) {
   // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
   const listPagination = usePagination(exams, 10);
@@ -294,6 +299,27 @@ export function ListView({
       key: "images",
       width: 80,
       render: (_value, exam) => <ImagePreviewCell exam={exam} />,
+    },
+    // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取状态列 (按 prefetch/status 渲染)
+    {
+      title: "预取",
+      dataIndex: "id",
+      key: "prefetch",
+      width: 90,
+      sorter: (a, b) => {
+        const order = { cached: 0, queued: 1, none: 2 };
+        return (order[prefetchStatus?.[a.id] ?? "none"] ?? 2) - (order[prefetchStatus?.[b.id] ?? "none"] ?? 2);
+      },
+      render: (_value, exam) => {
+        const state = prefetchStatus?.[exam.id] ?? "none";
+        if (state === "cached") {
+          return <Tag color="success" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CheckCircle2 size={12} />}>已缓存</Tag>;
+        }
+        if (state === "queued") {
+          return <Tag color="processing" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CloudDownload size={12} />}>排队中</Tag>;
+        }
+        return <span style={{ fontSize: 12, color: "#cbd5e1" }}>未预取</span>;
+      },
     },
     {
       title: "患者类型",
@@ -461,7 +487,7 @@ export function ListView({
         </div>
       ),
     },
-  ], [exams, onRowClick, onAssignDoctor, onViewRequisition, onViewHistory, onCriticalValueClick]);
+  ], [exams, onRowClick, onAssignDoctor, onViewRequisition, onViewHistory, onCriticalValueClick, prefetchStatus]);
 
   return (
     <ProTable<RadiologyExam>

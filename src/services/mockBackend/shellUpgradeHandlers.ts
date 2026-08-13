@@ -118,7 +118,42 @@ const dicomWebHandlers = [
       },
     }, { status: 201 });
   }),
+  // ── [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取队列 (模拟: 入队 → 延时转 cached) ──
+  http.post(`${API_BASE}/dicom-web/prefetch`, async ({ request }) => {
+    await delay(delayMs(80, 220));
+    const body = await request.json().catch(() => ({})) as { studyUids?: unknown };
+    const uids = Array.isArray(body.studyUids)
+      ? Array.from(new Set(body.studyUids.map((s) => String(s).trim()).filter(Boolean)))
+      : [];
+    let queued = 0;
+    let cached = 0;
+    for (const uid of uids) {
+      const state = prefetchState.get(uid);
+      if (state === 'cached') { cached += 1; continue; }
+      if (state === 'queued') { queued += 1; continue; }
+      prefetchState.set(uid, 'queued');
+      queued += 1;
+      setTimeout(() => {
+        if (prefetchState.get(uid) === 'queued') prefetchState.set(uid, 'cached');
+      }, 2500);
+    }
+    return HttpResponse.json({ success: true, data: { queued, cached } });
+  }),
+  http.get(`${API_BASE}/dicom-web/prefetch/status`, async () => {
+    await delay(delayMs(40, 120));
+    const studies = Array.from(prefetchState.entries()).map(([studyUid, status]) => ({ studyUid, status }));
+    const cached = studies.filter((s) => s.status === 'cached').length;
+    return HttpResponse.json({
+      success: true,
+      data: { total: studies.length, cached, pending: studies.length - cached, studies },
+    });
+  }),
 ];
+
+// [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 预取队列内存状态 (seed: 前 3 个样例已缓存)
+const prefetchState = new Map<string, 'queued' | 'cached'>(
+  MOCK_STUDIES.slice(0, 3).map((s) => [s.studyInstanceUID, 'cached']),
+);
 
 // ───────────────────────── Critical Alert ─────────────────────────
 let criticalAlerts: any[] = Array.from({ length: 12 }, (_, i) => {

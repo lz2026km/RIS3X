@@ -170,7 +170,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
     >
       <div
         style={{
-          background: '#fff', borderRadius: 14, width: '100%', maxWidth: 720,
+          background: 'var(--bg-card)', borderRadius: 14, width: '100%', maxWidth: 720,
           maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         }}
@@ -228,7 +228,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                       onClick={() => setQuestionCount(n)}
                       style={{
                         padding: '8px 18px', borderRadius: 8, border: `1px solid ${questionCount === n ? COLORS.info : COLORS.border}`,
-                        background: questionCount === n ? '#eff6ff' : '#fff',
+                        background: questionCount === n ? 'var(--color-info-bg)' : 'var(--bg-card)',
                         color: questionCount === n ? COLORS.info : COLORS.textMuted,
                         fontSize: 13, fontWeight: 600, cursor: 'pointer',
                       }}
@@ -246,7 +246,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                     onClick={() => setCategory('all')}
                     style={{
                       padding: '8px 14px', borderRadius: 8, border: `1px solid ${category === 'all' ? COLORS.info : COLORS.border}`,
-                      background: category === 'all' ? '#eff6ff' : '#fff',
+                      background: category === 'all' ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: category === 'all' ? COLORS.info : COLORS.textMuted, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     }}
                   >
@@ -270,7 +270,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                       onClick={() => { setCategory('all'); startExam(c.name) }}
                       style={{
                         padding: '4px 10px', borderRadius: 12, border: `1px solid ${COLORS.border}`,
-                        background: '#fff', color: COLORS.textMuted, fontSize: 12, cursor: 'pointer',
+                        background: 'var(--bg-card)', color: COLORS.textMuted, fontSize: 12, cursor: 'pointer',
                       }}
                     >
                       {c.name} ({c.count})
@@ -335,11 +335,11 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                   const isCorrect = opt === q.correct
                   const isChosen = selected === opt
                   let border = COLORS.border
-                  let bg = '#fff'
+                  let bg = 'var(--bg-card)'
                   if (locked) {
                     if (isCorrect) { border = COLORS.success; bg = COLORS.successBg }
                     else if (isChosen) { border = COLORS.danger; bg = COLORS.dangerBg }
-                  } else if (isChosen) { border = COLORS.info; bg = '#eff6ff' }
+                  } else if (isChosen) { border = COLORS.info; bg = 'var(--color-info-bg)' }
                   return (
                     <button
                       key={idx}
@@ -448,7 +448,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                         onClick={resetAll}
                         style={{
                           padding: '10px 24px', borderRadius: 8, border: `1px solid ${COLORS.border}`,
-                          background: '#fff', color: COLORS.text, fontSize: 13, fontWeight: 600,
+                          background: 'var(--bg-card)', color: COLORS.text, fontSize: 13, fontWeight: 600,
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
                         }}
                       >

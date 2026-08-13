@@ -224,7 +224,7 @@ export default function AdverseReactionPage() {
                               patientName: r.patientName || undefined,
                               actionsTaken: r.action ? [r.action] : undefined,
                             })
-                            message.success('不良事件上报已提交 (POST /safety/adverse-events)')
+                            message.success('不良事件上报已提交')
                           } catch (e) {
                             message.error((e as Error)?.message || '上报失败')
                             return

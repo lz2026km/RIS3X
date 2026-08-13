@@ -96,11 +96,11 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
     <div data-testid="review-comment-thread" role="region" aria-label="审核批注">
       <div
         style={{
-          background: '#f8fafc',
+          background: 'var(--bg-primary)',
           padding: '8px 12px',
           borderRadius: 6,
           marginBottom: 8,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
         }}
       >
         <Space style={{ width: '100%' }}>
@@ -113,9 +113,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
 
       <div
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           borderRadius: 6,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
           padding: 8,
           marginBottom: 8,
         }}
@@ -153,9 +153,9 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
         loading={loading}
         dataSource={comments}
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           borderRadius: 6,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
           maxHeight: 400,
           overflowY: 'auto',
         }}

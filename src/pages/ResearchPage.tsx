@@ -556,7 +556,7 @@ function ExportTab() {
     try {
       localStorage.setItem('ris_research_export_permissions', JSON.stringify(exportPermissions))
     } catch { /* ignore */ }
-    showToast('导出权限设置已保存 (本地持久化 · researchApi 无权限端点)', 'success')
+    showToast('导出权限设置已保存 (本地持久化 · 暂无权限管理端点)', 'success')
     setShowPermissionModal(false)
   }
   const handleDownload = (record: ExportRecord) => { showToast(`开始下载: ${record.downloadUrl}`, 'info') }
@@ -696,9 +696,25 @@ function CohortBuilderTab() {
   const removeCriterion = (idx: any) => { setCriteria(criteria.filter((_: any, i: any) => i !== idx)) }
   const updateCriterion = (idx: number, key: 'field' | 'operator' | 'value' | 'logic', val: string) => { const c = [...criteria]; const target = c[idx]; if (target) target[key] = val; setCriteria(c) }
   const estimateSize = () => { setEstimatedSize(Math.floor(Math.random() * 2000) + 100) }
-  const saveCohort = () => {
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] createCohort 真实接入: POST /research/cohorts (后端已有), 成功刷新列表
+  const saveCohort = async () => {
     if (!cohortName.trim()) return
-    setSavedCohorts([...savedCohorts, { id: `C${Date.now()}`, name: cohortName, criteria: criteria.map(c => `${c.field} ${c.operator} ${c.value}`).join(' AND '), estimatedSize, createdBy: '当前用户', createdDate: new Date().toISOString().split('T')[0]!, lastRun: '-' }])
+    try {
+      const res = await researchApi.createCohort({
+        name: cohortName,
+        criteria: criteria.map(c => `${c.field} ${c.operator} ${c.value}`).join(' AND '),
+        estimatedSize,
+        createdBy: '当前用户',
+      })
+      if (res.success && res.data) {
+        setSavedCohorts(prev => [res.data as CohortDefinition, ...prev])
+        showToast(`队列「${cohortName}」已保存`, 'success')
+      } else {
+        showToast(res.error?.message ?? '队列保存失败', 'error')
+      }
+    } catch {
+      showToast('队列保存失败', 'error')
+    }
     setShowSaveDialog(false); setCohortName('')
   }
 
@@ -788,9 +804,25 @@ function IRBWorkflowTab() {
   }, [])
   const [form, setForm] = useState({ projectName: '', pi: '', consentForm: '' })
   const [viewing, setViewing] = useState<IRBSubmission | null>(null)
-  const submitIRB = () => {
-    setSubmissions([...submissions, { id: `IRB${Date.now()}`, projectName: form.projectName, pi: form.pi, submittedDate: new Date().toISOString().split('T')[0]!, status: 'draft', approvedDate: '', expiryDate: '', consentForm: form.consentForm }])
-    setShowForm(false); setForm({ projectName: '', pi: '', consentForm: '' }); showToast('IRB申请已提交', 'success')
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] createIRBSubmission 真实接入: POST /research/irb (后端已有), 成功刷新列表
+  const submitIRB = async () => {
+    if (!form.projectName.trim() || !form.pi.trim()) { showToast('请填写课题名称和PI', 'error'); return }
+    try {
+      const res = await researchApi.createIRBSubmission({
+        projectName: form.projectName,
+        pi: form.pi,
+        consentForm: form.consentForm,
+      })
+      if (res.success && res.data) {
+        setSubmissions(prev => [res.data as IRBSubmission, ...prev])
+        showToast('IRB申请已提交', 'success')
+      } else {
+        showToast(res.error?.message ?? 'IRB提交失败', 'error')
+      }
+    } catch {
+      showToast('IRB提交失败', 'error')
+    }
+    setShowForm(false); setForm({ projectName: '', pi: '', consentForm: '' })
   }
   const statusColors: Record<string, string> = { draft: COLORS.textSecondary, submitted: COLORS.warning, approved: COLORS.success, rejected: COLORS.danger }
   const statusLabels: Record<string, string> = { draft: '草稿', submitted: '已提交', approved: '已批准', rejected: '已拒绝' }

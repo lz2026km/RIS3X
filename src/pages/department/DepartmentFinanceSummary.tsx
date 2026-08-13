@@ -77,7 +77,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={panelStyle}>
           <div style={panelHeaderStyle}>
-            <span>工作量统计</span>
+            <span>工作量统计 {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据</span></span>
             <div style={{ display: "flex", gap: 8 }}>
               <select style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}><option>本周</option><option>本月</option><option>本季度</option></select>
             </div>
@@ -168,7 +168,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
         </div>
         <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>月度趋势</h4>
+            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>月度趋势 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据</span></h4>
             <div style={{ display: "flex", gap: 8 }}>
               {["cards", "charts"].map((v) => (
                 <button key={v} onClick={() => setKpiView(v as any)} style={{ padding: "4px 12px", background: kpiView === v ? C.primary : C.white, color: kpiView === v ? C.white : C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{v === "cards" ? "概览" : "图表"}</button>

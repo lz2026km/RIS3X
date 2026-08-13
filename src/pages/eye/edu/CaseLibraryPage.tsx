@@ -37,6 +37,8 @@ import {
   Filter,
   Microscope,
 } from "lucide-react";
+// [G005 Wave1A P0] /eye/edu/* 真实后端 (eye-edu 模块), MSW 仅 dev 兜底
+import { eyeApi } from "../../../services/api/eyeApi";
 
 const MODALITY_LABELS_DICT: Record<string, string> = {
   fundus: "眼底照相",
@@ -86,6 +88,8 @@ export const CaseLibraryPage: React.FC = () => {
   // 新增病例
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  // [G005 Wave1A P0] 后端可用性标注: 失败时回退本地 + 展示标记
+  const [backendDown, setBackendDown] = useState(false);
   const [newCase, setNewCase] = useState({
     patientName: "",
     patientId: "",
@@ -98,10 +102,20 @@ export const CaseLibraryPage: React.FC = () => {
 
   const loadCases = async () => {
     try {
-      const r = await fetch("/api/v1/eye/edu/cases?pageSize=20");
-      const data = await r.json();
-      if (data.success) setCases(data.data);
-    } catch { /* ignore */ }
+      const res = await eyeApi.getEduCases({ pageSize: 20 });
+      if (res.success && Array.isArray(res.data)) {
+        setCases(res.data);
+        return;
+      }
+      if (Array.isArray((res.data as any)?.data)) {
+        setCases((res.data as any).data);
+        return;
+      }
+      throw new Error("getEduCases 形状不符");
+    } catch (e) {
+      setBackendDown(true);
+      console.warn("[F03] 后端不可用, 回退本地:", (e as Error)?.message);
+    }
   };
 
   const handleCreateCase = async () => {
@@ -111,13 +125,8 @@ export const CaseLibraryPage: React.FC = () => {
     }
     setCreating(true);
     try {
-      const r = await fetch("/api/v1/eye/edu/cases", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newCase, status: "draft" }),
-      });
-      const data = await r.json();
-      if (data.success) {
+      const res = await eyeApi.createEduCase({ ...newCase, status: "draft" });
+      if (res.success) {
         message.success("教学病例已创建");
         void loadCases();
         setShowCreateModal(false);
@@ -138,6 +147,7 @@ export const CaseLibraryPage: React.FC = () => {
     } catch {
       message.warning("创建接口不可用，已本地加入列表");
     }
+    setBackendDown(true);
     setCases(prev => [{
       id: `C${Date.now()}`,
       reportId: `R${Date.now()}`,
@@ -166,14 +176,11 @@ export const CaseLibraryPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch("/api/v1/eye/edu/cases?pageSize=20");
-        const data = await r.json();
-        if (data.success) setCases(data.data);
-
-        const pr = await fetch("/api/v1/eye/edu/annotation-projects");
-        const pd = await pr.json();
-        if (pd.success) setProjects(pd.data);
+        await loadCases();
+        const pres = await eyeApi.listEduAnnotationProjects();
+        if (pres.success && Array.isArray(pres.data)) setProjects(pres.data);
       } catch (e) {
+        setBackendDown(true);
         console.warn("[F03] Error:", (e as Error)?.message);
       }
     })();
@@ -182,10 +189,11 @@ export const CaseLibraryPage: React.FC = () => {
   // 详情
   const handleCaseDetail = async (caseId: string) => {
     try {
-      const r = await fetch(`/api/v1/eye/edu/cases/${caseId}`);
-      const data = await r.json();
-      if (data.success) setSelectedCase(data.data);
+      const res = await eyeApi.getEduCase(caseId);
+      if (res.success) setSelectedCase(res.data);
+      else setBackendDown(true);
     } catch (e: any) {
+      setBackendDown(true);
       message.error(e.message);
     }
   };
@@ -194,23 +202,19 @@ export const CaseLibraryPage: React.FC = () => {
   const handleAnnotate = async () => {
     if (!selectedCase) return;
     try {
-      const r = await fetch("/api/v1/eye/edu/annotate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          caseId: selectedCase.id || selectedCase.reportId,
-          annotationType: newAnnotation.type,
-          coordinates: [
-            [100, 100],
-            [200, 200],
-          ],
-          label: newAnnotation.label || "test",
-          color: newAnnotation.color,
-        }),
+      const res = await eyeApi.annotateEduCase(selectedCase.id || selectedCase.reportId, {
+        annotationType: newAnnotation.type,
+        coordinates: [
+          [100, 100],
+          [200, 200],
+        ],
+        label: newAnnotation.label || "test",
+        color: newAnnotation.color,
       });
-      const data = await r.json();
-      if (data.success) message.success("标注已添加");
+      if (res.success) message.success("标注已添加");
+      else setBackendDown(true);
     } catch (e: any) {
+      setBackendDown(true);
       message.error(e.message);
     }
   };
@@ -219,21 +223,17 @@ export const CaseLibraryPage: React.FC = () => {
   const handleExportSR = async () => {
     if (!selectedCase) return;
     try {
-      const r = await fetch("/api/v1/eye/edu/export-sr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          caseId: selectedCase.id,
-          annotations: [{ label: "视盘", annotationType: "roi" }],
-          format: "sr-tid1500",
-        }),
+      const res = await eyeApi.eduExportSr({
+        caseId: selectedCase.id,
+        annotations: [{ label: "视盘", annotationType: "roi" }],
+        format: "sr-tid1500",
       });
-      const data = await r.json();
-      if (data.success) {
-        setSrExportResult(data.data);
+      if (res.success) {
+        setSrExportResult(res.data);
         message.success("DICOM-SR 已导出");
-      }
+      } else setBackendDown(true);
     } catch (e: any) {
+      setBackendDown(true);
       message.error(e.message);
     }
   };
@@ -242,17 +242,13 @@ export const CaseLibraryPage: React.FC = () => {
   const handleDeidentify = async () => {
     if (!selectedCase) return;
     try {
-      const r = await fetch("/api/v1/eye/edu/deidentify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ caseId: selectedCase.id, level: "basic" }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setDeidentifiedResult(data.data);
+      const res = await eyeApi.eduDeidentify({ caseId: selectedCase.id, level: "basic" });
+      if (res.success) {
+        setDeidentifiedResult(res.data);
         message.success("脱敏完成");
-      }
+      } else setBackendDown(true);
     } catch (e: any) {
+      setBackendDown(true);
       message.error(e.message);
     }
   };
@@ -260,32 +256,26 @@ export const CaseLibraryPage: React.FC = () => {
   // 队列筛选
   const handleCohort = async () => {
     try {
-      const r = await fetch("/api/v1/eye/edu/cohort", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          criteria: {
-            disease: diseaseFilter,
-            gender: "all",
-            ageMin: 18,
-            ageMax: 90,
-          },
-        }),
+      const res = await eyeApi.eduCohort({
+        criteria: {
+          disease: diseaseFilter,
+          gender: "all",
+          ageMin: 18,
+          ageMax: 90,
+        },
       });
-      const data = await r.json();
-      if (data.success) {
-        setCohort(data.data);
+      if (res.success) {
+        const cohortData = res.data as any;
+        setCohort(cohortData);
         // 立即获取统计
-        const sr = await fetch(
-          "/api/v1/eye/edu/stats?cohortId=" + data.data.cohortId,
-        );
-        const sd = await sr.json();
-        if (sd.success) setStats(sd.data);
+        const sres = await eyeApi.eduStats({ cohortId: cohortData.cohortId });
+        if (sres.success) setStats(sres.data);
         message.success(
-          `队列 ${data.data.cohortId}: ${data.data.totalCases} 例`,
+          `队列 ${cohortData.cohortId}: ${cohortData.totalCases} 例`,
         );
-      }
+      } else setBackendDown(true);
     } catch (e: any) {
+      setBackendDown(true);
       message.error(e.message);
     }
   };
@@ -299,8 +289,12 @@ export const CaseLibraryPage: React.FC = () => {
         <Tag color="purple">v3.0.6.8-42</Tag>
         <Tag color="blue">DICOM 标注 + SR 导出</Tag>
         <Tag color="green">DICOM PS 3.15 脱敏</Tag>
-        {/* [v3.0.6.11-88 Round10] /eye/edu/* 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/edu/* 已接真实后端 (eye-edu 模块), 失败时回退本地并标注 */}
+        {backendDown ? (
+          <Tag color="orange">离线回退 (后端不可用)</Tag>
+        ) : (
+          <Tag color="green">真实后端 /eye/edu/*</Tag>
+        )}
       </Space>
 
       <Tabs

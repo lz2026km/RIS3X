@@ -1878,6 +1878,7 @@ const eyeIolModule = [
 // ============= [v3.0.6.8-37] PR 4: 8 亚专科纵深 (10 端点) =============
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表: 斜视 (同视机/三棱镜) / 神经 (色觉/PVEP) / 眼眶 (眼突计) / 角膜 (Pentacam/BAD) / 接触镜 + 低视力
+// [G005 Wave1A P0] 后端 eye-subspecialty 模块已实现同路径, 本模块仅 dev 兜底
 
 const eyeSubspecialtyDepthModule = [
   // 1) 斜视 - 同视机
@@ -2362,6 +2363,7 @@ const eyeTeleconsultModule = [
 // ============= [v3.0.6.8-42] PR 9: 教学病例库 (10 端点) =============
 // 对标: Heidelberg 病例库 + 科研 DICOM 标注 + DICOM PS 3.15 脱敏
 // DICOM 标注 + DICOM-SR/TID 1500 导出 + 科研脱敏 + 队列筛选
+// [G005 Wave1A P0] 后端 eye-edu 模块已实现同路径, 本模块仅 dev 兜底
 
 const eyeCaseLibraryModule = [
   // 1) 教学病例列表
@@ -2420,6 +2422,40 @@ const eyeCaseLibraryModule = [
         createdAt: new Date().toISOString(),
       },
     });
+  }),
+
+  // [G005 Wave1A P0] 后端真实路径 (eye-edu 模块) 的 dev 兜底: 路径内标注
+  http.post(`${API_BASE}/edu/cases/:caseId/annotate`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { annotationType?: 'roi' | 'segmentation' | 'measurement' | 'text' | 'arrow'; coordinates?: any; label?: string; color?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        annotationId: `ANN${Date.now()}`,
+        caseId: params.caseId,
+        annotationType: body.annotationType ?? 'roi',
+        coordinates: body.coordinates ?? [],
+        label: body.label ?? '',
+        color: body.color || '#2563eb',
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // [G005 Wave1A P0] 后端真实路径 dev 兜底: 创建标注项目
+  http.post(`${API_BASE}/edu/annotation-projects`, async ({ request }) => {
+    await delay(50);
+    const body = (await request.json()) as { name?: string; total?: number; completed?: number };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        projectId: `AP${Date.now()}`,
+        name: body.name ?? '未命名标注项目',
+        total: body.total ?? 100,
+        completed: body.completed ?? 0,
+        status: (body.completed ?? 0) >= (body.total ?? 100) ? 'completed' : 'in_progress',
+      },
+    }, { status: 201 });
   }),
 
   // 5) 病例标注列表

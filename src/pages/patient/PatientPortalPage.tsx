@@ -90,14 +90,14 @@ export const PatientPortalPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" tip="加载中..." />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <User size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者门户</span>

@@ -1106,7 +1106,7 @@ const biRadsStats = [
       {showRegisterModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRegisterModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 480, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>登记筛查 (POST /screening/queue)</div>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>登记筛查</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div><div style={s.formLabel}>患者ID *</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientId} onChange={e => setRegForm({ ...regForm, patientId: e.target.value })} placeholder="如 P100006" /></div>
               <div><div style={s.formLabel}>患者姓名 *</div><input style={{ ...s.formSelect, width: '100%' }} value={regForm.patientName} onChange={e => setRegForm({ ...regForm, patientName: e.target.value })} placeholder="请输入姓名" /></div>
@@ -1173,7 +1173,7 @@ const biRadsStats = [
               {['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => <option key={ty} value={ty}>{ty}</option>)}
             </select>
             <button style={{ ...s.btnPrimary, padding: '6px 14px' }} onClick={() => void loadQueue()}><Search size={13} /> 查询</button>
-            <button style={{ ...s.btnPrimary, padding: '6px 14px', background: '#059669' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> 登记筛查 (POST /screening/queue)</button>
+            <button style={{ ...s.btnPrimary, padding: '6px 14px', background: '#059669' }} onClick={() => setShowRegisterModal(true)}><Plus size={13} /> 登记筛查</button>
           </div>
 
           {queueLoading ? (

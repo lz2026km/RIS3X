@@ -407,6 +407,7 @@ export type {
   AiPlatformStats,
   AiPlatformQcResult,
   AiPlatformMedicalDevice,
+  AiPlatformTestResult,
 } from "./aiPlatformApi";
 
 export { aiDiagnosisApi } from "./aiDiagnosisApi";

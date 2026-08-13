@@ -219,7 +219,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
       {constants.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
-            IOL 常数表 ({constantsSource === 'api' ? 'ULIB 2024 · eyeApi.getIolConstants' : '本地'})
+            IOL 常数表 ({constantsSource === 'api' ? 'ULIB 2024 · 在线常数库' : '本地'})
             <Tag color="blue" style={{ marginLeft: 6, fontSize: 10 }}>A 常数已同步</Tag>
           </div>
           <Table

@@ -3865,6 +3865,10 @@ export default function InsuranceAuditPage() {
       <PageHeader
         icon={<ShieldCheck size={22} style={{ color: "#1e40af" }} />}
         title={t("title")}
+        subtitle={
+          /* [G005 Wave2B P2] statsData/fundTrendData 等大量硬编码 → 部分演示数据徽标 */
+          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600 }}>部分演示数据</span>
+        }
       />
 
       {/* KPI 卡片 */}

@@ -304,7 +304,7 @@ export default function QcImageAiPage() {
           </Spin>
           {detail && (
             <div style={{ marginTop: 12, background: "var(--color-info-bg)", borderRadius: 8, padding: 12, fontSize: 12, color: "var(--text-primary)" }}>
-              <b>详情 (GET /qc/image-ai/result-v2/:instanceId)</b> - {detail.instanceId} [{detail.modality}]
+              <b>详情</b> - {detail.instanceId} [{detail.modality}]
               <span style={{ marginLeft: 12 }}>伪影: {detail.artifactScores.motion}/{detail.artifactScores.metal}/{detail.artifactScores.ring}</span>
               <span style={{ marginLeft: 12 }}>摆位: {detail.positioningScores.setup}/{detail.positioningScores.rotation}/{detail.positioningScores.offset}</span>
               <span style={{ marginLeft: 12 }}>曝光: {detail.exposure.value} {detail.exposure.score}</span>

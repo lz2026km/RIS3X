@@ -100,6 +100,8 @@ const CUSTOM_PERIODS = [
   { label: '月', value: 'monthly' },
 ]
 
+const PERIOD_LABELS: Record<string, string> = { daily: '日', weekly: '周', monthly: '月' }
+
 const DEF_STORAGE_KEY = 'g005-custom-report-defs'
 
 interface CustomReportDef {
@@ -210,7 +212,7 @@ function CustomReportBuilder() {
           return out
         })
         setRows(mapped)
-        setSourceLabel(`OLAP ${period}聚合 (olapApi.query)`)
+        setSourceLabel(`OLAP ${PERIOD_LABELS[period] ?? period}聚合`)
         return
       }
     } catch {
@@ -219,14 +221,12 @@ function CustomReportBuilder() {
     // 失败回退: 单行快照 (statsApi/biApi/analyticsStatsApi)
     const snapshots = await Promise.all(selectedFields.map((f) => fetchFieldSnapshot(f.key)))
     const row: Record<string, unknown> = { period: `${startDate} ~ ${endDate} (快照)` }
-    const sources = new Set<string>()
     selectedFields.forEach((f, i) => {
       row[f.label] = snapshots[i]!.value
-      sources.add(snapshots[i]!.source)
     })
     setRows([row])
     setUsingFallback(true)
-    setSourceLabel(`快照回退 (${[...sources].join(', ')})`)
+    setSourceLabel(`快照回退（估算数据）`)
     setLoading(false)
   }, [selectedFields, dateRange, period])
 
@@ -263,7 +263,7 @@ function CustomReportBuilder() {
     localStorage.setItem(DEF_STORAGE_KEY, JSON.stringify(next))
     setSavedDefs(next)
     setDefName('')
-    message.success(`报表定义「${def.name}」已保存 (localStorage)`)
+    message.success(`报表定义「${def.name}」已保存`)
   }, [defName, fields, period, dateRange, savedDefs])
 
   const handleLoadDef = useCallback((def: CustomReportDef) => {
@@ -332,7 +332,7 @@ function CustomReportBuilder() {
             type={usingFallback ? 'warning' : 'success'}
             showIcon
             message={sourceLabel ?? (selectedFields.length ? '加载中...' : '请至少选择一个指标字段')}
-            description={usingFallback ? 'OLAP 接口不可用, 已回退到 statsApi/biApi 快照 (单行估算数据)' : '数据来源: OLAP 聚合接口 (olapApi.query)'}
+            description={usingFallback ? 'OLAP 接口不可用, 已回退到统计/BI 快照 (单行估算数据)' : '数据来源: OLAP 聚合接口'}
           />
         </div>
       </Card>
@@ -623,7 +623,7 @@ export default function DataReportCenterPage() {
           </Text>
           {apiSnapshot && (
             <Tag color="green" style={{ fontSize: 11, margin: 0 }}>
-              datareportApi 接口: {apiSnapshot.reports} 条报表 · {apiSnapshot.trends} 条月度趋势
+              数据上报接口: {apiSnapshot.reports} 条报表 · {apiSnapshot.trends} 条月度趋势
             </Tag>
           )}
           {usingFallback && (

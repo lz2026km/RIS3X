@@ -1191,7 +1191,7 @@ export default function AIQCPage() {
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>AI综合评分</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{
-                    fontSize: 36,
+                    fontSize: 26,
                     fontWeight: 700,
                     color: getScoreColor(selectedRecord.aiScore),
                   }}>

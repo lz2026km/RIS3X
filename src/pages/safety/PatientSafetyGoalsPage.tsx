@@ -102,7 +102,7 @@ export default function PatientSafetyGoalsPage() {
               <TrendingUp size={16} color="#3b82f6" />目标进度概览
             </div>
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 36, fontWeight: 700, color: overallProgress >= 80 ? '#22c55e' : overallProgress >= 60 ? '#f59e0b' : '#ef4444' }}>{overallProgress}%</div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: overallProgress >= 80 ? '#22c55e' : overallProgress >= 60 ? '#f59e0b' : '#ef4444' }}>{overallProgress}%</div>
               <div style={{ fontSize: 12, color: '#8b949e' }}>整体达标率</div>
             </div>
             <ChartContainer height={180} state={progressData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无目标进度数据">

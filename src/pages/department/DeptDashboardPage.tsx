@@ -85,6 +85,13 @@ function severityColor(severity: string): string {
   return 'blue'
 }
 
+function severityLabel(severity: string): string {
+  if (severity === 'CRITICAL') return '危急'
+  if (severity === 'URGENT') return '紧急'
+  if (severity === 'HIGH') return '高'
+  return severity
+}
+
 function oeeColor(oee: number): string {
   if (oee >= 85) return 'green'
   if (oee >= 70) return 'orange'
@@ -246,7 +253,7 @@ export default function DeptDashboardPage() {
       title: '严重度',
       dataIndex: 'severity',
       key: 'severity',
-      render: (v: string) => <Tag color={severityColor(v)}>{v}</Tag>,
+      render: (v: string) => <Tag color={severityColor(v)}>{severityLabel(v)}</Tag>,
     },
     { title: '状态', dataIndex: 'state', key: 'state' },
     {

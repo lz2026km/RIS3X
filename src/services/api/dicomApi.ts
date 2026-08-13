@@ -70,6 +70,24 @@ export interface DicomWebStudySearchParams {
   offset?: number
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取 (工作列表 prefetch)
+// ══════════════════════════════════════════════════════════════════════════
+
+export type PrefetchStudyStatus = 'queued' | 'cached'
+
+export interface PrefetchResult {
+  queued: number
+  cached: number
+}
+
+export interface PrefetchStatus {
+  total: number
+  cached: number
+  pending: number
+  studies: Array<{ studyUid: string; status: PrefetchStudyStatus }>
+}
+
 export const dicomWebApi = {
   capabilities: () => api.get<DicomWebCapabilities>('/dicom-web/capabilities'),
 
@@ -97,6 +115,15 @@ export const dicomWebApi = {
 
   storeInstance: (studyInstanceUid: string, body: StoreInstancePayload) =>
     api.post<{ id: string }>(`/dicom-web/studies/${encodeURIComponent(studyInstanceUid)}`, body),
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取 (后端模拟预取队列)
+  // ══════════════════════════════════════════════════════════════════════════
+  prefetch: (studyUids: string[]) =>
+    api.post<PrefetchResult>('/dicom-web/prefetch', { studyUids }),
+
+  prefetchStatus: () =>
+    api.get<PrefetchStatus>('/dicom-web/prefetch/status'),
 
   // ══════════════════════════════════════════════════════════════════════════
   // WADO-RS 完整实现

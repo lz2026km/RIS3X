@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { t } from '../../i18n/appI18n'
-import { ChevronLeft, ChevronRight, Grid3x3, History, Minimize2, Maximize2, Sun, ArrowLeftRight, Layers, Palette, CheckCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Grid3x3, History, Minimize2, Maximize2, Sun, ArrowLeftRight, Layers, Palette, CheckCircle, MonitorCheck, Gauge } from 'lucide-react'
 import { initialRadiologyExams } from '../../data/initialData'
 import { DicomCanvas, MIPCanvas, VRCanvas } from './DicomViewerSubComponents'
 import AnnotationOverlay from './AnnotationOverlay'
@@ -9,6 +9,7 @@ import { ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, CARD_BG } from './D
 import { useFocusTrap } from '../../a11y/SkipLink'
 import { useEscape } from '../../hooks/useEscape'
 import { getPresetsForModality, CT_DEFAULT_WW, CT_DEFAULT_WL } from '../../utils/modalityPresets'
+import { GSOF_MODE_LABELS, GSOF_DOC_TEXT, type GsofMode } from '../../utils/gsdf'
 
 const s = {
   centerArea: { flex: 1, display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', background: '#0f172a', position: 'relative' as const },
@@ -52,21 +53,24 @@ const s = {
   diffRegion: { position: 'absolute' as const, border: '2px dashed #ef4444', background: 'rgba(239,68,68,0.15)', borderRadius: 4 },
   diffRegionNew: { border: '2px dashed #22c55e', background: 'rgba(34,197,94,0.15)' },
   diffRegionImproved: { border: '2px dashed #3b82f6', background: 'rgba(59,130,246,0.15)' },
-  wlPopup: { position: 'absolute' as const, left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 240, background: CARD_BG, borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', zIndex: 100, padding: 14, border: '1px solid #e2e8f0' },
+  wlPopup: { position: 'absolute' as const, left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 240, background: CARD_BG, borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', zIndex: 100, padding: 14, border: '1px solid var(--border-color)' },
   wlPopupTitle: { fontSize: 13, fontWeight: 700, color: PRIMARY, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 },
   wlSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
   wlLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
   wlSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   wlVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 32, textAlign: 'right' as const },
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
-  measureMenu: { position: 'absolute' as const, left: 60, top: 300, width: 160, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 6 },
+  measureMenu: { position: 'absolute' as const, left: 60, top: 300, width: 160, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 6 },
   measureMenuItem: { width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'transparent', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' } as React.CSSProperties,
-  pseudoColorPanel: { position: 'absolute' as const, left: 60, top: 320, width: 180, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 10 },
+  pseudoColorPanel: { position: 'absolute' as const, left: 60, top: 320, width: 180, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
   pseudoColorPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
   pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569', transition: 'all 0.15s', marginBottom: 4 },
   pseudoColorBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   pseudoColorPreview: { width: 24, height: 24, borderRadius: 4, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 },
-  annotationPanel: { position: 'absolute' as const, left: 60, top: 200, width: 200, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 10 },
+  gsofPanel: { position: 'absolute' as const, left: 60, top: 260, width: 240, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 12 },
+  gsofPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 },
+  gsofDoc: { fontSize: 11, color: '#64748b', lineHeight: 1.6, marginTop: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' },
+  annotationPanel: { position: 'absolute' as const, left: 60, top: 200, width: 200, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
   annotationPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   annotationTypeRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 },
   annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
@@ -144,6 +148,13 @@ interface Props {
   pseudoColorTools: { mode: PseudoColorMode; icon: React.ReactNode; label: string }[]
   annotationTypes: { type: AnnotationType; icon: React.ReactNode; label: string }[]
   gridConfig: { cols: number; rows: number }
+  // [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 灰阶标准显示函数 (DICOM PS3.14)
+  gsofEnabled: boolean
+  gsofMode: GsofMode
+  showGsofPanel: boolean
+  setGsofEnabled: (v: boolean) => void
+  setGsofMode: (m: GsofMode) => void
+  setShowGsofPanel: (v: boolean) => void
   setImageIndex: (fn: (prev: number) => number) => void
   setWw: (v: number | ((prev: number) => number)) => void
   setWl: (v: number | ((prev: number) => number)) => void
@@ -184,6 +195,7 @@ export default function ViewportArea(props: Props) {
     showMeasurementsOverlay, measureSubMenu, isDrawingMeasure, interactiveMeasures, drawingPoints,
     annotations, showAnnotationsOverlay, selectedAnnotationId, activeAnnotationType, activeAnnotationColor,
     activeAnnotationFontSize, pseudoColorMode, pseudoColorTools, annotationTypes, gridConfig,
+    gsofEnabled, gsofMode, showGsofPanel, setGsofEnabled, setGsofMode, setShowGsofPanel,
     setImageIndex, setWw, setWl, setActivePresetIdx, setViewMode, setShowGrid,
     setActiveTool, setShowWlPopup, setShowPseudoColorPanel,
     setMeasureSubMenu, setSelectedAnnotationId, setActiveAnnotationType,
@@ -196,10 +208,12 @@ export default function ViewportArea(props: Props) {
   const wlPopupRef = useFocusTrap(showWlPopup)
   const measureMenuRef = useFocusTrap(activeTool === 'measure' && measureSubMenu !== null)
   const pseudoColorPanelRef = useFocusTrap(showPseudoColorPanel)
+  const gsofPanelRef = useFocusTrap(showGsofPanel)
 
   useEscape(showWlPopup, () => setShowWlPopup(false), { stopPropagation: true })
   useEscape(activeTool === 'measure' && measureSubMenu !== null, () => setMeasureSubMenu(null), { stopPropagation: true })
   useEscape(showPseudoColorPanel, () => setShowPseudoColorPanel(false), { stopPropagation: true })
+  useEscape(showGsofPanel, () => setShowGsofPanel(false), { stopPropagation: true })
 
   const closeWlPopup = useCallback(() => {
     setShowWlPopup(false)
@@ -270,6 +284,22 @@ export default function ViewportArea(props: Props) {
           <button style={{ ...s.compareToolbarBtn, ...(selectedHistoryExams.length > 0 ? s.compareToolbarBtnActive : {}) }} onClick={enterCompareMode}><History size={14} />{t('dcm.historyTab')}</button>
         </div>
         <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 8 }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : '#64748b'} /></button>
+        {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 校准开关 */}
+        <button
+          style={{
+            width: 28, height: 28, borderRadius: 6, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: gsofEnabled || showGsofPanel ? '1px solid #1e40af' : '1px solid #cbd5e1',
+            background: gsofEnabled || showGsofPanel ? PRIMARY : '#fff',
+            transition: 'all 0.15s',
+          }}
+          onClick={() => setShowGsofPanel(!showGsofPanel)}
+          title={`GSOF 灰阶校准${gsofEnabled ? ' (已启用)' : ''}`}
+          data-testid="gsof-toggle"
+          aria-pressed={gsofEnabled}
+        >
+          <MonitorCheck size={14} color={gsofEnabled || showGsofPanel ? '#fff' : '#64748b'} />
+        </button>
         <button style={s.fullscreenBtn} onClick={toggleFullscreen}>{isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
       </div>
 
@@ -282,7 +312,7 @@ export default function ViewportArea(props: Props) {
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
                   activeTool={activeTool} panX={panX} panY={panY}
-                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />
+                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} gsofEnabled={gsofEnabled} gsofMode={gsofMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={region.id} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
                 ))}
@@ -296,7 +326,7 @@ export default function ViewportArea(props: Props) {
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
                   activeTool={activeTool} panX={panX} panY={panY}
-                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />
+                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} gsofEnabled={gsofEnabled} gsofMode={gsofMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={`r-${region.id}`} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
                 ))}
@@ -309,8 +339,8 @@ export default function ViewportArea(props: Props) {
           <div style={{ ...s.imageWrapper, width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%', height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%' }}>
             {viewMode === 'MPR' && <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
               activeTool={activeTool} panX={panX} panY={panY}
-              activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />}
-            {viewMode === 'MIP' && <div style={s.mipCanvasContainer}><MIPCanvas mipDirection={mipDirection} mipFrame={mipFrame} ww={ww} wl={wl} /></div>}
+              activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} gsofEnabled={gsofEnabled} gsofMode={gsofMode} />}
+            {viewMode === 'MIP' && <div style={s.mipCanvasContainer}><MIPCanvas mipDirection={mipDirection} mipFrame={mipFrame} ww={ww} wl={wl} gsofEnabled={gsofEnabled} gsofMode={gsofMode} /></div>}
             {viewMode === 'VR' && <div style={s.vrCanvasContainer}><VRCanvas rotX={vrRotX} rotY={vrRotY} rotZ={vrRotZ} opacity={vrOpacity} /></div>}
 
             <div style={s.overlayTL}>
@@ -352,6 +382,7 @@ export default function ViewportArea(props: Props) {
               <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? 'Invert ' : ''}Bright:{brightness}% Contrast:{contrast}%</span>
               {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : 'CT值'}</span>}
               {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}</span>}
+              {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? '标准'} (PS3.14)</span>}
             </div>
 
             {showMeasurementsOverlay && (measureSubMenu || isDrawingMeasure || interactiveMeasures.length > 0) && (
@@ -431,7 +462,7 @@ export default function ViewportArea(props: Props) {
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>重置</button>
-              <button style={{ ...s.reportBtn, background: '#e2e8f0', color: '#475569', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
+              <button style={{ ...s.reportBtn, background: 'var(--border-color)', color: '#475569', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
             </div>
           </div>
         )}
@@ -443,7 +474,7 @@ export default function ViewportArea(props: Props) {
                 {type === 'length' ? '长度测量' : type === 'angle' ? '角度测量' : type === 'ellipse' ? '椭圆ROI' : type === 'rectangle' ? '矩形ROI' : type === 'circle' ? '圆ROI' : 'CT值(HU)'}
               </button>
             ))}
-            <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 4, paddingTop: 4 }}>
+            <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>
               <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>清除测量</button>
             </div>
             <button style={{ ...s.measureMenuItem, color: '#64748b', justifyContent: 'center' }} onClick={closeMeasureMenu}>关闭 (Esc)</button>
@@ -461,7 +492,43 @@ export default function ViewportArea(props: Props) {
                 {pseudoColorMode === mode && <CheckCircle size={12} />}
               </button>
             ))}
-            <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#64748b', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: '#64748b', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
+          </div>
+        )}
+
+        {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 灰阶校准设置面板 */}
+        {showGsofPanel && (
+          <div ref={gsofPanelRef} role="dialog" aria-modal="true" aria-label="GSOF 校准设置" style={s.gsofPanel} onClick={e => e.stopPropagation()} data-testid="gsof-panel">
+            <div style={s.gsofPanelTitle}><Gauge size={14} color={PRIMARY} />GSOF 灰阶校准</div>
+            <button
+              style={{ ...s.reportBtn, width: '100%', background: gsofEnabled ? PRIMARY : 'var(--border-color)', color: gsofEnabled ? '#fff' : '#475569', marginBottom: 8 }}
+              onClick={() => setGsofEnabled(!gsofEnabled)}
+              aria-pressed={gsofEnabled}
+              data-testid="gsof-enable-toggle"
+            >
+              <MonitorCheck size={14} />{gsofEnabled ? 'GSOF 校准已启用' : '启用 GSOF 校准'}
+            </button>
+            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 6 }}>对比度档位</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }} role="group" aria-label="GSOF 对比度档位">
+              {(Object.keys(GSOF_MODE_LABELS) as GsofMode[]).map(mode => (
+                <button
+                  key={mode}
+                  style={{
+                    padding: '4px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, textAlign: 'center', cursor: 'pointer',
+                    border: gsofMode === mode ? '1px solid #1e40af' : '1px solid #cbd5e1',
+                    background: gsofMode === mode ? PRIMARY : 'var(--bg-card)',
+                    color: gsofMode === mode ? '#fff' : '#475569',
+                    transition: 'all 0.15s',
+                  }}
+                  onClick={() => setGsofMode(mode)}
+                  data-testid={`gsof-mode-${mode}`}
+                >
+                  {GSOF_MODE_LABELS[mode]}
+                </button>
+              ))}
+            </div>
+            <div style={s.gsofDoc}>{GSOF_DOC_TEXT}</div>
+            <button style={{ ...s.reportBtn, background: 'var(--bg-primary)', color: '#64748b', marginTop: 8, width: '100%' }} onClick={() => setShowGsofPanel(false)}>关闭 (Esc)</button>
           </div>
         )}
       </div>

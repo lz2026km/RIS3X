@@ -1,7 +1,7 @@
 // [v3.0.6.11-60] Cloud Storage 配置 MSW Handlers
 // GET/PUT /system/storage-config, POST /system/storage-config/test
 import { http, HttpResponse, delay } from 'msw';
-import type { StorageAlertsConfig, StorageConfigDto, StorageStatsDto } from '../api/storageConfigApi';
+import type { StorageAlertsConfig, StorageBucketDto, StorageConfigDto, StorageObjectDto, StorageStatsDto } from '../api/storageConfigApi';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5191/api/v1'; }
@@ -33,6 +33,70 @@ let alertsConfig: StorageAlertsConfig = {
   criticalPercent: 90,
   notifyChannels: ['email', 'sms'],
 };
+
+// [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理内存态 (与 backend seed 对齐)
+interface BucketRecord extends StorageBucketDto {
+  objects: StorageObjectDto[];
+}
+let buckets: BucketRecord[] = [
+  {
+    name: 'g005-dicom',
+    provider: 's3',
+    region: 'us-east-1',
+    objectCount: 4,
+    usedBytes: 2_328_576,
+    createdAt: '2026-06-01T08:00:00.000Z',
+    objects: [
+      { key: 'ct-frame-0001.dcm', size: 512_000, modified: '2026-08-10T03:24:00.000Z' },
+      { key: 'ct-frame-0002.dcm', size: 512_000, modified: '2026-08-10T03:24:00.000Z' },
+      { key: 'mr-cardiac-4d-0001.dcm', size: 1_048_576, modified: '2026-08-09T11:02:00.000Z' },
+      { key: 'xr-chest-0001.dcm', size: 256_000, modified: '2026-08-08T05:40:00.000Z' },
+    ],
+  },
+  {
+    name: 'g005-vna',
+    provider: 'minio',
+    region: 'cn-north-1',
+    objectCount: 3,
+    usedBytes: 228_096,
+    createdAt: '2026-06-05T02:30:00.000Z',
+    objects: [
+      { key: 'report-0001.pdf', size: 128_000, modified: '2026-08-11T09:12:00.000Z' },
+      { key: 'report-0002.pdf', size: 96_000, modified: '2026-08-10T15:48:00.000Z' },
+      { key: 'archive-manifest.json', size: 4_096, modified: '2026-08-10T00:00:00.000Z' },
+    ],
+  },
+  {
+    name: 'g005-files',
+    provider: 'local',
+    region: 'us-east-1',
+    objectCount: 2,
+    usedBytes: 10_436_608,
+    createdAt: '2026-06-10T10:00:00.000Z',
+    objects: [
+      { key: 'teaching-case-001.png', size: 2_048_000, modified: '2026-08-07T08:20:00.000Z' },
+      { key: 'dicom-export-20260813.zip', size: 8_388_608, modified: '2026-08-13T01:05:00.000Z' },
+    ],
+  },
+];
+
+function toBase64Utf8(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary);
+}
+
+function bucketDto(rec: BucketRecord): StorageBucketDto {
+  return {
+    name: rec.name,
+    provider: rec.provider,
+    region: rec.region,
+    objectCount: rec.objects.length,
+    usedBytes: rec.objects.reduce((s, o) => s + o.size, 0),
+    createdAt: rec.createdAt,
+  };
+}
 
 export const storageHandlers = [
   http.get(`${API_BASE}/system/storage-config`, () => {
@@ -129,5 +193,141 @@ export const storageHandlers = [
       notifyChannels: body.notifyChannels,
     };
     return HttpResponse.json({ success: true, data: alertsConfig });
+  }),
+
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理
+  http.get(`${API_BASE}/system/storage/buckets`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: buckets.map(bucketDto) });
+  }),
+
+  http.post(`${API_BASE}/system/storage/buckets`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { name: string; provider?: 'local' | 's3' | 'minio'; region?: string };
+    const name = (body.name ?? '').trim();
+    if (!/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i.test(name)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: '桶名仅允许字母/数字/点/中划线 (1-63 字符)' } },
+        { status: 400 },
+      );
+    }
+    if (buckets.some((b) => b.name === name)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'CONFLICT', message: `Bucket ${name} already exists` } },
+        { status: 409 },
+      );
+    }
+    const rec: BucketRecord = {
+      name,
+      provider: body.provider ?? 's3',
+      region: (body.region ?? 'us-east-1').trim() || 'us-east-1',
+      objectCount: 0,
+      usedBytes: 0,
+      createdAt: new Date().toISOString(),
+      objects: [],
+    };
+    buckets.push(rec);
+    return HttpResponse.json({ success: true, data: bucketDto(rec) }, { status: 201 });
+  }),
+
+  http.delete(`${API_BASE}/system/storage/buckets/:name`, async ({ params }) => {
+    await delay(150);
+    const name = String(params.name);
+    const idx = buckets.findIndex((b) => b.name === name);
+    if (idx === -1) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    buckets.splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { deleted: name } });
+  }),
+
+  http.get(`${API_BASE}/system/storage/buckets/:name/objects`, async ({ params }) => {
+    await delay(100);
+    const name = String(params.name);
+    const rec = buckets.find((b) => b.name === name);
+    if (!rec) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json({ success: true, data: rec.objects.map((o) => ({ ...o })) });
+  }),
+
+  http.post(`${API_BASE}/system/storage/buckets/:name/upload`, async ({ params, request }) => {
+    await delay(250);
+    const name = String(params.name);
+    const rec = buckets.find((b) => b.name === name);
+    if (!rec) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json()) as { key: string; size?: number };
+    const key = (body.key ?? '').trim().replace(/[/\\]/g, '-').replace(/^\.+/, '');
+    if (!key) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'Object key 必填' } },
+        { status: 400 },
+      );
+    }
+    const existing = rec.objects.find((o) => o.key === key);
+    if (existing) {
+      existing.size = body.size ?? existing.size;
+      existing.modified = new Date().toISOString();
+      return HttpResponse.json({ success: true, data: { ...existing } });
+    }
+    const obj: StorageObjectDto = { key, size: body.size ?? 1024, modified: new Date().toISOString() };
+    rec.objects.push(obj);
+    return HttpResponse.json({ success: true, data: { ...obj } }, { status: 201 });
+  }),
+
+  http.get(`${API_BASE}/system/storage/buckets/:name/objects/:key/download`, async ({ params }) => {
+    await delay(300);
+    const name = String(params.name);
+    const key = String(params.key);
+    const rec = buckets.find((b) => b.name === name);
+    const obj = rec?.objects.find((o) => o.key === key);
+    if (!rec || !obj) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Object ${name}/${key} not found` } },
+        { status: 404 },
+      );
+    }
+    const contentType = key.endsWith('.json')
+      ? 'application/json'
+      : key.endsWith('.pdf')
+        ? 'application/pdf'
+        : key.endsWith('.png')
+          ? 'image/png'
+          : key.endsWith('.zip')
+            ? 'application/zip'
+            : 'application/octet-stream';
+    const content = JSON.stringify(
+      {
+        bucket: name,
+        key: obj.key,
+        size: obj.size,
+        modified: obj.modified,
+        simulated: true,
+        message: 'G005 模拟下载对象 (云端存储 → 本地 Blob)',
+      },
+      null,
+      2,
+    );
+    return HttpResponse.json({
+      success: true,
+      data: {
+        key: obj.key,
+        size: obj.size,
+        contentType,
+        filename: obj.key,
+        contentBase64: toBase64Utf8(content),
+      },
+    });
   }),
 ];

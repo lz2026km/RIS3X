@@ -14,7 +14,7 @@ import {
   type PacsRoute,
 } from '../../services/api/pacsAdminApi'
 import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs } from 'antd'
-import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser } from 'lucide-react'
+import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser, Edit3 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 // [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
 import { usePagination } from '../../hooks/usePagination'
@@ -46,6 +46,9 @@ const PacsAdminPage: React.FC = () => {
   const [storageModal, setStorageModal] = useState(false)
   const [serverForm] = Form.useForm()
   const [storageForm] = Form.useForm()
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] updateServer/deleteStorageGroup 接入: 编辑服务器 / 删除存储组
+  const [editingServer, setEditingServer] = useState<PacsServer | null>(null)
+  const [deletingStorageId, setDeletingStorageId] = useState<string | null>(null)
   // [G005 2B] 受控分页 (数据可增长)
   const nodePage = usePagination(nodes, 10)
   const serverPage = usePagination(servers, 10)
@@ -121,6 +124,23 @@ const PacsAdminPage: React.FC = () => {
     else message.error(res.error?.message ?? '添加失败')
   }
 
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 编辑 AE 服务器 (updateServer, 复用添加 Modal)
+  const openEditServer = (record: PacsServer) => {
+    setEditingServer(record)
+    serverForm.setFieldsValue({ name: record.name, hostname: record.hostname, port: record.port, aeTitle: record.aeTitle })
+    setServerModal(true)
+  }
+
+  const handleUpdateServer = async () => {
+    if (!editingServer) return
+    const values = await serverForm.validateFields()
+    const res = await pacsAdminApi.updateServer(editingServer.id, values)
+    if (res.success) { message.success('AE 服务器已更新'); setServerModal(false); setEditingServer(null); serverForm.resetFields(); void fetchData() }
+    else message.error(res.error?.message ?? '更新失败')
+  }
+
+  const handleServerModalOk = () => (editingServer ? handleUpdateServer() : handleAddServer())
+
   const handleDeleteServer = async (id: string) => {
     const res = await pacsAdminApi.deleteServer(id)
     if (res.success) { message.success('已删除'); void fetchData() }
@@ -132,6 +152,20 @@ const PacsAdminPage: React.FC = () => {
     const res = await pacsAdminApi.createStorageGroup(values)
     if (res.success) { message.success('存储组已创建'); setStorageModal(false); storageForm.resetFields(); void fetchData() }
     else message.error(res.error?.message ?? '创建失败')
+  }
+
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 删除存储组 (deleteStorageGroup)
+  const handleDeleteStorageGroup = async (id: string) => {
+    setDeletingStorageId(id)
+    try {
+      const res = await pacsAdminApi.deleteStorageGroup(id)
+      if (res.success) { message.success('存储组已删除'); void fetchData() }
+      else message.error(res.error?.message ?? '删除失败')
+    } catch {
+      message.error('删除失败')
+    } finally {
+      setDeletingStorageId(null)
+    }
   }
 
   // [G005 Wave1A P0-1] 节点连接测试 / 同步
@@ -194,10 +228,11 @@ const PacsAdminPage: React.FC = () => {
     { title: '检查数', dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
     { title: '存储', dataIndex: 'storageBytes', key: 'storage', width: 100, render: (v: number) => formatBytes(v ?? 0) },
     {
-      title: '操作', key: 'ops', width: 170,
+      title: '操作', key: 'ops', width: 210,
       render: (_: unknown, r: PacsServer) => (
         <Space size={4}>
           <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestConnection(r.id)}>测试</Button>
+          <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEditServer(r)}>编辑</Button>
           <Popconfirm title="确认删除该服务器？" onConfirm={() => void handleDeleteServer(r.id)}>
             <Button size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
@@ -332,7 +367,7 @@ const PacsAdminPage: React.FC = () => {
             {
               key: 'storage', label: <Space size={4}><HardDrive size={13} />存储空间</Space>,
               children: (
-                <Card title="存储组使用情况" size="small" extra={<Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>清理过期对象</Button>} style={{ marginBottom: 16 }}>
+                <Card title="存储组使用情况" size="small" extra={<Space><Button size="small" icon={<Plus size={12} />} onClick={() => { setEditingServer(null); setStorageModal(true) }}>添加存储组</Button><Button size="small" icon={<Eraser size={12} />} loading={cleaning} onClick={() => void handleCleanupStorage()}>清理过期对象</Button></Space>} style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {storage.map(g => {
                       const pct = g.totalBytes > 0 ? Math.round((g.usedBytes / g.totalBytes) * 1000) / 10 : 0
@@ -340,7 +375,12 @@ const PacsAdminPage: React.FC = () => {
                         <div key={g.id}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                             <Space><HardDrive size={14} color="#13c2c2" /><b>{g.name}</b><Typography.Text code style={{ fontSize: 12 }}>{g.path}</Typography.Text></Space>
-                            <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} 检查 · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? '启用' : g.status === 'readonly' ? '只读' : '离线'}</Tag></span>
+                            <Space>
+                              <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} 检查 · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? '启用' : g.status === 'readonly' ? '只读' : '离线'}</Tag></span>
+                              <Popconfirm title="确认删除该存储组？" onConfirm={() => void handleDeleteStorageGroup(g.id)}>
+                                <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingStorageId === g.id} />
+                              </Popconfirm>
+                            </Space>
                           </div>
                           <Progress percent={pct} status={pct > 90 ? 'exception' : 'normal'} />
                         </div>
@@ -414,7 +454,7 @@ const PacsAdminPage: React.FC = () => {
         />
       </Spin>
 
-      <Modal title="添加 AE 服务器" open={serverModal} onOk={() => void handleAddServer()} onCancel={() => setServerModal(false)} okText="添加">
+      <Modal title={editingServer ? '编辑 AE 服务器' : '添加 AE 服务器'} open={serverModal} onOk={() => void handleServerModalOk()} onCancel={() => { setServerModal(false); setEditingServer(null) }} okText={editingServer ? '保存' : '添加'}>
         <Form form={serverForm} layout="vertical" initialValues={{ port: 11112 }}>
           <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
             <Input placeholder="如 Primary PACS" />

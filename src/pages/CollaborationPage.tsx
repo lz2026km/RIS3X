@@ -305,7 +305,7 @@ export default function CollaborationPage() {
                 background: source === 'api' ? 'rgba(34,197,94,0.35)' : 'rgba(245,158,11,0.35)',
                 color: '#fff', border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
               }}>
-                {source === 'api' ? '数据源: consultationApi 实时 (列表/评论)' : '演示数据(评论接口不可用)'}
+                {source === 'api' ? '数据源: 会诊接口实时 (列表/评论)' : '演示数据(评论接口不可用)'}
               </span>
             </div>
           </div>

@@ -28,14 +28,14 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
   for (const c of cells) cellMap.set(`${c.siteId}|${c.hour}`, c);
 
   return (
-    <div style={{ background: '#fff', padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', overflowX: 'auto' }}>
+    <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 10, border: '1px solid var(--border-color)', overflowX: 'auto' }}>
       <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
       <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
-            <th style={{ padding: 4, background: '#f8fafc', color: '#475569', fontWeight: 700, minWidth: 100 }}>院区</th>
+            <th style={{ padding: 4, background: 'var(--bg-primary)', color: '#475569', fontWeight: 700, minWidth: 100 }}>院区</th>
             {HOURS.map((h) => (
-              <th key={h} style={{ padding: 4, background: '#f8fafc', color: '#475569', fontWeight: 600, minWidth: 28, textAlign: 'center' }}>{h}</th>
+              <th key={h} style={{ padding: 4, background: 'var(--bg-primary)', color: '#475569', fontWeight: 600, minWidth: 28, textAlign: 'center' }}>{h}</th>
             ))}
           </tr>
         </thead>

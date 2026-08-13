@@ -323,7 +323,7 @@ export default function PatientMobileApp() {
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
         </div>
         {mobileReports.slice(0, 2).map(r => (
-          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
+          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
             onClick={() => setSelectedReport(r)}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
@@ -341,7 +341,7 @@ export default function PatientMobileApp() {
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
         </div>
         {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
-          <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+          <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', marginTop: 4, flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
@@ -399,7 +399,7 @@ export default function PatientMobileApp() {
         <>
           <div style={s.cardTitle}>检查报告</div>
           {mobileReports.map(r => (
-            <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
+            <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
@@ -419,7 +419,7 @@ export default function PatientMobileApp() {
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       <div style={s.cardTitle}>消息中心</div>
       {mobileNotifications.map(n => (
-        <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+        <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
@@ -460,7 +460,7 @@ export default function PatientMobileApp() {
           { icon: '⚙️', label: '设置' },
           { icon: 'ℹ️', label: '关于' },
         ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid #f1f5f9' : 'none', cursor: 'pointer' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border-color)' : 'none', cursor: 'pointer' }}>
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
             <span style={{ fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}>{item.label}</span>
             <ChevronRight size={14} color="#94a3b8" />

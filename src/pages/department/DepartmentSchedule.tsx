@@ -133,7 +133,7 @@ export default function DepartmentSchedule() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
-          <span>考勤记录</span>
+          <span>考勤记录 {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据 · 考勤本地生成</span></span>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>至</span>

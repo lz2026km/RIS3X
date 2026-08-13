@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Activity, Heart, Play, Pause, SkipBack, SkipForward, RotateCcw, Clock } from 'lucide-react'
-import { Select, Card, Slider, Switch, message } from 'antd'
+import { Activity, Heart, Play, Pause, SkipBack, SkipForward, RotateCcw, Clock, Zap } from 'lucide-react'
+import { Select, Card, Slider, Tag, message } from 'antd'
 import { dicom4dApi, type Series4D } from '../../services/api/dicomApi'
 
 interface PhaseState {
@@ -9,6 +9,27 @@ interface PhaseState {
   respiratoryPhase: number
   frames: Array<{ frameIndex: number; timestamp: string; phase: number; dataUrl: string }>
   frameRate: number
+  cardiacCycleMs: number
+  respiratoryCycleMs: number
+}
+
+type LoopMode = 'once' | 'loop' | 'pingpong'
+
+const LOOP_LABELS: Record<LoopMode, string> = {
+  once: '单次',
+  loop: '循环',
+  pingpong: '往返',
+}
+
+/** 仅加载可用的帧图 URL (/api/v1 或完整 http(s)), 否则走合成帧回退 (避免 500 资源错误) */
+function isUsableFrameUrl(url: string): boolean {
+  if (!url) return false
+  return url.startsWith('/api/v1') || /^https?:\/\//i.test(url)
+}
+
+/** 心动周期门控分段: 收缩期占周期 ~40% */
+function systoleRatio(phase: number): boolean {
+  return phase < 0.4
 }
 
 function generateFallbackPixel(frameIndex: number, totalFrames: number, size: number): ImageData {
@@ -122,21 +143,27 @@ export default function Dicom4dPage() {
   const [selectedUid, setSelectedUid] = useState<string>('')
   const [phaseState, setPhaseState] = useState<PhaseState | null>(null)
   const [playing, setPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
-  const [loop, setLoop] = useState(true)
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 播放速度 fps 滑杆 (1-8) + 循环模式 (单次/循环/往返)
+  const [fps, setFps] = useState(5)
+  const [loopMode, setLoopMode] = useState<LoopMode>('loop')
   const [currentFrame, setCurrentFrame] = useState(0)
   const [cardiacPhase, setCardiacPhase] = useState(0)
   const [respiratoryPhase, setRespiratoryPhase] = useState(0)
   const [loading, setLoading] = useState(false)
   const [seriesLoadError, setSeriesLoadError] = useState<string | null>(null)
   const [frameImages, setFrameImages] = useState<Record<number, HTMLImageElement>>({})
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 合成帧回退标注 (帧数据缺失)
+  const [syntheticFrames, setSyntheticFrames] = useState(false)
 
   const currentFrameDataUrl = phaseState?.frames[currentFrame]?.dataUrl || ''
 
+  // 有效帧图才加载, 缺失/不可用 → 合成帧回退 (避免 500 资源错误 + 标注)
   useEffect(() => {
     if (!currentFrameDataUrl || frameImages[currentFrame]) return
+    if (!isUsableFrameUrl(currentFrameDataUrl)) return
     const img = new Image()
     img.onload = () => setFrameImages(prev => ({ ...prev, [currentFrame]: img }))
+    img.onerror = () => { /* 加载失败 → 合成帧回退 */ }
     img.src = currentFrameDataUrl
   }, [currentFrameDataUrl, currentFrame, frameImages])
 
@@ -163,28 +190,72 @@ export default function Dicom4dPage() {
         dicom4dApi.frames(uid),
         dicom4dApi.phase(uid),
       ])
-      if (framesRes.success && phaseRes.success) {
-        const frames = framesRes.data || []
-        const t0 = frames[0]?.timestamp ? new Date(frames[0].timestamp).getTime() : 0
-        const t1 = frames[1]?.timestamp ? new Date(frames[1].timestamp).getTime() : 0
-        const interval = t0 > 0 && t1 > t0 ? t1 - t0 : 100
-        setPhaseState({
-          frames,
-          frameRate: frames.length > 0 ? Math.round(1000 / interval) : 10,
-          cardiacPhase: phaseRes.data.cardiacPhase,
-          respiratoryPhase: phaseRes.data.respiratoryPhase,
-        })
-        setCurrentFrame(0)
-        setCardiacPhase(phaseRes.data.cardiacPhase)
-        setRespiratoryPhase(phaseRes.data.respiratoryPhase)
-        setPlaying(false)
-      }
+      const s = seriesList.find(x => x.seriesUid === uid)
+      const frameCount = s?.frameCount ?? 32
+      const frameRate = s?.frameRate ?? 10
+      const intervalMs = 1000 / frameRate
+      const frames = framesRes.success ? (framesRes.data || []) : []
+      // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 数据缺失 → 合成帧回退 (canvas 生成 + 标注)
+      const usable = frames.length > 0 && frames.some(f => isUsableFrameUrl(f.dataUrl ?? ''))
+      const synthFrames = usable
+        ? frames
+        : frames.length > 0
+          ? frames.map(f => ({ ...f, dataUrl: '' }))
+          : Array.from({ length: Math.max(1, frameCount) }, (_, i) => ({
+              frameIndex: i,
+              timestamp: new Date(Date.now() + i * intervalMs).toISOString(),
+              phase: Math.round((i / Math.max(1, frameCount)) * 100),
+              dataUrl: '',
+            }))
+      const effectiveRate = synthFrames.length > 0 && synthFrames[0]?.timestamp && synthFrames[1]?.timestamp
+        ? Math.max(1, Math.min(8, Math.round(1000 / Math.max(1, new Date(synthFrames[1].timestamp).getTime() - new Date(synthFrames[0].timestamp).getTime()))))
+        : Math.max(1, Math.min(8, frameRate))
+      const phaseMeta = phaseRes.success ? phaseRes.data : null
+      setPhaseState({
+        frames: synthFrames,
+        frameRate: effectiveRate,
+        cardiacPhase: phaseMeta?.cardiacPhase ?? 0,
+        respiratoryPhase: phaseMeta?.respiratoryPhase ?? 0,
+        cardiacCycleMs: phaseMeta?.cardiacCycleMs ?? 800,
+        respiratoryCycleMs: phaseMeta?.respiratoryCycleMs ?? 4000,
+      })
+      setCurrentFrame(0)
+      setCardiacPhase(phaseMeta?.cardiacPhase ?? 0)
+      setRespiratoryPhase(phaseMeta?.respiratoryPhase ?? 0)
+      setFps(effectiveRate)
+      setPlaying(false)
+      setSyntheticFrames(!usable)
     } catch {
-      message.error(t('dicom4d.loadError', '4D 序列加载失败'))
+      message.warning(t('dicom4d.loadError', '4D 序列加载失败') + ' — 已回退合成帧')
+      // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 请求异常 → 合成帧 + 标注
+      const s = seriesList.find(x => x.seriesUid === uid)
+      const frameCount = s?.frameCount ?? 32
+      const frameRate = Math.max(1, Math.min(8, s?.frameRate ?? 10))
+      const intervalMs = 1000 / frameRate
+      const synthFrames = Array.from({ length: Math.max(1, frameCount) }, (_, i) => ({
+        frameIndex: i,
+        timestamp: new Date(Date.now() + i * intervalMs).toISOString(),
+        phase: Math.round((i / Math.max(1, frameCount)) * 100),
+        dataUrl: '',
+      }))
+      setPhaseState({
+        frames: synthFrames,
+        frameRate,
+        cardiacPhase: 0,
+        respiratoryPhase: 0,
+        cardiacCycleMs: 800,
+        respiratoryCycleMs: 4000,
+      })
+      setCurrentFrame(0)
+      setCardiacPhase(0)
+      setRespiratoryPhase(0)
+      setFps(frameRate)
+      setPlaying(false)
+      setSyntheticFrames(true)
     } finally {
       setLoading(false)
     }
-  }, [t])
+  }, [t, seriesList])
 
   useEffect(() => {
     if (selectedUid) loadSeries(selectedUid)
@@ -194,35 +265,70 @@ export default function Dicom4dPage() {
 
   useEffect(() => {
     if (!playing || frameCount === 0) return
-    const intervalMs = 1000 / (phaseState?.frameRate ?? 10) / speed
+    const intervalMs = 1000 / fps
     let last = performance.now()
     let frame = currentFrame
+    let dir = 1
+    let stopped = false
 
     function tick(now: number) {
       const elapsed = now - last
       if (elapsed >= intervalMs) {
         const advance = Math.floor(elapsed / intervalMs)
         last = now - (elapsed % intervalMs)
-        frame += advance
-        if (frame >= frameCount) {
-          if (loop) frame = frame % frameCount
-          else { frame = frameCount - 1; setPlaying(false); setCurrentFrame(frame); return }
+        for (let a = 0; a < advance && !stopped; a++) {
+          if (loopMode === 'pingpong') {
+            frame += dir
+            if (frame >= frameCount - 1) { frame = frameCount - 1; dir = -1 }
+            else if (frame <= 0) { frame = 0; dir = 1 }
+          } else {
+            frame += 1
+            if (frame >= frameCount) {
+              if (loopMode === 'loop') frame = 0
+              else { frame = frameCount - 1; stopped = true; setPlaying(false) }
+            }
+          }
         }
         setCurrentFrame(frame)
-        const p = frame / frameCount
+        const p = frame / Math.max(1, frameCount)
         setCardiacPhase(Math.round(Math.sin(p * Math.PI * 2 * 3) * 0.5 + 0.5) * 100)
         setRespiratoryPhase(Math.round(Math.sin(p * Math.PI * 2 * 0.75) * 0.5 + 0.5) * 100)
       }
-      animRef.current = requestAnimationFrame(tick)
+      if (!stopped) animRef.current = requestAnimationFrame(tick)
     }
     animRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(animRef.current)
-  }, [playing, frameCount, speed, loop, phaseState, currentFrame])
+  }, [playing, frameCount, fps, loopMode, phaseState, currentFrame])
 
   const selectedSeries = seriesList.find(s => s.seriesUid === selectedUid)
   const gatingType = selectedSeries?.gatingType ?? 'cardiac'
   const showCardiac = gatingType === 'cardiac' || gatingType === 'both'
   const showRespiratory = gatingType === 'respiratory' || gatingType === 'both'
+
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 心动周期/呼吸周期门控分段 (按帧索引着色)
+  const cardiacSegments = useMemo(() => {
+    if (!phaseState || frameCount === 0 || !showCardiac) return []
+    const cycleMs = phaseState.cardiacCycleMs > 0 ? phaseState.cardiacCycleMs : 800
+    const intervalMs = 1000 / (phaseState.frameRate || 10)
+    return Array.from({ length: frameCount }, (_, i) => {
+      const p = ((i * intervalMs) % cycleMs) / cycleMs
+      return { frame: i, systole: systoleRatio(p) }
+    })
+  }, [phaseState, frameCount, showCardiac])
+
+  const respiratorySegments = useMemo(() => {
+    if (!phaseState || frameCount === 0 || !showRespiratory) return []
+    const cycleMs = phaseState.respiratoryCycleMs > 0 ? phaseState.respiratoryCycleMs : 4000
+    const intervalMs = 1000 / (phaseState.frameRate || 10)
+    return Array.from({ length: frameCount }, (_, i) => {
+      const p = ((i * intervalMs) % cycleMs) / cycleMs
+      return { frame: i, inspiration: p < 0.5 }
+    })
+  }, [phaseState, frameCount, showRespiratory])
+
+  const frameBlink = playing
+    ? { animation: 'g005-frame-blink 0.6s steps(2, start) infinite' }
+    : undefined
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -256,9 +362,13 @@ export default function Dicom4dPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+      <style>{`@keyframes g005-frame-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Activity size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title', '4D 动态成像')}</span>
+        {syntheticFrames && (
+          <Tag color="orange" style={{ marginLeft: 8 }}>{t('dicom4d.synthetic', '合成帧 (数据缺失回退)')}</Tag>
+        )}
       </div>
 
       <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
@@ -340,23 +450,33 @@ export default function Dicom4dPage() {
 
             <div style={{ width: 1, height: 20, background: '#334155' }} />
 
-            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.speed', '速度')}:</span>
-            {[0.5, 1, 2, 4].map(v => (
-              <button key={v} style={speed === v ? activeBtnStyle : btnStyle} onClick={() => setSpeed(v)}>
-                {v}x
-              </button>
-            ))}
+            {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 播放速度 fps 滑杆 (1-8) */}
+            <Zap size={12} color="#64748b" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>{fps} fps</span>
+            <Slider
+              min={1}
+              max={8}
+              value={fps}
+              onChange={(v) => setFps(v)}
+              style={{ width: 120, margin: '0 4px' }}
+              tooltip={{ formatter: (v: number | undefined) => `${v ?? 0} fps` }}
+            />
 
             <div style={{ width: 1, height: 20, background: '#334155' }} />
 
-            <RotateCcw size={12} color={loop ? BLUE : '#64748b'} />
-            <Switch
-              size="small"
-              checked={loop}
-              onChange={setLoop}
-              checkedChildren={t('dicom4d.loop', '循环播放')}
-              unCheckedChildren={t('dicom4d.loopOff', '关闭')}
-            />
+            {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 循环模式: 单次/循环/往返 */}
+            <RotateCcw size={12} color={loopMode === 'loop' ? BLUE : '#64748b'} />
+            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.loop', '循环')}:</span>
+            {(['once', 'loop', 'pingpong'] as LoopMode[]).map(m => (
+              <button
+                key={m}
+                style={loopMode === m ? activeBtnStyle : btnStyle}
+                onClick={() => setLoopMode(m)}
+                aria-label={LOOP_LABELS[m]}
+              >
+                {LOOP_LABELS[m]}
+              </button>
+            ))}
           </div>
 
           <div style={{
@@ -372,10 +492,70 @@ export default function Dicom4dPage() {
               style={{ flex: 1, margin: '0 4px' }}
               tooltip={{ formatter: (v: number | undefined) => `${v ?? 0} / ${frameCount - 1}` }}
             />
-            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 40, textAlign: 'right' }}>
+            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 40, textAlign: 'right', ...frameBlink }}>
               {currentFrame + 1} / {frameCount}
             </span>
           </div>
+
+          {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 心动周期门控标记: 时间轴分段着色 */}
+          {showCardiac && cardiacSegments.length > 0 && (
+            <div style={{ marginTop: 4, background: PANEL_BG, borderRadius: 4, padding: '6px 12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 10, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Heart size={10} color="#ef4444" />
+                  心动周期门控
+                </span>
+                <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#ef4444', borderRadius: 2, marginRight: 4 }} />收缩期</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#3b82f6', borderRadius: 2, marginRight: 4 }} />舒张期</span>
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 1 }}>
+                {cardiacSegments.map(seg => (
+                  <div
+                    key={seg.frame}
+                    title={`帧 ${seg.frame + 1}: ${seg.systole ? '收缩期' : '舒张期'}`}
+                    style={{
+                      flex: 1, height: 8, borderRadius: 1,
+                      background: seg.systole ? '#ef4444' : '#3b82f6',
+                      outline: seg.frame === currentFrame ? '1px solid #facc15' : 'none',
+                      outlineOffset: seg.frame === currentFrame ? 1 : 0,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 呼吸门控标记 */}
+          {showRespiratory && respiratorySegments.length > 0 && (
+            <div style={{ marginTop: 4, background: PANEL_BG, borderRadius: 4, padding: '6px 12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 10, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Activity size={10} color="#60a5fa" />
+                  呼吸门控
+                </span>
+                <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#22c55e', borderRadius: 2, marginRight: 4 }} />吸气</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#f59e0b', borderRadius: 2, marginRight: 4 }} />呼气</span>
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 1 }}>
+                {respiratorySegments.map(seg => (
+                  <div
+                    key={seg.frame}
+                    title={`帧 ${seg.frame + 1}: ${seg.inspiration ? '吸气' : '呼气'}`}
+                    style={{
+                      flex: 1, height: 8, borderRadius: 1,
+                      background: seg.inspiration ? '#22c55e' : '#f59e0b',
+                      outline: seg.frame === currentFrame ? '1px solid #facc15' : 'none',
+                      outlineOffset: seg.frame === currentFrame ? 1 : 0,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div style={{ width: 280, display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -15,6 +15,7 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import type { Series, DicomImage, HistoryExam, Measurement, Annotation, Tool, MeasureSubMenu, LayoutMode, RightTab, AnnotationType, PseudoColorMode, CompareLayout, ViewMode, MipDirection, WindowPreset } from './dicom/DicomViewerTypes'
 import { ANNOTATION_COLORS, PRIMARY } from './dicom/DicomViewerTypes'
 import { getPresetsForModality, CT_DEFAULT_WW, CT_DEFAULT_WL } from '../utils/modalityPresets'
+import type { GsofMode } from '../utils/gsdf'
 import ToolbarSection from './dicom/ToolbarSection'
 import ViewportArea from './dicom/ViewportArea'
 import SidebarPanel from './dicom/SidebarPanel'
@@ -183,6 +184,27 @@ export default function DicomViewerPage() {
   const [rightTab, setRightTab] = useState<RightTab>('patient')
   const [pseudoColorMode, setPseudoColorMode] = useState<PseudoColorMode>('none')
   const [showPseudoColorPanel, setShowPseudoColorPanel] = useState(false)
+
+  // [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 灰阶校准 (DICOM PS3.14, localStorage 持久化)
+  const [gsofEnabled, setGsofEnabled] = useState(false)
+  const [gsofMode, setGsofMode] = useState<GsofMode>('standard')
+  const [showGsofPanel, setShowGsofPanel] = useState(false)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('g005_dicom_gsdf_v1')
+      if (!raw) return
+      const saved = JSON.parse(raw) as { enabled?: boolean; mode?: GsofMode }
+      if (typeof saved.enabled === 'boolean') setGsofEnabled(saved.enabled)
+      if (saved.mode === 'standard' || saved.mode === 'enhanced' || saved.mode === 'soft') setGsofMode(saved.mode)
+    } catch { /* ignore corrupted storage */ }
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('g005_dicom_gsdf_v1', JSON.stringify({ enabled: gsofEnabled, mode: gsofMode }))
+    } catch { /* quota exceeded; ignore */ }
+  }, [gsofEnabled, gsofMode])
 
   const [activeAnnotationType, setActiveAnnotationType] = useState<AnnotationType>('text')
   const [activeAnnotationColor, setActiveAnnotationColor] = useState<string>(ANNOTATION_COLORS[0] ?? '#ff0000')
@@ -486,6 +508,8 @@ export default function DicomViewerPage() {
             activeAnnotationFontSize={activeAnnotationFontSize}
             pseudoColorMode={pseudoColorMode} pseudoColorTools={pseudoColorTools}
             annotationTypes={annotationTypes} gridConfig={gridConfig}
+            gsofEnabled={gsofEnabled} gsofMode={gsofMode} showGsofPanel={showGsofPanel}
+            setGsofEnabled={setGsofEnabled} setGsofMode={setGsofMode} setShowGsofPanel={setShowGsofPanel}
             setImageIndex={setImageIndex}
             setWw={setWw} setWl={setWl} setActivePresetIdx={setActivePresetIdx}
             setViewMode={setViewMode}

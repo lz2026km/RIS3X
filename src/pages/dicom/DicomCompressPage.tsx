@@ -265,7 +265,7 @@ export default function DicomCompressPage() {
       });
       const data = res.data as DicomCompressTask[] | null;
       if (Array.isArray(data)) {
-        messageApi.success(`已提交 ${data.length} 个批量压缩任务 (POST /dicom/compress/batch)`);
+        messageApi.success(`已提交 ${data.length} 个批量压缩任务`);
         loadTasks();
         loadRatios();
         loadTaskStats();

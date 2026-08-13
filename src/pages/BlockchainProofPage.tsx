@@ -79,7 +79,7 @@ export default function BlockchainProofPage() {
               reportHash: '0x' + recordDigest({ reportId, timestamp, signers: [e.username ?? e.userId ?? 'system'], blockNumber: 182300 + i }),
               blockHash: '0x' + pad64(fnv1a(`block-${e.id ?? i}`)),
               blockNumber: 182300 + i,
-              chainName: '审计链（auditApi 派生）',
+              chainName: '审计链（审计事件派生）',
               txHash: `0xtx-${String(e.id ?? i)}`,
               timestamp,
               signers: [e.username ?? e.userId ?? '系统'],
@@ -158,7 +158,7 @@ export default function BlockchainProofPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: auditApi 审计事件派生' : '演示数据(后端无存证端点)'}
+              {loading ? '同步中...' : source === 'api' ? '数据源: 审计事件派生' : '演示数据(后端无存证端点)'}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>

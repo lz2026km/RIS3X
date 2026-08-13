@@ -127,7 +127,7 @@ export default function PatientFinancePage() {
     <div style={s.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={s.title}>患者财务</h2>
-        <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowInvoiceModal(true)}>开票 (POST /finance/invoices)</button>
+        <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowInvoiceModal(true)}>开票</button>
       </div>
 
       {/* Stats */}
@@ -275,7 +275,7 @@ export default function PatientFinancePage() {
               <div>
                 <div style={s.label}>收费项目 *</div>
                 <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 6, padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {chargeItems.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无收费项目 (GET /finance/charge-items)</div>}
+                  {chargeItems.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无收费项目</div>}
                   {chargeItems.map(item => (
                     <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
                       <input type="checkbox" checked={invItemIds.includes(item.id)}

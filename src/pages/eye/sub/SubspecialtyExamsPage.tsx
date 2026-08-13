@@ -22,12 +22,9 @@ export const StrabismusPage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/strabismus/synoptophore', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId, eye, horizontalPrism: horiz, verticalPrism: vert, torsion }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('同视机检查完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端 eye-subspecialty 模块真实实现)
+      const res = await eyeApi.strabismusSynoptophore({ patientId, eye, horizontalPrism: horiz, verticalPrism: vert, torsion });
+      if (res.success) { setResult(res.data); message.success('同视机检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -36,8 +33,8 @@ export const StrabismusPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>斜视专科</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">同视机 + 三棱镜</Tag>
@@ -107,23 +104,17 @@ export const NeuroOphthalmologyPage: React.FC = () => {
 
   const handleColor = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/neuro/color-vision', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', test, errors, eye: 'OD' }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult({ ...data.data, type: 'color' }); message.success('色觉检查完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.neuroColorVision({ patientId: 'P000001', test, errors, eye: 'OD' });
+      if (res.success) { setResult({ ...(res.data as any), type: 'color' }); message.success('色觉检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
   const handlePvep = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/neuro/pvep', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', eye: 'OD', p100Latency: p100Lat, p100Amplitude: p100Amp }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult({ ...data.data, type: 'pvep' }); message.success('PVEP 检查完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.neuroPvep({ patientId: 'P000001', eye: 'OD', p100Latency: p100Lat, p100Amplitude: p100Amp });
+      if (res.success) { setResult({ ...(res.data as any), type: 'pvep' }); message.success('PVEP 检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -132,8 +123,8 @@ export const NeuroOphthalmologyPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>神经眼科</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">色觉 + PVEP</Tag>
@@ -193,12 +184,9 @@ export const OcularOncologyPage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/oncology/exophthalmometry', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', odValue: od, osValue: os, reference: ref }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('眼突计检查完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.oncologyExophthalmometry({ patientId: 'P000001', odValue: od, osValue: os, reference: ref });
+      if (res.success) { setResult(res.data); message.success('眼突计检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -206,8 +194,8 @@ export const OcularOncologyPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Compass size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼眶肿瘤</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">Hertel 眼突计</Tag>
@@ -247,12 +235,9 @@ export const CorneaPage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/cornea/pentacam', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', eye: 'OD', kmax, thinnestPachy: pachy, pachyMin: pachy, pachyMinX: 0, pachyMinY: -0.5 }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('Pentacam + BAD 检查完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.corneaPentacam({ patientId: 'P000001', eye: 'OD', kmax, thinnestPachy: pachy, pachyMin: pachy, pachyMinX: 0, pachyMinY: -0.5 });
+      if (res.success) { setResult(res.data); message.success('Pentacam + BAD 检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -260,8 +245,8 @@ export const CorneaPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>角膜病</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">Pentacam + BAD 指数</Tag>
@@ -313,8 +298,8 @@ export const ContactLensFittingPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Glasses size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>接触镜验配</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">RGP / Scleral / OK镜</Tag>
@@ -367,12 +352,9 @@ export const LowVisionPage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/low-vision/prescription', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', reDist, reNear, leDist, leNear, reDevice, leDevice: reDevice, recommendation: '手持放大镜 4X' }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('低视力处方已开具'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.lowVisionPrescription({ patientId: 'P000001', reDist, reNear, leDist, leNear, reDevice, leDevice: reDevice, recommendation: '手持放大镜 4X' });
+      if (res.success) { setResult(res.data); message.success('低视力处方已开具'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -380,8 +362,8 @@ export const LowVisionPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Accessibility size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>低视力康复</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-37</Tag>
         <Tag color="blue">助视器处方</Tag>
@@ -440,12 +422,9 @@ export const CataractPage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/cataract/lens-opacity', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId: 'P000001', eye: 'OD', nuclearGrade, corticalGrade, pscGrade, bestCorrectedVA: va }),
-      });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('晶状体混浊分级完成'); }
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.cataractLensOpacity({ patientId: 'P000001', eye: 'OD', nuclearGrade, corticalGrade, pscGrade, bestCorrectedVA: va });
+      if (res.success) { setResult(res.data); message.success('晶状体混浊分级完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
@@ -454,8 +433,8 @@ export const CataractPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>白内障专科</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-83</Tag>
         <Tag color="blue">LOCS III 分级</Tag>
@@ -500,16 +479,13 @@ export const RefractivePage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const handleSubmit = async () => {
     try {
-      const r = await fetch('/api/v1/eye/subspecialty/refractive/prescription', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientId: 'P000001',
-          rightEye: { sphere: sphereOD, cylinder: cylinderOD, axis: axisOD },
-          leftEye: { sphere: sphereOS, cylinder: cylinderOS, axis: axisOS },
-        }),
+      // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
+      const res = await eyeApi.refractivePrescription({
+        patientId: 'P000001',
+        rightEye: { sphere: sphereOD, cylinder: cylinderOD, axis: axisOD },
+        leftEye: { sphere: sphereOS, cylinder: cylinderOS, axis: axisOS },
       });
-      const data = await r.json();
-      if (data.success) { setResult(data.data); message.success('屈光处方完成'); }
+      if (res.success) { setResult(res.data); message.success('屈光处方完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -517,8 +493,8 @@ export const RefractivePage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <Zap size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>屈光手术专科</span>
-        {/* [v3.0.6.11-88 Round10] /eye/subspecialty|low-vision|contact-lens 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1A P0] /eye/subspecialty|low-vision|contact-lens 已接真实后端, MSW 仅 dev 兜底 */}
+        <Tag color="green">真实后端</Tag>
         <Tag color="cyan">PR4</Tag>
         <Tag color="purple">v3.0.6.8-83</Tag>
         <Tag color="blue">LASIK / ICL / SMILE</Tag>

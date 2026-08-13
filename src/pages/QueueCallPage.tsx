@@ -476,8 +476,8 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center' as const,
   },
   statValue: {
-    fontSize: 32,
-    fontWeight: 800,
+    fontSize: 26,
+    fontWeight: 700,
     color: PRIMARY,
   },
   statLabel: {

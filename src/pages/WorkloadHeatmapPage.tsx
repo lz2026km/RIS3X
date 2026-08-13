@@ -59,7 +59,7 @@ function distributeByHour(doctor: WorkloadDto): Array<{ hour: number; load: numb
 
 function intensityColor(intensity: number): string {
   const c = Math.max(0, Math.min(1, intensity))
-  if (c < 0.15) return '#f1f5f9'
+  if (c < 0.15) return 'var(--bg-card)'
   if (c < 0.35) return '#bfdbfe'
   if (c < 0.55) return '#60a5fa'
   if (c < 0.8) return '#f59e0b'

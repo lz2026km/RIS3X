@@ -123,7 +123,7 @@ export function AppModal({
   };
 
   const panelStyle: CSSProperties = {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 14,
     boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
     width:
@@ -138,7 +138,7 @@ export function AppModal({
     animation: "appModalScaleIn 0.18s ease-out",
   };
 
-  const headerBgResolved = headerBg ?? (iconBg ? iconBg : "#fff");
+  const headerBgResolved = headerBg ?? (iconBg ? iconBg : "var(--bg-card)");
   const headerColorResolved =
     headerColor ?? (iconColor ? iconColor : "#1e293b");
 
@@ -164,7 +164,7 @@ export function AppModal({
             <div
               style={{
                 padding: "16px 20px",
-                borderBottom: "1px solid #e2e8f0",
+                borderBottom: "1px solid var(--border-color)",
                 background: headerBgResolved,
                 color: headerColorResolved,
                 display: "flex",

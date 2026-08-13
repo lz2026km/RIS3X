@@ -3,15 +3,28 @@ import { tenantApi, type TenantProfile, type TenantUsage, type TenantFeatures } 
 import {
   SafetyCertificateOutlined, ReloadOutlined, SettingOutlined, TeamOutlined,
   DashboardOutlined, ThunderboltOutlined, PlusOutlined,
-  PoweroffOutlined, PlayCircleOutlined,
+  PoweroffOutlined, PlayCircleOutlined, AuditOutlined,
 } from '@ant-design/icons'
 import {
   Card, Table, Tag, Statistic, Row, Col, Button, Spin, Alert, Tabs, Descriptions, Space,
-  Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm,
+  Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm, List,
 } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
+
+// [G005 v3.0.6.11-91 W1-B P1 第12轮] 合规报告: 后端 /compliance/report (overallScore/categories/items)
+// 与 MSW 兜底 (summary/details) 两种 shape 归一化
+interface ComplianceReportData {
+  overallScore?: number
+  overallCompliance?: number
+  lastAssessedAt?: string
+  generatedAt?: string
+  summary?: { totalAudits: number; passed: number; failed: number; complianceRate: number }
+  categories?: Array<{ category: string; name: string; itemCount: number; implementedCount: number; averageScore: number }>
+  items?: Array<{ id: string; category: string; name: string; required: boolean; implemented: boolean; score: number }>
+  details?: Array<{ id: string; module: string; checkItem: string; status: string; severity: string; description: string; checkedAt: string }>
+}
 
 const FEATURE_DEFS: Array<{ key: keyof TenantFeatures; label: string; desc: string }> = [
   { key: 'aiOrchestration', label: 'AI 编排', desc: 'AI 工作流编排与自动化诊断调度' },
@@ -55,6 +68,30 @@ export default function TenantConfigPage() {
   const { pageData: pagedTenants, pagination: tenantsPagination } = usePagination(tenants)
   const [form] = Form.useForm()
   const [createForm] = Form.useForm()
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 合规报告 Modal
+  const [complianceOpen, setComplianceOpen] = useState(false)
+  const [complianceLoading, setComplianceLoading] = useState(false)
+  const [complianceError, setComplianceError] = useState('')
+  const [complianceReport, setComplianceReport] = useState<ComplianceReportData | null>(null)
+
+  const loadCompliance = async () => {
+    setComplianceOpen(true)
+    setComplianceLoading(true)
+    setComplianceError('')
+    setComplianceReport(null)
+    try {
+      const res = await tenantApi.getComplianceReport()
+      if (res.success && res.data) {
+        setComplianceReport(res.data as unknown as ComplianceReportData)
+      } else {
+        setComplianceError(res.error?.message ?? '合规报告加载失败')
+      }
+    } catch (e) {
+      setComplianceError((e as Error)?.message ?? '合规报告加载失败')
+    } finally {
+      setComplianceLoading(false)
+    }
+  }
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -186,7 +223,10 @@ export default function TenantConfigPage() {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
           <h2 style={{ margin: 0 }}><SafetyCertificateOutlined /> 租户配置管理</h2>
-          <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>刷新</Button>
+          <Space>
+            <Button icon={<AuditOutlined />} loading={complianceLoading} onClick={() => void loadCompliance()}>合规报告</Button>
+            <Button icon={<ReloadOutlined />} onClick={() => void fetchAll()} loading={loading}>刷新</Button>
+          </Space>
         </Row>
 
         {error && <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void fetchAll()}><RefreshCw size={14} /> 重试</Button>} />}
@@ -357,6 +397,71 @@ export default function TenantConfigPage() {
             <InputNumber min={1} max={1048576} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="合规报告"
+        open={complianceOpen}
+        onCancel={() => setComplianceOpen(false)}
+        footer={null}
+        width={720}
+      >
+        <Spin spinning={complianceLoading}>
+          {complianceError && (
+            <Alert type="error" showIcon style={{ marginBottom: 12 }} message="加载失败" description={complianceError} />
+          )}
+          {complianceReport && (() => {
+            const score = complianceReport.summary?.complianceRate ?? complianceReport.overallCompliance ?? complianceReport.overallScore ?? 0
+            const generatedAt = complianceReport.generatedAt ?? complianceReport.lastAssessedAt ?? '-'
+            const checks = complianceReport.details
+              ? complianceReport.details.map((d) => ({ name: d.checkItem, module: d.module, passed: d.status !== 'FAIL', note: d.description }))
+              : (complianceReport.items ?? []).map((i) => ({ name: i.name, module: i.category, passed: i.implemented, note: `得分 ${i.score}` }))
+            const passedCount = checks.filter((c) => c.passed).length
+            return (
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Card size="small">
+                      <Statistic title="合规得分" value={score} suffix="%" valueStyle={{ color: score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626' }} />
+                    </Card>
+                  </Col>
+                  <Col span={8}>
+                    <Card size="small">
+                      <Statistic title="通过项" value={`${passedCount}/${checks.length}`} valueStyle={{ color: '#2563eb' }} />
+                    </Card>
+                  </Col>
+                  <Col span={8}>
+                    <Card size="small">
+                      <Statistic title="生成时间" value={generatedAt.slice(0, 10)} />
+                    </Card>
+                  </Col>
+                </Row>
+                <Progress percent={Math.round(score)} status={score >= 80 ? 'success' : score >= 60 ? 'normal' : 'exception'} />
+                <Alert
+                  type={score >= 80 ? 'success' : 'warning'}
+                  showIcon
+                  message={score >= 80 ? '整体合规' : '存在不合规项, 建议整改'}
+                  description={`评估项 ${checks.length} 项 · 通过 ${passedCount} 项 · 生成于 ${generatedAt}`}
+                />
+                <List
+                  size="small"
+                  bordered
+                  dataSource={checks}
+                  renderItem={(c) => (
+                    <List.Item>
+                      <Space>
+                        <Badge status={c.passed ? 'success' : 'error'} />
+                        <span style={{ fontWeight: 500 }}>{c.name}</span>
+                        <Tag>{c.module}</Tag>
+                        {c.note && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.note}</span>}
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+              </Space>
+            )
+          })()}
+        </Spin>
       </Modal>
     </div>
   )

@@ -14,11 +14,16 @@ import {
   Download, AlertTriangle, Share2, ThumbsUp,
   Image as ImageIcon, Bookmark, BookmarkCheck,
   Activity, Scan, Monitor, BookOpen, List,
-  FilterX, Award, Settings, RefreshCw, Edit3, Trash2, FolderOpen
+  FilterX, Award, Settings, RefreshCw, Edit3, Trash2, FolderOpen, Star
 } from 'lucide-react'
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
 import { TeachingExamModal } from './teach/TeachingExamModal'
+
+// [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 影像教学收藏 (localStorage 持久化)
+const FAVORITES_KEY = 'g005_teaching_favorites'
+const TEACHING_TAGS_KEY = 'g005_teaching_tags'
+const TEACHING_TAG_OPTIONS = ['教学重点', '罕见病例', '经典征象', '鉴别诊断']
 
 // ============================================================
 // 样式常量 - 蓝色主题
@@ -169,8 +174,8 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
 // ============================================================
 // 子组件：病例卡片
 // ============================================================
-interface CaseCardProps { caseData: TypicalCase; onView: (c: TypicalCase) => void; onEdit?: (c: TypicalCase) => void; onDelete?: (c: TypicalCase) => void; isAdmin?: boolean }
-const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete, isAdmin }) => {
+interface CaseCardProps { caseData: TypicalCase; onView: (c: TypicalCase) => void; onEdit?: (c: TypicalCase) => void; onDelete?: (c: TypicalCase) => void; isAdmin?: boolean; favorited?: boolean; onToggleFavorite?: (c: TypicalCase) => void; teachingTags?: string[] }
+const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete, isAdmin, favorited, onToggleFavorite, teachingTags }) => {
   const { t } = useTranslation('v3report')
   const [isHovered, setIsHovered] = useState(false)
   const getModalityIcon = (modality: string) => <Scan size={14} style={{ color: MODALITY_COLORS[modality] || '#64748b' }} />
@@ -192,6 +197,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
         </span>
         {caseData.teaching && <TagBadge text={t('teachingBadge')} color={COLORS.danger} bg={COLORS.dangerBg} size="small" />}
         {caseData.status === '待审核' && <TagBadge text={t('pendingBadge')} color={COLORS.warning} bg={COLORS.warningBg} size="small" />}
+        {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 收藏星标 */}
+        <span
+          role="button"
+          aria-label={favorited ? '取消教学收藏' : '加入教学收藏'}
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite?.(caseData) }}
+          style={{ marginLeft: 'auto', cursor: 'pointer', color: favorited ? COLORS.warning : COLORS.textLight, display: 'inline-flex', alignItems: 'center' }}
+        >
+          <Star size={16} fill={favorited ? COLORS.warning : 'transparent'} />
+        </span>
       </div>
 
       {/* 缩略图 */}
@@ -235,6 +249,12 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
           <span key={idx} style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>{tag}</span>
         ))}
         {caseData.tags.length > 3 && <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>+{caseData.tags.length - 3}</span>}
+        {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学标记 chips */}
+        {(teachingTags ?? []).map((tag) => (
+          <span key={tag} style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: COLORS.purpleBg, color: COLORS.purple }}>
+            <Star size={10} style={{ marginRight: 3, verticalAlign: -1 }} />{tag}
+          </span>
+        ))}
       </div>
 
       {/* 底部统计 */}
@@ -262,13 +282,12 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
 // ============================================================
 // 子组件：病例详情抽屉
 // ============================================================
-interface CaseDetailDrawerProps { caseData: TypicalCase | null; visible: boolean; onClose: () => void; isAdmin?: boolean }
-const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, onClose, isAdmin }) => {
+interface CaseDetailDrawerProps { caseData: TypicalCase | null; visible: boolean; onClose: () => void; isAdmin?: boolean; favorited?: boolean; onToggleFavorite?: (id: string) => void; teachingTags?: string[]; onToggleTeachingTag?: (id: string, tag: string) => void }
+const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, onClose, isAdmin, favorited, onToggleFavorite, teachingTags, onToggleTeachingTag }) => {
   const { t } = useTranslation('v3report')
   const [activeTab, setActiveTab] = useState<'info' | 'images' | 'report' | 'discussion'>('info')
   const [likedDiscussions, setLikedDiscussions] = useState<Set<string>>(new Set())
   const [newComment, setNewComment] = useState('')
-  const [isFavorited, setIsFavorited] = useState(false)
   const [selectedAnnotation, setSelectedAnnotation] = useState<number | null>(null)
 
   if (!visible || !caseData) return null
@@ -297,9 +316,9 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
           <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('caseDetailId')}: {caseData.id} | {caseData.examType} {caseData.examName}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setIsFavorited(!isFavorited)} style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: isFavorited ? COLORS.warning : 'rgba(255,255,255,0.2)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-            {isFavorited ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
-            {isFavorited ? t('favored') : t('favorite')}
+          <button onClick={() => onToggleFavorite?.(caseData.id)} style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: favorited ? COLORS.warning : 'rgba(255,255,255,0.2)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            {favorited ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+            {favorited ? t('favored') : t('favorite')}
           </button>
                 <button
                   onClick={() => {
@@ -370,6 +389,34 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     <Tag size={10} style={{ marginRight: 4 }} />{tag}
                   </span>
                 ))}
+              </div>
+            </div>
+
+            {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学标记: 标签 chip 多选 (localStorage 按 id) */}
+            <div style={{ marginBottom: 16, background: COLORS.purpleBg, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.purple}30` }}>
+              <h4 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: COLORS.purple, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Star size={14} />教学标记
+              </h4>
+              <p style={{ margin: '0 0 10px', fontSize: 11, color: COLORS.textMuted }}>点击切换教学标签 (localStorage 持久化, 仅本人可见)</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {TEACHING_TAG_OPTIONS.map((tag) => {
+                  const active = (teachingTags ?? []).includes(tag)
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => onToggleTeachingTag?.(caseData.id, tag)}
+                      style={{
+                        padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                        border: active ? `1px solid ${COLORS.purple}` : `1px solid ${COLORS.border}`,
+                        background: active ? COLORS.purple : COLORS.white,
+                        color: active ? COLORS.white : COLORS.textMuted,
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                      }}
+                    >
+                      <Star size={11} fill={active ? '#fff' : 'transparent'} />{tag}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -656,6 +703,8 @@ export default function TypicalCasesPage() {
   const [syncing, setSyncing] = useState(false)
   const [apiError, setApiError] = useState('')
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('fallback')
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 统计卡接后端 getStats (有值则优先展示)
+  const [apiStats, setApiStats] = useState<{ total: number; teaching: number; pending: number; views: number; likes: number } | null>(null)
 
   const loadCases = useCallback(async () => {
     setSyncing(true)
@@ -712,6 +761,16 @@ export default function TypicalCasesPage() {
 
   useEffect(() => { void loadCases() }, [loadCases])
 
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 统计卡: 后端 getStats (失败静默回退本地统计)
+  useEffect(() => {
+    void typicalCaseApi.getStats().then(res => {
+      if (res.success && res.data && typeof (res.data as { total?: number }).total === 'number') {
+        const s = res.data as { total: number; teaching: number; pending: number; views: number; likes: number }
+        if (s.total > 0) setApiStats(s)
+      }
+    }).catch(() => { /* 回退本地统计 */ })
+  }, [])
+
   const [searchKeyword, setSearchKeyword] = useState('')
   const [examTypeFilter, setExamTypeFilter] = useState<string[]>([])
   const [bodyPartFilter, setBodyPartFilter] = useState<string[]>([])
@@ -728,6 +787,34 @@ export default function TypicalCasesPage() {
   const [teachingOnly, setTeachingOnly] = useState(false)
   const [sortBy, setSortBy] = useState<'latest' | 'hottest' | 'mostLiked'>('latest')
   const [showFilters, setShowFilters] = useState(true)
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学收藏 (localStorage)
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try { const v = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : [] } catch { return [] }
+  })
+  const [favoriteOnly, setFavoriteOnly] = useState(false)
+  const [teachingTags, setTeachingTags] = useState<Record<string, string[]>>(() => {
+    try { const v = JSON.parse(localStorage.getItem(TEACHING_TAGS_KEY) || '{}'); return v && typeof v === 'object' ? v : {} } catch { return {} }
+  })
+
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+      try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(next)) } catch { /* storage 不可用 */ }
+      message.success(next.includes(id) ? '已加入教学收藏' : '已取消教学收藏')
+      return next
+    })
+  }, [])
+
+  const toggleTeachingTag = useCallback((id: string, tag: string) => {
+    setTeachingTags(prev => {
+      const cur = prev[id] ?? []
+      const nextTags = cur.includes(tag) ? cur.filter(x => x !== tag) : [...cur, tag]
+      const next = { ...prev, [id]: nextTags }
+      try { localStorage.setItem(TEACHING_TAGS_KEY, JSON.stringify(next)) } catch { /* storage 不可用 */ }
+      message.success(nextTags.includes(tag) ? `已添加教学标记: ${tag}` : `已移除教学标记: ${tag}`)
+      return next
+    })
+  }, [])
 
   const allTags = useMemo(() => {
     const tags = new Set<string>()
@@ -753,20 +840,23 @@ export default function TypicalCasesPage() {
     if (tagFilter.length > 0) result = result.filter(c => c.tags.some(t => tagFilter.includes(t)))
     if (categoryFilter.length > 0) result = result.filter(c => categoryFilter.includes(c.examName || c.examType))
     if (teachingOnly) result = result.filter(c => c.teaching)
+    // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学收藏筛选
+    if (favoriteOnly) result = result.filter(c => favorites.includes(c.id))
     switch (sortBy) {
       case 'hottest': result.sort((a, b) => b.viewCount - a.viewCount); break
       case 'mostLiked': result.sort((a, b) => b.likeCount - a.likeCount); break
       default: result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
     return result
-  }, [cases, searchKeyword, examTypeFilter, bodyPartFilter, diseaseFilter, tagFilter, teachingOnly, sortBy, categoryFilter])
+  }, [cases, searchKeyword, examTypeFilter, bodyPartFilter, diseaseFilter, tagFilter, teachingOnly, sortBy, categoryFilter, favoriteOnly, favorites])
 
   const stats = useMemo(() => ({
-    total: cases.length, teaching: cases.filter(c => c.teaching).length,
-    pending: cases.filter(c => c.status === '待审核').length,
-    views: cases.reduce((sum, c) => sum + c.viewCount, 0),
-    likes: cases.reduce((sum, c) => sum + c.likeCount, 0),
-  }), [cases])
+    total: apiStats?.total ?? cases.length,
+    teaching: apiStats?.teaching ?? cases.filter(c => c.teaching).length,
+    pending: apiStats?.pending ?? cases.filter(c => c.status === '待审核').length,
+    views: apiStats?.views ?? cases.reduce((sum, c) => sum + c.viewCount, 0),
+    likes: apiStats?.likes ?? cases.reduce((sum, c) => sum + c.likeCount, 0),
+  }), [cases, apiStats])
 
   const handleViewDetail = useCallback((c: TypicalCase) => { setSelectedCase(c); setDetailVisible(true) }, [])
   // [G005 2B] 新建: 调后端 createCase, 失败回退本地新增
@@ -822,10 +912,10 @@ export default function TypicalCasesPage() {
   }
 
   const clearFilters = () => {
-    setSearchKeyword(''); setExamTypeFilter([]); setBodyPartFilter([]); setDiseaseFilter([]); setTagFilter([]); setTeachingOnly(false); setCategoryFilter([])
+    setSearchKeyword(''); setExamTypeFilter([]); setBodyPartFilter([]); setDiseaseFilter([]); setTagFilter([]); setTeachingOnly(false); setCategoryFilter([]); setFavoriteOnly(false)
   }
 
-  const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly || categoryFilter.length > 0
+  const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly || categoryFilter.length > 0 || favoriteOnly
 
   return (
     <div style={{ minHeight: '100vh', background: COLORS.background }}>
@@ -856,6 +946,13 @@ export default function TypicalCasesPage() {
             style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#f59e0b', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Award size={16} />考试模式
+          </button>
+          {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学收藏筛选 */}
+          <button
+            onClick={() => setFavoriteOnly(!favoriteOnly)}
+            style={{ padding: '8px 16px', borderRadius: 6, border: favoriteOnly ? 'none' : '1px solid rgba(255,255,255,0.3)', background: favoriteOnly ? COLORS.warning : 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Star size={16} fill={favoriteOnly ? '#fff' : 'transparent'} />教学收藏{favoriteOnly ? ` (${favorites.length})` : ''}
           </button>
           {isAdmin && (
             <button onClick={() => { setEditingCase(null); setAddFormVisible(true) }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -909,12 +1006,14 @@ export default function TypicalCasesPage() {
           <button onClick={() => void loadCases()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: `1px solid ${COLORS.danger}`, background: 'transparent', color: COLORS.danger, cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
       )}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, padding: '16px 24px', background: COLORS.white, borderBottom: `1px solid ${COLORS.border}` }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, padding: '16px 24px', background: COLORS.white, borderBottom: `1px solid ${COLORS.border}` }}>
         <StatCard icon={<BookOpen size={20} />} label={t('statTotalCases')} value={stats.total} color={COLORS.primary} bg={COLORS.infoBg} />
         <StatCard icon={<Award size={20} />} label={t('statTeachingCases')} value={stats.teaching} color={COLORS.danger} bg={COLORS.dangerBg} />
         <StatCard icon={<Clock size={20} />} label={t('statPendingReview')} value={stats.pending} color={COLORS.warning} bg={COLORS.warningBg} />
         <StatCard icon={<Eye size={20} />} label={t('statTotalViews')} value={stats.views.toLocaleString()} color={COLORS.info} bg={COLORS.infoBg} />
         <StatCard icon={<Heart size={20} />} label={t('statTotalFavorites')} value={stats.likes.toLocaleString()} color={COLORS.danger} bg={COLORS.dangerBg} />
+        {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 收藏数统计卡 */}
+        <StatCard icon={<Star size={20} />} label="教学收藏" value={favorites.length} color={COLORS.purple} bg={COLORS.purpleBg} />
       </div>
 
       {/* 主内容区域 */}
@@ -1067,14 +1166,19 @@ export default function TypicalCasesPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
               {filteredCases.map(caseItem => (
-                <CaseCard key={caseItem.id} caseData={caseItem} onView={handleViewDetail} onEdit={(c) => { setEditingCase(c); setAddFormVisible(true) }} onDelete={(c) => void handleDeleteCase(c)} isAdmin={isAdmin} />
+                <CaseCard key={caseItem.id} caseData={caseItem} onView={handleViewDetail} onEdit={(c) => { setEditingCase(c); setAddFormVisible(true) }} onDelete={(c) => void handleDeleteCase(c)} isAdmin={isAdmin}
+                  favorited={favorites.includes(caseItem.id)} onToggleFavorite={(c) => toggleFavorite(c.id)} teachingTags={teachingTags[caseItem.id] ?? []} />
               ))}
             </div>
           )}
         </div>
       </div>
 
-      <CaseDetailDrawer caseData={selectedCase} visible={detailVisible} onClose={() => setDetailVisible(false)} isAdmin={isAdmin} />
+      <CaseDetailDrawer caseData={selectedCase} visible={detailVisible} onClose={() => setDetailVisible(false)} isAdmin={isAdmin}
+        favorited={selectedCase ? favorites.includes(selectedCase.id) : false}
+        onToggleFavorite={(id) => toggleFavorite(id)}
+        teachingTags={selectedCase ? teachingTags[selectedCase.id] ?? [] : []}
+        onToggleTeachingTag={(id, tag) => toggleTeachingTag(id, tag)} />
       <AddCaseForm visible={addFormVisible} initial={editingCase} onClose={() => { setAddFormVisible(false); setEditingCase(null) }} onSubmit={editingCase ? (d) => void handleEditCase(d) : (d) => void handleAddCase(d)} />
       <TeachingExamModal visible={examModeVisible} cases={cases} onClose={() => setExamModeVisible(false)} />
     </div>

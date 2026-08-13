@@ -431,6 +431,19 @@ const deptRevenueTarget = [
   { dept: '造影室', target: 50000, actual: 42000, rate: 84.0 },
 ]
 
+// [G005 Wave2B P2] 导出数据 = 当前统计各维度聚合 (替代 data={[]} 空导出)
+function buildStatisticsExportRows(): any[] {
+  const rows: any[] = []
+  sevenDayData.forEach((d) => rows.push({ 维度: '近7日趋势', 日期: d.day, 检查量: d.exams, 报告量: d.reports, 危急值: d.critical, 收入: d.revenue }))
+  timeSlotData.forEach((d) => rows.push({ 维度: '时段分布', 时段: d.slot, 检查量: d.exams }))
+  bodyPartData.forEach((d) => rows.push({ 维度: '检查部位', 部位: d.part, 检查量: d.count }))
+  doctorWorkloadData.forEach((d) => rows.push({ 维度: '医生工作量', 医生: d.name, 书写: d.written, 审核: d.reviewed, 平均耗时: d.avgTime }))
+  positiveRateData.forEach((d) => rows.push({ 维度: '阳性率', 模态: d.modality, 阳性率: d.rate }))
+  deviceEfficiencyData.forEach((d) => rows.push({ 维度: '设备效率', 设备: d.name, 日均检查: d.exams, 使用率: d.utilization, 状态: d.status }))
+  revenueByModality.forEach((d) => rows.push({ 维度: '收入构成', 模态: d.name, 收入: d.value }))
+  return rows
+}
+
 // ============================================================
 // 通用卡片组件
 // ============================================================
@@ -1084,7 +1097,7 @@ function QualityControlTab() {
               <Clock size={16} color={C.warning} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>超时统计</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: C.warning }}>{overtimeData.total}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>{overtimeData.total}</div>
             <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>超时报告总数</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
               <span style={{ fontSize: 12, color: C.textMuted }}>超时率</span>
@@ -1100,7 +1113,7 @@ function QualityControlTab() {
               <AlertTriangle size={16} color={C.danger} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>危急值统计</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: C.danger }}>{qualityStats.criticalCount}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: C.danger }}>{qualityStats.criticalCount}</div>
             <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>本月上报表数</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
               <span style={{ fontSize: 12, color: C.textMuted }}>处理及时率</span>
@@ -2258,6 +2271,56 @@ export default function StatisticsPage() {
     }, 400)
   }
 
+  // 导出JSON（当前统计数据全量 → Blob 下载）
+  const handleExportJson = () => {
+    setExportModal({ visible: true, text: t('statistics.exporting') })
+    setTimeout(() => {
+      try {
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          kpi: {
+            totalExams7d: sevenDayData.reduce((s, d) => s + d.exams, 0),
+            totalReports7d: sevenDayData.reduce((s, d) => s + d.reports, 0),
+            totalCritical7d: sevenDayData.reduce((s, d) => s + d.critical, 0),
+            ...businessStats,
+          },
+          sevenDayTrend: sevenDayData,
+          timeSlot: timeSlotData,
+          bodyPart: bodyPartData,
+          patientType: patientTypeData,
+          positiveRate: positiveRateData,
+          positiveRateRanking: positiveRateRanking,
+          doctorWorkload: doctorWorkloadData,
+          doctorTrend: doctorTrendData,
+          qualityScoreTrend: qualityScoreData,
+          qualityDistribution: qualityDistribution,
+          deviceEfficiency: deviceEfficiencyData,
+          business: {
+            overview: businessStats,
+            costBreakdown,
+            monthlyProfit: monthlyProfitData,
+            perCapitaTrend,
+            department: efficiencyMetrics,
+          },
+        }
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = '放射科统计数据.json'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        showToast(t('statistics.exportSuccess'), 'success')
+      } catch {
+        showToast(t('statistics.apiError'), 'error')
+      } finally {
+        setExportModal({ visible: false, text: '' })
+      }
+    }, 400)
+  }
+
   const tabs = [
     { key: 'examVolume', label: t('statistics.tabs.examVolume'), icon: <BarChart3 size={14} /> },
     { key: 'positiveRate', label: t('statistics.tabs.positiveRate'), icon: <ShieldCheck size={14} /> },
@@ -2276,14 +2339,14 @@ export default function StatisticsPage() {
         title="统计分析"
         subtitle="多维度数据图表 · 阳性率统计 · 业务报表"
         actions={
-          <ExportButton data={[]} filename="统计报表" label="导出报表" ariaLabel="导出统计报表" />
+          <ExportButton data={() => buildStatisticsExportRows()} filename="统计报表" label="导出报表" ariaLabel="导出统计报表" />
         }
       />
       <StickyActionBar
         actions={[
           { key: 'refresh', label: '刷新数据', onClick: () => setLoading(true), type: 'default', ariaLabel: '刷新统计数据' },
-          { key: 'export-csv', label: '导出CSV', onClick: () => {}, type: 'default', ariaLabel: '导出CSV' },
-          { key: 'export-json', label: '导出JSON', onClick: () => {}, type: 'default', ariaLabel: '导出JSON' },
+          { key: 'export-csv', label: '导出CSV', onClick: handleExportReport, type: 'default', ariaLabel: '导出CSV' },
+          { key: 'export-json', label: '导出JSON', onClick: handleExportJson, type: 'default', ariaLabel: '导出JSON' },
         ]}
         theme="light"
       />

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
+import { Pagination } from 'antd'
 import { regionalApi } from '../../services/api/regionalApi'
+import { usePagination } from '../../hooks/usePagination'
 
 interface AllianceMember {
   id: string
@@ -37,6 +39,9 @@ const MedicalAlliancePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'members' | 'referrals' | 'dashboard'>('members')
   const [allianceMembers, setAllianceMembers] = useState<AllianceMember[]>([])
   const [allianceReferrals, setAllianceReferrals] = useState<AllianceReferral[]>([])
+  // [G005 Wave2B P2] 成员/转诊表受控分页 (usePagination, pageSize 10)
+  const memberPager = usePagination(allianceMembers, 10)
+  const referralPager = usePagination(allianceReferrals, 10)
 
   useEffect(() => {
     let cancelled = false
@@ -122,7 +127,7 @@ const MedicalAlliancePage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {allianceMembers.map(m => (
+              {memberPager.pageData.map(m => (
                 <tr key={m.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={tdStyle}>{m.name}</td>
                   <td style={tdStyle}>{m.level} / {m.type}</td>
@@ -138,6 +143,9 @@ const MedicalAlliancePage: React.FC = () => {
               ))}
             </tbody>
           </table></div>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+            <Pagination size="small" {...memberPager.pagination} />
+          </div>
           <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
             <div style={{ flex: 1, padding: 16, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid var(--color-info-border)' }}>
               <div style={{ fontSize: 13, color: '#1e40af' }}>共享资源</div>
@@ -170,7 +178,7 @@ const MedicalAlliancePage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {allianceReferrals.map(r => (
+              {referralPager.pageData.map(r => (
                 <tr key={r.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={tdStyle}><strong>{r.patientName}</strong><br /><small>{r.patientId}</small></td>
                   <td style={tdStyle}>{r.fromMemberName}</td>
@@ -194,6 +202,9 @@ const MedicalAlliancePage: React.FC = () => {
               ))}
             </tbody>
           </table></div>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+            <Pagination size="small" {...referralPager.pagination} />
+          </div>
         </div>
       )}
 

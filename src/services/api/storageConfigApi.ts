@@ -47,6 +47,32 @@ export interface StorageAlertsConfig {
   notifyChannels: NotifyChannel[]
 }
 
+// [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理
+export type BucketProvider = 'local' | 's3' | 'minio'
+
+export interface StorageBucketDto {
+  name: string
+  provider: BucketProvider
+  region: string
+  objectCount: number
+  usedBytes: number
+  createdAt: string
+}
+
+export interface StorageObjectDto {
+  key: string
+  size: number
+  modified: string
+}
+
+export interface StorageDownloadDto {
+  key: string
+  size: number
+  contentType: string
+  filename: string
+  contentBase64: string
+}
+
 export const storageConfigApi = {
   get: () => api.get<StorageConfigResponse>('/system/storage-config'),
 
@@ -61,6 +87,24 @@ export const storageConfigApi = {
 
   saveAlertsConfig: (config: StorageAlertsConfig) =>
     api.put<StorageAlertsConfig>('/system/storage/alerts-config', config),
+
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 桶管理
+  listBuckets: () => api.get<StorageBucketDto[]>('/system/storage/buckets'),
+
+  createBucket: (body: { name: string; provider: BucketProvider; region: string }) =>
+    api.post<StorageBucketDto>('/system/storage/buckets', body),
+
+  deleteBucket: (name: string) =>
+    api.delete<{ deleted: string }>(`/system/storage/buckets/${encodeURIComponent(name)}`),
+
+  listBucketObjects: (name: string) =>
+    api.get<StorageObjectDto[]>(`/system/storage/buckets/${encodeURIComponent(name)}/objects`),
+
+  uploadObject: (name: string, body: { key: string; size: number }) =>
+    api.post<StorageObjectDto>(`/system/storage/buckets/${encodeURIComponent(name)}/upload`, body),
+
+  downloadObject: (name: string, key: string) =>
+    api.get<StorageDownloadDto>(`/system/storage/buckets/${encodeURIComponent(name)}/objects/${encodeURIComponent(key)}/download`),
 }
 
 export default storageConfigApi

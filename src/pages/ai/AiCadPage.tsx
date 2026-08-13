@@ -110,7 +110,7 @@ const AccuracyPanel: React.FC = () => {
     <div style={{ padding: 16 }}>
       <Space style={{ marginBottom: 12 }}>
         <Gauge size={16} color="#2563eb" />
-        <span style={{ fontWeight: 600 }}>准确率分析 (POST /ai-diagnosis/accuracy + GET /ai-diagnosis/trend)</span>
+        <span style={{ fontWeight: 600 }}>准确率分析</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
           刷新
         </Button>
@@ -176,7 +176,7 @@ const AccuracyPanel: React.FC = () => {
           })}
         </Row>
 
-        <Card size="small" title="准确率 30 天趋势 (GET /ai-diagnosis/trend)">
+        <Card size="small" title="准确率 30 天趋势">
           {trend.length === 0 && !loading ? (
             <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
@@ -449,7 +449,7 @@ const CadDetectPanel: React.FC = () => {
         )}
       </Card>
 
-      <Card size="small" title="详情 (GET /ai/cad/result/:instanceId)" style={{ marginTop: 16 }}>
+      <Card size="small" title="详情" style={{ marginTop: 16 }}>
         <Spin spinning={loadingDetail}>
           {detail ? (
             <>

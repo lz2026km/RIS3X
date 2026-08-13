@@ -640,8 +640,8 @@ const HomePage: FC = () => {
         {/* 中间：用户信息 */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontSize: 32,
-            fontWeight: 800,
+            fontSize: 26,
+            fontWeight: 700,
             color: COLORS.white,
             marginBottom: 4,
           }}>

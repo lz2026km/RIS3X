@@ -14,6 +14,8 @@ const { TextArea } = Input
 
 const severityColor: Record<string, string> = { info: 'blue', warning: 'orange', critical: 'red', emergency: 'volcano' }
 const statusColor: Record<string, string> = { active: 'red', acknowledged: 'orange', resolved: 'green', escalated: 'purple' }
+const severityLabel: Record<string, string> = { info: '提示', warning: '警告', critical: '危急', emergency: '紧急' }
+const statusLabel: Record<string, string> = { active: '活动中', acknowledged: '已确认', resolved: '已解决', escalated: '已升级' }
 const typeLabel: Record<string, string> = {
   critical_value: '危急值', unexpected_finding: '意外发现', technical_issue: '技术问题', protocol_deviation: '协议偏离',
 }
@@ -119,10 +121,10 @@ const CriticalAlertPage: React.FC = () => {
   const columns = [
     { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110 },
     { title: '告警类型', dataIndex: 'alertType', key: 'alertType', width: 110, render: (v: string) => <Tag>{typeLabel[v] ?? v}</Tag> },
-    { title: '严重度', dataIndex: 'severity', key: 'severity', width: 100, render: (v: string) => <Tag color={severityColor[v]}>{v}</Tag> },
+    { title: '严重度', dataIndex: 'severity', key: 'severity', width: 100, render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag> },
     { title: '标题', dataIndex: 'title', key: 'title' },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 110, render: (v: string) => <Tag color={statusColor[v]}>{v}</Tag> },
+    { title: '状态', dataIndex: 'status', key: 'status', width: 110, render: (v: string) => <Tag color={statusColor[v]}>{statusLabel[v] ?? v}</Tag> },
     { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => new Date(v).toLocaleString() },
     { title: '操作', key: 'action', width: 160, render: (_: unknown, r: CriticalAlert) => (
       <Space size={4}>
@@ -167,7 +169,7 @@ const CriticalAlertPage: React.FC = () => {
             {severityDist.map((s) => (
               <Col span={6} key={s.severity}>
                 <Space style={{ marginBottom: 4 }}>
-                  <Tag color={severityColor[s.severity]}>{s.severity}</Tag>
+                  <Tag color={severityColor[s.severity]}>{severityLabel[s.severity] ?? s.severity}</Tag>
                   <span>{s.count}</span>
                 </Space>
                 <Progress percent={Math.round((s.count / maxSev) * 100)} showInfo={false}
@@ -224,9 +226,9 @@ const CriticalAlertPage: React.FC = () => {
               <Space direction="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Text strong>{selected.patientName}</Text>
-                  <Tag color={severityColor[selected.severity]}>{selected.severity}</Tag>
+                  <Tag color={severityColor[selected.severity]}>{severityLabel[selected.severity] ?? selected.severity}</Tag>
                   <Tag>{typeLabel[selected.alertType] ?? selected.alertType}</Tag>
-                  <Badge status={(statusColor[selected.status] as any)} text={selected.status} />
+                  <Badge status={(statusColor[selected.status] as any)} text={statusLabel[selected.status] ?? selected.status} />
                 </Space>
                 <Text strong>标题: {selected.title}</Text>
                 <Text type="secondary">描述: {selected.description}</Text>

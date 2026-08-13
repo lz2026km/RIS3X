@@ -76,9 +76,9 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <CostCard title="年度总成本" value={formatCurrency(summaryData.totalCost)} subtitle={live ? 'financeApi 实时' : '设备+耗材+人力'} icon={DollarSign} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+5.2%'} color="#ef4444" />
+        <CostCard title="年度总成本" value={formatCurrency(summaryData.totalCost)} subtitle={live ? '财务接口实时' : '设备+耗材+人力'} icon={DollarSign} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+5.2%'} color="#ef4444" />
         <CostCard title="月均成本" value={formatCurrency(summaryData.monthlyAvgCost)} subtitle="月度平均支出" icon={Calendar} color="#f59e0b" />
-        <CostCard title="年度总收入" value={formatCurrency(summaryData.latestRevenue)} subtitle={live ? 'financeApi 实时' : '最新月份收入'} icon={TrendingUp} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+12.5%'} color="#22c55e" />
+        <CostCard title="年度总收入" value={formatCurrency(summaryData.latestRevenue)} subtitle={live ? '财务接口实时' : '最新月份收入'} icon={TrendingUp} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+12.5%'} color="#22c55e" />
         <CostCard title="人次均成本" value={formatCurrency(summaryData.costPerExam, true)} subtitle={`共 ${summaryData.totalExams.toLocaleString()} 人次`} icon={Users} color="#3b82f6" />
       </div>
 

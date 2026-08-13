@@ -104,6 +104,7 @@ const TRANSFER_STATUS_META: Record<string, { color: string; label: string }> = {
 }
 
 const TRANSFER_PRIORITY_COLOR: Record<string, string> = { HIGH: 'red', NORMAL: 'blue', LOW: 'default' }
+const TRANSFER_PRIORITY_LABEL: Record<string, string> = { HIGH: '高', NORMAL: '普通', LOW: '低' }
 
 interface DimseDevice {
   aeTitle: string
@@ -637,9 +638,9 @@ export const DicomDimsePage: React.FC = () => {
               pagination={transferPagination.pagination}
               columns={[
                 { title: '任务 ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-                { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? 'seed' : '队列'}</Tag></Space> },
+                { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? '种子数据' : '队列'}</Tag></Space> },
                 { title: '目标 AE', dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
-                { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{v}</Tag> },
+                { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },
                 { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
                 { title: '进度', key: 'progress', width: 180, render: (_: unknown, r: TransferRecord) => (
                   <Progress percent={r.progress} size="small" status={r.status === 'failed' ? 'exception' : r.status === 'completed' ? 'success' : r.status === 'paused' ? 'normal' : 'active'} format={(p) => `${r.completedInstances}/${r.totalInstances} (${p ?? 0}%)`} />

@@ -1,10 +1,14 @@
 // [v3.0.6.8-54] 口腔影像列表页
 // [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Input, Badge, Modal, Form, DatePicker, Popconfirm, Table } from 'antd';
 import { Activity, Eye, RefreshCw, Plus, Edit3, Trash2, GitCompareArrows } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
+
+const QUALITY_LABELS: Record<string, string> = { Diagnostic: '可诊断', Acceptable: '可用', Suboptimal: '勉强可用', Reject: '不合格' };
+const STATUS_LABELS: Record<string, string> = { acquired: '已采集', reviewed: '已审核', reported: '已报告', archived: '已归档' };
 
 export const DentalStudiesPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
@@ -85,7 +89,8 @@ export const DentalStudiesPage: React.FC = () => {
       modality: s.modality,
       region: s.region,
       deviceModel: s.deviceModel,
-      studyDate: s.acquisitionDate?.slice(0, 10),
+      // [G005 Wave2B P2] antd v6 DatePicker 需 dayjs 实例, 字符串会触发 getUDayjs().isValid 崩溃
+      studyDate: s.acquisitionDate ? dayjs(s.acquisitionDate.slice(0, 10)) : undefined,
       status: s.status,
     });
     setRegOpen(true);
@@ -221,7 +226,7 @@ export const DentalStudiesPage: React.FC = () => {
                     <span>|</span>
                     <span>{s.acquisitionDate}</span>
                     <span>{s.segments && <Tag color="purple" style={{ fontSize: 10 }}>{s.segments.length} 段</Tag>}</span>
-                    <Tag color={s.quality === 'Diagnostic' ? 'green' : s.quality === 'Acceptable' ? 'blue' : 'orange'} style={{ fontSize: 10 }}>{s.quality}</Tag>
+                    <Tag color={s.quality === 'Diagnostic' ? 'green' : s.quality === 'Acceptable' ? 'blue' : 'orange'} style={{ fontSize: 10 }}>{QUALITY_LABELS[s.quality] ?? s.quality}</Tag>
                   </Space>
                 }
               />
@@ -282,7 +287,7 @@ export const DentalStudiesPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label="状态" name="status">
-                <Select options={['acquired', 'reviewed', 'reported', 'archived'].map(v => ({ value: v, label: v }))} />
+                <Select options={['acquired', 'reviewed', 'reported', 'archived'].map(v => ({ value: v, label: STATUS_LABELS[v] ?? v }))} />
               </Form.Item>
             </Col>
           </Row>
@@ -300,12 +305,14 @@ export const DentalStudiesPage: React.FC = () => {
             <Row gutter={12} style={{ marginBottom: 12 }}>
               <Col span={8}><Card size="small"><Statistic title="影像 A" value={cmpResult.modalityA} /></Card></Col>
               <Col span={8}><Card size="small"><Statistic title="影像 B" value={cmpResult.modalityB} /></Card></Col>
-              <Col span={8}><Card size="small"><Statistic title="差异度" value={String(cmpResult.differenceScore)} /></Card></Col>
+              {/* [G005 Wave2B P2] MSW compare 返回 {studyA, studyB, differences} 无 differenceScore → 由差异条目数派生兜底 */}
+              <Col span={8}><Card size="small"><Statistic title="差异度" value={String(cmpResult.differenceScore ?? (Array.isArray(cmpResult.differences) ? cmpResult.differences.length : 0))} /></Card></Col>
             </Row>
             <Table
               size="small"
               rowKey="k"
               pagination={false}
+              scroll={{ x: 'max-content' }}
               dataSource={[
                 { k: '1', label: '同患者', a: String(cmpResult.samePatient ?? '-'), b: String(cmpResult.samePatient ?? '-') },
                 { k: '2', label: '拍摄时间', a: cmpResult.diff?.acquiredA?.slice(0, 10) ?? '-', b: cmpResult.diff?.acquiredB?.slice(0, 10) ?? '-' },

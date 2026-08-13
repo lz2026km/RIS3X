@@ -162,7 +162,7 @@ export const TeleConferencePage: React.FC = () => {
         sessionId,
         payload: { kind: 'ping', ts: Date.now() },
       })
-      if (res.success) message.success('信令已发送 (POST /tele/signal)')
+      if (res.success) message.success('信令已发送')
       else message.warning(res.error?.message ?? '信令发送失败')
     } catch {
       message.warning('信令发送失败')

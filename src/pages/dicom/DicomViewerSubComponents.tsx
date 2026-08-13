@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Tool, PseudoColorMode, Series, MipDirection } from './DicomViewerTypes'
+import { applyGSOFToGray, type GsofMode } from '../../utils/gsdf'
 
 export function Tooltip({ children, title }: { children: React.ReactNode; title: string }) {
   const [show, setShow] = useState(false)
@@ -33,9 +34,10 @@ export function Tooltip({ children, title }: { children: React.ReactNode; title:
 }
 
 export function MIPCanvas({
-  mipDirection, mipFrame, ww, wl,
+  mipDirection, mipFrame, ww, wl, gsofEnabled, gsofMode,
 }: {
   mipDirection: MipDirection; mipFrame: number; ww: number; wl: number
+  gsofEnabled?: boolean; gsofMode?: GsofMode
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -79,14 +81,15 @@ export function MIPCanvas({
           }
           const minV = wl - ww / 2; const maxV = wl + ww / 2
           const norm = Math.max(0, Math.min(1, (maxVal - minV) / (maxV - minV)))
-          const gray = Math.round(norm * 255)
+          const calibrated = gsofEnabled ? applyGSOFToGray(norm, gsofMode ?? 'standard') : norm
+          const gray = Math.round(calibrated * 255)
           data[idx] = gray; data[idx + 1] = gray; data[idx + 2] = gray; data[idx + 3] = 255
         }
       }
       ctx.putImageData(imageData, 0, 0)
     }
     project()
-  }, [mipDirection, mipFrame, ww, wl])
+  }, [mipDirection, mipFrame, ww, wl, gsofEnabled, gsofMode])
 
   return <canvas ref={canvasRef} style={{ width: 512, height: 512, imageRendering: 'pixelated' }} />
 }
@@ -148,13 +151,14 @@ export function VRCanvas({
 
 export function DicomCanvas({
   zoom, rotation, flipH, flipV, ww, wl, brightness, contrast, invert,
-  activeTool, panX, panY, activeSeries, pseudoColorMode
+  activeTool, panX, panY, activeSeries, pseudoColorMode, gsofEnabled, gsofMode
 }: {
   zoom: number; rotation: number; flipH: boolean; flipV: boolean;
   ww: number; wl: number; brightness: number; contrast: number; invert?: boolean;
   activeTool: Tool; panX: number; panY: number;
   activeSeries: Series;
   pseudoColorMode?: PseudoColorMode;
+  gsofEnabled?: boolean; gsofMode?: GsofMode;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -267,10 +271,17 @@ export function DicomCanvas({
           r = Math.max(0, Math.min(255, r * wwFactor + wlFactor * 50))
           g = Math.max(0, Math.min(255, g * wwFactor + wlFactor * 50))
           b = Math.max(0, Math.min(255, b * wwFactor + wlFactor * 50))
+          if (gsofEnabled) {
+            const mode = gsofMode ?? 'standard'
+            r = applyGSOFToGray(r / 255, mode) * 255
+            g = applyGSOFToGray(g / 255, mode) * 255
+            b = applyGSOFToGray(b / 255, mode) * 255
+          }
         } else {
           gray = rawData[idx]!
           const windowedGray = windowLevel(gray * (ww / 400) + (wl - 40), 128, 256) * 255
-          const finalGray = Math.max(0, Math.min(255, windowedGray))
+          const calibratedGray = gsofEnabled ? applyGSOFToGray(windowedGray / 255, gsofMode ?? 'standard') * 255 : windowedGray
+          const finalGray = Math.max(0, Math.min(255, calibratedGray))
           if (pseudoColorMode && pseudoColorMode !== 'none') {
             const pseudo = applyPseudoColor(finalGray, pseudoColorMode)
             r = pseudo.r; g = pseudo.g; b = pseudo.b
@@ -281,7 +292,7 @@ export function DicomCanvas({
       }
     }
     ctx.putImageData(imageData, 0, 0)
-  }, [ww, wl, brightness, contrast, activeSeries.modality, pseudoColorMode])
+  }, [ww, wl, brightness, contrast, activeSeries.modality, pseudoColorMode, gsofEnabled, gsofMode])
 
   const cursorStyle = (() => {
     switch (activeTool) {

@@ -278,7 +278,7 @@ export const Hl7BuilderPage: React.FC = () => {
       }
       const res = await hl7Api.pushOru(values.examId.trim(), values.examId.trim());
       if (res.success) {
-        message.success(`ORU 已推送至外部系统 (POST /hl7/push-oru)`);
+        message.success(`ORU 已推送至外部系统`);
         fetchHistory();
       } else {
         setError(res.error?.message ?? "推送失败");

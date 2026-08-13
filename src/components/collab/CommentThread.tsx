@@ -201,8 +201,8 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                     onClick={() => commentService.removeReaction(c.id, r.emoji, currentUser.id)}
                     style={{
                       padding: '2px 8px',
-                      background: '#f1f5f9',
-                      border: '1px solid #e2e8f0',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: 12,
                       fontSize: 12,
                       cursor: 'pointer',
@@ -284,8 +284,8 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                       setActiveEmojiFor(null);
                     }}
                     style={{
-                      background: '#f8fafc',
-                      border: '1px solid #e2e8f0',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: 6,
                       padding: '2px 6px',
                       cursor: 'pointer',
@@ -327,7 +327,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
       data-testid={testIdPrefix}
       role="region"
       aria-label="协同评论"
-      style={{ background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}
+      style={{ background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}
     >
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>

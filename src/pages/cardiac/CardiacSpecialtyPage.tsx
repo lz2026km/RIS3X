@@ -216,7 +216,7 @@ const CardiacSpecialtyPage = () => {
           >
             <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{           fontSize: 11,
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? 'cardiacAiApi 实时' : '演示数据(回退)'}</span>
+          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
             Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学
@@ -335,7 +335,7 @@ const CardiacSpecialtyPage = () => {
               >
                 <k.icon size={20} color={k.color} />
               </div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: "var(--color-primary-800)" }}>
+                <div style={{ fontSize: 26, fontWeight: 700, color: "var(--color-primary-800)" }}>
                 {k.value}
               </div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>

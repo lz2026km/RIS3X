@@ -348,7 +348,7 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
           </div>
         )}
       </div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: color }}>
+      <div style={{ fontSize: 26, fontWeight: 700, color: color }}>
         {value}<span style={{ fontSize: 13, fontWeight: 500, marginLeft: 2 }}>{suffix}</span>
       </div>
     </div>

@@ -49,6 +49,11 @@ const statusLabel: Record<string, string> = {
   approved: "已通过",
   rejected: "已拒绝",
 };
+const thresholdLabel: Record<string, string> = {
+  CRITICAL: "危急值",
+  URGENT: "紧急",
+  ALL: "全部",
+};
 
 const CoSignPage: React.FC = () => {
   const [items, setItems] = useState<CoSignItem[]>([]);
@@ -230,11 +235,11 @@ const CoSignPage: React.FC = () => {
       ),
     },
     {
-      title: "等待(h)",
+      title: "等待(小时)",
       dataIndex: "waitingHours",
       key: "waitingHours",
       render: (h: number) => (
-        <span style={{ color: h > 24 ? "#ff4d4f" : "#666" }}>{h}h</span>
+        <span style={{ color: h > 24 ? "#ff4d4f" : "#666" }}>{h} 小时</span>
       ),
     },
     {
@@ -282,7 +287,7 @@ const CoSignPage: React.FC = () => {
         }}
       >
         <Users size={20} color="#722ed1" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>双签 Co-sign 审核</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>双签审核</h1>
         <Tag color="purple">报告双签流程</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -470,7 +475,7 @@ const CoSignPage: React.FC = () => {
           style={{ marginBottom: 12 }}
           type="info"
           showIcon
-          message="规则存储于后端 systemConfig (GET/POST /cosign/rules + DELETE /cosign/rules/:key)"
+          message="规则保存于系统配置"
         />
         <Table
           rowKey="key"
@@ -478,11 +483,12 @@ const CoSignPage: React.FC = () => {
           size="small"
           loading={rulesLoading}
           pagination={false}
+          scroll={{ x: 'max-content' }}
           locale={{ emptyText: "暂无会签规则" }}
           columns={[
             { title: "规则名", dataIndex: "name", key: "name" },
             { title: "模态", dataIndex: "modality", key: "modality", render: (m: string) => <Tag color="blue">{m}</Tag> },
-            { title: "阈值", dataIndex: "threshold", key: "threshold", render: (t: string) => <Tag>{t}</Tag> },
+            { title: "阈值", dataIndex: "threshold", key: "threshold", render: (t: string) => <Tag>{thresholdLabel[t] ?? t}</Tag> },
             { title: "会签医师", dataIndex: "cosignerIds", key: "cosignerIds", render: (ids: string[]) => (ids ?? []).join(", ") || "-" },
             { title: "最少复核", dataIndex: "minReviewers", key: "minReviewers", render: (v: number) => v ?? 1 },
             { title: "强制会签", dataIndex: "requireCoSign", key: "requireCoSign", render: (v: boolean) => (v === false ? "否" : "是") },

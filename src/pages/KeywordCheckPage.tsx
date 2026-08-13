@@ -92,7 +92,7 @@ export default function KeywordCheckPage() {
         setSource('api');
       } else {
         setSource('demo');
-        setApiError('reportApi 暂不可用，当前展示内置演示报告');
+        setApiError('接口暂不可用，当前展示内置演示报告');
       }
     } catch (e) {
       setSource('demo');
@@ -174,7 +174,7 @@ export default function KeywordCheckPage() {
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
-              {loading ? '同步中...' : source === 'api' ? '数据源: reportApi 实时' : '演示数据(接口不可用)'}
+              {loading ? '同步中...' : source === 'api' ? '数据源: 报告接口实时' : '演示数据(接口不可用)'}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
@@ -263,7 +263,7 @@ export default function KeywordCheckPage() {
                 {scanResult && (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <div style={{
-                      fontSize: 36, fontWeight: 700,
+                      fontSize: 26, fontWeight: 700,
                       color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
                     }}>{scanResult.score}</div>
                     <div>

@@ -170,6 +170,17 @@ export const dentalApi = {
   // 发票 CRUD (2)
   listInvoices: () => api.get<any[]>(`${DENTAL_API}/invoices`),
   createInvoice: (data: any) => api.post<any>(`${DENTAL_API}/invoices`, data),
+  // [G005 Wave1A P0] 收费/划价/医保 (DentalBillingPage, 后端 /dental/billing/* 真实实现)
+  getFeeCatalog: () => api.get<any[]>(`${DENTAL_API}/billing/fee-catalog`),
+  getPaymentMethods: () => api.get<any[]>(`${DENTAL_API}/billing/payment-methods`),
+  listBillingInvoices: (patientId?: string) =>
+    api.get<any[]>(`${DENTAL_API}/billing/invoices${patientId ? '?patientId=' + encodeURIComponent(patientId) : ''}`),
+  createBillingInvoice: (data: any) =>
+    api.post<any>(`${DENTAL_API}/billing/invoices`, data),
+  payBillingInvoice: (id: string, data: { paymentMethod: string; transactionId?: string; outTradeNo?: string }) =>
+    api.post<any>(`${DENTAL_API}/billing/invoices/${encodeURIComponent(id)}/pay`, data),
+  verifyInsurance: (data: { patientId?: string; insuranceType?: string; feeTotal?: number }) =>
+    api.post<any>(`${DENTAL_API}/billing/insurance-verify`, data),
 
   // 库存 CRUD (3)
   listInventory: () => api.get<any[]>(`${DENTAL_API}/inventory`),

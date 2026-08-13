@@ -37,6 +37,12 @@ const riskColor: Record<string, string> = {
   high: "red",
   very_high: "volcano",
 };
+const riskLabel: Record<string, string> = {
+  low: "低",
+  moderate: "中",
+  high: "高",
+  very_high: "很高",
+};
 
 const LungCadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -121,7 +127,7 @@ const LungCadPage: React.FC = () => {
       title: "整体风险",
       dataIndex: "overallRisk",
       key: "overallRisk",
-      render: (v: string) => <Tag color={riskColor[v]}>{v}</Tag>,
+      render: (v: string) => <Tag color={riskColor[v]}>{riskLabel[v] ?? v}</Tag>,
     },
     {
       title: "状态",

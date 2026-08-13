@@ -417,7 +417,7 @@ const AutoCollectionPage: React.FC = () => {
         <Spin spinning={logsLoading}>
           {logs.length === 0 ? (
             <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
-              暂无日志 (GET /auto-collection/logs)
+              暂无日志
             </div>
           ) : (
             <Timeline
@@ -449,7 +449,7 @@ const AutoCollectionPage: React.FC = () => {
             size="small"
             pagination={configPage.pagination}
             scroll={{ x: 'max-content' }}
-            locale={{ emptyText: '暂无配置 (GET /auto-collection/config)' }}
+            locale={{ emptyText: '暂无配置' }}
             columns={[
               { title: '配置项', dataIndex: 'key', key: 'key', width: 220, render: (v: string) => <code>{v}</code> },
               { title: '描述', dataIndex: 'description', key: 'description' },

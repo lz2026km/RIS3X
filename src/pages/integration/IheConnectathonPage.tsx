@@ -164,6 +164,8 @@ export const IheConnectathonPage: React.FC = () => {
           <Space>
             <Tag color="yellow">Connectathon</Tag>
             <Tag color="red">IHE</Tag>
+            {/* [G005 Wave2B P2] Math.random 本地模拟测试 → 模拟工具徽标 */}
+            <Tag color="orange">模拟工具 · 测试结果本地生成</Tag>
             <Button
               size="small"
               icon={<BookOpen className="w-3 h-3" />}

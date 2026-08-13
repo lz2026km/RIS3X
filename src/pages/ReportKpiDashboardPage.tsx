@@ -39,6 +39,8 @@ export default function ReportKpiDashboardPage() {
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={20} color="#1e40af" /> 报告 KPI 大盘
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据 · 本地合成指标</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             15 大核心指标 · 设备利用率 · 24h/7d 趋势 · 无纸化 / 区块链

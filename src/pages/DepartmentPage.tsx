@@ -603,7 +603,7 @@ export default function DepartmentPage() {
                   {[["physician", "医师"], ["technician", "技师"], ["nurse", "护士"], ["director", "主任"], ["vice_director", "副主任"], ["intern", "实习生"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
-              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>保存将调用 userApi 创建真实用户 (POST /users); 后端不可用时本地记录。</div>
+              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>保存将调用用户接口创建真实用户; 后端不可用时本地记录。</div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
                 <button onClick={() => setShowAddModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>取消</button>
                 <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><UserPlus size={13} /> 保存</button>

@@ -307,7 +307,7 @@ const EyeWorkspacePage: React.FC = () => {
         <Spin spinning={iolRecordsLoading}>
           {iolRecords.length === 0 ? (
             <Empty
-              description="暂无计算记录 (GET /eye/iol/calculations)"
+              description="暂无计算记录"
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               style={{ padding: '8px 0' }}
             />

@@ -49,7 +49,7 @@ export default function SnomedPage() {
       <PageHeader icon={<Code size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20 }}>
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <FileText size={16} color="#3b82f6" />{t("reportInput")}
             </h3>
@@ -75,7 +75,7 @@ export default function SnomedPage() {
                   </button>
                 </div>
                 {codes.map((c, _i) => (
-                  <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                  <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid var(--border-color)" }}>
                     <input type="checkbox" checked={confirmed.has(c.conceptId)} onChange={() => toggleConfirm(c.conceptId)} style={{ cursor: "pointer" }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{c.pt}</div>
@@ -90,13 +90,13 @@ export default function SnomedPage() {
             )}
 
             {codes.length === 0 && !loading && text && (
-              <div style={{ marginTop: 12, padding: 12, background: "#f8fafc", borderRadius: 6, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+              <div style={{ marginTop: 12, padding: 12, background: "var(--bg-primary)", borderRadius: 6, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
                 {t("noCodesFound")}
               </div>
             )}
           </div>
 
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Search size={16} color="#8b5cf6" />{t("searchCodes")}
             </h3>
@@ -114,7 +114,7 @@ export default function SnomedPage() {
             </div>
             <div style={{ marginTop: 12 }}>
               {searchResults.map((c, _i) => (
-                <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid var(--border-color)" }}>
                   <BookOpen size={14} color="#8b5cf6" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{c.pt}</div>

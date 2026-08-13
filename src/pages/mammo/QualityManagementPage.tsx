@@ -14,7 +14,7 @@ const s: Record<string, React.CSSProperties> = {
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.1 },
+  statValue: { fontSize: 26, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },

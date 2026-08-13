@@ -2,6 +2,8 @@ import { api } from './client'
 
 // [G005 Wave1B P1] 系统管理 API — users/roles 后端已实现 (system-admin.module, User 表派生只读);
 // configs 走 system-storage.controller (Wave1A 已实现)。MSW 标注已更新。
+// [G005 v3.0.6.11-91 W1-B P1 第12轮] 删除 createUser/deleteUser (指向不存在端点 POST/DELETE /system/admin/users,
+// 后端无对应 controller 路由; SystemAdminPage 用户增删已走 userApi.create/delete — 第12轮确认 0 引用)。
 export interface SystemUserDto {
   id: string
   name: string
@@ -26,12 +28,6 @@ export interface SystemConfigDto {
 export const systemAdminApi = {
   getUsers: () =>
     api.get<SystemUserDto[]>('/system/admin/users'),
-
-  createUser: (data: { name: string; role: string }) =>
-    api.post<SystemUserDto>('/system/admin/users', data),
-
-  deleteUser: (id: string) =>
-    api.delete<void>(`/system/admin/users/${id}`),
 
   getRoles: () =>
     api.get<SystemRoleDto[]>('/system/admin/roles'),

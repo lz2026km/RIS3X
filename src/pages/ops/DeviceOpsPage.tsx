@@ -471,7 +471,7 @@ export default function DeviceOpsPage() {
                 <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
                   <option>CT</option><option>DR</option><option>DSA</option><option>MG</option><option>X-ray</option>
                 </select>
-                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? '提交中...' : '登记剂量 (POST /dose-tracking)'}</button>
+                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? '提交中...' : '登记剂量'}</button>
               </div>
             </div>
           </div>

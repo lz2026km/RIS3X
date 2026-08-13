@@ -41,7 +41,7 @@ export default function ContrastInjectionWorkstationPage() {
         adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl,
       })
       if (res.success) {
-        message.success('注射指令已发送至设备 (POST /device-mgmt/contrast/injection)')
+        message.success('注射指令已发送至设备')
       } else {
         throw new Error(res.error?.message ?? '指令下发失败')
       }

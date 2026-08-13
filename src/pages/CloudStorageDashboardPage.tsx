@@ -5,11 +5,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Typography, Space, Alert,
-  Radio, Form, Input, Button, message, InputNumber, Select,
+  Radio, Form, Input, Button, message, InputNumber, Select, Modal, Upload, Tooltip, Popconfirm,
 } from "antd";
 import {
   Cloud, Database, Archive, HardDrive, Layers, Activity, Clock, TrendingUp, AlertCircle,
   CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw, BellRing,
+  FolderPlus, Boxes, UploadCloud, Download, Eye, Trash2, FileJson, FileText, File as FileIcon, Inbox,
 } from "lucide-react";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
@@ -19,6 +20,9 @@ import {
   type StorageStatsDto,
   type StorageTestResponse,
   type StorageAlertsConfig,
+  type StorageBucketDto,
+  type StorageObjectDto,
+  type BucketProvider,
 } from "../services/api/storageConfigApi";
 
 const { Text } = Typography;
@@ -33,6 +37,7 @@ const NOTIFY_CHANNEL_LABELS: Record<string, string> = {
 
 const TIER_COLORS: Record<string, string> = { hot: "#dc2626", warm: "#f59e0b", cold: "#3b82f6" };
 const TIER_LABELS: Record<string, string> = { hot: "热存", warm: "温存", cold: "冷归档" };
+const NODE_TYPE_LABELS: Record<string, string> = { primary: "主存储", tier2: "二级", archive: "归档", backup: "备份" };
 
 const STATUS_MAP: Record<string, { color: string; label: string }> = {
   online: { color: "green", label: "在线" },
@@ -177,7 +182,7 @@ function StorageMonitorTab() {
                   </Space>
                 ) },
                 { title: "层级", dataIndex: "tier", key: "tier", width: 80, render: (t: string) => <Tag color={TIER_COLORS[t]}>{TIER_LABELS[t]}</Tag> },
-                { title: "类型", dataIndex: "type", key: "type", width: 100, render: (t: string) => t },
+                { title: "类型", dataIndex: "type", key: "type", width: 100, render: (t: string) => NODE_TYPE_LABELS[t] ?? t },
                 { title: "区域", dataIndex: "region", key: "region", width: 140 },
                 { title: "容量使用", key: "usage", width: 200, render: (_: any, r: any) => {
                   const pct = (r.usedGb / r.capacityGb) * 100;
@@ -207,7 +212,7 @@ function StorageMonitorTab() {
                     <div style={{ width: 10, height: 10, background: TIER_COLORS[m.tier], borderRadius: 2 }} />
                     <Text strong>{TIER_LABELS[m.tier]}层</Text>
                   </Space>
-                  <Text>{m.objects.toLocaleString()} obj | {(m.sizeGb / 1024).toFixed(1)} TB</Text>
+                  <Text>{m.objects.toLocaleString()} 个对象 | {(m.sizeGb / 1024).toFixed(1)} TB</Text>
                 </div>
                 <Progress percent={m.pctOfTotal} showInfo={false} strokeColor={TIER_COLORS[m.tier]} />
                 <Text type="secondary" style={{ fontSize: 11 }}>保留 {m.retentionDays} 天 | ${m.monthlyCostUsd}/月</Text>
@@ -465,6 +470,375 @@ function StorageConfigTab() {
   );
 }
 
+// ─────────────────────────── 桶管理 (G-28 v3.0.6.11-91) ───────────────────────────
+
+const PROVIDER_LABELS: Record<string, { label: string; color: string }> = {
+  s3: { label: "AWS S3", color: "orange" },
+  minio: { label: "MinIO", color: "geekblue" },
+  local: { label: "本地", color: "green" },
+};
+
+function objectIcon(key: string) {
+  if (key.endsWith(".json")) return <FileJson size={14} />;
+  if (key.endsWith(".pdf")) return <FileText size={14} />;
+  if (key.endsWith(".png") || key.endsWith(".jpg") || key.endsWith(".dcm")) return <FileIcon size={14} />;
+  return <Inbox size={14} />;
+}
+
+function BucketObjectsModal({
+  bucket,
+  visible,
+  onClose,
+  onChanged,
+}: {
+  bucket: StorageBucketDto | null;
+  visible: boolean;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const [objects, setObjects] = useState<StorageObjectDto[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const load = async (name: string) => {
+    setLoading(true);
+    const res = await storageConfigApi.listBucketObjects(name);
+    if (res.success && Array.isArray(res.data)) setObjects(res.data);
+    else message.error(res.error?.message ?? "对象列表加载失败");
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (visible && bucket) void load(bucket.name);
+    else setObjects([]);
+  }, [visible, bucket]);
+
+  const download = async (obj: StorageObjectDto) => {
+    if (!bucket) return;
+    message.loading({ content: `正在生成 ${obj.key} 模拟下载…`, key: "dl" });
+    const res = await storageConfigApi.downloadObject(bucket.name, obj.key);
+    if (res.success && res.data) {
+      const d = res.data;
+      const bytes = Uint8Array.from(atob(d.contentBase64), (c) => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: d.contentType || "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = d.filename || obj.key;
+      a.click();
+      URL.revokeObjectURL(url);
+      message.success({ content: `已下载 ${d.filename} (${formatBytes(d.size)})`, key: "dl" });
+    } else {
+      message.error({ content: res.error?.message ?? "下载失败", key: "dl" });
+    }
+  };
+
+  return (
+    <Modal
+      title={
+        <Space>
+          <Boxes size={16} color="#0ea5e9" />
+          {bucket?.name} 对象列表 ({objects.length})
+        </Space>
+      }
+      open={visible}
+      onCancel={onClose}
+      footer={null}
+      width={760}
+    >
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 12 }}
+        message="上传为本地模拟 (仅注册元数据)，下载生成 JSON/文本 Blob 模拟真实拉取。"
+      />
+      <div style={{ marginBottom: 12 }}>
+        <Upload
+          accept="*"
+          showUploadList={false}
+          disabled={!bucket || uploading}
+          beforeUpload={(file) => {
+            if (!bucket) return false;
+            setUploading(true);
+            void storageConfigApi
+              .uploadObject(bucket.name, { key: file.name, size: file.size })
+              .then((res) => {
+                if (res.success && res.data) {
+                  message.success(`模拟上传成功: ${res.data.key} (${formatBytes(res.data.size)})`);
+                  void load(bucket.name);
+                  onChanged();
+                } else {
+                  message.error(res.error?.message ?? "上传失败");
+                }
+              })
+              .finally(() => setUploading(false));
+            return false;
+          }}
+        >
+          <Button type="primary" icon={<UploadCloud size={14} />} loading={uploading} disabled={!bucket}>
+            上传对象 (本地模拟)
+          </Button>
+        </Upload>
+      </div>
+      <Table
+        size="small"
+        rowKey="key"
+        loading={loading}
+        dataSource={objects}
+        pagination={{ pageSize: 10, showSizeChanger: false }}
+        scroll={{ x: 'max-content' }}
+        columns={[
+          {
+            title: "对象键",
+            dataIndex: "key",
+            key: "key",
+            render: (k: string) => (
+              <Space>
+                {objectIcon(k)}
+                <span style={{ fontWeight: 500 }}>{k}</span>
+              </Space>
+            ),
+          },
+          {
+            title: "大小",
+            dataIndex: "size",
+            key: "size",
+            width: 120,
+            render: (s: number) => formatBytes(s),
+          },
+          {
+            title: "修改时间",
+            dataIndex: "modified",
+            key: "modified",
+            width: 180,
+            render: (m: string) => new Date(m).toLocaleString("zh-CN"),
+          },
+          {
+            title: "操作",
+            key: "action",
+            width: 120,
+            render: (_: unknown, obj: StorageObjectDto) => (
+              <Button size="small" icon={<Download size={13} />} onClick={() => void download(obj)}>
+                下载
+              </Button>
+            ),
+          },
+        ]}
+      />
+    </Modal>
+  );
+}
+
+function StorageBucketsTab() {
+  const [buckets, setBuckets] = useState<StorageBucketDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [createForm] = Form.useForm<{ name: string; provider: BucketProvider; region: string }>();
+  const [createVisible, setCreateVisible] = useState(false);
+  const [objectsVisible, setObjectsVisible] = useState(false);
+  const [selectedBucket, setSelectedBucket] = useState<StorageBucketDto | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const res = await storageConfigApi.listBuckets();
+    if (res.success && Array.isArray(res.data)) setBuckets(res.data);
+    else message.error(res.error?.message ?? "桶列表加载失败");
+    setLoading(false);
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const totalObjects = useMemo(() => buckets.reduce((s, b) => s + b.objectCount, 0), [buckets]);
+  const totalBytes = useMemo(() => buckets.reduce((s, b) => s + b.usedBytes, 0), [buckets]);
+
+  const onCreate = async () => {
+    try {
+      const values = await createForm.validateFields();
+      setCreating(true);
+      const res = await storageConfigApi.createBucket({
+        name: values.name.trim(),
+        provider: values.provider ?? "s3",
+        region: values.region.trim() || "us-east-1",
+      });
+      if (res.success && res.data) {
+        message.success(`桶已创建: ${res.data.name} (${res.data.provider}/${res.data.region})`);
+        setCreateVisible(false);
+        createForm.resetFields();
+        void load();
+      } else {
+        message.error(res.error?.message ?? "桶创建失败");
+      }
+    } catch {
+      /* 校验失败忽略 */
+    }
+    setCreating(false);
+  };
+
+  const onDelete = async (bucket: StorageBucketDto) => {
+    setDeleting(bucket.name);
+    const res = await storageConfigApi.deleteBucket(bucket.name);
+    if (res.success) {
+      message.success(`桶 ${bucket.name} 已删除`);
+      void load();
+    } else {
+      message.error(res.error?.message ?? "删除失败");
+    }
+    setDeleting(null);
+  };
+
+  const openObjects = (bucket: StorageBucketDto) => {
+    setSelectedBucket(bucket);
+    setObjectsVisible(true);
+  };
+
+  return (
+    <>
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={8}>
+          <Card size="small">
+            <Statistic title="桶数量" value={buckets.length} valueStyle={{ color: "#0ea5e9" }} prefix={<Boxes size={14} />} />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card size="small">
+            <Statistic title="对象总数" value={totalObjects.toLocaleString()} valueStyle={{ color: "#0891b2" }} prefix={<Inbox size={14} />} />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card size="small">
+            <Statistic title="占用容量" value={formatBytes(totalBytes)} valueStyle={{ color: "#dc2626" }} prefix={<HardDrive size={14} />} />
+          </Card>
+        </Col>
+      </Row>
+
+      <Card
+        title={<Space><Boxes size={16} />云存储桶 <Text type="secondary" style={{ fontSize: 12 }}>S3 / MinIO / 本地 — 桶 CRUD + 对象列表 + 模拟上传下载</Text></Space>}
+        extra={
+          <Space>
+            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
+            <Button type="primary" icon={<FolderPlus size={14} />} onClick={() => setCreateVisible(true)}>新建桶</Button>
+          </Space>
+        }
+      >
+        <Table
+          scroll={{ x: 'max-content' }}
+          rowKey="name"
+          loading={loading}
+          dataSource={buckets}
+          size="small"
+          pagination={false}
+          columns={[
+            {
+              title: "桶名称",
+              dataIndex: "name",
+              key: "name",
+              width: 200,
+              render: (n: string, r: StorageBucketDto) => (
+                <Space>
+                  <Cloud size={14} color={r.provider === "local" ? "#22c55e" : "#0ea5e9"} />
+                  <span style={{ fontWeight: 600 }}>{n}</span>
+                </Space>
+              ),
+            },
+            {
+              title: "Provider",
+              dataIndex: "provider",
+              key: "provider",
+              width: 120,
+              render: (p: BucketProvider) => {
+                const cfg = PROVIDER_LABELS[p] ?? { label: p, color: "default" };
+                return <Tag color={cfg.color}>{cfg.label}</Tag>;
+              },
+            },
+            { title: "区域", dataIndex: "region", key: "region", width: 140 },
+            {
+              title: "对象数",
+              dataIndex: "objectCount",
+              key: "objectCount",
+              width: 100,
+              render: (n: number) => n.toLocaleString(),
+            },
+            {
+              title: "占用",
+              dataIndex: "usedBytes",
+              key: "usedBytes",
+              width: 120,
+              render: (b: number) => formatBytes(b),
+            },
+            {
+              title: "创建时间",
+              dataIndex: "createdAt",
+              key: "createdAt",
+              width: 170,
+              render: (c: string) => new Date(c).toLocaleString("zh-CN"),
+            },
+            {
+              title: "操作",
+              key: "action",
+              width: 240,
+              render: (_: unknown, r: StorageBucketDto) => (
+                <Space size={4}>
+                  <Tooltip title="对象列表">
+                    <Button size="small" icon={<Eye size={13} />} onClick={() => openObjects(r)}>对象</Button>
+                  </Tooltip>
+                  <Popconfirm
+                    title={`确认删除桶 ${r.name}?`}
+                    description="删除后桶内对象一并移除 (内存态)"
+                    okText="删除"
+                    cancelText="取消"
+                    onConfirm={() => void onDelete(r)}
+                  >
+                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === r.name}>删除</Button>
+                  </Popconfirm>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </Card>
+
+      <Modal
+        title={<Space><FolderPlus size={16} color="#0ea5e9" />新建存储桶</Space>}
+        open={createVisible}
+        onCancel={() => setCreateVisible(false)}
+        onOk={() => void onCreate()}
+        confirmLoading={creating}
+        okText="创建"
+        cancelText="取消"
+      >
+        <Form form={createForm} layout="vertical" initialValues={{ provider: "s3", region: "us-east-1" }} style={{ marginTop: 8 }}>
+          <Form.Item
+            name="name"
+            label="桶名称"
+            rules={[
+              { required: true, message: "桶名称必填" },
+              { pattern: /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i, message: "仅允许字母/数字/点/中划线" },
+              { max: 63, message: "最长 63 字符" },
+            ]}
+          >
+            <Input placeholder="g005-backup" prefix={<Cloud size={13} />} />
+          </Form.Item>
+          <Form.Item name="provider" label="Provider" rules={[{ required: true, message: "请选择 Provider" }]}>
+            <Select
+              options={[
+                { value: "s3", label: "AWS S3" },
+                { value: "minio", label: "MinIO" },
+                { value: "local", label: "本地文件系统" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="region" label="区域" rules={[{ required: true, message: "区域必填" }]}>
+            <Input placeholder="us-east-1 / cn-north-1" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <BucketObjectsModal bucket={selectedBucket} visible={objectsVisible} onClose={() => setObjectsVisible(false)} onChanged={() => void load()} />
+    </>
+  );
+}
+
 // ─────────────────────────── 页面 ───────────────────────────
 
 export default function CloudStorageDashboardPage() {
@@ -494,6 +868,11 @@ export default function CloudStorageDashboardPage() {
             key: "config",
             label: <Space><Settings size={14} />存储配置</Space>,
             children: <StorageConfigTab />,
+          },
+          {
+            key: "buckets",
+            label: <Space><Boxes size={14} />桶管理</Space>,
+            children: <StorageBucketsTab />,
           },
         ]}
       />

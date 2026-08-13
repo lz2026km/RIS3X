@@ -1,5 +1,5 @@
 import { aiPlatformApi } from "../../services/api/aiPlatformApi";
-import { AiPlatformModel, AiPlatformStats } from '../../services/api/aiPlatformApi'
+import { AiPlatformModel, AiPlatformStats, AiPlatformTestResult } from '../../services/api/aiPlatformApi'
 import {
   Card,
   Table,
@@ -63,6 +63,10 @@ const ThirdPartyAiPage: React.FC = () => {
   const [error, setError] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [detail, setDetail] = useState<AiPlatformModel | null>(null);
+  // [v3.0.6.11-91 W1-B P1] 模型测试: 结果 Modal + 测试中状态
+  const [testResult, setTestResult] = useState<AiPlatformTestResult | null>(null);
+  const [testError, setTestError] = useState("");
+  const [testBusyId, setTestBusyId] = useState<string | null>(null);
   const [form] = Form.useForm();
 
   const load = useCallback(async () => {
@@ -120,6 +124,27 @@ const ThirdPartyAiPage: React.FC = () => {
       message.success("已移除");
     } else {
       message.error(res.error?.message ?? "移除失败");
+    }
+  };
+
+  // [G005 v3.0.6.11-91 W1-B P1 第12轮] 模型连通性测试 → 结果 Modal (状态/延迟/输出预览)
+  const handleTest = async (record: AiPlatformModel) => {
+    setTestBusyId(record.id);
+    setTestError("");
+    setTestResult(null);
+    try {
+      const res = await aiPlatformApi.testModel(record.id);
+      if (res.success && res.data) {
+        setTestResult(res.data);
+      } else {
+        setTestError(res.error?.message ?? "测试失败");
+        setTestResult(null);
+      }
+    } catch (e) {
+      setTestError((e as Error)?.message ?? "测试请求失败");
+      setTestResult(null);
+    } finally {
+      setTestBusyId(null);
     }
   };
 
@@ -206,6 +231,14 @@ const ThirdPartyAiPage: React.FC = () => {
         <Space>
           <Button size="small" type="primary" onClick={() => setDetail(r)}>
             详情
+          </Button>
+          <Button
+            size="small"
+            icon={<Zap size={14} />}
+            loading={testBusyId === r.id}
+            onClick={() => void handleTest(r)}
+          >
+            测试
           </Button>
           <Button
             size="small"
@@ -369,6 +402,45 @@ const ThirdPartyAiPage: React.FC = () => {
               {detail.description || "-"}
             </Descriptions.Item>
           </Descriptions>
+        )}
+      </Modal>
+      <Modal
+        title={`模型测试 - ${testResult?.id ?? testBusyId ?? ""}`}
+        open={testResult != null || testError !== ""}
+        onCancel={() => { setTestResult(null); setTestError(""); }}
+        footer={null}
+      >
+        {testError && (
+          <Alert
+            type="error"
+            showIcon
+            style={{ marginBottom: 12 }}
+            title="测试失败（回退标注）"
+            description={testError}
+          />
+        )}
+        {testResult && (
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <Alert
+              type={testResult.reachable ? "success" : "warning"}
+              showIcon
+              title={testResult.message}
+              description={`端点: ${testResult.endpoint ?? "-"}`}
+            />
+            <Descriptions column={1} size="small" bordered>
+              <Descriptions.Item label="连通状态">
+                <Badge status={testResult.reachable ? "success" : "error"} text={testResult.reachable ? "OK" : "TIMEOUT"} />
+              </Descriptions.Item>
+              <Descriptions.Item label="延迟">{testResult.latencyMs} ms</Descriptions.Item>
+              <Descriptions.Item label="超时阈值">{testResult.timeoutMs} ms</Descriptions.Item>
+              <Descriptions.Item label="测试时间">{testResult.testedAt}</Descriptions.Item>
+              <Descriptions.Item label="输出预览">
+                <div style={{ fontFamily: "monospace", fontSize: 12, background: "#f8fafc", padding: "8px 12px", borderRadius: 6 }}>
+                  {JSON.stringify({ id: testResult.id, reachable: testResult.reachable, status: testResult.status, latencyMs: testResult.latencyMs }, null, 2)}
+                </div>
+              </Descriptions.Item>
+            </Descriptions>
+          </Space>
         )}
       </Modal>
     </div>

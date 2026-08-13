@@ -355,6 +355,50 @@ export const eyeApi = {
     api.get(`${EYE_API}/subspecialty/${sub}/records/${id}`),
   createSubspecialtyRecord: (sub: string, data: any) =>
     api.post(`${EYE_API}/subspecialty/${sub}/records`, data),
+  // [G005 Wave1A P0] 亚专科检查动作 (SubspecialtyExamsPage 真实化, 后端 eye-subspecialty 模块)
+  strabismusSynoptophore: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/strabismus/synoptophore`, data),
+  neuroColorVision: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/neuro/color-vision`, data),
+  neuroPvep: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/neuro/pvep`, data),
+  oncologyExophthalmometry: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/oncology/exophthalmometry`, data),
+  corneaPentacam: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/cornea/pentacam`, data),
+  cataractLensOpacity: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/cataract/lens-opacity`, data),
+  // 屈光手术处方 (GET=最近记录 / POST=开具)
+  getRefractivePrescription: () =>
+    api.get(`${EYE_API}/subspecialty/refractive/prescription`),
+  refractivePrescription: (data: any) =>
+    api.post(`${EYE_API}/subspecialty/refractive/prescription`, data),
+  // 低视力助视器处方 (GET=最近记录 / POST=开具)
+  getLowVisionPrescription: () =>
+    api.get(`${EYE_API}/low-vision/prescription`),
+
+  // ===== Edu 教学病例库 (CaseLibraryPage, 后端 eye-edu 模块) =====
+  // [G005 Wave1A P0] /eye/edu/* MSW-only → 真实后端 (Report 派生 + seed + 内存标注)
+  getEduCases: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/edu/cases${buildQuery(params)}`),
+  getEduCase: (id: string) =>
+    api.get(`${EYE_API}/edu/cases/${encodeURIComponent(id)}`),
+  createEduCase: (data: any) =>
+    api.post(`${EYE_API}/edu/cases`, data),
+  annotateEduCase: (caseId: string, data: any) =>
+    api.post(`${EYE_API}/edu/cases/${encodeURIComponent(caseId)}/annotate`, data),
+  listEduAnnotationProjects: () =>
+    api.get(`${EYE_API}/edu/annotation-projects`),
+  createEduAnnotationProject: (data: any) =>
+    api.post(`${EYE_API}/edu/annotation-projects`, data),
+  eduCohort: (data: any) =>
+    api.post(`${EYE_API}/edu/cohort`, data),
+  eduDeidentify: (data: any) =>
+    api.post(`${EYE_API}/edu/deidentify`, data),
+  eduExportSr: (data: any) =>
+    api.post(`${EYE_API}/edu/export-sr`, data),
+  eduStats: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/edu/stats${buildQuery(params)}`),
 
   // ===== Patient Journey =====
   getJourney: (patientId: string) => api.get(`${EYE_API}/journey/${patientId}`),
@@ -382,6 +426,7 @@ export const eyeApi = {
   // [G005 Wave1A P0] OK 镜设计 (后端 POST /eye/optometry/ok-lens/design)
   okLensDesign: (data: any) =>
     api.post(`${EYE_API}/optometry/ok-lens/design`, data),
+  // 低视力助视器处方 POST (原有, 保留兼容); GET 见 Subspecialty 区块
   lowVisionPrescription: (data: any) =>
     api.post(`${EYE_API}/low-vision/prescription`, data),
 

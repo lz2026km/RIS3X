@@ -86,7 +86,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         maxWidth: 480,
         margin: '0 auto',
         padding: 12,
-        background: '#f8fafc',
+        background: 'var(--bg-primary)',
         minHeight: '100vh',
         fontFamily: '-apple-system, sans-serif',
       }}

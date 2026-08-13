@@ -342,7 +342,7 @@ interface StatCardProps {
 function StatCard({ title, value, unit, icon, trend, trendValue, color = C.primary }: StatCardProps) {
   return (
     <div style={{
-      background: C.white,
+      background: 'var(--bg-card)',
       borderRadius: 12,
       padding: '20px 24px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -458,7 +458,7 @@ function PaperlessTrendTab() {
           <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>无纸化率 = 电子报告数 / 总报告数（基于 statsApi 检查/报告统计估算）</p>
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? 'statsApi 真实统计' : '演示数据'}</Tag>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '真实统计' : '演示数据'}</Tag>
           {loading && <Spin size="small" />}
           <div style={{ display: 'flex', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -475,7 +475,7 @@ function PaperlessTrendTab() {
 
       {/* 折线图 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: 12,
         padding: 24,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -499,7 +499,7 @@ function PaperlessTrendTab() {
             />
             <Tooltip
               contentStyle={{
-                background: C.white,
+                background: 'var(--bg-card)',
                 border: `1px solid ${C.border}`,
                 borderRadius: 8,
                 fontSize: 12,
@@ -535,7 +535,7 @@ function PaperlessTrendTab() {
         marginTop: 20,
       }}>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: '16px',
           border: '1px solid var(--border-color)',
@@ -545,7 +545,7 @@ function PaperlessTrendTab() {
           <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
         </div>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: '16px',
           border: '1px solid var(--border-color)',
@@ -555,7 +555,7 @@ function PaperlessTrendTab() {
           <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{maxRate}%</div>
         </div>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: '16px',
           border: '1px solid var(--border-color)',
@@ -565,7 +565,7 @@ function PaperlessTrendTab() {
           <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
         </div>
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: '16px',
           border: '1px solid var(--border-color)',
@@ -616,7 +616,7 @@ function CarbonTab() {
           <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>1张A4纸≈4.3g CO₂ · 1套耗材≈40kg CO₂（节省量基于 statsApi 报告量估算）</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于统计接口估算' : '演示数据'}</Tag>
           {loading && <Spin size="small" />}
         </div>
       </div>
@@ -630,7 +630,7 @@ function CarbonTab() {
       }}>
         {/* 纸张碳折算 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -673,7 +673,7 @@ function CarbonTab() {
 
         {/* 耗材碳折算 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -745,7 +745,7 @@ function CarbonTab() {
 
       {/* 碳减排柱状图 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: 12,
         padding: 24,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -766,7 +766,7 @@ function CarbonTab() {
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} width={40} />
             <Tooltip
               contentStyle={{
-                background: C.white,
+                background: 'var(--bg-card)',
                 border: `1px solid ${C.border}`,
                 borderRadius: 8,
                 fontSize: 12,
@@ -820,7 +820,7 @@ function SignatureTab() {
           <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>电子签名率 = 电子报告数 / 总报告数（基于 statsApi 统计近似）</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于统计接口估算' : '演示数据'}</Tag>
           {loading && <Spin size="small" />}
         </div>
       </div>
@@ -832,7 +832,7 @@ function SignatureTab() {
       }}>
         {/* 饼图 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -856,7 +856,7 @@ function SignatureTab() {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  background: C.white,
+                  background: 'var(--bg-card)',
                   border: `1px solid ${C.border}`,
                   borderRadius: 8,
                   fontSize: 12,
@@ -884,7 +884,7 @@ function SignatureTab() {
 
         {/* 各科室电子签名使用率排名 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -979,7 +979,7 @@ function CostTab() {
           <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>本月通过无纸化办公节约的成本（基于 statsApi 报告量估算）</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于统计接口估算' : '演示数据'}</Tag>
           {loading && <Spin size="small" />}
         </div>
       </div>
@@ -993,7 +993,7 @@ function CostTab() {
       }}>
         {/* 纸张成本 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -1024,7 +1024,7 @@ function CostTab() {
 
         {/* 耗材成本 */}
         <div style={{
-          background: C.white,
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -1086,7 +1086,7 @@ function CostTab() {
 
       {/* 成本构成饼图 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: 12,
         padding: 24,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
@@ -1113,7 +1113,7 @@ function CostTab() {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  background: C.white,
+                  background: 'var(--bg-card)',
                   border: `1px solid ${C.border}`,
                   borderRadius: 8,
                   fontSize: 12,
@@ -1188,22 +1188,22 @@ const PaperConsumptionDashboard = () => {
       </div>
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>本月打印量</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalPagesPrinted.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>张</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>节省纸张</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>{totalPagesSaved.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>张 (无纸化)</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>纸张/耗材成本</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{(totalPaperCost + totalTonerCost).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>元</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>拯救树木</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.green, marginTop: 4 }}>{totalTreesSaved.toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>棵</div>
@@ -1211,7 +1211,7 @@ const PaperConsumptionDashboard = () => {
       </div>
 
       {/* 部门级明细 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           各部门纸张消耗明细
         </div>
@@ -1279,27 +1279,27 @@ const EnergyMonitoring = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '设备: deviceApi 真实 · 能耗: 估算' : '演示数据'}</Tag>
+        <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '设备: 设备接口真实 · 能耗: 估算' : '演示数据'}</Tag>
         <span style={{ fontSize: 12, color: C.textMuted }}>功率/电价(0.8元/kWh)/碳因子(0.42kg/kWh) 为估算值</span>
         {loading && <Spin size="small" />}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>月度总能耗</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalMonthlyKwh.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>kWh</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>能源成本</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{totalEnergyCost.toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>元/月</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>碳足迹</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.green, marginTop: 4 }}>{(totalCarbon / 1000).toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>吨 CO₂/月</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>设备数量</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{deviceData.length}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>台</div>
@@ -1307,7 +1307,7 @@ const EnergyMonitoring = () => {
       </div>
 
       {/* 设备能耗对比 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>设备日能耗对比（活跃 vs 待机）</div>
         <ChartContainer height={240} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备能耗数据">
           <BarChart data={chartData} barCategoryGap="25%">
@@ -1323,7 +1323,7 @@ const EnergyMonitoring = () => {
       </div>
 
       {/* 设备明细表 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           设备能耗明细
         </div>
@@ -1405,20 +1405,20 @@ const DigitizationScorecard = () => {
         {loading && <Spin size="small" />}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>全院数字化率</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{totalDigital}%</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>累计节约成本</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>¥{totalCostSaved.toLocaleString()}</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>最高数字化科室</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{topDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{topDept?.digitalRate}%</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>最低数字化科室</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{bottomDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{bottomDept?.digitalRate}%</div>
@@ -1426,7 +1426,7 @@ const DigitizationScorecard = () => {
       </div>
 
       {/* 数字化趋势 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 16 }}>数字化采用趋势</div>
         <ChartContainer height={240} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无数字化趋势数据">
           <LineChart data={trendData}>
@@ -1443,7 +1443,7 @@ const DigitizationScorecard = () => {
       </div>
 
       {/* 科室排名 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text }}>
           科室数字化排名
         </div>
@@ -1525,7 +1525,7 @@ const GreenRecommendations = () => {
         const catColor = categoryColors[tip.category] || C.primary
         return (
           <div key={tip.id} style={{
-            background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${tip.implemented ? '#bbf7d0' : '#e2e8f0'}`,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: `1px solid ${tip.implemented ? '#bbf7d0' : '#e2e8f0'}`,
             borderLeft: `4px solid ${tip.implemented ? C.success : catColor}`
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -1584,21 +1584,21 @@ const ISO14001Compliance = () => {
       </div>
       {/* 审核就绪评分 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>审核就绪评分</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>完全合规</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>{compliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>部分合规</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: C.warning, marginTop: 4 }}>{partial}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
         </div>
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>不合规</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>项</div>
@@ -1606,7 +1606,7 @@ const ISO14001Compliance = () => {
       </div>
 
       {/* ISO 检查表 */}
-      <div style={{ background: C.white, borderRadius: 12, border: '1px solid var(--border-color)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', fontSize: 16, fontWeight: 600, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
           <ClipboardList size={16} color={C.primary} /> ISO 14001:2015 条款清单
         </div>
@@ -1743,7 +1743,7 @@ function RunStatsTab() {
         ))}
       </div>
 
-      <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <BarChart2 size={16} color={C.primary} /> 近30天检查量趋势
         </div>
@@ -1765,7 +1765,7 @@ function RunStatsTab() {
       </div>
 
       {byModality.length > 0 && (
-        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={16} color={C.green} /> 设备模态工作量分布
           </div>
@@ -1846,7 +1846,7 @@ export default function GreenITPage() {
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>
-            {source === 'api' ? '核心统计: statsApi/deviceApi 真实数据' : '演示数据(API失败回退)'}
+            {source === 'api' ? '核心统计: 统计/设备接口真实数据' : '演示数据(接口失败回退)'}
           </Tag>
           <span style={{ fontSize: 12, color: C.textLight }}>无纸化率/纸张/碳/能耗均为基于检查与报告统计的估算值</span>
           {loading && <Spin size="small" />}
@@ -1900,7 +1900,7 @@ export default function GreenITPage() {
 
       {/* Tab切换 */}
       <div style={{
-        background: C.white,
+        background: 'var(--bg-card)',
         borderRadius: 12,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid var(--border-color)',

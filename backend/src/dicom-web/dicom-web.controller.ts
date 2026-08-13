@@ -1,5 +1,6 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - DICOMweb Controller
+ * v3.0.6.11-91 Wave 4A (PACS P0-2): + POST /dicom-web/prefetch / GET /dicom-web/prefetch/status
  */
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'
@@ -18,6 +19,10 @@ const StoreSchema = z.object({
   patientId: z.string().optional(),
   sizeBytes: z.number().int().nonnegative(),
   storagePath: z.string().min(1),
+})
+
+const PrefetchSchema = z.object({
+  studyUids: z.array(z.string().min(1)).max(500),
 })
 
 @ApiTags('dicom-web')
@@ -70,6 +75,18 @@ export class DicomWebController {
   @Get('studies/:study/series/:series/instances/:sop/metadata')
   metadata(@Param('sop') sop: string) {
     return this.service.retrieveMetadata(sop)
+  }
+
+  @Post('prefetch')
+  prefetch(
+    @Body(new ZodValidationPipe(PrefetchSchema)) body: z.infer<typeof PrefetchSchema>
+  ) {
+    return this.service.prefetchStudies(body.studyUids)
+  }
+
+  @Get('prefetch/status')
+  prefetchStatus() {
+    return this.service.getPrefetchStatus()
   }
 
   @Post('studies/:study')

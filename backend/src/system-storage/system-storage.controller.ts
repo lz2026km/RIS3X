@@ -2,7 +2,7 @@
  * G005 RIS v3.0.6.11-60 - System Storage Config Controller
  * GET/PUT /system/storage-config, POST /system/storage-config/test
  */
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -62,6 +62,23 @@ const AdminConfigsSaveSchema = z
 
 const AdminConfigValueSchema = z.object({ value: z.unknown() })
 
+// [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理
+const CreateBucketSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(63)
+    .regex(/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i, '桶名仅允许字母/数字/点/中划线 (1-63 字符)'),
+  provider: z.enum(['local', 's3', 'minio']).default('s3'),
+  region: z.string().trim().min(1).default('us-east-1'),
+})
+
+const UploadObjectSchema = z.object({
+  key: z.string().trim().min(1).max(255),
+  size: z.number().int().nonnegative().max(10_737_418_240).default(1024),
+})
+
 @ApiTags('system')
 @ApiBearerAuth()
 @Roles('ADMIN')
@@ -93,6 +110,41 @@ export class SystemStorageController {
   @Put('storage/alerts-config')
   saveAlertsConfig(@Body(new ZodValidationPipe(StorageAlertsConfigSchema)) body: z.infer<typeof StorageAlertsConfigSchema>) {
     return this.service.updateAlertsConfig(body)
+  }
+
+  // ═══════════ [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 ═══════════
+
+  @Get('storage/buckets')
+  listBuckets() {
+    return this.service.listBuckets()
+  }
+
+  @Post('storage/buckets')
+  createBucket(@Body(new ZodValidationPipe(CreateBucketSchema)) body: z.infer<typeof CreateBucketSchema>) {
+    return this.service.createBucket(body)
+  }
+
+  @Delete('storage/buckets/:name')
+  deleteBucket(@Param('name') name: string) {
+    return this.service.deleteBucket(name)
+  }
+
+  @Get('storage/buckets/:name/objects')
+  listBucketObjects(@Param('name') name: string) {
+    return this.service.listBucketObjects(name)
+  }
+
+  @Post('storage/buckets/:name/upload')
+  uploadObject(
+    @Param('name') name: string,
+    @Body(new ZodValidationPipe(UploadObjectSchema)) body: z.infer<typeof UploadObjectSchema>,
+  ) {
+    return this.service.uploadObject(name, body)
+  }
+
+  @Get('storage/buckets/:name/objects/:key/download')
+  downloadObject(@Param('name') name: string, @Param('key') key: string) {
+    return this.service.downloadObject(name, key)
   }
 
   @Get('admin/configs')

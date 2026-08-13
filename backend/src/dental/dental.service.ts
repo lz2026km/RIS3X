@@ -127,6 +127,76 @@ export class DentalService {
     return { data: [data] }
   }
 
+  // ── [G005 Wave1A P0] 收费/划价/医保 (DentalBillingPage, /dental/billing/*) ──
+  // 静态收费字典 + 支付方式字典 (确定性 seed); 账单走内存 store (与 MSW dentalBillingModule 形状对齐)
+
+  getFeeCatalog() {
+    return { success: true, data: SEED_FEE_CATALOG }
+  }
+
+  getPaymentMethods() {
+    return { success: true, data: SEED_PAYMENT_METHODS }
+  }
+
+  listBillingInvoices(patientId?: string) {
+    let list = BILLING_INVOICES_STORE
+    if (patientId) list = list.filter((inv) => inv.patientId === patientId)
+    return { success: true, data: list }
+  }
+
+  createBillingInvoice(body: Record<string, unknown>) {
+    const items = Array.isArray(body.items) ? body.items : []
+    const total = items.reduce((s: number, i: any) => s + Number(i.unitPrice ?? i.amount ?? 0) * Number(i.qty ?? i.quantity ?? 1), 0)
+    const invoice = {
+      id: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(BILLING_INVOICES_STORE.length + 1).padStart(3, '0')}`,
+      patientId: String(body.patientId ?? ''),
+      patientName: String(body.patientName ?? ''),
+      date: new Date().toISOString().slice(0, 10),
+      items: items.map((i: any) => ({ code: i.code ?? 'GEN', name: i.name ?? '口腔诊疗', qty: Number(i.qty ?? i.quantity ?? 1), unitPrice: Number(i.unitPrice ?? i.amount ?? 0), discount: 0 })),
+      total,
+      insuranceType: '城镇职工',
+      insuranceCover: Math.round(total * 0.4),
+      selfPay: Math.round(total * 0.6),
+      discountTotal: 0,
+      copay: 0,
+      status: 'pending',
+      paidAt: null,
+      paymentMethod: null,
+      createdAt: new Date().toISOString(),
+    }
+    BILLING_INVOICES_STORE.unshift(invoice)
+    return { success: true, data: invoice }
+  }
+
+  payBillingInvoice(id: string, body: { paymentMethod?: string; transactionId?: string; outTradeNo?: string }) {
+    const inv = BILLING_INVOICES_STORE.find((x) => x.id === id)
+    if (!inv) return { success: false, error: { code: 'NOT_FOUND', message: `Invoice ${id} not found` } }
+    inv.status = 'paid'
+    inv.paidAt = new Date().toISOString()
+    inv.paymentMethod = body.paymentMethod ?? 'cash'
+    inv.transactionId = body.transactionId
+    inv.outTradeNo = body.outTradeNo
+    return { success: true, data: { id, status: 'paid', paidAt: inv.paidAt, paymentMethod: inv.paymentMethod } }
+  }
+
+  verifyInsurance(body: { patientId?: string; insuranceType?: string; feeTotal?: number }) {
+    const feeTotal = Number(body.feeTotal ?? 0)
+    return {
+      success: true,
+      data: {
+        verified: true,
+        insuranceCover: Math.round(feeTotal * 0.4),
+        selfPay: Math.round(feeTotal * 0.6),
+        recommendation: '建议使用城镇职工医保+补充医疗',
+        items: [
+          { category: '甲类', total: 120, ratio: 0.8, cover: 96 },
+          { category: '乙类', total: 2000, ratio: 0.6, cover: 1200 },
+          { category: '丙类', total: 8000, ratio: 0, cover: 0 },
+        ],
+      },
+    }
+  }
+
   // ── [G005-P1] 在用孤儿补齐: 核心 8 个 (DentalStudy/DentalAppointment 表查 + seed) ──
   // 说明: 口腔影像专项列表 (cbct/panoramic/periapical/scan/bitewing) 从 DentalStudy 表按
   //       modality 过滤, 表为空时回退下方 seed (风格与 dentalHandlers.ts 一致)。
@@ -922,6 +992,58 @@ const SEED_BONE_DENSITY_MAP = {
 const SEED_PSR_RECORDS = [
   { id: 'PSR-001', patientId: 'P100001', quadrant: 1, probingDepths: [2, 3, 4, 3, 2, 2], bleeding: [false, true, true, false, false, false], mobility: 1, psrCode: 2, note: '右上后牙区探诊出血', createdAt: '2026-06-15T09:00:00.000Z' },
   { id: 'PSR-002', patientId: 'P100001', quadrant: 2, probingDepths: [2, 2, 3, 2, 2, 2], bleeding: [false, false, false, false, false, false], mobility: 0, psrCode: 1, note: '', createdAt: '2026-06-15T09:10:00.000Z' },
+]
+
+// [G005 Wave1A P0] 收费/划价/医保: 静态收费字典 + 支付方式 (对标 src/data/dental/dentalBillingMock)
+const SEED_FEE_CATALOG = [
+  { code: 'D1001', name: '初诊检查费', category: '诊疗费', unitPrice: 50, insuranceType: '甲类', insuranceRatio: 0.8 },
+  { code: 'D1002', name: '口腔CBCT（单颌）', category: '放射', unitPrice: 350, insuranceType: '乙类', insuranceRatio: 0.7 },
+  { code: 'D1003', name: '全景片', category: '放射', unitPrice: 120, insuranceType: '甲类', insuranceRatio: 0.8 },
+  { code: 'D1004', name: '根尖片', category: '放射', unitPrice: 40, insuranceType: '甲类', insuranceRatio: 0.8 },
+  { code: 'D2001', name: '树脂充填（单面）', category: '治疗', unitPrice: 300, insuranceType: '乙类', insuranceRatio: 0.6 },
+  { code: 'D2002', name: '树脂充填（双面）', category: '治疗', unitPrice: 450, insuranceType: '乙类', insuranceRatio: 0.6 },
+  { code: 'D2003', name: '树脂充填（三面）', category: '治疗', unitPrice: 600, insuranceType: '乙类', insuranceRatio: 0.6 },
+  { code: 'D2004', name: '根管治疗（前牙）', category: '治疗', unitPrice: 800, insuranceType: '乙类', insuranceRatio: 0.5 },
+  { code: 'D2005', name: '根管治疗（前磨牙）', category: '治疗', unitPrice: 1200, insuranceType: '乙类', insuranceRatio: 0.5 },
+  { code: 'D2006', name: '根管治疗（磨牙）', category: '治疗', unitPrice: 2000, insuranceType: '乙类', insuranceRatio: 0.5 },
+  { code: 'D2007', name: '全口洁牙', category: '治疗', unitPrice: 400, insuranceType: '甲类', insuranceRatio: 0.8 },
+  { code: 'D3001', name: '种植体植入术（单颗）', category: '种植', unitPrice: 4000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3002', name: '种植体（Straumann BLT）', category: '材料', unitPrice: 8000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3003', name: '种植体（Osstem TS III）', category: '材料', unitPrice: 3500, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3004', name: '种植体（Nobel Active）', category: '材料', unitPrice: 8500, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3005', name: '基台（钛合金）', category: '材料', unitPrice: 1500, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3006', name: '钴铬烤瓷冠', category: '修复', unitPrice: 1800, insuranceType: '乙类', insuranceRatio: 0.5 },
+  { code: 'D3007', name: '氧化锆全瓷冠', category: '修复', unitPrice: 3500, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D3008', name: 'E-max 贴面', category: '修复', unitPrice: 3000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D4001', name: '正畸初诊设计', category: '正畸', unitPrice: 500, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D4002', name: '隐形矫治方案设计', category: '正畸', unitPrice: 2000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D4003', name: '固定矫治器（单颌）', category: '正畸', unitPrice: 8000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D4004', name: '隐形矫治（全口）', category: '正畸', unitPrice: 28000, insuranceType: '丙类', insuranceRatio: 0 },
+  { code: 'D5001', name: '局部麻醉费', category: '其他', unitPrice: 50, insuranceType: '甲类', insuranceRatio: 0.8 },
+  { code: 'D5002', name: '一次性材料费', category: '材料', unitPrice: 30, insuranceType: '自费', insuranceRatio: 0 },
+]
+
+const SEED_PAYMENT_METHODS = [
+  { id: 'cash', name: '现金' }, { id: 'wechat', name: '微信支付' }, { id: 'alipay', name: '支付宝' },
+  { id: 'bank-card', name: '银行卡' }, { id: 'medicare', name: '医保卡' }, { id: 'mixed', name: '混合支付' },
+]
+
+const BILLING_INVOICES_STORE: any[] = [
+  { id: 'INV-20260628-001', patientId: 'P100001', patientName: '张伟', date: '2026-06-28', items: [
+    { code: 'D2002', name: '树脂充填（双面）', qty: 1, unitPrice: 450, toothNo: 16, discount: 0 },
+    { code: 'D5001', name: '局部麻醉费', qty: 1, unitPrice: 50, toothNo: 16, discount: 0 },
+    { code: 'D5002', name: '一次性材料费', qty: 1, unitPrice: 30, toothNo: 16, discount: 0 },
+  ], total: 530, insuranceType: '城镇职工', insuranceCover: 328, selfPay: 202, discountTotal: 0, copay: 10, status: 'paid', paidAt: '2026-06-28T10:30:00.000Z', paymentMethod: '微信' },
+  { id: 'INV-20260625-002', patientId: 'P100001', patientName: '张伟', date: '2026-06-25', items: [
+    { code: 'D2006', name: '根管治疗（磨牙）', qty: 1, unitPrice: 2000, toothNo: 36, discount: 0 },
+  ], total: 2000, insuranceType: '城镇职工', insuranceCover: 1000, selfPay: 1000, discountTotal: 0, copay: 0, status: 'pending', paidAt: null, paymentMethod: null },
+  { id: 'INV-20260620-003', patientId: 'P100003', patientName: '王芳', date: '2026-06-20', items: [
+    { code: 'D3001', name: '种植体植入术（单颗）', qty: 1, unitPrice: 4000, toothNo: 46, discount: 500 },
+    { code: 'D3002', name: '种植体（Straumann BLT）', qty: 1, unitPrice: 8000, toothNo: 46, discount: 0 },
+  ], total: 12000, insuranceType: '城镇职工', insuranceCover: 3000, selfPay: 8500, discountTotal: 500, copay: 0, status: 'paid', paidAt: '2026-06-20T15:00:00.000Z', paymentMethod: '银行卡' },
+  { id: 'INV-20260615-004', patientId: 'P100002', patientName: '李娜', date: '2026-06-15', items: [
+    { code: 'D2007', name: '全口洁牙', qty: 1, unitPrice: 400, toothNo: 0, discount: 0 },
+  ], total: 400, insuranceType: '城镇居民', insuranceCover: 240, selfPay: 160, discountTotal: 0, copay: 0, status: 'paid', paidAt: '2026-06-15T09:20:00.000Z', paymentMethod: '支付宝' },
 ]
 
 function generateMockScheduleAppointments(date: string): any[] {

@@ -123,7 +123,7 @@ export default function CompliancePage() {
               { label: '合规率', value: `${passedRate}%`, color: COLORS.warning, bg: '#f59e0b22' },
             ].map(stat => (
               <Card bordered={false} key={stat.label} style={{ background: COLORS.white, borderRadius: 12, padding: '16px 20px', border: `1px solid ${COLORS.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: stat.color }}>{stat.value}</div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: stat.color }}>{stat.value}</div>
                 <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>{stat.label}</div>
               </Card>
             ))}

@@ -4,6 +4,11 @@
 // [G005 Wave1B P1] 后端已实现 pacs-admin.controller 全部端点
 // (servers/storage-groups/associations/stats = Wave1B 新增; nodes/storage/logs/configs/routes = Wave1A),
 // 数据源 Device/Exam/AuditLog 派生 + seed 回退 + 内存 CRUD。MSW 标注已更新。
+// [G005 v3.0.6.11-91 W1-B P1 第12轮] 4 方法核对:
+//   · getServer           → 保留 (后端真实 GET /pacs-admin/servers/:id; PacsAdminPage 无详情视图, 行数据已足)
+//   · updateServer        → 已接入 (PacsAdminPage AE 服务器 Tab 编辑按钮, 复用添加 Modal)
+//   · deleteStorageGroup  → 已接入 (PacsAdminPage 存储空间 Tab 删除按钮)
+//   · listStorage         → 废弃保留 (Wave1A 旧端点, 已被 listStorageGroups 取代, 页面用后者)
 
 export interface PacsServer {
   id: string
@@ -124,7 +129,7 @@ export const pacsAdminApi = {
   listServers: (params?: PacsQueryParams) =>
     api.get<PacsServer[]>(`/pacs-admin/servers?${new URLSearchParams(params ?? {}).toString()}`),
 
-  // [Wave1B] 真实端点 (pacs-admin.controller)
+  // [Wave1B] 真实端点 (pacs-admin.controller); 页面无详情视图, 行数据已足够 — 保留备用
   getServer: (id: string) =>
     api.get<PacsServer>(`/pacs-admin/servers/${id}`),
 
@@ -193,7 +198,7 @@ export const pacsAdminApi = {
   syncNode: (id: string) =>
     api.post<{ ok: boolean; syncedStudies: number; durationMs: number }>(`/pacs-admin/nodes/${id}/sync`, {}),
 
-  // GET /pacs-admin/storage — 存储组列表
+  // GET /pacs-admin/storage — 废弃保留 (Wave1A 旧端点, 已被 listStorageGroups 取代)
   listStorage: () =>
     api.get<PacsStorageGroup[]>('/pacs-admin/storage'),
 

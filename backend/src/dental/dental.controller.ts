@@ -82,6 +82,26 @@ export class DentalController {
   @Post('invoices')
   createInvoice(@Body(new ZodValidationPipe(CreateDentalInvoiceSchema)) body: CreateDentalInvoiceDto) { return this.svc.createInvoice(body) }
 
+  // ── [G005 Wave1A P0] 收费/划价/医保 (DentalBillingPage, 与 MSW dentalBillingModule 对齐) ──
+
+  @Get('billing/fee-catalog')
+  getFeeCatalog() { return this.svc.getFeeCatalog() }
+
+  @Get('billing/payment-methods')
+  getPaymentMethods() { return this.svc.getPaymentMethods() }
+
+  @Get('billing/invoices')
+  listBillingInvoices(@Query('patientId') patientId?: string) { return this.svc.listBillingInvoices(patientId) }
+
+  @Post('billing/invoices')
+  createBillingInvoice(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createBillingInvoice(body) }
+
+  @Post('billing/invoices/:id/pay')
+  payBillingInvoice(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { paymentMethod?: string; transactionId?: string; outTradeNo?: string }) { return this.svc.payBillingInvoice(id, body) }
+
+  @Post('billing/insurance-verify')
+  verifyInsurance(@Body(new ZodValidationPipe(LooseBodySchema)) body: { patientId?: string; insuranceType?: string; feeTotal?: number }) { return this.svc.verifyInsurance(body) }
+
   @Get('inventory')
   listInventory() { return this.svc.listInventory() }
 

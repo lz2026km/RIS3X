@@ -142,7 +142,7 @@ const DefectManagementPage: React.FC = () => {
         }, ...prev]);
         setReportOpen(false);
         reportForm.resetFields();
-        message.success('缺陷已上报 (POST /qc-ext/defect)');
+        message.success('缺陷已上报');
       } catch (e) {
         message.error(e instanceof Error ? e.message : '上报失败');
       } finally {

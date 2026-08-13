@@ -562,7 +562,7 @@ export default function DoseLiveMonitor() {
       <div style={card}>
         <div style={{ ...cardTitle, justifyContent: "space-between" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <BarChart3 size={14} /> 剂量统计 (GET /rdsr/stats)
+            <BarChart3 size={14} /> 剂量统计
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400 }}>
             <input

@@ -126,6 +126,9 @@ import { MammoQcModule } from "./modules/mammo-qc/mammo-qc.module";
 import { DiagnosisAccuracyModule } from "./modules/diagnosis-accuracy/diagnosis-accuracy.module";
 import { TerminologyModule } from "./modules/terminology/terminology.module";
 import { SystemAdminModule } from "./modules/system-admin/system-admin.module";
+// [G005 Wave1A P0] MSW-only 真实化: 眼科教学病例库 + 亚专科 + 牙科收费字典
+import { EyeEduModule } from "./modules/eye-edu/eye-edu.module";
+import { EyeSubspecialtyModule } from "./modules/eye-subspecialty/eye-subspecialty.module";
 
 @Module({
   imports: [
@@ -268,6 +271,8 @@ import { SystemAdminModule } from "./modules/system-admin/system-admin.module";
     DiagnosisAccuracyModule,
     TerminologyModule,
     SystemAdminModule,
+    EyeEduModule,
+    EyeSubspecialtyModule,
   ],
   controllers: [HealthController],
   providers: [

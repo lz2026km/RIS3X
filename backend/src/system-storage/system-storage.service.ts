@@ -3,7 +3,7 @@
  * GET/PUT /system/storage-config  读取/保存存储配置 (SystemConfig 表)
  * POST /system/storage-config/test 连通性测试 (可用请求体里的配置或已保存配置)
  */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
@@ -33,6 +33,70 @@ export interface StorageAlertsConfig {
   criticalPercent: number
   notifyChannels: string[]
 }
+
+// ═══════════ [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 ═══════════
+
+export interface StorageBucketDto {
+  name: string
+  provider: 'local' | 's3' | 'minio'
+  region: string
+  objectCount: number
+  usedBytes: number
+  createdAt: string
+}
+
+export interface StorageObjectDto {
+  key: string
+  size: number
+  modified: string
+}
+
+export interface StorageDownloadDto {
+  key: string
+  size: number
+  contentType: string
+  filename: string
+  /** Base64 模拟内容 (前端解码为 Blob 下载) */
+  contentBase64: string
+}
+
+interface BucketRecord extends StorageBucketDto {
+  objects: StorageObjectDto[]
+}
+
+// 内存 seed: 桶列表 (与 S3/MinIO/本地 三种 provider 对齐)
+const BUCKET_SEED: Array<Pick<StorageBucketDto, 'name' | 'provider' | 'region'> & { objects: Array<[string, number]> }> = [
+  {
+    name: 'g005-dicom',
+    provider: 's3',
+    region: 'us-east-1',
+    objects: [
+      ['ct-frame-0001.dcm', 512_000],
+      ['ct-frame-0002.dcm', 512_000],
+      ['mr-cardiac-4d-0001.dcm', 1_048_576],
+      ['xr-chest-0001.dcm', 256_000],
+    ],
+  },
+  {
+    name: 'g005-vna',
+    provider: 'minio',
+    region: 'cn-north-1',
+    objects: [
+      ['report-0001.pdf', 128_000],
+      ['report-0002.pdf', 96_000],
+      ['archive-manifest.json', 4_096],
+    ],
+  },
+  {
+    name: 'g005-files',
+    provider: 'local',
+    region: 'us-east-1',
+    objects: [
+      ['teaching-case-001.png', 2_048_000],
+      ['dicom-export-20260813.zip', 8_388_608],
+    ],
+  },
+]
 
 export interface AdminConfigItem {
   key: string
@@ -67,6 +131,8 @@ export class SystemStorageService {
   private readonly logger = new Logger(SystemStorageService.name)
   // [G005 v3.0.6.11-90 Wave 4A (PACS P0-2)] 容量阈值预警配置 (内存 + 环境 seed 回退)
   private alertsConfig: StorageAlertsConfig
+  // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 (内存 + seed)
+  private readonly buckets: Map<string, BucketRecord>
 
   constructor(
     private readonly prisma: PrismaService,
@@ -85,6 +151,24 @@ export class SystemStorageService {
       criticalPercent: Number.isFinite(critical) ? Math.min(100, Math.max(1, critical)) : 90,
       notifyChannels: channels.length ? channels : ['email'],
     }
+    this.buckets = new Map(
+      BUCKET_SEED.map((seed) => [
+        seed.name,
+        {
+          name: seed.name,
+          provider: seed.provider,
+          region: seed.region,
+          objectCount: seed.objects.length,
+          usedBytes: seed.objects.reduce((s, [, size]) => s + size, 0),
+          createdAt: '2026-06-01T08:00:00.000Z',
+          objects: seed.objects.map(([key, size]) => ({
+            key,
+            size,
+            modified: '2026-08-10T03:24:00.000Z',
+          })),
+        },
+      ]),
+    )
   }
 
   async getConfig(): Promise<{
@@ -263,6 +347,121 @@ export class SystemStorageService {
       objectCount,
       usedBytes,
       truncated,
+    }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 ═══════════
+
+  private toBucketDto(rec: BucketRecord): StorageBucketDto {
+    return {
+      name: rec.name,
+      provider: rec.provider,
+      region: rec.region,
+      objectCount: rec.objects.length,
+      usedBytes: rec.objects.reduce((s, o) => s + o.size, 0),
+      createdAt: rec.createdAt,
+    }
+  }
+
+  private getBucketOrThrow(name: string): BucketRecord {
+    const rec = this.buckets.get(name)
+    if (!rec) throw new NotFoundException(`Bucket ${name} not found`)
+    return rec
+  }
+
+  /** GET /system/storage/buckets — 桶列表 (内存 + seed) */
+  listBuckets(): StorageBucketDto[] {
+    return [...this.buckets.values()].map((rec) => this.toBucketDto(rec))
+  }
+
+  /** POST /system/storage/buckets — 创建桶 */
+  createBucket(dto: { name: string; provider: 'local' | 's3' | 'minio'; region: string }): StorageBucketDto {
+    const name = dto.name.trim()
+    if (this.buckets.has(name)) {
+      throw new BadRequestException(`Bucket ${name} already exists`)
+    }
+    const now = new Date()
+    const rec: BucketRecord = {
+      name,
+      provider: dto.provider,
+      region: dto.region.trim() || 'us-east-1',
+      objectCount: 0,
+      usedBytes: 0,
+      createdAt: now.toISOString(),
+      objects: [],
+    }
+    this.buckets.set(name, rec)
+    this.logger.log(`Bucket created: ${name} (${rec.provider}/${rec.region})`)
+    return this.toBucketDto(rec)
+  }
+
+  /** DELETE /system/storage/buckets/:name — 删除桶 */
+  deleteBucket(name: string): { deleted: string } {
+    if (!this.buckets.delete(name)) {
+      throw new NotFoundException(`Bucket ${name} not found`)
+    }
+    this.logger.log(`Bucket deleted: ${name}`)
+    return { deleted: name }
+  }
+
+  /** GET /system/storage/buckets/:name/objects — 对象列表 */
+  listBucketObjects(name: string): StorageObjectDto[] {
+    return this.getBucketOrThrow(name).objects.map((o) => ({ ...o }))
+  }
+
+  /** POST /system/storage/buckets/:name/upload — 模拟上传 (仅注册元数据) */
+  uploadObject(name: string, dto: { key: string; size: number }): StorageObjectDto {
+    const rec = this.getBucketOrThrow(name)
+    // 模拟上传: 键名单段化 (兼容 URL 参数), 同名覆盖
+    const key = dto.key.trim().replace(/[/\\]/g, '-').replace(/^\.+/, '')
+    if (!key) throw new BadRequestException('Object key 必填')
+    const existing = rec.objects.find((o) => o.key === key)
+    if (existing) {
+      existing.size = dto.size
+      existing.modified = new Date().toISOString()
+      return { ...existing }
+    }
+    const obj: StorageObjectDto = {
+      key,
+      size: dto.size,
+      modified: new Date().toISOString(),
+    }
+    rec.objects.push(obj)
+    return { ...obj }
+  }
+
+  /** GET /system/storage/buckets/:name/objects/:key/download — Blob 模拟下载 */
+  downloadObject(name: string, key: string): StorageDownloadDto {
+    const rec = this.getBucketOrThrow(name)
+    const obj = rec.objects.find((o) => o.key === key)
+    if (!obj) throw new NotFoundException(`Object ${name}/${key} not found`)
+    const contentType = key.endsWith('.json')
+      ? 'application/json'
+      : key.endsWith('.pdf')
+        ? 'application/pdf'
+        : key.endsWith('.png')
+          ? 'image/png'
+          : key.endsWith('.zip')
+            ? 'application/zip'
+            : 'application/octet-stream'
+    const content = JSON.stringify(
+      {
+        bucket: name,
+        key: obj.key,
+        size: obj.size,
+        modified: obj.modified,
+        simulated: true,
+        message: 'G005 模拟下载对象 (云端存储 → 本地 Blob)',
+      },
+      null,
+      2,
+    )
+    return {
+      key: obj.key,
+      size: obj.size,
+      contentType,
+      filename: obj.key,
+      contentBase64: Buffer.from(content, 'utf8').toString('base64'),
     }
   }
 

@@ -22,6 +22,11 @@ const severityColor: Record<string, string> = {
   moderate: "orange",
   severe: "red",
 };
+const severityLabel: Record<string, string> = {
+  mild: "轻度",
+  moderate: "中度",
+  severe: "重度",
+};
 
 const FractureCadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -104,7 +109,7 @@ const FractureCadPage: React.FC = () => {
       title: "严重度",
       dataIndex: "severity",
       key: "severity",
-      render: (v: string) => <Tag color={severityColor[v]}>{v}</Tag>,
+      render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag>,
     },
     {
       title: "状态",

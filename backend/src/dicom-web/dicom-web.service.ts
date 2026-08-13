@@ -2,6 +2,7 @@
  * G005 放射RIS系统 v3.0.2.2 - DICOMweb 服务
  * 实现 PS 3.18 QIDO-RS / WADO-RS / STOW-RS 简化版
  * v3.0.6.11-60: DICOM 文件读写统一走 StorageDriver (本地 / S3 双驱动)
+ * v3.0.6.11-91 Wave 4A (PACS P0-2): 影像预取队列 (内存 + seed, 模拟大型 PACS 工作列表预加载)
  */
 import { BadRequestException, Injectable, NotFoundException, Optional, Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -12,10 +13,37 @@ import { LocalStorageDriver } from '../common/storage/local-storage.driver'
 import { assertSafeRelativePath, UnsafePathError } from '../common/utils/safe-path'
 import type { StorageDriver } from '../common/storage/storage.interface'
 
+export type PrefetchStudyStatus = 'queued' | 'cached'
+
+export interface PrefetchStudyEntry {
+  studyUid: string
+  status: PrefetchStudyStatus
+}
+
+export interface PrefetchStatus {
+  total: number
+  cached: number
+  pending: number
+  studies: PrefetchStudyEntry[]
+}
+
+/** 模拟预取完成的耗时 (ms), 供队列状态演示 queued → cached 过渡 */
+const PREFETCH_SIM_DELAY_MS = 2500
+
+/** 默认预取 seed: 已缓存检查 (无 env 覆盖时) */
+const DEFAULT_PREFETCH_SEED = [
+  '1.2.840.113654.100.0000000000',
+  '1.2.840.113654.101.0000000001',
+  '1.2.840.113654.102.0000000002',
+]
+
 @Injectable()
 export class DicomWebService {
   private readonly storage: StorageDriver
   private readonly storageRoot: string
+
+  // [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 预取队列: studyUid -> queued/cached (内存模拟)
+  private readonly prefetchState = new Map<string, PrefetchStudyStatus>()
 
   constructor(
     private readonly prisma: PrismaService,
@@ -25,6 +53,53 @@ export class DicomWebService {
     const root = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom') || 'dicom'
     this.storageRoot = path.resolve(root)
     this.storage = storageDriver ?? new LocalStorageDriver({ root })
+
+    // 预取 seed: DICOM_PREFETCH_SEED (逗号分隔 studyUid) 或默认样例; 一律标记为已缓存
+    const seedRaw = this.config.get<string>('DICOM_PREFETCH_SEED', '')
+    const seeds = seedRaw
+      ? seedRaw.split(',').map(s => s.trim()).filter(Boolean)
+      : DEFAULT_PREFETCH_SEED
+    for (const uid of seeds) this.prefetchState.set(uid, 'cached')
+  }
+
+  /**
+   * [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取
+   * POST /dicom-web/prefetch { studyUids: string[] }
+   * 模拟预取队列: 按 studyUid 标记 queued, 延时模拟预取完成后转为 cached;
+   * 返回 { queued: 新入队数, cached: 已缓存数 }
+   */
+  async prefetchStudies(studyUids: string[]): Promise<{ queued: number; cached: number }> {
+    let queued = 0
+    let cached = 0
+    const uids = Array.from(new Set((studyUids ?? []).map(s => String(s).trim()).filter(Boolean)))
+    for (const uid of uids) {
+      const state = this.prefetchState.get(uid)
+      if (state === 'cached') {
+        cached += 1
+        continue
+      }
+      if (state === 'queued') {
+        queued += 1
+        continue
+      }
+      this.prefetchState.set(uid, 'queued')
+      queued += 1
+      const timer = setTimeout(() => {
+        if (this.prefetchState.get(uid) === 'queued') this.prefetchState.set(uid, 'cached')
+      }, PREFETCH_SIM_DELAY_MS)
+      timer.unref?.()
+    }
+    return { queued, cached }
+  }
+
+  /**
+   * [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 预取队列状态
+   * GET /dicom-web/prefetch/status → { total, cached, pending, studies[] }
+   */
+  getPrefetchStatus(): PrefetchStatus {
+    const studies: PrefetchStudyEntry[] = Array.from(this.prefetchState.entries()).map(([studyUid, status]) => ({ studyUid, status }))
+    const cached = studies.filter(s => s.status === 'cached').length
+    return { total: studies.length, cached, pending: studies.length - cached, studies }
   }
 
   /**
