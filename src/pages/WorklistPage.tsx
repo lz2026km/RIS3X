@@ -571,7 +571,8 @@ export default function WorklistPage() {
       if (filters.patientTypes.length > 0 && !filters.patientTypes.includes(exam.patientType)) return false
       if (filters.priorities.length > 0 && !filters.priorities.includes(exam.priority)) return false
       if (filters.statuses.length > 0 && !filters.statuses.includes(normalizeExamStatus(exam.status))) return false
-      if (filters.doctorId && exam.technologistId !== filters.doctorId) return false
+      // [v3.0.6.11-95 Wave2B P1] 医生筛选改比 radiologistId (分配报告医生写入 radiologistId, 见 assignDoctor)
+      if (filters.doctorId && exam.radiologistId !== filters.doctorId) return false
       return true
     })
   }, [exams, filtersKey])
@@ -846,6 +847,9 @@ export default function WorklistPage() {
 
   // ============================================================
   // 批量操作 (签到 / 开始 / 完成 / 取消) → 真实后端调用
+  // [v3.0.6.11-95 Wave1B] 签到/开始/完成改走批量端点
+  //   POST /worklist/batch-checkin|start|complete { ids[] } → { succeeded[], failed[] }
+  //   取消无批量端点, 保留逐条
   // ============================================================
   const runBatchApiAction = useCallback(async (action: string, ids: string[]) => {
     const results: string[] = []
@@ -857,29 +861,44 @@ export default function WorklistPage() {
       complete: '批量完成',
       cancel: '批量取消',
     }
-    for (const id of ids) {
-      let res: { success: boolean; error?: { message?: string } }
-      try {
-        if (action === 'start') {
-          res = await examApi.start(id)
-        } else if (action === 'complete') {
-          res = await examApi.complete(id)
-        } else if (action === 'cancel') {
-          res = await examApi.cancel(id, '批量取消')
+    try {
+      if (action === 'assign' || action === 'start' || action === 'complete') {
+        const batch = action === 'assign'
+          ? await worklistApi.batchCheckIn(ids)
+          : action === 'start'
+            ? await worklistApi.batchStart(ids)
+            : await worklistApi.batchComplete(ids)
+        if (batch.success) {
+          const data = (batch.data ?? { succeeded: [], failed: [] }) as { succeeded?: Array<{ id: string }>; failed?: Array<{ id: string; message: string }> }
+          okCount = data.succeeded?.length ?? 0
+          failCount = data.failed?.length ?? 0
+          ;(data.failed ?? []).slice(0, 20).forEach(f => results.push(`${f.id}: ${f.message}`))
+          ;(data.succeeded ?? []).forEach(s => log(action, s.id))
         } else {
-          res = await examApi.checkIn(id)
+          failCount = ids.length
+          results.push(batch.error?.message ?? `批量${labels[action] ?? action}失败`)
         }
-        if (res.success) {
-          okCount += 1
-          log(action, id)
-        } else {
-          failCount += 1
-          results.push(`${id}: ${res.error?.message ?? '失败'}`)
+      } else {
+        for (const id of ids) {
+          let res: { success: boolean; error?: { message?: string } }
+          try {
+            res = await examApi.cancel(id, '批量取消')
+            if (res.success) {
+              okCount += 1
+              log(action, id)
+            } else {
+              failCount += 1
+              results.push(`${id}: ${res.error?.message ?? '失败'}`)
+            }
+          } catch (err) {
+            failCount += 1
+            results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
+          }
         }
-      } catch (err) {
-        failCount += 1
-        results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
       }
+    } catch (err) {
+      failCount = ids.length
+      results.push(err instanceof Error ? err.message : `批量${labels[action] ?? action}失败`)
     }
     await refreshAfterMutation()
     setBatchResultModalData({
@@ -1249,7 +1268,7 @@ export default function WorklistPage() {
         <>
           <span>DICOM 检查列表</span>
           <span style={{ color: '#cbd5e1' }}>·</span>
-          <span>对接HIS/PAACS预约系统</span>
+          <span>对接HIS/PACS预约系统</span>
           <span style={{ color: '#cbd5e1' }}>·</span>
           <span>实时设备状态</span>
         </>

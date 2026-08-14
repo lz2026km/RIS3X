@@ -157,7 +157,7 @@ const ReviewCenterPage: React.FC = () => {
         items={[
           { key: 'initial', label: <Space><ListChecks size={14} />初核清单</Space>, children: <InitialCheckList onSelect={handleSelect} selectedId={selectedTask?.id} /> },
           { key: 'final', label: <Space><ShieldCheck size={14} />终核清单</Space>, children: <FinalCheckList onSelect={handleSelect} selectedId={selectedTask?.id} /> },
-          { key: 'cosign', label: <Space><Award size={14} />Cosign 排程</Space>, children: <CosignSchedule /> },
+          { key: 'cosign', label: <Space><Award size={14} />双签排程</Space>, children: <CosignSchedule /> },
           { key: 'workload', label: <Space><BarChart3 size={14} />工作量统计</Space>, children: <ReviewWorkloadStats /> },
           { key: 'sla', label: <Space><Clock size={14} />SLA 监控</Space>, children: <ReviewSLA /> },
           { key: 'assign', label: <Space><Users size={14} />审核员指派</Space>, children: <ReviewerAssignment task={selectedTask} /> },

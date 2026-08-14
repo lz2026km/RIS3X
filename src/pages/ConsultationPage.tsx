@@ -18,7 +18,7 @@ const WARNING = '#d97706'
 const DANGER = '#dc2626'
 const GRAY = '#64748b'
 const LIGHT_BG = 'var(--bg-card)'
-const BORDER = '#e2e8f0'
+const BORDER = 'var(--border-color)'
 const WHITE = '#ffffff'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {

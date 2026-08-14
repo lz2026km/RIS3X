@@ -43,6 +43,7 @@ const TopographyPage: React.FC = () => {
                 <span>角膜地形图</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">Medmont E300</Tag>
+                <Tag color="gold">演示数据 · 示例影像数据</Tag>
               </Space>
             }
           >

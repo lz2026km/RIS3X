@@ -10,6 +10,7 @@ import { Table, Button, Tag, message, Modal, Input, Select, Card, Statistic, Row
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
+import { usePagination } from '../../hooks/usePagination';
 
 type StepTypeColor = { key: string; color: string };
 
@@ -170,6 +171,8 @@ export default function OrchestratorPage() {
   });
   const [slaConfigs, setSlaConfigs] = useState<SlaConfigDto[]>([]);
   const [slaStats, setSlaStats] = useState<SlaStats | null>(null);
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (SLA 配置表)
+  const slaPagination = usePagination(slaConfigs, 10);
 
   const loadFlows = useCallback(async () => {
     setLoading(true);
@@ -855,10 +858,10 @@ export default function OrchestratorPage() {
         styles={{ body: { padding: 0 } }}
       >
         <Table
-          dataSource={slaConfigs}
+          dataSource={slaPagination.pageData}
           columns={slaConfigColumns}
           rowKey={(r) => r.id ?? ""}
-          pagination={false}
+          pagination={slaPagination.pagination}
           size="small"
         scroll={{ x: 'max-content' }}
         />

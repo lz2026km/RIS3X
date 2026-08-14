@@ -19,11 +19,13 @@ import { v3WritingApi } from '@services/api/v3Api';
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { getCurrentUser } from '@utils/auth';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { displayStatus, toEnState } from '@components/report/statusMeta';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type} from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star} from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Inbox, SearchX } from 'lucide-react'
@@ -51,20 +53,29 @@ function VoiceTab({ reportId, onInsert, onTextChange }: { reportId: string; onIn
   return <VoiceDictation reportId={reportId} onInsert={onInsert} onTextChange={onTextChange} />;
 }
 
-function HistoryTab({ priorReports, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
-  if (priorReports.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无历史报告" />;
+// [v3.0.6.11-95 Wave2B P1] 历史报告真实化: dataSource=api 渲染真实数据, mock 标注演示数据 (后端 patientId 筛选 Wave 3B 接入)
+function HistoryTab({ priorReports, onCompare, dataSource = 'mock' }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void; dataSource?: 'api' | 'mock' }) {
+  if (priorReports.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={dataSource === 'api' ? '该患者暂无历史报告' : '无历史报告'} />;
   return (
     <div className="space-y-2">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs text-slate-500">共 {priorReports.length} 份历史报告</span>
+        {dataSource === 'api' ? (
+          <Tag color="green" className="text-[10px]">真实数据</Tag>
+        ) : (
+          <Tag color="orange" className="text-[10px]" title="后端 GET /reports patientId 筛选待接入 (Wave 3B)">演示数据</Tag>
+        )}
+      </div>
       {priorReports.map((p: any) => (
         <div key={p.id} className="p-2 border border-slate-200 rounded text-xs">
           <div className="flex items-center justify-between">
             <Tag color="cyan">{p.reportId}</Tag>
-            <span className="text-slate-400">{new Date(p.studyDate).toLocaleDateString()}</span>
+            <span className="text-slate-400">{p.studyDate ? new Date(p.studyDate).toLocaleDateString() : ''} {p.authorName ? `· ${p.authorName}` : ''}</span>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{p.findings}</div>
           <div className="flex items-center gap-2 mt-2">
             {p.comparisonDelta && <Tag color="orange" className="text-[10px]">{p.comparisonDelta.summary}</Tag>}
-            <Button size="small" type="link" className="text-[10px] p-0 h-auto" onClick={() => onCompare(p.findings, `${p.reportId} (${new Date(p.studyDate).toLocaleDateString()})`)}>
+            <Button size="small" type="link" className="text-[10px] p-0 h-auto" onClick={() => onCompare(p.findings, `${p.reportId} (${p.studyDate ? new Date(p.studyDate).toLocaleDateString() : ''})`)}>
               对比当前
             </Button>
           </div>
@@ -284,7 +295,6 @@ function ComplianceTab() {
         <div key={c.id} className="flex items-center gap-1 text-xs">
           {c.passed ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
           <span className={c.passed ? 'text-slate-500' : 'text-slate-800'}>{c.label}</span>
-          <span className="text-slate-400">/ {c.labelEn}</span>
         </div>
       ))}
     </div>
@@ -383,8 +393,15 @@ export default function ReportWritePage() {
   // [W2-2] 报告模板选择器 (自由文本模板)
   const [templateList, setTemplateList] = useState<any[]>([]);
   const [templateLoading, setTemplateLoading] = useState(true);
-  const [selectingTemplate, setSelectingTemplate] = useState(false);
   const templateListRef = useRef<any[]>([]);
+  // [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 最近使用置顶 + 收藏星标 (localStorage)
+  const [templateLibOpen, setTemplateLibOpen] = useState(false);
+  const [favTemplateIds, setFavTemplateIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('report-fav-templates') || '[]') } catch { return [] }
+  });
+  const [recentTemplateIds, setRecentTemplateIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('report-recent-templates') || '[]') } catch { return [] }
+  });
   // [W2-2] 短语库
   const [phraseOpen, setPhraseOpen] = useState(false);
   const [phrases, setPhrases] = useState<any[]>([]);
@@ -395,6 +412,9 @@ export default function ReportWritePage() {
   // [W2-2] 报告锁 / 并发冲突提示
   const [lockConflict, setLockConflict] = useState(false);
   const lastKnownUpdatedAtRef = useRef<string | null>(null);
+  // [v3.0.6.11-95 Wave2B P1] 历史报告真实化: getById 回填后按 patientId 拉全量本地过滤
+  const [priorReports, setPriorReports] = useState<any[]>([]);
+  const [priorSource, setPriorSource] = useState<'api' | 'mock'>('mock');
   // [W2-2] 打印 / 导出
   const [exporting, setExporting] = useState(false);
 
@@ -476,6 +496,7 @@ export default function ReportWritePage() {
           patientName: d.patientName || '',
           clinicalDiagnosis: d.clinicalDiagnosis || '',
           status: d.status || '',
+          rejectReason: (d as any).rejectReason ?? '',
           document: {
             ...c.document,
             reportId: d.reportId || d.id,
@@ -489,6 +510,40 @@ export default function ReportWritePage() {
           const examRes = await examApi.getById(d.examId);
           if (examRes.success && examRes.data) {
             setContext((c: any) => ({ ...c, gender: examRes.data!.gender, age: examRes.data!.age }));
+          }
+        }
+        // [v3.0.6.11-95 Wave2B P1] 历史报告真实化: 后端 GET /reports 暂不支持 patientId 筛选 (Wave 3B),
+        //   先拉全量 (take=200) 本地按 patientId 过滤; 无匹配时保留演示数据并标注
+        if (d.patientId) {
+          try {
+            const listRes = await reportApi.list({ take: '200' });
+            const arr = listRes.success
+              ? (Array.isArray(listRes.data)
+                  ? listRes.data
+                  : ((listRes.data as { items?: unknown[] })?.items ?? []))
+              : [];
+            const curId = String(d.reportId || d.id);
+            const samePatient = (arr as any[]).filter((x: any) =>
+              String(x?.patientId ?? '') === String(d.patientId) && String(x?.reportId || x?.id) !== curId);
+            if (samePatient.length > 0) {
+              setPriorReports(samePatient.map((x: any) => ({
+                id: x.id,
+                patientId: x.patientId,
+                reportId: x.reportId || x.id,
+                modality: x.modality,
+                bodyPart: x.bodyPart,
+                studyDate: x.createdTime ?? x.examDate ?? '',
+                status: x.status ?? x.state ?? '',
+                findings: x.findings ?? x.diagnosis ?? '',
+                impression: x.impression ?? '',
+                authorName: x.reportDoctorName ?? x.doctorName ?? '',
+              })));
+              setPriorSource('api');
+            } else {
+              setPriorSource('mock');
+            }
+          } catch {
+            setPriorSource('mock');
           }
         }
       }
@@ -621,21 +676,21 @@ export default function ReportWritePage() {
     }
   }, [reportId, preScore, context, navigate]);
 
-  // [W2-2] 签署 / 发布入口 (状态机: REVIEWED → SIGNED → PUBLISHED)
-  // 兼容后端英文枚举 + MSW 中文状态
+  // [v3.0.6.11-95 Wave2A P0] 状态机统一走映射层: 兼容后端英文 (REJECTED/WRITING/INITIAL_REVIEW) + MSW 中文 (已驳回/书写中/初审中)
   const statusRaw = String(context.status ?? '').trim();
-  const reportStatus = statusRaw.toUpperCase();
-  const canSign = ['REVIEWED', 'SIGNING'].includes(reportStatus) || ['已审核', '待签署'].includes(statusRaw);
-  const canPublish = reportStatus === 'SIGNED' || statusRaw === '已签署';
-  const isPublished = reportStatus === 'PUBLISHED' || statusRaw === '已发布';
-  const inFlight = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW'].includes(reportStatus) || ['已提交', '审核中', '审核'].includes(statusRaw);
+  const reportStatus = toEnState(statusRaw);
+  const canSign = ['REVIEWED', 'SIGNING'].includes(reportStatus);
+  const canPublish = reportStatus === 'SIGNED';
+  const isPublished = reportStatus === 'PUBLISHED';
+  const inFlight = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW'].includes(reportStatus);
+  const isRejected = reportStatus === 'REJECTED';
   const isLocked = isPublished;
 
   const handleSign = useCallback(async () => {
     if (!reportId) return;
     const res = await reportApi.sign(reportId);
     if (res.success) {
-      message.success('报告已签署 (SIGNED)');
+      message.success('报告已签署');
       setContext((c: any) => ({ ...c, status: 'SIGNED' }));
       setLockConflict(false);
     } else {
@@ -647,13 +702,32 @@ export default function ReportWritePage() {
     if (!reportId) return;
     const res = await reportApi.publish(reportId);
     if (res.success) {
-      message.success('报告已发布 (PUBLISHED)');
+      message.success('报告已发布');
       setContext((c: any) => ({ ...c, status: 'PUBLISHED' }));
       setLockConflict(false);
     } else {
       message.error(res.error?.message ?? '发布失败,请稍后重试');
     }
   }, [reportId]);
+
+  // [v3.0.6.11-95 Wave2A P0] 退回重写: REJECTED → WRITING (对齐 backend REPORT_TRANSITIONS.REJECTED: ['WRITING'])
+  const [reworking, setReworking] = useState(false);
+  const handleRework = useCallback(async () => {
+    if (!reportId) return;
+    setReworking(true);
+    try {
+      const res = await reportApi.rework(reportId, `退回重写:${String(context.rejectReason ?? (statusRaw || '审核驳回'))}`);
+      if (res.success) {
+        message.success('报告已退回重写 (WRITING)');
+        setContext((c: any) => ({ ...c, status: res.data?.status ?? res.data?.state ?? 'WRITING', rejectReason: res.data?.rejectReason ?? '' }));
+        setLockConflict(false);
+      } else {
+        message.error(res.error?.message ?? '退回重写失败,请稍后重试');
+      }
+    } finally {
+      setReworking(false);
+    }
+  }, [reportId, context.rejectReason, statusRaw]);
 
   // [W2-2] 打印 / 导出
   const handlePrint = useCallback(() => {
@@ -699,7 +773,6 @@ export default function ReportWritePage() {
   // [W2-2] 报告模板选择: 加载模板内容到编辑器
   const handleSelectTemplate = useCallback(async (id: string) => {
     if (!id) return;
-    setSelectingTemplate(true);
     try {
       let content = '';
       const cached = templateListRef.current.find((t) => t.id === id);
@@ -717,9 +790,37 @@ export default function ReportWritePage() {
       }
     } catch {
       message.error('模板加载失败,请重试');
-    } finally {
-      setSelectingTemplate(false);
     }
+  }, []);
+
+  // [v3.0.6.11-95 Wave3B P1] 模板库: 最近使用置顶 (localStorage: report-recent-templates)
+  const recordTemplateRecent = useCallback((id: string) => {
+    setRecentTemplateIds((prev) => {
+      const next = [id, ...prev.filter((x) => x !== id)].slice(0, 8);
+      localStorage.setItem('report-recent-templates', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  // [v3.0.6.11-95 Wave3B P1] 模板库: 点击插入光标处 (复用 externalInsert 通道)
+  const insertTemplateAtCursor = useCallback((t: any) => {
+    const content = t?.content || t?.body || '';
+    if (!content) {
+      message.info('该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写');
+      return;
+    }
+    setVoiceInsert({ text: content, ts: Date.now() });
+    recordTemplateRecent(t.id);
+    message.success(`已插入模板「${t?.name ?? t.id}」到光标处`);
+  }, [recordTemplateRecent]);
+
+  // [v3.0.6.11-95 Wave3B P1] 模板库: 收藏星标 (localStorage: report-fav-templates)
+  const toggleFavTemplate = useCallback((id: string) => {
+    setFavTemplateIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      localStorage.setItem('report-fav-templates', JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   // [W2-2] 上下例导航
@@ -736,6 +837,36 @@ export default function ReportWritePage() {
   const goNext = useCallback(() => {
     if (listIndex < reportList.length - 1) switchToReport(reportList[listIndex + 1]);
   }, [listIndex, reportList, switchToReport]);
+
+  // [v3.0.6.11-95 Wave2B P1] 书写页快捷键: Ctrl+S 保存草稿 / Ctrl+Enter 提交 / Alt+↑↓ 上下例 / F2 语音 / F5 AI 草稿
+  const handleShortcutSubmit = useCallback(() => {
+    if (canSign) { void handleSign(); return; }
+    if (canPublish) { void handlePublish(); return; }
+    if (!isLocked && !inFlight && reportId) {
+      const found = detectConflicts(context.document.plainText);
+      setConflicts(found);
+      setShowSubmit(true);
+    }
+  }, [canSign, canPublish, isLocked, inFlight, reportId, context.document.plainText, handleSign, handlePublish]);
+
+  useKeyboardShortcuts([
+    { key: 's', ctrlKey: true, action: () => { void doSave(false); }, description: '保存草稿' },
+    { key: 'Enter', ctrlKey: true, action: handleShortcutSubmit, description: '提交审核' },
+    { key: 'ArrowUp', altKey: true, action: goPrev, description: '上一例' },
+    { key: 'ArrowDown', altKey: true, action: goNext, description: '下一例' },
+    { key: 'F2', action: () => { setSiderVisible(true); setActiveToolsTab('voice'); message.info('F2 语音录入: 已在右侧语音面板打开'); }, description: '语音录入' },
+    { key: 'F5', action: () => { setAiUi((u) => ({ ...u, open: true })); }, description: 'AI 草稿' },
+  ]);
+
+  // [v3.0.6.11-95 Wave2B P1] 草稿超时提醒: 打开超过 24h 未更新的草稿显示提示条
+  const staleHours = useMemo(() => {
+    const t = context.document.lastEditedAt ?? context.document.updatedAt ?? '';
+    if (!t) return 0;
+    const ts = new Date(t).getTime();
+    if (Number.isNaN(ts)) return 0;
+    return (Date.now() - ts) / 3600000;
+  }, [context.document.lastEditedAt, context.document.updatedAt]);
+  const isDraftStale = ['WRITING', 'DRAFT', 'ASSIGNED', 'PENDING_ASSIGNMENT', 'REJECTED'].includes(reportStatus) && staleHours >= 24;
 
   // [W2-2] 短语库插入 (复用语音听写 externalInsert 通道,插入光标处)
   const insertPhrase = useCallback((p: any) => {
@@ -828,7 +959,7 @@ export default function ReportWritePage() {
     switch (activeToolsTab) {
       case 'ai': return <AITab reportId={reportId ?? ''} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
       case 'voice': return <VoiceTab reportId={reportId ?? ''} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
-      case 'history': return <HistoryTab priorReports={context.priorReports} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
+      case 'history': return <HistoryTab priorReports={priorSource === 'api' ? priorReports : context.priorReports} dataSource={priorSource} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
       case 'similar': return <SimilarTab reportText={context.document.plainText} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'score': return <ScoreTab preScore={preScore} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
@@ -854,18 +985,30 @@ export default function ReportWritePage() {
           <Tag color={preScore.passed ? 'success' : 'warning'}>
             {preScore.passed ? '可提交' : '需完善'}
           </Tag>
-          {/* [W2-2] 报告模板选择器: 下拉选择自由文本模板 → 加载到编辑器 */}
-          <Select
-            size="small"
-            style={{ minWidth: 190 }}
-            placeholder="选择报告模板"
-            loading={templateLoading || selectingTemplate}
-            value={undefined}
-            allowClear
-            options={templateList.map((t: any) => ({ value: t.id, label: `${t.name}${t.category ? ` (${t.category})` : ''}` }))}
-            onChange={(v) => { if (v) void handleSelectTemplate(String(v)); }}
-            popupMatchSelectWidth={320}
-          />
+          {/* [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 短语分区 + 点击插入光标处 (替代原下拉) */}
+          <Tooltip title="模板库: 分类浏览全文模板与短语, 点击插入光标处">
+            <Button
+              size="small"
+              loading={templateLoading}
+              icon={<BookMarked className="w-3.5 h-3.5" />}
+              onClick={() => setTemplateLibOpen(true)}
+            >
+              模板库
+            </Button>
+          </Tooltip>
+          {/* [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360 */}
+          <Tooltip title="打开该患者 360 全景画像">
+            <Button
+              size="small"
+              icon={<Radar className="w-3.5 h-3.5" />}
+              onClick={() => {
+                if (context.patientId) navigate(`/patients/${encodeURIComponent(context.patientId)}/360`);
+                else message.warning('当前报告缺少患者信息,无法打开患者画像');
+              }}
+            >
+              患者画像
+            </Button>
+          </Tooltip>
           {/* [W2-2] 上下例导航 */}
           <Tooltip title="上一例">
             <Button type="text" size="small" disabled={listIndex <= 0} icon={<ChevronUp className="w-4 h-4" />} onClick={goPrev} />
@@ -889,7 +1032,7 @@ export default function ReportWritePage() {
           <Tooltip title="打印当前报告内容">
             <Button icon={<Printer className="w-4 h-4" />} onClick={handlePrint} disabled={!reportId}>打印</Button>
           </Tooltip>
-          <Tooltip title="导出为 PDF (reportApi.exportReport)">
+          <Tooltip title="导出为 PDF">
             <Button icon={<FileDown className="w-4 h-4" />} loading={exporting} onClick={() => void handleExport()} disabled={!reportId}>导出</Button>
           </Tooltip>
           {/* [W2-2] 短语库插入 */}
@@ -899,15 +1042,24 @@ export default function ReportWritePage() {
           <span className="v3-topbar-stats v3-topbar-hide-mobile">
             {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
           </span>
+          {/* [v3.0.6.11-95 Wave2B P1] 快捷键提示 */}
+          <Tooltip title="Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Alt+↑/↓ 上一例/下一例 · F2 语音录入 · F5 AI 草稿">
+            <Button type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} />
+          </Tooltip>
           <span className="v3-topbar-autosave">{autoSaveTip}</span>
           {/* [W2-2] 签署 / 发布入口 (按状态机显示) */}
           {canSign ? (
             <Button type="primary" icon={<BadgeCheck className="w-4 h-4" />} onClick={() => void handleSign()}>
-              签署 (SIGNED)
+              签署
             </Button>
           ) : canPublish ? (
             <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => void handlePublish()}>
-              发布 (PUBLISHED)
+              发布
+            </Button>
+          ) : isRejected ? (
+            // [v3.0.6.11-95 Wave2A P0] 退回重写闭环: REJECTED → WRITING 后进入可提交态
+            <Button type="primary" danger icon={<RefreshCw className="w-4 h-4" />} loading={reworking} onClick={() => void handleRework()}>
+              退回重写
             </Button>
           ) : !isLocked && !inFlight ? (
             <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => {
@@ -934,7 +1086,18 @@ export default function ReportWritePage() {
               showIcon
               className="no-print"
               icon={<Lock className="w-4 h-4" />}
-              message={`报告状态为 ${context.status},内容已锁定,仅供查看(如需修改请走修订流程)`}
+              message={`报告状态为 ${displayStatus(context.status)},内容已锁定,仅供查看(如需修改请走修订流程)`}
+            />
+          )}
+          {/* [v3.0.6.11-95 Wave2A P0] 退回重写闭环: 展示驳回原因 + 引导重写 */}
+          {isRejected && (
+            <Alert
+              type="error"
+              showIcon
+              className="no-print"
+              icon={<XCircle className="w-4 h-4" />}
+              message={`报告已被驳回 (${displayStatus(statusRaw)})${context.rejectReason ? `,驳回原因: ${context.rejectReason}` : ''}`}
+              description="请修改报告内容后点击右上角「退回重写」重新进入书写状态,再提交审核"
             />
           )}
           {lockConflict && (
@@ -945,6 +1108,15 @@ export default function ReportWritePage() {
               message="检测到并发修改:该报告已被其他医师更新(本地仍基于旧版本编辑),继续保存将覆盖最新内容"
             />
           )}
+          {/* [v3.0.6.11-95 Wave2B P1] 草稿超时提醒 (打开超过 24h 未更新) */}
+          {isDraftStale && (
+            <Alert
+              type="warning"
+              showIcon
+              className="no-print"
+              message={`该草稿已 ${Math.round(staleHours)} 小时未更新, 请及时完成书写并提交 (Ctrl+Enter)`}
+            />
+          )}
           <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span></Space>}>
             <div className="v3-clinical-grid">
               <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}</div></div>
@@ -953,10 +1125,7 @@ export default function ReportWritePage() {
               <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>{context.clinicalDiagnosis || '右肺占位性病变'}</div></div>
               <div className="v3-clinical-full">
                 <b>报告状态:</b>{' '}
-                {(() => {
-                  const s = String(context.status ?? '');
-                  return s ? s : '草稿';
-                })()}<br />
+                {statusRaw ? displayStatus(statusRaw) : '草稿'}<br />
                 <b>主诉:</b>体检发现右肺结节 1 周<br />
                 <b>现病史:</b>患者 1 周前体检发现右肺上叶结节<br />
                 <b>既往史:</b>无肿瘤病史
@@ -1171,6 +1340,20 @@ export default function ReportWritePage() {
         loading={phraseLoading}
         onClose={() => setPhraseOpen(false)}
         onPick={insertPhrase}
+      />
+      {/* [v3.0.6.11-95 Wave3B P1] 模板库 Modal: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 */}
+      <TemplateLibraryModal
+        open={templateLibOpen}
+        templates={templateList}
+        phrases={phrases}
+        loading={templateLoading || phraseLoading}
+        favIds={favTemplateIds}
+        recentIds={recentTemplateIds}
+        onClose={() => setTemplateLibOpen(false)}
+        onInsert={insertTemplateAtCursor}
+        onReplace={(id) => { void handleSelectTemplate(String(id)); }}
+        onToggleFav={toggleFavTemplate}
+        onPickPhrase={insertPhrase}
       />
     </Layout>
   );
@@ -1434,6 +1617,156 @@ function PhraseLibraryModal({ open, phrases, loading, onClose, onPick }: {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
+/* ---------- [v3.0.6.11-95 Wave3B P1] 模板库: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 ---------- */
+function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
+  open: boolean;
+  templates: any[];
+  phrases: any[];
+  loading: boolean;
+  favIds: string[];
+  recentIds: string[];
+  onClose: () => void;
+  onInsert: (t: any) => void;
+  onReplace: (id: string) => void;
+  onToggleFav: (id: string) => void;
+  onPickPhrase: (p: any) => void;
+}) {
+  const [catTab, setCatTab] = useState<string>('全部');
+  const [q, setQ] = useState('');
+
+  // 分类 Tab (按模板 category 分组)
+  const categories = useMemo(() => {
+    const set = new Set<string>(['全部']);
+    templates.forEach((t: any) => { if (t?.category) set.add(String(t.category)); });
+    return Array.from(set);
+  }, [templates]);
+
+  const favIdsSet = useMemo(() => new Set(favIds), [favIds]);
+  const recentIdsSet = useMemo(() => new Set(recentIds), [recentIds]);
+
+  const filteredTemplates = useMemo(() => {
+    const kw = q.trim().toLowerCase();
+    let list = templates;
+    if (catTab !== '全部') list = list.filter((t: any) => String(t?.category ?? '') === catTab);
+    if (kw) list = list.filter((t: any) => String(t?.name ?? '').toLowerCase().includes(kw) || String(t?.body ?? '').toLowerCase().includes(kw));
+    // 排序: 收藏 > 最近使用 > 其余 (常用模板置顶)
+    const rank = (t: any) => {
+      if (favIdsSet.has(t.id)) return 0;
+      if (recentIdsSet.has(t.id)) return 1;
+      return 2;
+    };
+    return [...list].sort((a, b) => rank(a) - rank(b) || String(a?.name ?? '').localeCompare(String(b?.name ?? ''), 'zh-CN'));
+  }, [templates, catTab, q, favIdsSet, recentIdsSet]);
+
+  const filteredPhrases = useMemo(() => {
+    const kw = q.trim().toLowerCase();
+    if (!kw) return phrases;
+    return phrases.filter((p) =>
+      String(p?.content || p?.text || '').toLowerCase().includes(kw) ||
+      String(p?.category ?? '').toLowerCase().includes(kw));
+  }, [phrases, q]);
+
+  const phraseGroups = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    filteredPhrases.forEach((p) => {
+      const key = p?.category || '通用';
+      (groups[key] = groups[key] ?? []).push(p);
+    });
+    return groups;
+  }, [filteredPhrases]);
+
+  return (
+    <Modal
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag></Space>}
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      width={900}
+      destroyOnHidden
+    >
+      <div className="pt-2 space-y-3">
+        <Input
+          allowClear
+          prefix={<SearchX className="w-3 h-3 text-slate-400" />}
+          placeholder="搜索模板 / 短语内容 (如: 胸部、结节、随访)"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> 模板加载中…</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3" style={{ minHeight: 380 }}>
+            {/* 左: 全文模板 (分类 Tab + 最近使用/收藏置顶) */}
+            <div className="flex flex-col gap-2" style={{ maxHeight: 420 }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />全文模板</span>
+                <Tag color="blue" className="text-[10px] m-0">点击插入光标处</Tag>
+              </div>
+              <div className="flex gap-1 flex-wrap">
+                {categories.map((c) => (
+                  <Button key={c} size="small" type={catTab === c ? 'primary' : 'default'} className="text-[11px]" onClick={() => setCatTab(c)}>{c}</Button>
+                ))}
+              </div>
+              <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                {filteredTemplates.length === 0 ? (
+                  <Empty image={<SearchX size={40} style={{opacity:0.4}}/>} description="无匹配模板" />
+                ) : filteredTemplates.map((t: any) => {
+                  const isFav = favIdsSet.has(t.id);
+                  const isRecent = recentIdsSet.has(t.id);
+                  return (
+                    <div key={t.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors" onClick={() => onInsert(t)}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
+                          {isFav && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
+                          {isRecent && !isFav && <Tag color="green" className="m-0 text-[10px]">最近</Tag>}
+                          {t.name}
+                        </span>
+                        <span className="flex items-center gap-1 shrink-0">
+                          <Button size="small" type="text" className="p-0 h-auto w-5" icon={<Star className={`w-3 h-3 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />}
+                            onClick={(e) => { e.stopPropagation(); onToggleFav(t.id); }} title={isFav ? '取消收藏' : '收藏常用模板'} />
+                          <Button size="small" type="text" className="p-0 h-auto text-[10px]" onClick={(e) => { e.stopPropagation(); onReplace(t.id); }} title="全文替换编辑器内容">替换</Button>
+                        </span>
+                      </div>
+                      <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(t.body ?? '').slice(0, 60) || '(结构化模板)'}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* 右: 短语库 (按分类分组) */}
+            <div className="flex flex-col gap-2" style={{ maxHeight: 420 }}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><BookMarked className="w-3 h-3" />短语库</span>
+                <Button size="small" type="link" className="text-[11px] p-0 h-auto" onClick={() => onClose()}>返回书写页选择</Button>
+              </div>
+              <div className="flex-1 overflow-y-auto pr-1 space-y-2">
+                {Object.keys(phraseGroups).length === 0 ? (
+                  <Empty image={<SearchX size={40} style={{opacity:0.4}}/>} description="无匹配短语" />
+                ) : Object.entries(phraseGroups).map(([cat, items]) => (
+                  <div key={cat}>
+                    <div className="text-[11px] font-semibold text-slate-500 mb-1">{cat} ({items.length})</div>
+                    <div className="space-y-1">
+                      {items.map((p: any, i: number) => (
+                        <div key={p?.id ?? i} className="p-1.5 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors" onClick={() => onPickPhrase(p)}>
+                          <div className="text-slate-700 line-clamp-2">{p?.content ?? p?.text}</div>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Tag className="m-0 text-[10px]">{p?.category ?? '通用'}</Tag>
+                            {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

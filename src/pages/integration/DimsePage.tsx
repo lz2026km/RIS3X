@@ -233,7 +233,9 @@ export const DimsePage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 设备集成</span>
         <Tag color="blue">v3.0</Tag>
+        <Tag color="gold">演示数据 · MOCK_DEVICES</Tag>
       </Space>
+      <Alert title="演示数据（旧版 DIMSE 页面，功能以 /dicom/dimse 为准）" type="warning" showIcon style={{ marginBottom: 16 }} />
       <Alert title="DIMSE (DICOM Message Service Element) 设备集成测试与管理工作台，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务" type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
     </div>

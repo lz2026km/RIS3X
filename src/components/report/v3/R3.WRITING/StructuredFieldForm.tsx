@@ -448,7 +448,7 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
         <Row gutter={16} align="middle">
           <Col span={6}><Tag color={{ 'LR-1': '#10b981', 'LR-2': '#3b82f6', 'LR-3': '#f59e0b', 'LR-4': '#fb923c', 'LR-5': '#dc2626', 'LR-M': '#7c3aed', 'LR-TIV': '#991b1b' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
           <Col span={6}><Statistic title="APHE" value={String(values['aphe'] ?? '-')} /></Col>
-          <Col span={6}><Statistic title="Washout" value={String(values['washout'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="廓清" value={String(values['washout'] ?? '-')} /></Col>
           <Col span={6}><Statistic title="病灶数" value={Number(values['lesionCountLiver'] ?? 1)} /></Col>
         </Row>
       </Card>

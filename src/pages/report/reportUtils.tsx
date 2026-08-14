@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { REPORT_STATUS_META } from '../../components/report'
+import { toEnState } from '../../components/report/statusMeta'
 
 export const PRIMARY = '#1e40af'
 export const PRIMARY_LIGHT = '#2c5282'
@@ -39,12 +40,28 @@ export const STATUSES = ['全部', '待分配', '已分配', '书写中', '已�
 export const PRIORITIES = ['全部', '紧急', '危重', '普通']
 
 // [v3.0.6.11-92 Wave1B P0] 报告特殊态按钮启用条件 (对齐 backend REPORT_TRANSITIONS)
-export const CAN_SUPPLEMENT = ['已签发', '已发布'] // SIGNED/PUBLISHED → SUPPLEMENTING
-export const CAN_RECTIFY = ['已签发'] // SIGNED → RECTIFYING
-export const CAN_REDISTRIBUTE = ['已分配'] // ASSIGNED → REDISTRIBUTING
-export const CAN_ESCALATE = ['已提交', '待审核', '初审中', '初审通过', '终审中', '已审核'] // 审核链 → ESCALATED
+// [v3.0.6.11-95 Wave2A P0] 改比较英文枚举 (真实后端英文 state), 调用方先用 toEnState 归一
+export const CAN_SUPPLEMENT = ['SIGNED', 'PUBLISHED'] // SIGNED/PUBLISHED → SUPPLEMENTING
+export const CAN_RECTIFY = ['SIGNED'] // SIGNED → RECTIFYING
+export const CAN_REDISTRIBUTE = ['ASSIGNED'] // ASSIGNED → REDISTRIBUTING
+export const CAN_ESCALATE = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW', 'REVIEWED'] // 审核链 → ESCALATED
 
 export const ANOMALY_KEYWORDS = ['结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出', '积水', '压迫', '突出', '钙化', '增粗', '模糊', '不张', '增厚']
+
+// [v3.0.6.11-95 Wave2B P1] 报告书写页入口可用状态 (经 toEnState 归一后比较英文枚举, 中英双兼容)
+export const WRITABLE_EN_STATES = ['DRAFT', 'WRITING', 'ASSIGNED', 'PENDING_ASSIGNMENT', 'REJECTED']
+export function isReportWritable(status?: string): boolean {
+  if (!status) return false
+  return WRITABLE_EN_STATES.includes(toEnState(status))
+}
+// [v3.0.6.11-95 Wave2B P1] 草稿超时提醒 (默认 24h 可配)
+export const DRAFT_TIMEOUT_HOURS = 24
+export function isDraftOverdue(status?: string, updatedTime?: string, hours = DRAFT_TIMEOUT_HOURS): boolean {
+  if (!isReportWritable(status) || !updatedTime) return false
+  const t = new Date(updatedTime).getTime()
+  if (Number.isNaN(t)) return false
+  return Date.now() - t > hours * 3600 * 1000
+}
 
 
 

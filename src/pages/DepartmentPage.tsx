@@ -31,12 +31,12 @@ import DepartmentSchedule from './department/DepartmentSchedule';
 import DepartmentFinanceSummary from './department/DepartmentFinanceSummary';
 
 const C = {
-  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
-  accent: "#0891b2", white: "#ffffff", bg: "var(--bg-deep)", bgLight: "#f1f5f9",
-  border: "var(--border-color)", borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563",
-  textLight: "#9ca3af", success: "#059669", successBg: "#d1fae5",
-  warning: "#d97706", warningBg: "#fef3c7", danger: "#dc2626", dangerBg: "#fee2e2",
-  info: "#2563eb", infoBg: "#dbeafe",
+  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "var(--color-info-bg)",
+  accent: "#0891b2", white: "var(--bg-card)", bg: "var(--bg-deep)", bgLight: "var(--bg-primary)",
+  border: "var(--border-color)", borderLight: "var(--border-light)", textDark: "#1f2937", textMid: "#4b5563",
+  textLight: "#9ca3af", success: "#059669", successBg: "var(--color-success-bg)",
+  warning: "#d97706", warningBg: "var(--color-warning-bg)", danger: "#dc2626", dangerBg: "var(--color-error-bg)",
+  info: "#2563eb", infoBg: "var(--color-info-bg)",
 };
 
 const SHIFTS = [
@@ -517,7 +517,7 @@ export default function DepartmentPage() {
       <DepartmentHeader onExport={() => handleExportReport()} onAdd={() => setShowAddModal(true)} />
       {/* [G005 Wave3A P2] 活动公告条 (dept-announcements/active) */}
       {activeAnnouncements.length > 0 && (
-        <div data-testid="dept-active-announcements" style={{ display: "flex", flexDirection: "column", gap: 6, margin: "0 16px 12px", padding: "10px 14px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8 }}>
+        <div data-testid="dept-active-announcements" style={{ display: "flex", flexDirection: "column", gap: 6, margin: "0 16px 12px", padding: "10px 14px", background: "var(--color-warning-bg)", border: "1px solid var(--color-warning-border)", borderRadius: 8 }}>
           {activeAnnouncements.slice(0, 3).map((a) => (
             <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
               {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.info} />}
@@ -533,7 +533,7 @@ export default function DepartmentPage() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 12px", borderRadius: 999,
-          background: dataSource === "api" ? "#d1fae5" : "#fef3c7",
+          background: dataSource === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
           color: dataSource === "api" ? "#059669" : "#d97706", fontWeight: 600,
         }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: dataSource === "api" ? "#059669" : "#d97706" }} />
@@ -745,7 +745,7 @@ export default function DepartmentPage() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {announcements.map((a) => (
-                    <div key={a.id} style={{ padding: 12, background: a.pinned ? "#fffbeb" : C.bgLight, borderRadius: 6, border: `1px solid ${a.pinned ? "#fde68a" : C.borderLight}`, borderLeft: `4px solid ${a.pinned ? C.warning : C.primary}` }}>
+                    <div key={a.id} style={{ padding: 12, background: a.pinned ? "var(--color-warning-bg)" : C.bgLight, borderRadius: 6, border: `1px solid ${a.pinned ? "var(--color-warning-border)" : C.borderLight}`, borderLeft: `4px solid ${a.pinned ? C.warning : C.primary}` }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.primary} />}
                         <strong style={{ fontSize: 14, color: C.textDark }}>{a.title}</strong>
@@ -786,15 +786,15 @@ export default function DepartmentPage() {
                 <thead>
                   <tr style={{ background: "var(--bg-card)" }}>
                     <th style={{ ...thStyle, textAlign: "left" }}>日期</th>
-                    <th style={thStyle}>白班 (DAY)</th>
-                    <th style={thStyle}>夜班 (NIGHT)</th>
-                    <th style={thStyle}>周末班 (WEEKEND)</th>
+                    <th style={thStyle}>白班</th>
+                    <th style={thStyle}>夜班</th>
+                    <th style={thStyle}>周末班</th>
                     <th style={thStyle}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {onCallCalendar.days.map((d) => (
-                    <tr key={d.date} style={{ background: d.isToday ? "#eff6ff" : "transparent" }}>
+                    <tr key={d.date} style={{ background: d.isToday ? "var(--color-info-bg)" : "transparent" }}>
                       <td style={{ padding: "8px 10px", borderBottom: `1px solid ${C.borderLight}`, color: d.isToday ? C.primary : C.textDark, fontWeight: d.isToday ? 700 : 400, whiteSpace: "nowrap" }}>
                         {d.date} {d.weekday}{d.isToday ? " (今天)" : ""}
                       </td>
@@ -992,7 +992,7 @@ export default function DepartmentPage() {
                 </div>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>班次 *</label>
                   <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
-                    <option value="DAY">白班 (DAY)</option><option value="NIGHT">夜班 (NIGHT)</option><option value="WEEKEND">周末班 (WEEKEND)</option>
+                    <option value="DAY">白班</option><option value="NIGHT">夜班</option><option value="WEEKEND">周末班</option>
                   </select>
                 </div>
               </div>

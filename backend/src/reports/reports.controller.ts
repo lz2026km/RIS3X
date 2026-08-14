@@ -42,11 +42,29 @@ export class ReportsController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('state') state?: string,
+    @Query('status') status?: string,
+    @Query('modality') modality?: string,
+    @Query('priority') priority?: string,
+    @Query('patientId') patientId?: string,
+    @Query('doctorId') doctorId?: string,
+    @Query('keyword') keyword?: string,
   ) {
-    const parsedState = state && ReportStateEnum.safeParse(state).success
-      ? (state as z.infer<typeof ReportStateEnum>)
-      : undefined
-    return this.reports.list({ skip: Number(skip ?? 0), take: take === undefined || take === '' ? undefined : Number(take), state: parsedState as any })
+    // [v3.0.6.11-95 Wave3B P1] list 筛选: state/status 兼容 (英文枚举, 逗号分隔多值),
+    //   非合法枚举忽略; modality/priority 走 exam 关联, patientId/doctorId 直连字段, keyword 模糊匹配患者名/检查号
+    const rawStates = (status || state || '').split(',').map((s) => s.trim()).filter(Boolean)
+    const states = rawStates
+      .filter((s) => ReportStateEnum.safeParse(s).success)
+      .map((s) => s as z.infer<typeof ReportStateEnum>)
+    return this.reports.list({
+      skip: Number(skip ?? 0),
+      take: take === undefined || take === '' ? undefined : Number(take),
+      states: states.length > 0 ? states : undefined,
+      modality: modality?.trim() || undefined,
+      priority: priority?.trim() || undefined,
+      patientId: patientId?.trim() || undefined,
+      doctorId: doctorId?.trim() || undefined,
+      keyword: keyword?.trim() || undefined,
+    })
   }
 
   // [W4-B] 批量导出: 静态子路由必须先于 :id / :id/export 注册
@@ -57,6 +75,21 @@ export class ReportsController {
   ) {
     const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
     return this.reports.createBatchExport(body, actorId)
+  }
+
+  // [v3.0.6.11-95 Wave3B P1] 批量状态流转 (参考 worklist batchTransition):
+  //   逐条校验过渡 (REPORT_TRANSITIONS), 单条失败不阻断其余 → { succeeded[], failed[] }
+  @Post('batch-transition')
+  batchTransition(
+    @Body(new ZodValidationPipe(z.object({
+      ids: z.array(z.string().min(1)).min(1),
+      to: ReportStateEnum,
+      reason: z.string().optional(),
+    }))) body: { ids: string[]; to: z.infer<typeof ReportStateEnum>; reason?: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.batchTransition(body.ids, body.to as any, actorId, body.reason)
   }
 
   @Get('batch-export/:taskId')

@@ -1,6 +1,7 @@
 
 import { Plus, CheckCircle2 } from 'lucide-react'
 import { PermissionGate } from '../../components/common/PermissionGate'
+import { toEnState } from '../../components/report/statusMeta'
 import { PRIMARY, WHITE } from './reportUtils'
 
 export interface ReportPageHeaderProps {
@@ -21,7 +22,7 @@ export default function ReportPageHeader({ selectedIds, allReports, setReviewRep
         <PermissionGate permission="report.approve">
           <button onClick={() => {
             if (selectedIds.size > 0) {
-              const sel = allReports.find(r => selectedIds.has(r.id) && r.status === '待审核')
+              const sel = allReports.find(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)))
               if (sel) setReviewReport(sel)
               else showToast('请先选择待审核状态的报告', 'error')
             } else { showToast('请先在列表中选择报告', 'error') }

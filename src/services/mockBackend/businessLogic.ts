@@ -87,10 +87,12 @@ export function normalizeWorklistStatus(s: string | undefined | null): string {
 const WORKLIST_TRANSITIONS: Record<string, string[]> = {
   SCHEDULED: ['ARRIVED', 'CANCELLED'],
   ARRIVED: ['IN_PROGRESS', 'CANCELLED'],
-  IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
+  IN_PROGRESS: ['COMPLETED', 'CANCELLED', 'PAUSED', 'IMAGE_READY', 'QC_REJECT'],
+  // [v3.0.6.11-95 Wave 1A P1] 暂停态 + 重拍登记 (QC_REJECT → IN_PROGRESS)
+  PAUSED: ['IN_PROGRESS', 'CANCELLED'],
   COMPLETED: ['IMAGE_READY'],
   IMAGE_READY: ['QC_PASS', 'QC_REJECT'],
-  QC_REJECT: ['IMAGE_READY'],
+  QC_REJECT: ['IMAGE_READY', 'IN_PROGRESS'],
   QC_PASS: [],
   PENDING_REPORT: [],
   CANCELLED: [],

@@ -21,11 +21,12 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets'
-import { Logger, UnauthorizedException } from '@nestjs/common'
+import { Logger, Optional, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { Server, Socket } from 'socket.io'
 import { PrismaService } from '../prisma/prisma.service'
+import { StatsService } from '../modules/stats/stats.service'
 
 export interface YjsBufferedMessage {
   userId: string
@@ -44,6 +45,18 @@ interface GatewayAuthUser {
 const ROOM_PREFIX = 'notifications:user:'
 const GLOBAL_ROOM = 'notifications:global'
 const YJS_ROOM_PREFIX = 'yjs:'
+const OPS_PUSH_INTERVAL_MS = 30_000
+
+/**
+ * [G005 Wave3A G-23] BI ops-update 快照载荷 (kpi + occupancy)
+ */
+export interface OpsSnapshotDto {
+  event: 'ops-update'
+  type: 'ops-update'
+  timestamp: number
+  kpi: { examsToday: number; reportsToday: number; criticalsToday: number; onlineUsers: number }
+  occupancy: { modality: string; utilization: number; count: number }[]
+}
 
 /**
  * 无操作网关: 供单元测试/无 socket 场景注入 (push/broadcast 全部静默)
@@ -54,6 +67,7 @@ export function createNoopGateway(): NotificationsGateway {
     broadcastAll: () => undefined,
     emitToUser: () => undefined,
     emitWorklistRefresh: () => undefined,
+    emitOpsUpdate: () => undefined,
     subscribe: () => () => undefined,
     joinYjsRoom: () => undefined,
     leaveYjsRoom: () => undefined,
@@ -83,16 +97,33 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
   private yjsMessageBuffer = new Map<string, YjsBufferedMessage[]>()
   // socketId -> userId (断线清理用)
   private readonly socketUser = new Map<string, string>()
+  // [G005 Wave3A G-23] ops 快照定时器 (30s)
+  private opsTimer: NodeJS.Timeout | null = null
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    @Optional() private readonly statsService?: StatsService,
   ) {}
 
   afterInit(server: Server): void {
     this.server = server
     this.logger.log('Real-time WebSocket Gateway (socket.io) initialized')
+    // [G005 Wave3A G-23] BI 定时推送: 30s 一次 ops 快照 (无 StatsService 注入时跳过, 如单测)
+    if (this.statsService) {
+      void this.pushOpsSnapshot()
+      this.opsTimer = setInterval(() => void this.pushOpsSnapshot(), OPS_PUSH_INTERVAL_MS)
+      this.opsTimer.unref?.()
+      this.logger.log(`ops-update snapshot timer started (every ${OPS_PUSH_INTERVAL_MS / 1000}s)`)
+    }
+  }
+
+  onModuleDestroy(): void {
+    if (this.opsTimer) {
+      clearInterval(this.opsTimer)
+      this.opsTimer = null
+    }
   }
 
   // ──────────── 连接鉴权 ────────────
@@ -224,6 +255,59 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     } else {
       this.server?.to(GLOBAL_ROOM).emit('worklist-refresh', payload)
       this.logger.log(`worklist-refresh broadcast to global room`)
+    }
+  }
+
+  // ──────────── [G005 Wave3A G-23] BI ops-update 推送 ────────────
+
+  /**
+   * 推送 ops 快照到全局房间 (RealtimeOpsDashboard 订阅)
+   */
+  emitOpsUpdate(payload: OpsSnapshotDto): void {
+    this.server?.to(GLOBAL_ROOM).emit('ops-update', payload)
+    const subs = this.listeners.get('*') ?? []
+    subs.forEach((cb) => {
+      try {
+        cb(payload)
+      } catch (e) {
+        this.logger.error('ops-update (legacy listener) failed', e)
+      }
+    })
+    this.logger.log(`ops-update pushed to global room (online=${payload.kpi.onlineUsers})`)
+  }
+
+  /**
+   * 定时构建 ops 快照: kpi (今日检查/报告/危急值/在线用户) + occupancy (模态利用率)
+   */
+  private async pushOpsSnapshot(): Promise<void> {
+    if (!this.server || !this.statsService) return
+    try {
+      const onlineUsers = this.server.sockets.sockets.size
+      const [daily, byModality, dashboard] = await Promise.all([
+        this.statsService.getDaily(),
+        this.statsService.getByModality(),
+        this.statsService.getDashboardData(),
+      ])
+      const occupancy = Object.entries(byModality?.data ?? {}).map(([modality, st]) => ({
+        modality,
+        utilization: Math.min(100, Math.round(Number((st as { avg?: number }).avg ?? 0) * 100 / 12)),
+        count: Number((st as { total?: number }).total ?? 0),
+      }))
+      const snapshot: OpsSnapshotDto = {
+        event: 'ops-update',
+        type: 'ops-update',
+        timestamp: Date.now(),
+        kpi: {
+          examsToday: daily?.data?.examCount ?? dashboard?.data?.today?.exams ?? 0,
+          reportsToday: daily?.data?.reportCount ?? dashboard?.data?.today?.reports ?? 0,
+          criticalsToday: daily?.data?.criticalCount ?? dashboard?.data?.today?.critical ?? 0,
+          onlineUsers,
+        },
+        occupancy,
+      }
+      this.emitOpsUpdate(snapshot)
+    } catch (e) {
+      this.logger.warn(`ops-update snapshot failed: ${(e as Error).message}`)
     }
   }
 

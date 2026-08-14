@@ -25,6 +25,9 @@ const STATUS_OPTIONS: Array<{ label: string; value: string }> = [
   { label: '已登记', value: 'SCHEDULED' },
   { label: '已报到', value: 'ARRIVED' },
   { label: '检查中', value: 'IN_PROGRESS' },
+  // [v3.0.6.11-95 Wave 1A] 暂停/质控退回 状态筛选
+  { label: '已暂停', value: 'PAUSED' },
+  { label: '质控退回', value: 'QC_REJECT' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' },
 ]

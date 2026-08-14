@@ -33,15 +33,25 @@ export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
   REDISTRIBUTING: ['ASSIGNED'],
 }
 
-function toReportDto(r: Report & { patient?: { id: string; name: string; gender: string } | null; radiologist?: { id: string; fullName: string; role: string } | null }) {
+// [v3.0.6.11-95 Wave3B P1] exam 关联派生字段: Report 表无 modality/bodyPart/priority,
+//   list 查询 include exam 后在 DTO 透出 (PublishPage/书写页展示用)
+type ReportWithExam = Report & {
+  patient?: { id: string; name: string; gender: string } | null
+  radiologist?: { id: string; fullName: string; role: string } | null
+  exam?: { id: string; modality: string; bodyPart: string; priority: string; accessionNumber: string } | null
+}
+
+function toReportDto(r: ReportWithExam) {
   return {
     id: r.id,
     reportId: r.id,
     patientId: r.patientId,
     patientName: r.patient?.name ?? '',
     examId: r.examId ?? '',
-    modality: '',
-    bodyPart: '',
+    modality: r.exam?.modality ?? '',
+    bodyPart: r.exam?.bodyPart ?? '',
+    priority: r.exam?.priority ?? '',
+    accessionNumber: r.exam?.accessionNumber ?? '',
     status: r.state,
     findings: r.findings,
     diagnosis: r.diagnosis,
@@ -79,17 +89,37 @@ export class ReportsService {
     this.gateway = gateway ?? createNoopGateway()
   }
 
-  async list(params: { skip?: number; take?: number; state?: ReportState }) {
-    const { skip = 0, state } = params
+  async list(params: { skip?: number; take?: number; states?: ReportState[]; modality?: string; priority?: string; patientId?: string; doctorId?: string; keyword?: string }) {
+    const { skip = 0, states } = params
     // [v3.0.6.11-79] 默认分页大小读取 admin config default_page_size, 未配置回退 20
     const take = params.take ?? (await this.systemConfig.getNumber('default_page_size', 20))
     const where: any = { tenantId: currentTenantId() }
-    if (state) where.state = state
+    // [v3.0.6.11-95 Wave3B P1] list 筛选: 状态数组 / 患者 / 报告医生 (直连字段)
+    if (states?.length) where.state = states.length === 1 ? states[0] : { in: states }
+    if (params.patientId) where.patientId = params.patientId
+    if (params.doctorId) where.radiologistId = params.doctorId
+    // modality/priority 不在 Report 表 → 经 exam 关联派生
+    const examFilter: any = {}
+    if (params.modality) examFilter.modality = params.modality
+    if (params.priority) examFilter.priority = params.priority
+    if (Object.keys(examFilter).length > 0) where.exam = { is: examFilter }
+    // keyword: 模糊匹配患者姓名 / 检查号 (accessionNumber)
+    if (params.keyword) {
+      where.AND = [{
+        OR: [
+          { patient: { name: { contains: params.keyword } } },
+          { exam: { is: { accessionNumber: { contains: params.keyword } } } },
+        ],
+      }]
+    }
     const [items, total] = await Promise.all([
       this.prisma.report.findMany({
         skip, take,
         where,
-        include: { patient: { select: { id: true, name: true, gender: true } } },
+        include: {
+          patient: { select: { id: true, name: true, gender: true } },
+          exam: { select: { id: true, modality: true, bodyPart: true, priority: true, accessionNumber: true } },
+        },
         orderBy: { updatedAt: 'desc' },
       }),
       this.prisma.report.count({ where }),
@@ -287,6 +317,44 @@ export class ReportsService {
       }
       return dto
     })
+  }
+
+  /**
+   * [v3.0.6.11-95 Wave3B P1] 批量状态流转 (POST /reports/batch-transition):
+   * 逐条校验过渡 (REPORT_TRANSITIONS), 单条失败不阻断其余;
+   * 返回 { succeeded: [{ id, state }], failed: [{ id, message }] }
+   */
+  async batchTransition(ids: string[], to: ReportState, actorId: string, reason?: string) {
+    const all = await this.prisma.report.findMany({
+      where: { id: { in: ids }, tenantId: currentTenantId() },
+      select: { id: true, state: true },
+    })
+    const stateById = new Map(all.map((r) => [r.id, r.state]))
+    const succeeded: { id: string; state: string }[] = []
+    const failed: { id: string; message: string }[] = []
+    for (const id of ids) {
+      const fromState = stateById.get(id)
+      if (!fromState) {
+        failed.push({ id, message: '报告不存在' })
+        continue
+      }
+      const allowed = REPORT_TRANSITIONS[fromState] ?? []
+      if (!allowed.includes(to)) {
+        failed.push({ id, message: `INVALID_TRANSITION: ${fromState} → ${to} 不允许` })
+        continue
+      }
+      if (to === 'REJECTED' && !reason?.trim()) {
+        failed.push({ id, message: 'INVALID_TRANSITION: REJECTED 必须提供 reason' })
+        continue
+      }
+      try {
+        await this.transition(id, to, actorId, reason)
+        succeeded.push({ id, state: to })
+      } catch (e: any) {
+        failed.push({ id, message: e?.message ?? '流转失败' })
+      }
+    }
+    return { succeeded, failed }
   }
 
   async diff(id: string) {

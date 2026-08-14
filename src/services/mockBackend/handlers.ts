@@ -303,7 +303,8 @@ export const reportHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     const takeParam = url.searchParams.get('take');
-    const stateParam = url.searchParams.get('state');
+    // [v3.0.6.11-95 Wave3B P1] state/status 双参数兼容 (状态筛选同义)
+    const stateParam = url.searchParams.get('state') ?? url.searchParams.get('status');
     const all = list<any>('exams');
     let source = all;
     if (stateParam) {
@@ -329,6 +330,26 @@ export const reportHandlers = [
       }
     }
     const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
+    // [v3.0.6.11-95 Wave3B P1] list 筛选: patientId / doctorId / keyword (与后端对齐)
+    const patientIdParam = url.searchParams.get('patientId');
+    const doctorIdParam = url.searchParams.get('doctorId');
+    const keywordParam = url.searchParams.get('keyword');
+    // 显式消费的筛选参数移出通用 filters (记录无这些字段, 通用过滤会误杀全部)
+    if (opts.filters) {
+      delete opts.filters['status'];
+      delete opts.filters['patientId'];
+      delete opts.filters['doctorId'];
+      delete opts.filters['keyword'];
+    }
+    if (patientIdParam) source = source.filter((r: any) => String(r.patientId ?? '') === patientIdParam);
+    if (doctorIdParam) source = source.filter((r: any) =>
+      String(r.doctorId ?? r.reportDoctorId ?? r.radiologistId ?? '') === doctorIdParam);
+    if (keywordParam) {
+      const kw = keywordParam.toLowerCase();
+      source = source.filter((r: any) =>
+        String(r.patientName ?? '').toLowerCase().includes(kw) ||
+        String(r.accessionNumber ?? r.reportId ?? '').toLowerCase().includes(kw));
+    }
     const result = applyQuery(source, {
       ...opts,
       pageSize: takeParam ? Math.min(Math.max(Number(takeParam) || 20, 1), 1000) : opts.pageSize,
@@ -338,6 +359,73 @@ export const reportHandlers = [
       data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
       meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
     });
+  }),
+
+  // [v3.0.6.11-95 Wave3B P1] 批量状态流转: POST /reports/batch-transition (逐条校验, 失败不阻断)
+  http.post(`${API_BASE}/reports/batch-transition`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { ids?: string[]; to?: string; actorId?: string; reason?: string };
+    const ids = Array.isArray(body?.ids) ? body.ids.filter(Boolean) : [];
+    const target = (body?.to ?? '').toUpperCase();
+    if (ids.length === 0 || !target) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'ids and to are required' } }, { status: 400 });
+    }
+    const STATE_TO_STATUS: Record<string, string> = {
+      PENDING_ASSIGNMENT: 'draft', ASSIGNED: 'draft', WRITING: 'draft', SUBMITTED: 'submitted',
+      INITIAL_REVIEW: 'inReview', FINAL_REVIEW: 'inReview', CO_SIGN_REVIEW: 'inReview',
+      REVIEWED: 'reviewed', SIGNING: 'reviewed', SIGNED: 'signed', PUBLISHED: 'published',
+      AMENDING: 'amended', AMENDED: 'amended', WITHDRAWN: 'withdrawn', REJECTED: 'rejected',
+      ESCALATED: 'inReview', ARCHIVED: 'published', RECTIFYING: 'amended', SUPPLEMENTING: 'amended',
+      SUPPLEMENTED: 'amended', REDISTRIBUTING: 'published',
+    };
+    const succeeded: { id: string; state: string }[] = [];
+    const failed: { id: string; message: string }[] = [];
+    // 记录侧无 state 字段 (seed 仅 status 小写英文) → 由 status 归一化出后端态
+    const STATUS_TO_EN_STATE: Record<string, string> = {
+      draft: 'WRITING', submitted: 'SUBMITTED', inreview: 'INITIAL_REVIEW', in_review: 'INITIAL_REVIEW',
+      reviewed: 'REVIEWED', cosigned: 'CO_SIGN_REVIEW', signed: 'SIGNED', published: 'PUBLISHED',
+      amended: 'AMENDED', rejected: 'REJECTED', withdrawn: 'WITHDRAWN', cancelled: 'WITHDRAWN',
+      final: 'PUBLISHED', pending: 'PENDING_ASSIGNMENT',
+    };
+    for (const id of ids) {
+      const before = get<any>('exams', id);
+      if (!before) { failed.push({ id, message: '报告不存在' }); continue; }
+      const fromState = String(before.state ?? '').toUpperCase()
+        || STATUS_TO_EN_STATE[String(before.status ?? '').toLowerCase()]
+        || String(before.status ?? '').toUpperCase();
+      const ALLOWED: Record<string, string[]> = {
+        PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'], ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
+        WRITING: ['SUBMITTED', 'INITIAL_REVIEW', 'REJECTED'], SUBMITTED: ['INITIAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
+        INITIAL_REVIEW: ['FINAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'], FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
+        CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED', 'ESCALATED'], REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED', 'ESCALATED'],
+        SIGNING: ['SIGNED', 'REJECTED'], SIGNED: ['PUBLISHED', 'AMENDING', 'AMENDED', 'RECTIFYING', 'SUPPLEMENTING'],
+        PUBLISHED: ['AMENDING', 'AMENDED', 'SUPPLEMENTING', 'ARCHIVED', 'PUBLISHED'],
+        AMENDING: ['AMENDED', 'REJECTED'], AMENDED: ['SIGNED', 'REJECTED'], REJECTED: ['WRITING'],
+        ESCALATED: ['REVIEWED', 'REJECTED'], RECTIFYING: ['REVIEWED', 'REJECTED'],
+        SUPPLEMENTING: ['SUPPLEMENTED', 'REJECTED'], SUPPLEMENTED: ['PUBLISHED', 'REJECTED'], REDISTRIBUTING: ['ASSIGNED'],
+      };
+      if (!(ALLOWED[fromState] ?? []).includes(target)) {
+        failed.push({ id, message: `INVALID_TRANSITION: ${fromState} → ${target} 不允许` });
+        continue;
+      }
+      if (target === 'REJECTED' && !body?.reason?.trim()) {
+        failed.push({ id, message: 'INVALID_TRANSITION: REJECTED 必须提供 reason' });
+        continue;
+      }
+      const updated = update<any>('exams', id, {
+        status: STATE_TO_STATUS[target] ?? 'submitted',
+        state: target,
+        rejectReason: target === 'REJECTED' ? (body?.reason ?? '') : undefined,
+      });
+      if (updated) {
+        auditStatusChange('reports', updated, before.status, STATE_TO_STATUS[target] ?? 'submitted');
+        recordWorkflowEvent({ actorId: body?.actorId ?? 'system', actorName: '系统', action: 'batch-transition', entityType: 'reports', entityId: id, fromState: before.status, toState: target, metadata: { reason: body?.reason } });
+        succeeded.push({ id, state: target });
+      } else {
+        failed.push({ id, message: '流转失败' });
+      }
+    }
+    return HttpResponse.json({ success: true, data: { succeeded, failed } });
   }),
 
   // [W4-B] 批量报告导出: 创建任务 + 轮询状态 (模拟 2s 内完成)
@@ -1107,6 +1195,34 @@ export const examListHandlers = [
   }),
 ];
 
+// [v3.0.6.11-95 Wave1B] 批量状态流转公共逻辑 (POST /worklist/batch-checkin|start|complete)
+const handleBatchTransition = async (body: { ids?: string[] }, action: 'checkin' | 'start' | 'complete') => {
+  await delay(120);
+  const ids = Array.isArray(body?.ids) ? body.ids : [];
+  if (ids.length === 0) return HttpResponse.json({ success: false, message: 'ids is required' }, { status: 400 });
+  const req: Record<'checkin' | 'start' | 'complete', string> = { checkin: 'ARRIVED', start: 'IN_PROGRESS', complete: 'COMPLETED' };
+  const target = req[action];
+  const label = action === 'checkin' ? '签到' : action === 'start' ? '开始' : '完成';
+  const succeeded: { id: string; state: string }[] = [];
+  const failed: { id: string; message: string }[] = [];
+  for (const id of ids) {
+    const before = get<any>('exams', id);
+    if (!before) { failed.push({ id, message: '检查不存在' }); continue; }
+    if (!canTransitionWorklist(String(before.status ?? 'SCHEDULED'), target)) {
+      failed.push({ id, message: `当前状态 ${String(before.status)} 不允许批量${label}` });
+      continue;
+    }
+    const patch: Record<string, unknown> = { status: target };
+    if (action === 'checkin') patch.checkinAt = new Date().toISOString();
+    if (action === 'complete') patch.completeAt = new Date().toISOString();
+    update<any>('exams', id, patch);
+    auditStatusChange('worklist', { ...before, status: target }, String(before.status ?? 'SCHEDULED'), target);
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action, entityType: 'worklist', entityId: id, fromState: String(before.status ?? 'SCHEDULED'), toState: target });
+    succeeded.push({ id, state: target });
+  }
+  return HttpResponse.json({ success: true, data: { succeeded, failed } });
+};
+
 export const worklistHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + 分页/排序/过滤)
   http.get(`${API_BASE}/worklist`, async ({ request }) => {
@@ -1130,7 +1246,16 @@ export const worklistHandlers = [
       byModality[e.modality] = (byModality[e.modality] || 0) + 1;
       byPriority[e.priority] = (byPriority[e.priority] || 0) + 1;
     }
-    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority } });
+    // [v3.0.6.11-95 Wave1B] 扩展: 当日完成/平均时长/技师维度 (对齐后端 /worklist/stats)
+    const today = new Date().toISOString().slice(0, 10);
+    const completedToday = all.filter((e) => String(e.completeAt ?? e.completedAt ?? e.createdAt ?? '').slice(0, 10) === today).length;
+    const avgDurationMin = 28;
+    const byTechnician = [
+      { id: 'tech-seed-1', name: '王技师', completedCount: 9, avgDurationMin },
+      { id: 'tech-seed-2', name: '李技师', completedCount: 6, avgDurationMin: Math.max(10, avgDurationMin - 5) },
+      { id: 'tech-seed-3', name: '张技师', completedCount: 4, avgDurationMin: avgDurationMin + 4 },
+    ];
+    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, completedToday, avgDurationMin, byTechnician } });
   }),
 
   // 医生的工作列表
@@ -1200,6 +1325,11 @@ export const worklistHandlers = [
     }
     return HttpResponse.json({ success: true, data: { ok: true, updated: updatedCount } });
   }),
+
+  // [v3.0.6.11-95 Wave1B] 批量状态流转 (签到/开始/完成) - 必须在 :id/checkin 等之前注册
+  http.post(`${API_BASE}/worklist/batch-checkin`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'checkin')),
+  http.post(`${API_BASE}/worklist/batch-start`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'start')),
+  http.post(`${API_BASE}/worklist/batch-complete`, async ({ request }) => handleBatchTransition(await request.json() as { ids?: string[] }, 'complete')),
 
   // 分配医生/设备/检查室
   http.post(`${API_BASE}/worklist/:id/assign`, async ({ params, request }) => {
@@ -1278,17 +1408,43 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
+  // [v3.0.6.11-95 Wave 1A P1] 暂停/继续 (对齐后端 POST /worklist/:id/pause|resume)
+  http.post(`${API_BASE}/worklist/:id/pause`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { reason?: string };
+    const before = get<any>('exams', id);
+    if (before && !canTransitionWorklist(before.status, 'PAUSED')) {
+      return HttpResponse.json({ success: false, message: `Cannot pause from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'PAUSED', state: 'PAUSED', pausedAt: new Date().toISOString(), pauseReason: body?.reason ?? '' });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'PAUSED');
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
+
+  http.post(`${API_BASE}/worklist/:id/resume`, async ({ params }) => {
+    await delay(80);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (before && !canTransitionWorklist(before.status, 'IN_PROGRESS')) {
+      return HttpResponse.json({ success: false, message: `Cannot resume from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', state: 'IN_PROGRESS', pausedAt: null });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'IN_PROGRESS');
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
+
   // 批量改派
   
 
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写: PATCH /worklist/:id/state { state: IMAGE_READY|QC_REJECT|QC_PASS, note? }
-  // 与后端 worklist.controller.updateQcState 对齐: QC_PASS → PENDING_REPORT, 仅允许 COMPLETED 后影像态流转
+  // [v3.0.6.11-95 Wave 1A P1] + IN_PROGRESS 重拍登记 (QC_REJECT → IN_PROGRESS, retakeCount+1, 备注"重拍第 N 次") + rating/qcNote 落库
   http.patch(`${API_BASE}/worklist/:id/state`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
-    const body = (await request.json()) as { state?: string; note?: string };
+    const body = (await request.json()) as { state?: string; note?: string; rating?: string; techNote?: string; qcNote?: string };
     const state = String(body.state ?? '').toUpperCase();
-    if (!['IMAGE_READY', 'QC_REJECT', 'QC_PASS'].includes(state)) {
+    if (!['IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'IN_PROGRESS'].includes(state)) {
       return HttpResponse.json({ success: false, message: `Invalid qc state: ${body.state}` }, { status: 400 });
     }
     let before = get<any>('exams', id);
@@ -1300,10 +1456,21 @@ export const worklistHandlers = [
     if (!canTransitionWorklist(before.status, target)) {
       return HttpResponse.json({ success: false, message: `Cannot qc-transition from ${before.status} to ${target}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: target, state: target, qcNote: body.note ?? '', qcAt: new Date().toISOString() });
+    const patch: Record<string, unknown> = { status: target, state: target, qcAt: new Date().toISOString() };
+    if (body.rating) patch.qualityRating = body.rating;
+    if (body.techNote) patch.techNotes = body.techNote;
+    if (body.qcNote) patch.qcNotes = body.qcNote;
+    else if (body.note) patch.qcNotes = body.note;
+    if (state === 'IN_PROGRESS') {
+      const retakeCount = Number(before.retakeCount ?? 0) + 1;
+      const appendNote = `重拍登记 第 ${retakeCount} 次${body.note ? `: ${body.note}` : ''}`;
+      patch.retakeCount = retakeCount;
+      patch.qcNotes = [String(before.qcNotes ?? ''), appendNote].filter(Boolean).join('\n');
+    }
+    const updated = update<any>('exams', id, patch);
     if (updated) {
       auditStatusChange('worklist', updated, before.status, target);
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'qc', entityType: 'worklist', entityId: id, fromState: before.status, toState: target, metadata: { note: body.note } });
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: state === 'IN_PROGRESS' ? 'retake' : 'qc', entityType: 'worklist', entityId: id, fromState: before.status, toState: target, metadata: { note: body.note } });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),

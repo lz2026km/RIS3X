@@ -1525,7 +1525,7 @@ const GreenRecommendations = () => {
         const catColor = categoryColors[tip.category] || C.primary
         return (
           <div key={tip.id} style={{
-            background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: `1px solid ${tip.implemented ? '#bbf7d0' : '#e2e8f0'}`,
+            background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: `1px solid ${tip.implemented ? '#bbf7d0' : 'var(--border-color)'}`,
             borderLeft: `4px solid ${tip.implemented ? C.success : catColor}`
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

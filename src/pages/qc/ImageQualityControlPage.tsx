@@ -61,6 +61,27 @@ export default function ImageQualityControlPage() {
     }
   }
 
+  // [v3.0.6.11-95 Wave 1A P1] 驳回后重拍登记: QC_REJECT → IN_PROGRESS (后端 retakeCount +1, 备注"重拍第 N 次")
+  const handleRetake = async (r: QcImageAiResult) => {
+    const key = `${r.id}:retake`
+    if (qcBusy) return
+    setQcBusy(key)
+    try {
+      const res = await worklistApi.updateState(r.studyId, 'IN_PROGRESS', '重拍登记')
+      if (res.success) {
+        message.success(`检查 ${r.studyId} 已登记重拍, 状态回到检查中`)
+        setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: 'pending' } : x)))
+        void load()
+      } else {
+        message.error(res.error?.message ?? '重拍登记失败')
+      }
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : '重拍登记失败')
+    } finally {
+      setQcBusy('')
+    }
+  }
+
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -134,11 +155,15 @@ export default function ImageQualityControlPage() {
     { title: '问题数', key: 'issues', width: 70, render: (_: unknown, r: QcImageAiResult) => <Tag color="orange">{r.issues?.length ?? 0}</Tag> },
     { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label ?? v}</Tag> },
     {
-      title: '质控回写', key: 'qc', width: 140, fixed: 'right',
+      title: '质控回写', key: 'qc', width: 190, fixed: 'right',
       render: (_: unknown, r: QcImageAiResult) => (
         <Space size={4}>
           <Button size="small" type="primary" ghost icon={<CheckCircle size={12} />} loading={qcBusy === `${r.id}:pass`} onClick={() => void handleQc(r, 'IMAGE_READY')}>通过</Button>
           <Button size="small" danger ghost icon={<XCircle size={12} />} loading={qcBusy === `${r.id}:reject`} onClick={() => void handleQc(r, 'QC_REJECT')}>驳回</Button>
+          {/* [v3.0.6.11-95 Wave 1A P1] 驳回后提供重拍登记: QC_REJECT → IN_PROGRESS */}
+          {r.status === 'rejected' && (
+            <Button size="small" danger icon={<RefreshCw size={12} />} loading={qcBusy === `${r.id}:retake`} onClick={() => void handleRetake(r)}>重拍登记</Button>
+          )}
         </Space>
       ),
     },
@@ -181,7 +206,7 @@ export default function ImageQualityControlPage() {
         <Col xs={24} lg={8}>
           <Card size="small" title={<Space><ScanLine size={14} />AI 影像评分 (score-v2)</Space>} style={{ marginBottom: 16 }}>
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
-              <Input placeholder="检查实例 ID (instanceId)" value={instanceId} onChange={(e) => setInstanceId(e.target.value)} />
+              <Input placeholder="检查实例 ID" value={instanceId} onChange={(e) => setInstanceId(e.target.value)} />
               <Select style={{ width: '100%' }} options={MODALITY_OPTIONS} value={scoreModality} onChange={setScoreModality} />
               <Input placeholder="操作员 ID (选填)" value={operatorId} onChange={(e) => setOperatorId(e.target.value)} />
               <Button type="primary" block onClick={handleScore} loading={scoring}>

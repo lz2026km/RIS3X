@@ -6,6 +6,7 @@ import { BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload, Download, BarCh
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { message } from 'antd'
 
 // ============ 类型定义 ============
 interface TermEntry {
@@ -387,17 +388,56 @@ export default function TermLibraryPage() {
   const handleImportFile = async () => {
     if (!importFile) return
     setImportLoading(true)
-    await new Promise(r => setTimeout(r, 1500))
-    const newTerms: TermEntry[] = [
-      { id: `TERM${String(terms.length + 1).padStart(3, '0')}`, term: '导入词条示例1', category: 'CT描述', modality: ['CT'], count: 0, standardReport: '批量导入的词条内容', isActive: true, termType: '描述短语', lastUsed: new Date().toISOString().slice(0, 10) },
-      { id: `TERM${String(terms.length + 2).padStart(3, '0')}`, term: '导入词条示例2', category: 'MR描述', modality: ['MR'], count: 0, standardReport: '批量导入的词条内容', isActive: true, termType: '描述短语', lastUsed: new Date().toISOString().slice(0, 10) },
-    ]
-    setTerms([...terms, ...newTerms])
+    let text = ''
+    try {
+      text = await importFile.text()
+    } catch (e: any) {
+      message.error('文件读取失败: ' + (e?.message ?? String(e)))
+      setImportLoading(false)
+      return
+    }
+    const trimmed = text.replace(/^\uFEFF/, '').trim()
+    const lines = trimmed.split(/\r?\n/).filter(l => l.trim())
+    const rows: Array<Record<string, string>> = []
+    if (lines.length >= 2) {
+      const header = lines[0]!.split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+      for (const line of lines.slice(1)) {
+        const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+        const row: Record<string, string> = {}
+        header.forEach((h, i) => { row[h] = cells[i] ?? '' })
+        rows.push(row)
+      }
+    }
+    if (rows.length === 0) {
+      message.error('文件格式错误: 未解析到有效词条行，请使用「导入模板」CSV 格式 (词条内容,所属分类,…)')
+      setImportLoading(false)
+      return
+    }
+    const newTerms: TermEntry[] = []
+    let success = 0
+    let fail = 0
+    for (const row of rows) {
+      const term = String(row['词条内容'] ?? row['中文名'] ?? row['name'] ?? '').trim()
+      const category = String(row['所属分类'] ?? row['分类'] ?? row['category'] ?? '').trim() || '未分类'
+      const standardReport = String(row['标准报告模板'] ?? '').trim()
+      const modality = String(row['适用设备类型'] ?? '').split(',').map(m => m.trim()).filter(Boolean)
+      if (!term) { fail++; continue }
+      try {
+        const res = await termApi.create({ term, category, definition: standardReport, pinyin: '' })
+        if (res.success && res.data?.id) {
+          newTerms.push({ id: res.data.id, term, category, modality: modality.length ? modality : ['CT'], count: 0, standardReport, isActive: true, termType: '描述短语', lastUsed: new Date().toISOString().slice(0, 10) })
+          success++
+        } else { fail++ }
+      } catch { fail++ }
+    }
+    if (newTerms.length > 0) setTerms([...terms, ...newTerms])
     setImportLoading(false)
     setImportFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
-    setImportSuccess('批量导入成功！')
+    setImportSuccess(`批量导入完成: 成功 ${success} 条, 失败 ${fail} 条`)
     setTimeout(() => setImportSuccess(''), 3000)
+    if (success > 0) message.success(`导入完成: 成功 ${success} 条, 失败 ${fail} 条`)
+    else message.error(`导入失败: 成功 0 条, 失败 ${fail} 条`)
   }
 
   const handleDownloadTemplate = () => {
@@ -1201,7 +1241,7 @@ export default function TermLibraryPage() {
                     <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> 导入模板</button>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? 'var(--content-bg)' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
                       <Upload size={11} />{importLoading ? '导入中...' : '批量导入'}
-                      <input ref={fileInputRef} type="file" accept=".csv,.xlsx" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
+                      <input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
                     {importFile && <button onClick={handleImportFile} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#7c3aed', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}><FileSpreadsheet size={11} /> 确认导入</button>}
                   </div>

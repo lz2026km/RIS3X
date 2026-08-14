@@ -1,16 +1,13 @@
 
-import { List, LayoutGrid, Mic, Sparkles, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle, ShieldCheck, PenLine } from 'lucide-react';
+import { List, LayoutGrid, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle, ShieldCheck, PenLine, Send } from 'lucide-react';
 import type { RadiologyReport } from "../../types";
 import { PRIMARY, GRAY, ACCENT, DANGER, SUCCESS, WHITE } from "./reportUtils";
+import { normalizeReportStatus } from "../../components/report/statusMeta";
 import { useNavigate } from "react-router-dom";
 
 export interface ReportToolbarProps {
   viewMode: "list" | "kanban";
   setViewMode: (v: "list" | "kanban") => void;
-  voiceRecording: boolean;
-  setVoiceRecording: (v: boolean) => void;
-  aiFilling: boolean;
-  setAiFilling: (v: boolean) => void;
   avgQuality: number;
   criticalCount: number;
   selectedIds: Set<string>;
@@ -41,14 +38,9 @@ export interface ReportToolbarProps {
 export default function ReportToolbar({
   viewMode,
   setViewMode,
-  voiceRecording,
-  setVoiceRecording,
-  aiFilling,
-  setAiFilling,
   avgQuality,
   criticalCount,
   selectedIds,
-  filteredStats,
   filteredReports,
   allReports,
   setDetailReport,
@@ -119,110 +111,6 @@ export default function ReportToolbar({
           borderLeft: "1px solid #e2e8f0",
         }}
       >
-        <button
-          onClick={() => {
-            const w = window as Window & { __voiceRecording?: boolean };
-            const isRecording = w.__voiceRecording;
-            if (isRecording) {
-              w.__voiceRecording = false;
-              setVoiceRecording(false);
-            } else {
-              w.__voiceRecording = true;
-              setVoiceRecording(true);
-              setTimeout(() => {
-                w.__voiceRecording = false;
-                setVoiceRecording(false);
-              }, 3000);
-            }
-          }}
-          style={{
-            padding: "5px 10px",
-            borderRadius: 6,
-            border: `1px solid ${voiceRecording ? "#dc2626" : "#e2e8f0"}`,
-            background: voiceRecording ? "#fee2e2" : WHITE,
-            color: voiceRecording ? "#dc2626" : "#64748b",
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            position: "relative",
-          }}
-        >
-          <Mic
-            size={13}
-            style={{ color: voiceRecording ? "#dc2626" : "#64748b" }}
-          />
-          <span
-            style={{
-              fontFamily: "monospace",
-              background: "#f1f5f9",
-              padding: "1px 4px",
-              borderRadius: 3,
-              fontSize: 12,
-              color: "#94a3b8",
-            }}
-          >
-            F2
-          </span>
-          <span>语音录入</span>
-          {voiceRecording && (
-            <span
-              style={{
-                position: "absolute",
-                top: -6,
-                right: -6,
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#dc2626",
-                animation: "pulse 1s infinite",
-              }}
-            />
-          )}
-        </button>
-
-        <button
-          onClick={() => {
-            setAiFilling(true);
-            setTimeout(() => {
-              setAiFilling(false); /*setAiagreement*/
-            }, 2000);
-          }}
-          style={{
-            padding: "5px 10px",
-            borderRadius: 6,
-            border: `1px solid ${aiFilling ? "#7c3aed" : "#e2e8f0"}`,
-            background: aiFilling ? "#f5f3ff" : WHITE,
-            color: aiFilling ? "#7c3aed" : "#64748b",
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <Sparkles
-            size={13}
-            style={{ color: aiFilling ? "#7c3aed" : "#64748b" }}
-          />
-          <span
-            style={{
-              fontFamily: "monospace",
-              background: "#f1f5f9",
-              padding: "1px 4px",
-              borderRadius: 3,
-              fontSize: 12,
-              color: "#94a3b8",
-            }}
-          >
-            F5
-          </span>
-          <span>{aiFilling ? "AI填充中..." : "AI填充"}</span>
-        </button>
-
         <div
           style={{
             display: "flex",
@@ -294,43 +182,43 @@ export default function ReportToolbar({
           },
           {
             label: "待分配",
-            count: filteredReports.filter((r) => r.status === "待分配").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "待分配").length,
             color: "#6b7280",
             key: "待分配",
           },
           {
             label: "已分配",
-            count: filteredReports.filter((r) => r.status === "已分配").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "已分配").length,
             color: "#0369a1",
             key: "已分配",
           },
           {
             label: "书写中",
-            count: filteredReports.filter((r) => r.status === "书写中").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "书写中").length,
             color: "#1e40af",
             key: "书写中",
           },
           {
             label: "初审中",
-            count: filteredReports.filter((r) => r.status === "初审中").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "初审中").length,
             color: "#7c2d12",
             key: "初审中",
           },
           {
             label: "终审中",
-            count: filteredReports.filter((r) => r.status === "终审中").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "终审中").length,
             color: "#a16207",
             key: "终审中",
           },
           {
             label: "已签发",
-            count: filteredReports.filter((r) => r.status === "已签发").length,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "已签发").length,
             color: "#047857",
             key: "已签发",
           },
           {
             label: "已发布",
-            count: filteredStats.published,
+            count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "已发布").length,
             color: SUCCESS,
             key: "已发布",
           },
@@ -505,6 +393,31 @@ export default function ReportToolbar({
               }}
             >
               <CheckCircle size={12} /> 批量发布
+            </button>
+            <button
+              onClick={() =>
+                setBulkActionModal({
+                  show: true,
+                  action: "submit",
+                  count: selectedIds.size,
+                  loading: false,
+                })
+              }
+              style={{
+                padding: "5px 12px",
+                borderRadius: 6,
+                border: "1px solid #e2e8f0",
+                background: WHITE,
+                color: "#4338ca",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <Send size={12} /> 批量提交审核
             </button>
             <button
               onClick={() =>

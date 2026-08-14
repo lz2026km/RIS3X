@@ -46,9 +46,14 @@ const SplitExamSchema = z.object({
   reportIds: z.array(z.string().min(1)).min(1),
 })
 
+// [v3.0.6.11-95 Wave1B] GET /exams 放开 TECHINICIAN/DOCTOR/NURSE (技师/医生工作站主数据源);
+// 写操作 (create/update/delete/import/merge/split) 方法级保留 ADMIN/DIRECTOR
+const READ_ROLES = ['ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE']
+const WRITE_ROLES = ['ADMIN', 'DIRECTOR']
+
 @ApiTags('exams')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
+@Roles(...READ_ROLES)
 @Controller('exams')
 export class ExamController {
   constructor(private readonly service: ExamService) {}
@@ -84,6 +89,7 @@ export class ExamController {
 
   // [W4-A] 批量导入 (JSON 数组或 { items }, 无患者则报错列出)
   @Post('import')
+  @Roles(...WRITE_ROLES)
   importMany(@Body(new ZodValidationPipe(ImportExamsSchema)) body: unknown) {
     const items = Array.isArray(body) ? body : (body as { items: unknown[] }).items
     return this.service.importMany(items as never)
@@ -91,12 +97,14 @@ export class ExamController {
 
   // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查
   @Post('merge')
+  @Roles(...WRITE_ROLES)
   merge(@Body(new ZodValidationPipe(MergeExamsSchema)) body: MergeExamsDto) {
     return this.service.merge(body)
   }
 
   // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分
   @Post(':id/split')
+  @Roles(...WRITE_ROLES)
   split(@Param('id') id: string, @Body(new ZodValidationPipe(SplitExamSchema)) body: SplitExamDto) {
     return this.service.split(id, body)
   }
@@ -107,16 +115,19 @@ export class ExamController {
   }
 
   @Post()
+  @Roles(...WRITE_ROLES)
   create(@Body(new ZodValidationPipe(CreateExamSchema)) body: CreateExamDto) {
     return this.service.create(body)
   }
 
   @Patch(':id')
+  @Roles(...WRITE_ROLES)
   update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExamSchema)) body: UpdateExamDto) {
     return this.service.update(id, body)
   }
 
   @Delete(':id')
+  @Roles(...WRITE_ROLES)
   delete(@Param('id') id: string) {
     return this.service.delete(id)
   }

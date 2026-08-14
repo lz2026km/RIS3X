@@ -147,7 +147,6 @@ const MllpConfigPage = lazy(
 const SmartAuthPage = lazy(
   () => import("../pages/integration/SmartAuthPage"),
 );
-const DimsePage = lazy(() => import("../pages/integration/DimsePage"));
 const DimseUploadPage = lazy(
   () => import("../pages/integration/DimseUploadPage"),
 );
@@ -1136,7 +1135,8 @@ export const routes: RouteObject[] = [
   wrapped("/integration/hl7-builder", React.createElement(Hl7BuilderPage)),
   wrapped("/integration/mllp-config", React.createElement(MllpConfigPage)),
   wrapped("/integration/smart-auth", React.createElement(SmartAuthPage)),
-  wrapped("/integration/dimse", React.createElement(DimsePage)),
+  // [v3.0.6.11-95] W4-B P2: 旧版 /integration/dimse 重定向至新版 /dicom/dimse (DimsePage 保留标注)
+  wrapped("/integration/dimse", React.createElement(Navigate, { to: "/dicom/dimse", replace: true })),
   wrapped("/integration/dimse/upload", React.createElement(DimseUploadPage)),
   wrapped("/kiosk/check-in", React.createElement(KioskCheckIn)),
   wrapped("/mobile/patient", React.createElement(PatientMobileApp)),

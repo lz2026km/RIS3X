@@ -376,7 +376,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
               <Row gutter={8}>
                 <Col span={8}><Statistic title="字数" value={result.findings.length + result.impression.length} prefix={<FileText className="w-3 h-3" />} /></Col>
-                <Col span={8}><Statistic title="Token" value={result.tokens.input + result.tokens.output} prefix={<Cpu className="w-3 h-3" />} /></Col>
+                <Col span={8}><Statistic title="Token 用量" value={result.tokens.input + result.tokens.output} prefix={<Cpu className="w-3 h-3" />} /></Col>
                 <Col span={8}><Statistic title="费用" value={result.tokens.cost} prefix={<Activity className="w-3 h-3" />} precision={3} suffix="¥" /></Col>
               </Row>
 

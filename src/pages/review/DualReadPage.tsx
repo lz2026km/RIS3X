@@ -3,6 +3,7 @@ import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, St
 import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw } from 'lucide-react'
 import { dualReadApi, type DualReadAssignment } from '../../services/api/dualReadApi'
 import { useAuth } from '../../hooks/useAuth'
+import { usePagination } from '../../hooks/usePagination'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -29,6 +30,8 @@ const DualReadPage: React.FC = () => {
   const [submitTarget, setSubmitTarget] = useState<{ assignment: DualReadAssignment; readerNumber: 1 | 2 } | null>(null)
   const [submitReport, setSubmitReport] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (双阅分配表)
+  const assignPagination = usePagination(assignments, 10)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -177,7 +180,7 @@ const DualReadPage: React.FC = () => {
         <Col span={6}><Card><Statistic title="待处理" value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>分配双阅</Button>}>
-        <Table rowKey="id" dataSource={assignments} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
+        <Table rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       {selectedAssignment && (
         <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={700} confirmLoading={actionLoading}>

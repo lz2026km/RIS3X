@@ -352,7 +352,7 @@ export default function OperationLogPage() {
   const [verifyResult, setVerifyResult] = useState<string | null>(null)
 
   const filterBtnStyle = (active: boolean) => ({
-    padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : '#e2e8f0'}`,
+    padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : 'var(--border-color)'}`,
     background: active ? `${ACCENT}15` : WHITE, color: active ? ACCENT : GRAY,
     fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
   })
@@ -378,7 +378,7 @@ export default function OperationLogPage() {
             onClick={handleExportCSV}
             disabled={isExporting}
             style={{
-              padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? '#cbd5e1' : SUCCESS}`,
+              padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? 'var(--border-color)' : SUCCESS}`,
               background: isExporting ? 'var(--bg-card)' : `${SUCCESS}10`, color: isExporting ? '#94a3b8' : SUCCESS,
               fontSize: 12, fontWeight: 600, cursor: isExporting ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
@@ -432,7 +432,7 @@ export default function OperationLogPage() {
                   onClick={() => handleQuickTimeFilter(filter.value)}
                   style={{
                     padding: '4px 10px', borderRadius: 6,
-                    border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : '#e2e8f0'}`,
+                    border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : 'var(--border-color)'}`,
                     background: quickTimeFilter === filter.value ? `${ACCENT}15` : WHITE,
                     color: quickTimeFilter === filter.value ? ACCENT : GRAY,
                     fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -542,8 +542,8 @@ export default function OperationLogPage() {
                       <span style={{ fontSize: 12, color: GRAY }}>条</span>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))} disabled={hipaaCurrentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
+                      <button onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))} disabled={hipaaCurrentPage === hipaaTotalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
                     </div>
                     <span style={{ fontSize: 12, color: GRAY }}>第 {hipaaCurrentPage} / {hipaaTotalPages} 页</span>
                   </div>
@@ -581,8 +581,8 @@ export default function OperationLogPage() {
                     显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === 1 ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>上一页</button>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', background: WHITE, color: currentPage === totalPages ? 'var(--text-muted)' : PRIMARY, fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>下一页</button>
                   </div>
                 </div>
               </div>
@@ -592,7 +592,7 @@ export default function OperationLogPage() {
       </div>
 
       {/* 实时流/异常检测/会话追踪/合规报告/区块链 Tab栏 */}
-      <div style={{ background: WHITE, borderRadius: 10, padding: '4px', margin: '0 20px 16px', display: 'flex', gap: 4, border: `1px solid #e2e8f0`, flexWrap: 'wrap' }}>
+      <div style={{ background: WHITE, borderRadius: 10, padding: '4px', margin: '0 20px 16px', display: 'flex', gap: 4, border: `1px solid var(--border-color)`, flexWrap: 'wrap' }}>
         {[
           { key: 'stream', label: '实时日志流', icon: <Radio size={14} /> },
           { key: 'anomaly', label: '异常检测', icon: <AlertTriangle size={14} /> },
@@ -650,10 +650,10 @@ export default function OperationLogPage() {
         <div style={{ margin: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '异常事件数', value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
-              { label: '高危异常', value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: '#8b5cf622' },
-              { label: '非工作时间', value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: '#f59e0b22' },
-              { label: '批量导出/删除', value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: '#f9731622' },
+              { label: '异常事件数', value: anomalyLogs.length, icon: <AlertTriangle size={18} />, color: DANGER, bg: 'var(--color-error-bg)' },
+              { label: '高危异常', value: anomalyScores.filter(s => s.score >= 70).length, icon: <AlertCircle size={18} />, color: '#7c3aed', bg: 'var(--color-info-bg)' },
+              { label: '非工作时间', value: anomalyLogs.filter(l => new Date(l.timestamp).getHours() >= 22 || new Date(l.timestamp).getHours() < 6).length, icon: <Clock size={18} />, color: WARNING, bg: 'var(--color-warning-bg)' },
+              { label: '批量导出/删除', value: anomalyLogs.filter(l => l.action === '批量导出' || l.action === '删除报告').length, icon: <Download size={18} />, color: '#f97316', bg: 'var(--color-warning-bg)' },
             ].map(card => (
               <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -669,7 +669,7 @@ export default function OperationLogPage() {
               </tr></thead>
               <tbody>
                 {anomalyScores.filter(s => s.score >= 50).slice(0, 10).map((s, idx) => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                  <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? WHITE : 'var(--bg-primary)' }}>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{s.userName}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{s.action}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
@@ -696,7 +696,7 @@ export default function OperationLogPage() {
                 <XAxis dataKey='month' tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Area type='monotone' dataKey='count' stroke={DANGER} fill='#ef444422' strokeWidth={2} name='异常次数' />
+                <Area type='monotone' dataKey='count' stroke={DANGER} fill='var(--color-error-bg)' strokeWidth={2} name='异常次数' />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -736,7 +736,7 @@ export default function OperationLogPage() {
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
                         <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 4, border: '2px solid var(--border-color)' }} />
-                        {idx < sessionLogs.length - 1 && <div style={{ width: 2, height: '100%', background: '#e2e8f0' }} />}
+                        {idx < sessionLogs.length - 1 && <div style={{ width: 2, height: '100%', background: 'var(--border-color)' }} />}
                       </div>
                       <div style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', marginBottom: 4 }}>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
@@ -774,7 +774,7 @@ export default function OperationLogPage() {
             <div style={{ display: 'flex', gap: 6 }}>
               {(['daily' as const, 'weekly' as const, 'monthly' as const]).map(s => (
                 <button key={s} onClick={() => setReportSchedule(s)} style={{
-                  padding: '4px 12px', borderRadius: 6, border: `1px solid ${reportSchedule === s ? ACCENT : '#e2e8f0'}`,
+                  padding: '4px 12px', borderRadius: 6, border: `1px solid ${reportSchedule === s ? ACCENT : 'var(--border-color)'}`,
                   background: reportSchedule === s ? ACCENT : WHITE, color: reportSchedule === s ? WHITE : GRAY,
                   fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}>{s === 'daily' ? '日报' : s === 'weekly' ? '周报' : '月报'}</button>
@@ -853,7 +853,7 @@ export default function OperationLogPage() {
                 display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px',
                 padding: '8px 14px', borderBottom: '1px solid var(--border-light)',
                 fontSize: 12, alignItems: 'center',
-                background: b.verified ? 'transparent' : '#fef2f2',
+                background: b.verified ? 'transparent' : 'var(--color-error-bg)',
               }}>
                 <div style={{ color: PRIMARY }}>{b.id.slice(0, 8)}</div>
                 <div style={{ color: GRAY }}>{b.userName}</div>
@@ -896,7 +896,7 @@ export default function OperationLogPage() {
               <div style={{ fontSize: 13, color: GRAY, marginBottom: 16 }}>
                 {exportProgress < 100 ? '请稍候' : '文件已准备好'}
               </div>
-              <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: 8, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${exportProgress}%`, height: '100%', background: exportProgress === 100 ? SUCCESS : PRIMARY, transition: 'width 0.2s ease-out' }} />
               </div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 8 }}>{exportProgress}%</div>

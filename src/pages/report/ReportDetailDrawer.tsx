@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
-  ShieldCheck, Zap, CheckCircle, Download, FileCheck2,
+  ShieldCheck, Zap, CheckCircle, Download, FileCheck2, Edit3,
 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline } from '../../components/report'
+import { toEnState } from '../../components/report/statusMeta'
 import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
-import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE } from './reportUtils'
+import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable } from './reportUtils'
+import { reportApi } from '../../services/api'
+import type { AuditTrailEvent } from '../../components/report/StatusTimeline'
 
 const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
@@ -67,17 +70,45 @@ export interface ReportDetailDrawerProps {
   onRectify?: (r: RadiologyReport) => void
   onRedistribute?: (r: RadiologyReport) => void
   onEscalate?: (r: RadiologyReport) => void
+  // [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口
+  onWrite?: (r: RadiologyReport) => void
+  // [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360
+  onOpen360?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate }: ReportDetailDrawerProps) {
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360 }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
+  // [v3.0.6.11-95 Wave2B P1] 状态时间线真实化: reportApi.auditTrail 数据驱动
+  const [timelineTrail, setTimelineTrail] = useState<AuditTrailEvent[] | null>(null)
+  const [timelineLoading, setTimelineLoading] = useState(false)
 
   useEffect(() => {
-    if (report) { setTab('content'); setShowHistory(false) }
+    if (report) { setTab('content'); setShowHistory(false); setTimelineTrail(null); setTimelineLoading(false) }
   }, [report?.id])
+
+  // [v3.0.6.11-95 Wave2B P1] 进入时间线 Tab 时拉取真实审计轨迹
+  useEffect(() => {
+    if (!report || tab !== 'timeline') return
+    let cancelled = false
+    setTimelineLoading(true)
+    void (async () => {
+      try {
+        const res = await reportApi.auditTrail(report.id)
+        if (cancelled) return
+        const d = res.data as unknown
+        const list = Array.isArray(d) ? d : (d as { events?: unknown } | null)?.events
+        setTimelineTrail(Array.isArray(list) ? (list as AuditTrailEvent[]) : null)
+      } catch {
+        if (!cancelled) setTimelineTrail(null)
+      } finally {
+        if (!cancelled) setTimelineLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [report, tab])
 
   const reportStatus = (report?.status as string) || '待分配'
   if (!report) return null
@@ -162,7 +193,11 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                   系统支持 14 态状态机：待分配 → 已分配 → 书写中 → 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → 签发中 → 已签发 → 已发布 → 修订中 → 已修订 / 已撤回 / 已驳回 / 已归档。
                 </div>
               </div>
-              <StatusTimeline report={report} />
+              {timelineLoading ? (
+                <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 12 }}>审计轨迹加载中…</div>
+              ) : (
+                <StatusTimeline report={report} auditTrail={timelineTrail ?? undefined} />
+              )}
             </div>
           )}
 
@@ -269,12 +304,24 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         </div>
 
         <div className="no-print" style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0 }}>
-          {report.status === '书写中' && (
+          {/* [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口 (可写态: 继续书写; 已发布/已签署: 查看) */}
+          {onWrite && (
+            <button onClick={() => onWrite(report)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1e40af', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Edit3 size={14} /> {isReportWritable(toEnState(report.status)) ? '继续书写' : '查看'}
+            </button>
+          )}
+          {/* [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360 */}
+          {onOpen360 && report.patientId && (
+            <button onClick={() => onOpen360(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Activity size={12} /> 患者画像 360
+            </button>
+          )}
+          {toEnState(report.status) === 'WRITING' && (
             <button onClick={async () => { await useReportStore.getState().submit(report.id); onClose(); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#3182ce', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <CheckCircle size={14} /> 提交审核
             </button>
           )}
-          {report.status === '待审核' && (
+          {['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(report.status)) && (
             <button onClick={() => { setPendingReviewReport(report); setShowMfa(true); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={14} /> 审核报告
             </button>
@@ -323,22 +370,22 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </button>
           )}
           {/* [v3.0.6.11-92 Wave1B P0] 报告特殊态按钮 (按状态启用, 对齐 backend REPORT_TRANSITIONS) */}
-          {onSupplement && CAN_SUPPLEMENT.includes(reportStatus) && (
+          {onSupplement && CAN_SUPPLEMENT.includes(toEnState(report.status)) && (
             <button onClick={() => onSupplement(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <FileText size={13} /> 补充报告
             </button>
           )}
-          {onRectify && CAN_RECTIFY.includes(reportStatus) && (
+          {onRectify && CAN_RECTIFY.includes(toEnState(report.status)) && (
             <button onClick={() => onRectify(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #f59e0b', background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <History size={13} /> 整改
             </button>
           )}
-          {onRedistribute && CAN_REDISTRIBUTE.includes(reportStatus) && (
+          {onRedistribute && CAN_REDISTRIBUTE.includes(toEnState(report.status)) && (
             <button onClick={() => onRedistribute(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: 'rgba(124,58,237,0.12)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <Activity size={13} /> 跨院区重分配
             </button>
           )}
-          {onEscalate && CAN_ESCALATE.includes(reportStatus) && (
+          {onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) && (
             <button onClick={() => onEscalate(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #dc2626', background: 'var(--color-error-bg)', color: 'var(--color-error)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <Zap size={13} /> 升级
             </button>

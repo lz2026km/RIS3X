@@ -18,6 +18,22 @@ import {
 } from '../data/qualityScoreMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { v3WritingApi } from '../services/api/v3Api';
+// [v3.0.6.11-95 Wave3B P1] 真实化: 患者/检查下拉 + 草稿保存接真实 API
+import { patientApi } from '../services/api/patientApi';
+import { examApi } from '../services/api/examApi';
+import { reportApi } from '../services/api/reportApi';
+import { getCurrentUser } from '../utils/auth';
+
+interface AiExamOption {
+  examId: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  bodyPart: string;
+  examItemName: string;
+  deviceName: string;
+  examDate: string;
+}
 
 // ============================================================
 // 主组件
@@ -25,12 +41,18 @@ import { v3WritingApi } from '../services/api/v3Api';
 export default function AIReportDraftPage() {
   const navigate = useNavigate();
 
-  // 当前选中的报告
-  const [selectedReportId, setSelectedReportId] = useState<string>('rpt-013');
-  const currentReport = extendedReportMock.find(r => r.id === selectedReportId);
+  // [v3.0.6.11-95 Wave3B P1] 真实化: 患者/检查下拉来自 patientApi.list + examApi.list (有检查记录的患者)
+  const [examOptions, setExamOptions] = useState<AiExamOption[]>([]);
+  const [patientSource, setPatientSource] = useState<'api' | 'demo'>('demo');
+  const [dataLoading, setDataLoading] = useState(true);
+  const [selectedExamId, setSelectedExamId] = useState<string>('rpt-013');
+  const currentExam = examOptions.find(o => o.examId === selectedExamId) ?? examOptions[0] ?? null;
+
+  // [v3.0.6.11-95 Wave3B P1] 真实化: AI 生成数据源标注 (api 真实 / demo 离线回退)
+  const [draftSource, setDraftSource] = useState<'api' | 'demo'>('api');
 
   // 临床病史输入
-  const [clinicalHistory, setClinicalHistory] = useState<string>(currentReport?.clinicalHistory || '');
+  const [clinicalHistory, setClinicalHistory] = useState<string>('');
 
   // 生成状态
   const [generating, setGenerating] = useState(false);
@@ -47,6 +69,77 @@ export default function AIReportDraftPage() {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // [v3.0.6.11-95 Wave3B P1] 真实化: 加载有检查记录的患者 (失败回退演示样本 + 标注)
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setDataLoading(true);
+      try {
+        const [patientRes, examRes] = await Promise.all([
+          patientApi.list({ pageSize: 200 }),
+          examApi.list({ pageSize: 200 }),
+        ]);
+        if (cancelled) return;
+        const toArr = (d: unknown): any[] => Array.isArray(d) ? d : ((d as { items?: unknown[] })?.items ?? []);
+        const patients = toArr(patientRes.data).filter((p: any) => p?.id);
+        const exams = toArr(examRes.data).filter((e: any) => e?.id && e?.patientId);
+        const patientById = new Map(patients.map((p: any) => [p.id, p]));
+        if (exams.length > 0) {
+          const options: AiExamOption[] = exams.map((e: any) => {
+            const p = patientById.get(e.patientId);
+            return {
+              examId: e.id ?? e.examId,
+              patientId: e.patientId,
+              patientName: p?.name ?? e.patientName ?? '未知患者',
+              modality: e.modality ?? 'CT',
+              bodyPart: e.bodyPart ?? '胸部',
+              examItemName: e.examItem ?? e.examItemName ?? '影像检查',
+              deviceName: e.deviceModel ?? e.deviceName ?? '—',
+              examDate: e.scheduledAt ?? e.examAt ?? '',
+            };
+          });
+          setExamOptions(options);
+          setPatientSource('api');
+          const first = options[0];
+          setSelectedExamId(first?.examId ?? 'rpt-013');
+          setClinicalHistory(`${first?.patientName ?? ''} ${first?.modality ?? ''}-${first?.bodyPart ?? ''} 检查,请结合影像所见生成报告初稿`);
+        } else {
+          setExamOptions(extendedReportMock.slice(0, 20).map((r) => ({
+            examId: r.id,
+            patientId: r.patientId ?? r.id,
+            patientName: r.patientName ?? '演示患者',
+            modality: r.modality ?? 'CT',
+            bodyPart: r.bodyPart ?? '胸部',
+            examItemName: r.examItemName ?? '影像检查',
+            deviceName: r.deviceName ?? '—',
+            examDate: r.examDate ?? '',
+          })));
+          setPatientSource('demo');
+          setSelectedExamId('rpt-013');
+          setClinicalHistory(extendedReportMock.find(r => r.id === 'rpt-013')?.clinicalHistory ?? '');
+        }
+      } catch {
+        if (cancelled) return;
+        setExamOptions(extendedReportMock.slice(0, 20).map((r) => ({
+          examId: r.id,
+          patientId: r.patientId ?? r.id,
+          patientName: r.patientName ?? '演示患者',
+          modality: r.modality ?? 'CT',
+          bodyPart: r.bodyPart ?? '胸部',
+          examItemName: r.examItemName ?? '影像检查',
+          deviceName: r.deviceName ?? '—',
+          examDate: r.examDate ?? '',
+        })));
+        setPatientSource('demo');
+        setSelectedExamId('rpt-013');
+        setClinicalHistory(extendedReportMock.find(r => r.id === 'rpt-013')?.clinicalHistory ?? '');
+      } finally {
+        if (!cancelled) setDataLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -54,43 +147,48 @@ export default function AIReportDraftPage() {
   }, []);
 
   // 生成草稿
+  // [v3.0.6.11-95 Wave3B P1] 真实化: 调用 v3WritingApi.aiDraft → aiDraftApi.generateReportDraft (POST /ai/report-draft 真实端点)
+  //   进度条仅为请求期间的视觉反馈, 内容与结果均来自真实响应; 失败回退模板 + 标注"离线模式"
   const handleGenerate = async () => {
     if (!clinicalHistory.trim() && !selectedTemplate) {
       message.warning('请输入临床病史或选择 AI 场景模板');
       return;
     }
+    if (!currentExam && patientSource === 'api') {
+      message.warning('未找到可生成初稿的检查记录,请先选择患者/检查');
+      return;
+    }
 
     setGenerating(true);
     setGenProgress(0);
+    setGenStage('正在调用 AI 服务生成报告初稿...');
     setGeneratedDraft(null);
+    setDraftSource('api');
 
     const stages = [
-      { p: 15, s: '正在分析临床病史...' },
-      { p: 30, s: '提取关键症状和体征...' },
-      { p: 50, s: '匹配历史相似病例...' },
-      { p: 70, s: '调用 AI 模型 v2.3 生成内容...' },
-      { p: 85, s: '应用科室术语规范...' },
-      { p: 100, s: '生成完成！' },
+      { p: 25, s: '正在分析临床病史...' },
+      { p: 50, s: '匹配历史相似病例与术语规范...' },
+      { p: 75, s: 'AI 模型生成内容中...' },
+      { p: 95, s: '应用科室模板结构...' },
     ];
 
     let i = 0;
     intervalRef.current = setInterval(() => {
       if (i < stages.length) {
-        setGenProgress(stages[i].p);
-        setGenStage(stages[i].s);
+        setGenProgress(stages[i]?.p ?? 0);
+        setGenStage(stages[i]?.s ?? '');
         i++;
-      } else {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = null;
-        setGenerating(false);
       }
-    }, 600);
+    }, 500);
 
     try {
       const res = await v3WritingApi.aiDraft({
         templateId: selectedTemplate?.id ?? 'default',
-        patientId: selectedReportId,
+        patientId: currentExam?.patientId ?? selectedExamId,
         findings: clinicalHistory,
+        modality: currentExam?.modality ?? 'CT',
+        bodyPart: currentExam?.bodyPart ?? '胸部',
+        clinicalHistory,
       });
 
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -102,9 +200,10 @@ export default function AIReportDraftPage() {
         const draft: AIDraftTemplate = {
           id: res.data.id ?? `draft-${Date.now()}`,
           scenario: selectedTemplate?.scenario ?? '智能生成',
-          modality: currentReport?.modality ?? 'CT',
-          bodyPart: currentReport?.bodyPart ?? '胸部',
+          modality: currentExam?.modality ?? 'CT',
+          bodyPart: currentExam?.bodyPart ?? '胸部',
           confidence: res.data.confidence ?? 0.85,
+          clinicalHistory,
           generatedFindings: res.data.findings ?? '',
           generatedDiagnosis: res.data.diagnosis ?? '',
           generatedImpression: res.data.impression ?? '',
@@ -122,6 +221,7 @@ export default function AIReportDraftPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = null;
       setGenerating(false);
+      setDraftSource('demo');
 
       let draft = selectedTemplate;
       if (!draft) {
@@ -147,59 +247,66 @@ export default function AIReportDraftPage() {
         setEditedDiagnosis(draft.generatedDiagnosis);
         setEditedImpression(draft.generatedImpression);
         setSelectedTemplateId(draft.id);
-        message.warning(`AI 服务暂不可用，使用离线模式: ${e?.message || ''}`);
+        message.warning(`AI 服务暂不可用，已回退离线模板: ${e?.message || ''}`);
       } else {
         message.error('AI 生成失败: ' + (e?.message || String(e)));
       }
+    } finally {
+      if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+      setGenerating(false);
     }
+  };
+
+  // [v3.0.6.11-95 Wave3B P1] 真实化: 生成结果 → reportApi.create 保存真实草稿 → 跳转书写页
+  const createDraftReport = async () => {
+    if (!generatedDraft) return null;
+    if (!currentExam) {
+      message.error('缺少检查记录,无法创建报告草稿');
+      return null;
+    }
+    const user = getCurrentUser();
+    const res = await reportApi.create({
+      patientId: currentExam.patientId,
+      examId: currentExam.examId,
+      patientName: currentExam.patientName,
+      modality: currentExam.modality,
+      bodyPart: currentExam.bodyPart,
+      radiologistId: user?.id,
+      findings: editedFindings,
+      impression: editedImpression,
+      conclusion: editedImpression || editedDiagnosis,
+    });
+    if (res.success && res.data) {
+      message.success(`已生成报告草稿 · 报告号 ${res.data.reportId ?? res.data.id}`);
+      return res.data.reportId ?? res.data.id;
+    }
+    return null;
   };
 
   // 应用到报告书写
   const applyToReport = async () => {
     if (!generatedDraft) return;
-    try {
-      const res = await v3WritingApi.aiDraft({
-        templateId: generatedDraft.id,
-        patientId: currentReport?.patientId ?? selectedReportId,
-        findings: `${editedFindings}\n\n诊断：${editedDiagnosis}\n意见：${editedImpression}`,
-      });
-      if (res.success) {
-        message.success(`已应用 AI 初稿到报告书写页 · 诊断: ${editedDiagnosis}`);
-      } else {
-        message.warning(`已跳转到报告页 · ${res.error?.message || 'AI 服务暂不可用'}`);
-      }
-    } catch (e: any) {
-      message.warning(`已跳转到报告页 · ${e?.message || String(e)}`);
+    const reportId = await createDraftReport();
+    if (reportId) {
+      navigate(`/reports/v3-write?reportId=${encodeURIComponent(reportId)}`);
+    } else {
+      message.warning(`已跳转到报告书写页 · 草稿创建失败`);
+      navigate(`/reports/v3-write`);
     }
-    navigate(`/reports/v3-write?reportId=${encodeURIComponent(selectedReportId)}`);
   };
 
-  // 保存为草稿
+  // [v3.0.6.11-95 Wave3B P1] 真实化: 保存草稿走 reportApi.create (真实报告), 替代 mock saveDraft
   const saveAsDraft = async () => {
     if (!generatedDraft) {
       message.warning('请先生成 AI 草稿');
       return;
     }
     try {
-      const res = await v3WritingApi.saveDraft(selectedReportId, {
-        templateId: generatedDraft.id,
-        reportId: selectedReportId,
-        patientName: currentReport?.patientName,
-        modality: currentReport?.modality,
-        bodyPart: currentReport?.bodyPart,
-        clinicalHistory,
-        findings: editedFindings,
-        diagnosis: editedDiagnosis,
-        impression: editedImpression,
-        scenario: generatedDraft.scenario,
-        confidence: generatedDraft.confidence,
-        savedAt: new Date().toISOString(),
-        status: 'draft',
-      });
-      if (res.success) {
-        message.success(`草稿已保存 · ID ${(res.data as any)?.id ?? selectedReportId}`);
+      const created = await createDraftReport();
+      if (created) {
+        message.success(`草稿已保存为真实报告 · ID ${created}`);
       } else {
-        message.error(res.error?.message || '保存失败');
+        message.error('保存失败,请稍后重试');
       }
     } catch (e: any) {
       message.error('保存失败: ' + (e?.message || String(e)));
@@ -225,7 +332,9 @@ export default function AIReportDraftPage() {
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               AI 一键自动初稿
               <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
-              <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 600 }}>演示数据 · 患者下拉为演示样本</span>
+              <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 600 }}>
+                {patientSource === 'api' ? '真实数据 · 患者/检查来自 API' : '演示数据 · 患者下拉为演示样本'}
+              </span>
             </h1>
             <p style={{ fontSize: 13, margin: '4px 0 0', opacity: 0.9 }}>
               基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿
@@ -246,26 +355,33 @@ export default function AIReportDraftPage() {
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={13} /> 选择报告
+              <FileText size={13} /> 选择患者 / 检查
+              {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>加载中…</span>}
+              {!dataLoading && patientSource === 'api' && (
+                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(16,185,129,0.15)', color: '#059669', fontWeight: 600 }}>真实数据</span>
+              )}
+              {!dataLoading && patientSource === 'demo' && (
+                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: '#d97706', fontWeight: 600 }}>演示数据</span>
+              )}
             </div>
             <select
-              value={selectedReportId}
+              value={selectedExamId}
               onChange={e => {
-                setSelectedReportId(e.target.value);
-                const r = extendedReportMock.find(x => x.id === e.target.value);
-                if (r) setClinicalHistory(r.clinicalHistory || '');
+                setSelectedExamId(e.target.value);
+                const opt = examOptions.find(o => o.examId === e.target.value);
+                if (opt) setClinicalHistory(`${opt.patientName} ${opt.modality}-${opt.bodyPart} 检查,请结合影像所见生成报告初稿`);
               }}
               style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
             >
-              {extendedReportMock.slice(0, 20).map(r => (
-                <option key={r.id} value={r.id}>{r.patientName} · {r.modality} {r.bodyPart}</option>
+              {examOptions.map(o => (
+                <option key={o.examId} value={o.examId}>{o.patientName} · {o.modality} {o.bodyPart}</option>
               ))}
             </select>
-            {currentReport && (
+            {currentExam && (
               <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
-                <div><strong>检查：</strong>{currentReport.examItemName}</div>
-                <div><strong>设备：</strong>{currentReport.deviceName || '—'}</div>
-                <div><strong>检查日期：</strong>{currentReport.examDate}</div>
+                <div><strong>检查：</strong>{currentExam.examItemName}</div>
+                <div><strong>设备：</strong>{currentExam.deviceName || '—'}</div>
+                <div><strong>检查日期：</strong>{currentExam.examDate ? new Date(currentExam.examDate).toLocaleDateString() : '—'}</div>
               </div>
             )}
           </div>
@@ -392,6 +508,10 @@ export default function AIReportDraftPage() {
                     </div>
                     <div style={{ fontSize: 12, color: '#6b21a8', marginTop: 2 }}>
                       置信度 <strong>{(generatedDraft.confidence * 100).toFixed(0)}%</strong> · 参考 {generatedDraft.sources.length} 个来源
+                      {' · '}
+                      <span style={{ fontWeight: 700, color: draftSource === 'api' ? '#059669' : '#d97706' }}>
+                        {draftSource === 'api' ? '真实 AI 生成' : '离线模板回退'}
+                      </span>
                     </div>
                   </div>
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>

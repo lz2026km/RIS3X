@@ -17,6 +17,8 @@ import {
   XCircle,
   Printer,
   Play,
+  Pause,
+  RefreshCw,
   CheckCircle,
 } from "lucide-react";
 import {
@@ -68,6 +70,8 @@ const STATUS_CONFIG: Record<
   SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记" },
   ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到" },
   IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中" },
+  // [v3.0.6.11-95 Wave 1A P1] 暂停态 (backend PAUSED)
+  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停" },
   COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成" },
   CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消" },
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写状态 (backend worklist PATCH :id/state)
@@ -141,9 +145,10 @@ export function DetailDrawer({
   const lastExamIdRef = useRef<string | null>(null)
 
   // [G005 Wave1A W9] 状态流转: worklistApi checkin/start/complete/cancel (后端 POST /worklist/:id/*)
-  const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | null>(null)
+  // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
+  const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake" | null>(null)
 
-  const handleStatusAction = async (action: "checkin" | "start" | "complete" | "cancel") => {
+  const handleStatusAction = async (action: "checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake") => {
     if (!exam) return
     setStatusBusy(action)
     try {
@@ -154,9 +159,15 @@ export function DetailDrawer({
             ? await worklistApi.start(exam.id)
             : action === "complete"
               ? await worklistApi.complete(exam.id)
-              : await worklistApi.cancel(exam.id, "详情抽屉取消")
+              : action === "pause"
+                ? await worklistApi.pauseExam(exam.id)
+                : action === "resume"
+                  ? await worklistApi.resumeExam(exam.id)
+                  : action === "retake"
+                    ? await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍登记")
+                    : await worklistApi.cancel(exam.id, "详情抽屉取消")
       if (res.success) {
-        message.success("状态已更新")
+        message.success(action === "pause" ? "检查已暂停" : action === "resume" ? "检查已继续" : action === "retake" ? "重拍已登记" : "状态已更新")
         onStatusChanged?.()
         onClose()
       } else {
@@ -861,7 +872,7 @@ export function DetailDrawer({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: 10,
           }}
         >
@@ -930,7 +941,7 @@ export function DetailDrawer({
           </button>
           <button
             onClick={() => void handleStatusAction("cancel")}
-            disabled={!["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) || statusBusy !== null}
+            disabled={!["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) || statusBusy !== null}
             style={{
               padding: "10px 16px",
               background: "var(--bg-card)",
@@ -938,8 +949,8 @@ export function DetailDrawer({
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              color: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) ? "#dc2626" : "#94a3b8",
-              cursor: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) ? "pointer" : "not-allowed",
+              color: ["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) ? "#dc2626" : "#94a3b8",
+              cursor: ["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -949,7 +960,77 @@ export function DetailDrawer({
             <XCircle size={12} />
             取消
           </button>
+          {/* [v3.0.6.11-95 Wave 1A P1] 暂停 (IN_PROGRESS → PAUSED) */}
+          <button
+            onClick={() => void handleStatusAction("pause")}
+            disabled={normalizeExamStatus(exam.status) !== "IN_PROGRESS" || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "#d97706" : "#94a3b8",
+              cursor: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Pause size={12} />
+            暂停
+          </button>
+          {/* [v3.0.6.11-95 Wave 1A P1] 继续 (PAUSED → IN_PROGRESS) */}
+          <button
+            onClick={() => void handleStatusAction("resume")}
+            disabled={normalizeExamStatus(exam.status) !== "PAUSED" || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: normalizeExamStatus(exam.status) === "PAUSED" ? "#16a34a" : "#94a3b8",
+              cursor: normalizeExamStatus(exam.status) === "PAUSED" ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Play size={12} />
+            继续
+          </button>
         </div>
+        {/* [v3.0.6.11-95 Wave 1A P1] QC_REJECT → 重拍登记 (状态回 IN_PROGRESS, 后端记录重拍次数) */}
+        {normalizeExamStatus(exam.status) === "QC_REJECT" && (
+          <button
+            onClick={() => void handleStatusAction("retake")}
+            disabled={statusBusy !== null}
+            style={{
+              marginTop: 10,
+              width: "100%",
+              padding: "10px 16px",
+              background: "#dc2626",
+              border: "none",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#fff",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <RefreshCw size={12} />
+            重新采集 / 重拍登记
+          </button>
+        )}
       </div>
 
       <div

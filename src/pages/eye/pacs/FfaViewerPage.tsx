@@ -72,6 +72,7 @@ const FfaViewerPage: React.FC = () => {
                 <span>FFA 荧光血管造影</span>
                 <EyeLateralityBadge eyeSide="OD" />
                 <Tag color="cyan">Heidelberg Spectralis HRA+OCT</Tag>
+                <Tag color="gold">演示数据 · 示例影像数据</Tag>
               </Space>
             }
           >

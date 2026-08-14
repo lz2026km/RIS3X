@@ -234,7 +234,7 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
                 },
                 {
                   key: 'dataset',
-                  label: 'DataSet 文本',
+                  label: '数据集文本',
                   children: (
                     <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs overflow-auto max-h-[500px] font-mono">
                       {dumpDicomSr(selected)}

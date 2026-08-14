@@ -1,12 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Button, Empty, Skeleton, Tag, Dropdown, Popconfirm } from 'antd'
-import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp } from 'lucide-react'
+import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp, PenLine, AlertTriangle, Radar } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
 import { formatDateTime } from '../../utils/date';
 import { usePagination } from '../../hooks/usePagination';
-import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE } from './reportUtils';
+import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable, isDraftOverdue } from './reportUtils';
+import { normalizeReportStatus, toEnState } from '../../components/report/statusMeta';
 
 const PRIMARY = '#1e40af'
 const DANGER = '#dc2626'
@@ -85,6 +86,10 @@ export interface ReportTableViewProps {
   onRectify?: (report: RadiologyReport) => void
   onRedistribute?: (report: RadiologyReport) => void
   onEscalate?: (report: RadiologyReport) => void
+  // [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口
+  onWrite?: (report: RadiologyReport) => void
+  // [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360
+  onOpen360?: (report: RadiologyReport) => void
   deletingIds?: Set<string>
   loading?: boolean
 }
@@ -114,6 +119,8 @@ export default function ReportTableView({
   onRectify,
   onRedistribute,
   onEscalate,
+  onWrite,
+  onOpen360,
   deletingIds,
   loading = false,
 }: ReportTableViewProps) {
@@ -152,9 +159,17 @@ export default function ReportTableView({
       key: 'status',
       width: 110,
       filters: Object.keys(STATUS_CONFIG).map((value) => ({ text: value, value })),
-      onFilter: (value, report) => report.status === value,
+      onFilter: (value, report) => normalizeReportStatus(report.status) === value,
       sorter: (a, b) => String(a.status).localeCompare(String(b.status), 'zh-CN'),
-      render: (value) => <StatusBadge status={String(value)} size="sm" />,
+      render: (value, report) => (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+          <StatusBadge status={String(value)} size="sm" />
+          {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标: DRAFT/WRITING 且 updatedTime 超 24h */}
+          {isDraftOverdue(report.status, report.updatedTime) && (
+            <Tag color="orange" icon={<AlertTriangle size={10} />} style={{ fontSize: 11, margin: 0 }}>待提交提醒</Tag>
+          )}
+        </span>
+      ),
     },
     { title: '报告医生', dataIndex: 'reportDoctorName', key: 'reportDoctorName', width: 110, searchable: true, render: (value) => String(value || '-') },
     { title: '审核医生', dataIndex: 'auditorName', key: 'auditorName', width: 110, searchable: true, render: (value) => String(value || '-') },
@@ -167,8 +182,12 @@ export default function ReportTableView({
       fixed: 'right',
       width: 320,
       render: (_value, report) => {
-        const isPending = report.status === '待审核'
+        const isPending = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW'].includes(toEnState(report.status))
         const menuItems = [
+          // [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口 (可写态: 继续书写; 已发布/已签署: 查看)
+          ...(onWrite ? [{ key: 'write', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><PenLine size={12} /> {isReportWritable(report.status) ? '继续书写' : '查看'}</span> }] : []),
+          // [v3.0.6.11-95 Wave3B P1] 患者画像入口
+          ...(onOpen360 ? [{ key: 'open360', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Radar size={12} /> 患者画像 360</span> }] : []),
           ...(onRevise ? [{ key: 'revise', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Edit3 size={12} /> 修订</span> }] : []),
           ...(onRepublish ? [{ key: 'republish', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RotateCcw size={12} /> 补发（重新发布）</span> }] : []),
           ...(onRequestApproval ? [{ key: 'approval', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 申请审批导出</span> }] : []),
@@ -178,10 +197,10 @@ export default function ReportTableView({
           ...(onAudit ? [{ key: 'audit', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><History size={12} /> 审计轨迹</span> }] : []),
           ...(onCreateFollowUp ? [{ key: 'followup', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={12} /> 创建随访</span> }] : []),
           // [v3.0.6.11-92 Wave1B P0] 报告特殊态 (按状态启用, 对齐 backend REPORT_TRANSITIONS)
-          ...(onSupplement && CAN_SUPPLEMENT.includes(report.status) ? [{ key: 'supplement', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 补充报告</span> }] : []),
-          ...(onRectify && CAN_RECTIFY.includes(report.status) ? [{ key: 'rectify', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={12} /> 整改</span> }] : []),
-          ...(onRedistribute && CAN_REDISTRIBUTE.includes(report.status) ? [{ key: 'redistribute', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowLeftRight size={12} /> 跨院区重分配</span> }] : []),
-          ...(onEscalate && CAN_ESCALATE.includes(report.status) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> 升级</span> }] : []),
+          ...(onSupplement && CAN_SUPPLEMENT.includes(toEnState(report.status)) ? [{ key: 'supplement', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 补充报告</span> }] : []),
+          ...(onRectify && CAN_RECTIFY.includes(toEnState(report.status)) ? [{ key: 'rectify', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RefreshCw size={12} /> 整改</span> }] : []),
+          ...(onRedistribute && CAN_REDISTRIBUTE.includes(toEnState(report.status)) ? [{ key: 'redistribute', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowLeftRight size={12} /> 跨院区重分配</span> }] : []),
+          ...(onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) ? [{ key: 'escalate', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ArrowUp size={12} /> 升级</span> }] : []),
         ]
         return (
           <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -195,7 +214,9 @@ export default function ReportTableView({
                   items: menuItems,
                   onClick: ({ key, domEvent }) => {
                     domEvent.stopPropagation()
-                    if (key === 'revise') onRevise?.(report)
+                    if (key === 'write') onWrite?.(report)
+                    else if (key === 'open360') onOpen360?.(report)
+                    else if (key === 'revise') onRevise?.(report)
                     else if (key === 'republish') onRepublish?.(report)
                     else if (key === 'approval') onRequestApproval?.(report)
                     else if (key === 'deliver') onDeliver?.(report)
@@ -239,7 +260,7 @@ export default function ReportTableView({
         )
       },
     },
-  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate]);
+  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360]);
 
   return (
     <ProTable<RadiologyReport>

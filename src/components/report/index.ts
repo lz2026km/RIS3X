@@ -11,5 +11,8 @@ export {
   REPORT_STATUS_GROUPS,
   normalizeReportStatus,
   LEGACY_STATUS_ALIAS,
+  EN_STATE_TO_CN,
+  displayStatus,
+  toEnState,
 } from './statusMeta';
 export type { ReportStatusMeta } from './statusMeta';

@@ -4,6 +4,7 @@ import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
+import { usePagination } from "@/hooks/usePagination";
 
 const EyeEmrPage: React.FC = () => {
   const [emrList, setEmrList] = useState<any[]>([]);
@@ -33,6 +34,8 @@ const EyeEmrPage: React.FC = () => {
           e.patientId.includes(search) || e.chiefComplaint.includes(search),
       )
     : emrList;
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (EMR 列表)
+  const emrPagination = usePagination(filtered, 10);
 
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-emr-page">
@@ -59,10 +62,10 @@ const EyeEmrPage: React.FC = () => {
         <Col span={6}>
           <Card size="small" title="病历列表">
             <Table
-              dataSource={filtered}
+              dataSource={emrPagination.pageData}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={emrPagination.pagination}
               onRow={(r) => ({
                 onClick: () => setSelected(r),
                 style: {

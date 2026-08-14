@@ -82,10 +82,60 @@ describe('ReportsService', () => {
     it('filters by state', async () => {
       mockPrisma.report.findMany.mockResolvedValue([])
       mockPrisma.report.count.mockResolvedValue(0)
-      await svc.list({ state: 'PUBLISHED' as any })
+      await svc.list({ states: ['PUBLISHED'] as any })
       expect(mockPrisma.report.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ where: expect.objectContaining({ state: 'PUBLISHED', tenantId: 'default' }) })
       )
+    })
+
+    // [v3.0.6.11-95 Wave3B P1] list 筛选: 状态数组 / 患者 / 医生 / exam 派生 modality/priority / keyword
+    it('filters by states array (in)', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([])
+      mockPrisma.report.count.mockResolvedValue(0)
+      await svc.list({ states: ['SIGNED', 'PUBLISHED'] as any })
+      expect(mockPrisma.report.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ state: { in: ['SIGNED', 'PUBLISHED'] } }) })
+      )
+    })
+
+    it('filters by patientId / doctorId (radiologistId)', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([])
+      mockPrisma.report.count.mockResolvedValue(0)
+      await svc.list({ patientId: 'p1', doctorId: 'd1' })
+      expect(mockPrisma.report.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ patientId: 'p1', radiologistId: 'd1' }) })
+      )
+    })
+
+    it('filters modality/priority via exam relation', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([])
+      mockPrisma.report.count.mockResolvedValue(0)
+      await svc.list({ modality: 'CT', priority: 'URGENT' })
+      expect(mockPrisma.report.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ exam: { is: { modality: 'CT', priority: 'URGENT' } } }) })
+      )
+    })
+
+    it('filters keyword via patient name OR exam accessionNumber', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([])
+      mockPrisma.report.count.mockResolvedValue(0)
+      await svc.list({ keyword: '张三' })
+      const callWhere = mockPrisma.report.findMany.mock.calls[0][0].where
+      expect(callWhere.AND[0].OR).toContainEqual({ patient: { name: { contains: '张三' } } })
+      expect(callWhere.AND[0].OR).toContainEqual({ exam: { is: { accessionNumber: { contains: '张三' } } } })
+    })
+
+    it('derives modality/bodyPart/priority from exam in DTO', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([{
+        ...mockReport,
+        exam: { id: 'e1', modality: 'CT', bodyPart: '胸部', priority: 'URGENT', accessionNumber: 'ACC-001' },
+      }])
+      mockPrisma.report.count.mockResolvedValue(1)
+      const result = await svc.list({ skip: 0, take: 20 })
+      expect(result.items[0]?.modality).toBe('CT')
+      expect(result.items[0]?.bodyPart).toBe('胸部')
+      expect(result.items[0]?.priority).toBe('URGENT')
+      expect(result.items[0]?.accessionNumber).toBe('ACC-001')
     })
   })
 
@@ -261,6 +311,56 @@ describe('ReportsService', () => {
     it('throws when report not found', async () => {
       mockPrisma.report.findUnique.mockResolvedValue(null)
       await expect(svc.transition('x', 'SUBMITTED' as any, 'd1')).rejects.toThrow(NotFoundException)
+    })
+  })
+
+  // [v3.0.6.11-95 Wave3B P1] 批量状态流转 (POST /reports/batch-transition)
+  describe('batchTransition', () => {
+    beforeEach(() => {
+      mockPrisma.report.findMany.mockResolvedValue([
+        { id: 'r1', state: 'WRITING' },
+        { id: 'r2', state: 'WRITING' },
+      ])
+      // transition() 内部按 id 二次查报告, mock 需返回与批次行一致的状态
+      mockPrisma.report.findUnique.mockImplementation(({ where }: any) =>
+        Promise.resolve({ ...mockReport, id: where?.id ?? 'r1', state: 'WRITING' }))
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'INITIAL_REVIEW' })
+    })
+
+    it('transitions all valid ids → INITIAL_REVIEW', async () => {
+      const res = await svc.batchTransition(['r1', 'r2'], 'INITIAL_REVIEW' as any, 'd1')
+      expect(res.succeeded).toEqual([
+        { id: 'r1', state: 'INITIAL_REVIEW' },
+        { id: 'r2', state: 'INITIAL_REVIEW' },
+      ])
+      expect(res.failed).toHaveLength(0)
+      expect(txMock.reportRevision.create).toHaveBeenCalled()
+    })
+
+    it('collects per-id failures without blocking others (illegal transition)', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([
+        { id: 'r1', state: 'WRITING' },
+        { id: 'r2', state: 'PUBLISHED' },
+      ])
+      const res = await svc.batchTransition(['r1', 'r2'], 'INITIAL_REVIEW' as any, 'd1')
+      expect(res.succeeded).toEqual([{ id: 'r1', state: 'INITIAL_REVIEW' }])
+      expect(res.failed).toHaveLength(1)
+      expect(res.failed[0]?.id).toBe('r2')
+      expect(res.failed[0]?.message).toContain('INVALID_TRANSITION')
+    })
+
+    it('rejects REJECTED without reason', async () => {
+      const res = await svc.batchTransition(['r1'], 'REJECTED' as any, 'd1')
+      expect(res.succeeded).toHaveLength(0)
+      expect(res.failed[0]?.message).toContain('REJECTED 必须提供 reason')
+      expect(txMock.reportRevision.create).not.toHaveBeenCalled()
+    })
+
+    it('reports missing ids as failed', async () => {
+      mockPrisma.report.findMany.mockResolvedValue([{ id: 'r1', state: 'WRITING' }])
+      const res = await svc.batchTransition(['r1', 'gone'], 'INITIAL_REVIEW' as any, 'd1')
+      expect(res.succeeded).toHaveLength(1)
+      expect(res.failed).toEqual([{ id: 'gone', message: '报告不存在' }])
     })
   })
 })

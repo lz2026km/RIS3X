@@ -49,4 +49,7 @@ export interface ReportQueryParams {
     state?: string
     // [W2-4] 按患者过滤 (患者详情报告列表)
     patientId?: string
+    // [v3.0.6.11-95 Wave3B P1] 后端 reports list 筛选: 状态英文枚举(逗号分隔多值)/报告医生/关键字(患者名/检查号)
+    doctorId?: string
+    keyword?: string
   }

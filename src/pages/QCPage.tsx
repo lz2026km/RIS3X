@@ -1048,7 +1048,7 @@ export default function QCPage() {
               <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 12, color: GRAY }}>综合加权平均分</span>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}分</span>
+                  <span style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}分</span>
                 </div>
               </div>
             </div>
@@ -1587,7 +1587,7 @@ export default function QCPage() {
                 <ResponsiveContainer width='100%' height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: '达标', value: dashboardData.passRate }, { name: '未达标', value: 100 - dashboardData.passRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
-                      <Cell fill={SUCCESS} /><Cell fill='#e2e8f0' />
+                      <Cell fill={SUCCESS} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
                   </RechartsPie>
@@ -1595,7 +1595,7 @@ export default function QCPage() {
                 <ResponsiveContainer width='100%' height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: '优良', value: dashboardData.excellentRate }, { name: '非优良', value: 100 - dashboardData.excellentRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
-                      <Cell fill={'#f59e0b'} /><Cell fill='#e2e8f0' />
+                      <Cell fill={'#f59e0b'} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
                   </RechartsPie>
@@ -1957,7 +1957,7 @@ export default function QCPage() {
                             <div style={{ width: `${inst.score}%`, height: '100%', background: inst.color, borderRadius: 3 }} />
                           </div>
                         </div>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: inst.color }}>{inst.score}</span>
+                        <span style={{ fontSize: 26, fontWeight: 700, color: inst.color }}>{inst.score}</span>
                       </div>
                     ))}
                   </div>
@@ -2029,7 +2029,7 @@ export default function QCPage() {
                         <span style={{ color: item.color }}>{item.icon}</span>
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.type}</span>
                       </div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: item.color, marginBottom: 6 }}>{item.minutes}</div>
+                      <div style={{ fontSize: 26, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.minutes}</div>
                       <div style={{ fontSize: 12, color: item.color, lineHeight: 1.4 }}>{item.desc}</div>
                     </div>
                   ))}
@@ -2450,7 +2450,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '质量评分', value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? '#d1fae5' : overallQualityScore >= 60 ? '#fef3c7' : '#fee2e2' },
+              { label: '质量评分', value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? 'var(--color-success-bg)' : overallQualityScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
               { label: '总规则数', value: qcRulesConfig.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
               { label: '通过数', value: qcRulesConfig.filter(r => r.passed).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: '失败数', value: qcRulesConfig.filter(r => !r.passed).length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
@@ -2488,7 +2488,7 @@ export default function QCPage() {
                 {qcRulesConfig.map(rule => {
                   const catColor = rule.category === 'structure' ? '#3b82f6' : rule.category === 'content' ? '#059669' : rule.category === 'terminology' ? '#f59e0b' : '#7c3aed'
                   return (
-                    <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? '#d1fae5' : '#fee2e2'}` }}>
+                    <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? 'var(--color-success-border)' : 'var(--color-error-border)'}` }}>
                       <div style={{ width: 8, height: 8, borderRadius: 2, background: catColor, flexShrink: 0 }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: PRIMARY }}>{rule.name}</div>
@@ -2586,7 +2586,7 @@ export default function QCPage() {
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
                     <YAxis domain={[70, 95]} tick={{ fontSize: 12, color: GRAY }} unit='%' />
                     <Tooltip formatter={(v) => [`${v}%`, '一致率']} />
-                    <Area type='monotone' dataKey='rate' stroke={SUCCESS} fill='#d1fae5' strokeWidth={2} />
+                    <Area type='monotone' dataKey='rate' stroke={SUCCESS} fill='var(--color-success-bg)' strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -2623,7 +2623,7 @@ export default function QCPage() {
                 <AlertTriangle size={16} color={DANGER} />{t('qc.discordantAnalysis')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {radPathData.filter(d => d.concordance === 'discordant').map(d => (
-                  <div key={d.id} style={{ display: 'flex', gap: 12, padding: '14px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid #fecaca' }}>
+                  <div key={d.id} style={{ display: 'flex', gap: 12, padding: '14px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--color-error-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <AlertTriangle size={18} color={DANGER} />
                     </div>
@@ -2668,7 +2668,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '文档准备就绪度', value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? '#d1fae5' : readinessScore >= 60 ? '#fef3c7' : '#fee2e2' },
+              { label: '文档准备就绪度', value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? 'var(--color-success-bg)' : readinessScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
               { label: '达标模态数', value: acrRequirementsData.filter(a => a.status === '已达标').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: '待整改模态', value: acrRequirementsData.filter(a => a.status !== '已达标').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#f59e0b22' },
               { label: '既往检查记录', value: inspectionFindings.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
@@ -2870,7 +2870,7 @@ export default function QCPage() {
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: WHITE }}>{doc.rank}</div>
                     <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>报告 {doc.reportCount} 份</div></div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>
+                      <div style={{ fontSize: 26, fontWeight: 700, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>
                       <div style={{ fontSize: 12, color: GRAY }}>总分</div>
                     </div>
                   </div>
@@ -3027,7 +3027,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
@@ -3084,13 +3084,13 @@ export default function QCPage() {
             {!progressModal.complete ? (
               <>
                 <div style={{ width: 48, height: 48, border: '4px solid var(--border-color)', borderTopColor: ACCENT, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-                <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>{progressModal.title}</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>{progressModal.title}</div>
                 <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
               </>
             ) : (
               <>
                 <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
-                <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}完成</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}完成</div>
                 <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
               </>
             )}
@@ -3103,7 +3103,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailModal(d => ({ ...d, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{detailModal.title}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{detailModal.title}</h2>
               <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>{detailModal.content}</div>
@@ -3119,7 +3119,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setFormModal(f => ({ ...f, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{formModal.title}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{formModal.title}</h2>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>表单内容（模拟）</div>
@@ -3136,7 +3136,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPeerReviewDetail(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>盲审评分详情 - {peerReviewDetail.id}</h2>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>盲审评分详情 - {peerReviewDetail.id}</h2>
               <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

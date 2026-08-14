@@ -33,6 +33,7 @@ import {
 import { initialRadiologyExams, initialPatients } from "../data/initialData";
 import { examApi } from "../services/api";
 import type { ImportExamRow } from "../services/api";
+import { worklistApi } from "../services/api/worklistApi";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
@@ -68,12 +69,12 @@ const STATUS_CONFIG: Record<
   已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "已预约" },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
   draft: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "草稿" },
-  submitted: { color: "#d1fae5", bg: "#059669", label: "已提交" },
-  reviewed: { color: "#ecfdf5", bg: "#047857", label: "已审核" },
-  cosigned: { color: "#dbeafe", bg: "#2563eb", label: "已会签" },
-  published: { color: "#ecfdf5", bg: "#047857", label: "已发布" },
-  rejected: { color: "#fee2e2", bg: "#dc2626", label: "已驳回" },
-  revised: { color: "#fef3c7", bg: "#f59e0b", label: "已修订" },
+  submitted: { color: "var(--color-success-bg)", bg: "#059669", label: "已提交" },
+  reviewed: { color: "var(--color-success-bg)", bg: "#047857", label: "已审核" },
+  cosigned: { color: "var(--color-info-bg)", bg: "#2563eb", label: "已会签" },
+  published: { color: "var(--color-success-bg)", bg: "#047857", label: "已发布" },
+  rejected: { color: "var(--color-error-bg)", bg: "#dc2626", label: "已驳回" },
+  revised: { color: "var(--color-warning-bg)", bg: "#f59e0b", label: "已修订" },
 };
 
 // 设备类型
@@ -202,7 +203,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       color: "#22c55e",
       bgColor: "var(--color-success-bg)",
     },
-    { key: "published", label: "已发布", color: "#22c55e", bgColor: "#dcfce7" },
+    { key: "published", label: "已发布", color: "#22c55e", bgColor: "var(--color-success-bg)" },
   ];
   const statusMap: Record<string, number> = {
     已预约: 0,
@@ -223,7 +224,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
     if (index < currentIndex) {
       // 已完成节点
       node.color = "#22c55e";
-      node.bgColor = "#dcfce7";
+      node.bgColor = "var(--color-success-bg)";
       // 模拟时间戳
       const timestamp = new Date(examDate);
       timestamp.setHours(8 + index, Math.floor(Math.random() * 60));
@@ -237,13 +238,13 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
       // 当前节点
       if (["检查中", "待检查"].includes(exam.status)) {
         node.color = "#3b82f6";
-        node.bgColor = "#dbeafe";
+        node.bgColor = "var(--color-info-bg)";
       } else if (["图像采集"].includes(exam.status)) {
         node.color = "#eab308";
-        node.bgColor = "#fef9c3";
+        node.bgColor = "var(--color-warning-bg)";
       } else if (["报告书写", "待报告", "已报告"].includes(exam.status)) {
         node.color = "#f97316";
-        node.bgColor = "#ffedd5";
+        node.bgColor = "var(--color-warning-bg)";
       }
       // 检查是否超时（超过预计时间30分钟以上）
       if (["检查中", "图像采集"].includes(exam.status)) {
@@ -468,11 +469,47 @@ export default function ExamPage() {
     setModal({ visible: false, exam: null, action: null });
   };
 
+  // [v3.0.6.11-95 Wave 1A P0-1] 按 modal.action 分发, 修复三键共用误执行"开始":
+  //   start → store.transition(start) | complete → transition(complete) | cancel → transition(cancel)
+  //   quality → worklistApi.updateState(IMAGE_READY/QC_REJECT + 评级/备注落库)
   const handleExecute = async () => {
-    if (modal.exam?.id) {
-      await useExamStore.getState().transition(modal.exam.id, "start");
+    if (!modal.exam?.id) {
+      closeModal();
+      return;
     }
-    closeModal();
+    const action = modal.action ?? "start";
+    try {
+      if (action === "complete") {
+        await useExamStore.getState().transition(modal.exam.id, "complete");
+        void reloadExams();
+      } else if (action === "cancel") {
+        await useExamStore.getState().transition(modal.exam.id, "cancel");
+        void reloadExams();
+      } else if (action === "quality") {
+        const state = imageQuality === "差" ? "QC_REJECT" : "IMAGE_READY";
+        const res = await worklistApi.updateState(
+          modal.exam.id,
+          state,
+          actionNotes || (imageQuality === "差" ? "影像质控退回" : "影像质控通过"),
+          { rating: imageQuality, qcNote: actionNotes || undefined },
+        );
+        if (res.success) {
+          message.success(
+            state === "QC_REJECT"
+              ? `检查已质控退回 (评级 ${imageQuality})`
+              : `检查图像已可用 (评级 ${imageQuality})`,
+          );
+        } else {
+          message.error(res.error?.message ?? "质控评定保存失败");
+        }
+      } else {
+        await useExamStore.getState().transition(modal.exam.id, "start");
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? "操作失败");
+    } finally {
+      closeModal();
+    }
   };
 
   // 更新图像采集数量
@@ -870,7 +907,7 @@ export default function ExamPage() {
       </div>
 
       {/* 分隔线 */}
-      <div style={{ width: 1, height: 32, backgroundColor: "#e2e8f0" }} />
+      <div style={{ width: 1, height: 32, backgroundColor: "var(--border-color)" }} />
 
       {/* 搜索框 */}
       <div style={{ position: "relative", flex: "0 0 200px" }}>
@@ -1733,7 +1770,7 @@ export default function ExamPage() {
               <div
                 style={{
                   height: 6,
-                  backgroundColor: "#e2e8f0",
+                  backgroundColor: "var(--border-color)",
                   borderRadius: 3,
                   overflow: "hidden",
                 }}
@@ -2101,7 +2138,7 @@ export default function ExamPage() {
                   padding: "10px 14px",
                   backgroundColor: record.examCompleted ? "var(--color-success-bg)" : "var(--color-warning-bg)",
                   borderRadius: 8,
-                  border: `1px solid ${record.examCompleted ? "#bbf7d0" : "#fed7aa"}`,
+                  border: `1px solid ${record.examCompleted ? "var(--color-success-border)" : "var(--color-warning-border)"}`,
                 }}
               >
                 <ClipboardList
@@ -2216,7 +2253,7 @@ export default function ExamPage() {
                 padding: "6px 8px",
                 borderRadius: 4,
                 border: "1px solid",
-                borderColor: page === p ? PRIMARY : "#e2e8f0",
+                borderColor: page === p ? PRIMARY : "var(--border-color)",
                 backgroundColor: page === p ? PRIMARY : "var(--bg-card)",
                 color: page === p ? "#fff" : "#64748b",
                 fontSize: 12,
@@ -3140,7 +3177,7 @@ export default function ExamPage() {
                     borderRadius: 8,
                     padding: "12px 14px",
                     border: "1px solid",
-                    borderColor: importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
+                    borderColor: importResult.errors.length > 0 ? "var(--color-warning-border)" : "var(--color-success-border)",
                     background: importResult.errors.length > 0 ? "var(--color-warning-bg)" : "var(--color-success-bg)",
                   }}
                 >

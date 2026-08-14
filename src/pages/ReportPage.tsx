@@ -7,14 +7,15 @@ import {
   Eye, Edit3, Download, ChevronDown, ChevronRight, Calendar, User,
   Activity, Stethoscope, ClipboardList, ShieldCheck, History,
   List, LayoutGrid, XCircle, RefreshCw, BarChart3, Plus, Bell,
-  Zap, Mic, Sparkles,
+  Zap, Save, Bookmark,
 } from "lucide-react";
-import { message } from "antd";
+import { message, Modal, Input, Tag } from "antd";
 import type { RadiologyReport } from "../types";
 import { PageContainer } from "../components/common/PageContainer";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useNavigate } from "react-router-dom";
 import { StatusBadge, REPORT_STATUS_META, REPORT_STATUS_ORDER } from "../components/report";
+import { toEnState } from "../components/report/statusMeta";
 import { extendedReportMock } from "../data/reportSubsystemMock";
 import { reportApi } from "../services/api";
 // [W2-3] 导出审批流 / 危急值转入
@@ -43,6 +44,31 @@ import ReportDiffModal, { type ReportDiffData } from './report/ReportDiffModal';
 import ReportAuditTrailDrawer from './report/ReportAuditTrailDrawer'; // [W2-C] 审计轨迹 Drawer
 import ReportCriticalModal from './report/ReportCriticalModal'; // [W2-3] 危急值一键转入
 import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday } from './report/reportUtils';
+
+// [v3.0.6.11-95 Wave2B P1] 筛选预置 (localStorage: report-filter-presets)
+interface ReportFilterPreset {
+  name: string
+  filters: {
+    search: string
+    statusFilter: string
+    modalityFilter: string
+    reportDoctorFilter: string
+    auditorFilter: string
+    dateFrom: string
+    dateTo: string
+    criticalOnly: boolean
+    positiveOnly: boolean
+    qualityScoreFrom: number
+    qualityScoreTo: number
+  }
+}
+
+const QUEUE_DEFS = [
+  { key: 'todo', label: '我的待办', color: '#1e40af' },
+  { key: 'pendingReview', label: '待审核', color: '#7c3aed' },
+  { key: 'critical', label: '危急值', color: '#dc2626' },
+  { key: 'mine', label: '仅我的报告', color: '#059669' },
+] as const
 
 export default function ReportPage() {
   const navigate = useNavigate();
@@ -102,9 +128,14 @@ export default function ReportPage() {
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [voiceRecording, setVoiceRecording] = useState(false);
-  const [aiFilling, setAiFilling] = useState(false);
-  const [aiagreement, setAiagreement] = useState(0);
+  // [v3.0.6.11-95 Wave2B P1] 快捷队列 (我的待办/待审核/危急值/仅我的报告) + 筛选预置持久化
+  const [quickQueue, setQuickQueue] = useState<string | null>(null);
+  const [filterPresets, setFilterPresets] = useState<ReportFilterPreset[]>(() => {
+    try { return JSON.parse(localStorage.getItem('report-filter-presets') || '[]') }
+    catch { return [] }
+  });
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [savePresetName, setSavePresetName] = useState('');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" | "info" }>({ show: false, message: "", type: "success" });
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => { setToast({ show: true, message, type }); setTimeout(() => setToast(t => ({ ...t, show: false })), 3000); };
   const [exportModal, setExportModal] = useState<{ show: boolean; title: string; message: string; complete: boolean }>({ show: false, title: "", message: "", complete: false });
@@ -128,31 +159,81 @@ export default function ReportPage() {
     const published = allReports.filter(r => r.publishedTime && r.createdTime);
     let avgTurnaround = 0;
     if (published.length > 0) { const totalHours = published.reduce((sum, r) => { const created = new Date(r.createdTime).getTime(); const pubTime = new Date(r.publishedTime!).getTime(); return sum + (pubTime - created) / (1000 * 60 * 60); }, 0); avgTurnaround = Math.round(totalHours / published.length); }
-    return { todayTotal: todayReports.length, thisWeekTotal: thisWeek.length, pendingReview: allReports.filter(r => r.status === "待审核").length, criticalCount: allReports.filter(r => r.criticalFinding).length, positiveCount: allReports.filter(r => r.diagnosis && r.diagnosis !== "结论：未见明显异常。").length, avgTurnaround };
+    return { todayTotal: todayReports.length, thisWeekTotal: thisWeek.length, pendingReview: allReports.filter(r => ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status))).length, criticalCount: allReports.filter(r => r.criticalFinding).length, positiveCount: allReports.filter(r => r.diagnosis && r.diagnosis !== "结论：未见明显异常。").length, avgTurnaround };
   }, [allReports]);
 
   const filteredReports = useMemo(() => {
+    const myId = user?.id
     return allReports.filter(r => {
       if (search) { const q = search.toLowerCase(); if (!r.patientName.toLowerCase().includes(q) && !r.reportId.toLowerCase().includes(q) && !r.examItemName.toLowerCase().includes(q) && !r.accessionNumber.toLowerCase().includes(q)) return false; }
       if (statusFilter !== "全部" && r.status !== statusFilter) return false;
       if (modalityFilter !== "全部" && r.modality !== modalityFilter) return false;
-      if (reportDoctorFilter && r.reportDoctorName !== reportDoctorFilter) return false;
-      if (auditorFilter && r.auditorName !== auditorFilter) return false;
+      // [v3.0.6.11-95 Wave2B P1] 医生筛选改比对 radiologistId/doctorId (DTO), 兼容历史按姓名过滤
+      if (reportDoctorFilter) {
+        const fid = String(reportDoctorFilter);
+        const docIds = [r.reportDoctorId, (r as unknown as { radiologistId?: string }).radiologistId, (r as unknown as { doctorId?: string }).doctorId].filter(Boolean);
+        if (!docIds.includes(fid) && r.reportDoctorName !== fid) return false;
+      }
+      if (auditorFilter) {
+        const fid = String(auditorFilter);
+        const audIds = [r.auditorId, (r as unknown as { reviewerId?: string }).reviewerId].filter(Boolean);
+        if (!audIds.includes(fid) && r.auditorName !== fid) return false;
+      }
       if (dateFrom && r.createdTime < dateFrom) return false;
       if (dateTo && r.createdTime > dateTo + " 23:59") return false;
       if (criticalOnly && !r.criticalFinding) return false;
       if (positiveOnly && (!r.diagnosis || r.diagnosis === "结论：未见明显异常。")) return false;
       const score = r.qualityScore || 0;
       if (score < qualityScoreFrom || score > qualityScoreTo) return false;
+      // [v3.0.6.11-95 Wave2B P1] 快捷队列: 我的待办/待审核/危急值/仅我的报告
+      if (quickQueue) {
+        const isMine = myId ? (r.reportDoctorId === myId || (r as unknown as { radiologistId?: string }).radiologistId === myId || (r as unknown as { doctorId?: string }).doctorId === myId) : false;
+        if (quickQueue === 'mine' && !isMine) return false;
+        if (quickQueue === 'todo' && (!isMine || !['DRAFT', 'WRITING', 'ASSIGNED', 'PENDING_ASSIGNMENT', 'REJECTED'].includes(toEnState(r.status)))) return false;
+        if (quickQueue === 'pendingReview' && !['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW'].includes(toEnState(r.status))) return false;
+        if (quickQueue === 'critical' && !r.criticalFinding) return false;
+      }
       return true;
     });
-  }, [allReports, search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly, qualityScoreFrom, qualityScoreTo]);
+  }, [allReports, search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly, qualityScoreFrom, qualityScoreTo, quickQueue, user?.id]);
 
   const avgQuality = useMemo(() => { if (filteredReports.length === 0) return 0; const total = filteredReports.reduce((sum, r) => sum + (r.qualityScore || 0), 0); return Math.round(total / filteredReports.length); }, [filteredReports]);
   const criticalCount = filteredReports.filter(r => r.criticalFinding).length;
-  const filteredStats = useMemo(() => ({ critical: filteredReports.filter(r => r.criticalFinding).length, pending: filteredReports.filter(r => r.status === "待审核").length, published: filteredReports.filter(r => r.status === "已发布").length }), [filteredReports]);
+  const filteredStats = useMemo(() => ({ critical: filteredReports.filter(r => r.criticalFinding).length, pending: filteredReports.filter(r => ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status))).length, published: filteredReports.filter(r => toEnState(r.status) === 'PUBLISHED').length }), [filteredReports]);
 
-  const handleReset = () => { setSearch(""); setStatusFilter("全部"); setModalityFilter("全部"); setReportDoctorFilter(""); setAuditorFilter(""); setDateFrom(""); setDateTo(""); setCriticalOnly(false); setPositiveOnly(false); setQualityScoreFrom(0); setQualityScoreTo(100); };
+  const handleReset = () => { setSearch(""); setStatusFilter("全部"); setModalityFilter("全部"); setReportDoctorFilter(""); setAuditorFilter(""); setDateFrom(""); setDateTo(""); setCriticalOnly(false); setPositiveOnly(false); setQualityScoreFrom(0); setQualityScoreTo(100); setQuickQueue(null); };
+
+  // [v3.0.6.11-95 Wave2B P1] 筛选预置持久化 (参考 WorklistPage worklist-filter-presets 模式)
+  const currentFilters: ReportFilterPreset['filters'] = { search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly, qualityScoreFrom, qualityScoreTo };
+  const applyPreset = (p: ReportFilterPreset) => {
+    const f = p.filters;
+    setSearch(f.search); setStatusFilter(f.statusFilter); setModalityFilter(f.modalityFilter);
+    setReportDoctorFilter(f.reportDoctorFilter); setAuditorFilter(f.auditorFilter);
+    setDateFrom(f.dateFrom); setDateTo(f.dateTo); setCriticalOnly(f.criticalOnly);
+    setPositiveOnly(f.positiveOnly); setQualityScoreFrom(f.qualityScoreFrom); setQualityScoreTo(f.qualityScoreTo);
+    setQuickQueue(null);
+    showToast(`已加载筛选预置「${p.name}」`, 'info');
+  };
+  const saveCurrentPreset = () => {
+    const name = savePresetName.trim();
+    if (!name) return;
+    const newPresets = [...filterPresets.filter(p => p.name !== name), { name, filters: currentFilters }];
+    setFilterPresets(newPresets);
+    localStorage.setItem('report-filter-presets', JSON.stringify(newPresets));
+    setSavePresetName(''); setShowSavePreset(false);
+    showToast(`当前筛选已保存为「${name}」`, 'success');
+  };
+  const deletePreset = (name: string) => {
+    const newPresets = filterPresets.filter(p => p.name !== name);
+    setFilterPresets(newPresets);
+    localStorage.setItem('report-filter-presets', JSON.stringify(newPresets));
+    showToast(`预置「${name}」已删除`, 'info');
+  };
+  const toggleQueue = (key: string) => setQuickQueue(prev => (prev === key ? null : key));
+  const activeQueue = QUEUE_DEFS.find(q => q.key === quickQueue) ?? null;
+
+  // [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口
+  const handleWriteReport = (r: RadiologyReport) => { navigate(`/reports/v3-write?reportId=${encodeURIComponent(r.id)}`); };
 
   // [W2-3] 导出真实化: 后端入队 → 轮询状态 → 下载 (不再 setTimeout 假完成)
   const runRealExport = async (list: RadiologyReport[], title: string) => {
@@ -326,6 +407,12 @@ export default function ReportPage() {
   // [W2-C] 审计轨迹: reportApi.auditTrail → Drawer 展示修订历史
   const handleAuditTrail = (r: RadiologyReport) => { setAuditReport(r); };
 
+  // [v3.0.6.11-95 Wave3B P1] 患者画像入口: /patients/:id/360 (Patient360Page 按 :id 参数拉取患者全景)
+  const handleOpen360 = (r: RadiologyReport) => {
+    if (!r.patientId) { showToast('该报告缺少患者信息,无法打开患者画像', 'error'); return; }
+    navigate(`/patients/${encodeURIComponent(r.patientId)}/360`);
+  };
+
   // [v3.0.6.11-92 Wave1B P0] 报告→随访入口: 携带 patientId + reportId
   const handleCreateFollowUp = (r: RadiologyReport) => {
     const q = new URLSearchParams()
@@ -411,22 +498,47 @@ export default function ReportPage() {
 
         <ReportBanners />
 
+        {/* [v3.0.6.11-95 Wave2B P1] 快捷队列 + 筛选预置持久化 */}
+        <div className="report-queues" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10, background: WHITE, borderRadius: 10, padding: "10px 14px", border: "1px solid var(--border-color)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 700, marginRight: 4 }}>快捷队列:</span>
+          {QUEUE_DEFS.map(q => (
+            <button key={q.key} onClick={() => toggleQueue(q.key)} style={{
+              padding: "4px 10px", borderRadius: 6, border: `1px solid ${quickQueue === q.key ? q.color : "var(--border-color)"}`,
+              background: quickQueue === q.key ? `${q.color}18` : WHITE, color: quickQueue === q.key ? q.color : GRAY,
+              fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+            }}>{quickQueue === q.key ? "✓ " : ""}{q.label}</button>
+          ))}
+          <span style={{ width: 1, height: 18, background: "var(--border-color)", margin: "0 6px" }} />
+          <button onClick={() => setShowSavePreset(true)} style={{
+            padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border-color)", background: WHITE,
+            color: ACCENT, fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
+          }}><Save size={12} /> 保存当前筛选</button>
+          {filterPresets.map(p => (
+            <Tag key={p.name} color="geekblue" closable style={{ cursor: "pointer", margin: 0 }}
+              onClick={(e) => { e.stopPropagation(); applyPreset(p); }}
+              onClose={(e) => { e.preventDefault(); deletePreset(p.name); }}
+              title={`加载预置「${p.name}」(点击加载, 关闭删除)`}
+            >{p.name}</Tag>
+          ))}
+          {activeQueue && <Tag color="blue" closable onClose={() => setQuickQueue(null)}>当前队列: {activeQueue.label}</Tag>}
+        </div>
+
         <div className="report-filters"><ReportHeader search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} modalityFilter={modalityFilter} setModalityFilter={setModalityFilter} reportDoctorFilter={reportDoctorFilter} setReportDoctorFilter={setReportDoctorFilter} auditorFilter={auditorFilter} setAuditorFilter={setAuditorFilter} dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo} criticalOnly={criticalOnly} setCriticalOnly={setCriticalOnly} positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly} onReset={handleReset} onExport={handleExport} onPrint={handlePrint} /></div>
 
         <ReportAdvancedFilter showAdvancedFilter={showAdvancedFilter} setShowAdvancedFilter={setShowAdvancedFilter} qualityScoreFrom={qualityScoreFrom} setQualityScoreFrom={setQualityScoreFrom} qualityScoreTo={qualityScoreTo} setQualityScoreTo={setQualityScoreTo} />
 
-        <ReportToolbar viewMode={viewMode} setViewMode={setViewMode} voiceRecording={voiceRecording} setVoiceRecording={setVoiceRecording} aiFilling={aiFilling} setAiFilling={setAiFilling} avgQuality={avgQuality} criticalCount={criticalCount} selectedIds={selectedIds} filteredStats={filteredStats} filteredReports={filteredReports} allReports={allReports} setDetailReport={setDetailReport} setReviewReport={setReviewReport} setExportModal={setExportModal} setPrintModal={setPrintModal} setBulkActionModal={setBulkActionModal} showToast={showToast} setStatusFilter={setStatusFilter} onBulkExport={(list) => void runRealExport(list, "批量导出")} />
+        <ReportToolbar viewMode={viewMode} setViewMode={setViewMode} avgQuality={avgQuality} criticalCount={criticalCount} selectedIds={selectedIds} filteredStats={filteredStats} filteredReports={filteredReports} allReports={allReports} setDetailReport={setDetailReport} setReviewReport={setReviewReport} setExportModal={setExportModal} setPrintModal={setPrintModal} setBulkActionModal={setBulkActionModal} showToast={showToast} setStatusFilter={setStatusFilter} onBulkExport={(list) => void runRealExport(list, "批量导出")} />
 
         <div className="no-print">
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} deletingIds={deletingIds} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} deletingIds={deletingIds} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 
@@ -449,11 +561,17 @@ export default function ReportPage() {
       <ReportCriticalModal report={criticalModal.report} submitting={criticalModal.submitting} onClose={() => setCriticalModal({ report: null, submitting: false })} onSubmit={(severity, description, method) => { if (criticalModal.report) void handleCriticalSubmit(criticalModal.report, severity, description, method); }} />
 
       <ReportToast show={toast.show} message={toast.message} type={toast.type} />
+
+      {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
+      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />保存当前筛选为快捷预置</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText="保存" cancelText="取消" width={400} destroyOnHidden>
+        <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder="预置名称, 如: 本周胸片待办 / 危急值跟进" allowClear style={{ marginTop: 8 }} />
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地 (report-filter-presets)。</div>
+      </Modal>
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />
       <BatchResultModal show={batchResultModal.show} title={batchResultModal.title} message={batchResultModal.message} type={batchResultModal.type} onClose={() => setBatchResultModal(b => ({ ...b, show: false }))} />
       <PrintModal show={printModal.show} title={printModal.title} message={printModal.message} onClose={() => setPrintModal(p => ({ ...p, show: false }))} onPrint={() => { setPrintModal(p => ({ ...p, show: false })); window.print(); }} />
-      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
+      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
         let done = 0; let failed = 0;
         for (const id of selectedIds) {
           try {
@@ -465,7 +583,27 @@ export default function ReportPage() {
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
         showToast(`批量删除完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'error' : 'success');
-        return; } else if (action === 'review') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['待审核', '已提交', '草稿'].includes(r.status); }); for (const id of ids) { await reportApi.review(id, { type: 'initial', doctorId: user?.id ?? '', doctorName: user?.name ?? '', suggestion: '批量审核通过', score: 0 }); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量审核通过 ${ids.length} 份`, 'success'); return; } else if (action === 'sign') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['已审核', '已双签'].includes(r.status); }); for (const id of ids) { await reportApi.sign(id); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量签署 ${ids.length} 份`, 'success'); return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
+        return;         } else if (action === 'submit') { // [v3.0.6.11-95 Wave3B P1] 批量提交审核: POST /reports/batch-transition → INITIAL_REVIEW
+        const ids = Array.from(selectedIds).filter(id => {
+          const r = allReports.find(x => x.id === id);
+          return r && ['WRITING', 'DRAFT', 'ASSIGNED', 'PENDING_ASSIGNMENT', 'SUBMITTED', 'REJECTED'].includes(toEnState(r.status));
+        });
+        let done = 0; let failed = 0;
+        try {
+          const res = await reportApi.batchTransition(ids, 'INITIAL_REVIEW');
+          if (res.success && res.data) {
+            done = (res.data.succeeded ?? []).length;
+            failed = (res.data.failed ?? []).length;
+          }
+        } catch { failed = ids.length - done; }
+        if (done > 0) {
+          setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '初审中' } : r));
+        }
+        setSelectedIds(new Set());
+        setBulkActionModal(b => ({ ...b, show: false, loading: false }));
+        showToast(`批量提交审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        return;
+        } else if (action === 'review') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'WRITING', 'DRAFT'].includes(toEnState(r.status)); }); for (const id of ids) { await reportApi.review(id, { type: 'initial', doctorId: user?.id ?? '', doctorName: user?.name ?? '', suggestion: '批量审核通过', score: 0 }); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量审核通过 ${ids.length} 份`, 'success'); return; } else if (action === 'sign') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['REVIEWED', 'CO_SIGN_REVIEW', 'SIGNING'].includes(toEnState(r.status)); }); for (const id of ids) { await reportApi.sign(id); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量签署 ${ids.length} 份`, 'success'); return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );
 }

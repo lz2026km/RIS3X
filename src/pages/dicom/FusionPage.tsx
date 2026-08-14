@@ -109,7 +109,7 @@ function applyWWL(data: number[][], ww: number, wl: number): ImageData {
   let i = 0
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      let v = ((data[y][x] - min) / range) * 255
+      let v = ((data[y]![x]! - min) / range) * 255
       v = Math.max(0, Math.min(255, Math.round(v)))
       imgData.data[i++] = v
       imgData.data[i++] = v
@@ -135,9 +135,9 @@ function applyPETColor(petData: number[][], ctData: number[][], alpha: number, w
   let i = 0
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const ctVal = ((ctData[y][x] - min) / range) * 255
+      const ctVal = ((ctData[y]![x]! - min) / range) * 255
       const ctClamped = Math.max(0, Math.min(255, Math.round(ctVal)))
-      const petNorm = petData[y][x] / petMax
+      const petNorm = petData[y]![x]! / petMax
       const r = Math.round(255 * petNorm)
       const g = Math.round(255 * Math.max(0, petNorm * 1.5 - 0.5))
       const b = Math.round(255 * Math.max(0, petNorm * 0.5 + 0.2))
@@ -428,10 +428,12 @@ export default function FusionPage() {
 
   useEffect(() => {
     let cancelled = false
-    const patientId = new URLSearchParams(window.location.search).get('patientId') ?? 'P000001'
+    // [G005 Wave3A G-06] 真实 studyId 链路: URL ?studyId 优先 (检查 studyUid), 无则回退 patientId (后端 OR 兼容)
+    const params = new URLSearchParams(window.location.search)
+    const studyId = params.get('studyId') ?? params.get('patientId') ?? 'P000001'
     ;(async () => {
       try {
-        const res = await fusionApi.getSuv(patientId)
+        const res = await fusionApi.getSuv(studyId)
         if (cancelled) return
         if (res.success && res.data) {
           setSuvResult(res.data)
@@ -442,7 +444,7 @@ export default function FusionPage() {
         }
       } catch {
         if (cancelled) return
-        setSuvResult(makeDemoSuv(patientId))
+        setSuvResult(makeDemoSuv(studyId))
         setSuvFallback(true)
       } finally {
         if (!cancelled) setSuvLoading(false)
@@ -662,7 +664,9 @@ export default function FusionPage() {
               <div style={{ flex: 1 }} />
               {suvLoading ? (
                 <span style={{ fontSize: 10, color: '#64748b' }}>加载中...</span>
-              ) : suvResult && suvResult.hasPet && !suvFallback ? (
+              ) : !suvResult?.hasPet ? (
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: '#94a3b8', border: '1px solid #64748b55' }}>无 PET 模态</span>
+              ) : suvResult.source === 'exam' && !suvFallback ? (
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>真实数据</span>
               ) : (
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>演示回退</span>
@@ -692,6 +696,10 @@ export default function FusionPage() {
                 <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.6, marginBottom: 10 }}>
                   {suvResult.suv.normalization.formula}
                   <div>体重 {suvResult.suv.normalization.weightKg}kg · 注射剂量 {suvResult.suv.normalization.injectedDoseMbg}MBq · 注射至扫描 {suvResult.suv.normalization.injectionToScanMin}min</div>
+                  {/* [G005 Wave3A G-06] 换算参数来源标注: 真实接口回包即检查数据派生, 本地回退为默认值 */}
+                  <div style={{ marginTop: 2, color: suvResult.source === 'exam' && !suvFallback ? '#16a34a' : '#ea580c' }}>
+                    换算参数来源: {suvResult.source === 'exam' && !suvFallback ? '检查数据 (Exam 派生)' : '默认值 (演示回退)'}
+                  </div>
                 </div>
 
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>

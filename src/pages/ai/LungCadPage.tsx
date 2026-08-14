@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { usePagination } from "../../hooks/usePagination";
 
 const { Text } = Typography;
 
@@ -54,6 +55,9 @@ const LungCadPage: React.FC = () => {
   const [retraining, setRetraining] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [batchLoading, setBatchLoading] = useState(false);
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (检测结果表 / 结节明细表)
+  const resultPagination = usePagination(results, 10);
+  const nodulePagination = usePagination(selected?.nodules ?? [], 10);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -280,9 +284,9 @@ const LungCadPage: React.FC = () => {
         <Spin spinning={loading}>
           <Table
             rowKey="id"
-            dataSource={results}
+            dataSource={resultPagination.pageData}
             columns={columns}
-            pagination={false}
+            pagination={resultPagination.pagination}
             size="small"
             rowSelection={{
               selectedRowKeys,
@@ -303,10 +307,10 @@ const LungCadPage: React.FC = () => {
           <>
             <Table
               rowKey="id"
-              dataSource={selected.nodules}
+              dataSource={nodulePagination.pageData}
               size="small"
               scroll={{ x: 'max-content' }}
-              pagination={false}
+              pagination={nodulePagination.pagination}
               columns={[
                 {
                   title: "位置",

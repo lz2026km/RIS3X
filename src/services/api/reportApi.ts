@@ -52,6 +52,12 @@ export const reportApi = {
   // [v3.0.6.11-73] P0 21 态对齐: 提交审核 (WRITING/SUBMITTED → INITIAL_REVIEW)
   submitForReview: (id: string) => transition(id, 'INITIAL_REVIEW'),
 
+  // [v3.0.6.11-95 Wave2A P0] 报告退回重写闭环: ASSIGNED/PENDING_ASSIGNMENT → WRITING (进入书写态)
+  startWriting: (id: string, reason?: string) => transition(id, 'WRITING', reason),
+
+  // [v3.0.6.11-95 Wave2A P0] REJECTED → WRITING (驳回后退回重写, 对齐 backend REPORT_TRANSITIONS.REJECTED)
+  rework: (id: string, reason?: string) => transition(id, 'WRITING', reason),
+
   // [v3.0.6.11-92 Wave1B P0] 审核分级 transition (修复跳中间态断链):
   //   初核通过 → FINAL_REVIEW, 终核通过 → CO_SIGN_REVIEW(需双签)/REVIEWED;
   //   无 type 时 (ReviewCheckPage/ReportReviewPage 通用调用) 按报告当前状态推导下一步
@@ -78,6 +84,18 @@ export const reportApi = {
   rectify: (id: string, reason?: string) => transition(id, 'RECTIFYING', reason),
   redistribute: (id: string, reason?: string) => transition(id, 'REDISTRIBUTING', reason),
   escalate: (id: string, reason?: string) => transition(id, 'ESCALATED', reason),
+
+  // [v3.0.6.11-95 Wave3B P1] 批量状态流转: POST /reports/batch-transition
+  //   逐条校验过渡, 单条失败不阻断其余 → { succeeded: [{id,state}], failed: [{id,message}] }
+  batchTransition: async (ids: string[], to: ReportState, reason?: string) => {
+    const user = getCurrentUser()
+    const res = await api.post<{ succeeded: Array<{ id: string; state: string }>; failed: Array<{ id: string; message: string }> }>(
+      '/reports/batch-transition',
+      { ids, to, actorId: user?.id ?? 'unknown', reason },
+    )
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
   sign: async (id: string) => transition(id, 'SIGNED'),
 

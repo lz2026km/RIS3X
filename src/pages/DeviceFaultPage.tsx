@@ -23,22 +23,22 @@ import { ChartContainer } from '../components/charts'
 const C = {
   primary: '#1e40af',
   primaryLight: '#3b82f6',
-  primaryLighter: '#dbeafe',
+  primaryLighter: 'var(--color-info-bg)',
   accent: '#2563eb',
-  white: '#ffffff',
+  white: 'var(--bg-card)',
   bg: 'var(--bg-deep)',
   border: 'var(--border-color)',
   textDark: '#1e293b',
   textMid: '#475569',
   textLight: '#94a3b8',
   success: '#059669',
-  successLight: '#d1fae5',
+  successLight: 'var(--color-success-bg)',
   warning: '#d97706',
-  warningLight: '#fef3c7',
+  warningLight: 'var(--color-warning-bg)',
   danger: '#dc2626',
-  dangerLight: '#fee2e2',
+  dangerLight: 'var(--color-error-bg)',
   info: '#0284c7',
-  infoLight: '#e0f2fe',
+  infoLight: 'var(--color-info-bg)',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -433,9 +433,9 @@ export default function DeviceFaultPage() {
               </thead>
               <tbody>
                 {filteredRecords.map((record, idx) => (
-                  <tr key={record.id} style={{ background: idx % 2 === 0 ? C.white : '#fafbfc', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = C.primaryLighter)}
-                    onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? C.white : '#fafbfc')}>
+<tr key={record.id} style={{ background: idx % 2 === 0 ? C.white : 'var(--bg-primary)', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = C.primaryLighter)}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? C.white : 'var(--bg-primary)')}>
                     <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: C.textDark }}>{record.deviceName.split('（')[0]}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.faultTime}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.faultType}</td>

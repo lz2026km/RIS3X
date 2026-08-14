@@ -34,6 +34,7 @@ describe('ReportsController', () => {
             update: jest.fn(),
             delete: jest.fn(),
             transition: jest.fn(),
+            batchTransition: jest.fn(),
           },
         },
       ],
@@ -46,14 +47,40 @@ describe('ReportsController', () => {
 
   it('list delegates to service', async () => {
     svc.list.mockResolvedValue({ items: [], total: 0, skip: 0, take: 20 })
-    const r = await ctrl.list('0', '20', undefined)
-    expect(svc.list).toHaveBeenCalledWith({ skip: 0, take: 20, state: undefined })
+    const r = await ctrl.list('0', '20', undefined, undefined, undefined, undefined, undefined, undefined, undefined)
+    expect(svc.list).toHaveBeenCalledWith(expect.objectContaining({ skip: 0, take: 20, states: undefined }))
   })
 
   it('list with valid state filter', async () => {
     svc.list.mockResolvedValue({ items: [], total: 0, skip: 0, take: 20 })
     await ctrl.list('0', '20', 'PUBLISHED')
-    expect(svc.list).toHaveBeenCalledWith({ skip: 0, take: 20, state: 'PUBLISHED' })
+    expect(svc.list).toHaveBeenCalledWith(expect.objectContaining({ states: ['PUBLISHED'] }))
+  })
+
+  // [v3.0.6.11-95 Wave3B P1] list 筛选参数透传
+  it('list supports status array / modality / priority / patientId / doctorId / keyword', async () => {
+    svc.list.mockResolvedValue({ items: [], total: 0, skip: 0, take: 20 })
+    await ctrl.list('0', '20', undefined, 'SIGNED,PUBLISHED', 'CT', 'URGENT', 'p1', 'd1', '张三')
+    expect(svc.list).toHaveBeenCalledWith({
+      skip: 0, take: 20,
+      states: ['SIGNED', 'PUBLISHED'],
+      modality: 'CT', priority: 'URGENT', patientId: 'p1', doctorId: 'd1', keyword: '张三',
+    })
+  })
+
+  it('list ignores invalid state values', async () => {
+    svc.list.mockResolvedValue({ items: [], total: 0, skip: 0, take: 20 })
+    await ctrl.list('0', '20', 'NOT_A_STATE,已签发')
+    expect(svc.list).toHaveBeenCalledWith(expect.objectContaining({ states: undefined }))
+  })
+
+  it('batchTransition delegates to service with user from request', async () => {
+    svc.batchTransition.mockResolvedValue({ succeeded: [], failed: [] })
+    const r = await ctrl.batchTransition(
+      { ids: ['r1', 'r2'], to: 'INITIAL_REVIEW' as any, reason: '批量提交审核' },
+      { user: { id: 'd1' } } as any,
+    )
+    expect(svc.batchTransition).toHaveBeenCalledWith(['r1', 'r2'], 'INITIAL_REVIEW', 'd1', '批量提交审核')
   })
 
   it('get delegates to service', async () => {

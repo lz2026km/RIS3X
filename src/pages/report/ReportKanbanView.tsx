@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react'
-import { Zap, CheckCircle2 } from 'lucide-react'
+import { Zap, CheckCircle2, AlertTriangle } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { formatDateTime } from '../../utils/date';
+import { toEnState } from '../../components/report/statusMeta'
+import { isDraftOverdue } from './reportUtils'
 
 
 const PRIMARY = '#1e40af'
@@ -126,11 +128,19 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{r.patientName}</span>
-                  {r.criticalFinding && (
-                    <span style={{ padding: '1px 6px', borderRadius: 4, background: 'var(--color-error-bg)', color: DANGER, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Zap size={9} />危急
-                    </span>
-                  )}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标 */}
+                    {isDraftOverdue(r.status, r.updatedTime) && (
+                      <span style={{ padding: '1px 6px', borderRadius: 4, background: '#fff7ed', color: '#c2410c', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2, border: '1px solid #fdba74' }}>
+                        <AlertTriangle size={9} />待提交提醒
+                      </span>
+                    )}
+                    {r.criticalFinding && (
+                      <span style={{ padding: '1px 6px', borderRadius: 4, background: 'var(--color-error-bg)', color: DANGER, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Zap size={9} />危急
+                      </span>
+                    )}
+                  </span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4, fontWeight: 500 }}>{r.examItemName}</div>
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{r.modality} · {r.bodyPart}</div>
@@ -145,7 +155,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                   {r.diagnosis ? highlightAnomalies(r.diagnosis.slice(0, 50)) : '(无诊断)'}
                   {r.diagnosis && r.diagnosis.length > 50 ? '…' : ''}
                 </div>
-                {r.status === '待审核' && (
+                {['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) && (
                   <button onClick={e => { e.stopPropagation(); onReview(r) }}
                     style={{ marginTop: 8, width: '100%', padding: '5px 0', borderRadius: 5, border: 'none', background: col.color, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     <CheckCircle2 size={11} /> 审核

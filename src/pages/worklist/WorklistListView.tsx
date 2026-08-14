@@ -36,6 +36,12 @@ const STATUS_CONFIG: Record<
   SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },
   ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "已报到", order: 1 },
   IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "检查中", order: 2 },
+  // [v3.0.6.11-95 Wave 1A P1] 暂停态 + 影像质控态映射
+  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "已暂停", order: 2.5 },
+  IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "图像可用", order: 3.5 },
+  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "质控退回", order: 3.6 },
+  QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "质控通过", order: 3.7 },
+  PENDING_REPORT: { bg: "#f59e0b22", color: "#ca8a04", label: "待报告", order: 3.8 },
   COMPLETED: { bg: "#22c55e22", color: "#059669", label: "已完成", order: 3 },
   CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "已取消", order: 8 },
   已登记: { bg: "#3b82f622", color: "#3b82f6", label: "已登记", order: 0 },

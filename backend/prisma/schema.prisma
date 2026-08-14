@@ -224,6 +224,13 @@ model Exam {
   completedAt     DateTime? @map("completed_at")
   deviceId        String?   @map("device_id")
   state           String    @default("SCHEDULED")
+  // [v3.0.6.11-95 Wave 1A 技师工作站] 优先级 (ROUTINE/URGENT/STAT) + 技师注释/质控备注/评级/重拍次数/暂停时间 落库
+  priority        String    @default("ROUTINE")
+  techNotes       String?   @map("tech_notes")
+  qcNotes         String?   @map("qc_notes")
+  qualityRating   String?   @map("quality_rating")
+  retakeCount     Int       @default(0) @map("retake_count")
+  pausedAt        DateTime? @map("paused_at")
   version         Int       @default(0)
   patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Restrict)
   device          Device?   @relation(fields: [deviceId], references: [id])

@@ -6,6 +6,7 @@ import { Popconfirm } from 'antd'
 import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
 import { Forward, LogOut } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
+import { usePagination } from '../../hooks/usePagination';
 
 export const ClinicalPathwayPage: React.FC = () => {
   const [detail, setDetail] = useState<PathwayPatient | null>(null);
@@ -18,6 +19,8 @@ export const ClinicalPathwayPage: React.FC = () => {
   const [enrollForm] = Form.useForm();
   // [G005 W2-B] 患者路径追踪操作列: 推进阶段 / 退出路径 (行级 loading)
   const [rowActionId, setRowActionId] = useState<string | null>(null);
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (路径患者表)
+  const patientPagination = usePagination(patients, 10);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -163,9 +166,9 @@ export const ClinicalPathwayPage: React.FC = () => {
         title="患者路径追踪"
       >
         <Table
-          dataSource={patients}
+          dataSource={patientPagination.pageData}
           rowKey="id"
-          pagination={false}
+          pagination={patientPagination.pagination}
           size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无路径内患者" /> }}
           columns={[

@@ -859,8 +859,8 @@ export default function AppointmentPage() {
 
   // 颜色定义
   const primaryBlue = "#1e40af";
-  const lightBlue = "#e8f0f8";
-  const borderGray = "#e2e8f0";
+const lightBlue = "var(--color-info-bg)";
+const borderGray = "var(--border-color)";
   const textGray = "#64748b";
   const whiteBg = "var(--bg-card)";
 
@@ -1001,7 +1001,7 @@ export default function AppointmentPage() {
               value: todayStats.total,
               icon: CalendarClock,
               color: "#1e40af",
-              bg: "#e8f0f8",
+              bg: lightBlue,
             },
             {
               label: "待确认",
@@ -1248,7 +1248,7 @@ export default function AppointmentPage() {
                             <td style={{ padding: "8px 10px", color: textGray }}>{r.cancelTime}</td>
                             <td style={{ padding: "8px 10px", color: textGray }}>{r.reason}</td>
                             <td style={{ padding: "8px 10px" }}>
-                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: r.rebooked === "是" ? "#d1fae5" : r.rebooked === "否" ? "#f1f5f9" : "#fef3c7", color: r.rebooked === "是" ? "#059669" : r.rebooked === "否" ? "#64748b" : "#d97706" }}>{r.rebooked}</span>
+                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: r.rebooked === "是" ? "var(--color-success-bg)" : r.rebooked === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: r.rebooked === "是" ? "#059669" : r.rebooked === "否" ? "#64748b" : "#d97706" }}>{r.rebooked}</span>
                             </td>
                           </tr>
                         ))}
@@ -1346,7 +1346,7 @@ export default function AppointmentPage() {
                       padding: "8px 10px",
                       fontSize: 12,
                       color: "#92400e",
-                      border: "1px solid #fde68a",
+                      border: "1px solid var(--color-warning-border)",
                     }}
                   >
                     <AlertTriangle
@@ -2012,10 +2012,10 @@ export default function AppointmentPage() {
                             fontWeight: 700,
                             background:
                               w.priority === "critical"
-                                ? "#fee2e2"
+                                ? "var(--color-error-bg)"
                                 : w.priority === "urgent"
-                                  ? "#fef3c7"
-                                  : "#f1f5f9",
+                                  ? "var(--color-warning-bg)"
+                                  : "var(--bg-primary)",
                             color:
                               w.priority === "critical"
                                 ? "#dc2626"
@@ -2056,8 +2056,8 @@ export default function AppointmentPage() {
                             border: "none",
                             background:
                               waitlistNotifyLoading === w.id
-                                ? "#fef3c7"
-                                : "#dbeafe",
+                                ? "var(--color-warning-bg)"
+                                : "var(--color-info-bg)",
                             color:
                               waitlistNotifyLoading === w.id
                                 ? "#d97706"
@@ -2180,7 +2180,7 @@ export default function AppointmentPage() {
                         <div
                           style={{
                             height: 6,
-                            background: "#e2e8f0",
+                            background: "var(--border-color)",
                             borderRadius: 3,
                             overflow: "hidden",
                           }}
@@ -2243,7 +2243,7 @@ export default function AppointmentPage() {
                             setShowForm(false);
                           },
                           color: "#1e40af",
-                          bg: "#e8f0f8",
+                          bg: lightBlue,
                         },
                         {
                           label: "导出数据",
@@ -2529,7 +2529,7 @@ export default function AppointmentPage() {
                       padding: "6px 10px",
                       fontSize: 12,
                       color: "#92400e",
-                      border: "1px solid #fde68a",
+                      border: "1px solid var(--color-warning-border)",
                     }}
                   >
                     {selectedAppointment.clinicalDiagnosis}
@@ -2810,9 +2810,9 @@ export default function AppointmentPage() {
                         gap: 8,
                         padding: "6px 10px",
                         background:
-                          cancelReason === reason.value ? "#fef9c3" : "#f8fafc",
+                          cancelReason === reason.value ? "var(--color-warning-bg)" : "var(--bg-primary)",
                         borderRadius: 6,
-                        border: `1px solid ${cancelReason === reason.value ? "#fde68a" : borderGray}`,
+                        border: `1px solid ${cancelReason === reason.value ? "var(--color-warning-border)" : borderGray}`,
                         cursor: "pointer",
                         fontSize: 12,
                         color: primaryBlue,
@@ -2857,7 +2857,7 @@ export default function AppointmentPage() {
                   style={{
                     flex: 1,
                     padding: "8px",
-                    background: cancelReason ? "#dc2626" : "#f1f5f9",
+                    background: cancelReason ? "#dc2626" : "var(--bg-primary)",
                     color: cancelReason ? "#fff" : "#94a3b8",
                     border: "none",
                     borderRadius: 8,
@@ -2957,7 +2957,7 @@ export default function AppointmentPage() {
                   padding: "10px 12px",
                   background: "var(--color-warning-bg)",
                   borderRadius: 6,
-                  border: "1px solid #fde68a",
+                  border: "1px solid var(--color-warning-border)",
                   fontSize: 12,
                   color: "#92400e",
                   marginBottom: 14,

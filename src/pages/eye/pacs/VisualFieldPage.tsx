@@ -52,6 +52,7 @@ const VisualFieldPage: React.FC = () => {
                 <span>视野分析</span>
                 <EyeLateralityBadge eyeSide="OS" />
                 <Tag color="cyan">Zeiss Humphrey HFA3 24-2 SITA-Fast</Tag>
+                <Tag color="gold">部分演示数据 · 灰度图/解读为演示，MD/PSD 为真实 API 数据</Tag>
               </Space>
             }
           >

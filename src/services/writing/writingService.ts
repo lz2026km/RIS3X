@@ -425,13 +425,23 @@ export async function getWritingContext(reportId: string): Promise<ReportWriting
 }
 
 export async function submitReport(reportId: string, payload: { finalScore: number; structured: Record<string, unknown>; html: string; plainText?: string; conclusion?: string }): Promise<{ success: boolean; submittedAt: string; nextState: string }> {
-  // [v3.0.6.11-70] P0 真实化: 1) 内容先落库(POST/PATCH /reports) 2) 状态流转 POST /reports/:id/transition → SUBMITTED
+  // [v3.0.6.11-70] P0 真实化: 1) 内容先落库(POST/PATCH /reports) 2) 状态流转 POST /reports/:id/transition
+  // [v3.0.6.11-95 Wave2A P0] 提交→初核口径统一: 走 submitForReview (→ INITIAL_REVIEW, 直接进初核队列);
+  //   ASSIGNED/PENDING_ASSIGNMENT 先过渡到 WRITING (避免 INVALID_TRANSITION)
   await persistReportContent(reportId, payload.plainText ?? '', payload.conclusion ?? '');
-  const res = await reportApi.submit(reportId);
+  const cur = await reportApi.getById(reportId);
+  const curState = String(cur.data?.status ?? cur.data?.state ?? '').toUpperCase();
+  if (curState === 'ASSIGNED' || curState === 'PENDING_ASSIGNMENT') {
+    const start = await reportApi.startWriting(reportId);
+    if (!start.success) {
+      return { success: false, submittedAt: '', nextState: start.error?.code ?? 'ERROR' };
+    }
+  }
+  const res = await reportApi.submitForReview(reportId);
   if (!res.success) {
     return { success: false, submittedAt: '', nextState: res.error?.code ?? 'ERROR' };
   }
-  return { success: true, submittedAt: res.data?.updatedTime ?? new Date().toISOString(), nextState: res.data?.status ?? 'SUBMITTED' };
+  return { success: true, submittedAt: res.data?.updatedTime ?? new Date().toISOString(), nextState: res.data?.status ?? 'INITIAL_REVIEW' };
 }
 
 // ============================================================

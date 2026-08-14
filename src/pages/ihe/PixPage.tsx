@@ -26,6 +26,7 @@ import {
   Activity,
 } from "lucide-react";
 import { iheApi } from "../../services/api/integrationApi";
+import { usePagination } from "../../hooks/usePagination";
 
 const { TextArea } = Input;
 
@@ -108,6 +109,11 @@ export const PixPage: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [querying, setQuerying] = useState(false);
   const [pdqLoading, setPdqLoading] = useState(false);
+
+  // [v3.0.6.11-95] W4-B P2: 受控分页 (查询结果/映射表/PDQ 结果)
+  const queryPagination = usePagination(queryResult?.results ?? [], 10);
+  const mappingsPagination = usePagination(mappings, 10);
+  const pdqPagination = usePagination(pdqResults, 10);
 
   const handleFeed = useCallback(async () => {
     setSending(true);
@@ -310,6 +316,7 @@ export const PixPage: React.FC = () => {
         <Tag color="green">ITI-8 Feed</Tag>
         <Tag color="blue">ITI-9 Query</Tag>
         <Tag color="orange">PDQ</Tag>
+        <Tag color="gold">演示数据</Tag>
       </Space>
 
       <Tabs
@@ -443,9 +450,9 @@ export const PixPage: React.FC = () => {
                       title={`查询结果 (${queryResult.count} 条)`}
                     >
                       <Table scroll={{ x: 'max-content' }}
-                        dataSource={queryResult.results}
+                        dataSource={queryPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
-                        pagination={false}
+                        pagination={queryPagination.pagination}
                         columns={identitiesColumns}
                         size="small"
                       />
@@ -485,9 +492,9 @@ export const PixPage: React.FC = () => {
                 }
               >
                 <Table scroll={{ x: 'max-content' }}
-                  dataSource={mappings}
+                  dataSource={mappingsPagination.pageData}
                   rowKey="id"
-                  pagination={false}
+                  pagination={mappingsPagination.pagination}
                   columns={[
                     {
                       title: "分配机构",
@@ -582,9 +589,9 @@ export const PixPage: React.FC = () => {
                       title={`PDQ 结果 (${pdqResults.length})`}
                     >
                       <Table scroll={{ x: 'max-content' }}
-                        dataSource={pdqResults}
+                        dataSource={pdqPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
-                        pagination={false}
+                        pagination={pdqPagination.pagination}
                         size="small"
                         columns={[
                           { title: "患者 ID", dataIndex: "patientId" },

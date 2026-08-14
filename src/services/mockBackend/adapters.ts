@@ -239,6 +239,11 @@ export function toExamDto(r: ExamReportRecord): ExamDto {
     dlp: 0,
     technicianId: r.doctorId,
     imageCount: 0,
+    // [v3.0.6.11-95 Wave 1A 技师工作站] 透出 注释/评级/重拍次数 (重拍登记/PATCH state 落库字段)
+    techNotes: (r as unknown as { techNotes?: string }).techNotes,
+    qcNotes: (r as unknown as { qcNotes?: string }).qcNotes,
+    qualityRating: (r as unknown as { qualityRating?: string }).qualityRating,
+    retakeCount: Number((r as unknown as { retakeCount?: number }).retakeCount ?? 0),
     examItem: r.examItem,
     examItemName: r.examItem, // 别名
     examItemCode: r.examItemCode,

@@ -47,6 +47,8 @@ import {
   Pin,
   PinOff,
   ListChecks,
+  Save,
+  RefreshCw,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Inbox } from 'lucide-react'
@@ -757,8 +759,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Tag color="purple">{m.id}</Tag>
-                  <Tag color={m.trigger === 'critical' ? 'red' : m.trigger === 'special' ? 'purple' : 'blue'}>{m.trigger}</Tag>
-                  <Tag color={m.status === 'completed' ? 'green' : m.status === 'in-progress' ? 'blue' : 'default'}>{m.status}</Tag>
+                  <Tag color={m.trigger === 'critical' ? 'red' : m.trigger === 'special' ? 'purple' : 'blue'}>{m.trigger === 'critical' ? '危急' : m.trigger === 'special' ? '特殊' : '常规'}</Tag>
+                  <Tag color={m.status === 'completed' ? 'green' : m.status === 'in-progress' ? 'blue' : 'default'}>{m.status === 'completed' ? '已完成' : m.status === 'in-progress' ? '进行中' : '待处理'}</Tag>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>截止 {fmtTime(m.expiresAt)}</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>📝 {m.reason}</div>
@@ -797,7 +799,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         <Card size="small" style={{ marginBottom: 12 }} title={
           <Space><Settings2 size={14} /><span>急诊通道配置</span><Tag color="purple">emergency-channel/config</Tag></Space>
         } extra={
-          <Button type="primary" size="small" loading={emConfigSaving} onClick={handleSaveChannelConfig}>保存配置</Button>
+          <Button type="primary" size="small" icon={<Save size={12} />} loading={emConfigSaving} onClick={handleSaveChannelConfig}>保存配置</Button>
         }>
           <Row gutter={[12, 8]}>
             {emConfig.channels.map((c) => (
@@ -857,7 +859,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             style={{ width: 180 }}
             allowClear
           />
-          <Button size="small" onClick={() => void loadEmRecords(emPatientFilter.trim())}>查询</Button>
+          <Button size="small" icon={<Search size={12} />} onClick={() => void loadEmRecords(emPatientFilter.trim())}>查询</Button>
         </Space>
       }>
         {emRecords.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无触发记录" /> : (
@@ -868,7 +870,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               <List.Item key={r.id} style={{ padding: '8px 4px', borderBottom: '1px solid var(--border-light)' }}>
                 <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                   <Space wrap>
-                    <Tag color={r.status === 'completed' ? 'green' : r.status === 'acknowledged' ? 'blue' : 'orange'}>{r.status}</Tag>
+                    <Tag color={r.status === 'completed' ? 'green' : r.status === 'acknowledged' ? 'blue' : 'orange'}>{r.status === 'completed' ? '已完成' : r.status === 'acknowledged' ? '已确认' : '待处理'}</Tag>
                     <Tag>{r.id}</Tag>
                     <strong style={{ fontSize: 12 }}>{r.patientName || r.patientId}</strong>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(r.triggeredAt)} · {r.triggeredBy}</span>
@@ -897,8 +899,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space wrap>
                   <Bell size={14} color={e.severity === 'life-threatening' ? '#dc2626' : '#f59e0b'} />
-                  <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity}</Tag>
-                  <Tag color={e.status === 'completed' ? 'green' : e.status === 'in-review' ? 'blue' : 'default'}>{e.status}</Tag>
+                  <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity === 'life-threatening' ? '危及生命' : e.severity === 'critical' ? '严重' : '紧急'}</Tag>
+                  <Tag color={e.status === 'completed' ? 'green' : e.status === 'in-review' ? 'blue' : 'default'}>{e.status === 'completed' ? '已完成' : e.status === 'in-review' ? '审核中' : '待处理'}</Tag>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>{e.description}</div>
@@ -1012,7 +1014,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               style={{ width: 180 }}
               aria-label="搜索终核任务"
             />
-            <Button size="small" onClick={load}>刷新</Button>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={load}>刷新</Button>
           </Space>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>

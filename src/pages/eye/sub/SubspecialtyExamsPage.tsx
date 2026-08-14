@@ -266,7 +266,7 @@ export const CorneaPage: React.FC = () => {
           <Card title="结果" size="small">
             {result ? (
               <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title="Kmax" value={result.kmax.value} suffix="D" styles={{ content: {  color: result.kmax.value > 47 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={8}><Statistic title="最大K值" value={result.kmax.value} suffix="D" styles={{ content: {  color: result.kmax.value > 47 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={8}><Statistic title="最薄点" value={result.thinnestPachy.value} suffix="μm" styles={{ content: {  color: result.thinnestPachy.value < 480 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={8}><Statistic title="BAD 评分" value={result.badScore} styles={{ content: {  color: result.badScore >= 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
                 <Col span={24}><Alert title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon /></Col>

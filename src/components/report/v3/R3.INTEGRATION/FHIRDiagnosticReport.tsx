@@ -122,7 +122,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="Bundle" value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} suffix="资源" />
+            <Statistic title="资源包" value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} suffix="资源" />
           </Card>
         </Col>
       </Row>

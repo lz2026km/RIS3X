@@ -262,6 +262,12 @@ const FundusViewerPage: React.FC = () => {
               pagination={false}
               columns={[
                 {
+                  title: "影像",
+                  key: "imageNo",
+                  width: 60,
+                  render: (_: unknown, _r: KeyImageDto, i: number) => `#${i + 1}`,
+                },
+                {
                   title: "原因",
                   dataIndex: "reason",
                   key: "reason",
@@ -272,6 +278,14 @@ const FundusViewerPage: React.FC = () => {
                   dataIndex: "flaggedBy",
                   key: "flaggedBy",
                   width: 60,
+                },
+                {
+                  title: "时间",
+                  dataIndex: "flaggedAt",
+                  key: "flaggedAt",
+                  width: 110,
+                  render: (v: string) =>
+                    v ? new Date(v).toLocaleString().slice(0, 16) : "-",
                 },
               ]}
             />

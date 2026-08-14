@@ -466,7 +466,7 @@ export default function RadiologyQCDashboardPage() {
         {showDrill && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>下钻分析</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>下钻分析</h3>
               <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>本地数据 (由本地绩效数据派生)</span>
               <div style={{ display: "flex", gap: 6 }}>
                 {DRILL_METRICS.map((m) => (

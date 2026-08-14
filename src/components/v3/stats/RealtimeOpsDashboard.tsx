@@ -8,6 +8,8 @@ import { Activity, AlertOctagon, Clock, Users, Cpu, Wifi, Stethoscope, TrendingU
 import { Inbox } from 'lucide-react'
 import React, { useState, useMemo, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
+// [G005 Wave3A G-23] BI socket 推送: 订阅 'ops-update', 不可用时保留轮询兜底
+import { realtime, type RealtimePayload } from '../../../services/realtime'
 
 export interface RealtimeEvent {
   id: string
@@ -54,40 +56,88 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
   refreshInterval = 5,
 }) => {
   const [tick, setTick] = useState(0)
+  // [G005 Wave3A G-23] socket 推送状态 (与 props 数据合并, 推送可用时优先)
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [pushOnlineUsers, setPushOnlineUsers] = useState<number | null>(null)
+  const [pushDevices, setPushDevices] = useState<DeviceRealtime[]>([])
+  const [pushEvents, setPushEvents] = useState<RealtimeEvent[]>([])
 
   useEffect(() => {
+    // 轮询兜底 (socket 不可用时沿用原逻辑: tick 驱动汇总/展示)
     const t = setInterval(() => setTick((x) => x + 1), refreshInterval * 1000)
     return () => clearInterval(t)
   }, [refreshInterval])
 
+  useEffect(() => {
+    // [G005 Wave3A G-23] 订阅后端 ops-update 快照; 断线重连由 socket.io 自动处理 (realtime.ts 已配置)
+    realtime.connect()
+    const offUpdate = realtime.subscribe('ops-update', (payload: RealtimePayload) => {
+      const kpi = (payload?.kpi ?? {}) as { examsToday?: number; reportsToday?: number; criticalsToday?: number; onlineUsers?: number }
+      const occupancy = (payload?.occupancy ?? []) as Array<{ modality: string; utilization?: number; count?: number }>
+      if (typeof kpi.onlineUsers === 'number') setPushOnlineUsers(kpi.onlineUsers)
+      if (occupancy.length > 0) {
+        setPushDevices(occupancy.map((o) => ({
+          id: `ops-${o.modality}`,
+          name: o.modality,
+          modality: o.modality,
+          state: (o.utilization ?? 0) > 80 ? 'BUSY' : (o.utilization ?? 0) > 0 ? 'IDLE' : 'OFFLINE',
+          queue: 0,
+          utilization: Math.min(100, o.utilization ?? 0),
+          currentPatient: undefined,
+        })))
+      }
+      const snapshotEvent: RealtimeEvent = {
+        id: `ops-${payload?.timestamp ?? Date.now()}`,
+        type: 'EXAM',
+        at: new Date(payload?.timestamp ?? Date.now()).toLocaleString(),
+        title: '运营快照更新',
+        description: `今日检查 ${kpi.examsToday ?? 0} · 报告 ${kpi.reportsToday ?? 0} · 危急值 ${kpi.criticalsToday ?? 0}`,
+        severity: 'info',
+      }
+      setPushEvents(prev => [snapshotEvent, ...prev].slice(0, 50))
+    })
+    const offConnect = realtime.subscribe('connect', () => setSocketConnected(true))
+    const offDisconnect = realtime.subscribe('disconnect', () => setSocketConnected(false))
+    return () => {
+      offUpdate()
+      offConnect()
+      offDisconnect()
+    }
+  }, [])
+
+  // 推送数据可用时覆盖 props (页面首屏 props + 推送增量合并)
+  const mergedEvents = useMemo(() => [...pushEvents, ...events], [pushEvents, events])
+  const mergedDevices = pushDevices.length > 0 ? pushDevices : devices
+  const mergedOnlineUsers = pushOnlineUsers ?? onlineUsers
+
   const summary = useMemo(() => {
     void tick
     const now = Date.now()
-    const recent = events.filter((e) => now - new Date(e.at).getTime() < 60 * 60 * 1000) // 1h
+    const recent = mergedEvents.filter((e) => now - new Date(e.at).getTime() < 60 * 60 * 1000) // 1h
     return {
       examsLastHour: recent.filter((e) => e.type === 'EXAM').length,
       reportsLastHour: recent.filter((e) => e.type === 'REPORT').length,
       criticalsLastHour: recent.filter((e) => e.type === 'CRITICAL').length,
       errorsLastHour: recent.filter((e) => e.type === 'ERROR').length,
     }
-  }, [events, tick])
+  }, [mergedEvents, tick])
 
   const deviceStats = useMemo(() => {
     return {
-      total: devices.length,
-      online: devices.filter((d) => d.state === 'ONLINE' || d.state === 'IDLE' || d.state === 'BUSY').length,
-      busy: devices.filter((d) => d.state === 'BUSY').length,
-      avgUtilization: devices.length
-        ? (devices.reduce((s, d) => s + d.utilization, 0) / devices.length * 100).toFixed(1)
+      total: mergedDevices.length,
+      online: mergedDevices.filter((d) => d.state === 'ONLINE' || d.state === 'IDLE' || d.state === 'BUSY').length,
+      busy: mergedDevices.filter((d) => d.state === 'BUSY').length,
+      avgUtilization: mergedDevices.length
+        ? (mergedDevices.reduce((s, d) => s + d.utilization, 0) / mergedDevices.length * 100).toFixed(1)
         : 0,
     }
-  }, [devices])
+  }, [mergedDevices])
 
   const eventTypeData = useMemo(() => {
     const m: Record<string, number> = {}
-    events.forEach((e) => (m[e.type] = (m[e.type] ?? 0) + 1))
+    mergedEvents.forEach((e) => (m[e.type] = (m[e.type] ?? 0) + 1))
     return Object.entries(m).map(([k, v]) => ({ name: k, value: v }))
-  }, [events])
+  }, [mergedEvents])
 
   return (
     <div data-testid="realtime-ops-dashboard">
@@ -96,11 +146,16 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
           <Card>
             <Statistic
               title="在线用户"
-              value={onlineUsers}
+              value={mergedOnlineUsers}
               prefix={<Users size={14} color={CHART_COLORS.primary} />}
               styles={{ content: {  color: CHART_COLORS.primary  } }}
             />
-            <Badge status="processing" text="实时" />
+            {/* [G005 Wave3A G-23] 实时徽标: socket 在线点亮 / 断线回退轮询模式 */}
+            <Badge
+              status={socketConnected ? 'processing' : 'warning'}
+              text={socketConnected ? '实时推送' : '轮询模式'}
+              data-testid="ops-realtime-badge"
+            />
           </Card>
         </Col>
         <Col span={6}>
@@ -164,12 +219,12 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             extra={<Tag color="red">LIVE</Tag>}
             data-testid="ops-event-stream"
           >
-            {events.length === 0 ? (
+            {mergedEvents.length === 0 ? (
               <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />
             ) : (
               <List
                 size="small"
-                dataSource={events.slice(0, 12)}
+                dataSource={mergedEvents.slice(0, 12)}
                 renderItem={(e) => (
                   <List.Item>
                     <List.Item.Meta
@@ -214,7 +269,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             data-testid="ops-device-status"
           >
             <Row gutter={[12, 12]}>
-              {devices.map((d) => {
+              {mergedDevices.map((d) => {
                 const stateColor =
                   d.state === 'BUSY' ? CHART_COLORS.error : d.state === 'IDLE' ? CHART_COLORS.success : d.state === 'OFFLINE' ? CHART_COLORS.gray : d.state === 'MAINTENANCE' ? CHART_COLORS.amber : CHART_COLORS.primary
                 return (
@@ -278,11 +333,11 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
           <Card size="small" title="设备利用率" data-testid="ops-device-utilization">
             <ChartContainer
               height={220}
-              state={devices.length === 0 ? 'empty' : 'ready'}
+              state={mergedDevices.length === 0 ? 'empty' : 'ready'}
               emptyDescription="暂无设备数据"
             >
               <BarChart
-                data={devices.map((d) => ({ name: d.name, util: d.utilization }))}
+                data={mergedDevices.map((d) => ({ name: d.name, util: d.utilization }))}
                 layout="vertical"
               >
                 <XAxis type="number" domain={[0, 100]} />

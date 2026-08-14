@@ -10,10 +10,23 @@ import { StatusBadge } from './StatusBadge';
 import { statusTransitionLog } from '../../data/reportSubsystemMock';
 import { REPORT_STATUS_ORDER } from './statusMeta';
 
+// [v3.0.6.11-95 Wave2B P1] 真实审计轨迹事件 (与 ReportAuditTrailDrawer 形状对齐)
+export interface AuditTrailEvent {
+  id?: string;
+  timestamp?: string;
+  actor?: string;
+  action?: string;
+  fromState?: string;
+  toState?: string;
+  reason?: string;
+}
+
 export interface StatusTimelineProps {
   report: RadiologyReport;
   showAuditInfo?: boolean;
   compact?: boolean;
+  // [v3.0.6.11-95 Wave2B P1] 传入真实 auditTrail 时渲染真实时间节点, 否则回退 mock + "演示数据"标注
+  auditTrail?: AuditTrailEvent[];
 }
 
 interface TimelineNode {
@@ -30,7 +43,10 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
   report,
   showAuditInfo = true,
   compact = false,
+  auditTrail,
 }) => {
+  // [v3.0.6.11-95 Wave2B P1] 真实审计轨迹优先: 有则渲染真实节点 (操作/状态/时间/操作人)
+  const realEvents = Array.isArray(auditTrail) && auditTrail.length > 0 ? auditTrail : null;
   // 从全局日志中找出当前报告的状态变迁
   const transitions = statusTransitionLog.filter(t => t.reportId === report.id);
   // transitions 暂未在节点构造中直接使用，预留给未来扩展
@@ -216,12 +232,63 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={14} color="#64748b" />
           <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>状态时间线</span>
+          {realEvents ? (
+            <span style={{
+              fontSize: 10, padding: '1px 6px', borderRadius: 3,
+              background: '#dcfce7', color: '#15803d', fontWeight: 700,
+            }}>真实轨迹</span>
+          ) : (
+            <span style={{
+              fontSize: 10, padding: '1px 6px', borderRadius: 3,
+              background: '#fef3c7', color: '#b45309', fontWeight: 700,
+            }}>演示数据</span>
+          )}
         </div>
         <StatusBadge status={report.status} size="sm" />
       </div>
 
       <div style={{ position: 'relative' }}>
-        {nodes.map((node, idx) => (
+        {realEvents ? realEvents.map((ev, idx) => {
+          const isLast = idx === realEvents.length - 1;
+          const label = ev.action || [ev.fromState, ev.toState].filter(Boolean).join(' → ') || '状态变更';
+          return (
+            <div key={ev.id ?? idx} style={{ display: 'flex', gap: 12, paddingLeft: 8, paddingBottom: isLast ? 0 : 12, position: 'relative' }}>
+              {!isLast && (
+                <div style={{ position: 'absolute', left: 14, top: 20, bottom: -4, width: 2, background: isLast ? '#3b82f6' : '#cbd5e1' }} />
+              )}
+              <div style={{
+                width: 12, height: 12, borderRadius: '50%',
+                background: isLast ? '#3b82f6' : '#10b981',
+                border: isLast ? '3px solid #dbeafe' : '2px solid #fff',
+                boxShadow: isLast ? '0 0 0 2px #3b82f6' : '0 0 0 1px #cbd5e1',
+                flexShrink: 0, marginTop: 4, zIndex: 1,
+              }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>{label}</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>{ev.timestamp ? new Date(ev.timestamp).toLocaleString() : ''}</span>
+                </div>
+                {ev.fromState && ev.toState && (
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                    {ev.fromState} → {ev.toState}
+                  </div>
+                )}
+                {showAuditInfo && ev.actor && (
+                  <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>操作人: {ev.actor}</div>
+                )}
+                {showAuditInfo && ev.reason && (
+                  <div style={{
+                    fontSize: 12, color: '#64748b', background: '#fff',
+                    padding: '4px 8px', borderRadius: 4, marginTop: 4,
+                    border: '1px solid #e2e8f0',
+                  }}>
+                    {ev.reason}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }) : nodes.map((node, idx) => (
           <div
             key={idx}
             style={{

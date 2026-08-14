@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">G005 RIS</string>
+    <string name="title_activity_main">G005 RIS</string>
+    <string name="package_name">com.g005.ris</string>
+    <string name="custom_url_scheme">com.g005.ris</string>
+</resources>

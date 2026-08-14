@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Save, CheckCircle, RotateCcw } from 'lucide-react';
 import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
 import { reportApi } from '../services/api/reportApi';
 
@@ -274,7 +274,11 @@ export default function FollowUpPage() {
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
   };
 
   const tabContainerStyle: React.CSSProperties = {
@@ -445,7 +449,7 @@ export default function FollowUpPage() {
           onChange={e => setSearchKeyword(e.target.value)}
           style={inputStyle}
         />
-        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}>🔄 重置</button>
+        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}><RotateCcw size={14} /> 重置</button>
         <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}>+ 新增随访</button>
       </div>
 
@@ -636,7 +640,7 @@ export default function FollowUpPage() {
                 style={buttonStyle}
                 onClick={() => handleComplete(selectedPatient.id)}
               >
-                确认完成
+                <CheckCircle size={14} /> 确认完成
               </button>
             </div>
           </div>
@@ -721,7 +725,7 @@ export default function FollowUpPage() {
                 onClick={() => void handleCreate()}
                 disabled={saving}
               >
-                {saving ? '⏳ 保存中...' : '保存计划'}
+                <Save size={14} /> {saving ? '保存中...' : '保存计划'}
               </button>
             </div>
           </div>

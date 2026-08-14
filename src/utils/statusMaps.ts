@@ -11,6 +11,8 @@ export const EXAM_STATUS_MAP: Record<string, string> = {
   SCHEDULED: '已登记',
   ARRIVED: '已报到',
   IN_PROGRESS: '检查中',
+  // [v3.0.6.11-95 Wave 1A P1] 暂停态 (backend WORKLIST_STATES.PAUSED, POST /worklist/:id/pause)
+  PAUSED: '已暂停',
   COMPLETED: '已完成',
   CANCELLED: '已取消',
   // [v3.0.6.11-92 Wave2A P1] 影像质控扩展态 (backend WORKLIST_STATES, PATCH /worklist/:id/state)
@@ -27,7 +29,7 @@ export const EXAM_STATUS_ALIASES: Record<string, string> = {
   待检查: 'SCHEDULED',
   已报到: 'ARRIVED',
   检查中: 'IN_PROGRESS',
-  已暂停: 'IN_PROGRESS',
+  已暂停: 'PAUSED',
   待报告: 'COMPLETED',
   已报告: 'COMPLETED',
   已发布: 'COMPLETED',

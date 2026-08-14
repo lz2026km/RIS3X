@@ -409,7 +409,7 @@ function AETitleConfigPanel() {
                 background: `${item.color}0d`, borderRadius: 8, padding: '10px 12px',
                 border: `1px solid ${item.color}25`, textAlign: 'center'
               }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: item.color }}>{item.value}</div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.value}</div>
                 <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{item.label}</div>
               </div>
             ))}
@@ -1029,7 +1029,7 @@ export default function DevicePage() {
                   <div style={{ color: item.color }}>{item.icon}</div>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{item.label}</span>
                 </div>
-                <span style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.count}</span>
+                <span style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.count}</span>
               </div>
             ))}
           </div>
@@ -1597,7 +1597,7 @@ export default function DevicePage() {
               background: `${item.color}0d`, borderRadius: 10, padding: '12px 14px',
               border: `1px solid ${item.color}25`, textAlign: 'center'
             }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}</div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.value}</div>
               <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>{item.label}</div>
             </div>
           ))}

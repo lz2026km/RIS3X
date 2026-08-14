@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Filter, X, Download, Printer } from 'lucide-react'
+import { userApi } from '../../services/api/userApi'
 
 const WHITE = 'var(--bg-card)'
 const GRAY = '#64748b'
@@ -12,7 +13,9 @@ const STATUSES = [
   '已撤回', '已驳回', '已归档',
 ]
 
-const DOCTORS: { id: string; name: string }[] = []
+// [v3.0.6.11-95 Wave2B P1] 医生候选由 userApi.list 填充 (role: 医生/主任), 不再写死空数组
+interface DoctorOption { id: string; name: string; title?: string }
+let cachedDoctors: DoctorOption[] | null = null
 
 export interface ReportHeaderProps {
   search: string
@@ -44,6 +47,27 @@ export default function ReportHeader({
   dateFrom, setDateFrom, dateTo, setDateTo, criticalOnly, setCriticalOnly,
   positiveOnly, setPositiveOnly, onReset, onExport, onPrint,
 }: ReportHeaderProps) {
+  // [v3.0.6.11-95 Wave2B P1] 医生下拉真实化: userApi.list → role 为 DOCTOR/DIRECTOR (医生/主任)
+  const [doctors, setDoctors] = useState<DoctorOption[]>(cachedDoctors ?? [])
+  useEffect(() => {
+    if (cachedDoctors) return
+    let cancelled = false
+    userApi.list(0, 200).then((res) => {
+      if (cancelled) return
+      const raw = res.data as unknown
+      const items = Array.isArray(raw) ? raw : ((raw as { items?: unknown[] } | null)?.items ?? [])
+      const list: DoctorOption[] = (items as Array<{ id: string; fullName?: string; role?: string; name?: string }>)
+        // MSW toUserDto 将 role 映射为中文职称 (主任医师/副主任医师/主治医师/住院医师等), 后端为 DOCTOR/DIRECTOR 枚举
+        .filter(u => {
+          const r = String(u.role ?? '');
+          const up = r.toUpperCase();
+          return up.includes('DOCTOR') || up.includes('DIRECTOR') || up.includes('主任') || up.includes('医师') || r === '医生';
+        })
+        .map(u => ({ id: u.id, name: u.fullName ?? u.name ?? u.id, title: String(u.role ?? '') }))
+      if (list.length > 0) { cachedDoctors = list; setDoctors(list) }
+    }).catch(() => { /* 列表不可用时下拉为空, 不影响其他筛选 */ })
+    return () => { cancelled = true }
+  }, [])
   const btnStyle = (active: boolean, color: string): React.CSSProperties => ({
     padding: '5px 12px',
     borderRadius: 6,
@@ -99,14 +123,14 @@ export default function ReportHeader({
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>报告医生:</span>
           <select value={reportDoctorFilter} onChange={e => setReportDoctorFilter(e.target.value)} style={dropStyle}>
             <option value="">全部</option>
-            {DOCTORS.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+            {doctors.map(d => <option key={d.id} value={d.id}>{d.name}{d.title ? ` (${d.title})` : ''}</option>)}
           </select>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>审核医生:</span>
           <select value={auditorFilter} onChange={e => setAuditorFilter(e.target.value)} style={dropStyle}>
             <option value="">全部</option>
-            {DOCTORS.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+            {doctors.map(d => <option key={d.id} value={d.id}>{d.name}{d.title ? ` (${d.title})` : ''}</option>)}
           </select>
         </div>
       </div>

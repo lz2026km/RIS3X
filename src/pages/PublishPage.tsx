@@ -23,7 +23,8 @@ export default function PublishPage() {
       setLoading(true)
       setError(null)
       try {
-        const res = await reportApi.list({ status: '已签发' })
+        // [v3.0.6.11-95 Wave3B P1] 后端 list 筛选状态走英文枚举 (statusMeta 映射层: 已签发 → SIGNED)
+        const res = await reportApi.list({ state: 'SIGNED' })
         // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
         const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
         if (res.success && Array.isArray(list)) {

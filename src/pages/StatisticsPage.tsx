@@ -58,15 +58,15 @@ const C = {
   textLight: '#94a3b8',
   border: 'var(--border-color)',
   success: '#059669',
-  successBg: '#ecfdf5',
+  successBg: 'var(--color-success-bg)',
   warning: '#d97706',
-  warningBg: '#fffbeb',
+  warningBg: 'var(--color-warning-bg)',
   danger: '#dc2626',
-  dangerBg: '#fef2f2',
+  dangerBg: 'var(--color-error-bg)',
   info: '#2563eb',
-  infoBg: '#eff6ff',
+  infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
-  purpleBg: '#f5f3ff',
+  purpleBg: 'var(--color-info-bg)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
@@ -821,12 +821,12 @@ function WorkloadTab() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
           {topDoctors.map((d, idx) => (
             <div key={d.name} style={{
-              background: idx === 0 ? '#fffbeb' : idx === 1 ? '#f8fafc' : '#fafafa',
+              background: idx === 0 ? 'var(--color-warning-bg)' : idx === 1 ? 'var(--bg-primary)' : 'var(--bg-card)',
               borderRadius: 12, padding: 14, textAlign: 'center', border: '1px solid var(--border-color)'
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
-                background: idx === 0 ? '#fef3c7' : idx === 1 ? '#e2e8f0' : C.background,
+                background: idx === 0 ? 'var(--color-warning-bg)' : idx === 1 ? 'var(--border-color)' : C.background,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 8px', fontSize: 14, fontWeight: 800,
                 color: idx === 0 ? C.warning : C.textMuted

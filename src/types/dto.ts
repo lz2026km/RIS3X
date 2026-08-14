@@ -79,6 +79,11 @@ export interface ExamDto {
   dlp?: number
   technicianId?: string
   imageCount?: number
+  // [v3.0.6.11-95 Wave 1A 技师工作站] 注释/评级/重拍计数
+  techNotes?: string
+  qcNotes?: string
+  qualityRating?: string
+  retakeCount?: number
 }
 
 export interface CreateExamDto {
