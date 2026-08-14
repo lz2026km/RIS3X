@@ -119,15 +119,26 @@ export interface QcAiAssessDto {
 }
 
 export interface QcAiAssessResult {
-  studyId: string;
-  instanceId?: string;
-  modality: string;
-  bodyPart: string;
-  assessedAt: string;
+  studyId: string
+  instanceId?: string
+  modality: string
+  bodyPart: string
+  assessedAt: string
   artifact: QcAiDimensionAssessment;
   exposure: QcAiDimensionAssessment;
   positioning: QcAiDimensionAssessment;
   overall: { score: number; label: string };
+}
+
+// [G005 Wave3A P16] 历史评估记录 (GET /qc/image-ai/assessments, 内存 + seed)
+export interface QcAiAssessRecord extends QcAiAssessResult {
+  id: string;
+}
+
+export interface QcAiAssessmentsQuery {
+  studyId?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 // [G005 Wave1A W9] V1 评分统计 (后端 GET /qc/image-ai/stats 真实形状)
@@ -253,4 +264,13 @@ export const qcImageAiApi = {
   // [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位 + 总分)
   assess: (data: QcAiAssessDto) =>
     api.post<QcAiAssessResult>("/qc/image-ai/assess", data),
+
+  // [G005 Wave3A P16] 历史三维度评估列表 (按检查/日期聚合, 内存 + seed)
+  listAssessments: (params?: QcAiAssessmentsQuery) => {
+    const query = new URLSearchParams()
+    if (params?.studyId) query.set("studyId", params.studyId)
+    if (params?.page !== undefined) query.set("page", String(params.page))
+    if (params?.pageSize !== undefined) query.set("pageSize", String(params.pageSize))
+    return api.get<QcAiAssessRecord[]>(`/qc/image-ai/assessments?${query.toString()}`)
+  },
 };

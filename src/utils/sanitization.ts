@@ -6,16 +6,21 @@
 import DOMPurify from 'dompurify';
 
 // Configure DOMPurify settings
+// [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化: 放行所见即所得编辑器产物
+//   (表格内联样式/下划线/脚注/图注/分隔线等), 仅允许安全数据源 (data:image/ 内嵌缩略图)
 DOMPurify.setConfig({
   ALLOWED_TAGS: [
     'b', 'i', 'em', 'strong', 'u', 'p', 'br', 'span', 'div',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'ul', 'ol', 'li',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'a', 'img',
+    'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+    'table', 'thead', 'tbody', 'tfoot', 'caption', 'tr', 'th', 'td', 'colgroup', 'col',
+    'a', 'img', 'figure', 'figcaption',
+    'font', 'strike', 's', 'sub', 'sup', 'blockquote', 'pre', 'hr', 'center', 'small', 'big',
   ],
   ALLOWED_ATTR: [
     'href', 'src', 'alt', 'title', 'class', 'id',
+    'style', 'color', 'face', 'size', 'width', 'height', 'align', 'valign',
+    'border', 'cellpadding', 'cellspacing', 'rowspan', 'colspan',
   ],
   ALLOW_DATA_ATTR: false,
   ADD_ATTR: ['target'],
@@ -38,8 +43,10 @@ DOMPurify.addHook('afterSanitizeAttributes', (node: any) => {
   }
   if (node.hasAttribute('src')) {
     const src = node.getAttribute('src') || '';
-    if (src.trim().toLowerCase().startsWith('javascript:') ||
-        src.trim().toLowerCase().startsWith('data:')) {
+    const lower = src.trim().toLowerCase();
+    // 允许 data:image/ 内嵌影像缩略图 (书写页图片上传产物), 其余 data: 一律移除
+    const isDataImage = lower.startsWith('data:image/');
+    if (lower.startsWith('javascript:') || (lower.startsWith('data:') && !isDataImage)) {
       node.removeAttribute('src');
     }
   }

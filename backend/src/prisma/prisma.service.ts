@@ -1,4 +1,4 @@
-﻿import { Injectable, OnModuleInit } from '@nestjs/common'
+﻿import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { getEnforcedTenantId } from '../common/interceptors/tenant-context.interceptor'
 import { dbConnectionErrorsCounter } from '../observability/metrics.factory'
@@ -25,6 +25,8 @@ function setTenant(data: unknown, tenantId: string): void {
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+  private readonly logger = new Logger(PrismaService.name)
+
   constructor() {
     super({
       log: process.env['NODE_ENV'] === 'production' ? ['error'] : ['query', 'info', 'warn', 'error'],
@@ -34,12 +36,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     })
   }
 
+  // [W6] DB 不可用时降级启动: 仅告警不抛错, 各业务服务走内存 seed/回退路径,
+  //      避免后端整体 500 (GET /ai-diagnosis/*/results 等纯内存端点也需可用)。
   async onModuleInit() {
     try {
       await this.$connect()
     } catch (error) {
       dbConnectionErrorsCounter.inc()
-      throw error
+      this.logger.warn(
+        `[W6] Prisma $connect failed (${error instanceof Error ? error.message : 'unknown error'}), ` +
+          'starting WITHOUT DB — memory seed/fallback paths will be used.',
+      )
     }
   }
 }

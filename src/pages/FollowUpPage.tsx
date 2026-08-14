@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle } from 'lucide-react';
+import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus } from 'lucide-react';
 import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
 import { reportApi } from '../services/api/reportApi';
 
@@ -450,7 +450,7 @@ export default function FollowUpPage() {
           style={inputStyle}
         />
         <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}><RotateCcw size={14} /> 重置</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}>+ 新增随访</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}><Plus size={14} /> 新增随访</button>
       </div>
 
       {/* [W4-B] 到期提醒横幅 (GET /followups/due?days=7) */}
@@ -525,17 +525,17 @@ export default function FollowUpPage() {
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <button 
-                    style={actionButtonStyle}
+                    style={{...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 4}}
                     onClick={() => { setSelectedPatient(item); setShowModal(true); }}
                   >
-                    详情
+                    <Eye size={12} /> 详情
                   </button>
                   {item.status !== '已完成' && (
                     <button 
-                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#52c41a'}}
+                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleComplete(item.id)}
                     >
-                      完成
+                      <CheckCircle size={12} /> 完成
                     </button>
                   )}
                   <button
@@ -555,7 +555,7 @@ export default function FollowUpPage() {
       {showModal && selectedPatient && (
         <div style={modalOverlayStyle} onClick={() => setShowModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>📋 随访详情</h2>
+            <h2 style={modalTitleStyle}>随访详情</h2>
             
             <div style={formGroupStyle}>
               <label style={labelStyle}>患者姓名</label>
@@ -651,7 +651,7 @@ export default function FollowUpPage() {
       {showCreateModal && (
         <div style={modalOverlayStyle} onClick={() => setShowCreateModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>📋 新建随访计划</h2>
+            <h2 style={modalTitleStyle}>新建随访计划</h2>
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>患者ID *</label>

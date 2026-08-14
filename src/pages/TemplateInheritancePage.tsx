@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import {
   GitBranch, GitFork, Copy, History, ChevronRight, ChevronDown,
-  GitMerge, Plus, Tag, Eye,
+  GitMerge, Plus, Tag, Eye, X,
   TrendingUp, Users, Layers, BarChart3, Activity, FileCode,
 } from 'lucide-react';
 import { templatesApi } from '../services/api/templatesApi';
@@ -90,6 +90,9 @@ export default function TemplateInheritancePage() {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'tree' | 'list'>('tree');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['tpl-chest-ct-001', 'tpl-head-ct-001', 'tpl-mg-001']));
+  // [v3.0.6.11-98 Wave3B P1] 模板内容预览 Modal + 使用统计 Modal (本地派生 + 标注)
+  const [previewNode, setPreviewNode] = useState<TemplateNode | null>(null);
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
@@ -470,6 +473,7 @@ export default function TemplateInheritancePage() {
                     <GitFork size={11} /> 继承
                   </button>
                   <button
+                    onClick={() => setPreviewNode(selectedNode)}
                     style={{
                       padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
@@ -479,15 +483,7 @@ export default function TemplateInheritancePage() {
                     <Eye size={11} /> 预览
                   </button>
                   <button
-                    style={{
-                      padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
-                      background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                    }}
-                  >
-                    <Eye size={11} /> 预览
-                  </button>
-                  <button
+                    onClick={() => setShowStatsModal(true)}
                     style={{
                       padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
@@ -655,6 +651,78 @@ export default function TemplateInheritancePage() {
           )}
         </div>
       </div>
+
+      {/* [v3.0.6.11-98 Wave3B P1] 模板内容预览 Modal */}
+      {previewNode && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPreviewNode(null)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Eye size={16} color="#0891b2" /> 模板内容预览
+              </div>
+              <button onClick={() => setPreviewNode(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              {previewNode.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({previewNode.version})</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              ID: {previewNode.id} · 创建人: {previewNode.createdBy} · {previewNode.createdAt} · 类型: {previewNode.type === 'parent' ? '父模板' : previewNode.type === 'child' ? '继承克隆' : '同族'}
+            </div>
+            {previewNode.description && (
+              <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8, marginBottom: 12 }}>
+                {previewNode.description}
+              </div>
+            )}
+            <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+              【检查所见】<br />（模板正文预览占位：结构化字段将由模板设计器填充）<br /><br />
+              【诊断意见】<br />（基于 {previewNode.name} 的结构化模板）
+            </div>
+            <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setPreviewNode(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-98 Wave3B P1] 使用统计 Modal (本地派生 + 标注: 使用次数待模板用量上报接口) */}
+      {showStatsModal && selectedNode && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStatsModal(false)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BarChart3 size={16} color="#0891b2" /> 使用统计 · {selectedNode.name}
+              </div>
+              <button onClick={() => setShowStatsModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>本模板使用次数</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#7c3aed' }}>{selectedNode.usageCount}</div>
+              </div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>直接继承模板</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#0891b2' }}>{selectedChildren.length}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>家族使用汇总（本地派生）</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+              {[selectedNode, ...selectedChildren, ...selectedSiblings].map(n => (
+                <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                  <span style={{ flex: 1, color: 'var(--text-primary)' }}>{n.name}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{n.version}</span>
+                  <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 8, background: '#8b5cf622', color: '#7c3aed', fontWeight: 700 }}>×{n.usageCount}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d', marginBottom: 14 }}>
+              使用次数为本地派生数据（标注: 待模板用量上报接口 templatesApi.usage）。
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowStatsModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

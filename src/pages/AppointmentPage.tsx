@@ -1,4 +1,4 @@
-﻿import { Card } from 'antd'
+﻿import { Card, message } from 'antd'
 import { PageHeader } from "../components/common/PageHeader";
 // G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
@@ -30,6 +30,7 @@ import {
   initialModalityDevices,
 } from "../data/initialData";
 import { appointmentApi, type AppointmentDto } from "../services/api";
+import { notificationsApi } from "../services/api/notificationsApi";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
@@ -501,6 +502,52 @@ export default function AppointmentPage() {
   const [waitlistNotifyLoading, setWaitlistNotifyLoading] = useState<
     string | null
   >(null);
+
+  // [v3.0.6.11-98 Wave3B P1] 候补通知: notificationsApi.create 真实发送 (失败回退本地标记)
+  const handleWaitlistNotify = async (w: WaitlistPatient) => {
+    setWaitlistNotifyLoading(w.id);
+    try {
+      const res = await notificationsApi.create({
+        userId: `patient-${w.id}`,
+        type: "APPOINTMENT",
+        severity: "INFO",
+        title: "候诊通知：有空位可安排",
+        content: `${w.patientName} 的 ${w.examItemName}（${w.modality}），期望 ${w.preferredDate} ${w.preferredTime}，现已有空位，请及时来院。`,
+        targetId: w.id,
+      });
+      setWaitlist((prev) =>
+        prev.map((x) => (x.id === w.id ? { ...x, notified: true } : x)),
+      );
+      if (res.success) {
+        message.success(`已发送候诊通知给 ${w.patientName}`);
+      } else {
+        message.warning("通知服务暂不可用，已本地标记（待补发）");
+      }
+    } catch {
+      setWaitlist((prev) =>
+        prev.map((x) => (x.id === w.id ? { ...x, notified: true } : x)),
+      );
+      message.warning("通知服务暂不可用，已本地标记（待补发）");
+    } finally {
+      setWaitlistNotifyLoading(null);
+    }
+  };
+
+  // [v3.0.6.11-98 Wave3B P1] 自动排序: 候补名单按优先级(危重>紧急>普通) + 登记时间升序 本地排序
+  const handleWaitlistAutoSort = () => {
+    const priorityOrder: Record<string, number> = {
+      critical: 0,
+      urgent: 1,
+      normal: 2,
+    };
+    const sorted = [...waitlist].sort(
+      (a, b) =>
+        (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3) ||
+        String(a.addedAt).localeCompare(String(b.addedAt)),
+    );
+    setWaitlist(sorted);
+    message.success("候补名单已按优先级/登记时间排序");
+  };
 
   // 冲突检测
   const [conflictModal, setConflictModal] = useState<{
@@ -2045,11 +2092,7 @@ const borderGray = "var(--border-color)";
                       </div>
                       <div style={{ display: "flex", gap: 4 }}>
                         <button
-                          onClick={async () => {
-                            setWaitlistNotifyLoading(w.id);
-                            await new Promise((r) => setTimeout(r, 1000));
-                            setWaitlistNotifyLoading(null);
-                          }}
+                          onClick={() => void handleWaitlistNotify(w)}
                           style={{
                             padding: "3px 10px",
                             borderRadius: 4,
@@ -2078,6 +2121,7 @@ const borderGray = "var(--border-color)";
                           通知
                         </button>
                         <button
+                          onClick={handleWaitlistAutoSort}
                           style={{
                             padding: "3px 10px",
                             borderRadius: 4,

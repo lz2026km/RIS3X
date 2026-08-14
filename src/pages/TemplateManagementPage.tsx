@@ -1,10 +1,11 @@
 // G005 放射科RIS系统 - 检查模板管理页面 v1.0.0
 // 功能：CT/MRI/X线报告模板维护，含搜索、新增/编辑/删除、预览功能
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 (JSON/文本, templatesApi 真实数据)
+// [v3.0.6.11-98 Wave2A P1] 模板审批流 (草稿/待审批/已批准/已驳回) + 我的模板筛选 (个人模板库)
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { templatesApi } from '../services/api/templatesApi'
+import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download } from 'lucide-react'
+import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Upload, Download, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
 
 const C = {
   primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
@@ -28,8 +29,13 @@ interface TemplateRecord {
   createTime: string
   updateTime: string
   usageCount: number
-  status: 'active' | 'inactive'
+  // [v3.0.6.11-98 Wave2A P1] 审批流状态 (draft/pending/approved/rejected), 兼容旧 active/inactive
+  status: TemplateApprovalStatus | 'active' | 'inactive'
   version: string
+  // [v3.0.6.11-98 Wave2A P1] 创建人 id (我的模板筛选)
+  createdById?: string
+  // [v3.0.6.11-98 Wave2A P1] 驳回原因 (审批流)
+  rejectedReason?: string
 }
 
 interface TemplateVersion {
@@ -100,6 +106,16 @@ const formatDate = (date: Date) => {
 
 const usageTrend = [120, 135, 142, 138, 150, 155, 160, 175, 180, 185, 190, 200]
 
+// [v3.0.6.11-98 Wave2A P1] 模板审批状态展示 (草稿/待审批/已批准/已驳回, 兼容旧 启用/停用)
+const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
+  draft: { label: '草稿', color: '#94a3b8', bg: '#94a3b81f' },
+  pending: { label: '待审批', color: '#d97706', bg: '#f59e0b20' },
+  approved: { label: '已批准', color: '#059669', bg: '#22c55e20' },
+  rejected: { label: '已驳回', color: '#dc2626', bg: '#ef444420' },
+  active: { label: '启用', color: '#059669', bg: '#22c55e20' },
+  inactive: { label: '停用', color: '#94a3b8', bg: '#94a3b81f' },
+}
+
 
 export default function TemplateManagementPage() {
   const navigate = useNavigate()
@@ -124,8 +140,39 @@ export default function TemplateManagementPage() {
   const [importing, setImporting] = useState(false)
   const [exporting, setExporting] = useState(false)
 
+  // [v3.0.6.11-98 Wave2A P1] 当前用户 (我的模板筛选 + 批准/驳回角色权限)
+  const currentUserId = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('ris_current_user')
+      if (raw) {
+        const u = JSON.parse(raw)
+        const id = String(u?.id ?? u?.userId ?? '')
+        if (id) return id
+      }
+    } catch { /* 忽略 */ }
+    return 'current'
+  }, [])
+  const currentUserRole = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('ris_current_user')
+      if (raw) {
+        const u = JSON.parse(raw)
+        return String(u?.role ?? '')
+      }
+    } catch { /* 忽略 */ }
+    return ''
+  }, [])
+  const canApprove = currentUserRole === 'ADMIN' || currentUserRole === 'DIRECTOR' || currentUserRole === '管理员' || currentUserRole === '主任'
+  // 我的模板筛选 (个人模板库): 后端 personal=true 按 createdById 过滤
+  const [myOnly, setMyOnly] = useState(false)
+  // [v3.0.6.11-98 Wave2A P1] 驳回原因弹窗
+  const [rejectTarget, setRejectTarget] = useState<TemplateRecord | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [actionBusy, setActionBusy] = useState(false)
+
   const loadApiTemplates = useCallback(() => {
-    templatesApi.list().then((res: any) => {
+    const params = myOnly ? { personal: true, userId: currentUserId } : undefined
+    templatesApi.list(params).then((res: any) => {
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         const mapped = res.data.map((d: any) => ({
           id: d.id,
@@ -140,17 +187,72 @@ export default function TemplateManagementPage() {
           createTime: d.createdAt || '',
           updateTime: d.updatedAt || '',
           usageCount: 0,
-          status: 'active',
+          status: d.status || 'approved',
           version: 'v1.0',
+          createdById: d.createdById,
+          rejectedReason: d.rejectReason || '',
         }))
         setTemplates(mapped)
       }
     })
-  }, [])
+  }, [myOnly, currentUserId])
 
   useEffect(() => {
     loadApiTemplates()
   }, [loadApiTemplates])
+
+  // [v3.0.6.11-98 Wave2A P1] 模板审批流操作
+  const handleSubmitApproval = async (tpl: TemplateRecord) => {
+    try {
+      const res = await templatesApi.submit(tpl.id)
+      if (res.success) {
+        setTemplates(templates.map(t => t.id === tpl.id ? { ...t, status: 'pending' } as TemplateRecord : t))
+        showToast(`「${tpl.name}」已提交审批`)
+      } else {
+        showToast(res.error?.message ?? '提交审批失败')
+      }
+    } catch {
+      showToast('提交审批失败: 网络错误')
+    }
+  }
+
+  const handleApprove = async (tpl: TemplateRecord) => {
+    try {
+      const res = await templatesApi.approve(tpl.id, currentUserId)
+      if (res.success) {
+        setTemplates(templates.map(t => t.id === tpl.id ? { ...t, status: 'approved' } as TemplateRecord : t))
+        showToast(`「${tpl.name}」已批准`)
+      } else {
+        showToast(res.error?.message ?? '批准失败')
+      }
+    } catch {
+      showToast('批准失败: 网络错误')
+    }
+  }
+
+  const handleRejectConfirm = async () => {
+    if (!rejectTarget) return
+    if (!rejectReason.trim()) {
+      setValidationError('请填写驳回原因')
+      setTimeout(() => setValidationError(null), 3000)
+      return
+    }
+    setActionBusy(true)
+    try {
+      const res = await templatesApi.reject(rejectTarget.id, rejectReason.trim())
+      if (res.success) {
+        setTemplates(templates.map(t => t.id === rejectTarget.id ? { ...t, status: 'rejected' } as TemplateRecord : t))
+        showToast(`「${rejectTarget.name}」已驳回`)
+        setRejectTarget(null)
+        setRejectReason('')
+      } else {
+        showToast(res.error?.message ?? '驳回失败')
+      }
+    } catch {
+      showToast('驳回失败: 网络错误')
+    }
+    setActionBusy(false)
+  }
 
   // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导出: 当前全部模板 (templatesApi.list 真实数据) → JSON Blob
   const handleExportTemplates = async () => {
@@ -214,7 +316,7 @@ export default function TemplateManagementPage() {
             bodyPart: String(it.bodyPart ?? category ?? 'general'),
             body: content,
             modality,
-            createdById: 'current',
+            createdById: currentUserId,
             tags: Array.isArray(it.tags) ? it.tags : [],
           })
           if (res.success) ok++
@@ -292,7 +394,7 @@ export default function TemplateManagementPage() {
         category: formData.category || 'general',
         bodyPart: formData.subCategory || 'general',
         body: formData.content!,
-        createdById: 'current',
+        createdById: currentUserId,
         tags: formData.tags,
       })
       setTemplates([newTemplate, ...templates])
@@ -718,10 +820,32 @@ export default function TemplateManagementPage() {
           <div style={styles.filterGroup}>
             <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} style={styles.select}>
               <option value="all">全部状态</option>
-              <option value="active">启用</option>
-              <option value="inactive">停用</option>
+              <option value="draft">草稿</option>
+              <option value="pending">待审批</option>
+              <option value="approved">已批准</option>
+              <option value="rejected">已驳回</option>
+              <option value="active">启用(旧)</option>
+              <option value="inactive">停用(旧)</option>
             </select>
           </div>
+          {/* [v3.0.6.11-98 Wave2A P1] 待审批筛选 Tab */}
+          <button
+            onClick={() => { setFilterStatus(prev => prev === 'pending' ? 'all' : 'pending'); setCurrentPage(1); }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              border: filterStatus === 'pending' ? '1px solid #d97706' : '1px solid #d97706',
+              background: filterStatus === 'pending' ? C.warningLight : 'var(--bg-card)',
+              color: filterStatus === 'pending' ? C.warning : C.warning,
+            }}
+          >
+            <Shield size={14} /> 待审批
+            {filterStatus === 'pending' && <span style={{ background: C.warning, color: '#fff', borderRadius: 10, fontSize: 10, padding: '0 6px' }}>{templates.filter(t => t.status === 'pending').length}</span>}
+          </button>
+          {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: C.textDark, cursor: 'pointer' }}>
+            <input type="checkbox" checked={myOnly} onChange={(e) => setMyOnly(e.target.checked)} style={{ width: 15, height: 15, accentColor: C.primary, cursor: 'pointer' }} />
+            <Users size={14} color={C.accent} /> 我的模板
+          </label>
         </div>
       </div>
 
@@ -762,12 +886,49 @@ export default function TemplateManagementPage() {
                     <td style={styles.td}><span style={styles.categoryText}>{tpl.category}</span><span style={styles.subCategoryText}> / {tpl.subCategory}</span></td>
                     <td style={styles.td}><div style={styles.tagsCell}>{tpl.tags.slice(0, 3).map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}{tpl.tags.length > 3 && <span style={styles.tagMore}>+{tpl.tags.length - 3}</span>}</div></td>
                     <td style={styles.td}><span style={styles.usageCount}>{tpl.usageCount}</span></td>
-                    <td style={styles.td}><span style={{ ...styles.statusBadge, backgroundColor: tpl.status === 'active' ? C.successLight : C.bgLight, color: tpl.status === 'active' ? C.success : C.textLight }}>{tpl.status === 'active' ? '启用' : '停用'}</span></td>
                     <td style={styles.td}>
-                      <div style={styles.actionsCell}>
-                        <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title="预览"><Eye size={16} /></button>
-                        <button style={styles.actionBtn} onClick={() => handleEdit(tpl)} title="编辑"><Edit2 size={16} /></button>
-                        <button style={{ ...styles.actionBtn, ...styles.actionBtnDanger }} onClick={() => handleDelete(tpl.id)} title="删除"><Trash2 size={16} /></button>
+                      {/* [v3.0.6.11-98 Wave2A P1] 审批状态 Tag (草稿/待审批/已批准/已驳回) */}
+                      {(() => {
+                        const m = STATUS_META[tpl.status] ?? { label: tpl.status, color: C.textLight, bg: C.bgLight };
+                        return <span style={{ ...styles.statusBadge, backgroundColor: m.bg, color: m.color }}>{m.label}</span>;
+                      })()}
+                    </td>
+                    <td style={styles.td}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div style={styles.actionsCell}>
+                          <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title="预览"><Eye size={16} /></button>
+                          <button style={styles.actionBtn} onClick={() => handleEdit(tpl)} title="编辑"><Edit2 size={16} /></button>
+                          <button style={{ ...styles.actionBtn, ...styles.actionBtnDanger }} onClick={() => handleDelete(tpl.id)} title="删除"><Trash2 size={16} /></button>
+                        </div>
+                        {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {(tpl.status === 'draft' || tpl.status === 'rejected') && (
+                            <button onClick={() => void handleSubmitApproval(tpl)}
+                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: '#d97706', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              <Send size={11} /> 提交审批
+                            </button>
+                          )}
+                          {tpl.status === 'pending' && !canApprove && (
+                            <span style={{ fontSize: 11, color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                              <Clock3 size={11} /> 待审批中
+                            </span>
+                          )}
+                          {tpl.status === 'pending' && canApprove && (
+                            <>
+                              <button onClick={() => void handleApprove(tpl)}
+                                style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#22c55e20', color: '#059669', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                                <ShieldCheck size={11} /> 批准
+                              </button>
+                              <button onClick={() => { setRejectTarget(tpl); setRejectReason(''); }}
+                                style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: '#dc2626', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                                <XCircle size={11} /> 驳回
+                              </button>
+                            </>
+                          )}
+                          {tpl.status === 'rejected' && tpl.rejectedReason && (
+                            <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>驳回: {String(tpl.rejectedReason).slice(0, 8)}…</span>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -860,6 +1021,40 @@ export default function TemplateManagementPage() {
 
       {toast && <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, background: '#059669', color: '#fff', padding: '12px 20px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Check size={16} />{toast}</div>}
       {validationError && <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#dc2626', color: '#fff', padding: '12px 24px', borderRadius: 8, boxShadow: '0 4px 12px rgba(220,38,38,0.3)', fontSize: 14, fontWeight: 500 }}>{validationError}</div>}
+
+      {/* [v3.0.6.11-98 Wave2A P1] 驳回原因弹窗 (审批流) */}
+      {rejectTarget && (
+        <div style={styles.modalOverlay} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>
+          <div style={{ width: 460, background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><h2 style={{ fontSize: 16 }}>驳回模板审批</h2></div>
+              <button style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
+            </div>
+            <div style={{ padding: '20px 24px' }}>
+              <div style={{ fontSize: 13, color: C.textDark, marginBottom: 6 }}>
+                驳回「<b>{rejectTarget.name}</b>」并退回创建人修改, 请填写驳回原因:
+              </div>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={4}
+                placeholder="例: 影像所见描述不规范, 请补充增强时相"
+                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+              />
+            </div>
+            <div style={styles.modalFooter}>
+              <button style={styles.cancelBtn} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>取消</button>
+              <button
+                onClick={() => void handleRejectConfirm()}
+                disabled={actionBusy}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: C.danger, color: '#fff', border: 'none', borderRadius: 6, fontSize: 14, cursor: actionBusy ? 'not-allowed' : 'pointer', opacity: actionBusy ? 0.6 : 1 }}
+              >
+                <XCircle size={15} /> {actionBusy ? '处理中…' : '确认驳回'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

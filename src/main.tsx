@@ -1,5 +1,5 @@
-// v3.0.6.11-96: 核心 Bug 修复版
-// v3.0.6.11-96: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
+// v3.0.6.11-98: 核心 Bug 修复版
+// v3.0.6.11-98: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
 /// <reference types="vite-plugin-pwa/client" />
 import React from "react";
 import ReactDOM from "react-dom/client";

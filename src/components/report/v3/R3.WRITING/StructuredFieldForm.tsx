@@ -6,9 +6,9 @@
 import { getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
 import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
 import type { StructuredTemplate, StructuredFieldDefinition, BiradsCategory, RecistResponse, PiradsScore } from '@types/R3/R3.WRITING';
-import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload } from 'antd';
+import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload, message } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText, Table as TableIcon } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 
@@ -21,6 +21,8 @@ interface Props {
   onChange?: (values: Record<string, unknown>) => void;
   onSubmit?: (values: Record<string, unknown>) => void;
   readOnly?: boolean;
+  /** [v3.0.6.11-98 Wave2B (报告 P1)] 生成测量表 → 结构化段落 HTML, 由书写页经 insertHtml 通道插入编辑器 */
+  onGenerateReportSection?: (html: string) => void;
 }
 
 const TABS = [
@@ -37,7 +39,7 @@ const TABS = [
 ] as const;
 
 export const StructuredFieldForm: React.FC<Props> = ({
-   initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false,
+   initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false, onGenerateReportSection,
 }) => {
   const [activeTab, setActiveTab] = useState<StructuredTemplate['id']>(initialTemplateId);
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
@@ -107,6 +109,140 @@ export const StructuredFieldForm: React.FC<Props> = ({
       return next;
     });
   };
+
+  // ============================================================
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 测量表生成: 当前表单值 → 结构化段落 HTML
+  //   RECIST: 靶病灶列表表格 + 总径/变化/反应评估; RADS: 分级 + 关键指标表格
+  // ============================================================
+  const escHtml = useCallback((v: unknown): string =>
+    String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch), []);
+
+  const numVal = useCallback((v: unknown): number => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }, []);
+
+  const hasMeasurableData = useMemo(() => {
+    const v = values;
+    switch (activeTab) {
+      case 'recist': return [1, 2, 3, 4, 5].some((i) => numVal(v[`lesion${i}Long`]) > 0);
+      case 'birads': return !!v['biradsCategory'];
+      case 'pirads': return numVal(v['overallScore']) > 0;
+      case 'lungRads': return !!v['lungRadsCategory'];
+      case 'cadRads': return !!v['cadRadsCategory'];
+      case 'liRads': return !!v['liRadsCategory'];
+      case 'tiRads': return !!v['tiRadsCategory'];
+      case 'cRads': return !!v['cRadsCategory'];
+      case 'oRads': return !!v['oRadsCategory'];
+      case 'tnm': return !!v['tCategory'];
+      default: return false;
+    }
+  }, [activeTab, values, numVal]);
+
+  const TABLE_CSS = 'border-collapse:collapse;width:100%;margin:8px 0;';
+  const TH_CSS = 'border:1px solid #cbd5e1;padding:6px 8px;background:#f1f5f9;font-weight:600;text-align:left;';
+  const TD_CSS = 'border:1px solid #cbd5e1;padding:6px 8px;';
+
+  const buildMeasurementHtml = useCallback((): string => {
+    const v = values;
+    const td = (x: unknown) => `<td style="${TD_CSS}">${escHtml(x)}</td>`;
+    const th = (x: string) => `<th style="${TH_CSS}">${x}</th>`;
+
+    if (activeTab === 'recist') {
+      const lesions = [1, 2, 3, 4, 5].map((i) => ({
+        site: String(v[`lesion${i}Site`] ?? ''),
+        long: numVal(v[`lesion${i}Long`]),
+        short: numVal(v[`lesion${i}Short`]),
+        baseline: numVal(v[`lesion${i}Baseline`]),
+      })).filter((l) => l.long > 0);
+      const response = calcRecistResponse(lesions.map((l) => ({ id: '', site: l.site, longDiameterMm: l.long, shortDiameterMm: l.short, baselineMm: l.baseline })));
+      let rows = '';
+      lesions.forEach((l, idx) => {
+        rows += `<tr><td>病灶 ${idx + 1}</td>${td(l.site || '-')}${td(l.long)}${td(l.short || '-')}${td(l.baseline || '-')}</tr>`;
+      });
+      const summaryRows = [
+        ['长径总和', `${response.sumOfDiameters.toFixed(1)} mm`],
+        ['基线总和', `${response.baselineSum.toFixed(1)} mm`],
+        ['变化', `${response.percentChange.toFixed(1)} %`],
+        ['疗效分类', `${response.category} (${response.categoryLabel})`],
+        ['评估方法', String(v['measurementMethod'] ?? 'CT')],
+        ['评估医师', String(v['assessor'] ?? '')],
+      ].map(([k, val]) => `<tr><th style="${TH_CSS}">${k}</th>${td(val)}</tr>`).join('');
+      return [
+        '<h3>测量评估（RECIST 1.1）</h3>',
+        '<p>靶病灶测量列表：</p>',
+        `<table style="${TABLE_CSS}"><thead><tr>${th('病灶')}${th('部位')}${th('长径(mm)')}${th('短径(mm)')}${th('基线(mm)')}</tr></thead><tbody>${rows}</tbody></table>`,
+        '<p>疗效评估：</p>',
+        `<table style="${TABLE_CSS}"><tbody>${summaryRows}</tbody></table>`,
+      ].join('\n');
+    }
+
+    // RADS / TNM: 分级 + 描述 + 关键指标
+    const gradeMap: Partial<Record<StructuredTemplate['id'], { key: string; label: string }>> = {
+      birads: { key: 'biradsCategory', label: 'BI-RADS 分类' },
+      pirads: { key: 'overallScore', label: 'PI-RADS 综合评分' },
+      lungRads: { key: 'lungRadsCategory', label: 'Lung-RADS 分类' },
+      cadRads: { key: 'cadRadsCategory', label: 'CAD-RADS 分类' },
+      liRads: { key: 'liRadsCategory', label: 'LI-RADS 分类' },
+      tiRads: { key: 'tiRadsCategory', label: 'ACR TI-RADS 分类' },
+      cRads: { key: 'cRadsCategory', label: 'C-RADS 分类' },
+      oRads: { key: 'oRadsCategory', label: 'O-RADS 分类' },
+      tnm: { key: 'tCategory', label: 'T 分期' },
+    };
+    const meta = gradeMap[activeTab];
+    let gradeLine = '';
+    if (meta) {
+      const gv = v[meta.key];
+      let label = '';
+      if (activeTab === 'birads') {
+        const a = getBiradsByCategory((String(gv) || '2') as BiradsCategory);
+        label = `${a.label} (${a.labelEn}) · 恶性风险 ${a.malignancyRisk}% · ${a.recommendation}`;
+      }
+      gradeLine = `<tr><th style="${TH_CSS}">${meta.label}</th>${td(`${gv ?? '-'}${label ? ` — ${label}` : ''}`)}</tr>`;
+    }
+    const metricKeys: Record<string, Array<[string, string]>> = {
+      birads: [['乳腺密度', 'breastDensity'], ['肿块', 'mass'], ['建议', 'recommendation']],
+      pirads: [['PSA (ng/mL)', 'psa'], ['前列腺体积 (cc)', 'prostateVolume'], ['PSAD (ng/mL/cc)', 'psad']],
+      lungRads: [['结节数量', 'noduleCount'], ['结节大小 (mm)', 'noduleSizeMm']],
+      cadRads: [['LM狭窄', 'lmStenosis'], ['LAD狭窄', 'ladStenosis'], ['RCA狭窄', 'rcaStenosis']],
+      liRads: [['APHE', 'aphe'], ['廓清', 'washout'], ['病灶数', 'lesionCountLiver']],
+      tiRads: [['总分', 'totalTiradsScore'], ['结节大小 (mm)', 'noduleSizeTi']],
+      cRads: [['息肉数量', 'polypCount'], ['肠道准备', 'prepQuality']],
+      oRads: [['病变大小 (mm)', 'lesionSizeOr'], ['强化', 'enhancement'], ['弥散受限', 'diffusionRestriction']],
+      tnm: [['T', 'tCategory'], ['N', 'nCategory'], ['M', 'mCategory'], ['分期', 'stageGroup']],
+    };
+    const metricRows = (metricKeys[activeTab] ?? [])
+      .map(([k, key]) => {
+        const raw = v[key];
+        if (raw === undefined || raw === null || raw === '') return '';
+        return `<tr><th style="${TH_CSS}">${k}</th>${td(raw)}</tr>`;
+      })
+      .join('');
+    const titles: Partial<Record<StructuredTemplate['id'], string>> = {
+      birads: 'BI-RADS 乳腺影像报告与数据系统', pirads: 'PI-RADS v2.1 前列腺影像报告与数据系统',
+      lungRads: 'Lung-RADS 2022 肺结节筛查报告与数据系统', cadRads: 'CAD-RADS 2.0 冠状动脉疾病报告与数据系统',
+      liRads: 'LI-RADS v2024 肝脏影像报告与数据系统', tiRads: 'ACR TI-RADS 甲状腺影像报告与数据系统',
+      cRads: 'C-RADS 结直肠癌筛查报告与数据系统', oRads: 'O-RADS MRI 卵巢影像报告与数据系统',
+      tnm: 'TNM/AJCC 8th 分期',
+    };
+    return [
+      `<h3>测量评估（${activeTabMeta.label}）</h3>`,
+      `<p>${titles[activeTab] ?? activeTabMeta.label} 分级与关键指标：</p>`,
+      `<table style="${TABLE_CSS}"><tbody>${gradeLine}${metricRows}</tbody></table>`,
+    ].join('\n');
+  }, [activeTab, activeTabMeta.label, values, escHtml, numVal]);
+
+  const handleGenerateSection = useCallback(() => {
+    if (!hasMeasurableData) {
+      message.info('当前结构化表单无测量数据,请先填写测量值后再生成测量表');
+      return;
+    }
+    if (!onGenerateReportSection) {
+      message.info('当前环境未接入报告编辑器,无法插入测量表');
+      return;
+    }
+    onGenerateReportSection(buildMeasurementHtml());
+  }, [hasMeasurableData, onGenerateReportSection, buildMeasurementHtml]);
 
   const renderField = (f: StructuredFieldDefinition) => {
     if (!isFieldVisible(f)) return null;
@@ -229,7 +365,13 @@ export const StructuredFieldForm: React.FC<Props> = ({
         break;
       case 'signature':
         control = (
-          <Button icon={<Edit3 className="w-4 h-4" />} type="dashed" disabled={isLocked}>
+          <Button
+            icon={<Edit3 className="w-4 h-4" />}
+            type="dashed"
+            disabled={isLocked}
+            // [v3.0.6.11-98 Wave3B P2] 未锁定时点击: 提示先完成表单 (签名需在表单锁定/提交后)
+            onClick={() => message.info('请先完成表单并提交，锁定后执行签名')}
+          >
             {values[f.key] ? '已签名' : '点击签名'}
           </Button>
         );
@@ -320,6 +462,12 @@ export const StructuredFieldForm: React.FC<Props> = ({
           </Col>
           <Col span={6}>
             <div className="flex items-center gap-2">
+              {/* [v3.0.6.11-98 Wave2B (报告 P1)] 测量表生成: 表单值 → 结构化段落 HTML → 编辑器 */}
+              <Tooltip title={hasMeasurableData ? '按当前表单值生成测量表/分级段落,插入报告正文' : '无测量数据,请先填写测量值'}>
+                <Button icon={<TableIcon className="w-4 h-4" />} onClick={handleGenerateSection} disabled={!hasMeasurableData || readOnly}>
+                  生成测量表
+                </Button>
+              </Tooltip>
               <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => onSubmit?.(values)} disabled={completion.percent < 100 || readOnly}>
                 提交
               </Button>

@@ -1,11 +1,14 @@
 // @ts-nocheck
 import { Card } from 'antd'
+// [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化: 优先 GET /finding-library + /finding-library/search,
+//   失败回退内置 200 条硬编码并显示「内置知识库回退」徽标 (保留下方硬编码结构不动)
+import { findingLibraryApi } from '../services/api/findingLibraryApi'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 6,765 字符)
 // ============================================================
 // G005 放射科RIS系统 - 典型征象图文库 v1.0.0
 // 汉东省人民医院放射科
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Search, Filter, X, ChevronDown, ChevronUp, BookOpen,
@@ -841,8 +844,97 @@ const MODALITY_COLORS: Record<string, string> = {
 // ============================================================
 export default function FindingLibraryPage() {
   const { t } = useTranslation('v3report')
-  // ---------- 状态 ----------
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库双源: api=后端 /finding-library, fallback=内置 200 条
+  //   注意: 状态声明须先于下方 effects (避免 TDZ)
   const [searchText, setSearchText] = useState('')
+  const [dataSource, setDataSource] = useState<'api' | 'fallback'>('api')
+  const [findingsLoading, setFindingsLoading] = useState(true)
+  const [findings, setFindings] = useState<TypicalFinding[]>(ALL_FINDINGS)
+  const serverFindingsRef = useRef<TypicalFinding[]>(ALL_FINDINGS)
+  const searchInFlightRef = useRef(0)
+
+  // 后端征象条目 → 页面 TypicalFinding 形状 (desc→description, keywords→tags)
+  const mapServerItems = (groups: Array<{ category: string; items: Array<{ id: string; name: string; description: string; keywords: string[] }> }>): TypicalFinding[] => {
+    const out: TypicalFinding[] = []
+    groups.forEach((g) => {
+      (g.items ?? []).forEach((it, i) => {
+        out.push({
+          id: it.id || `${g.category}-${i}`,
+          bodyPart: g.category,
+          findingName: it.name,
+          disease: '',
+          description: it.description,
+          imageUrl: '',
+          insertText: it.description,
+          typicalIn: [],
+          tags: it.keywords ?? [],
+          usageCount: 0,
+          modality: [],
+          diseaseType: '',
+        })
+      })
+    })
+    return out
+  }
+
+  // 挂载: 拉取后端分组列表; 失败 → 内置 200 条回退 (徽标)
+  useEffect(() => {
+    let cancelled = false
+    setFindingsLoading(true)
+    findingLibraryApi.list().then((res) => {
+      if (cancelled) return
+      const groups = Array.isArray(res.data) ? res.data : []
+      if (groups.length > 0) {
+        const mapped = mapServerItems(groups)
+        serverFindingsRef.current = mapped
+        setFindings(mapped)
+        setDataSource('api')
+      } else {
+        setDataSource('fallback')
+      }
+    }).catch(() => { if (!cancelled) setDataSource('fallback') })
+      .finally(() => { if (!cancelled) setFindingsLoading(false) })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 检索: 服务端命中 → /finding-library/search; 失败/空 → 内置库本地过滤 (徽标)
+  useEffect(() => {
+    const kw = searchText.trim()
+    if (dataSource !== 'api' || !kw) return
+    const token = ++searchInFlightRef.current
+    findingLibraryApi.search(kw).then((res) => {
+      if (token !== searchInFlightRef.current) return
+      const groups = Array.isArray(res.data) ? res.data : []
+      if (groups.length > 0) {
+        setFindings(mapServerItems(groups))
+      } else {
+        setFindings(ALL_FINDINGS.filter((f) => {
+          const s = kw.toLowerCase()
+          return f.findingName.toLowerCase().includes(s) ||
+            f.description.toLowerCase().includes(s) ||
+            f.disease.toLowerCase().includes(s) ||
+            f.tags.some((tag) => tag.toLowerCase().includes(s))
+        }))
+      }
+    }).catch(() => {
+      if (token !== searchInFlightRef.current) return
+      const s = kw.toLowerCase()
+      setFindings(ALL_FINDINGS.filter((f) =>
+        f.findingName.toLowerCase().includes(s) ||
+        f.description.toLowerCase().includes(s) ||
+        f.disease.toLowerCase().includes(s) ||
+        f.tags.some((tag) => tag.toLowerCase().includes(s))))
+      setDataSource('fallback')
+    })
+  }, [searchText, dataSource])
+
+  // 搜索清空: 恢复服务端全量 (若 API 曾成功)
+  useEffect(() => {
+    if (!searchText.trim() && dataSource === 'api') setFindings(serverFindingsRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText])
+  // ---------- 状态 ----------
   const [activeBodyPart, setActiveBodyPart] = useState('全部')
   const [activeModality, setActiveModality] = useState('全部')
   const [activeDiseaseType, setActiveDiseaseType] = useState('全部')
@@ -857,21 +949,21 @@ export default function FindingLibraryPage() {
 
   // ---------- 统计数据 ----------
   const stats = useMemo(() => ({
-    total: ALL_FINDINGS.length,
+    total: findings.length,
     byBodyPart: BODY_PARTS.slice(1).map(bp => ({
       name: bp,
-      count: ALL_FINDINGS.filter(f => f.bodyPart === bp).length
+      count: findings.filter(f => f.bodyPart === bp).length
     })),
     byModality: MODALITY_LIST.slice(1).map(m => ({
       name: m,
-      count: ALL_FINDINGS.filter(f => f.modality.includes(m)).length
+      count: findings.filter(f => f.modality.includes(m)).length
     })),
-    topUsed: [...ALL_FINDINGS].sort((a, b) => b.usageCount - a.usageCount).slice(0, 10),
-  }), [])
+    topUsed: [...findings].sort((a, b) => b.usageCount - a.usageCount).slice(0, 10),
+  }), [findings])
 
   // ---------- 过滤 ----------
   const filteredFindings = useMemo(() => {
-    return ALL_FINDINGS.filter(f => {
+    return findings.filter(f => {
       // 部位
       if (activeBodyPart !== '全部' && f.bodyPart !== activeBodyPart) return false
       // 检查类型
@@ -890,7 +982,7 @@ export default function FindingLibraryPage() {
       if (showFavoritesOnly && !favorites.has(f.id)) return false
       return true
     })
-  }, [activeBodyPart, activeModality, activeDiseaseType, searchText, favorites, showFavoritesOnly])
+  }, [findings, activeBodyPart, activeModality, activeDiseaseType, searchText, favorites, showFavoritesOnly])
 
   // ---------- 收藏 ----------
   const toggleFavorite = (id: string, e?: React.MouseEvent) => {
@@ -1565,21 +1657,51 @@ export default function FindingLibraryPage() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{t('findingLibraryTitle')}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCount', { count: ALL_FINDINGS.length })}</div>
-              {/* [G005 W2-B] 内容库保持静态, 顶部标注「静态知识库」徽标 (不接 API) */}
-              <span style={{
-                display: 'inline-block',
-                marginTop: 6,
-                padding: '2px 10px',
-                background: 'var(--color-info-bg)',
-                border: '1px solid #bfdbfe',
-                borderRadius: 10,
-                fontSize: 11,
-                fontWeight: 700,
-                color: COLORS.primary,
-              }}>
-                静态知识库 · 前端内置 {ALL_FINDINGS.length} 条征象
-              </span>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCount', { count: findings.length })}</div>
+              {/* [v3.0.6.11-98 Wave2B (报告 P1)] 数据源徽标: api=服务端征象库 / fallback=内置知识库回退 */}
+              {findingsLoading ? (
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 6,
+                  padding: '2px 10px',
+                  background: 'var(--color-warning-bg)',
+                  border: '1px solid #fde68a',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#b45309',
+                }}>
+                  征象库加载中…
+                </span>
+              ) : dataSource === 'api' ? (
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 6,
+                  padding: '2px 10px',
+                  background: 'var(--color-success-bg)',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#15803d',
+                }}>
+                  服务端征象库 · 后端 {findings.length} 条征象
+                </span>
+              ) : (
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 6,
+                  padding: '2px 10px',
+                  background: 'var(--color-warning-bg)',
+                  border: '1px solid #fde68a',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#b45309',
+                }}>
+                  内置知识库回退 · 前端内置 {ALL_FINDINGS.length} 条征象
+                </span>
+              )}
             </div>
           </div>
 

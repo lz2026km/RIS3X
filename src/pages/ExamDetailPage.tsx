@@ -31,6 +31,8 @@ const toExamFromWorklist = (dto: WorklistItemDto): RadiologyExam => {
     status: normalizeExamStatus(dto.state ?? dto.status) as RadiologyExam["status"],
     imagesAcquired: 0,
     accessionNumber: dto.accessionNumber ?? dto.accessionNo ?? "",
+    // [v3.0.6.11-98 Wave3B P2] worklist patient.birthDate 透出 (无 phone/weight → 页面 `--`)
+    patientBirthDate: dto.patient?.birthDate ? String(dto.patient.birthDate).slice(0, 10) : undefined,
     createdTime: dto.createdAt ?? "",
     updatedTime: dto.createdAt ?? "",
   };

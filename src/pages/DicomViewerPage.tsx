@@ -25,7 +25,7 @@ const s = {
   root: { display: 'flex', flexDirection: 'column' as const, height: '100vh', background: '#0f172a', color: '#e2e8f0', overflow: 'hidden', fontFamily: "'PingFang SC','Microsoft YaHei',sans-serif" },
   body: { flex: 1, display: 'flex', overflow: 'hidden' },
   statusBar: { display: 'flex', alignItems: 'center', gap: 12, padding: '4px 12px', background: '#1e293b', borderTop: '1px solid #334155', fontSize: 12, color: '#94a3b8', flexShrink: 0 },
-  layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
+  layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
 }
 

@@ -5,7 +5,7 @@
  * Expanded: confidence scoring, tabs (draft/ddx/risk/preread), model selector, multi-draft comparison
  */
 import React, { useState, useCallback } from 'react';
-import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs } from 'antd';
+import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs, Modal } from 'antd';
 import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, CheckCircle2, Copy, Edit3, Zap, Activity, Eye, Cpu, ListOrdered } from 'lucide-react';
 import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
 import { generateAiDraft } from '@services/writing/writingService';
@@ -103,6 +103,8 @@ export const AIDraftPanel: React.FC<Props> = ({
   const [editingSentence, setEditingSentence] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [activeVersion, setActiveVersion] = useState(0);
+  // [v3.0.6.11-98 Wave3B P1] 对比原片: 当前检查无影像数据透出 → 对比面板 + 标注 (影像数据待 DICOM 通道)
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const handleGenerate = useCallback(async () => {
     if (disabled || !clinicalInfo.trim()) {
@@ -415,7 +417,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                 <div className="flex items-center gap-2">
                   <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={handleAccept}>应用到编辑器</Button>
                   <Button icon={<Edit3 className="w-4 h-4" />} onClick={() => setShowRefine(true)}>反馈调整</Button>
-                  <Button icon={<Eye className="w-4 h-4" />}>对比原片</Button>
+                  <Button icon={<Eye className="w-4 h-4" />} onClick={() => setCompareOpen(true)}>对比原片</Button>
                 </div>
               )}
 
@@ -569,6 +571,45 @@ export const AIDraftPanel: React.FC<Props> = ({
       {result && (
         <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} size="small" />
       )}
+
+      {/* [v3.0.6.11-98 Wave3B P1] 对比原片 Modal: 原片影像数据未透出 → 标注待 DICOM 通道 */}
+      <Modal
+        title={<Space><Eye className="w-4 h-4 text-blue-500" /><span>AI 草稿 vs 原片对比</span></Space>}
+        open={compareOpen}
+        onCancel={() => setCompareOpen(false)}
+        footer={<Button onClick={() => setCompareOpen(false)}>关闭</Button>}
+        width={720}
+      >
+        {result && (
+          <Row gutter={12}>
+            <Col span={12}>
+              <Card size="small" title={<span className="text-sm font-semibold">原片（当前检查影像）</span>} styles={{ body: { padding: 12 } }}>
+                <div style={{
+                  height: 240, borderRadius: 8,
+                  background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  color: '#94a3b8', fontSize: 12, gap: 8,
+                }}>
+                  <div style={{ fontSize: 32, opacity: 0.6 }}>🩻</div>
+                  <div>{modality} · {bodyPart}</div>
+                  <div style={{ fontSize: 11 }}>报告 {reportId}</div>
+                  <Alert type="warning" showIcon style={{ fontSize: 11, maxWidth: 220 }} message="原片影像数据未透出，需经 DICOM 影像通道获取（标注: 待接入）" />
+                </div>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card size="small" title={<span className="text-sm font-semibold">AI 草稿所见</span>} styles={{ body: { padding: 12 } }}>
+                <div style={{ height: 240, overflowY: 'auto', fontSize: 12, lineHeight: 1.9, color: '#334155', whiteSpace: 'pre-wrap' }}>
+                  {result.findings || '（无）'}
+                  <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #e2e8f0', color: '#7c3aed', fontWeight: 600 }}>
+                    诊断意见：{result.impression}
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        )}
+      </Modal>
     </Card>
   );
 };

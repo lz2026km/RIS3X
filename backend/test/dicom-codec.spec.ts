@@ -8,6 +8,7 @@ import {
   predictiveDecode,
   compressPixelData,
   decompressPixelData,
+  codecMetaFrom,
 } from '../src/modules/dicom-compress/dicom-codec'
 
 const SAMPLE = path.resolve(__dirname, '../dicom-samples/CT_CHEST/CT_CHEST_001.dcm')
@@ -105,11 +106,20 @@ describe('DicomCodec', () => {
     expect(rleEncode(px, 16).equals(rleEncode(px, 16))).toBe(true)
   })
 
-  it('compressPixelData/decompressPixelData high-level entry points work', () => {
+  it('compressPixelData/decompressPixelData high-level entry points work', async () => {
     const parsed = parseDicomPart10(fs.readFileSync(SAMPLE))
-    const packed = compressPixelData(parsed.pixelData, parsed, { kind: 'rle', quality: 100 })
-    const meta = { kind: 'rle' as const, lossless: true, quality: 100, bitsAllocated: 16, pixelRepresentation: 0, rows: 512, columns: 512, pixelCount: 512 * 512 }
-    const out = decompressPixelData(packed, meta)
+    const packed = await compressPixelData(parsed.pixelData, parsed, { kind: 'rle', quality: 100 })
+    const meta = { kind: 'rle' as const, lossless: true, quality: 100, bitsAllocated: 16, pixelRepresentation: 0, rows: 512, columns: 512, pixelCount: 512 * 512, samplesPerPixel: 1, source: 'rle-approx' as const }
+    const out = await decompressPixelData(packed, meta)
     expect(out.equals(parsed.pixelData)).toBe(true)
+  })
+
+  // [G005 Wave3A P16] JPEG2000 真编解码: 高层入口 source 标注
+  it('codecMetaFrom annotates source: jpeg2000 => real, rle => rle-approx', () => {
+    const parsed = parseDicomPart10(fs.readFileSync(SAMPLE))
+    const j2k = codecMetaFrom(parsed, { kind: 'jpeg2000', lossless: true, quality: 100 })
+    expect(j2k.source).toBe('real')
+    const rle = codecMetaFrom(parsed, { kind: 'rle', lossless: true, quality: 100 })
+    expect(rle.source).toBe('rle-approx')
   })
 })

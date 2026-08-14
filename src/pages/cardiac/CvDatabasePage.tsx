@@ -142,6 +142,27 @@ export default function CvDatabasePage() {
     return true;
   });
 
+  // [v3.0.6.11-98 Wave3B P2] 导出: 当前病例列表 → 真实 CSV (BOM 支持 Excel 中文)
+  const handleExport = () => {
+    const header = ['病例ID', '患者', '患者ID', '设备', '部位', '检查日期', '检查号', '诊断', 'CAD-RADS', 'EF(%)', '病灶数', '关键发现']
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const rows = filtered.map((c) => [
+      c.id, c.patientName, c.patientId, c.modality, c.anatomy, c.studyDate,
+      c.accessionNumber, c.diagnosis, c.cadRads ?? '', c.efPercent ?? '', c.lesionCount, c.keyFindings,
+    ])
+    const csv = '\ufeff' + [header.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))].join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `CV影像数据库_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    message.success(`已导出 ${filtered.length} 条病例记录`)
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <div
@@ -167,14 +188,14 @@ export default function CvDatabasePage() {
             刷新
           </Button>
           <button
-            disabled
+            onClick={handleExport}
             style={{
               padding: "6px 16px",
-              background: "#94a3b8",
+              background: "#1e40af",
               color: "#fff",
               border: "none",
               borderRadius: 6,
-              cursor: "not-allowed",
+              cursor: "pointer",
               display: "flex",
               alignItems: "center",
               gap: 6,

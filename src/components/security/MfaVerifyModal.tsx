@@ -75,7 +75,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#fff', borderRadius: 16, width: 400,
+          background: 'var(--bg-card)', borderRadius: 16, width: 400,
           boxShadow: '0 20px 60px rgba(0,0,0,0.25)', overflow: 'hidden',
         }}
       >

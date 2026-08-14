@@ -48,6 +48,10 @@ export const toRadiologyExamFromDto = (dto: ExamDto & Record<string, unknown>): 
     gender: String(patient?.gender ?? dto.gender ?? '其他') as RadiologyExam['gender'],
     age: Number(patient?.age ?? dto.age ?? 0),
     patientType: String(patient?.patientType ?? dto.patientType ?? '门诊') as RadiologyExam['patientType'],
+    // [v3.0.6.11-98 Wave3B P2] 患者扩展信息 (DTO patient 字段, 无则 undefined → 页面 `--`)
+    patientPhone: patient?.phone ? String(patient.phone) : undefined,
+    patientBirthDate: patient?.birthDate ? String(patient.birthDate).slice(0, 10) : undefined,
+    patientWeight: patient?.weight ? String(patient.weight) : undefined,
     examItemId: String(dto.examItemCode ?? ''),
     examItemName: String(dto.examItemName ?? dto.examItem ?? '检查'),
     modality: String(dto.modality ?? 'CT') as RadiologyExam['modality'],
@@ -148,6 +152,11 @@ export function ExamDetailView({
   const [historyError, setHistoryError] = useState<string | null>(null)
   const lastExamIdRef = useRef<string | null>(null)
 
+  // [v3.0.6.11-98 Wave3B P2] 操作日志: worklistApi.getById 返回 ops[] (op/createdAt/actor.fullName),
+  //   无数据时展示「暂无操作记录」空态 (替代 -96 伪造时间线)
+  const [opsLog, setOpsLog] = useState<Array<{ time: string; event: string; operator: string }>>([])
+  const [opsLoading, setOpsLoading] = useState(false)
+
   // [G005 Wave1A W9] 状态流转: worklistApi checkin/start/complete/cancel (后端 POST /worklist/:id/*)
   // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
   const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake" | null>(null)
@@ -219,6 +228,70 @@ export function ExamDetailView({
     return () => { cancelled = true }
   }, [exam, activeTab])
 
+  // [v3.0.6.11-98 Wave3B P2] 操作日志页签: worklistApi.getById → ops[] (后端 -95 已加)
+  useEffect(() => {
+    if (!exam) return
+    if (activeTab !== "log") return
+    let cancelled = false
+    setOpsLoading(true)
+    worklistApi.getById(exam.id)
+      .then(res => {
+        if (cancelled) return
+        const raw = (res.data ?? {}) as unknown as Record<string, unknown> & {
+          ops?: Array<{ op?: string; createdAt?: string; actor?: { fullName?: string } }>
+        }
+        setOpsLog(Array.isArray(raw.ops) ? raw.ops.map(o => ({
+          time: o.createdAt ? new Date(o.createdAt).toLocaleString("zh-CN", { hour12: false }) : "",
+          event: String(o.op ?? "状态变更"),
+          operator: o.actor?.fullName ?? "系统",
+        })) : [])
+        setOpsLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setOpsLog([])
+        setOpsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [exam, activeTab])
+
+  // [v3.0.6.11-98 Wave3B P1] 打印条码: 无 barcode 库 → canvas 绘制确定性条码图并下载 PNG
+  const handlePrintBarcode = () => {
+    if (!exam) return
+    const text = exam.accessionNumber || exam.id
+    const canvas = document.createElement("canvas")
+    canvas.width = 560
+    canvas.height = 160
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    let seed = 0
+    for (let i = 0; i < text.length; i++) seed = (seed * 31 + text.charCodeAt(i)) >>> 0
+    let x = 24
+    let barIdx = 0
+    while (x < 536) {
+      const w = 1 + ((seed >>> (barIdx * 3)) & 7) % 3
+      ctx.fillStyle = barIdx % 2 === 0 ? "#111827" : "#ffffff"
+      ctx.fillRect(x, 18, w, 104)
+      x += w + 1
+      barIdx++
+      if (barIdx > 15) { seed = (seed >>> 1) ^ 0x9e3779b9 }
+    }
+    ctx.fillStyle = "#111827"
+    ctx.font = "14px 'Microsoft YaHei', sans-serif"
+    ctx.textAlign = "center"
+    ctx.fillText(`${exam.patientName}  ${exam.examItemName}  ${text}`, canvas.width / 2, 138)
+    const url = canvas.toDataURL("image/png")
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `条码_${text || exam.patientName}.png`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    message.success("检查条码已生成并下载（待接入院内条码打印）")
+  }
+
   if (!exam) return null;
 
   const device = getDeviceById(exam.deviceId ?? "");
@@ -230,57 +303,8 @@ export function ExamDetailView({
   };
   const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG["普通"]!;
 
-  const examLogs = [
-    {
-      time: exam.createdTime || exam.examDate + " 08:00",
-      event: "检查登记",
-      operator: "系统",
-      status: "登记",
-    },
-    {
-      time: exam.examDate + " 08:30",
-      event: "分配设备",
-      operator: "护士长 赵雪梅",
-      status: "分配",
-    },
-    exam.examTime
-      ? {
-          time: exam.examDate + " " + exam.examTime,
-          event: "开始检查",
-          operator: exam.technologistName || "技师",
-          status: "检查",
-        }
-      : null,
-    exam.imagesAcquired > 0
-      ? {
-          time:
-            exam.examDate +
-            " " +
-            (parseInt(exam.examTime?.split(":")[0] || "0") + 1) +
-            ":00",
-          event: `图像采集完成（${exam.imagesAcquired}幅）`,
-          operator: exam.technologistName || "技师",
-          status: "采集",
-        }
-      : null,
-    normalizeExamStatus(exam.status) === "COMPLETED"
-      ? {
-          time:
-            exam.examDate +
-            " " +
-            (parseInt(exam.examTime?.split(":")[0] || "0") + 2) +
-            ":00",
-          event: "报告书写",
-          operator: "报告医生",
-          status: "报告",
-        }
-      : null,
-  ].filter(Boolean) as {
-    time: string;
-    event: string;
-    operator: string;
-    status: string;
-  }[];
+  // [v3.0.6.11-98 Wave3B P2] 操作日志: 改用 worklistApi.getById 返回的 ops[] (空 → 空态)
+  const examLogs = opsLog
 
   const DrawerTab = ({
     label,
@@ -478,9 +502,10 @@ export function ExamDetailView({
                   ["性别", exam.gender],
                   ["年龄", exam.age + "岁"],
                   ["患者类型", exam.patientType],
-                  ["联系电话", "138****8001"],
-                  ["出生日期", "1964-02-15"],
-                  ["体重", "65kg"],
+                  // [v3.0.6.11-98 Wave3B P2] 患者扩展信息: 真实渲染 (无 → `--`)
+                  ["联系电话", exam.patientPhone || "--"],
+                  ["出生日期", exam.patientBirthDate || "--"],
+                  ["体重", exam.patientWeight || "--"],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <div
@@ -766,6 +791,36 @@ export function ExamDetailView({
                   background: "#e2e8f0",
                 }}
               />
+              {opsLoading ? (
+                <div
+                  style={{
+                    background: "var(--content-bg)",
+                    borderRadius: 10,
+                    padding: 40,
+                    textAlign: "center",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <div style={{ fontSize: 12 }}>正在加载操作日志...</div>
+                </div>
+              ) : examLogs.length === 0 ? (
+                <div
+                  style={{
+                    background: "var(--content-bg)",
+                    borderRadius: 10,
+                    padding: 40,
+                    textAlign: "center",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <ClipboardList
+                    size={32}
+                    style={{ margin: "0 auto 12px", opacity: 0.4 }}
+                  />
+                  {/* [v3.0.6.11-98 Wave3B P2] 无 ops 数据空态 */}
+                  <div style={{ fontSize: 12 }}>暂无操作记录</div>
+                </div>
+              ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                 {examLogs.map((log, idx) => (
                   <div
@@ -832,6 +887,7 @@ export function ExamDetailView({
                   </div>
                 ))}
               </div>
+              )}
             </div>
           </div>
         )}
@@ -1163,6 +1219,7 @@ export function ExamDetailView({
           取消检查
         </button>
         <button
+          onClick={handlePrintBarcode}
           style={{
             padding: "10px 16px",
             background: "var(--bg-card)",

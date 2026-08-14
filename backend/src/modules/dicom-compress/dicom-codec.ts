@@ -1,16 +1,21 @@
 /**
- * G005 RIS - DICOM 真实压缩编解码器 (纯 Node 实现, 零外部依赖, 确定性输出)
+ * G005 RIS - DICOM 真实压缩编解码器 (纯 Node 实现 + OpenJPEG WASM, 确定性输出)
  *
  * 对标全厂商 JPEG2000 / HTJ2K 传输语法:
+ *  - JPEG2000 (1.2.840.10008.1.2.4.90): OpenJPEG WASM 真编解码 (jpeg2000.ts),
+ *    产生 DICOM 同款裸 J2K codestream, 无损 (quality=100)。source = 'real'。
  *  - RLE (1.2.840.10008.1.2.5): DICOM PS3.5 A.4.2 风格游程编码, 无损。
  *    16-bit 像素按 MSB 平面在前拆分为多个字节平面, 每平面独立游程编码,
- *    64 字节段偏移表头 (16 x uint32 LE)。
- *  - Predictive (1.2.840.10008.1.2.4.90/.91): LOCO-I 中值边缘预测器
+ *    64 字节段偏移表头 (16 x uint32 LE)。source = 'rle-approx'。
+ *  - Predictive (1.2.840.10008.1.2.4.91/.81/.50): LOCO-I 中值边缘预测器
  *    (JPEG-LS 核心预测) + Golomb-Rice 熵编码 (HTJ2K Fast-Block 风格),
  *    无损 (quality=100) / 有损 (quality<100, 死区量化器, step 随 quality 缩放)。
+ *    属于 JPEG-LS 风格近似编码, source = 'rle-approx'。
  *
  * 所有函数均为确定性纯函数: 相同输入 => 相同输出 (无 Math.random)。
  */
+
+import { jpeg2000Encode, jpeg2000Decode } from './jpeg2000'
 
 export interface ParsedDicom {
   rows: number
@@ -26,7 +31,15 @@ export interface ParsedDicom {
   fileSize: number
 }
 
-export type CodecKind = 'rle' | 'predictive'
+export type CodecKind = 'rle' | 'predictive' | 'jpeg2000'
+
+/**
+ * 编码结果来源标注:
+ *  - real      : OpenJPEG WASM 真 JPEG2000 码流
+ *  - rle-approx: RLE / LOCO-I 真实字节流编码 (JPEG-LS 风格近似)
+ *  - estimated : 查表估算回退 (文件不可达时)
+ */
+export type CodecSource = 'real' | 'rle-approx' | 'estimated'
 
 export interface CodecMeta {
   kind: CodecKind
@@ -37,6 +50,8 @@ export interface CodecMeta {
   rows: number
   columns: number
   pixelCount: number
+  samplesPerPixel: number
+  source: CodecSource
 }
 
 const LONG_VR = new Set(['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR', 'UT'])
@@ -383,16 +398,25 @@ export function predictiveDecode(
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// 高层入口: 按传输语法压缩/解压 (确定性)
+// 高层入口: 按传输语法压缩/解压 (确定性; jpeg2000 走 OpenJPEG WASM)
 // ────────────────────────────────────────────────────────────────────────────
 
-export function compressPixelData(
+export async function compressPixelData(
   pixelData: Buffer,
-  meta: Pick<ParsedDicom, 'bitsAllocated' | 'pixelRepresentation' | 'rows' | 'columns'>,
+  meta: Pick<ParsedDicom, 'bitsAllocated' | 'pixelRepresentation' | 'rows' | 'columns' | 'samplesPerPixel'>,
   codec: { kind: CodecKind; quality: number },
-): Buffer {
+): Promise<Buffer> {
   if (codec.kind === 'rle') {
     return rleEncode(pixelData, meta.bitsAllocated)
+  }
+  if (codec.kind === 'jpeg2000') {
+    return jpeg2000Encode(pixelData, {
+      rows: meta.rows,
+      columns: meta.columns,
+      bitsAllocated: meta.bitsAllocated,
+      pixelRepresentation: meta.pixelRepresentation,
+      samplesPerPixel: meta.samplesPerPixel,
+    })
   }
   return predictiveEncode(pixelData, {
     bitsAllocated: meta.bitsAllocated,
@@ -401,9 +425,17 @@ export function compressPixelData(
   })
 }
 
-export function decompressPixelData(packed: Buffer, meta: CodecMeta): Buffer {
+export async function decompressPixelData(packed: Buffer, meta: CodecMeta): Promise<Buffer> {
   if (meta.kind === 'rle') {
     return rleDecode(packed, meta.pixelCount * sampleBytes(meta.bitsAllocated))
+  }
+  if (meta.kind === 'jpeg2000') {
+    return jpeg2000Decode(packed, {
+      rows: meta.rows,
+      columns: meta.columns,
+      bitsAllocated: meta.bitsAllocated,
+      pixelCount: meta.pixelCount,
+    })
   }
   return predictiveDecode(packed, {
     bitsAllocated: meta.bitsAllocated,
@@ -426,5 +458,7 @@ export function codecMetaFrom(
     rows: parsed.rows,
     columns: parsed.columns,
     pixelCount: Math.floor(parsed.pixelData.length / sampleBytes(parsed.bitsAllocated)),
+    samplesPerPixel: parsed.samplesPerPixel,
+    source: codec.kind === 'jpeg2000' ? 'real' : 'rle-approx',
   }
 }

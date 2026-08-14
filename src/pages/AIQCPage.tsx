@@ -4,6 +4,7 @@
 // [v3.0.6.11-75] W1-2: 接入 aiPlatformApi.listQcResults (GET /ai-platform/qc, 后端 auditLog resource=ai-qc)
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { message } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
 import {
@@ -160,6 +161,202 @@ export default function AIQCPage() {
   // [G005 2B] SAMPLE_ASSESS_IDS 保留: 仅用于「刷新示例」按钮批量评估演示用途
   const SAMPLE_ASSESS_IDS = ['EX-5001', 'EX-5002', 'EX-5003']
 
+  // [G005 Wave3A P16] G-24 深化: 历史趋势 / 批量评估 / CSV 导出 / 阈值配置
+  const THRESHOLD_KEY = 'g005.aiqc.thresholds.v1'
+  const DEFAULT_THRESHOLDS = { artifact: 80, exposure: 80, positioning: 80, overall: 80 }
+  const [thresholds, setThresholds] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(THRESHOLD_KEY) ?? 'null')
+      return { ...DEFAULT_THRESHOLDS, ...(saved ?? {}) }
+    } catch {
+      return DEFAULT_THRESHOLDS
+    }
+  })
+  const [assessHistory, setAssessHistory] = useState([])
+  const [trendLoading, setTrendLoading] = useState(false)
+  const [showTrend, setShowTrend] = useState(false)
+  const [batchIds, setBatchIds] = useState('EX-5001,EX-5002,EX-5003')
+  const [batchResults, setBatchResults] = useState([])
+  const [batchAssessing, setBatchAssessing] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem(THRESHOLD_KEY, JSON.stringify(thresholds))
+  }, [thresholds])
+
+  // 维度通过阈值判定: score >= 阈值 通过; >= 阈值-10 告警; 否则失败
+  const dimVerdict = (score, threshold) => {
+    if (score >= threshold) return '通过'
+    if (score >= threshold - 10) return '告警'
+    return '失败'
+  }
+  const overallVerdict = (a) => {
+    const dims = [
+      dimVerdict(a.artifact.score, thresholds.artifact),
+      dimVerdict(a.exposure.score, thresholds.exposure),
+      dimVerdict(a.positioning.score, thresholds.positioning),
+    ]
+    if (dims.includes('失败')) return '失败'
+    if (dims.includes('告警') || a.overall.score < thresholds.overall) return '告警'
+    return '通过'
+  }
+  const verdictColor = (v) => (v === '通过' ? SUCCESS : v === '告警' ? WARNING : DANGER)
+
+  const updateThreshold = (key) => (e) => {
+    const v = Math.max(50, Math.min(100, Number(e.target.value) || 0))
+    setThresholds((prev) => ({ ...prev, [key]: v }))
+  }
+
+  const loadAssessHistory = async (silent = false) => {
+    if (!silent) setTrendLoading(true)
+    try {
+      const res = await qcImageAiApi.listAssessments({ pageSize: 100 })
+      if (res.success && Array.isArray(res.data)) {
+        setAssessHistory(res.data)
+      }
+    } catch (e) {
+      console.warn('[AIQC] loadAssessHistory failed', e)
+    } finally {
+      setTrendLoading(false)
+    }
+  }
+
+  // 按日期聚合历史评估 (伪影/曝光/体位/总分 日均)
+  const trendData = (() => {
+    const byDate = {}
+    for (const r of assessHistory) {
+      const d = (r.assessedAt ?? '').slice(0, 10)
+      if (!byDate[d]) byDate[d] = { artifact: 0, exposure: 0, positioning: 0, overall: 0, n: 0 }
+      byDate[d].artifact += r.artifact.score
+      byDate[d].exposure += r.exposure.score
+      byDate[d].positioning += r.positioning.score
+      byDate[d].overall += r.overall.score
+      byDate[d].n += 1
+    }
+    return Object.entries(byDate)
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([date, v]) => ({
+        date,
+        artifact: Math.round(v.artifact / v.n),
+        exposure: Math.round(v.exposure / v.n),
+        positioning: Math.round(v.positioning / v.n),
+        overall: Math.round(v.overall / v.n),
+      }))
+  })()
+
+  const renderTrendChart = () => {
+    const w = 760
+    const h = 190
+    const pad = 36
+    const min = 50
+    const max = 100
+    const xs = (i) => pad + (i * (w - pad * 2)) / Math.max(1, trendData.length - 1)
+    const ys = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
+    const series = [
+      { key: 'artifact', color: WARNING, label: '伪影' },
+      { key: 'exposure', color: PRIMARY, label: '曝光' },
+      { key: 'positioning', color: '#a855f7', label: '体位' },
+      { key: 'overall', color: SUCCESS, label: '总分' },
+    ]
+    return (
+      <div style={{ padding: '0 20px 16px' }}>
+        <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto', background: DARK_BG, borderRadius: 8 }}>
+          {[60, 70, 80, 90].map((g) => (
+            <g key={g}>
+              <line x1={pad} y1={ys(g)} x2={w - pad} y2={ys(g)} stroke={DARK_BORDER} strokeDasharray="3 3" />
+              <text x={pad - 6} y={ys(g) + 4} fill={GRAY} fontSize={10} textAnchor="end">{g}</text>
+            </g>
+          ))}
+          {trendData.map((d, i) => (
+            <text key={i} x={xs(i)} y={h - 10} fill={GRAY} fontSize={9} textAnchor="middle">{d.date.slice(5)}</text>
+          ))}
+          {series.map((s) => (
+            <polyline
+              key={s.key}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={2}
+              points={trendData.map((d, i) => `${xs(i)},${ys(d[s.key])}`).join(' ')}
+            />
+          ))}
+        </svg>
+        <div style={{ display: 'flex', gap: 16, marginTop: 8, justifyContent: 'center' }}>
+          {series.map((s) => (
+            <span key={s.key} style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 10, height: 3, background: s.color, display: 'inline-block' }} />
+              {s.label}
+            </span>
+          ))}
+          {trendLoading && <span style={{ fontSize: 12, color: GRAY }}>同步中…</span>}
+        </div>
+      </div>
+    )
+  }
+
+  // 批量评估: 多检查号逐条 assess -> 结果表 (通过/告警/失败)
+  const handleBatchAssess = async () => {
+    const ids = batchIds.split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean)
+    if (ids.length === 0 || batchAssessing) return
+    setBatchAssessing(true)
+    setAssessError('')
+    const results = []
+    for (const id of ids) {
+      try {
+        const res = await qcImageAiApi.assess({ studyId: id })
+        if (res.success && res.data) results.push({ ...res.data, verdict: overallVerdict(res.data) })
+      } catch (e) {
+        console.warn(`[AIQC] batch assess ${id} failed`, e)
+      }
+    }
+    setBatchResults(results)
+    if (results.length > 0) {
+      setDimAssessments((prev) => {
+        const merged = [...results]
+        for (const p of prev) {
+          if (!results.some((r) => r.studyId === p.studyId)) merged.push(p)
+        }
+        return merged
+      })
+      void loadAssessHistory(true)
+    } else {
+      setAssessError('批量评估无返回，请检查检查号')
+    }
+    setBatchAssessing(false)
+  }
+
+  // 三维度评分结果导出 CSV (真实 Blob)
+  const exportAssessCsv = () => {
+    const rows = batchResults.length > 0 ? batchResults : dimAssessments
+    if (rows.length === 0) {
+      setAssessError('暂无评估结果可导出，请先评估检查')
+      return
+    }
+    const head = ['检查号', '模态', '部位', '时间', '伪影分', '伪影结论', '曝光分', '曝光结论', '体位分', '体位结论', '总分', '总评']
+    const lines = rows.map((r) => [
+      r.studyId,
+      r.modality,
+      r.bodyPart,
+      (r.assessedAt ?? '').slice(0, 19).replace('T', ' '),
+      r.artifact.score,
+      dimVerdict(r.artifact.score, thresholds.artifact),
+      r.exposure.score,
+      dimVerdict(r.exposure.score, thresholds.exposure),
+      r.positioning.score,
+      dimVerdict(r.positioning.score, thresholds.positioning),
+      r.overall.score,
+      r.verdict ?? overallVerdict(r),
+    ])
+    const csv = [head, ...lines]
+      .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'AI三维度质控评估.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const runAssess = async (studyId) => {
     setAssessing(true)
     setAssessError('')
@@ -243,6 +440,19 @@ export default function AIQCPage() {
     return () => clearInterval(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh])
+
+  // [v3.0.6.11-98 Wave3B P1] 确认质控/更新确认: 保存确认状态到本地 state + toast
+  //   (qcImageAiApi 无确认端点 — reviewResult 已随 -50 移除, 标注: 待后端确认接口)
+  const confirmQc = () => {
+    if (!selectedRecord) return
+    const now = new Date()
+    const timeStr = now.toISOString().replace('T', ' ').slice(0, 16)
+    const updated = { ...selectedRecord, confirmed: true, confirmedTime: timeStr }
+    setMergedData(prev => prev.map(d => d.id === selectedRecord.id ? { ...d, confirmed: true, confirmedTime: timeStr } : d))
+    setSelectedRecord(updated)
+    if (selectedRecord.confirmed) message.success(`已更新确认时间: ${timeStr}（本地记录）`)
+    else message.success(`已确认质控: ${selectedRecord.id}（本地记录, 待后端确认接口）`)
+  }
 
   // 筛选数据
   const filteredData = mergedData.filter(item => {
@@ -843,6 +1053,179 @@ export default function AIQCPage() {
             </button>
           </div>
         </div>
+        {/* [G005 Wave3A P16] 深化工具栏: 阈值配置 / 批量评估 / CSV 导出 / 历史趋势 */}
+        <div style={{
+          padding: '12px 20px',
+          borderBottom: `1px solid ${DARK_BORDER}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          flexWrap: 'wrap',
+          background: DARK_BG,
+        }}>
+          <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Target size={13} /> 通过阈值 (本地保存):
+          </span>
+          {[
+            ['artifact', '伪影'],
+            ['exposure', '曝光'],
+            ['positioning', '体位'],
+            ['overall', '总分'],
+          ].map(([key, label]) => (
+            <label key={key} style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 5 }}>
+              {label}
+              <input
+                type="number"
+                min={50}
+                max={100}
+                value={thresholds[key]}
+                onChange={updateThreshold(key)}
+                style={{
+                  width: 58,
+                  padding: '5px 8px',
+                  borderRadius: 6,
+                  border: `1px solid ${DARK_BORDER}`,
+                  background: DARK_CARD,
+                  color: WHITE,
+                  fontSize: 12,
+                  outline: 'none',
+                }}
+              />
+            </label>
+          ))}
+          <div style={{ flex: 1 }} />
+          <input
+            type="text"
+            value={batchIds}
+            onChange={(e) => setBatchIds(e.target.value)}
+            placeholder="批量检查号(逗号分隔)"
+            style={{
+              width: 200,
+              padding: '7px 10px',
+              borderRadius: 6,
+              border: `1px solid ${DARK_BORDER}`,
+              background: DARK_CARD,
+              color: WHITE,
+              fontSize: 12,
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={() => void handleBatchAssess()}
+            disabled={batchAssessing}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              border: 'none',
+              background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
+              color: WHITE,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: batchAssessing ? 'not-allowed' : 'pointer',
+              opacity: batchAssessing ? 0.6 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+            }}
+          >
+            <Zap size={13} /> 批量评估 {batchAssessing && '(进行中…)'}
+          </button>
+          <button
+            onClick={exportAssessCsv}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              border: 'none',
+              background: `linear-gradient(135deg, ${SUCCESS}, #059669)`,
+              color: WHITE,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+            }}
+          >
+            <Download size={13} /> 导出 CSV
+          </button>
+          <button
+            onClick={() => { setShowTrend((v) => !v); if (!assessHistory.length) void loadAssessHistory() }}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 6,
+              border: `1px solid ${showTrend ? PRIMARY : DARK_BORDER}`,
+              background: showTrend ? `${PRIMARY}22` : 'transparent',
+              color: showTrend ? PRIMARY : GRAY,
+              fontSize: 12,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+            }}
+          >
+            <TrendingUp size={13} /> 历史趋势
+          </button>
+        </div>
+        {showTrend && (
+          <div style={{ borderBottom: `1px solid ${DARK_BORDER}` }}>
+            <div style={{ padding: '12px 20px 4px', fontSize: 12, color: GRAY }}>
+              历史三维度均分趋势 (GET /qc/image-ai/assessments · 按日期聚合, 共 {assessHistory.length} 条记录)
+            </div>
+            {trendData.length > 0 ? renderTrendChart() : (
+              <div style={{ padding: '24px', textAlign: 'center', color: GRAY, fontSize: 12 }}>
+                {trendLoading ? '趋势数据同步中…' : '暂无历史评估记录'}
+              </div>
+            )}
+          </div>
+        )}
+        {batchResults.length > 0 && (
+          <div style={{ borderBottom: `1px solid ${DARK_BORDER}`, padding: '14px 20px', overflowX: 'auto' }}>
+            <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', gap: 14, alignItems: 'center' }}>
+              <span>批量评估结果 ({batchResults.length} 条)</span>
+              {['通过', '告警', '失败'].map((v) => (
+                <span key={v} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: verdictColor(v) }} /> {v}
+                </span>
+              ))}
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+              <thead>
+                <tr style={{ background: DARK_CARD }}>
+                  {['检查号', '模态', '部位', '伪影', '曝光', '体位', '总分', '总评'].map((h, i) => (
+                    <th key={i} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 11, color: GRAY, borderBottom: `1px solid ${DARK_BORDER}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {batchResults.map((r) => (
+                  <tr key={r.studyId}>
+                    <td style={{ padding: '8px 12px', fontSize: 12, color: PRIMARY }}>{r.studyId}</td>
+                    <td style={{ padding: '8px 12px', fontSize: 12, color: WHITE }}>{r.modality}</td>
+                    <td style={{ padding: '8px 12px', fontSize: 12, color: WHITE }}>{r.bodyPart}</td>
+                    {[
+                      dimVerdict(r.artifact.score, thresholds.artifact),
+                      dimVerdict(r.exposure.score, thresholds.exposure),
+                      dimVerdict(r.positioning.score, thresholds.positioning),
+                    ].map((v, i) => (
+                      <td key={i} style={{ padding: '8px 12px', fontSize: 12, color: verdictColor(v) }}>{v}</td>
+                    ))}
+                    <td style={{ padding: '8px 12px', fontSize: 12, color: getScoreColor(r.overall.score) }}>{r.overall.score}</td>
+                    <td style={{ padding: '8px 12px' }}>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: verdictColor(r.verdict),
+                        background: `${verdictColor(r.verdict)}22`,
+                        padding: '2px 10px',
+                        borderRadius: 10,
+                      }}>{r.verdict}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         {assessError && (
           <div style={{ padding: '10px 20px', borderBottom: `1px solid ${DARK_BORDER}`, color: '#fbbf24', fontSize: 12 }}>
             {assessError}
@@ -1267,6 +1650,7 @@ export default function AIQCPage() {
                 关闭
               </button>
               <button
+                onClick={confirmQc}
                 style={{
                   flex: 1,
                   padding: '10px 16px',

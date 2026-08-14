@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing'
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { TemplatesService } from '../src/templates/templates.service'
 import { PrismaService } from '../src/prisma/prisma.service'
 
@@ -7,7 +7,7 @@ describe('TemplatesService', () => {
   let svc: TemplatesService
   let prisma: any
 
-  const mockTemplate = { id: 't1', tenantId: 't1', name: '胸部CT模板', category: 'CT', bodyPart: '胸部', body: '检查所见：...', version: 1, tags: ['routine'], createdById: 'u1', createdAt: new Date(), updatedAt: new Date() }
+  const mockTemplate: any = { id: 't1', tenantId: 't1', name: '胸部CT模板', category: 'CT', modality: 'CT', bodyPart: '胸部', body: '检查所见：...', version: 1, tags: ['routine'], createdById: 'u1', status: 'approved', approvedBy: 'u-admin', approvedAt: new Date(), rejectReason: null, createdAt: new Date(), updatedAt: new Date() }
 
   const mockPrisma = {
     reportTemplate: {
@@ -40,6 +40,22 @@ describe('TemplatesService', () => {
       mockPrisma.reportTemplate.findMany.mockResolvedValue([])
       await svc.list({ keyword: '胸部' })
       expect(mockPrisma.reportTemplate.findMany).toHaveBeenCalled()
+    })
+
+    // [v3.0.6.11-98 Wave2A P1] 审批状态过滤 (书写页仅取 approved)
+    it('filters by status (approved for write page)', async () => {
+      mockPrisma.reportTemplate.findMany.mockResolvedValue([mockTemplate])
+      await svc.list({ status: 'approved' })
+      const where = mockPrisma.reportTemplate.findMany.mock.calls[0]![0]!.where
+      expect(where.status).toBe('approved')
+    })
+
+    // [v3.0.6.11-98 Wave2A P1] 医生个人模板库: personal 按 createdById 过滤
+    it('filters by userId (personal template library)', async () => {
+      mockPrisma.reportTemplate.findMany.mockResolvedValue([mockTemplate])
+      await svc.list({ userId: 'u1' })
+      const where = mockPrisma.reportTemplate.findMany.mock.calls[0]![0]!.where
+      expect(where.createdById).toBe('u1')
     })
   })
 
@@ -103,6 +119,74 @@ describe('TemplatesService', () => {
     it('throws on missing original', async () => {
       mockPrisma.reportTemplate.findUnique.mockResolvedValue(null)
       await expect(svc.clone('x')).rejects.toThrow(NotFoundException)
+    })
+  })
+
+  // [v3.0.6.11-98 Wave2A P1] 模板审批流: draft → pending → approved / rejected
+  describe('approval flow', () => {
+    const draftTemplate: any = { ...mockTemplate, status: 'draft', approvedBy: null, approvedAt: null, rejectReason: null }
+    const pendingTemplate: any = { ...mockTemplate, status: 'pending', approvedBy: null, approvedAt: null, rejectReason: null }
+
+    it('submit sets status to pending', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(draftTemplate)
+      mockPrisma.reportTemplate.update.mockResolvedValue({ ...pendingTemplate, version: 2 })
+      const result = await svc.submit('t1')
+      expect(result.status).toBe('pending')
+      expect(mockPrisma.reportTemplate.update.mock.calls[0]![0]!.data.status).toBe('pending')
+    })
+
+    it('submit is a no-op for already pending template', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(pendingTemplate)
+      const result = await svc.submit('t1')
+      expect(result.status).toBe('pending')
+      expect(mockPrisma.reportTemplate.update).not.toHaveBeenCalled()
+    })
+
+    it('submit rejects approved template', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(mockTemplate)
+      await expect(svc.submit('t1')).rejects.toThrow(BadRequestException)
+    })
+
+    it('approve sets approved + approvedBy/approvedAt', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(pendingTemplate)
+      mockPrisma.reportTemplate.update.mockResolvedValue({ ...pendingTemplate, status: 'approved', approvedBy: 'u-admin', approvedAt: new Date() })
+      const result = await svc.approve('t1', 'u-admin')
+      expect(result.status).toBe('approved')
+      const data = mockPrisma.reportTemplate.update.mock.calls[0]![0]!.data
+      expect(data.approvedBy).toBe('u-admin')
+      expect(data.approvedAt).toBeInstanceOf(Date)
+    })
+
+    it('approve throws when template is not pending', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(draftTemplate)
+      await expect(svc.approve('t1', 'u-admin')).rejects.toThrow(BadRequestException)
+    })
+
+    it('reject sets rejected + reason', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(pendingTemplate)
+      mockPrisma.reportTemplate.update.mockResolvedValue({ ...pendingTemplate, status: 'rejected', rejectReason: '时相不完整' })
+      const result = await svc.reject('t1', '时相不完整')
+      expect(result.status).toBe('rejected')
+      expect(mockPrisma.reportTemplate.update.mock.calls[0]![0]!.data.rejectReason).toBe('时相不完整')
+    })
+
+    it('reject throws when template is not pending', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(mockTemplate)
+      await expect(svc.reject('t1', 'x')).rejects.toThrow(BadRequestException)
+    })
+
+    it('create defaults new template to draft', async () => {
+      mockPrisma.reportTemplate.create.mockResolvedValue({ ...mockTemplate, status: 'draft' })
+      await svc.create({ name: '新模板', category: 'CT', bodyPart: '胸部', body: '...', createdById: 'u1' })
+      expect(mockPrisma.reportTemplate.create.mock.calls[0]![0]!.data.status).toBe('draft')
+    })
+
+    it('clone resets clone to draft', async () => {
+      mockPrisma.reportTemplate.findUnique.mockResolvedValue(mockTemplate)
+      mockPrisma.reportTemplate.create.mockResolvedValue({ ...mockTemplate, id: 't2', status: 'draft' })
+      const result = await svc.clone('t1')
+      expect(result.status).toBe('draft')
+      expect(mockPrisma.reportTemplate.create.mock.calls[0]![0]!.data.status).toBe('draft')
     })
   })
 

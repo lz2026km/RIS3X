@@ -1043,6 +1043,23 @@ export default function EquipmentEfficiencyPage() {
 
   const isLive = oeeDevices.length > 0 || oeeStats != null || biDevices.length > 0 || faults.length > 0
 
+  // [v3.0.6.11-98 Wave3B P1] 导出报表: 设备负荷排行 → 真实 CSV 下载 (BOM 保证 Excel 中文)
+  const handleExportReport = () => {
+    const header = ['排名', '设备编号', '设备名称', '总检查量', '平均使用率(%)', '平均等待时间(分)', '综合评分']
+    const rows = LOAD_RANKING.map((r) => [r.rank, r.deviceId, r.deviceName, r.totalExams, r.avgUtilization, r.avgWaitTime, r.score])
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const csv = '\ufeff' + [header.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))].join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `设备负荷报表_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   const tabs = [
     { id: 'trend', label: '使用率趋势', icon: TrendingUp },
     { id: 'heatmap', label: '使用率热力图', icon: Grid3x3 },
@@ -1601,6 +1618,7 @@ export default function EquipmentEfficiencyPage() {
                 </p>
               </div>
               <button
+                onClick={handleExportReport}
                 style={{
                   padding: '8px 16px',
                   borderRadius: 8,

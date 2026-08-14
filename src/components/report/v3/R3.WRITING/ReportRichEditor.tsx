@@ -3,7 +3,7 @@
  * R3.WRITING 组 B:所见即所得 + 样式 + 表格 + 图像 + 撤销重做 + 拼写检查 + 分屏 + 打印
  * 40 升级点
  */
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import { Card, Space, Button, Tooltip, Modal, message, Input, Divider, Select, ColorPicker, Slider, Tag, Collapse, InputNumber, Avatar, Badge, Popover } from 'antd';
 import { sanitizeHtml } from '../../../../utils/sanitization';
 import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save, Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Heading1, Heading2, Heading3, Subscript, Superscript, Hash, BookOpen, CheckCheck, Star, Minus, Layers, Sparkles, Mic, MicOff, Wifi, WifiOff } from 'lucide-react';
@@ -27,8 +27,14 @@ interface Props {
   externalInsert?: { text: string; ts: number } | null;
   onExternalInsertConsumed?: () => void;
   /** v3.0.6.11-61: 外部整篇替换请求(AI 草稿接受),替换后通过 onExternalSetConsumed 通知消费 */
+  /** v3.0.6.11-98 Wave 1A P0: 支持 html 整篇回填(报告加载 htmlContent 渲染/锚点插入后的刷新回显) */
   externalSet?: { plainText: string; html?: string; ts: number } | null;
   onExternalSetConsumed?: () => void;
+}
+
+/** v3.0.6.11-98 Wave 1A P0: 外部程序化插入通道 (影像锚点 → 正文图片/占位符) */
+export interface ReportRichEditorHandle {
+  insertHtml: (html: string) => void;
 }
 
 const FONT_FAMILIES = [
@@ -45,12 +51,12 @@ const FONT_SIZES = [9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 36];
 
 const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 'γ', '→', '↑', '↓', '®', '©', '™', '×10⁹', '×10¹²'];
 
-export const ReportRichEditor: React.FC<Props> = ({
+export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(({
   reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,
   enableCollaboration = false, wsUrl, userName = '匿名用户', userId,
   externalInsert = null, onExternalInsertConsumed,
   externalSet = null, onExternalSetConsumed,
-}) => {
+}, ref) => {
   const [doc, setDoc] = useState<RichEditorDocument>({
     ...RICH_DOCUMENT_MOCK,
     reportId,
@@ -139,6 +145,8 @@ export const ReportRichEditor: React.FC<Props> = ({
     // 触发自动保存
     setAutoSaving(true);
     setTimeout(async () => {
+      // [v3.0.6.11-98 Wave 1A P0] 报告未解析完成前跳过 (reportId 为空时避免 PATCH /reports/ 空 ID 500)
+      if (!reportId) { setAutoSaving(false); return; }
       await autoSaveDocument(reportId, html, plainText);
       setAutoSaving(false);
     }, 800);
@@ -197,17 +205,22 @@ export const ReportRichEditor: React.FC<Props> = ({
   }, [externalInsert]);
 
   // v3.0.6.11-61: 外部整篇替换 (AI 草稿接受) → 清空现有内容后写入新文本
+  // v3.0.6.11-98 Wave 1A P0: html 回填 (报告加载 htmlContent 渲染所见即所得, 图片/表格/格式保留)
   // [W2-2] 修复: 仅依赖 externalSet, 防止不稳定回调导致效果死循环
   useEffect(() => {
-    if (!externalSet || !externalSet.plainText) return;
+    if (!externalSet || (!externalSet.plainText && !externalSet.html)) return;
     const el = editorRef.current;
     if (el) {
       el.focus();
-      el.innerHTML = '';
-      try {
-        document.execCommand('insertText', false, externalSet.plainText);
-      } catch {
-        el.textContent = externalSet.plainText;
+      if (externalSet.html) {
+        el.innerHTML = sanitizeHtml(externalSet.html);
+      } else {
+        el.innerHTML = '';
+        try {
+          document.execCommand('insertText', false, externalSet.plainText);
+        } catch {
+          el.textContent = externalSet.plainText;
+        }
       }
     }
     void handleContentChangeRef.current();
@@ -316,6 +329,15 @@ export const ReportRichEditor: React.FC<Props> = ({
       },
     });
   }, [applyFormat]);
+
+  // [v3.0.6.11-98 Wave 1A P0] 程序化插入通道: 影像锚点/外部组件经 ref 调用 insertHtml (光标处或文末)
+  useImperativeHandle(ref, () => ({
+    insertHtml: (html: string) => {
+      if (readOnly) return;
+      if (editorRef.current) editorRef.current.focus();
+      applyFormat('insertHTML', html);
+    },
+  }), [readOnly, applyFormat]);
 
   const handleSave = useCallback(async () => {
     if (!editorRef.current) return;
@@ -669,6 +691,6 @@ export const ReportRichEditor: React.FC<Props> = ({
       </Modal>
     </div>
   );
-};
+});
 
 export default ReportRichEditor;

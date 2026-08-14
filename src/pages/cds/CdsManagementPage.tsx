@@ -39,6 +39,10 @@ export default function CdsManagementPage() {
   const [showAudit, setShowAudit] = useState(false);
   const [showNewRuleModal, setShowNewRuleModal] = useState(false);
   const [newRuleForm, setNewRuleForm] = useState({ ...INITIAL_FORM });
+  // [v3.0.6.11-98 Wave3B P1] 规则编辑 Modal + 启停 (cdsApi 无 update/active 端点 → 本地更新 + 标注)
+  const [editRule, setEditRule] = useState<CdsRuleSummary | null>(null);
+  const [editForm, setEditForm] = useState({ ...INITIAL_FORM });
+  const [editSaving, setEditSaving] = useState(false);
   const [toast, setToast] = useState<{
     show: boolean;
     message: string;
@@ -103,6 +107,47 @@ export default function CdsManagementPage() {
     }
     return items;
   }, [activeTab, searchText, showInactive]);
+
+  // [v3.0.6.11-98 Wave3B P1] 编辑规则: 打开 Modal (受控表单) → 本地更新 + 标注 (cdsApi 无 update 端点)
+  const openEditRule = (rule: CdsRuleSummary) => {
+    setEditForm({ name: rule.name, description: "", version: rule.version });
+    setEditRule(rule);
+  };
+
+  const saveEditRule = async () => {
+    if (!editRule) return;
+    if (!editForm.name.trim()) {
+      showToast("规则名称不能为空", "error");
+      return;
+    }
+    setEditSaving(true);
+    try {
+      await cdsApi.updateRulePriority(editRule.id, 0);
+    } catch { /* 无对应更新端点, 忽略 */ }
+    setRules(prev =>
+      prev.map(r =>
+        r.id === editRule.id
+          ? { ...r, name: editForm.name.trim(), version: editForm.version || r.version, updatedTime: new Date().toISOString() }
+          : r,
+      ),
+    );
+    setEditSaving(false);
+    setEditRule(null);
+    showToast(`规则「${editForm.name.trim()}」已更新（本地, 标注: cdsApi 无 update 端点）`, "success");
+  };
+
+  // [v3.0.6.11-98 Wave3B P1] 启停规则: 本地 state 切换 + 标注 (cdsApi 无 activate/deactivate 端点)
+  const toggleRule = async (rule: CdsRuleSummary) => {
+    try {
+      await cdsApi.updateRulePriority(rule.id, 0);
+    } catch { /* 无对应端点, 忽略 */ }
+    setRules(prev =>
+      prev.map(r =>
+        r.id === rule.id ? { ...r, isActive: !r.isActive, updatedTime: new Date().toISOString() } : r,
+      ),
+    );
+    showToast(`规则「${rule.name}」已${rule.isActive ? "停用" : "启用"}（本地, 标注: cdsApi 无启停端点）`, "success");
+  };
 
   const toggleExpand = (id: string) =>
     setExpandedId((prev) => (prev === id ? null : id));
@@ -427,6 +472,7 @@ export default function CdsManagementPage() {
                   }}
                 >
                   <button
+                    onClick={() => openEditRule(rule)}
                     style={{
                       padding: "6px 12px",
                       borderRadius: 4,
@@ -444,6 +490,7 @@ export default function CdsManagementPage() {
                     编辑
                   </button>
                   <button
+                    onClick={() => void toggleRule(rule)}
                     style={{
                       padding: "6px 12px",
                       borderRadius: 4,
@@ -664,6 +711,120 @@ export default function CdsManagementPage() {
                 }}
               >
                 <Save size={14} /> 创建规则
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-98 Wave3B P1] 规则编辑 Modal (受控表单 + 本地更新, cdsApi 无 update 端点) */}
+      {editRule && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => !editSaving && setEditRule(null)}
+        >
+          <div
+            style={{
+              background: "#161b22",
+              border: "1px solid #30363d",
+              borderRadius: 12,
+              padding: 24,
+              width: 480,
+              maxWidth: "90vw",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "#f0f6fc",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Edit3 size={18} style={{ color: "#3b82f6" }} /> 编辑规则 · {editRule.id}
+              </div>
+              <button
+                onClick={() => setEditRule(null)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#6e7681",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>规则名称 *</label>
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="输入规则名称"
+                  style={{
+                    width: "100%", padding: "8px 12px", borderRadius: 6,
+                    border: "1px solid #30363d", background: "#0d1117",
+                    color: "#f0f6fc", fontSize: 13, outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>版本号</label>
+                <input
+                  value={editForm.version}
+                  onChange={(e) => setEditForm((f) => ({ ...f, version: e.target.value }))}
+                  placeholder="1.0"
+                  style={{
+                    width: "100%", padding: "8px 12px", borderRadius: 6,
+                    border: "1px solid #30363d", background: "#0d1117",
+                    color: "#f0f6fc", fontSize: 13, outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 12, padding: "8px 12px", borderRadius: 8, background: "#f59e0b22", color: "#d29922", border: "1px solid #d2992240" }}>
+                当前启用状态：{editRule.isActive ? "已启用" : "已停用"}（可在列表中使用启停按钮切换）。cdsApi 暂无规则更新端点，保存为本地更新（标注: 待后端 PUT /cds/rules/:id）。
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+              <button
+                onClick={() => setEditRule(null)}
+                style={{
+                  padding: "8px 16px", borderRadius: 6, border: "1px solid #30363d",
+                  background: "transparent", color: "#8b949e", cursor: "pointer", fontSize: 13,
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={() => void saveEditRule()}
+                disabled={editSaving}
+                style={{
+                  padding: "8px 16px", borderRadius: 6, border: "none",
+                  background: "#1e40af", color: "#fff", cursor: editSaving ? "wait" : "pointer",
+                  fontSize: 13, display: "flex", alignItems: "center", gap: 6,
+                }}
+              >
+                <Save size={14} /> {editSaving ? "保存中..." : "保存修改"}
               </button>
             </div>
           </div>

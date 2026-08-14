@@ -19,6 +19,7 @@ describe('DicomCompressController (W1-B: getTask / tasks/:id)', () => {
     algorithmName: 'JPEG2000 Lossless',
     lossless: true,
     simulated: false,
+    source: 'real',
     elapsedMs: 120,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -33,6 +34,18 @@ describe('DicomCompressController (W1-B: getTask / tasks/:id)', () => {
     listTasks: jest.fn().mockResolvedValue([]),
     getRatios: jest.fn().mockResolvedValue({ byAlgorithm: [], byModality: [], totalSavedBytes: 0, avgRatio: 0 }),
     getStats: jest.fn().mockResolvedValue({ totalTasks: 1, completedTasks: 1, failedTasks: 0, totalSavedBytes: 0, avgRatio: 0, algorithmDistribution: [] }),
+    getRatio: jest.fn().mockResolvedValue({
+      instanceId: 'CT_CHEST/CT_CHEST_001.dcm',
+      sopClass: '1.2.840.10008.5.1.4.1.1.2',
+      sopClassName: 'CT Image',
+      originalSize: 1024000,
+      compressedSize: 236000,
+      ratio: 4.34,
+      transferSyntax: '1.2.840.10008.1.2.4.90',
+      real: true,
+      source: 'real',
+    }),
+    realJpeg2000: jest.fn().mockResolvedValue({ ...mockTask, source: 'real' }),
   }
 
   beforeEach(async () => {
@@ -74,5 +87,19 @@ describe('DicomCompressController (W1-B: getTask / tasks/:id)', () => {
     const res = await controller.getStats()
     expect(res.totalTasks).toBe(1)
     expect(serviceMock.getStats).toHaveBeenCalled()
+  })
+
+  // [G005 Wave3A P16] 真实 JPEG2000 (OpenJPEG WASM): real-jpeg2000 端点 + source 标注
+  it('POST real-jpeg2000 delegates to service and returns source=real', async () => {
+    const res = await controller.realJpeg2000({ fileId: 'CT_CHEST/CT_CHEST_001.dcm' })
+    expect(serviceMock.realJpeg2000).toHaveBeenCalledWith('CT_CHEST/CT_CHEST_001.dcm', { quality: undefined, dataBase64: undefined })
+    expect(res?.source).toBe('real')
+  })
+
+  it('GET ratio/:instanceId returns real JPEG2000 ratio with source=real', async () => {
+    const res = await controller.getRatio('CT_CHEST/CT_CHEST_001.dcm')
+    expect(serviceMock.getRatio).toHaveBeenCalledWith('CT_CHEST/CT_CHEST_001.dcm')
+    expect(res?.source).toBe('real')
+    expect(res?.real).toBe(true)
   })
 })

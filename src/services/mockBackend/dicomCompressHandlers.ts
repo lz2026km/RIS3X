@@ -23,6 +23,8 @@ export interface MswCompressTask {
   error?: string;
   createdAt: string;
   updatedAt: string;
+  // [G005 Wave3A P16] real=JPEG2000 WASM / rle-approx=LOCO-I 近似 / estimated=查表估算
+  source?: 'real' | 'rle-approx' | 'estimated';
 }
 
 interface MswInstance {
@@ -185,9 +187,9 @@ function planForSyntax(transferSyntax: string, quality?: number) {
     case '1.2.840.10008.1.2.5':
       return { kind: 'rle', lossless: true, quality: 100, uid: transferSyntax, name: 'RLE Lossless' };
     case '1.2.840.10008.1.2.4.90':
-      return { kind: 'predictive', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG 2000 Lossless (Predictive)' };
+      return { kind: 'jpeg2000', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG 2000 Lossless (OpenJPEG WASM)' };
     case '1.2.840.10008.1.2.4.91':
-      return { kind: 'predictive', lossless: false, quality: q, uid: transferSyntax, name: 'JPEG 2000 Lossy (Predictive)' };
+      return { kind: 'predictive', lossless: false, quality: q, uid: transferSyntax, name: 'JPEG 2000 Lossy (LOCO-I Approx)' };
     case '1.2.840.10008.1.2.4.80':
       return { kind: 'rle', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG-LS Lossless (RLE)' };
     case '1.2.840.10008.1.2.4.81':
@@ -248,6 +250,7 @@ function createTask(fileId: string, transferSyntax: string, quality: number, upl
     lossless: plan.lossless,
     quality: plan.quality,
     simulated: true,
+    source: plan.kind === 'jpeg2000' ? 'real' : 'rle-approx',
     createdAt: now,
     updatedAt: now,
   };
@@ -384,7 +387,18 @@ export const dicomCompressHandlers = [
       ratio: Math.round((est.originalSize / est.compressedSize) * 100) / 100,
       transferSyntax: '1.2.840.10008.1.2.4.90',
       real: false,
+      source: 'estimated',
     });
+  }),
+
+  // [G005 Wave3A P16] 真实 JPEG2000 端点 (MSW 侧以字节流估算模拟, source 标注 real)
+  http.post(`${API}/real-jpeg2000`, async ({ request }) => {
+    await delay(140);
+    const body = (await request.json()) as { fileId?: string; quality?: number; dataBase64?: string };
+    const fileId = body?.fileId ?? 'CT_CHEST/CT_CHEST_001.dcm';
+    const uploaded = body?.dataBase64 ? base64ToBytes(body.dataBase64) : undefined;
+    const task = createTask(fileId, '1.2.840.10008.1.2.4.90', 100, uploaded);
+    return HttpResponse.json(task);
   }),
 
   http.get(`${API}/ratios`, async () => {

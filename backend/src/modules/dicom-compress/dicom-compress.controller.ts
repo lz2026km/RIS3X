@@ -17,6 +17,11 @@ const BatchSchema = z.object({
   quality: z.number().int().min(1).max(100).optional(),
 })
 const DecompressSchema = z.object({ fileId: z.string().min(1) })
+const RealJpeg2000Schema = z.object({
+  fileId: z.string().min(1),
+  quality: z.number().int().min(1).max(100).optional(),
+  dataBase64: z.string().optional(),
+})
 
 @ApiTags('dicom-compress')
 @ApiBearerAuth()
@@ -74,9 +79,15 @@ export class DicomCompressController {
   }
 
   @Get('ratio/:instanceId')
-  @ApiOperation({ summary: 'Get real compression ratio by instance (JPEG2000 lossless predictive)' })
+  @ApiOperation({ summary: 'Get real compression ratio by instance (JPEG2000 lossless, OpenJPEG WASM)' })
   getRatio(@Param('instanceId') instanceId: string) {
     return this.service.getRatio(instanceId)
+  }
+
+  @Post('real-jpeg2000')
+  @ApiOperation({ summary: 'Real JPEG2000 encode via OpenJPEG WASM (lossless, DICOM J2K codestream)' })
+  realJpeg2000(@Body(new ZodValidationPipe(RealJpeg2000Schema)) body: { fileId: string; quality?: number; dataBase64?: string }) {
+    return this.service.realJpeg2000(body.fileId, { quality: body.quality, dataBase64: body.dataBase64 })
   }
 
   @Get('ratios')

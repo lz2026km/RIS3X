@@ -17,6 +17,10 @@ import {
   type PhraseCategory,
 } from '../data/knowledgeStatsMock';
 import { templatesApi } from '../services/api/templatesApi';
+import { reportApi } from '../services/api/reportApi';
+import { useSearchParams } from 'react-router-dom';
+// [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 预览优先用真实报告上下文, 无上下文时显示原占位符 + 说明
+import { resolveTemplateVariables, describeTemplateVariables } from '../utils/templateVariables';
 
 const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
   '正常': 'normal',
@@ -52,6 +56,32 @@ export default function ReportPhraseBankPage() {
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState<'api' | 'demo'>('demo');
   const [apiError, setApiError] = useState('');
+  // [v3.0.6.11-98 Wave1B P0-2] 报告上下文: /report-phrase-bank?reportId=xxx 时拉取真实报告上下文填充变量
+  const [searchParams] = useSearchParams();
+  const [varContext, setVarContext] = useState<Record<string, unknown> | null>(null);
+
+  useEffect(() => {
+    const reportId = searchParams.get('reportId');
+    if (!reportId) return;
+    let cancelled = false;
+    void reportApi.getById(reportId).then((res) => {
+      if (cancelled || !res.success || !res.data) return;
+      const d = res.data as any;
+      setVarContext({
+        reportId: d.reportId ?? d.id,
+        patientId: d.patientId,
+        patientName: d.patientName,
+        gender: d.gender,
+        age: d.age,
+        modality: d.modality,
+        bodyPart: d.bodyPart,
+        clinicalDiagnosis: d.clinicalDiagnosis ?? d.clinicalDx,
+        doctorName: d.reportDoctorName ?? d.radiologistName ?? d.doctorName,
+        examDate: d.examDate ?? d.studyDate,
+      });
+    }).catch(() => { /* 无上下文: 预览保留原占位符 */ });
+    return () => { cancelled = true; };
+  }, [searchParams]);
 
   const loadPhrases = useCallback(async () => {
     setLoading(true);
@@ -145,10 +175,37 @@ export default function ReportPhraseBankPage() {
       .replace(/\{\{type\}\}/g, '横行')
       .replace(/\{\{displacement\}\}/g, '骨折远端向背侧移位')
       .replace(/\{\{angulation\}\}/g, '向背侧成角')
-      .replace(/\{\{softTissue\}\}/g, '肿胀');
+      .replace(/\{\{softTissue\}\}/g, '肿胀')
+      // [v3.0.6.11-98 Wave1B P0-2] 复制用示例值 (预览无上下文时保留原占位符)
+      .replace(/\{\{patientName\}\}/g, '张三')
+      .replace(/\{\{patientId\}\}/g, 'P001')
+      .replace(/\{\{gender\}\}/g, '男')
+      .replace(/\{\{age\}\}/g, '58')
+      .replace(/\{\{modality\}\}/g, 'CT')
+      .replace(/\{\{bodyPart\}\}/g, '胸部')
+      .replace(/\{\{clinicalDx\}\}/g, '右肺占位')
+      .replace(/\{\{priorDate\}\}/g, '2026-06-15')
+      .replace(/\{\{change\}\}/g, '缩小')
+      .replace(/\{\{studyDate\}\}/g, '2026-09-15')
+      .replace(/\{\{hospital\}\}/g, 'G005 医院')
+      .replace(/\{\{doctorName\}\}/g, '陈医师');
   };
 
-  const filledContent = selected ? renderWithPlaceholders(editedContent) : '';
+  const filledContent = varContext
+    ? resolveTemplateVariables(editedContent, varContext)
+    : editedContent;
+
+  // 复制内容: 有真实上下文用解析结果; 无上下文用示例值填充 (避免复制出裸占位符)
+  const copyContent = varContext ? filledContent : renderWithPlaceholders(editedContent);
+
+  const variableNote = (() => {
+    if (!selected) return '';
+    if (varContext) {
+      const { resolved, unresolved } = describeTemplateVariables(editedContent, varContext);
+      return `真实上下文预览: ${resolved.length > 0 ? `已自动填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : '无可自动填充变量'}${unresolved.length > 0 ? `; ${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样` : ''}`;
+    }
+    return '无报告上下文: 预览保留原 {{占位符}}, 书写页插入时自动填充患者信息';
+  })();
 
   // 复制到剪贴板 (权限被拒时降级 execCommand / 提示)
   const handleCopy = async (text: string) => {
@@ -428,9 +485,9 @@ export default function ReportPhraseBankPage() {
 
               <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>✨ 渲染预览（占位符已替换）</span>
+                  <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>✨ 渲染预览{varContext ? '（真实上下文）' : '（示例）'}</span>
                   <button
-                    onClick={() => handleCopy(filledContent)}
+                    onClick={() => handleCopy(copyContent)}
                     style={{ padding: '2px 8px', border: '1px solid #10b981', borderRadius: 3, background: 'var(--bg-card)', color: '#10b981', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
                     <Copy size={10} /> 复制
@@ -439,6 +496,11 @@ export default function ReportPhraseBankPage() {
                 <div style={{ padding: 10, background: 'var(--color-success-bg)', border: '1px solid #bbf7d0', borderRadius: 6, fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
                   {filledContent}
                 </div>
+                {variableNote && (
+                  <div style={{ marginTop: 6, fontSize: 11, color: '#92400e', padding: '4px 8px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 4 }}>
+                    ℹ️ {variableNote}
+                  </div>
+                )}
               </div>
 
               {/* 操作按钮 */}
@@ -449,7 +511,7 @@ export default function ReportPhraseBankPage() {
                 <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Star size={11} /> 评分
                 </button>
-                <button onClick={() => handleCopy(filledContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
+                <button onClick={() => handleCopy(copyContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
                   <Copy size={11} /> 一键复制
                 </button>
                 <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>

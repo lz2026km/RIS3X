@@ -6,6 +6,8 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { message, Modal } from 'antd';
+import { notificationsApi } from '../services/api/notificationsApi';
 import {
   History, GitCompare, ChevronRight, Plus, Edit2, Eye, X,
   FileText, Bell, ArrowLeftRight, RotateCcw, Search, Layers, GitBranch,
@@ -198,6 +200,10 @@ export default function ReportRevisionsPage() {
   const [showDiff, setShowDiff] = useState(true);
   const [, setShowAddendumModal] = useState(false);
   const [search, setSearch] = useState('');
+  // [v3.0.6.11-98 Wave3B P1] 终版预览 / 通知患者 / 撤回报告
+  const [previewFinal, setPreviewFinal] = useState(false);
+  const [notifyLoading, setNotifyLoading] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   // 当前选中的报告的修订链
   const currentRevisions = revisionsByReport[selectedReportId] || [];
@@ -206,6 +212,61 @@ export default function ReportRevisionsPage() {
   // 选中的左右版本
   const leftRev = currentRevisions.find(r => r.versionNumber === leftVersion);
   const rightRev = currentRevisions.find(r => r.versionNumber === rightVersion);
+
+  // [v3.0.6.11-98 Wave3B P1] 通知患者: notificationsApi.create 真实发送 (失败回退提示)
+  const handleNotifyPatient = async () => {
+    if (!rightRev || !report) return;
+    setNotifyLoading(true);
+    try {
+      const res = await notificationsApi.create({
+        userId: `patient-${selectedReportId}`,
+        type: 'REPORT',
+        severity: 'INFO',
+        title: '报告已更新（修订）',
+        content: `${report.patientName} 的报告 ${selectedReportId} 已发布修订版（${rightRev.versionLabel} · ${ACTION_CONFIG[rightRev.action].label}），请登录患者端查看。`,
+        targetId: selectedReportId,
+      });
+      setAllRevisions(prev => prev.map(r => r.id === rightRev.id ? { ...r, patientNotified: true } : r));
+      if (res.success) {
+        message.success(`已发送通知给 ${report.patientName}`);
+      } else {
+        message.warning('通知服务暂不可用，已本地标记（待补发）');
+      }
+    } catch {
+      setAllRevisions(prev => prev.map(r => r.id === rightRev.id ? { ...r, patientNotified: true } : r));
+      message.warning('通知服务暂不可用，已本地标记（待补发）');
+    } finally {
+      setNotifyLoading(false);
+    }
+  };
+
+  // [v3.0.6.11-98 Wave3B P1] 撤回报告: reportApi.remove → 后端置 WITHDRAWN (DELETE /reports/:id, -88 状态链支持)
+  const handleWithdrawReport = () => {
+    if (!report) return;
+    Modal.confirm({
+      title: '确认撤回报告',
+      content: `撤回后报告 ${selectedReportId} 将置为「已撤回 (WITHDRAWN)」，患者端不可见。是否继续？`,
+      okText: '确认撤回',
+      okButtonProps: { danger: true },
+      cancelText: '取消',
+      onOk: async () => {
+        setWithdrawing(true);
+        try {
+          const res = await reportApi.remove(selectedReportId, '报告修订页手动撤回');
+          if (res.success) {
+            message.success(`报告 ${selectedReportId} 已撤回（WITHDRAWN）`);
+            await loadRevisions();
+          } else {
+            message.error(res.error?.message ?? '撤回失败');
+          }
+        } catch {
+          message.error('撤回失败，请稍后重试');
+        } finally {
+          setWithdrawing(false);
+        }
+      },
+    });
+  };
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -542,31 +603,37 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
               {/* 操作按钮 */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button
+                  onClick={() => rightRev && setPreviewFinal(true)}
+                  disabled={!rightRev}
                   style={{
                     padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
-                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
+                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: rightRev ? 'pointer' : 'not-allowed',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
                   <Eye size={11} /> 预览终版
                 </button>
                 <button
+                  onClick={() => void handleNotifyPatient()}
+                  disabled={!rightRev || notifyLoading}
                   style={{
                     padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 4,
-                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
+                    background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: rightRev && !notifyLoading ? 'pointer' : 'not-allowed',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <Bell size={11} /> 通知患者
+                  <Bell size={11} /> {notifyLoading ? '发送中...' : '通知患者'}
                 </button>
                 <button
+                  onClick={handleWithdrawReport}
+                  disabled={withdrawing}
                   style={{
                     padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4,
-                    background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer',
+                    background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: withdrawing ? 'wait' : 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  <RotateCcw size={11} /> 撤回报告
+                  <RotateCcw size={11} /> {withdrawing ? '撤回中...' : '撤回报告'}
                 </button>
               </div>
             </>
@@ -577,6 +644,36 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
           )}
         </div>
       </div>
+
+      {/* [v3.0.6.11-98 Wave3B P1] 终版预览 Modal */}
+      <Modal
+        title={rightRev ? `终版预览 · ${selectedReportId} ${rightRev.versionLabel}（${ACTION_CONFIG[rightRev.action].label}）` : '终版预览'}
+        open={previewFinal}
+        onCancel={() => setPreviewFinal(false)}
+        footer={null}
+        width={720}
+      >
+        {rightRev && (
+          <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)' }}>
+            {report && (
+              <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6, fontSize: 12 }}>
+                患者：{report.patientName} · {report.modality} · {report.bodyPart} · 修订人：{rightRev.authorName} · {rightRev.createdAt}
+              </div>
+            )}
+            {['findings', 'diagnosis', 'impression'].map((field) => (
+              <div key={field} style={{ marginBottom: 10 }}>
+                <strong style={{ color: '#1e40af' }}>{field === 'findings' ? '【检查所见】' : field === 'diagnosis' ? '【诊断】' : '【意见】'}</strong>
+                <div style={{ marginTop: 2, padding: 8, background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
+                  {(rightRev as any)[field] || '（无内容）'}
+                </div>
+              </div>
+            ))}
+            {rightRev.reason && (
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>修订原因：{rightRev.reason}</div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

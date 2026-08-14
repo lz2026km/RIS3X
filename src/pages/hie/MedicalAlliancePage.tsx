@@ -256,7 +256,7 @@ const MedicalAlliancePage: React.FC = () => {
   )
 }
 
-const thStyle: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#374151' }
-const tdStyle: React.CSSProperties = { padding: '10px 12px', fontSize: 13, color: '#374151' }
+const thStyle: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }
+const tdStyle: React.CSSProperties = { padding: '10px 12px', fontSize: 13, color: 'var(--text-primary)' }
 
 export default MedicalAlliancePage

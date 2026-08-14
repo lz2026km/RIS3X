@@ -94,6 +94,8 @@ import { aiPlatformHandlers } from './aiPlatformHandlers';
 import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
 // [v3.0.6.11-88 W2B-2] 交互回归缺失 AI 端点 (providers / draft patients+templates)
 import { aiWave2BHandlers } from './aiWave2BHandlers';
+// [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 MSW 兜底 (finding-library)
+import { findingLibraryHandlers } from './findingLibraryHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -360,9 +362,32 @@ export const reportHandlers = [
       if (String(r.state ?? '').toUpperCase() === 'PENDING_ASSIGNMENT') return { ...r, status: 'PENDING_ASSIGNMENT' };
       return r;
     });
+    // [v3.0.6.11-98 Wave1B P0-3] 报告正文合并: exams 集合为检查行(无正文), 按 reportId/examId 从
+    //   reports 集合 (unified-reports.json, 含 findings/impression) 补齐正文, 供「上一例复制」/历史报告使用
+    const reportBodyIndex = new Map<string, any>();
+    try {
+      list<any>('reports').forEach((rp: any) => {
+        if (rp?.examId) reportBodyIndex.set(String(rp.examId), rp);
+        if (rp?.reportId) reportBodyIndex.set(String(rp.reportId), rp);
+      });
+    } catch { /* 集合未就绪时跳过合并 */ }
+    const enrichReport = (r: any) => {
+      const rp = reportBodyIndex.get(String(r.reportId ?? r.id ?? '')) ?? reportBodyIndex.get(String(r.examId ?? ''));
+      if (!rp) return r;
+      return {
+        ...r,
+        findings: rp.findings ?? r.findings ?? '',
+        impression: rp.impression ?? r.diagnosis ?? r.impression ?? '',
+        diagnosis: rp.diagnosis ?? r.diagnosis ?? '',
+        conclusion: rp.conclusion ?? r.conclusion ?? '',
+        recommendations: rp.recommendations ?? r.recommendations ?? '',
+        reportDoctorName: rp.reportDoctorName ?? r.reportDoctorName ?? r.radiologistName ?? '',
+        doctorName: rp.reportDoctorName ?? r.reportDoctorName ?? '',
+      };
+    };
     return HttpResponse.json({
       success: true,
-      data: withPendingAssignment.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
+      data: withPendingAssignment.map((r: any) => toReportDto(enrichReport(r), qMap.get(r.reportId))),
       meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
     });
   }),
@@ -494,8 +519,25 @@ export const reportHandlers = [
     await delay(50);
     const report = get<any>('exams', params.id as string);
     if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    // [v3.0.6.11-98 Wave1B P0-3] 按 examId/reportId 从 reports 集合补齐正文 (findings/impression)
+    let enriched = report;
+    try {
+      const rp = (list<any>('reports') || []).find((x: any) =>
+        String(x?.examId ?? '') === String(params.id) || String(x?.reportId ?? '') === String(params.id));
+      if (rp) {
+        enriched = {
+          ...report,
+          findings: rp.findings ?? report.findings ?? '',
+          impression: rp.impression ?? rp.diagnosis ?? report.impression ?? '',
+          diagnosis: rp.diagnosis ?? rp.diagnosis ?? '',
+          conclusion: rp.conclusion ?? rp.conclusion ?? '',
+          recommendations: rp.recommendations ?? rp.recommendations ?? '',
+          reportDoctorName: rp.reportDoctorName ?? report.reportDoctorName ?? '',
+        };
+      }
+    } catch { /* 集合未就绪时保持原样 */ }
     const q = findOne<any>('qualityScores', (x: any) => x.reportId === params.id);
-    return HttpResponse.json({ success: true, data: toReportDto(report, q) });
+    return HttpResponse.json({ success: true, data: toReportDto(enriched, q) });
   }),
 
   // 差分 (新旧版本对比)
@@ -3076,6 +3118,15 @@ export const notificationHandlers = [
 let templateStore: any[] | null = null;
 let snippetStore: any[] | null = null;
 let categoryStore: any[] | null = null;
+let favoriteTemplateIds: Set<string> | null = null;
+
+// [v3.0.6.11-98 Wave2B (报告 P1)] 模板收藏 (内存 + seed, 对齐后端 favorites seed)
+function getFavoriteTemplateIds(): Set<string> {
+  if (!favoriteTemplateIds) {
+    favoriteTemplateIds = new Set(['tpl-chest-ct-v2', 'tpl-abd-mr-v1', 'tpl-spine-ct-v1']);
+  }
+  return favoriteTemplateIds;
+}
 
 // [v3.0.6.11-96 Wave3B P1] 模板分类种子 (name/description/sortOrder, 对齐后端 seed)
 function getCategoryStore(): any[] {
@@ -3095,10 +3146,13 @@ function getCategoryStore(): any[] {
 function getTemplateStore(): any[] {
   if (!templateStore) {
     templateStore = [
-      { id: 'TPL-001', name: 'CT Chest Routine', category: '结构化', modality: 'CT', bodyPart: '胸部', body: '影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。', version: 3, usage: 147, status: 'published', shared: true, tags: ['chest', 'routine'], createdById: 'u-admin', createdAt: '2026-05-01T08:00:00.000Z', updatedAt: '2026-06-30T10:00:00.000Z' },
-      { id: 'TPL-002', name: 'CBCT Dental Implant', category: '结构化', modality: 'CBCT', bodyPart: '下颌骨', body: '影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。', version: 2, usage: 89, status: 'published', shared: true, tags: ['dental', 'implant'], createdById: 'u-doc1', createdAt: '2026-05-10T08:00:00.000Z', updatedAt: '2026-06-25T10:00:00.000Z' },
-      { id: 'TPL-003', name: 'OCT Macula', category: '自由文本', modality: 'OCT', bodyPart: '视网膜', body: '黄斑中心凹结构未见明显异常，各层连续。', version: 1, usage: 234, status: 'published', shared: true, tags: ['eye', 'oct'], createdById: 'u-doc2', createdAt: '2026-05-20T08:00:00.000Z', updatedAt: '2026-06-01T10:00:00.000Z' },
+      // [v3.0.6.11-98 Wave2A P1] status 对齐审批流: approved/draft/pending/rejected (原 published→approved)
+      { id: 'TPL-001', name: 'CT Chest Routine', category: '结构化', modality: 'CT', bodyPart: '胸部', body: '影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。', version: 3, usage: 147, status: 'approved', shared: true, tags: ['chest', 'routine'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-06-30T09:00:00.000Z', createdAt: '2026-05-01T08:00:00.000Z', updatedAt: '2026-06-30T10:00:00.000Z' },
+      { id: 'TPL-002', name: 'CBCT Dental Implant', category: '结构化', modality: 'CBCT', bodyPart: '下颌骨', body: '影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。', version: 2, usage: 89, status: 'approved', shared: true, tags: ['dental', 'implant'], createdById: 'u-doc1', approvedBy: 'u-admin', approvedAt: '2026-06-26T09:00:00.000Z', createdAt: '2026-05-10T08:00:00.000Z', updatedAt: '2026-06-25T10:00:00.000Z' },
+      { id: 'TPL-003', name: 'OCT Macula', category: '自由文本', modality: 'OCT', bodyPart: '视网膜', body: '黄斑中心凹结构未见明显异常，各层连续。', version: 1, usage: 234, status: 'approved', shared: true, tags: ['eye', 'oct'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-06-02T09:00:00.000Z', createdAt: '2026-05-20T08:00:00.000Z', updatedAt: '2026-06-01T10:00:00.000Z' },
       { id: 'TPL-004', name: 'MRI Brain Tumor Follow-up', category: '结构化', modality: 'MRI', bodyPart: '脑部', body: '影像所见：原病灶较前片缩小。\n诊断意见：疗效评价 PR。', version: 1, usage: 56, status: 'draft', shared: false, tags: ['brain', 'tumor'], createdById: 'u-doc3', createdAt: '2026-06-10T08:00:00.000Z', updatedAt: '2026-06-12T10:00:00.000Z' },
+      { id: 'TPL-005', name: '腹部超声常规', category: '自由文本', modality: 'US', bodyPart: '腹部', body: '影像所见：肝胆胰脾肾未见明显异常。\n诊断意见：腹部超声未见明显异常。', version: 1, usage: 0, status: 'pending', shared: false, tags: ['abdomen', 'us'], createdById: 'u-doc3', createdAt: '2026-07-01T08:00:00.000Z', updatedAt: '2026-07-01T08:00:00.000Z' },
+      { id: 'TPL-006', name: '头颅MR平扫', category: '结构化', modality: 'MRI', bodyPart: '头颅', body: '影像所见：脑实质内未见异常信号灶。\n诊断意见：头颅MRI平扫未见明显异常。', version: 1, usage: 0, status: 'rejected', shared: false, tags: ['brain'], createdById: 'u-doc1', rejectReason: '缺少脑室系统描述, 请补充', createdAt: '2026-07-02T08:00:00.000Z', updatedAt: '2026-07-03T08:00:00.000Z' },
     ];
   }
   return templateStore;
@@ -3110,6 +3164,9 @@ function getSnippetStore(): any[] {
       { id: 'SNP-001', name: '正常所见 - 胸部', content: '无急性心肺异常。', category: '正常', shortcuts: 'nml-chest', usage: 421, createdAt: '2026-05-01T08:00:00.000Z' },
       { id: 'SNP-002', name: '植入体 #36 描述', content: '植入体 #36 牙冠，骨结合良好。', category: '牙科', shortcuts: 'imp-36', usage: 98, createdAt: '2026-05-05T08:00:00.000Z' },
       { id: 'SNP-003', name: '对比剂反应记录', content: '轻度荨麻疹，抗组胺治疗后缓解。', category: '安全', shortcuts: 'ctr-rxn', usage: 67, createdAt: '2026-05-08T08:00:00.000Z' },
+      // [v3.0.6.11-98 Wave1B P0-2] 模板变量示例片段: 书写页插入时按报告上下文自动填充
+      { id: 'SNP-004', name: '患者基本信息', content: '患者 {{patientName}}, {{gender}}, {{age}} 岁,临床诊断 {{clinicalDx}}。', category: '通用', shortcuts: 'pt-basic', usage: 1980, createdAt: '2026-05-10T08:00:00.000Z' },
+      { id: 'SNP-005', name: '与老片比较', content: '与 {{priorDate}} 老片比较,病灶较前{{change}}。', category: '通用', shortcuts: 'cmp-prior', usage: 380, createdAt: '2026-05-12T08:00:00.000Z' },
     ];
   }
   return snippetStore;
@@ -3184,16 +3241,83 @@ export const templateHandlers = [
     getCategoryStore().splice(idx, 1);
     return HttpResponse.json({ success: true, data: { ok: true, id: params.id } });
   }),
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 模板收藏服务端化 MSW 兜底 (内存+seed, 按用户) — 静态路径需在 /templates/:id 之前
+  http.get(`${API_BASE}/templates/favorites`, async () => {
+    await delay(80);
+    const ids = [...getFavoriteTemplateIds()];
+    return HttpResponse.json({ success: true, data: { ids, templates: getTemplateStore().filter((t) => ids.includes(t.id)) }, meta: { total: ids.length } });
+  }),
+  http.post(`${API_BASE}/templates/:id/favorite`, async ({ params }) => {
+    await delay(80);
+    const id = String(params.id);
+    const set = getFavoriteTemplateIds();
+    const favorite = set.has(id);
+    if (favorite) set.delete(id);
+    else set.add(id);
+    return HttpResponse.json({ success: true, data: { favorite: !favorite, ids: Array.from(set) } });
+  }),
   http.get(`${API_BASE}/templates`, async ({ request }) => {
     await delay(120);
     const url = new URL(request.url);
     const category = url.searchParams.get('category');
+    const bodyPart = url.searchParams.get('bodyPart');
     const keyword = url.searchParams.get('keyword');
+    const status = url.searchParams.get('status');
+    const personal = url.searchParams.get('personal');
+    const userId = url.searchParams.get('userId');
     let data = [...getTemplateStore()];
     if (category) data = data.filter((t) => t.category === category);
+    if (bodyPart) data = data.filter((t) => String(t.bodyPart ?? '').includes(bodyPart));
     if (keyword) data = data.filter((t) => t.name.toLowerCase().includes(keyword.toLowerCase()) || String(t.bodyPart).includes(keyword));
+    // [v3.0.6.11-98 Wave2A P1] 审批状态过滤 (书写页仅取 approved)
+    if (status) data = data.filter((t) => t.status === status);
+    // [v3.0.6.11-98 Wave2A P1] 我的模板 (个人模板库): personal=true 按 createdById 过滤
+    if (personal === 'true' && userId) data = data.filter((t) => String(t.createdById ?? '') === userId);
     data.sort((a, b) => (b.usage ?? 0) - (a.usage ?? 0));
     return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  // [v3.0.6.11-98 Wave2A P1] 待审批列表
+  http.get(`${API_BASE}/templates/pending`, async () => {
+    await delay(80);
+    const data = getTemplateStore().filter((t) => t.status === 'pending');
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  // [v3.0.6.11-98 Wave2A P1] 模板审批流: 提交审批 / 批准 / 驳回
+  http.post(`${API_BASE}/templates/:id/submit`, async ({ params }) => {
+    await delay(100);
+    const t = getTemplateStore().find((x) => x.id === params.id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (t.status === 'approved') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '已批准模板无需再次提交' } }, { status: 400 });
+    if (t.status !== 'pending') {
+      t.status = 'pending';
+      t.rejectReason = undefined;
+      t.updatedAt = new Date().toISOString();
+    }
+    return HttpResponse.json({ success: true, data: t });
+  }),
+  http.post(`${API_BASE}/templates/:id/approve`, async ({ params, request }) => {
+    await delay(100);
+    const t = getTemplateStore().find((x) => x.id === params.id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (t.status !== 'pending') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅待审批模板可批准' } }, { status: 400 });
+    const body = (await request.json().catch(() => ({}))) as any;
+    t.status = 'approved';
+    t.approvedBy = body?.approvedBy ?? t.createdById;
+    t.approvedAt = new Date().toISOString();
+    t.rejectReason = undefined;
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
+  }),
+  http.post(`${API_BASE}/templates/:id/reject`, async ({ params, request }) => {
+    await delay(100);
+    const t = getTemplateStore().find((x) => x.id === params.id);
+    if (!t) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    if (t.status !== 'pending') return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅待审批模板可驳回' } }, { status: 400 });
+    const body = (await request.json().catch(() => ({}))) as any;
+    t.status = 'rejected';
+    t.rejectReason = body?.reason?.trim() || '未填写原因';
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: t });
   }),
   http.get(`${API_BASE}/templates/:id`, async ({ params }) => {
     await delay(80);
@@ -4562,6 +4686,9 @@ export const handlers = [
   ...orchestratorHandlers, // [v3.0.6.11-79] 流程编排 (/orchestrator/flows/executions/sla)
   ...aiPlatformHandlers,
   ...aiWave2BHandlers, // [v3.0.6.11-88 W2B-2] AI providers / draft patients+templates
+  // [W6] 修复: 原 `...aiDiagnosisHandlers,` 被上一行行尾注释吞掉 (-88 引入),
+  //      ai-diagnosis (lung/breast/fracture/cardiac) 端点从未注册进 MSW,
+  //      /api/v1/ai-diagnosis/* 请求落空到 vite proxy → 后端 → 500/401。
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
   ...hl7Handlers, // [v3.0.6.11-75 W3-1] 注册 HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
@@ -4615,6 +4742,8 @@ export const handlers = [
   ...researchHandlers,
   ...dualReadHandlers,
   ...aiMarketplaceHandlers,
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 (finding-library)
+  ...findingLibraryHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

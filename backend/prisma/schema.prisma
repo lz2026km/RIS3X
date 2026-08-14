@@ -254,6 +254,8 @@ model Report {
   radiologistId      String?              @map("radiologist_id")
   state              ReportState          @default(PENDING_ASSIGNMENT)
   findings           String               @default("")
+  // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化: 书写页所见即所得内容 (图片/表格/格式)
+  htmlContent        String               @default("") @map("html_content")
   diagnosis          String               @default("")
   impression         String               @default("")
   recommendations    String               @default("")
@@ -494,21 +496,30 @@ model CriticalValueNotification {
 }
 
 model ReportTemplate {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id")
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id")
   name         String
   category     String
-  bodyPart     String   @map("body_part")
+  // [v3.0.6.11-98 Wave2A P1] 模态 (CT/MR/DR/...), 用于模板库自动匹配推荐
+  modality     String?   @map("modality")
+  bodyPart     String    @map("body_part")
   body         String
-  parentId     String?  @map("parent_id")
-  version      Int      @default(1)
-  radsCategory String?  @map("rads_category")
+  parentId     String?   @map("parent_id")
+  version      Int       @default(1)
+  radsCategory String?   @map("rads_category")
   tags         String[]
-  createdById  String   @map("created_by_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdById  String    @map("created_by_id")
+  // [v3.0.6.11-98 Wave2A P1] 模板审批流: draft/pending/approved/rejected
+  status       String    @default("draft")
+  approvedBy   String?   @map("approved_by")
+  approvedAt   DateTime? @map("approved_at")
+  rejectReason String?   @map("reject_reason")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   @@index([category, bodyPart])
+  @@index([status, tenantId])
+  @@index([createdById, tenantId])
   @@index([tenantId])
   @@map("report_templates")
 }

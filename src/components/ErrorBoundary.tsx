@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode, createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { AlertCircle, RefreshCw, Home, FileQuestion } from 'lucide-react'
+import { AlertCircle, RefreshCw, Home } from 'lucide-react'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -82,8 +82,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </div>
 
             <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, margin: '0 auto' }}>
-                <FileQuestion size={14} /> 查看帮助文档
+              {/* [v3.0.6.11-98 Wave3B P2] 无帮助文档 URL → 返回首页 (navigate('/')) */}
+              <button onClick={this.handleGoHome} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, margin: '0 auto' }}>
+                <Home size={14} /> 返回首页
               </button>
             </div>
           </div>

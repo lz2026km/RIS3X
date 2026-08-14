@@ -123,6 +123,68 @@ describe('ReportsService.exportStatus', () => {
   })
 })
 
+// [v3.0.6.11-98 Wave1A P0] 富文本 HTML 持久化: create/update 落库 htmlContent, toReportDto 透出
+describe('ReportsService htmlContent 持久化 (Wave1A P0)', () => {
+  it('create() persists htmlContent and returns it in DTO', async () => {
+    const created = { id: 'RPT-H1', htmlContent: '<h2>所见</h2><p>右肺上叶结节</p>', findings: '右肺上叶结节', conclusion: '', patient: null }
+    const create = jest.fn().mockResolvedValue(created)
+    const prisma = makePrisma({ report: { create } })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    const res = await service.create({ patientId: 'P1', findings: '右肺上叶结节', conclusion: '', htmlContent: created.htmlContent })
+
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ htmlContent: created.htmlContent, findings: '右肺上叶结节' }),
+    }))
+    expect(res.htmlContent).toBe(created.htmlContent)
+  })
+
+  it('update() writes htmlContent and leaves findings untouched when omitted', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'RPT-H2', htmlContent: '<table><tr><td>1</td></tr></table>', findings: '旧所见', patient: null })
+    const prisma = makePrisma({
+      report: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'RPT-H2', version: 0 }),
+        update,
+      },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    const res = await service.update('RPT-H2', { htmlContent: '<table><tr><td>1</td></tr></table>' })
+
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ htmlContent: '<table><tr><td>1</td></tr></table>' }),
+    }))
+    expect(res.htmlContent).toBe('<table><tr><td>1</td></tr></table>')
+  })
+
+  it('update() skips htmlContent when undefined (保留已有 HTML)', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'RPT-H3', htmlContent: '旧HTML', findings: '新所见', patient: null })
+    const prisma = makePrisma({
+      report: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'RPT-H3', version: 0 }),
+        update,
+      },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    await service.update('RPT-H3', { findings: '新所见' })
+
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.not.objectContaining({ htmlContent: expect.anything() }),
+    }))
+  })
+
+  it('toReportDto defaults htmlContent to empty string for legacy rows', async () => {
+    const findMany = jest.fn().mockResolvedValue([{ id: 'RPT-H4', patient: null, findings: 'x', createdAt: new Date(), updatedAt: new Date() }])
+    const count = jest.fn().mockResolvedValue(1)
+    const prisma = makePrisma({ report: { findMany, count } })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+
+    const res = await service.list({})
+    expect((res.items[0] as any).htmlContent).toBe('')
+  })
+})
+
 // [v3.0.6.11-92 Wave1B P0] 审核分步 transition: 不允许跳过中间态 (DRAFT→INITIAL_REVIEW→FINAL_REVIEW→CO_SIGN_REVIEW→REVIEWED)
 describe('ReportsService REPORT_TRANSITIONS 审核链 (Wave1B P0)', () => {
   it('allows step-wise review chain SUBMITTED → INITIAL_REVIEW → FINAL_REVIEW → CO_SIGN_REVIEW → REVIEWED', () => {

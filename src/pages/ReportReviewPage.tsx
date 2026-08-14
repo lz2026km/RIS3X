@@ -6,7 +6,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -470,6 +470,9 @@ const ReviewTaskDetail: React.FC<{
   const findingsText = (task as any).findingsText || `${task.modality}平扫+增强示${task.bodyPart}区正常结构存在。${task.criticalFinding ? ' 病灶内见异常信号/密度影。' : ''}`;
   const impressionText = (task as any).impressionText || (task.criticalFinding ? '考虑恶性可能，建议进一步检查。' : '考虑良性可能，建议随访。');
 
+  // [v3.0.6.11-98 Wave3B P1] 全屏预览: 报告内容全屏 Modal (详情组件内状态)
+  const [previewFull, setPreviewFull] = useState(false);
+
   return (
     <div>
       {/* 头部 */}
@@ -555,6 +558,7 @@ const ReviewTaskDetail: React.FC<{
             <FileText size={14} /> 报告内容
           </div>
           <button
+            onClick={() => setPreviewFull(true)}
             style={{
               padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
               background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
@@ -585,6 +589,41 @@ const ReviewTaskDetail: React.FC<{
           </div>
         </div>
       </div>
+
+      {/* [v3.0.6.11-98 Wave3B P1] 全屏预览 Modal */}
+      <Modal
+        title={`报告全屏预览 · ${task.patientName} ${task.bodyPart}`}
+        open={previewFull}
+        onCancel={() => setPreviewFull(false)}
+        footer={null}
+        width="100%"
+        styles={{ body: { maxHeight: '85vh', overflowY: 'auto' } }}
+      >
+        <div style={{ fontSize: 13, lineHeight: 2, color: 'var(--text-primary)' }}>
+          <div style={{ marginBottom: 16, padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 12 }}>
+              <div><span style={{ color: 'var(--text-secondary)' }}>患者: </span>{task.patientName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>检查: </span>{task.bodyPart}（{task.modality}）</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>报告医生: </span>{task.reportDoctorTitle} {task.reportDoctorName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>提交时间: </span>{task.submittedAt}</div>
+            </div>
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
+            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{findingsText}</div>
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <strong style={{ color: '#1e40af' }}>【诊断意见】</strong>
+            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{impressionText}</div>
+          </div>
+          <div>
+            <strong style={{ color: '#1e40af' }}>【建议】</strong>
+            <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>
+              {(task as any).recommendationsText || '3 个月后复查。'}
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       {/* 初审/终审历史 */}
       {(task.initialAuditCompletedAt || task.finalAuditCompletedAt) && (

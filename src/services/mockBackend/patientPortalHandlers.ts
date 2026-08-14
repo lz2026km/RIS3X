@@ -150,6 +150,16 @@ const PORTAL_REPORTS_SEED: any[] = [
     isCritical: false,
   },
   {
+    id: 'RPT-P001-003', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部',
+    examDate: '2026-03-18T09:40:00+08:00', state: 'PUBLISHED', signedAt: '2026-03-18T15:10:00+08:00',
+    findings: '右肺上叶见磨玻璃样结节影，大小约 8mm，边界较清晰。余双肺纹理清晰，未见实变。纵隔未见明显肿大淋巴结。',
+    diagnosis: '右肺上叶磨玻璃结节，建议随访',
+    impression: '右肺上叶磨玻璃样结节（约8mm），较前无明显变化，建议定期随访。',
+    recommendations: '建议 6-12 个月后复查胸部CT动态观察。',
+    conclusion: '右肺上叶GGO，建议随访',
+    isCritical: false,
+  },
+  {
     id: 'RPT-P002-001', patientId: 'P002', patientName: '李四', modality: 'DR', bodyPart: '腰椎',
     examDate: '2026-07-08T11:00:00+08:00', state: 'PUBLISHED', signedAt: '2026-07-08T16:45:00+08:00',
     findings: '腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。',

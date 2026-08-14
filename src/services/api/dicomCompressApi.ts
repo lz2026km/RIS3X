@@ -21,6 +21,9 @@ export interface DicomCompressTask {
   error?: string
   createdAt: string
   updatedAt: string
+  // [G005 Wave3A P16] 编码结果来源标注:
+  // real=OpenJPEG WASM 真 JPEG2000 / rle-approx=RLE·LOCO-I 近似 / estimated=查表估算
+  source?: 'real' | 'rle-approx' | 'estimated'
 }
 
 export interface DicomCompressDto {
@@ -98,14 +101,19 @@ export interface CompressRatioDto {
   transferSyntax: string
   modality?: string
   real: boolean
+  source?: 'real' | 'estimated'
 }
 
 export const dicomCompressApi = {
   listInstances: () => api.get<CompressInstance[]>('/dicom/compress/instances'),
 
-  // [G005 Wave1A P0] 单实例真实压缩比 (后端 GET /dicom/compress/ratio/:instanceId, JPEG2000 无损预测)
+  // [G005 Wave1A P0] 单实例真实压缩比 (后端 GET /dicom/compress/ratio/:instanceId, JPEG2000 OpenJPEG WASM 无损)
   getRatio: (instanceId: string) =>
     api.get<CompressRatioDto>(`/dicom/compress/ratio/${encodeURIComponent(instanceId)}`),
+
+  // [G005 Wave3A P16] 真实 JPEG2000 编码 (后端 POST /dicom/compress/real-jpeg2000, OpenJPEG WASM)
+  realJpeg2000: (data: { fileId: string; quality?: number; dataBase64?: string }) =>
+    api.post<DicomCompressTask>('/dicom/compress/real-jpeg2000', data),
 
   getSyntaxes: () =>
     api.get<Array<{ uid: string; name: string; lossy: boolean }>>('/dicom/compress/syntaxes'),

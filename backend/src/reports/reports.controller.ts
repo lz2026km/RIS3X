@@ -23,11 +23,14 @@ const CreateReportSchema = z.object({
   radiologistId: z.string().optional(),
   findings: z.string().default(''),
   conclusion: z.string().default(''),
+  // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化
+  htmlContent: z.string().default(''),
 })
 
 export const UpdateReportSchema = z.object({
   findings: z.string().optional(),
   conclusion: z.string().optional(),
+  htmlContent: z.string().optional(),
 })
 
 @ApiTags('reports')
@@ -129,7 +132,7 @@ export class ReportsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateReportSchema)) body: z.infer<typeof UpdateReportSchema>) {
-    return this.reports.update(id, body as { findings?: string; conclusion?: string })
+    return this.reports.update(id, body as { findings?: string; conclusion?: string; htmlContent?: string })
   }
 
   @Delete(':id')

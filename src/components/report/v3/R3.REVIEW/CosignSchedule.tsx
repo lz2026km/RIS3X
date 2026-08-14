@@ -97,7 +97,7 @@ const STATUS_META: Record<CosignStatus, { color: string; label: string; bg: stri
   expired: { color: '#7f1d1d', label: '超时', bg: '#fecaca' },
   escalated: { color: '#7c3aed', label: '升级', bg: '#ede9fe' },
   skipped: { color: '#6b7280', label: '跳过', bg: '#f3f4f6' },
-  cancelled: { color: '#374151', label: '撤签', bg: '#e5e7eb' },
+  cancelled: { color: 'var(--text-primary)', label: '撤签', bg: 'var(--border-color)' },
 };
 
 const CONFLICT_META: Record<string, { color: string; label: string }> = {

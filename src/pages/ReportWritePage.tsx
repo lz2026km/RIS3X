@@ -4,7 +4,7 @@
  */
 import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
 import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnchor';
-import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
+import { ReportRichEditor, type ReportRichEditorHandle } from '@components/report/v3/R3.WRITING/ReportRichEditor';
 import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
 import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
 import {
@@ -18,14 +18,16 @@ import { reportQualityApi, type QualityEvaluation } from '@services/api/reportQu
 import { templatesApi } from '@services/api/templatesApi';
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
+import { sanitizeHtml } from '@utils/sanitization';
 import { getCurrentUser } from '@utils/auth';
+import { resolveTemplateVariables, describeTemplateVariables, collectTemplateVariables, variablesTooltipTitle } from '@utils/templateVariables';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { displayStatus, toEnState } from '@components/report/statusMeta';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
-  Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse,
+  Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse, Checkbox, Radio,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star} from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy} from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Inbox, SearchX } from 'lucide-react'
@@ -415,6 +417,77 @@ const V3_STYLES = `
 }
 `;
 
+// [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板: 选定布局 → 生成打印 HTML (标准单栏/双栏对比/精简/带抬头)
+//   注入 #report-print-layout-container 后 window.print; 布局获取失败回退现有 window.print
+function buildPrintLayoutHtml(opts: {
+  layout: { id: string; name: string; description: string; columns: 1 | 2 };
+  reportId: string;
+  patientName: string;
+  gender: string;
+  age: string;
+  modality: string;
+  bodyPart: string;
+  patientId: string;
+  clinicalDiagnosis: string;
+  bodyHtml: string;
+}): string {
+  const { layout } = opts;
+  const esc = (s: string) => String(s ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
+  const withLetterhead = layout.id === 'layout-4' || layout.id === 'layout-letterhead';
+  const twoColumns = layout.columns === 2;
+  const compact = layout.id === 'layout-3' || layout.id === 'layout-compact';
+  const letterhead = withLetterhead
+    ? '<div class="lp-letterhead"><div class="lp-org">汉东省人民医院</div><div class="lp-sub">放射诊断中心</div></div>'
+    : '';
+  const metaRows = [
+    ['报告编号', opts.reportId],
+    ['患者', `${opts.patientName}`],
+    ['性别/年龄', `${opts.gender} / ${opts.age}`],
+    ['检查', `${opts.modality} · ${opts.bodyPart}`],
+    ['检查号', opts.patientId],
+    ['临床诊断', opts.clinicalDiagnosis],
+  ];
+  return `<div class="lp-root">
+<style>
+  body * { visibility: hidden !important; }
+  #report-print-layout-container, #report-print-layout-container * { visibility: visible !important; }
+  #report-print-layout-container { position: absolute; left: 0; top: 0; width: 100%; padding: ${compact ? '16px' : '28px'}; background: #fff; color: #000; font-size: ${compact ? '12px' : '13px'}; line-height: 1.7; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+  @page { margin: 14mm; }
+  .lp-letterhead { text-align: center; border-bottom: 3px double #1e3a8a; padding-bottom: 10px; margin-bottom: 12px; }
+  .lp-org { font-size: 22px; font-weight: 700; color: #1e3a8a; letter-spacing: 6px; }
+  .lp-sub { font-size: 12px; color: #475569; margin-top: 2px; }
+  .lp-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 12px; }
+  .lp-title { font-size: 18px; font-weight: 700; }
+  .lp-time { font-size: 11px; color: #475569; }
+  .lp-meta { display: grid; grid-template-columns: repeat(${twoColumns ? 2 : 3}, 1fr); gap: 4px 16px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px 12px; margin-bottom: 14px; }
+  .lp-meta div { display: flex; gap: 6px; }
+  .lp-meta b { font-weight: 600; color: #475569; min-width: 52px; }
+  .lp-body { margin-bottom: 12px; }
+  .lp-body-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .lp-body h2, .lp-body h3 { font-size: 14px; margin: 10px 0 6px; }
+  .lp-body table { border-collapse: collapse; width: 100%; margin: 6px 0; }
+  .lp-body table td, .lp-body table th { border: 1px solid #cbd5e1; padding: 4px 6px; font-size: 12px; text-align: left; }
+  .lp-body img { max-width: 100%; }
+  .lp-footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #cbd5e1; font-size: 11px; color: #64748b; display: flex; justify-content: space-between; }
+</style>
+${letterhead}
+<div class="lp-header">
+  <div class="lp-title">放射诊断报告</div>
+  <div class="lp-time">打印时间: ${new Date().toLocaleString()}</div>
+</div>
+<div class="lp-meta">
+  ${metaRows.map(([k, val]) => `<div><b>${k}:</b><span>${esc(val ?? '') || '-'}</span></div>`).join('')}
+</div>
+<div class="lp-body ${twoColumns ? 'lp-body-2col' : ''}">
+  ${opts.bodyHtml}
+</div>
+<div class="lp-footer">
+  <span>布局: ${esc(layout.name)}</span>
+  <span>放射科 · 本报告仅供临床参考</span>
+</div>
+</div>`;
+}
+
 export default function ReportWritePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -553,20 +626,40 @@ export default function ReportWritePage() {
   const [aiEditMode, setAiEditMode] = useState(false);
   const [aiEditText, setAiEditText] = useState('');
   const [aiActionLoading, setAiActionLoading] = useState(false);
-  const [editorSet, setEditorSet] = useState<{ plainText: string; ts: number } | null>(null);
+  const [editorSet, setEditorSet] = useState<{ plainText: string; html?: string; ts: number } | null>(null);
+  // [v3.0.6.11-98 Wave 1A P0] 编辑器程序化插入通道 (影像锚点 → 正文图片/占位符)
+  const editorRef = useRef<ReportRichEditorHandle>(null);
+  // [v3.0.6.11-98 Wave 1A P0] context 实时镜像 (延迟补读回调需读取最新编辑器内容判断是否被修改)
+  const contextRef = useRef(context);
+  useEffect(() => { contextRef.current = context; });
 
   // [W2-2] 报告模板选择器 (自由文本模板)
   const [templateList, setTemplateList] = useState<any[]>([]);
   const [templateLoading, setTemplateLoading] = useState(true);
   const templateListRef = useRef<any[]>([]);
   // [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 最近使用置顶 + 收藏星标 (localStorage)
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 收藏服务端化: POST /templates/:id/favorite + GET /templates/favorites; 失败回退 localStorage
   const [templateLibOpen, setTemplateLibOpen] = useState(false);
+  const [favSource, setFavSource] = useState<'api' | 'fallback'>('api');
   const [favTemplateIds, setFavTemplateIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('report-fav-templates') || '[]') } catch { return [] }
   });
   const [recentTemplateIds, setRecentTemplateIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('report-recent-templates') || '[]') } catch { return [] }
   });
+  // [v3.0.6.11-98 Wave2A P1] 当前登录用户 id (模板库「我的模板」筛选/个人模板 Tag)
+  const currentUserId = useMemo(() => {
+    const mem = getCurrentUser();
+    if (mem?.id) return mem.id;
+    try {
+      const raw = localStorage.getItem('ris_current_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        return String(u?.id ?? u?.userId ?? '');
+      }
+    } catch { /* 忽略 */ }
+    return '';
+  }, []);
   // [W2-2] 短语库
   const [phraseOpen, setPhraseOpen] = useState(false);
   const [phrases, setPhrases] = useState<any[]>([]);
@@ -584,6 +677,11 @@ export default function ReportWritePage() {
   const [priorSource, setPriorSource] = useState<'api' | 'mock'>('mock');
   // [W2-2] 打印 / 导出
   const [exporting, setExporting] = useState(false);
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板接线: getPrintLayouts → 选模板 Modal → preparePrint → 注入 print 容器
+  const [printOpen, setPrintOpen] = useState(false);
+  const [printLayouts, setPrintLayouts] = useState<Array<{ id: string; name: string; description: string; columns: 1 | 2 }>>([]);
+  const [printLayoutId, setPrintLayoutId] = useState('layout-1');
+  const [printLoading, setPrintLoading] = useState(false);
 
   // [v3.0.6.11-70] 挂载: 解析 reportId → 加载上下文(患者/检查/临床信息) → 草稿列表
   useEffect(() => {
@@ -652,6 +750,10 @@ export default function ReportWritePage() {
         const d = ctxRes.data;
         lastKnownUpdatedAtRef.current = d.updatedTime ?? null;
         const plainText = [d.findings, d.impression, d.recommendations].filter(Boolean).join('\n\n');
+        // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化: 优先 htmlContent (图片/表格/格式), 空时 findings 派生 (旧数据兼容)
+        const loadedHtml = d.htmlContent && String(d.htmlContent).trim().length > 0
+          ? d.htmlContent
+          : `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`;
         setContext((c: any) => ({
           ...c,
           reportId: d.reportId || d.id,
@@ -667,12 +769,34 @@ export default function ReportWritePage() {
           document: {
             ...c.document,
             reportId: d.reportId || d.id,
-            html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+            html: loadedHtml,
             plainText,
             wordCount: plainText.length || c.document.wordCount,
             lastEditedAt: d.updatedTime,
           },
         }));
+        // 回填编辑器 (编辑器挂载早于异步加载, externalSet.html 通道做整篇渲染)
+        setEditorSet({ plainText: '', html: loadedHtml, ts: Date.now() });
+        lastSavedRef.current = `${plainText}|${loadedHtml}`;
+        // [v3.0.6.11-98 Wave 1A P0] mock 模式 IDB 恢复可能晚于首次 getById:
+        //   仅在首次读取无 htmlContent 时延迟补读一次, 且编辑器未被用户修改 (html 与加载快照一致) 才回填
+        if (!(d.htmlContent && String(d.htmlContent).trim())) {
+          setTimeout(async () => {
+            if (cancelled || !target) return;
+            const curHtml = contextRef.current?.document?.html ?? '';
+            if (curHtml !== sanitizeHtml(loadedHtml)) return;
+            const again = await reportApi.getById(target);
+            if (!again.success || !again.data) return;
+            const d2 = again.data;
+            const html2 = d2.htmlContent && String(d2.htmlContent).trim().length > 0 ? d2.htmlContent : '';
+            if (!html2) return;
+            if ((contextRef.current?.document?.html ?? '') !== sanitizeHtml(loadedHtml)) return;
+            const pt2 = [d2.findings, d2.impression, d2.recommendations].filter(Boolean).join('\n\n');
+            setContext((c: any) => ({ ...c, document: { ...c.document, html: html2, plainText: pt2, wordCount: pt2.length } }));
+            setEditorSet({ plainText: '', html: html2, ts: Date.now() });
+            lastSavedRef.current = `${pt2}|${html2}`;
+          }, 1500);
+        }
         if (d.examId) {
           const examRes = await examApi.getById(d.examId);
           if (examRes.success && examRes.data) {
@@ -730,9 +854,10 @@ export default function ReportWritePage() {
   }, [searchParams]);
 
   // [W2-2] 加载自由文本模板列表 (templatesApi → mock 兜底)
+  // [v3.0.6.11-98 Wave2A P1] 仅加载已批准模板 (草稿/待审批/已驳回不展示)
   useEffect(() => {
     let cancelled = false;
-    templatesApi.list().then((res) => {
+    templatesApi.list({ status: 'approved' }).then((res) => {
       if (cancelled) return;
       const arr = Array.isArray(res.data) ? res.data : ((res.data as any)?.items ?? []);
       setTemplateList(arr.length > 0 ? arr : REPORT_TEMPLATES_MOCK);
@@ -807,6 +932,8 @@ export default function ReportWritePage() {
     try {
       const plainText = context.document.plainText ?? '';
       const conclusion = context.document.plainText ?? '';
+      // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 与 plainText 双写 (图片/表格/格式随正文持久化)
+      const htmlContent = context.document.html ?? '';
       const existing = await reportApi.getById(reportId);
       // [W2-2] 报告锁: 无后端锁概念 → 本地并发冲突检测 (保存前对比 updatedAt)
       if (existing.success && existing.data && existing.data.updatedTime) {
@@ -815,8 +942,8 @@ export default function ReportWritePage() {
         }
       }
       const res = existing.success && existing.data
-        ? await reportApi.update(reportId, { findings: plainText, conclusion })
-        : await reportApi.create({ patientId: context.patientId || reportId, examId: reportId, findings: plainText, conclusion });
+        ? await reportApi.update(reportId, { findings: plainText, conclusion, htmlContent })
+        : await reportApi.create({ patientId: context.patientId || reportId, examId: reportId, findings: plainText, conclusion, htmlContent });
       if (res.success) {
         if (res.data?.reportId && res.data.reportId !== reportId) setReportId(res.data.reportId);
         lastKnownUpdatedAtRef.current = res.data?.updatedTime ?? existing.data?.updatedTime ?? new Date().toISOString();
@@ -834,6 +961,21 @@ export default function ReportWritePage() {
       if (!silent) setSaving(false);
     }
   }, [reportId, context, lockConflict]);
+
+  // [v3.0.6.11-98 Wave 1A P0] 影像锚定 → 报告正文接线: 锚点缩略图(dataURL)以 图X 图注插入,
+  //   无真实缩略图时插入虚线占位符 (保留影像引用语义, 不显示破图)
+  const handleInsertAnchor = useCallback((anchor: any) => {
+    const thumb = typeof anchor?.thumbnail === 'string' && anchor.thumbnail.startsWith('data:image/') ? anchor.thumbnail : '';
+    const label = String(anchor?.annotation?.[0]?.label ?? anchor?.id ?? '影像锚点');
+    const safeLabel = String(label).replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
+    const existingImgs = (context.document.html?.match(/<img\b/gi) ?? []).length;
+    const figNo = existingImgs + 1;
+    const html = thumb
+      ? `<figure style="margin:10px 0;text-align:center;"><img src="${thumb}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" /><figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption></figure>`
+      : `<div style="border:2px dashed #0891b2;border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:#0891b2;">[影像锚点 ${safeLabel}] 缩略图待加载, 可在影像浏览器截图后经编辑器"插入图像"上传</div>`;
+    editorRef.current?.insertHtml(html);
+    message.success('影像锚点已插入报告正文');
+  }, [context.document.html]);
 
   // [v3.0.6.11-70] 自动保存: 30 秒定时真实保存(节流: 保存中/无变更跳过)
   useEffect(() => {
@@ -938,11 +1080,58 @@ export default function ReportWritePage() {
     }
   }, [reportId, context.rejectReason, statusRaw]);
 
-  // [W2-2] 打印 / 导出
-  const handlePrint = useCallback(() => {
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板接线: 先加载布局 → Modal 选择 → preparePrint → 注入 print 容器
+  //   布局加载失败时回退现有 window.print
+  const handlePrint = useCallback(async () => {
     if (!reportId) return;
-    window.print();
+    setPrintLoading(true);
+    try {
+      const { getPrintLayouts } = await import('@services/writing/writingService');
+      const layouts = await getPrintLayouts();
+      if (!layouts || layouts.length === 0) { window.print(); return; }
+      const first = layouts[0];
+      if (!first) { window.print(); return; }
+      setPrintLayouts(layouts);
+      setPrintLayoutId(first.id);
+      setPrintOpen(true);
+    } catch {
+      window.print();
+    } finally {
+      setPrintLoading(false);
+    }
   }, [reportId]);
+
+  // 按选定布局生成打印 HTML → 注入 #report-print-layout-container → window.print → 清理
+  const doPrintWithLayout = useCallback(async (layoutId: string) => {
+    if (!reportId) return;
+    setPrintOpen(false);
+    const layout = printLayouts.find((l) => l.id === layoutId) ?? printLayouts[0];
+    if (!layout) { window.print(); return; }
+    try {
+      const { preparePrint } = await import('@services/writing/writingService');
+      await preparePrint(reportId, layout.id);
+    } catch { /* 打印 HTML 由前端生成, preparePrint 失败不阻断 */ }
+    const bodyHtml = context.document.html && String(context.document.html).trim().length > 0
+      ? context.document.html
+      : `<p>${String(context.document.plainText ?? '').replace(/</g, '&lt;')}</p>`;
+    const container = document.createElement('div');
+    container.id = 'report-print-layout-container';
+    container.innerHTML = buildPrintLayoutHtml({
+      layout,
+      reportId: String(context.reportId ?? reportId),
+      patientName: String(context.patientName ?? ''),
+      gender: String(context.gender ?? ''),
+      age: String(context.age ?? ''),
+      modality: String(context.modality ?? ''),
+      bodyPart: String(context.bodyPart ?? ''),
+      patientId: String(context.patientId ?? ''),
+      clinicalDiagnosis: String(context.clinicalDiagnosis ?? ''),
+      bodyHtml,
+    });
+    document.body.appendChild(container);
+    window.print();
+    setTimeout(() => { container.remove(); }, 1000);
+  }, [reportId, printLayouts, context.reportId, context.patientName, context.gender, context.age, context.modality, context.bodyPart, context.patientId, context.clinicalDiagnosis, context.document.html, context.document.plainText]);
 
   const handleExport = useCallback(async () => {
     if (!reportId) return;
@@ -992,7 +1181,16 @@ export default function ReportWritePage() {
         if (res.success && res.data) content = (res.data as any).content ?? res.data.body ?? '';
       }
       if (content) {
-        setEditorSet({ plainText: content, ts: Date.now() });
+        // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 全文替换前先解析占位符
+        const finalText = resolveTemplateVariables(content, context);
+        const { resolved, unresolved } = describeTemplateVariables(content, context);
+        setEditorSet({ plainText: finalText, ts: Date.now() });
+        if (resolved.length > 0 || unresolved.length > 0) {
+          message.info(
+            `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+            4,
+          );
+        }
         message.success(`已应用模板「${cached?.name ?? id}」到编辑器`);
       } else {
         message.info('该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写');
@@ -1000,7 +1198,8 @@ export default function ReportWritePage() {
     } catch {
       message.error('模板加载失败,请重试');
     }
-  }, []);
+    // [v3.0.6.11-98 Wave1B P0-2] 依赖 context 供模板变量自动填充
+  }, [context]);
 
   // [v3.0.6.11-95 Wave3B P1] 模板库: 最近使用置顶 (localStorage: report-recent-templates)
   const recordTemplateRecent = useCallback((id: string) => {
@@ -1012,24 +1211,59 @@ export default function ReportWritePage() {
   }, []);
 
   // [v3.0.6.11-95 Wave3B P1] 模板库: 点击插入光标处 (复用 externalInsert 通道)
+  // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 插入前先解析 {{patientName}} 等占位符
   const insertTemplateAtCursor = useCallback((t: any) => {
     const content = t?.content || t?.body || '';
     if (!content) {
       message.info('该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写');
       return;
     }
-    setVoiceInsert({ text: content, ts: Date.now() });
+    const { resolved, unresolved } = describeTemplateVariables(content, context);
+    const finalText = resolveTemplateVariables(content, context);
+    setVoiceInsert({ text: finalText, ts: Date.now() });
     recordTemplateRecent(t.id);
+    if (resolved.length > 0 || unresolved.length > 0) {
+      message.info(
+        `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+        4,
+      );
+    }
     message.success(`已插入模板「${t?.name ?? t.id}」到光标处`);
-  }, [recordTemplateRecent]);
+  }, [recordTemplateRecent, context]);
 
-  // [v3.0.6.11-95 Wave3B P1] 模板库: 收藏星标 (localStorage: report-fav-templates)
-  const toggleFavTemplate = useCallback((id: string) => {
-    setFavTemplateIds((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      localStorage.setItem('report-fav-templates', JSON.stringify(next));
-      return next;
-    });
+  // [v3.0.6.11-95 Wave3B P1] 模板库: 收藏星标
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 收藏服务端化: 优先 POST /templates/:id/favorite, 失败回退 localStorage 并标注
+  const toggleFavTemplate = useCallback(async (id: string) => {
+    try {
+      const res = await templatesApi.toggleFavorite(id);
+      if (res.success && Array.isArray(res.data?.ids)) {
+        setFavSource('api');
+        setFavTemplateIds(res.data.ids);
+        return;
+      }
+      throw new Error('favorite toggle failed');
+    } catch {
+      setFavSource('fallback');
+      setFavTemplateIds((prev) => {
+        const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+        localStorage.setItem('report-fav-templates', JSON.stringify(next));
+        return next;
+      });
+    }
+  }, []);
+
+  // [v3.0.6.11-98 Wave2B (报告 P1)] 挂载时同步服务端收藏 (GET /templates/favorites), 失败保留 localStorage
+  useEffect(() => {
+    let cancelled = false;
+    templatesApi.listFavorites().then((res) => {
+      if (cancelled || !res.success) return;
+      const ids = Array.isArray(res.data?.ids) ? res.data.ids : [];
+      if (ids.length > 0) {
+        setFavTemplateIds((prev) => Array.from(new Set([...ids, ...prev])));
+        setFavSource('api');
+      }
+    }).catch(() => { if (!cancelled) setFavSource('fallback'); });
+    return () => { cancelled = true; };
   }, []);
 
   // [W2-2] 上下例导航
@@ -1046,6 +1280,57 @@ export default function ReportWritePage() {
   const goNext = useCallback(() => {
     if (listIndex < reportList.length - 1) switchToReport(reportList[listIndex + 1]);
   }, [listIndex, reportList, switchToReport]);
+
+  // [v3.0.6.11-98 Wave1B P0-3] 上一例复制: 同患者最近一份非当前报告 (同模态优先) 的所见/印象预览后插入
+  const [prevCopyOpen, setPrevCopyOpen] = useState(false);
+  const [prevCopyLoading, setPrevCopyLoading] = useState(false);
+  const [prevReport, setPrevReport] = useState<any | null>(null);
+  const [prevSameModality, setPrevSameModality] = useState(false);
+  const [prevPick, setPrevPick] = useState<{ findings: boolean; impression: boolean }>({ findings: true, impression: true });
+
+  const copyPreviousReport = useCallback(async () => {
+    const pid = context.patientId;
+    if (!pid) { message.warning('当前报告缺少患者信息,无法查询既往检查'); return; }
+    setPrevCopyLoading(true);
+    try {
+      const res = await reportApi.list({ take: '50', patientId: pid });
+      const arr = res.success
+        ? (Array.isArray(res.data) ? res.data : ((res.data as { items?: unknown[] })?.items ?? []))
+        : [];
+      const curId = String(reportId ?? context.reportId ?? '');
+      const curModality = String(context.modality ?? '');
+      const others = (arr as any[]).filter((x) => {
+        const id = String(x?.reportId || x?.id || '');
+        return id !== curId && Boolean(x?.findings || x?.impression || x?.conclusion || x?.diagnosis);
+      });
+      if (others.length === 0) { message.info('该患者暂无既往检查报告,无法复制'); return; }
+      const sortByDate = (list: any[]) => [...list].sort((a, b) =>
+        String(b?.createdTime ?? b?.examDate ?? b?.studyDate ?? '').localeCompare(String(a?.createdTime ?? a?.examDate ?? a?.studyDate ?? '')));
+      const byMod = others.filter((x) => String(x?.modality ?? '') === curModality);
+      const picked = byMod.length > 0 ? sortByDate(byMod)[0] : sortByDate(others)[0];
+      setPrevReport(picked);
+      setPrevSameModality(byMod.length > 0);
+      setPrevPick({ findings: true, impression: true });
+      setPrevCopyOpen(true);
+    } catch {
+      message.error('查询既往检查失败,请稍后重试');
+    } finally {
+      setPrevCopyLoading(false);
+    }
+  }, [context.patientId, context.reportId, context.modality, reportId]);
+
+  // 插入上例内容: 所见 → 影像所见段, 印象 → 诊断意见段 (externalInsert 光标处)
+  const applyPreviousCopy = useCallback(() => {
+    if (!prevReport) return;
+    const parts: string[] = [];
+    if (prevPick.findings && prevReport.findings) parts.push(`影像所见:\n${prevReport.findings}`);
+    const impression = prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis;
+    if (prevPick.impression && impression) parts.push(`诊断意见:\n${impression}`);
+    if (parts.length === 0) { message.info('请至少勾选所见或印象一项'); return; }
+    setVoiceInsert({ text: parts.join('\n\n'), ts: Date.now() });
+    setPrevCopyOpen(false);
+    message.success(`已复制上例(${prevReport.modality ?? ''} · ${prevReport.examDate ?? prevReport.createdTime ?? ''})所见/印象到编辑器`);
+  }, [prevReport, prevPick]);
 
   // [v3.0.6.11-95 Wave2B P1] 书写页快捷键: Ctrl+S 保存草稿 / Ctrl+Enter 提交 / Alt+↑↓ 上下例 / F2 语音 / F5 AI 草稿
   const handleShortcutSubmit = useCallback(() => {
@@ -1080,13 +1365,22 @@ export default function ReportWritePage() {
   const isDraftStale = ['WRITING', 'DRAFT', 'ASSIGNED', 'PENDING_ASSIGNMENT', 'REJECTED'].includes(reportStatus) && staleHours >= 24;
 
   // [W2-2] 短语库插入 (复用语音听写 externalInsert 通道,插入光标处)
+  // [v3.0.6.11-98 Wave1B P0-2] 模板变量自动填充: 插入前先按报告上下文解析 {{patientName}} 等占位符
   const insertPhrase = useCallback((p: any) => {
     const text = p?.content || p?.text || '';
     if (!text) return;
-    setVoiceInsert({ text, ts: Date.now() });
+    const { resolved, unresolved } = describeTemplateVariables(text, context);
+    const finalText = resolveTemplateVariables(text, context);
+    setVoiceInsert({ text: finalText, ts: Date.now() });
     setPhraseOpen(false);
+    if (resolved.length > 0 || unresolved.length > 0) {
+      message.info(
+        `变量自动填充: ${resolved.length > 0 ? `已填充 ${resolved.map((k) => `{{${k}}}`).join(',')}` : ''}${unresolved.length > 0 ? `${resolved.length > 0 ? ';' : ''}${unresolved.map((k) => `{{${k}}}`).join(',')} 无上下文值,保留原样可手动修改` : ''}`,
+        4,
+      );
+    }
     message.success('短语已插入编辑器');
-  }, []);
+  }, [context]);
 
   // [W2-2] 影像视口: 跳转完整 DICOM 查看器
   const openViewer = useCallback((studyUid?: string) => {
@@ -1248,6 +1542,18 @@ export default function ReportWritePage() {
           {reportList.length > 0 && (
             <span className="v3-topbar-stats v3-topbar-hide-mobile">{listIndex + 1} / {reportList.length}</span>
           )}
+          {/* [v3.0.6.11-98 Wave1B P0-3] 复制上例: 同患者最近报告(同模态优先)所见/印象 */}
+          <Tooltip title={!context.patientId ? '无既往检查' : '复制该患者上一例检查(同模态优先)的所见/印象到当前报告'}>
+            <Button
+              size="small"
+              icon={<Copy className="w-3.5 h-3.5" />}
+              loading={prevCopyLoading}
+              disabled={!context.patientId || isLocked}
+              onClick={() => void copyPreviousReport()}
+            >
+              复制上例
+            </Button>
+          </Tooltip>
           {isLocked && <Tag icon={<Lock className="w-3 h-3" />} color="volcano">已锁定</Tag>}
         </div>
         <div className="v3-topbar-right">
@@ -1418,11 +1724,17 @@ export default function ReportWritePage() {
               initialTemplateId="recist"
               initialValues={context.fields}
               onChange={(values) => setContext((c: any) => ({ ...c, fields: values }))}
+              /* [v3.0.6.11-98 Wave2B (报告 P1)] 测量表生成 → insertHtml 通道插入编辑器 */
+              onGenerateReportSection={(html) => {
+                editorRef.current?.insertHtml(html);
+                message.success('测量表已插入报告正文');
+              }}
             />
           </Card>
 
           <Card size="small" className="v3-card print-area" title={<Space><Type className="w-4 h-4 text-cyan-500" /><span>所见 / 诊断 / 建议</span></Space>}>
             <ReportRichEditor
+              ref={editorRef}
               reportId={reportId ?? ''}
               initialHtml={context.document.html}
               initialPlainText={context.document.plainText}
@@ -1436,7 +1748,7 @@ export default function ReportWritePage() {
           </Card>
 
           <Card size="small" className="v3-card no-print" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}>
-            <ImageAnchorComponent reportId={reportId ?? ''} />
+            <ImageAnchorComponent reportId={reportId ?? ''} onInsertAnchor={handleInsertAnchor} />
           </Card>
         </Content>
 
@@ -1574,6 +1886,40 @@ export default function ReportWritePage() {
         onClose={() => setPhraseOpen(false)}
         onPick={insertPhrase}
       />
+      {/* [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板选择 Modal: 标准/带抬头/双栏对比/精简 */}
+      <Modal
+        open={printOpen}
+        title={<Space><Printer className="w-4 h-4" /><span>选择打印模板</span></Space>}
+        onCancel={() => setPrintOpen(false)}
+        width={520}
+        destroyOnHidden
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setPrintOpen(false)}>取消</Button>
+            <Button type="primary" icon={<Printer className="w-3 h-3" />} loading={printLoading} disabled={printLayouts.length === 0} onClick={() => { void doPrintWithLayout(printLayoutId); }}>
+              打印
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-2 pt-2">
+          {printLayouts.map((l) => (
+            <div
+              key={l.id}
+              className="p-3 border rounded cursor-pointer flex items-start gap-3 transition-colors"
+              style={{ borderColor: printLayoutId === l.id ? '#2563eb' : '#e2e8f0', background: printLayoutId === l.id ? '#eff6ff' : '#fff' }}
+              onClick={() => setPrintLayoutId(l.id)}
+            >
+              <Radio checked={printLayoutId === l.id} />
+              <div className="text-xs">
+                <div className="font-semibold">{l.name}</div>
+                <div className="text-slate-500 mt-0.5">{l.description}</div>
+              </div>
+            </div>
+          ))}
+          <div className="text-[11px] text-slate-400">打印将按所选布局注入打印容器;布局加载失败时回退系统打印</div>
+        </div>
+      </Modal>
       {/* [v3.0.6.11-95 Wave3B P1] 模板库 Modal: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 */}
       <TemplateLibraryModal
         open={templateLibOpen}
@@ -1584,12 +1930,75 @@ export default function ReportWritePage() {
         recentIds={recentTemplateIds}
         phraseSource={phraseSource}
         realCategories={realCategories}
+        favSource={favSource}
+        examModality={context.modality}
+        examBodyPart={context.bodyPart}
+        currentUserId={currentUserId}
         onClose={() => setTemplateLibOpen(false)}
         onInsert={insertTemplateAtCursor}
         onReplace={(id) => { void handleSelectTemplate(String(id)); }}
-        onToggleFav={toggleFavTemplate}
+        onToggleFav={(id) => { void toggleFavTemplate(String(id)); }}
         onPickPhrase={insertPhrase}
       />
+      {/* [v3.0.6.11-98 Wave1B P0-3] 上一例复制预览 Modal: 勾选所见/印象 → 插入编辑器 */}
+      <Modal
+        open={prevCopyOpen}
+        title={`复制上例 — ${prevReport?.reportId ?? prevReport?.id ?? ''} (${prevReport?.modality ?? ''} ${prevReport?.bodyPart ?? ''})`}
+        onCancel={() => setPrevCopyOpen(false)}
+        footer={null}
+        width={640}
+        destroyOnHidden
+      >
+        {prevReport && (
+          <div className="space-y-3 text-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              {prevSameModality ? (
+                <Tag color="green">同模态优先匹配</Tag>
+              ) : (
+                <Tag color="orange" title="该患者同模态检查暂无已写报告">同模态无匹配,已取最近报告</Tag>
+              )}
+              <span className="text-slate-400">检查日期: {prevReport.examDate ?? prevReport.createdTime ?? prevReport.studyDate ?? '—'}</span>
+            </div>
+            <div className="flex items-center gap-4 p-2 border border-slate-200 rounded bg-slate-50">
+              <Checkbox
+                checked={prevPick.findings}
+                onChange={(e) => setPrevPick((p) => ({ ...p, findings: e.target.checked }))}
+              >
+                影像所见
+              </Checkbox>
+              <Checkbox
+                checked={prevPick.impression}
+                onChange={(e) => setPrevPick((p) => ({ ...p, impression: e.target.checked }))}
+              >
+                诊断意见
+              </Checkbox>
+              <span className="text-slate-400">勾选后将插入当前编辑器对应段落</span>
+            </div>
+            {prevPick.findings && (
+              <div>
+                <div className="font-semibold text-slate-700 mb-1">影像所见</div>
+                <div className="border border-slate-200 rounded p-2 bg-white whitespace-pre-wrap max-h-40 overflow-y-auto text-slate-700">
+                  {prevReport.findings || '（无）'}
+                </div>
+              </div>
+            )}
+            {prevPick.impression && (
+              <div>
+                <div className="font-semibold text-slate-700 mb-1">诊断意见</div>
+                <div className="border border-slate-200 rounded p-2 bg-white whitespace-pre-wrap max-h-40 overflow-y-auto text-slate-700">
+                  {prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis ?? '（无）'}
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end gap-2 pt-1">
+              <Button onClick={() => setPrevCopyOpen(false)}>取消</Button>
+              <Button type="primary" icon={<Copy className="w-3.5 h-3.5" />} onClick={applyPreviousCopy}>
+                插入所见/印象
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 }
@@ -1850,6 +2259,17 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClos
                   <Tag className="m-0 text-[10px]">{p?.category ?? '通用'}</Tag>
                   {p?.subCategory && <Tag color="blue" className="m-0 text-[10px]">{p.subCategory}</Tag>}
                   {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
+                  {/* [v3.0.6.11-98 Wave1B P0-2] 变量说明 tooltip: 含 {{占位符}} 时提示支持的变量 */}
+                  {(() => {
+                    const vars = collectTemplateVariables(p?.content ?? p?.text ?? '');
+                    return vars.length > 0
+                      ? (
+                        <Tooltip title={variablesTooltipTitle(vars)}>
+                          <Tag color="purple" className="m-0 text-[10px] cursor-help">变量 ×{vars.length}</Tag>
+                        </Tooltip>
+                      )
+                      : null;
+                  })()}
                   {p?.usageCount != null && <span className="text-[10px] text-slate-400">使用 {p.usageCount} 次</span>}
                 </div>
               </div>
@@ -1862,7 +2282,8 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClos
 }
 
 /* ---------- [v3.0.6.11-95 Wave3B P1] 模板库: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 ---------- */
-function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, phraseSource = 'api', realCategories = [], onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
+/* [v3.0.6.11-98 Wave2A P1] 推荐模板 (按当前检查模态/部位自动匹配) + 我的模板筛选 (个人模板库) */
+function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, phraseSource = 'api', realCategories = [], examModality = '', examBodyPart = '', currentUserId = '', favSource = 'api', onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
   open: boolean;
   templates: any[];
   phrases: any[];
@@ -1873,6 +2294,13 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   phraseSource?: 'api' | 'fallback';
   /** [v3.0.6.11-96 Wave3B P1] 真实分类 (/templates/categories), 与模板数据派生分类合并 */
   realCategories?: string[];
+  /** [v3.0.6.11-98 Wave2A P1] 当前报告检查上下文 (模板自动匹配推荐) */
+  examModality?: string;
+  examBodyPart?: string;
+  /** [v3.0.6.11-98 Wave2A P1] 当前登录用户 id (我的模板筛选/个人模板 Tag) */
+  currentUserId?: string;
+  /** [v3.0.6.11-98 Wave2B (报告 P1)] 收藏数据源: api=服务端同步 / fallback=localStorage */
+  favSource?: 'api' | 'fallback';
   onClose: () => void;
   onInsert: (t: any) => void;
   onReplace: (id: string) => void;
@@ -1881,6 +2309,8 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 }) {
   const [catTab, setCatTab] = useState<string>('全部');
   const [q, setQ] = useState('');
+  // [v3.0.6.11-98 Wave2A P1] 我的模板筛选: 全部 / 仅我创建
+  const [scopeTab, setScopeTab] = useState<'all' | 'mine'>('all');
 
   // [v3.0.6.11-96 Wave3B P1] 分类 Tab: 真实 /templates/categories 优先, 与模板数据派生分类合并 (去重)
   const categories = useMemo(() => {
@@ -1893,10 +2323,38 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   const favIdsSet = useMemo(() => new Set(favIds), [favIds]);
   const recentIdsSet = useMemo(() => new Set(recentIds), [recentIds]);
 
+  // [v3.0.6.11-98 Wave2A P1] 模板自动匹配推荐: 按当前检查模态/部位匹配, 双匹配 > 单匹配
+  const recCtx = useMemo(() => {
+    const mod = String(examModality ?? '').trim().toUpperCase();
+    const bp = String(examBodyPart ?? '').trim();
+    return { mod, bp, has: mod.length > 0 || bp.length > 0 };
+  }, [examModality, examBodyPart]);
+
+  const recMatchLevel = useCallback((t: any): number => {
+    if (!recCtx.has) return -1;
+    const tMod = String(t?.modality ?? t?.category ?? '').trim().toUpperCase();
+    const tBp = String(t?.bodyPart ?? '').trim();
+    const m = recCtx.mod && tMod && (tMod === recCtx.mod || tMod.includes(recCtx.mod) || recCtx.mod.includes(tMod));
+    const b = recCtx.bp && tBp && (tBp === recCtx.bp || tBp.includes(recCtx.bp) || recCtx.bp.includes(tBp));
+    if (m && b) return 0;
+    if (m) return 1;
+    if (b) return 2;
+    return -1;
+  }, [recCtx]);
+
+  const recommended = useMemo(() => {
+    const matched = templates.filter((t: any) => recMatchLevel(t) >= 0);
+    return matched.sort((a: any, b: any) => recMatchLevel(a) - recMatchLevel(b) || String(a?.name ?? '').localeCompare(String(b?.name ?? ''), 'zh-CN')).slice(0, 6);
+  }, [templates, recMatchLevel]);
+
+  // [v3.0.6.11-98 Wave2A P1] 我的模板: 个人模板 Tag/分区 (createdById === 当前用户)
+  const isMine = useCallback((t: any) => !!currentUserId && String(t?.createdById ?? '') === currentUserId, [currentUserId]);
+
   const filteredTemplates = useMemo(() => {
     const kw = q.trim().toLowerCase();
     let list = templates;
     if (catTab !== '全部') list = list.filter((t: any) => String(t?.category ?? '') === catTab);
+    if (scopeTab === 'mine') list = list.filter((t: any) => isMine(t));
     if (kw) list = list.filter((t: any) => String(t?.name ?? '').toLowerCase().includes(kw) || String(t?.body ?? '').toLowerCase().includes(kw));
     // 排序: 收藏 > 最近使用 > 其余 (常用模板置顶)
     const rank = (t: any) => {
@@ -1905,7 +2363,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
       return 2;
     };
     return [...list].sort((a, b) => rank(a) - rank(b) || String(a?.name ?? '').localeCompare(String(b?.name ?? ''), 'zh-CN'));
-  }, [templates, catTab, q, favIdsSet, recentIdsSet]);
+  }, [templates, catTab, q, scopeTab, isMine, favIdsSet, recentIdsSet]);
 
   const filteredPhrases = useMemo(() => {
     const kw = q.trim().toLowerCase();
@@ -1926,7 +2384,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 短语已回退演示数据">演示回退</Tag>}</Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 短语已回退演示数据">演示回退</Tag>}{favSource === 'api' ? <Tag color="green" title="收藏经 POST /templates/:id/favorite 同步服务端">服务端收藏</Tag> : <Tag color="orange" title="收藏接口不可用, 已回退 localStorage">本地收藏回退</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -1949,7 +2407,43 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
             <div className="flex flex-col gap-2" style={{ maxHeight: 420 }}>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />全文模板</span>
-                <Tag color="blue" className="text-[10px] m-0">点击插入光标处</Tag>
+                <div className="flex items-center gap-2">
+                  {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
+                  <div className="flex rounded border border-slate-200 overflow-hidden">
+                    <button type="button"
+                      className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 ${scopeTab === 'all' ? 'bg-sky-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setScopeTab('all')}>全部</button>
+                    <button type="button"
+                      className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 border-l border-slate-200 ${scopeTab === 'mine' ? 'bg-sky-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setScopeTab('mine')}>我的模板</button>
+                  </div>
+                  <Tag color="blue" className="text-[10px] m-0">点击插入光标处</Tag>
+                </div>
+              </div>
+              {/* [v3.0.6.11-98 Wave2A P1] 推荐模板: 按当前检查 模态/部位 自动匹配 (双匹配 > 单匹配) */}
+              <div className="rounded border border-purple-200 bg-purple-50/60 p-2 space-y-1">
+                <div className="text-[11px] font-semibold text-purple-700 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  推荐模板
+                  {recCtx.has && (
+                    <span className="font-normal text-purple-400">（{recCtx.mod || '—'}{recCtx.mod && recCtx.bp ? ' / ' : ''}{recCtx.bp || '—'}）</span>
+                  )}
+                </div>
+                {recommended.length === 0 ? (
+                  <div className="text-[11px] text-slate-400">无推荐（按分类浏览）</div>
+                ) : (
+                  <div className="space-y-1">
+                    {recommended.map((t: any) => (
+                      <div key={`rec-${t.id}`} className="p-1.5 border border-purple-200 bg-white rounded text-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
+                        onClick={() => onInsert(t)}>
+                        <Tag color="purple" className="m-0 text-[10px] shrink-0">推荐</Tag>
+                        <span className="text-slate-700 truncate flex-1">{t.name}</span>
+                        <Tag color={recMatchLevel(t) === 0 ? 'volcano' : 'cyan'} className="m-0 text-[10px] shrink-0">{recMatchLevel(t) === 0 ? '精准匹配' : recMatchLevel(t) === 1 ? '模态匹配' : '部位匹配'}</Tag>
+                        <Button size="small" type="text" className="p-0 h-auto text-[10px] shrink-0" onClick={(e) => { e.stopPropagation(); onReplace(t.id); }}>替换</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-1 flex-wrap">
                 {categories.map((c) => (
@@ -1968,6 +2462,8 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                         <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
                           {isFav && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
                           {isRecent && !isFav && <Tag color="green" className="m-0 text-[10px]">最近</Tag>}
+                          {/* [v3.0.6.11-98 Wave2A P1] 个人模板 Tag */}
+                          {isMine(t) && <Tag color="cyan" className="m-0 text-[10px]">个人</Tag>}
                           {t.name}
                         </span>
                         <span className="flex items-center gap-1 shrink-0">
@@ -1977,6 +2473,17 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                         </span>
                       </div>
                       <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(t.body ?? '').slice(0, 60) || '(结构化模板)'}</div>
+                      {/* [v3.0.6.11-98 Wave1B P0-2] 变量说明 tooltip */}
+                      {(() => {
+                        const vars = collectTemplateVariables(t?.body ?? t?.content ?? '');
+                        return vars.length > 0
+                          ? (
+                            <Tooltip title={variablesTooltipTitle(vars)}>
+                              <Tag color="purple" className="m-0 text-[10px] cursor-help mt-1">变量 ×{vars.length} (插入时自动填充)</Tag>
+                            </Tooltip>
+                          )
+                          : null;
+                      })()}
                     </div>
                   );
                 })}
@@ -2001,6 +2508,16 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                           <div className="flex items-center gap-1 mt-1">
                             <Tag className="m-0 text-[10px]">{p?.category ?? '通用'}</Tag>
                             {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
+                            {(() => {
+                              const vars = collectTemplateVariables(p?.content ?? p?.text ?? '');
+                              return vars.length > 0
+                                ? (
+                                  <Tooltip title={variablesTooltipTitle(vars)}>
+                                    <Tag color="purple" className="m-0 text-[10px] cursor-help">变量 ×{vars.length}</Tag>
+                                  </Tooltip>
+                                )
+                                : null;
+                            })()}
                           </div>
                         </div>
                       ))}

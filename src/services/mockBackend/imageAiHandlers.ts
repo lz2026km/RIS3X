@@ -23,6 +23,76 @@ interface ScoreRecordV2 {
 const storeV1 = new Map<string, Record<string, unknown>>()
 const storeV2 = new Map<string, ScoreRecordV2>()
 
+// [G005 Wave3A P16] 三维度评估历史 (内存 + seed, 与后端 image-ai.service.listAssessments 对齐)
+interface AssessRecord {
+  id: string
+  studyId: string
+  instanceId?: string
+  modality: string
+  bodyPart: string
+  assessedAt: string
+  artifact: { score: number; label: string; issues: string[] }
+  exposure: { score: number; label: string; issues: string[] }
+  positioning: { score: number; label: string; issues: string[] }
+  overall: { score: number; label: string }
+}
+const assessStore = new Map<string, AssessRecord>()
+let assessSeq = 0
+
+const ASSESS_SEED_IDS = ['EX-5001', 'EX-5002', 'EX-5003', 'EX-5004', 'EX-5005', 'STU20260701', 'STU20260702', 'STU20260703', 'STU20260704', 'STU20260705', 'STU20260706', 'STU20260707']
+const ASSESS_SEED_MODS = ['CT', 'MR', 'DR', 'CT', 'MG', 'DR', 'CT', 'MR', 'DR', 'CT', 'MR', 'DR']
+const ASSESS_SEED_PARTS = ['头颅', '胸部', '腹部', '腰椎', '胸部', '颈椎', '胸部', '头颅', '胸部', '盆腔', '腰椎', '胸部']
+
+function seedAssessStore(): void {
+  if (assessStore.size > 0) return
+  for (let i = 0; i < ASSESS_SEED_IDS.length; i++) {
+    const studyId = ASSESS_SEED_IDS[i]!
+    const h = hashAssess(studyId)
+    const rnd = (salt: number) => ((h >>> (salt % 28)) % 1000) / 1000
+    const clamp = (v: number) => Math.max(55, Math.min(99, v))
+    const label = (s: number) => (s >= 90 ? '优秀' : s >= 80 ? '良好' : s >= 70 ? '一般' : '较差')
+    const modality = ASSESS_SEED_MODS[i]!
+    const bodyPart = ASSESS_SEED_PARTS[i]!
+    const m = modality.toUpperCase()
+    let ab = 88
+    if (m === 'MR') ab = 80
+    if (m === 'CT') ab = 84
+    if (m === 'DR' || m === 'CR') ab = 86
+    if (m === 'MG') ab = 82
+    let eb = 90
+    if (m === 'DR' || m === 'CR') eb = 82
+    if (m === 'MG') eb = 85
+    if (m === 'MR') eb = 92
+    let pb = 88
+    if (m === 'DR' || m === 'CR') pb = 80
+    if (m === 'MG') pb = 78
+    if (m === 'MR') pb = 90
+    const artifact = clamp(Math.round(ab - rnd(3) * 14))
+    const exposure = clamp(Math.round(eb - rnd(7) * 12))
+    const positioning = clamp(Math.round(pb - rnd(11) * 14))
+    const overall = clamp(Math.round(artifact * 0.35 + exposure * 0.3 + positioning * 0.35))
+    assessStore.set(studyId, {
+      id: `assess-${++assessSeq}`,
+      studyId,
+      modality,
+      bodyPart,
+      assessedAt: new Date(Date.now() - (i + 1) * 86400000).toISOString(),
+      artifact: { score: artifact, label: label(artifact), issues: artifact < 85 ? ['检测到轻微运动伪影，建议检查时固定患者体位'] : ['未见明显伪影'] },
+      exposure: { score: exposure, label: label(exposure), issues: exposure < 85 ? ['曝光参数偏暗，软组织对比度不足'] : ['曝光参数正常'] },
+      positioning: { score: positioning, label: label(positioning), issues: positioning < 85 ? ['体位轻度旋转，解剖对称性欠佳'] : ['体位摆位正确'] },
+      overall: { score: overall, label: label(overall) },
+    })
+  }
+}
+
+function hashAssess(text: string): number {
+  let h = 0
+  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0
+  return h
+}
+
+seedAssessStore()
+
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min)
 
 function buildStatsV2(items: ScoreRecordV2[], query: URLSearchParams): Record<string, unknown> {
@@ -159,20 +229,37 @@ export const imageAiHandlers = [
     const exposureIssues = exposureScore < 85 ? ['曝光参数偏暗，软组织对比度不足'] : exposureScore < 75 ? ['曝光过度，存在过曝区域，建议降低 mAs'] : ['曝光参数正常']
     const positioningIssues = positioningScore < 85 ? ['体位轻度旋转，解剖对称性欠佳'] : positioningScore < 75 ? ['检查部位偏移，边缘组织未完全覆盖'] : ['体位摆位正确']
 
+    const record: AssessRecord = {
+      id: `assess-${++assessSeq}`,
+      studyId,
+      ...(body.instanceId ? { instanceId: body.instanceId } : {}),
+      modality,
+      bodyPart,
+      assessedAt: new Date().toISOString(),
+      artifact: { score: artifactScore, label: dimLabel(artifactScore), issues: artifactIssues },
+      exposure: { score: exposureScore, label: dimLabel(exposureScore), issues: exposureIssues },
+      positioning: { score: positioningScore, label: dimLabel(positioningScore), issues: positioningIssues },
+      overall: { score: overall, label: dimLabel(overall) },
+    }
+    assessStore.set(studyId, record)
+
     return HttpResponse.json({
       success: true,
-      data: {
-        studyId,
-        ...(body.instanceId ? { instanceId: body.instanceId } : {}),
-        modality,
-        bodyPart,
-        assessedAt: new Date().toISOString(),
-        artifact: { score: artifactScore, label: dimLabel(artifactScore), issues: artifactIssues },
-        exposure: { score: exposureScore, label: dimLabel(exposureScore), issues: exposureIssues },
-        positioning: { score: positioningScore, label: dimLabel(positioningScore), issues: positioningIssues },
-        overall: { score: overall, label: dimLabel(overall) },
-      },
+      data: record,
     }, { status: 201 })
+  }),
+
+  // [G005 Wave3A P16] 历史三维度评估列表 (按时间倒序, 支持 studyId 过滤 + 分页)
+  http.get(`${API_BASE}/qc/image-ai/assessments`, async ({ request }) => {
+    await delay(delayMs())
+    const url = new URL(request.url)
+    let list = Array.from(assessStore.values())
+    const studyId = url.searchParams.get('studyId')
+    if (studyId) list = list.filter((r) => r.studyId === studyId)
+    list = [...list].sort((a, b) => new Date(b.assessedAt).getTime() - new Date(a.assessedAt).getTime())
+    const page = Math.max(1, Number(url.searchParams.get('page') ?? 1))
+    const pageSize = Math.min(200, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50)))
+    return HttpResponse.json({ success: true, data: list.slice((page - 1) * pageSize, page * pageSize), meta: { total: list.length } })
   }),
   http.post(`${API_BASE}/qc/image-ai/score`, async ({ request }) => {
     await delay(delayMs())

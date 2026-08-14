@@ -24,7 +24,14 @@ export class FhirService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.reloadSubscriptions()
+    try {
+      await this.reloadSubscriptions()
+    } catch (error) {
+      // [W6] DB 不可用时降级启动: 订阅缓存留空, 请求时再懒加载
+      this.logger.warn(
+        `[W6] reloadSubscriptions failed (${error instanceof Error ? error.message : 'unknown error'}); starting with empty subscription cache.`,
+      )
+    }
   }
 
   private async reloadSubscriptions() {

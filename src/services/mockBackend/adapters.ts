@@ -264,6 +264,8 @@ export interface ReportDto {
   bodyPart: string;
   status: string;
   findings: string;
+  // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出
+  htmlContent?: string;
   diagnosis: string;
   impression: string;
   recommendations: string;
@@ -292,6 +294,8 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     bodyPart: r.bodyPart,
     status: mapReportStatus(r.status),
     findings: r.findings,
+    // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出 (POST/PATCH 存于 exam 行, 随更新回读)
+    htmlContent: (r as any).htmlContent ?? '',
     diagnosis: r.impression,
     impression: r.impression,
     createdTime: r.examAt,

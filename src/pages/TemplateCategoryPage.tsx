@@ -7,11 +7,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import { templatesApi, type TemplateCategoryDto } from '../services/api/templatesApi';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
-  ArrowRight, Move, GitBranch, Trash2, X,
+  ArrowRight, Move, GitBranch, Trash2, X, ArrowLeft, List, Grid,
 } from 'lucide-react';
 import {
   TEMPLATE_CATEGORY_TREE,
@@ -238,6 +239,10 @@ export default function TemplateCategoryPage() {
   const [catModal, setCatModal] = useState<{ mode: 'create' } | { mode: 'edit'; cat: TemplateCategoryNode } | null>(null);
   const [catForm, setCatForm] = useState({ name: '', description: '', sortOrder: 1 });
   const [catSaving, setCatSaving] = useState(false);
+  // [v3.0.6.11-98 Wave3B P1] 移动分类: 目标父分类选择 Modal (DTO 无 parent 字段 → 本地重排序 + sortOrder 落库)
+  const [moveModal, setMoveModal] = useState<{ cat: TemplateCategoryNode } | null>(null);
+  const [moveTargetId, setMoveTargetId] = useState<string>('');
+  const [moveSaving, setMoveSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -352,6 +357,48 @@ export default function TemplateCategoryPage() {
     }
   };
 
+  // [v3.0.6.11-98 Wave3B P1] 移动分类: 选择目标父分类 → 本地重排序 (sortOrder) + updateCategory 落库
+  const openMoveModal = (cat: TemplateCategoryNode) => {
+    setMoveTargetId(cat.id);
+    setMoveModal({ cat });
+  };
+
+  const saveMove = async () => {
+    if (!moveModal) return;
+    const { cat } = moveModal;
+    setMoveSaving(true);
+    try {
+      const others = realCategories.filter(c => c.id !== cat.id);
+      const ordered = [...others];
+      if (moveTargetId !== cat.id && moveTargetId) {
+        const atIdx = ordered.findIndex(c => c.id === moveTargetId);
+        if (atIdx >= 0) ordered.splice(atIdx + 1, 0, realCategories.find(c => c.id === cat.id) ?? { id: cat.id, name: cat.name, sortOrder: 0 });
+      } else {
+        ordered.unshift(realCategories.find(c => c.id === cat.id) ?? { id: cat.id, name: cat.name, sortOrder: 0 });
+      }
+      const nextOrder = ordered.map((c, i) => ({ ...c, sortOrder: i + 1 }));
+      const res = await templatesApi.updateCategory(cat.id, { sortOrder: nextOrder.find(c => c.id === cat.id)?.sortOrder ?? 1 });
+      if (res.success) {
+        setRealCategories(nextOrder);
+        message.success(`分类「${cat.name}」已移动到目标分类之后（sortOrder=${nextOrder.find(c => c.id === cat.id)?.sortOrder ?? 1}）`);
+      } else {
+        setRealCategories(nextOrder);
+        setCategorySource('fallback');
+        message.warning('分类服务暂不可用，已本地重排序（标注: 待同步后端）');
+      }
+    } catch {
+      setRealCategories(prev => {
+        const others = prev.filter(c => c.id !== cat.id);
+        return [...others, prev.find(c => c.id === cat.id)!].map((c, i) => ({ ...c, sortOrder: i + 1 }));
+      });
+      setCategorySource('fallback');
+      message.warning('分类服务暂不可用，已本地重排序（标注: 待同步后端）');
+    } finally {
+      setMoveSaving(false);
+      setMoveModal(null);
+    }
+  };
+
   const selectedNode = selectedId ? findCategoryById(tree, selectedId) : null;
   const selectedStats = selectedNode ? countTemplatesInTreeWithOverride(selectedNode, templateCount) : 0;
   const selectedChildren = selectedNode ? selectedNode.children : [];
@@ -388,10 +435,10 @@ export default function TemplateCategoryPage() {
             style={{
               padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
               background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
-              cursor: 'pointer',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            返回模板列表
+            <ArrowLeft size={12} /> 返回模板列表
           </button>
         </div>
       </div>
@@ -425,7 +472,7 @@ export default function TemplateCategoryPage() {
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              >树</button>
+              ><List size={12} /> 树</button>
               <button
                 onClick={() => setViewMode('flat')}
                 style={{
@@ -434,7 +481,7 @@ export default function TemplateCategoryPage() {
                   color: viewMode === 'flat' ? '#1e40af' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
-              >平铺</button>
+              ><Grid size={12} /> 平铺</button>
             </div>
           </div>
 
@@ -549,6 +596,7 @@ export default function TemplateCategoryPage() {
                     <Trash2 size={11} /> 删除分类
                   </button>
                   <button
+                    onClick={() => openMoveModal(selectedNode)}
                     style={{
                       padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
@@ -698,6 +746,41 @@ export default function TemplateCategoryPage() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
                 <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
                 <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? '保存中...' : '保存分类'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* [v3.0.6.11-98 Wave3B P1] 移动分类 Modal: 选择目标父分类 (DTO 无 parent 字段 → 本地重排序 + sortOrder) */}
+      {moveModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setMoveModal(null)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Move size={16} color="#0891b2" /> 移动分类 · {moveModal.cat.name}
+              </div>
+              <button onClick={() => setMoveModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>移动到目标分类之后</label>
+                <select
+                  value={moveTargetId}
+                  onChange={e => setMoveTargetId(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', background: 'var(--bg-card)' }}
+                >
+                  <option value="">置顶（第一个）</option>
+                  {realCategories.filter(c => c.id !== moveModal.cat.id).map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
+                  说明：后端分类 DTO 暂无 parent 字段，移动将调整 sortOrder 排序并本地重排（标注: 层级移动待后端支持）。
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? '移动中...' : '确认移动'}</button>
               </div>
             </div>
           </div>

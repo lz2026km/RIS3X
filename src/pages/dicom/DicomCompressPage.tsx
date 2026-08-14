@@ -470,7 +470,9 @@ export default function DicomCompressPage() {
       if (res.success && data && data.ratio !== undefined) {
         setRealRatios(prev => ({ ...prev, [row.fileId]: { ratio: data.ratio!, real: data.real !== false } }));
         messageApi.success(
-          `实例 ${row.fileId} 真实压缩比 ${data.ratio.toFixed(2)}× (${data.real === false ? "查表估算" : "JPEG2000 真实编码"})`,
+          data.real === false
+            ? `实例 ${row.fileId} 压缩比 ${data.ratio.toFixed(2)}× (估算值: 查表回退, 非字节级编码)`
+            : `实例 ${row.fileId} JPEG2000 真实压缩比 ${data.ratio.toFixed(2)}× (OpenJPEG WASM)`,
         );
       } else {
         messageApi.warning("该实例暂无可计算的真实压缩比");
@@ -539,21 +541,29 @@ export default function DicomCompressPage() {
         ),
     },
     {
-      title: "真实",
-      dataIndex: "simulated",
-      key: "simulated",
-      width: 90,
-      render: (v: boolean | undefined) =>
-        v ? <Tag color="gold">估算</Tag> : <Tag color="green">真实</Tag>,
+      // [G005 Wave3A P16] 编码来源三态: real=JPEG2000 WASM 真实 / rle-approx=LOCO-I 近似 / estimated=查表估算
+      title: "编码来源",
+      dataIndex: "source",
+      key: "source",
+      width: 150,
+      render: (_: unknown, row: DicomCompressTask) => {
+        if (row.source === "real") return <Tag color="green">JPEG2000 真实 (WASM)</Tag>;
+        if (row.source === "estimated") return <Tag color="gold">估算值 (查表回退)</Tag>;
+        if (row.simulated) return <Tag color="gold">估算值 (查表回退)</Tag>;
+        return <Tag color="blue">真实编码 (RLE/LOCO-I 近似)</Tag>;
+      },
     },
     {
+      // [G005 Wave3A P16] JPEG2000 真实比 (OpenJPEG WASM / 估算标注)
       title: "JPEG2000 真实比",
       key: "realRatio",
-      width: 120,
+      width: 170,
       render: (_: unknown, row: DicomCompressTask) => {
         const r = realRatios[row.fileId];
         return r ? (
-          <Tag color={r.real ? "green" : "gold"}>{r.ratio.toFixed(2)}×{r.real ? "" : " (估算)"}</Tag>
+          <Tag color={r.real ? "green" : "gold"} title={r.real ? "OpenJPEG WASM 真编码" : "文件不可达, 查表估算 (JPEG2000 标准编码待接入 wasm)"}>
+            {r.ratio.toFixed(2)}× {r.real ? "(真实编码)" : "(估算值)"}
+          </Tag>
         ) : (
           <Button size="small" type="link" loading={ratioLoadingId === row.id} onClick={() => void handleFetchRealRatio(row)}>
             查询
@@ -637,7 +647,7 @@ export default function DicomCompressPage() {
         <Shrink size={16} style={{ marginRight: 8 }} />
         DICOM 压缩工作台
         <Text type="secondary" style={{ fontSize: 13, marginLeft: 12 }}>
-          真实 JPEG2000/HTJ2K 对标: RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码
+          JPEG2000 真编解码 (OpenJPEG WASM) + RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码
         </Text>
       </Title>
 
@@ -690,7 +700,7 @@ export default function DicomCompressPage() {
                   type="info"
                   showIcon
                   message={`已上传: ${uploadName}`}
-                  description="将使用真实字节流执行 RLE / Predictive 压缩"
+                  description="将使用真实字节流执行 RLE / Predictive / JPEG2000(OpenJPEG WASM) 压缩"
                 />
               )}
             </Space>
@@ -792,10 +802,15 @@ export default function DicomCompressPage() {
           <Space>
             <BarChart3 size={16} />
             压缩结果
-            {currentTask?.simulated === true && (
-              <Tag color="gold">估算 (文件不可达时查表回退)</Tag>
+            {/* [G005 Wave3A P16] 编码来源三态标注, 杜绝估算/真实混淆 */}
+            {currentTask?.source === "real" && <Tag color="green">JPEG2000 真实编码 (OpenJPEG WASM)</Tag>}
+            {currentTask?.source === "estimated" && <Tag color="gold">估算值 (文件不可达, 查表回退)</Tag>}
+            {currentTask?.simulated === false && currentTask?.source !== "real" && (
+              <Tag color="blue">真实编码 (RLE/LOCO-I 近似, JPEG-LS 风格)</Tag>
             )}
-            {currentTask?.simulated === false && <Tag color="green">真实压缩</Tag>}
+            {currentTask?.simulated === true && currentTask?.source !== "estimated" && (
+              <Tag color="gold">估算值 (查表回退)</Tag>
+            )}
           </Space>
         }
         variant="outlined"
@@ -1024,7 +1039,15 @@ export default function DicomCompressPage() {
             <Descriptions.Item label="压缩比">{taskDetail.ratio ? `${taskDetail.ratio.toFixed(2)}×` : "-"}</Descriptions.Item>
             <Descriptions.Item label="耗时">{taskDetail.elapsedMs !== undefined ? `${taskDetail.elapsedMs} ms` : "-"}</Descriptions.Item>
             <Descriptions.Item label="类型">{taskDetail.lossless ? "无损" : "有损"}</Descriptions.Item>
-            <Descriptions.Item label="真实">{taskDetail.simulated ? "估算" : "真实"}</Descriptions.Item>
+            <Descriptions.Item label="编码来源">
+              {taskDetail.source === "real" ? (
+                <Tag color="green">JPEG2000 真实 (OpenJPEG WASM)</Tag>
+              ) : taskDetail.source === "estimated" || taskDetail.simulated ? (
+                <Tag color="gold">估算值 (查表回退)</Tag>
+              ) : (
+                <Tag color="blue">真实编码 (RLE/LOCO-I 近似)</Tag>
+              )}
+            </Descriptions.Item>
             <Descriptions.Item label="创建">{taskDetail.createdAt}</Descriptions.Item>
             <Descriptions.Item label="更新">{taskDetail.updatedAt}</Descriptions.Item>
             {taskDetail.error && <Descriptions.Item label="错误" span={2}><Text type="danger">{taskDetail.error}</Text></Descriptions.Item>}

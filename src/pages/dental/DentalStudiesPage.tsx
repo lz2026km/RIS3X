@@ -316,6 +316,15 @@ export const DentalStudiesPage: React.FC = () => {
               dataSource={[
                 { k: '1', label: '同患者', a: String(cmpResult.samePatient ?? '-'), b: String(cmpResult.samePatient ?? '-') },
                 { k: '2', label: '拍摄时间', a: cmpResult.diff?.acquiredA?.slice(0, 10) ?? '-', b: cmpResult.diff?.acquiredB?.slice(0, 10) ?? '-' },
+                // [v3.0.6.11-98 Wave3B P2] 差异数组完整渲染 (后端 compare 返回 differences: string[])
+                ...(Array.isArray(cmpResult.differences)
+                  ? cmpResult.differences.map((d: unknown, i: number) => ({
+                      k: `diff-${i}`,
+                      label: `差异 ${i + 1}`,
+                      a: '—',
+                      b: String(d),
+                    }))
+                  : []),
               ]}
               columns={[
                 { title: '项目', dataIndex: 'label', width: 100 },

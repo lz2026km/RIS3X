@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Optional } from '@nestjs/common'
 import * as fs from 'node:fs'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
@@ -391,7 +391,11 @@ export class SimilarCaseService {
   /** demo 影像特征库 (确定性生成, source: 'demo') */
   private demoImageFeatures: ImageFeatures[] | null = null
 
-  constructor(private readonly prisma: PrismaService | null = null) {}
+  // [W6] 修复 DI: `PrismaService | null = null` 会被 TS 编译为 design:paramtypes [Object],
+  //      导致 Nest 启动时 UnknownDependenciesException (后端整体 500)。
+  //      改为 @Optional() + `?` 写法, 编译为 [PrismaService], 全局 PrismaModule 可解析,
+  //      且 DB 不可用时各方法仍走内存回退 (loadDbReports 等已有 try/catch)。
+  constructor(@Optional() private readonly prisma?: PrismaService) {}
 
   /* ---------------- 关键词提取 ---------------- */
 

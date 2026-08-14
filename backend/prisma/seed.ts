@@ -154,6 +154,33 @@ async function main(): Promise<void> {
   }
   console.log('[seed] 5 RADS templates')
 
+  // [v3.0.6.11-98 Wave2A P1] 报告模板 (modal/bodyPart 自动匹配推荐 + 审批流示例)
+  // 已批准模板可直接在书写页模板库使用; pending/rejected 示例展示审批流状态
+  const doctorZhang = await prisma.user.findUnique({ where: { username: 'doctor_zhang' } })
+  const directorLi = await prisma.user.findUnique({ where: { username: 'director_li' } })
+  const tplSeed = [
+    { id: 'tpl-seed-ct-chest', name: '胸部CT平扫常规模板', category: 'CT', modality: 'CT', bodyPart: '胸部', status: 'approved', approvedBy: directorLi?.id, body: '【影像所见】双肺纹理清晰，未见实变及肿块影；纵隔无肿大淋巴结；心影大小形态正常；胸腔无积液。\n【诊断意见】胸部CT平扫未见明显异常。' },
+    { id: 'tpl-seed-mr-brain', name: '头颅MR平扫常规模板', category: 'MR', modality: 'MR', bodyPart: '头颅', status: 'approved', approvedBy: directorLi?.id, body: '【影像所见】脑实质内未见异常信号灶；脑室系统形态大小正常；中线结构居中；脑沟脑裂未见增宽。\n【诊断意见】头颅MRI平扫未见明显异常。' },
+    { id: 'tpl-seed-dr-chest', name: '胸部DR正位模板', category: 'DR', modality: 'DR', bodyPart: '胸部', status: 'approved', approvedBy: directorLi?.id, body: '【影像所见】双肺野清晰，肺门结构正常，心影大小正常，膈面光滑，肋膈角锐利。\n【诊断意见】胸部正位片未见明显异常。' },
+    { id: 'tpl-seed-us-abdomen', name: '腹部超声常规模板', category: 'US', modality: 'US', bodyPart: '腹部', status: 'approved', approvedBy: directorLi?.id, body: '【影像所见】肝脏形态大小正常，回声均匀；胆囊壁不厚，腔内未见结石；脾胰肾未见明显异常。\n【诊断意见】腹部超声未见明显异常。' },
+    { id: 'tpl-seed-mg-breast', name: '乳腺钼靶常规模板', category: 'MG', modality: 'MG', bodyPart: '乳腺', status: 'pending', approvedBy: null, body: '【影像所见】双侧乳腺腺体呈纤维腺体型，未见明确肿块、钙化及结构扭曲。\n【诊断意见】双侧乳腺钼靶未见明显异常。BI-RADS 1 类。' },
+    { id: 'tpl-seed-ct-abdomen', name: '腹部CT增强常规模板', category: 'CT', modality: 'CT', bodyPart: '腹部', status: 'rejected', approvedBy: null, rejectReason: '增强时相描述不完整, 请补充门静脉期', body: '【影像所见】肝脏形态大小正常，增强三期强化均匀。\n【诊断意见】腹部CT增强未见明显异常。' },
+  ]
+  for (const t of tplSeed) {
+    await prisma.reportTemplate.upsert({
+      where: { id: t.id },
+      update: {},
+      create: {
+        ...t,
+        tags: ['常规'],
+        createdById: doctorZhang?.id ?? 'seed',
+        version: 1,
+        tenantId: 'default',
+      },
+    })
+  }
+  console.log(`[seed] ${tplSeed.length} report templates (approval flow)`)
+
   // 内置示例 DICOM (Phase 1.2+1.3): 从 dicom-samples/manifest.json 注册到 dicomInstance 表
   await seedDicomSamples(prisma)
 

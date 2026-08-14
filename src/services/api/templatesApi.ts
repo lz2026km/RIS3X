@@ -2,6 +2,9 @@ import { api } from './client'
 
 // [G005 Wave1B P1] 模板 API — snippets 端点后端已实现 (templates.controller,
 // ReportTemplate 派生 + 内存 CRUD), MSW 标注已更新。
+// [v3.0.6.11-98 Wave2A P1] 模板审批流 (status/approvedBy/approvedAt/rejectReason) + 个人模板库 (personal/userId)
+export type TemplateApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected'
+
 export interface TemplateDto {
   id: string
   name: string
@@ -14,6 +17,10 @@ export interface TemplateDto {
   radsCategory?: string
   tags?: string[]
   createdById: string
+  status?: TemplateApprovalStatus
+  approvedBy?: string
+  approvedAt?: string
+  rejectReason?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -22,6 +29,9 @@ export interface TemplateListParams {
   category?: string
   bodyPart?: string
   keyword?: string
+  status?: TemplateApprovalStatus
+  personal?: boolean
+  userId?: string
 }
 
 // [v3.0.6.11-96 Wave3B P1] 模板分类 (GET/POST/PATCH/DELETE /templates/categories, 后端内存+seed)
@@ -55,6 +65,16 @@ export const templatesApi = {
   clone: (id: string) =>
     api.post<TemplateDto>(`/templates/${id}/clone`),
 
+  // [v3.0.6.11-98 Wave2A P1] 模板审批流
+  submit: (id: string) =>
+    api.post<TemplateDto>(`/templates/${id}/submit`),
+
+  approve: (id: string, approvedBy: string) =>
+    api.post<TemplateDto>(`/templates/${id}/approve`, { approvedBy }),
+
+  reject: (id: string, reason: string) =>
+    api.post<TemplateDto>(`/templates/${id}/reject`, { reason }),
+
   // [W3-2] 智能片段 (ReportTemplateManagerPage)
   listSnippets: (params?: { category?: string }) =>
     api.get<any[]>('/templates/snippets' + (params?.category ? `?category=${encodeURIComponent(params.category)}` : '')),
@@ -68,6 +88,13 @@ export const templatesApi = {
   // [v3.0.6.11-96 Wave3B P1] 模板分类 CRUD (TemplateCategoryPage 树渲染/管理)
   listCategories: () =>
     api.get<TemplateCategoryDto[]>('/templates/categories'),
+
+  // [v3.0.6.11-98 Wave2B P1] 模板收藏服务端化 (后端内存+seed, 按用户) — 失败回退 localStorage
+  listFavorites: () =>
+    api.get<{ ids: string[]; templates: TemplateDto[] }>('/templates/favorites'),
+
+  toggleFavorite: (id: string) =>
+    api.post<{ favorite: boolean; ids: string[] }>(`/templates/${id}/favorite`),
 
   createCategory: (data: { name: string; description?: string; sortOrder?: number }) =>
     api.post<TemplateCategoryDto>('/templates/categories', data),

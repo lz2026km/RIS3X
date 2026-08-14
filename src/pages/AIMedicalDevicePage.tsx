@@ -452,7 +452,7 @@ export default function AIMedicalDevicePage() {
                   <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-primary)' }}>{device.deviceName}</td>
                   <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{device.model}</td>
                   <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{device.manufacturer}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: isExpiringSoon(device.expiryDate) ? '#d97706' : '#374151', fontWeight: isExpiringSoon(device.expiryDate) ? 600 : 400 }}>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: isExpiringSoon(device.expiryDate) ? '#d97706' : 'var(--text-primary)', fontWeight: isExpiringSoon(device.expiryDate) ? 600 : 400 }}>
                     {formatDate(device.expiryDate)}
                   </td>
                   <td style={{ padding: '12px 16px' }}><StatusBadge status={device.status} /></td>
@@ -535,7 +535,7 @@ export default function AIMedicalDevicePage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>有效期至</div>
-                  <div style={{ fontSize: 13, color: isExpiringSoon(selectedDevice.expiryDate) ? '#d97706' : '#374151', fontWeight: isExpiringSoon(selectedDevice.expiryDate) ? 600 : 400 }}>{formatDate(selectedDevice.expiryDate)}</div>
+                  <div style={{ fontSize: 13, color: isExpiringSoon(selectedDevice.expiryDate) ? '#d97706' : 'var(--text-primary)', fontWeight: isExpiringSoon(selectedDevice.expiryDate) ? 600 : 400 }}>{formatDate(selectedDevice.expiryDate)}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>

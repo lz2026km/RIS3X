@@ -135,6 +135,33 @@ const CardiacSpecialtyPage = () => {
     return list;
   }, [analyses, search, modalityFilter]);
 
+  // [v3.0.6.11-98 Wave3B P1] 导出: 当前病例列表 → 真实 CSV (BOM 支持 Excel 中文)
+  const handleExport = () => {
+    const header = ['病例ID', '患者', '患者ID', '设备', '检查日期', 'CAD-RADS', 'EF(%)', '高狭窄节段', '关键发现']
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const rows = filtered.map((a) => [
+      a.id,
+      a.patientName,
+      a.patientId,
+      a.modality,
+      a.studyDate ?? '',
+      a.cadRads ?? 'N',
+      a.lvFunction?.efPercent != null ? String(a.lvFunction.efPercent) : '',
+      (a.coronarySegments ?? []).filter((s) => s.stenosisPercent >= 70).length,
+      (a.coronarySegments ?? []).filter((s) => s.stenosisPercent > 0).map((s) => `${s.segment} ${s.stenosisPercent}%`).join('; '),
+    ])
+    const csv = '\ufeff' + [header.map(esc).join(','), ...rows.map((r) => r.map(esc).join(','))].join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `心脏专科病例_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   const highStenosis = analyses.filter((a) =>
     (a.coronarySegments ?? []).some((s) => s.stenosisPercent >= 70),
   ).length;
@@ -232,6 +259,7 @@ const CardiacSpecialtyPage = () => {
             刷新
           </Button>
           <button
+            onClick={handleExport}
             style={{
               padding: "8px 14px",
               borderRadius: 8,

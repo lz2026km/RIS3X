@@ -25,6 +25,8 @@ import { AiDiagnosisModule } from '../modules/ai-diagnosis/ai-diagnosis.module'
     AiDiagnosisModule,
   ],
   providers: [QueueService, ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer],
-  exports: [QueueService],
+  // [W6] 导出 BullModule: HealthController 等直接 @InjectQueue 注入队列 token,
+  //      不导出则 AppModule 侧无法解析 BullQueue_reportExport 等 → 后端启动崩溃。
+  exports: [QueueService, BullModule],
 })
 export class QueueModule {}

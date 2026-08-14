@@ -11,6 +11,7 @@ import {
   codecMetaFrom,
   type CodecKind,
   type CodecMeta,
+  type CodecSource,
   type ParsedDicom,
 } from './dicom-codec'
 
@@ -32,6 +33,13 @@ export interface CompressTask {
   error?: string
   createdAt: string
   updatedAt: string
+  /**
+   * 编码结果来源标注 (G005 Wave3A P16):
+   *  - real       : OpenJPEG WASM 真 JPEG2000 码流
+   *  - rle-approx : RLE / LOCO-I 真实字节流编码 (JPEG-LS 风格近似)
+   *  - estimated  : 查表估算回退
+   */
+  source?: CodecSource
 }
 
 export interface CompressRatio {
@@ -44,6 +52,7 @@ export interface CompressRatio {
   transferSyntax: string
   modality?: string
   real?: boolean
+  source?: 'real' | 'estimated'
 }
 
 export interface TransferSyntax {
@@ -144,9 +153,9 @@ function planForSyntax(transferSyntax: string, quality?: number): CodecPlan {
     case '1.2.840.10008.1.2.5':
       return { kind: 'rle', lossless: true, quality: 100, uid: transferSyntax, name: 'RLE Lossless' }
     case '1.2.840.10008.1.2.4.90':
-      return { kind: 'predictive', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG 2000 Lossless (Predictive)' }
+      return { kind: 'jpeg2000', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG 2000 Lossless (OpenJPEG WASM)' }
     case '1.2.840.10008.1.2.4.91':
-      return { kind: 'predictive', lossless: false, quality: q, uid: transferSyntax, name: 'JPEG 2000 Lossy (Predictive)' }
+      return { kind: 'predictive', lossless: false, quality: q, uid: transferSyntax, name: 'JPEG 2000 Lossy (LOCO-I Approx)' }
     case '1.2.840.10008.1.2.4.80':
       return { kind: 'rle', lossless: true, quality: 100, uid: transferSyntax, name: 'JPEG-LS Lossless (RLE)' }
     case '1.2.840.10008.1.2.4.81':
@@ -347,7 +356,7 @@ export class DicomCompressService {
 
     let packed: Buffer
     try {
-      packed = compressPixelData(parsed.pixelData, parsed, plan)
+      packed = await compressPixelData(parsed.pixelData, parsed, plan)
     } catch (e) {
       this.logger.warn(`[${id}] encode failed (${(e as Error).message}) -> fallback simulate`)
       return this.fallbackSimulate(id, fileId, transferSyntax, startedAt)
@@ -362,7 +371,7 @@ export class DicomCompressService {
     this.persistBlob(id, packed, meta, plan.uid, fileId)
 
     await this.updateTask(id, 'done', 100, compressedSize, ratio)
-    return this.buildTask(id, fileId, plan, originalSize, compressedSize, ratio, startedAt, parsed.modality, false)
+    return this.buildTask(id, fileId, plan, originalSize, compressedSize, ratio, startedAt, parsed.modality, false, meta.source)
   }
 
   async batchCompress(
@@ -384,7 +393,7 @@ export class DicomCompressService {
     if (blob) {
       const startedAt = Date.now()
       try {
-        const decoded = decompressPixelData(blob.packed, blob.meta)
+        const decoded = await decompressPixelData(blob.packed, blob.meta)
         const plan = planForSyntax(blob.algorithm)
         const task: CompressTask = {
           id,
@@ -402,6 +411,7 @@ export class DicomCompressService {
           elapsedMs: Date.now() - startedAt,
           createdAt: now,
           updatedAt: now,
+          source: blob.meta.source ?? (blob.meta.kind === 'jpeg2000' ? 'real' : 'rle-approx'),
         }
         try {
           await this.prisma.compressTask.create({
@@ -433,7 +443,7 @@ export class DicomCompressService {
       if (row) {
         const byId = this.blobs.get(row.id) ?? this.loadBlobFromDisk(row.id)
         if (byId) {
-          const decoded = decompressPixelData(byId.packed, byId.meta)
+          const decoded = await decompressPixelData(byId.packed, byId.meta)
           const task: CompressTask = {
             id,
             fileId,
@@ -446,6 +456,7 @@ export class DicomCompressService {
             simulated: false,
             createdAt: now,
             updatedAt: now,
+            source: byId.meta.source ?? (byId.meta.kind === 'jpeg2000' ? 'real' : 'rle-approx'),
           }
           this.memTasks.set(id, task)
           return task
@@ -493,7 +504,7 @@ export class DicomCompressService {
       try {
         const parsed = parseDicomPart10(src.buffer)
         const plan = planForSyntax('1.2.840.10008.1.2.4.90')
-        const packed = compressPixelData(parsed.pixelData, parsed, plan)
+        const packed = await compressPixelData(parsed.pixelData, parsed, plan)
         const originalSize = parsed.pixelData.length
         const compressedSize = packed.length
         const ratio = Math.round((originalSize / compressedSize) * 100) / 100
@@ -507,6 +518,7 @@ export class DicomCompressService {
           transferSyntax: '1.2.840.10008.1.2.4.90',
           modality: src.modality || parsed.modality || undefined,
           real: true,
+          source: 'real',
         }
         try {
           await this.prisma.compressTask.create({
@@ -544,6 +556,7 @@ export class DicomCompressService {
       ratio: Math.round(ratio * 100),
       transferSyntax: '1.2.840.10008.1.2.4.90',
       real: false,
+      source: 'estimated',
     }
     try {
       await this.prisma.compressTask.create({
@@ -561,6 +574,11 @@ export class DicomCompressService {
       // DB unavailable -> keep ratio lookup result
     }
     return result
+  }
+
+  /** [G005 Wave3A P16] 真实 JPEG2000 端点: OpenJPEG WASM 无损编码 (.90 传输语法) */
+  async realJpeg2000(fileId: string, opts: { quality?: number; dataBase64?: string } = {}): Promise<CompressTask> {
+    return this.compress(fileId, '1.2.840.10008.1.2.4.90', opts)
   }
 
   async getRatios(): Promise<RatioStats> {
@@ -698,6 +716,7 @@ export class DicomCompressService {
       error: row.error ?? undefined,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
+      source: row.algorithm === '1.2.840.10008.1.2.4.90' ? 'real' : 'rle-approx',
     }
   }
 
@@ -711,6 +730,7 @@ export class DicomCompressService {
     startedAt: number,
     modality?: string,
     simulated = false,
+    source: CodecSource = 'rle-approx',
   ): CompressTask {
     const now = new Date().toISOString()
     const task: CompressTask = {
@@ -730,6 +750,7 @@ export class DicomCompressService {
       quality: plan.quality,
       createdAt: now,
       updatedAt: now,
+      source,
     }
     this.memTasks.set(id, task)
     return task
@@ -743,7 +764,7 @@ export class DicomCompressService {
       })
       await this.simulateProgress(id, originalSize, transferSyntax, startedAt)
       const row = await this.prisma.compressTask.findUniqueOrThrow({ where: { id } })
-      return this.toDto(row)
+      return { ...this.toDto(row), source: 'estimated' }
     } catch {
       const task: CompressTask = {
         id,
@@ -754,11 +775,14 @@ export class DicomCompressService {
         originalSize,
         compressedSize: null,
         simulated: true,
+        source: 'estimated',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
       this.memTasks.set(id, task)
       await this.simulateProgress(id, originalSize, transferSyntax, startedAt)
+      const mem = this.memTasks.get(id)
+      if (mem) mem.source = 'estimated'
       return this.memTasks.get(id) ?? task
     }
   }
@@ -828,6 +852,7 @@ export class DicomCompressService {
         originalSize,
         compressedSize: null,
         simulated: true,
+        source: 'estimated',
         createdAt: now,
         updatedAt: now,
       }

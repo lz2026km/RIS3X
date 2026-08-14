@@ -33,6 +33,8 @@ export interface ReportDto {
   bodyPart: string
   status: string
   findings?: string
+  // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化 (书写页图片/表格/格式)
+  htmlContent?: string
   diagnosis?: string
   impression?: string
   recommendations?: string

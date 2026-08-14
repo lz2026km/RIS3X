@@ -130,33 +130,46 @@ export interface AiAssessResult {
   overall: { score: number; label: string }
 }
 
+/** [G005 Wave3A P16] 历史评估记录 (列表端点返回项) */
+export interface AiAssessRecord extends AiAssessResult {
+  id: string
+}
+
+export interface AiAssessmentsQuery {
+  studyId?: string
+  page?: number
+  pageSize?: number
+}
+
 @Injectable()
 export class ImageAiService {
   private store: Map<string, AiScoreResult> = new Map()
   private storeV2: Map<string, AiScoreResultV2> = new Map()
+  private assessStore = new Map<string, AiAssessRecord>()
+  private assessSeq = 0
 
-  constructor(private readonly prisma?: PrismaService) {}
+  constructor(private readonly prisma?: PrismaService) {
+    this.seedAssessments()
+  }
 
-  // [G005 Wave4A] G-24 三维度自动质控: 伪影/曝光/体位 + 总分
-  // 数据来源: Exam(模态/部位)派生基线 + studyId/instanceId 确定性 seed, 无 DB 或查不到检查时仍返回确定性结果
-  async assess(dto: AiAssessDto): Promise<AiAssessResult> {
-    let modality = dto.modality ?? ''
-    let bodyPart = dto.bodyPart ?? ''
-    if (this.prisma) {
-      try {
-        const exam = await this.prisma.exam.findUnique({
-          where: { id: dto.studyId },
-          select: { modality: true, bodyPart: true },
-        })
-        if (exam) {
-          modality = exam.modality
-          bodyPart = exam.bodyPart
-        }
-      } catch {
-        // DB unavailable - keep input fields
-      }
+  // [G005 Wave3A P16] 确定性 seed: 近 14 天历史评估记录 (内存, 无 DB 可跑)
+  private seedAssessments(): void {
+    const seedIds = ['EX-5001', 'EX-5002', 'EX-5003', 'EX-5004', 'EX-5005', 'STU20260701', 'STU20260702', 'STU20260703', 'STU20260704', 'STU20260705', 'STU20260706', 'STU20260707']
+    const seedMods = ['CT', 'MR', 'DR', 'CT', 'MG', 'DR', 'CT', 'MR', 'DR', 'CT', 'MR', 'DR']
+    const seedParts = ['头颅', '胸部', '腹部', '腰椎', '胸部', '颈椎', '胸部', '头颅', '胸部', '盆腔', '腰椎', '胸部']
+    for (let i = 0; i < seedIds.length; i++) {
+      const at = new Date(Date.now() - (i + 1) * 86400000).toISOString()
+      const result = this.computeAssess(
+        { studyId: seedIds[i]!, modality: seedMods[i]!, bodyPart: seedParts[i]! },
+        at,
+      )
+      this.assessStore.set(result.id, result)
     }
+  }
 
+  private computeAssess(dto: AiAssessDto, at = new Date().toISOString()): AiAssessRecord {
+    const modality = dto.modality ?? 'CT'
+    const bodyPart = dto.bodyPart ?? '常规'
     const seed = this.seedFrom(`${dto.studyId}:${dto.instanceId ?? ''}`)
     const m = modality.toUpperCase()
     const bp = bodyPart
@@ -192,17 +205,55 @@ export class ImageAiService {
       positioning: this.positioningIssues(positioningScore, m),
     }
 
-    return {
+    const result: AiAssessResult = {
       studyId: dto.studyId,
       ...(dto.instanceId ? { instanceId: dto.instanceId } : {}),
-      modality: modality || 'CT',
-      bodyPart: bodyPart || '常规',
-      assessedAt: new Date().toISOString(),
+      modality,
+      bodyPart,
+      assessedAt: at,
       artifact: { score: artifactScore, label: this.dimLabel(artifactScore), issues: issues.artifact },
       exposure: { score: exposureScore, label: this.dimLabel(exposureScore), issues: issues.exposure },
       positioning: { score: positioningScore, label: this.dimLabel(positioningScore), issues: issues.positioning },
       overall: { score: overall, label: this.dimLabel(overall) },
     }
+    return { id: `assess-${++this.assessSeq}`, ...result }
+  }
+
+  // [G005 Wave4A] G-24 三维度自动质控: 伪影/曝光/体位 + 总分
+  // 数据来源: Exam(模态/部位)派生基线 + studyId/instanceId 确定性 seed, 无 DB 或查不到检查时仍返回确定性结果
+  async assess(dto: AiAssessDto): Promise<AiAssessRecord> {
+    let modality = dto.modality ?? ''
+    let bodyPart = dto.bodyPart ?? ''
+    if (this.prisma) {
+      try {
+        const exam = await this.prisma.exam.findUnique({
+          where: { id: dto.studyId },
+          select: { modality: true, bodyPart: true },
+        })
+        if (exam) {
+          modality = exam.modality
+          bodyPart = exam.bodyPart
+        }
+      } catch {
+        // DB unavailable - keep input fields
+      }
+    }
+    const record = this.computeAssess({ ...dto, modality, bodyPart })
+    // 同检查号复用历史记录 (确定性语义: 同一 studyId 结果恒定)
+    const existing = Array.from(this.assessStore.values()).find((r) => r.studyId === dto.studyId)
+    if (existing) return existing
+    this.assessStore.set(record.id, record)
+    return record
+  }
+
+  /** [G005 Wave3A P16] 历史评估列表 (内存 + seed, 按时间倒序) */
+  listAssessments(query: AiAssessmentsQuery = {}): AiAssessRecord[] {
+    let items = Array.from(this.assessStore.values())
+    if (query.studyId) items = items.filter((x) => x.studyId === query.studyId)
+    items.sort((a, b) => new Date(b.assessedAt).getTime() - new Date(a.assessedAt).getTime())
+    const page = Math.max(1, query.page ?? 1)
+    const pageSize = Math.min(200, Math.max(1, query.pageSize ?? 50))
+    return items.slice((page - 1) * pageSize, page * pageSize)
   }
 
   private seedFrom(text: string): { d0: number; d1: number; d2: number } {

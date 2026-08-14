@@ -82,7 +82,7 @@ import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, Badg
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge } from 'lucide-react';
 import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
 import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, AlarmClock, Timer } from 'lucide-react';
-import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home } from 'lucide-react';
+import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -183,7 +183,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient/self-service",
-        icon: <UserCircle size={18} />,
+        icon: <UserRound size={18} />,
         labelKey: "nav.selfServicePortal",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
@@ -243,7 +243,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [Sprint 4] F16 Tele-Sign
       {
         path: "/tele-sign",
-        icon: <FileSignature size={18} />,
+        icon: <PenLine size={18} />,
         labelKey: "nav.teleSign",
         roles: ["医生", "主任", "管理员",],
       },
@@ -268,7 +268,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [Sprint 4] F15 Dual Read
       {
         path: "/dual-read",
-        icon: <GitCompare size={18} />,
+        icon: <Users size={18} />,
         labelKey: "nav.dualRead",
         roles: ["医生", "主任", "管理员",],
       },
@@ -334,7 +334,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/report-delivery",
-        icon: <Send size={18} />,
+        icon: <Mail size={18} />,
         labelKey: "nav.reportDelivery",
         roles: ["医生", "主任", "管理员",],
       },
@@ -401,13 +401,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/cds/dose-monitoring",
-        icon: <Activity size={18} />,
+        icon: <Radiation size={18} />,
         labelKey: "nav.cdsDoseMonitoring",
         roles: ["主任", "管理员", "技师",],
       },
       {
         path: "/cds/statistics",
-        icon: <Activity size={18} />,
+        icon: <ChartLine size={18} />,
         labelKey: "nav.cdsStatistics",
         roles: ["医生", "主任", "管理员",],
       },
@@ -479,7 +479,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/radpath/tracker",
-        icon: React.createElement(GitCompare, { size: 18 }),
+        icon: React.createElement(Route, { size: 18 }),
         labelKey: "nav.radpathTracker",
         roles: ["医生", "主任", "管理员",],
       },
@@ -566,7 +566,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/radpath",
-        icon: <GitCompare size={18} />,
+        icon: <Map size={18} />,
         labelKey: "nav.radpathLinkage",
         roles: ["医生", "主任", "管理员"],
       },
@@ -639,7 +639,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/post-processing",
-        icon: <Wand2 size={18} />,
+        icon: <SlidersHorizontal size={18} />,
         labelKey: "nav.postProcessing",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -709,7 +709,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [P1-fix] 删除上方已重复的 cross-modal-search 条目
       {
         path: "/dicom/sr-manager",
-        icon: <ScrollText size={18} />,
+        icon: <FileText size={18} />,
         labelKey: "nav.dicomSr",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -734,7 +734,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/sr-report",
-        icon: <FileSignature size={18} />,
+        icon: <ScrollText size={18} />,
         labelKey: "nav.srReport",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -747,7 +747,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/sr-templates",
-        icon: <ScrollText size={18} />,
+        icon: <FileSignature size={18} />,
         labelKey: "nav.dicomSrTemplates",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -788,7 +788,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ai-draft",
-        icon: <Wand2 size={18} />,
+        icon: <PenLine size={18} />,
         labelKey: "nav.aiDraft",
         roles: ["医生", "主任", "管理员",],
       },
@@ -857,7 +857,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ai/dl-denoise",
-        icon: <Wand2 size={18} />,
+        icon: <Sparkles size={18} />,
         labelKey: "nav.dlDenoise",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -1140,7 +1140,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient-portal",
-        icon: <UserCircle size={18} />,
+        icon: <ExternalLink size={18} />,
         labelKey: "nav.patientImageQuery",
         roles: ["护士", "医生", "管理员",],
       },
@@ -1170,7 +1170,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/mobile/nurse",
-        icon: <ClipboardList size={18} />,
+        icon: <ClipboardCheck size={18} />,
         labelKey: "nav.nurseMobileWorkstation",
         roles: ["护士", "医生", "管理员",],
       },
@@ -1248,7 +1248,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/doctor-workload",
-        icon: <ClipboardList size={18} />,
+        icon: <BarChart3 size={18} />,
         labelKey: "nav.doctorWorkload",
         roles: ["主任", "管理员"],
       },
@@ -1340,7 +1340,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/analytics/benchmark-v2",
-        icon: <GitCompare size={18} />,
+        icon: <ChartLine size={18} />,
         labelKey: "nav.benchmarkCompare",
         roles: ["主任", "管理员"],
       },
@@ -1511,7 +1511,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/ris/iop",
-        icon: <Activity size={18} />,
+        icon: <Gauge size={18} />,
         labelKey: "nav.eyeIop",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1529,7 +1529,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/kpi-dashboard",
-        icon: <Activity size={18} />,
+        icon: <BarChart3 size={18} />,
         labelKey: "nav.eyeKpi",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1973,7 +1973,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/compliance-docs",
-        icon: <ScrollText size={18} />,
+        icon: <FileCheck2 size={18} />,
         labelKey: "nav.complianceDocs",
         roles: ["主任", "管理员"],
       }, // [v3.0.6.11-79 W1-C] 合规文档库
@@ -2007,12 +2007,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.authority",
         roles: ["管理员"],
       },
-      {
-        path: "/dictionary",
-        icon: <BookMarked size={18} />,
-        labelKey: "nav.dictionary",
-        roles: ["管理员"],
-      },
     ],
   },
   // [v3.0.6.11-42] P2 质量提升新增: 患者管理
@@ -2021,7 +2015,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/treatment-plans",
-        icon: <ClipboardList size={18} />,
+        icon: <ListChecks size={18} />,
         labelKey: "nav.treatmentPlans",
         roles: ["医生", "主任", "管理员"],
       },
@@ -2039,21 +2033,15 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/dicom-share",
-        icon: <Send size={18} />,
+        icon: <Share2 size={18} />,
         labelKey: "nav.dicomShare",
         roles: ["医生", "主任", "技师", "管理员", "护士"],
       },
       {
         path: "/dicom-sr-manager",
-        icon: <FileSignature size={18} />,
+        icon: <FileText size={18} />,
         labelKey: "nav.dicomSrManager",
         roles: ["医生", "主任", "技师", "管理员"],
-      },
-      {
-        path: "/print-management",
-        icon: <Printer size={18} />,
-        labelKey: "nav.printManagement",
-        roles: ["技师", "管理员"],
       },
     ],
   },
@@ -2133,12 +2121,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: "nav.equipmentMaterials",
     items: [
-      {
-        path: "/materials",
-        icon: <Boxes size={18} />,
-        labelKey: "nav.materials",
-        roles: ["技师", "管理员"],
-      },
       {
         path: "/supplies",
         icon: <Package size={18} />,
@@ -2227,7 +2209,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/operation-log",
-        icon: <ScrollText size={18} />,
+        icon: <History size={18} />,
         labelKey: "nav.operationLog",
         roles: ["管理员"],
       },

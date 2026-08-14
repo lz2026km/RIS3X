@@ -1,6 +1,6 @@
 {
   "name": "g005-backend",
-  "version": "3.0.6.11-96",
+  "version": "3.0.6.11-98",
   "private": true,
   "description": "G005 RIS Backend (NestJS 11 + Prisma 5 + PostgreSQL)",
   "scripts": {
@@ -25,6 +25,7 @@
     "postman:generate": "node scripts/convert-to-postman.cjs"
   },
   "dependencies": {
+    "@cornerstonejs/codec-openjpeg": "^1.3.2",
     "@nestjs/bull": "^11.0.0",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.0",

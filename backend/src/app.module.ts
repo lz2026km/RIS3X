@@ -132,6 +132,8 @@ import { EyeSubspecialtyModule } from "./modules/eye-subspecialty/eye-subspecial
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
 import { EmergencyChannelModule } from "./modules/emergency-channel/emergency-channel.module";
 import { DeptAnnouncementModule } from "./modules/dept-announcement/dept-announcement.module";
+// [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化: GET /finding-library + /finding-library/search
+import { FindingLibraryModule } from "./modules/finding-library/finding-library.module";
 
 @Module({
   imports: [
@@ -278,6 +280,7 @@ import { DeptAnnouncementModule } from "./modules/dept-announcement/dept-announc
     EyeSubspecialtyModule,
     EmergencyChannelModule,
     DeptAnnouncementModule,
+    FindingLibraryModule,
   ],
   controllers: [HealthController],
   providers: [

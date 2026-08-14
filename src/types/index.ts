@@ -281,6 +281,10 @@ export interface RadiologyExam {
   imagesAcquired: number;
   accessionNumber: string;
   studyInstanceUID?: string;
+  // [v3.0.6.11-98 Wave3B P2] 患者扩展信息 (DTO patient 字段透出, 无则 `--`)
+  patientPhone?: string;
+  patientBirthDate?: string;
+  patientWeight?: string;
   createdTime: string;
   updatedTime: string;
 }

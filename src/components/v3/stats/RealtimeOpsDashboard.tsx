@@ -216,7 +216,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                 <span>实时事件流</span>
               </Space>
             }
-            extra={<Tag color="red">LIVE</Tag>}
+            extra={<Tag color="red">实时</Tag>}
             data-testid="ops-event-stream"
           >
             {mergedEvents.length === 0 ? (

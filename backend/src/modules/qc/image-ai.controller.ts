@@ -68,6 +68,20 @@ export class ImageAiController {
     return this.service.assess(body)
   }
 
+  // [G005 Wave3A P16] 历史三维度评估列表 (内存 + seed, 按时间倒序)
+  @Get('assessments')
+  listAssessments(
+    @Query('studyId') studyId?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.service.listAssessments({
+      studyId,
+      page: page ? Number(page) : undefined,
+      pageSize: pageSize ? Number(pageSize) : undefined,
+    })
+  }
+
   @Post('score-v2')
   scoreV2(@Body(new ZodValidationPipe(ScoreV2Schema)) body: AiScoreDtoV2) {
     return this.service.scoreV2(body)

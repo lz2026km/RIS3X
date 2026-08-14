@@ -4,7 +4,7 @@
  * 15 升级点
  */
 import { DELIVERY_RECEIPTS_MOCK as ALL_RECEIPTS } from '@data/reportDistributionMock';
-import { verifyReceiptSignature } from '@services/distribution/distributionService';
+import { verifyReceiptSignature, listDeliveryReceipts } from '@services/distribution/distributionService';
 import type { DeliveryReceipt, DeliveryEvent, DeliveryStatus } from '@types/R3/R3.DIST';
 import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
 import { Card, Space, Button, Tag, Empty, Row, Col, Statistic, Divider, Timeline, Modal, Select, Input, Alert } from 'antd';
@@ -37,7 +37,8 @@ const EVENT_COLORS: Record<DeliveryEvent['type'], string> = {
 };
 
 export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) => {
-  const [receipts] = useState<DeliveryReceipt[]>(ALL_RECEIPTS);
+  const [receipts, setReceipts] = useState<DeliveryReceipt[]>(ALL_RECEIPTS);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(taskId ? (receipts.find((r) => r.taskId === taskId)?.id ?? receipts[0]?.id ?? null) : (receipts[0]?.id ?? null));
   const [searchText, setSearchText] = useState('');
   const [filterStatus, setFilterStatus] = useState<DeliveryStatus | 'all'>('all');
@@ -63,6 +64,53 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
     const r = await verifyReceiptSignature(selected.taskId);
     setVerifyResult(r);
     setShowVerifyModal(true);
+  }, [selected]);
+
+  // [v3.0.6.11-98 Wave3B P1] 刷新: distributionService.listDeliveryReceipts 重拉 (失败保留现有)
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const list = await listDeliveryReceipts(reportId);
+      if (list && list.length > 0) setReceipts(list);
+    } catch { /* 保留现有数据 */ }
+    setRefreshing(false);
+  }, [reportId]);
+
+  // [v3.0.6.11-98 Wave3B P1] 导出 PDF: 当前回执详情 → HTML 回执单 Blob 下载 (可打印/转 PDF)
+  const handleExportPdf = useCallback(() => {
+    if (!selected) return;
+    const html = `<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>送达回执 ${selected.taskId}</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; color: #1e293b; }
+  h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; }
+  table { border-collapse: collapse; margin-top: 16px; width: 100%; }
+  td, th { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 13px; }
+  th { background: #eff6ff; width: 160px; }
+  .foot { margin-top: 32px; font-size: 12px; color: #64748b; }
+</style></head><body>
+<h1>报告送达回执单</h1>
+<table>
+  <tr><th>任务 ID</th><td>${selected.taskId}</td></tr>
+  <tr><th>报告 ID</th><td>${selected.reportId}</td></tr>
+  <tr><th>收件人</th><td>${selected.recipientName ?? '-'} (${selected.recipient})</td></tr>
+  <tr><th>通道</th><td>${selected.channel}</td></tr>
+  <tr><th>状态</th><td>${STATUS_LABELS[selected.status]}</td></tr>
+  <tr><th>完成时间</th><td>${new Date(selected.finalAt).toLocaleString('zh-CN')}</td></tr>
+  <tr><th>成本/吞吐</th><td>¥${selected.cost.toFixed(3)} / ${selected.throughputKb} KB</td></tr>
+  <tr><th>签名</th><td>${selected.signature ?? '-'} ${selected.verified ? '（已验证）' : ''}</td></tr>
+</table>
+<div class="foot">G005 RIS v3.0.6.11-98 · 送达回执 · 本文件为 HTML 回执单（可打印/浏览器转 PDF）</div>
+</body></html>`;
+    const blob = new Blob(['\ufeff', html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `送达回执_${selected.taskId}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }, [selected]);
 
   const stats = useMemo(() => {
@@ -92,7 +140,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             <Tag>{filtered.length}</Tag>
           </div>
         } extra={
-          <Button size="small" icon={<RefreshCw className="w-3 h-3" />}>刷新</Button>
+          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} loading={refreshing} onClick={() => void handleRefresh()}>刷新</Button>
         }>
           <div className="space-y-2 mb-2">
             <Input
@@ -138,7 +186,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             {selected && (
               <Space>
                 <Button size="small" icon={<Shield className="w-3 h-3" />} onClick={handleVerify}>验证签名</Button>
-                <Button size="small" icon={<Download className="w-3 h-3" />}>导出 PDF</Button>
+                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={handleExportPdf}>导出 PDF</Button>
               </Space>
             )}
           </div>

@@ -67,6 +67,34 @@ describe('MSW Handlers - 56 端点', () => {
       expect(data.success).toBe(true);
       expect(['submitted', '已提交']).toContain(data.data.status);
     });
+
+    // [v3.0.6.11-98 Wave1A P0] 富文本 HTML 持久化: PATCH 写入 htmlContent → GET 回读 (书写页保存→刷新不丢)
+    it('PATCH /reports/:id htmlContent 持久化 (保存→刷新回显)', async () => {
+      const cre = await fetch('http://localhost:5173/api/v1/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportId: 'rpt-html-98', findings: '旧所见' }),
+      });
+      const created = await cre.json();
+      expect(created.success).toBe(true);
+      const id = created.data.reportId;
+
+      const html = '<h2>影像所见</h2><p>右肺上叶结节</p><table style="border-collapse:collapse;"><tr><td>表头</td></tr></table><figure><img src="data:image/png;base64,AAAAB3NzaC1yc2E=" /><figcaption>图1: 病灶</figcaption></figure>';
+      const patched = await fetch(`http://localhost:5173/api/v1/reports/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ findings: '右肺上叶结节', htmlContent: html }),
+      });
+      const patchData = await patched.json();
+      expect(patchData.success).toBe(true);
+      expect(patchData.data.htmlContent).toBe(html);
+
+      const fetched = await fetch(`http://localhost:5173/api/v1/reports/${id}`);
+      const getData = await fetched.json();
+      expect(getData.success).toBe(true);
+      expect(getData.data.htmlContent).toBe(html);
+      expect(getData.data.findings).toBe('右肺上叶结节');
+    });
   });
 
   describe('Worklist(9)', () => {

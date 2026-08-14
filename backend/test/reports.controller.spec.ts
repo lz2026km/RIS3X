@@ -91,7 +91,7 @@ describe('ReportsController', () => {
 
   it('create delegates to service', async () => {
     svc.create.mockResolvedValue(mockReport() as any)
-    const dto = { patientId: 'p1', findings: 'f', conclusion: 'c' }
+    const dto = { patientId: 'p1', findings: 'f', conclusion: 'c', htmlContent: '' }
     const r = await ctrl.create(dto)
     expect(svc.create).toHaveBeenCalled()
   })

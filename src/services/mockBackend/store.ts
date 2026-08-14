@@ -625,21 +625,8 @@ export async function initStore(): Promise<void> {
     MOCK_INVOICES.forEach((inv: any, i: number) => getCollection('dental_invoices').set(inv.id || `INV${i}`, inv));
 
     // 从 IDB 恢复用户修改 (覆盖基线)
-    if (db) {
-      try {
-        for (const coll of COLLECTIONS) {
-          const tbl = (db as any)[coll];
-          if (!tbl) continue;
-          const records = await tbl.toArray();
-          records.forEach((r: { id: string; data: unknown }) => {
-            getCollection(coll).set(r.id, r.data);
-          });
-        }
-        console.info('[RIS Backend] IndexedDB 持久化数据已加载');
-      } catch (e) {
-        console.warn('[RIS Backend] IDB 读取失败, 用基线数据:', e);
-      }
-    }
+    await hydrateFromIdb();
+    console.info('[RIS Backend] IndexedDB 持久化数据已加载');
 
     initialized = true;
   })();
@@ -647,9 +634,27 @@ export async function initStore(): Promise<void> {
   return initPromise;
 }
 
+// [v3.0.6.11-98 Wave 1A P0] 从 IndexedDB 恢复已保存数据 (覆盖基线种子)
+//   initStore() 内等待完成; ensureInitialized() 同步路径 fire-and-forget 触发,
+//   保证浏览器 mock 模式「保存 → 刷新」后报告正文 (findings/htmlContent) 不丢失
+async function hydrateFromIdb(): Promise<void> {
+  if (!db) return;
+  try {
+    for (const coll of COLLECTIONS) {
+      const tbl = (db as any)[coll];
+      if (!tbl) continue;
+      const records = await tbl.toArray();
+      records.forEach((r: { id: string; data: unknown }) => {
+        getCollection(coll).set(r.id, r.data);
+      });
+    }
+  } catch (e) {
+    console.warn('[RIS Backend] IDB 读取失败, 用基线数据:', e);
+  }
+}
+
 // [v3.0.6.12-B5] 延迟加载模块 (用于同步路径, 避免静态导入大 mock 数据)
-let _heavyDataPromise: Promise<void> | null = null;
-function loadHeavyDataAsync(): void {
+let _heavyDataPromise: Promise<void> | null = null;function loadHeavyDataAsync(): void {
   if (_heavyDataPromise) return;
   _heavyDataPromise = (async () => {
     try {
@@ -708,6 +713,9 @@ export function ensureInitialized(): void {
   seedReviewAssistCollections();
   loadEyeMockDataSync();
   initialized = true;
+  // [v3.0.6.11-98 Wave 1A P0] 浏览器 mock 模式: 触发 IDB 恢复 (异步, 不阻塞同步路径),
+  //   使「保存 → 刷新」后 findings/htmlContent 等已持久化数据回填内存
+  void hydrateFromIdb();
 }
 
 // [v3.0.6.8-33] 同步加载眼科 mock (供 ensureInitialized 调用)

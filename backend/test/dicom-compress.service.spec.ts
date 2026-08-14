@@ -48,12 +48,13 @@ describe('DicomCompressService (real codec)', () => {
     expect(task.elapsedMs).toBeGreaterThanOrEqual(0)
   })
 
-  it('compress with JPEG2000-lossless syntax uses predictive codec and round-trips via decompress', async () => {
+  it('compress with JPEG2000-lossless syntax uses OpenJPEG WASM real codec and round-trips via decompress', async () => {
     const p = svc.compress(SAMPLE, '1.2.840.10008.1.2.4.90')
     await jest.runAllTimersAsync()
     const task = await p
     expect(task.status).toBe('done')
-    expect(task.algorithmName).toContain('Predictive')
+    expect(task.algorithmName).toContain('OpenJPEG')
+    expect(task.source).toBe('real')
     expect(task.ratio!).toBeGreaterThan(1)
 
     mockPrisma.compressTask.create.mockRejectedValue(new Error('db down'))

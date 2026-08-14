@@ -567,6 +567,12 @@ export default function PrintManagementPage() {
   const [customOrientation, setCustomOrientation] = useState<string>('PORTRAIT')
   const [savingCustomTemplate, setSavingCustomTemplate] = useState<boolean>(false)
 
+  // [v3.0.6.11-98 Wave3B P1] 额度申请 Modal (科室/张数/用途 → localStorage 记录 + 标注)
+  const [quotaModalOpen, setQuotaModalOpen] = useState<boolean>(false)
+  const [quotaForm, setQuotaForm] = useState({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? 'CT室', requestedAmount: 100, reason: '' })
+  const [quotaSaving, setQuotaSaving] = useState<boolean>(false)
+  const [quotaRequests, setQuotaRequests] = useState<any[]>(QUOTA_REQUESTS)
+
   const handleSaveCustomTemplate = async () => {
     setSavingCustomTemplate(true)
     try {
@@ -1208,6 +1214,137 @@ export default function PrintManagementPage() {
   // 渲染函数
   // ============================================================
 
+  // [v3.0.6.11-98 Wave3B P1] 批量打印: 逐条 printApi.createJob 真实创建 (失败逐条回退提示)
+  const handleBatchPrint = async (): Promise<void> => {
+    if (selectedQueueItems.length === 0) return
+    setConfirmModal({
+      show: true,
+      title: '确认批量打印',
+      message: `确定要批量打印选中的 ${selectedQueueItems.length} 份报告吗？`,
+      confirmText: '批量打印',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: async () => {
+        let ok = 0
+        for (const key of selectedQueueItems) {
+          const idx = Number(key.replace('batch-', ''))
+          const item = printHistory[idx] ?? printQueue[idx]
+          if (!item) continue
+          try {
+            const res = await printApi.createJob({
+              patientName: item.patientName,
+              patientId: item.patientId,
+              modality: item.modality,
+              studyType: item.studyDesc ?? '胶片打印',
+              filmSpec: item.filmSpec,
+              copies: item.copies ?? 1,
+              printer: item.printer,
+            })
+            if (res.success) ok++
+          } catch {
+            /* 单条失败不阻断, 汇总提示 */
+          }
+        }
+        if (ok > 0) {
+          displayToast(`批量打印已提交 ${ok}/${selectedQueueItems.length} 份`, 'success')
+          setSelectedQueueItems([])
+          handleRefreshQueue()
+        } else {
+          displayToast('批量打印全部失败，请检查打印服务', 'error')
+        }
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
+  }
+
+  // [v3.0.6.11-98 Wave3B P1] 导出预览图: 当前 4合1 胶片布局 → canvas 绘制 → PNG Blob 下载
+  const handleDownloadPreview = (): void => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 600
+    canvas.height = 800
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = '#1e40af'
+    ctx.fillRect(0, 0, canvas.width, 60)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 24px "Microsoft YaHei", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('胶片打印预览 · 4合1 布局', canvas.width / 2, 38)
+    const labels = ['胸部正位', '胸部侧位', '腹部CT', '头颅MR']
+    const cellW = 280
+    const cellH = 340
+    labels.forEach((label, i) => {
+      const col = i % 2
+      const row = Math.floor(i / 2)
+      const x = 13 + col * (cellW + 14)
+      const y = 80 + row * (cellH + 14)
+      ctx.fillStyle = '#f8fafc'
+      ctx.fillRect(x, y, cellW, cellH)
+      ctx.strokeStyle = '#cbd5e1'
+      ctx.strokeRect(x, y, cellW, cellH)
+      ctx.fillStyle = `rgba(148,163,184,${0.25 + i * 0.08})`
+      ctx.fillRect(x + 14, y + 16, cellW - 28, (cellH - 72) * 0.6)
+      ctx.fillStyle = '#334155'
+      ctx.font = '16px "Microsoft YaHei", sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(label, x + cellW / 2, y + cellH - 20)
+    })
+    ctx.fillStyle = '#94a3b8'
+    ctx.font = '13px "Microsoft YaHei", sans-serif'
+    ctx.fillText(`${new Date().toLocaleString('zh-CN')} · ${customCols}x${customRows} 布局 · G005 RIS`, canvas.width / 2, 776)
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        displayToast('预览图导出失败', 'error')
+        return
+      }
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `胶片布局预览_${new Date().toISOString().slice(0, 10)}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      displayToast('胶片布局预览图已导出下载', 'success')
+    }, 'image/png')
+  }
+
+  // [v3.0.6.11-98 Wave3B P1] 新建打印额度申请: 表单 → localStorage 记录 + 列表插入 (标注: 待后端审批流)
+  const handleSubmitQuotaRequest = (): void => {
+    if (!quotaForm.dept || quotaForm.requestedAmount <= 0) {
+      displayToast('请选择科室并填写申请张数', 'error')
+      return
+    }
+    if (!quotaForm.reason.trim()) {
+      displayToast('请填写申请用途', 'error')
+      return
+    }
+    setQuotaSaving(true)
+    setTimeout(() => {
+      const record = {
+        id: `QR${Date.now()}`,
+        dept: quotaForm.dept,
+        requestedAmount: quotaForm.requestedAmount,
+        reason: quotaForm.reason.trim(),
+        status: 'pending',
+        requestDate: new Date().toISOString().slice(0, 10),
+        approvedDate: null,
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('print_quota_requests') ?? '[]') as unknown[]
+        saved.push(record)
+        localStorage.setItem('print_quota_requests', JSON.stringify(saved))
+      } catch { /* localStorage 不可用不阻断 */ }
+      setQuotaRequests(prev => [record, ...prev])
+      setQuotaModalOpen(false)
+      setQuotaForm({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? 'CT室', requestedAmount: 100, reason: '' })
+      setQuotaSaving(false)
+      displayToast(`额度申请已提交：${record.dept} +${record.requestedAmount} 张（本地记录, 待后端审批流）`, 'success')
+    }, 400)
+  }
+
   // 渲染打印配置管理
   const renderPrintConfig = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -1517,6 +1654,7 @@ export default function PrintManagementPage() {
           </div>
         </div>
         <button
+          onClick={() => void handleBatchPrint()}
           disabled={selectedQueueItems.length === 0}
           style={{
             width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
@@ -2477,7 +2615,7 @@ export default function PrintManagementPage() {
             ))}
           </div>
           <div style={{ fontSize: 12, color: C.textLight }}>4合1 布局预览</div>
-          <button style={{
+          <button onClick={handleDownloadPreview} style={{
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
             background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
@@ -2571,7 +2709,7 @@ export default function PrintManagementPage() {
       {/* 请求增加配额 */}
       <Card title="增加配额申请" icon={<Plus size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {QUOTA_REQUESTS.map(req => (
+          {quotaRequests.map(req => (
             <div key={req.id} style={{
               padding: 10, borderRadius: 6, border: `1px solid ${C.border}`,
               background: 'var(--bg-card)'
@@ -2593,7 +2731,7 @@ export default function PrintManagementPage() {
               </div>
             </div>
           ))}
-          <button style={{
+          <button onClick={() => setQuotaModalOpen(true)} style={{
             width: '100%', padding: '8px 12px', border: `1px solid ${C.accent}40`,
             borderRadius: 6, background: `${C.accent}10`, color: C.accent,
             fontSize: 12, fontWeight: 600, cursor: 'pointer'
@@ -2603,6 +2741,43 @@ export default function PrintManagementPage() {
           </button>
         </div>
       </Card>
+
+      {/* [v3.0.6.11-98 Wave3B P1] 新建打印额度申请 Modal: 科室/张数/用途 → localStorage + 标注 */}
+      {quotaModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => !quotaSaving && setQuotaModalOpen(false)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Plus size={16} /> 新建打印额度申请
+              </div>
+              <button onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请科室 *</label>
+                <select value={quotaForm.dept} onChange={e => setQuotaForm({ ...quotaForm, dept: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, background: 'var(--bg-card)' }}>
+                  {DEPT_PRINT_QUOTAS.map(d => <option key={d.dept} value={d.dept}>{d.dept}（月配额 {d.monthlyQuota} 张 / 已用 {d.current} 张）</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请增加张数 *</label>
+                <input type="number" min={1} value={quotaForm.requestedAmount} onChange={e => setQuotaForm({ ...quotaForm, requestedAmount: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请用途 *</label>
+                <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder="如 体检旺季，胶片用量增加30%" style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+              <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
+                提交后记录到本地（标注: 后端审批流 /print/quota 待接入），状态为「待审批」。
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setQuotaModalOpen(false)} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={handleSubmitQuotaRequest} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: C.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: quotaSaving ? 'wait' : 'pointer' }}>{quotaSaving ? '提交中...' : '提交申请'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 配额使用预警 */}
       <Card title="配额预警规则" icon={<AlertTriangle size={16} />}>

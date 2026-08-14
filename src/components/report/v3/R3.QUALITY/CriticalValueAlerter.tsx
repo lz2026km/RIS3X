@@ -861,13 +861,13 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Card size="small" title="元数据">
               <Space orientation="vertical" size={2} style={{ fontSize: 12 }}>
                 <div>
-                  <strong>Event ID:</strong> {detailEvent.id}
+                  <strong>事件 ID:</strong> {detailEvent.id}
                 </div>
                 <div>
-                  <strong>Hash:</strong> <code>{detailEvent.hash}</code>
+                  <strong>哈希:</strong> <code>{detailEvent.hash}</code>
                 </div>
                 <div>
-                  <strong>Escalation Level:</strong> {detailEvent.escalationLevel}
+                  <strong>升级级别:</strong> {detailEvent.escalationLevel}
                 </div>
               </Space>
             </Card>

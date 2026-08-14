@@ -156,6 +156,9 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
     });
   }, []);
 
+  // [v3.0.6.11-98 Wave3B P1] 队列行详情 Modal: 任务详情字段展示
+  const [detailTask, setDetailTask] = useState<DeliveryTask | null>(null);
+
   const columns = [
     { title: '通道', dataIndex: 'channel', key: 'channel', width: 100, render: (c: DeliveryChannel) => {
       const Icon = CHANNEL_ICON_MAP[c];
@@ -178,7 +181,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
       <Space size={4}>
         {r.status === 'failed' && <Button size="small" type="primary" icon={<RefreshCw className="w-3 h-3" />} onClick={() => handleRetry(r.id)}>重试</Button>}
         {(r.status === 'pending' || r.status === 'queued' || r.status === 'sending') && <Button size="small" danger icon={<XCircle className="w-3 h-3" />} onClick={() => handleCancel(r.id)}>取消</Button>}
-        <Button size="small" icon={<Eye className="w-3 h-3" />}>详情</Button>
+        <Button size="small" icon={<Eye className="w-3 h-3" />} onClick={() => setDetailTask(r)}>详情</Button>
       </Space>
     ) },
   ];
@@ -350,6 +353,65 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
             );
           }}
         />
+      </Modal>
+      {/* [v3.0.6.11-98 Wave3B P1] 任务详情 Modal */}
+      <Modal
+        title={<Space><Eye className="w-4 h-4 text-blue-500" /><span>推送任务详情</span></Space>}
+        open={detailTask !== null}
+        onCancel={() => setDetailTask(null)}
+        footer={<Button onClick={() => setDetailTask(null)}>关闭</Button>}
+        width={640}
+      >
+        {detailTask && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                ['任务 ID', detailTask.id],
+                ['报告 ID', detailTask.reportId],
+                ['患者', `${detailTask.patientName} (${detailTask.patientId})`],
+                ['通道', channels.find((x) => x.channel === detailTask.channel)?.displayName ?? detailTask.channel],
+                ['收件人', detailTask.recipientName ? `${detailTask.recipientName} (${detailTask.recipient})` : detailTask.recipient],
+                ['状态', STATUS_LABELS[detailTask.status]],
+                ['优先级', detailTask.priority],
+                ['模板', detailTask.template],
+                ['主题', detailTask.subject],
+                ['重试', `${detailTask.retryCount}/${detailTask.maxRetries}`],
+                ['耗时', `${(detailTask.durationMs / 1000).toFixed(1)}s`],
+                ['费用', `¥${detailTask.cost.toFixed(3)}`],
+                ['Trace ID', detailTask.traceId],
+                ['ACK', detailTask.ackReceived ? `已确认${detailTask.ackCode ? ` (${detailTask.ackCode})` : ''}` : '未确认'],
+                ['计划时间', detailTask.scheduledAt ? new Date(detailTask.scheduledAt).toLocaleString('zh-CN') : '-'],
+                ['发送时间', detailTask.sentAt ? new Date(detailTask.sentAt).toLocaleString('zh-CN') : '-'],
+              ].map(([k, v]) => (
+                <div key={k} className="p-2 bg-slate-50 rounded">
+                  <div className="text-slate-500 mb-1">{k}</div>
+                  <div className="text-slate-700 break-all">{v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="p-2 bg-slate-50 rounded text-xs">
+              <div className="text-slate-500 mb-1">正文</div>
+              <div className="text-slate-700 whitespace-pre-wrap">{detailTask.body || '-'}</div>
+            </div>
+            {detailTask.attachments.length > 0 && (
+              <div className="p-2 bg-slate-50 rounded text-xs">
+                <div className="text-slate-500 mb-1">附件 ({detailTask.attachments.length})</div>
+                {detailTask.attachments.map((at) => (
+                  <div key={at.url} className="text-slate-700">{at.name} · {at.format} · {(at.size / 1024).toFixed(1)} KB</div>
+                ))}
+              </div>
+            )}
+            {detailTask.errorMessage && (
+              <Alert type="error" showIcon message={`错误: ${detailTask.errorCode ?? ''}`} description={detailTask.errorMessage} />
+            )}
+            {Object.keys(detailTask.metadata).length > 0 && (
+              <div className="p-2 bg-slate-50 rounded text-xs">
+                <div className="text-slate-500 mb-1">元数据</div>
+                <div className="text-slate-700 break-all">{JSON.stringify(detailTask.metadata)}</div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );

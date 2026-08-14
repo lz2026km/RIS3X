@@ -39,12 +39,23 @@ const SIM_LATENCY_MS = 100;
 // ============================================================
 // 0. 内容持久化 (报告创建/更新 — POST /reports | PATCH /reports/:id)
 // ============================================================
-async function persistReportContent(reportId: string, plainText: string, conclusion?: string) {
+// [v3.0.6.11-98 Wave 1A P0] htmlContent 富文本持久化: findings(plainText 兼容) + htmlContent(所见即所得) 双写
+async function persistReportContent(reportId: string, plainText: string, conclusion?: string, htmlContent?: string) {
   const existing = await reportApi.getById(reportId);
   if (existing.success && existing.data) {
-    return reportApi.update(reportId, { findings: plainText, conclusion: conclusion ?? (existing.data as any).conclusion ?? '' });
+    return reportApi.update(reportId, {
+      findings: plainText,
+      conclusion: conclusion ?? (existing.data as any).conclusion ?? '',
+      ...(htmlContent !== undefined ? { htmlContent } : {}),
+    });
   }
-  return reportApi.create({ patientId: reportId, examId: reportId, findings: plainText, conclusion: conclusion ?? '' });
+  return reportApi.create({ patientId: reportId, examId: reportId, findings: plainText, conclusion: conclusion ?? '', htmlContent: htmlContent ?? '' });
+}
+
+// 富文本渲染 HTML: 优先 htmlContent, 空时由 findings/impression 派生 (旧数据兼容)
+function buildRichHtml(d: { htmlContent?: string; findings?: string; impression?: string }): string {
+  if (d.htmlContent && String(d.htmlContent).trim().length > 0) return d.htmlContent;
+  return `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`;
 }
 
 // ============================================================
@@ -156,7 +167,7 @@ export async function getRichDocument(reportId: string): Promise<RichEditorDocum
     return {
       ...RICH_DOCUMENT_MOCK,
       reportId,
-      html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+      html: buildRichHtml(d),
       plainText,
       wordCount: plainText.length,
       lastEditedAt: d.updatedTime,
@@ -166,13 +177,13 @@ export async function getRichDocument(reportId: string): Promise<RichEditorDocum
 }
 
 export async function saveRichDocument(doc: RichEditorDocument): Promise<RichEditorDocument> {
-  await persistReportContent(doc.reportId, doc.plainText ?? '', doc.conclusion ?? '');
+  await persistReportContent(doc.reportId, doc.plainText ?? '', doc.conclusion ?? '', doc.html ?? '');
   return { ...doc, lastEditedAt: new Date().toISOString(), autoSaveAt: new Date().toISOString() };
 }
 
-export async function autoSaveDocument(_reportId: string, _html: string, plainText: string): Promise<{ success: boolean; savedAt: string; version: number }> {
-  if (!_reportId) return { success: true, savedAt: new Date().toISOString(), version: 0 };
-  const res = await persistReportContent(_reportId, plainText);
+export async function autoSaveDocument(reportId: string, html: string, plainText: string): Promise<{ success: boolean; savedAt: string; version: number }> {
+  if (!reportId) return { success: true, savedAt: new Date().toISOString(), version: 0 };
+  const res = await persistReportContent(reportId, plainText, undefined, html);
   return { success: res.success, savedAt: res.data?.updatedTime ?? new Date().toISOString(), version: 1 };
 }
 
@@ -334,7 +345,7 @@ export async function listDrafts(reportId: string): Promise<ReportDraft[]> {
     authorId: r.doctorId ?? '',
     authorName: r.patientName ?? '',
     content: r.findings ?? '',
-    html: `<p>${r.findings ?? ''}</p>`,
+    html: r.htmlContent?.trim() ? r.htmlContent : `<p>${r.findings ?? ''}</p>`,
     structured: {},
     wordCount: (r.findings ?? '').length,
     version: i + 1,
@@ -348,7 +359,7 @@ export async function listDrafts(reportId: string): Promise<ReportDraft[]> {
 }
 
 export async function saveDraft(draft: Omit<ReportDraft, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<ReportDraft> {
-  const res = await persistReportContent(draft.reportId, draft.content ?? '');
+  const res = await persistReportContent(draft.reportId, draft.content ?? '', undefined, (draft as any).html ?? undefined);
   return {
     ...draft,
     id: `draft-${Date.now()}`,
@@ -415,7 +426,7 @@ export async function getWritingContext(reportId: string): Promise<ReportWriting
     document: {
       ...base.document,
       reportId: d.reportId || d.id,
-      html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+      html: buildRichHtml(d),
       plainText,
       wordCount: plainText.length,
       lastEditedAt: d.updatedTime,
@@ -428,7 +439,7 @@ export async function submitReport(reportId: string, payload: { finalScore: numb
   // [v3.0.6.11-70] P0 真实化: 1) 内容先落库(POST/PATCH /reports) 2) 状态流转 POST /reports/:id/transition
   // [v3.0.6.11-95 Wave2A P0] 提交→初核口径统一: 走 submitForReview (→ INITIAL_REVIEW, 直接进初核队列);
   //   ASSIGNED/PENDING_ASSIGNMENT 先过渡到 WRITING (避免 INVALID_TRANSITION)
-  await persistReportContent(reportId, payload.plainText ?? '', payload.conclusion ?? '');
+  await persistReportContent(reportId, payload.plainText ?? '', payload.conclusion ?? '', payload.html ?? '');
   const cur = await reportApi.getById(reportId);
   const curState = String(cur.data?.status ?? cur.data?.state ?? '').toUpperCase();
   if (curState === 'ASSIGNED' || curState === 'PENDING_ASSIGNMENT') {
@@ -849,13 +860,15 @@ export async function unflagReportCritical(_reportId: string): Promise<{ unflag:
 
 /**
  * 获取可用打印布局
+ * [v3.0.6.11-98 Wave2B (报告 P1)] 补「带抬头」布局; 书写页打印按钮经此列表选模板
  */
 export async function getPrintLayouts(): Promise<Array<{ id: string; name: string; description: string; columns: 1 | 2 }>> {
   await new Promise((r) => setTimeout(r, 200));
   return [
-    { id: 'layout-1', name: '标准单栏', description: '单栏标准布局', columns: 1 },
-    { id: 'layout-2', name: '双栏对比', description: '双栏左右对比布局', columns: 2 },
-    { id: 'layout-3', name: '精简单栏', description: '精简内容单栏', columns: 1 },
+    { id: 'layout-1', name: '标准单栏', description: '单栏标准布局,含报告编号/患者/检查信息', columns: 1 },
+    { id: 'layout-4', name: '带抬头', description: '医院抬头 + 单栏标准布局', columns: 1 },
+    { id: 'layout-2', name: '双栏对比', description: '双栏左右对比布局,所见/诊断并排', columns: 2 },
+    { id: 'layout-3', name: '精简单栏', description: '精简内容单栏,节省纸张', columns: 1 },
   ];
 }
 

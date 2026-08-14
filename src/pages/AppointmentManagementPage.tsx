@@ -86,7 +86,7 @@ const COLORS = {
   primaryLight: '#e8faf4',
   secondary: '#64748b',
   background: 'var(--bg-card)',
-  cardBackground: '#ffffff',
+  cardBackground: 'var(--bg-card)',
   text: '#1e293b',
   textSecondary: '#64748b',
   border: 'var(--border-color)',

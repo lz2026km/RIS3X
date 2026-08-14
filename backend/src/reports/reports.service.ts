@@ -54,6 +54,8 @@ function toReportDto(r: ReportWithExam) {
     accessionNumber: r.exam?.accessionNumber ?? '',
     status: r.state,
     findings: r.findings,
+    // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出
+    htmlContent: r.htmlContent ?? '',
     diagnosis: r.diagnosis,
     impression: r.impression,
     recommendations: r.recommendations,
@@ -140,13 +142,14 @@ export class ReportsService {
     return toReportDto(r as any)
   }
 
-  async create(dto: { patientId: string; examId?: string; radiologistId?: string; findings: string; conclusion: string }) {
+  async create(dto: { patientId: string; examId?: string; radiologistId?: string; findings: string; conclusion: string; htmlContent?: string }) {
     const r = await this.prisma.report.create({
       data: {
         patientId: dto.patientId,
         examId: dto.examId,
         radiologistId: dto.radiologistId,
         findings: dto.findings,
+        htmlContent: dto.htmlContent ?? '',
         conclusion: dto.conclusion,
         state: 'PENDING_ASSIGNMENT',
         tenantId: currentTenantId(),
@@ -156,8 +159,8 @@ export class ReportsService {
     return toReportDto(r)
   }
 
-  async update(id: string, dto: { findings?: string; conclusion?: string }) {
-    const { findings, conclusion } = dto
+  async update(id: string, dto: { findings?: string; conclusion?: string; htmlContent?: string }) {
+    const { findings, conclusion, htmlContent } = dto
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.report.findUnique({ where: { id } })
       if (!current) throw new NotFoundException(`Report ${id} not found`)
@@ -167,6 +170,7 @@ export class ReportsService {
           data: {
             ...(findings !== undefined ? { findings } : {}),
             ...(conclusion !== undefined ? { conclusion } : {}),
+            ...(htmlContent !== undefined ? { htmlContent } : {}),
             version: { increment: 1 },
           },
           include: { patient: { select: { id: true, name: true, gender: true } } },
