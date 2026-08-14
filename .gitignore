@@ -86,3 +86,7 @@ backend/vna-storage/
 e2e/.click-all-88-results/
 test-results/
 playwright-report/
+
+# Agent verification artifactsscreenshots-p0/
+w3c-*.mjs
+verify*.js
