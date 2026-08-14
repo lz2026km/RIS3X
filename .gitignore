@@ -90,3 +90,5 @@ playwright-report/
 # Agent verification artifactsscreenshots-p0/
 w3c-*.mjs
 verify*.js
+
+e2e/screenshots-88/
