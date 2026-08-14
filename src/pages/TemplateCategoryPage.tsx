@@ -8,7 +8,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
-import { templatesApi, type TemplateCategoryDto } from '../services/api/templatesApi';
+import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
@@ -231,6 +231,8 @@ export default function TemplateCategoryPage() {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'tree' | 'flat'>('tree');
   const [templateCount, setTemplateCount] = useState<Record<string, number>>(TEMPLATE_COUNT_MAP);
+  // [v3.0.6.11-99 Wave8A P1] 真实模板列表 (templatesApi.list → 按分类过滤渲染)
+  const [templates, setTemplates] = useState<TemplateDto[]>([]);
 
   // [v3.0.6.11-96 Wave3B P1] 真实分类: /templates/categories (CRUD), 失败回退本地静态树 + 标注
   const [categorySource, setCategorySource] = useState<'api' | 'fallback'>('api');
@@ -267,6 +269,8 @@ export default function TemplateCategoryPage() {
   useEffect(() => {
     templatesApi.list().then(res => {
       if (res.success && Array.isArray(res.data)) {
+        // [v3.0.6.11-99 Wave8A P1] 真实模板数据: 全量保存 + 按分类计数 (替代占位行/硬编码计数)
+        setTemplates(res.data);
         const byCategory: Record<string, number> = {}
         res.data.forEach(t => {
           byCategory[t.category] = (byCategory[t.category] || 0) + 1
@@ -402,6 +406,16 @@ export default function TemplateCategoryPage() {
   const selectedNode = selectedId ? findCategoryById(tree, selectedId) : null;
   const selectedStats = selectedNode ? countTemplatesInTreeWithOverride(selectedNode, templateCount) : 0;
   const selectedChildren = selectedNode ? selectedNode.children : [];
+  // [v3.0.6.11-99 Wave8A P1] 真实模板按分类过滤 (category 匹配分类名/编码, 兼容 API/静态树)
+  const categoryTemplateList = useMemo(() => {
+    if (!selectedNode) return [];
+    const cat = String(selectedNode.name ?? '').trim();
+    const code = String(selectedNode.code ?? '').trim();
+    return templates.filter(t =>
+      String(t.category ?? '').trim() === cat ||
+      String(t.category ?? '').trim() === code
+    );
+  }, [templates, selectedNode]);
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -637,7 +651,8 @@ export default function TemplateCategoryPage() {
                           <span style={{
                             fontSize: 12, padding: '1px 5px', borderRadius: 8,
                             background: 'var(--color-info-bg)', color: '#1e40af', fontWeight: 700,
-                          }}>{TEMPLATE_COUNT_MAP[c.id] || 0}</span>
+                            // [v3.0.6.11-99 Wave8A P1] 子分类计数用真实 templateCount (API 分类计数合并)
+                          }}>{templateCount[c.id] || 0}</span>
                         </div>
                       ))}
                     </div>
@@ -650,18 +665,21 @@ export default function TemplateCategoryPage() {
                     <FileText size={12} /> 模板列表 (本分类 {templateCount[selectedNode.id] || 0} / 全部后代 {selectedStats})
                   </div>
                   <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: 'var(--text-secondary)' }}>
-                    {templateCount[selectedNode.id] ? (
+                    {categoryTemplateList.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {Array.from({ length: templateCount[selectedNode.id] }).map((_, i) => (
-                          <div key={i} style={{
+                        {categoryTemplateList.map(t => (
+                          <div key={t.id} style={{
                             padding: 8, background: 'var(--bg-card)', borderRadius: 4,
                             border: '1px solid var(--border-color)',
                             display: 'flex', alignItems: 'center', gap: 8,
                           }}>
                             <FileText size={12} color="#3b82f6" />
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>{selectedNode.name} 模板 #{i + 1}</span>
-                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>v1.0</span>
-                            <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2 }}>已启用</span>
+                            <span style={{ fontWeight: 600, color: '#1e40af' }}>{t.name}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.bodyPart}{t.modality ? ` · ${t.modality}` : ''}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.createdAt ? t.createdAt.slice(0, 10) : ''}</span>
+                            <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2 }}>
+                              {t.status === 'approved' ? '已启用' : t.status === 'pending' ? '待审批' : t.status === 'rejected' ? '已驳回' : '草稿'}
+                            </span>
                           </div>
                         ))}
                       </div>

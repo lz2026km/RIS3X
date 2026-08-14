@@ -273,12 +273,121 @@ export default function DicomViewerPage() {
   const clearAllAnnotations = () => { setAnnotations([]); setSelectedAnnotationId(null) }
 
   const getMeasureTypeLabel = (type: string) => {
-    const labels: Record<string, string> = { line: '长度', angle: '角度', ellipse: '椭圆ROI', rectangle: '矩形ROI', circle: '圆ROI', ctvalue: 'CT值', area: '面积' }
+    const labels: Record<string, string> = { line: '长度', angle: '角度', ellipse: '椭圆ROI', rectangle: '矩形ROI', circle: '圆ROI', ctvalue: 'CT值', area: '面积', cobb: 'Cobb角', polygon: '多边形面积' }
     return labels[type] || type
   }
 
   const clearAllMeasures = () => { setInteractiveMeasures([]); setDrawingPoints([]); setIsDrawingMeasure(false) }
   const deleteMeasure = (id: string) => { setInteractiveMeasures(prev => prev.filter(m => m.id !== id)) }
+
+  // [G005 v3.0.6.11-99 Wave 4B] 测量族增强: 画布取点 → 计算测量结果
+  //   length: 两点距离 (pixelSpacing 换算 mm); angle: 三点夹角 (atan2);
+  //   ellipse/rectangle/circle: 面积; ctvalue: 单点 CT 值; cobb: 两条线段夹角 (atan2, 补角取小);
+  //   polygon: 自由多边形顶点 → 鞋带公式面积
+  const buildMeasure = useCallback((type: MeasureSubMenu, pts: { x: number; y: number }[]): Measurement | null => {
+    if (!type || pts.length === 0) return null
+    const sp = (images[imageIndex] || images[0])?.pixelSpacing || 0.68
+    const id = `m-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const loc = exam.bodyPart || ''
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(b.x - a.x, b.y - a.y)
+    const lineAngle = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.atan2(b.y - a.y, b.x - a.x)
+    if (type === 'length' && pts.length >= 2) {
+      const mm = dist(pts[0]!, pts[1]!) * sp
+      return { id, type: 'line', points: pts, value: Math.round(mm * 10) / 10, unit: 'mm', label: `长度 ${Math.round(mm * 10) / 10} mm`, location: loc }
+    }
+    if (type === 'angle' && pts.length >= 3) {
+      const [p1, vertex, p2] = pts
+      const a1 = lineAngle(vertex!, p1!); const a2 = lineAngle(vertex!, p2!)
+      const deg = Math.abs((a2 - a1) * 180 / Math.PI)
+      const v = Math.round(Math.min(deg, 360 - deg) * 10) / 10
+      return { id, type: 'angle', points: pts, value: v, unit: '°', label: `角度 ${v}°`, location: loc }
+    }
+    if (type === 'cobb' && pts.length >= 4) {
+      // Cobb 角: 上终板线(端点1-2) 与 下终板线(端点3-4) 的夹角, 取锐角(补角取小)
+      const a1 = lineAngle(pts[0]!, pts[1]!); const a2 = lineAngle(pts[2]!, pts[3]!)
+      let diff = Math.abs((a2 - a1) * 180 / Math.PI) % 180
+      if (diff > 90) diff = 180 - diff
+      const v = Math.round(diff * 10) / 10
+      return { id, type: 'cobb', points: pts, value: v, unit: '°', label: `Cobb角 ${v}°`, location: loc }
+    }
+    if (type === 'ctvalue' && pts.length >= 1) {
+      // 合成 CT 值: 模拟软组织/病灶区间, 单点采样
+      const p = pts[0]!
+      const v = Math.round(35 + ((p.x * 7 + p.y * 13) % 60) - 15)
+      return { id, type: 'ctvalue', points: pts, value: v, unit: 'HU', label: `CT值 ${v} HU`, location: loc }
+    }
+    if (pts.length >= 2) {
+      const p1 = pts[0]!; const p2 = pts[1]!
+      if (type === 'ellipse') {
+        const rx = Math.abs(p2.x - p1.x) / 2 * sp; const ry = Math.abs(p2.y - p1.y) / 2 * sp
+        const v = Math.round(Math.PI * rx * ry * 10) / 10
+        return { id, type: 'ellipse', points: pts, value: v, unit: 'mm²', label: `椭圆面积 ${v} mm²`, location: loc }
+      }
+      if (type === 'rectangle') {
+        const v = Math.round(Math.abs(p2.x - p1.x) * Math.abs(p2.y - p1.y) * sp * sp * 10) / 10
+        return { id, type: 'rectangle', points: pts, value: v, unit: 'mm²', label: `矩形面积 ${v} mm²`, location: loc }
+      }
+      if (type === 'circle') {
+        const r = dist(p1, p2) * sp
+        const v = Math.round(Math.PI * r * r * 10) / 10
+        return { id, type: 'circle', points: pts, value: v, unit: 'mm²', label: `圆面积 ${v} mm²`, location: loc }
+      }
+    }
+    return null
+  }, [images, imageIndex, exam.bodyPart])
+
+  const handleMeasurePoint = useCallback((x: number, y: number) => {
+    if (activeTool !== 'measure' || !measureSubMenu) return
+    if (measureSubMenu === 'polygon') {
+      setDrawingPoints(prev => [...prev, { x, y }])
+      setIsDrawingMeasure(true)
+      return
+    }
+    const needed: Partial<Record<NonNullable<MeasureSubMenu>, number>> = { length: 2, angle: 3, cobb: 4, ellipse: 2, rectangle: 2, circle: 2, ctvalue: 1 }
+    const need = needed[measureSubMenu]
+    if (!need) return
+    const next = [...drawingPoints, { x, y }]
+    if (next.length >= need) {
+      const m = buildMeasure(measureSubMenu, next)
+      if (m) setInteractiveMeasures(prev => [...prev, m])
+      setDrawingPoints([])
+      setIsDrawingMeasure(false)
+    } else {
+      setDrawingPoints(next)
+      setIsDrawingMeasure(true)
+    }
+  }, [activeTool, measureSubMenu, drawingPoints, buildMeasure])
+
+  // 多边形: 逐点累积, 「完成」按钮 → 鞋带公式面积
+  const finishPolygonMeasure = useCallback(() => {
+    if (drawingPoints.length < 3) return
+    const sp = (images[imageIndex] || images[0])?.pixelSpacing || 0.68
+    const pts = drawingPoints
+    let sum = 0
+    for (let i = 0; i < pts.length; i++) {
+      const cur = pts[i]!; const nxt = pts[(i + 1) % pts.length]!
+      sum += cur.x * nxt.y - nxt.x * cur.y
+    }
+    const area = Math.abs(sum) / 2 * sp * sp
+    const v = Math.round(area * 10) / 10
+    const m: Measurement = { id: `m-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, type: 'polygon', points: pts, value: v, unit: 'mm²', label: `多边形面积 ${v} mm²`, location: exam.bodyPart || '' }
+    setInteractiveMeasures(prev => [...prev, m])
+    setDrawingPoints([])
+    setIsDrawingMeasure(false)
+  }, [drawingPoints, images, imageIndex, exam.bodyPart])
+
+  // [G005 v3.0.6.11-99 Wave 4B] 测量入报告: 测量结果写入 sessionStorage, 报告书写页读取生成 SR 段落
+  useEffect(() => {
+    try {
+      const rows = interactiveMeasures.map(m => ({
+        type: m.type, typeLabel: getMeasureTypeLabel(m.type), label: m.label,
+        value: m.value, unit: m.unit, location: m.location ?? exam.bodyPart ?? '',
+        examId: exam.id ?? '', patientId: exam.patientId ?? '',
+      }))
+      sessionStorage.setItem('g005_measurements_v1', JSON.stringify(rows))
+    } catch { /* storage unavailable; ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interactiveMeasures])
 
   // ---- 伪彩工具按钮 ----
   const pseudoColorTools = [
@@ -501,6 +610,7 @@ export default function DicomViewerPage() {
             showMeasurementsOverlay={showMeasurementsOverlay} measureSubMenu={measureSubMenu}
             isDrawingMeasure={isDrawingMeasure} interactiveMeasures={interactiveMeasures}
             drawingPoints={drawingPoints} annotations={annotations}
+            handleMeasurePoint={handleMeasurePoint} finishPolygonMeasure={finishPolygonMeasure}
             showAnnotationsOverlay={showAnnotationsOverlay}
             selectedAnnotationId={selectedAnnotationId}
             activeAnnotationType={activeAnnotationType}

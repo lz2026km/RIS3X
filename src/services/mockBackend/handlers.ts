@@ -12,6 +12,8 @@ import { newPagesHandlers } from './newPagesHandlers';
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
 import { emergencyChannelHandlers } from './emergencyChannelHandlers';
 import { deptHandlers } from './deptHandlers';
+// [G005 Wave 6B (tech-schedule)] 技师排班管理 (班次/换班/请假/统计/批量生成)
+import { techScheduleHandlers } from './techScheduleHandlers';
 // [v3.0.6.11-79] W1-A 文件管理 (upload-url / upload / upload-complete / download)
 import { filesHandlers } from './filesHandlers';
 import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
@@ -48,6 +50,8 @@ import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
 // [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
 import { asrHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
+// [Wave 6A v3.0.6.11-99] 语音工作站端点 (医学词库/会话/转写校正/纠正反馈/统计)
+import { voiceWorkstationHandlers } from './voiceWorkstationHandlers';
 import { doseHandlers } from './doseHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
 // [v3.0.6.11-60] BI 仪表板 (报告时效/RVU/OEE/危急值SLA/趋势)
@@ -96,6 +100,8 @@ import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
 import { aiWave2BHandlers } from './aiWave2BHandlers';
 // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 MSW 兜底 (finding-library)
 import { findingLibraryHandlers } from './findingLibraryHandlers';
+// [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注 (列表/创建/回复/解决/重开/统计)
+import { reportAnnotationHandlers } from './reportAnnotationHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
@@ -109,6 +115,8 @@ import { mobileHandlers } from './mobileHandlers';
 import { segmentationHandlers } from './segmentationHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
+// [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report): 定义 CRUD + 运行/结果/历史/定时/导出 + fields-catalog
+import { customReportHandlers } from './customReportHandlers';
 import { oeeHandlers } from './oeeHandlers';
 import { occupancyHandlers } from './occupancyHandlers';// [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
 import { shellUpgradeHandlers } from './shellUpgradeHandlers';
@@ -151,8 +159,12 @@ import { remoteReadingHandlers } from './remoteReadingHandlers';
 // [W4-B] 随访计划 (followupApi: /followups/*)
 import { followupHandlers } from './followupHandlers';// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
 import { crossModalHandlers } from './crossModalHandlers';
+// [v3.0.6.11-99 Wave3B] 随访模板库 (followupTemplatesApi: /followup-templates/*)
+import { followupTemplateHandlers } from './followupTemplateHandlers';
 // [v3.0.6.11-75 W3-1] DICOM 跨科室共享 (shareApi: /dicom-share/*)
 import { dicomShareHandlers } from './dicomShareHandlers';
+// [v3.0.6.11-99 Wave 4A] 病灶追踪 (lesionTrackingApi: /lesion-tracking/*)
+import { lesionTrackingHandlers } from './lesionTrackingHandlers';
 // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
 import { smartWorklistHandlers } from './smartWorklistHandlers';
 // [W3-A] 自动采集 (auto-collectionApi, 后端 auto-collection.controller 已实现 → MSW 仅 dev 兜底)
@@ -160,6 +172,8 @@ import { autoCollectionHandlers } from './autoCollectionHandlers';
 // [W3-A] 诊断符合率 (diagnosisAccuracyApi) + 乳腺影像质量管理 (mammoQcApi)
 import { diagnosisAccuracyHandlers } from './diagnosisAccuracyHandlers';
 import { mammoQcHandlers } from './mammoQcHandlers';
+// [G005 Wave 3A v3.0.6.11-99] qc-pdca 质控闭环 (qcPdcaApi)
+import { qcPdcaHandlers } from './qcPdcaHandlers';
 import {
   INITIAL_CHECK_SUMMARY,
 } from '@data/reportInitialCheckMock';
@@ -3319,6 +3333,26 @@ export const templateHandlers = [
     t.updatedAt = new Date().toISOString();
     return HttpResponse.json({ success: true, data: t });
   }),
+  // [v3.0.6.11-99 Wave2B (模板设计器 P1)] 模板结构化内容 (段落块数组) — 静态路径需在 /templates/:id 之前
+  // 注: mock 层对不存在模板容忍返回空 structure (设计器加载回退默认段落), 后端仍返回 404
+  http.get(`${API_BASE}/templates/:id/structure`, async ({ params }) => {
+    await delay(80);
+    const t = getTemplateStore().find((x) => x.id === params.id);
+    if (!t) return HttpResponse.json({ success: true, data: { structure: null, body: '' } });
+    return HttpResponse.json({ success: true, data: { structure: t.structure ?? null, body: t.body ?? '' } });
+  }),
+  http.patch(`${API_BASE}/templates/:id/structure`, async ({ params, request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const t = getTemplateStore().find((x) => x.id === params.id);
+    if (!t) {
+      return HttpResponse.json({ success: true, data: { id: params.id, structure: Array.isArray(body?.structure) ? body.structure : null, body: typeof body?.body === 'string' ? body.body : '' } });
+    }
+    if (Array.isArray(body?.structure)) t.structure = body.structure;
+    if (typeof body?.body === 'string' && body.body.trim() !== '') t.body = body.body;
+    t.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: { id: t.id, structure: t.structure, body: t.body } });
+  }),
   http.get(`${API_BASE}/templates/:id`, async ({ params }) => {
     await delay(80);
     const t = getTemplateStore().find((x) => x.id === params.id);
@@ -3336,6 +3370,7 @@ export const templateHandlers = [
       modality: body.modality || 'CT',
       bodyPart: body.bodyPart || '',
       body: body.body || '',
+      structure: Array.isArray(body.structure) ? body.structure : undefined,
       tags: body.tags || [],
       version: 1,
       usage: 0,
@@ -4602,6 +4637,7 @@ export const handlers = [
   ...autoCollectionHandlers, // [W3-A] 自动采集 (auto-collectionApi)
   ...diagnosisAccuracyHandlers, // [W3-A] 诊断符合率 (diagnosisAccuracyApi)
   ...mammoQcHandlers, // [W3-A] 乳腺影像质量管理 (mammoQcApi)
+  ...qcPdcaHandlers, // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环 (qcPdcaApi)
   ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,
@@ -4701,7 +4737,9 @@ export const handlers = [
   ...neuroHandlers, // [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
   ...mobileHandlers, // [v3.0.6.11-75] 移动端 API (today-summary/worklist/critical-values/reports/device-token)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
+  ...voiceWorkstationHandlers, // [Wave 6A v3.0.6.11-99] 语音工作站 (词库/会话/转写校正/纠正反馈/统计)
   ...olapHandlers,
+  ...customReportHandlers, // [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report)
   ...oeeHandlers, // [W3-B] OEE 看板 (list/detail/trend/stats) — 此前未注册导致 /oee/* 500
   ...biHandlers, // [v3.0.6.11-60] BI 仪表板 (kpi/timeliness/rvu/oee/sla/trend)
   // [Phase 2] 壳页面真实化 - 新端点 (kiosk/fusion/4d/screening/search)
@@ -4733,10 +4771,16 @@ export const handlers = [
   // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理 (MSW 内存 + 种子)
   ...emergencyChannelHandlers,
   ...deptHandlers,
+  // [G005 Wave 6B (tech-schedule)] 技师排班管理 (班次/换班/请假/统计/批量生成)
+  ...techScheduleHandlers,
   // [v3.0.6.11-79] W1-A 文件管理
   ...filesHandlers,
   // [W4-B] 随访计划
   ...followupHandlers,
+  // [v3.0.6.11-99 Wave3B] 随访模板库
+  ...followupTemplateHandlers,
+  // [v3.0.6.11-99 Wave 4A] 病灶追踪
+  ...lesionTrackingHandlers,
   // [W2-B-3] Rad-Path / 科研 / 双阅片 / AI 模型市场 (dev mock 500 修复)
   ...radpathHandlers,
   ...researchHandlers,
@@ -4744,6 +4788,8 @@ export const handlers = [
   ...aiMarketplaceHandlers,
   // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化 (finding-library)
   ...findingLibraryHandlers,
+  // [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注
+  ...reportAnnotationHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

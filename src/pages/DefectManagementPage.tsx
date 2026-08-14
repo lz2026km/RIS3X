@@ -6,6 +6,7 @@
 // ============================================================
 
 import React, { useMemo, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertOctagon,
   Search,
@@ -64,6 +65,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const DefectManagementPage: React.FC = () => {
+  const navigate = useNavigate()
   const [keyword, setKeyword] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [severity, setSeverity] = useState<SeverityFilter>('all')
@@ -435,6 +437,13 @@ const DefectManagementPage: React.FC = () => {
                       data-testid="defect-full-detail"
                     >
                       完整详情 →
+                    </button>
+                    <button
+                      onClick={() => navigate(`/qc/pdca?defectId=${encodeURIComponent(selected.id)}`)}
+                      className="text-xs px-3 py-1.5 rounded bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-1"
+                      data-testid="defect-start-pdca"
+                    >
+                      发起 PDCA →
                     </button>
                   </div>
                 )}

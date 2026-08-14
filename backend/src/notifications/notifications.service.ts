@@ -26,6 +26,18 @@ export interface PushSubscriptionEntry {
   createdAt: string
 }
 
+// [v3.0.6.11-99 Wave7B] 站内信/推送订阅类型 (通知中心订阅管理 + 移动推送页)
+export type NotificationSubscriptionType =
+  | 'CRITICAL'   // 危急值
+  | 'REPORT'     // 报告完成
+  | 'FOLLOWUP'   // 随访提醒
+  | 'QUALITY'    // 质控通知
+  | 'SYSTEM'     // 系统公告
+
+export const DEFAULT_SUBSCRIPTION_TYPES: NotificationSubscriptionType[] = [
+  'CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM',
+]
+
 // 演示 VAPID 密钥对 (生成于 2026-08, 仅用于本地/演示; 生产用环境变量覆盖)
 const DEMO_VAPID_PUBLIC_KEY =
   'BK-yELa-ndXqb0Qr5gdFEnEtYjaPWadKr25P1ApwdgNcbgtPIAaWdTwdwyy1eyP8ntlQSWM-XH5GK2Lk6S1hb88'
@@ -46,6 +58,8 @@ export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name)
   /** Web Push 订阅内存回退存储 (DB 不可用/未迁移时使用; 生产建议迁移后以 DB 为准) */
   private readonly pushSubscriptions = new Map<string, PushSubscriptionEntry[]>()
+  /** [v3.0.6.11-99 Wave7B] 站内信/推送订阅类型 (内存存储, 默认全开; 前端 localStorage 兜底持久化) */
+  private readonly subscriptions = new Map<string, NotificationSubscriptionType[]>()
   private demoVapidWarned = false
   private readonly gateway: NotificationsGateway
 
@@ -176,6 +190,26 @@ export class NotificationsService {
       results.push(r)
     }
     return { count: results.length, items: results }
+  }
+
+  /**
+   * [v3.0.6.11-99 Wave 5B-C] 报表生成完成推送 (内部端点 POST /notifications/report-generated)
+   * 由定时报表执行器/报表模块在生成完成后调用, 按 recipients 逐个创建「报表已生成」通知。
+   * 待联动: Wave 5A 自定义报表调度 (schedule/recipients 字段) 落地后,
+   * 由定时执行器在 due 时调用本方法并附带报表摘要 summary。
+   */
+  async reportGenerated(dto: { reportId: string; reportName: string; recipients: string[]; summary?: string; link?: string }) {
+    const title = `报表已生成: ${dto.reportName}`
+    const content = dto.summary || `报表「${dto.reportName}」(ID: ${dto.reportId}) 已生成, 请在报表中心查看。`
+    const recipients = Array.isArray(dto.recipients) && dto.recipients.length > 0 ? dto.recipients : ['current']
+    return this.broadcast(recipients, {
+      type: 'REPORT',
+      severity: 'INFO',
+      title,
+      content,
+      link: dto.link,
+      targetId: dto.reportId,
+    })
   }
 
   /**
@@ -387,5 +421,31 @@ export class NotificationsService {
     }
     const delivered = results.filter((r) => r.ok).length
     return { success: delivered > 0, userId, delivered, total: subs.length, results }
+  }
+
+  /**
+   * [v3.0.6.11-99 Wave7B] GET /notifications/subscriptions/:userId
+   * 站内信/推送订阅类型: 未设置时返回默认全开
+   */
+  getSubscriptionConfig(userId: string): { userId: string; types: NotificationSubscriptionType[]; defaulted: boolean } {
+    const existing = this.subscriptions.get(userId)
+    if (!existing) {
+      return { userId, types: [...DEFAULT_SUBSCRIPTION_TYPES], defaulted: true }
+    }
+    return { userId, types: [...existing], defaulted: false }
+  }
+
+  /**
+   * [v3.0.6.11-99 Wave7B] PUT /notifications/subscriptions/:userId
+   * 更新订阅类型 (白名单校验, 非法项忽略)
+   */
+  updateSubscriptionConfig(userId: string, types: string[]): { userId: string; types: NotificationSubscriptionType[] } {
+    const allowed = new Set<string>(DEFAULT_SUBSCRIPTION_TYPES)
+    const cleaned = Array.from(new Set(types))
+      .filter((t): t is NotificationSubscriptionType => allowed.has(t))
+    const normalized = cleaned.length > 0 ? cleaned : [...DEFAULT_SUBSCRIPTION_TYPES]
+    this.subscriptions.set(userId, [...normalized])
+    this.logger.log(`subscriptions updated userId=${userId} types=${normalized.join(',')}`)
+    return { userId, types: [...normalized] }
   }
 }

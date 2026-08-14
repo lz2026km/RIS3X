@@ -14,6 +14,7 @@ const ExamPage = lazy(() => import("../pages/ExamPage"));
 // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立路由 (仅跳转可达, 侧边栏不加菜单)
 const ExamDetailPage = lazy(() => import("../pages/ExamDetailPage"));
 const ReportPage = lazy(() => import("../pages/ReportPage"));
+const OfflineReportsPage = lazy(() => import("../pages/OfflineReportsPage")); // [v3.0.6.11-99 Wave7B] 离线报告包
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
 const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
@@ -231,6 +232,8 @@ const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
 const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
 // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
 const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
+// [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
+const TechSchedulePage = lazy(() => import("../pages/ops/TechSchedulePage"));
 // [v3.0.6.11-88] Wave6A 血管分析工作台
 const VesselAnalysisPage = lazy(() => import("../pages/cardiac/VesselAnalysisPage"));
 const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
@@ -316,6 +319,8 @@ const RadiologistAnnualQCPage = lazy(
   () => import("../pages/qc/RadiologistAnnualQCPage"),
 );
 const QcImageAiPage = lazy(() => import("../pages/qc/QcImageAiPage"));
+// [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
+const QcPdcaPage = lazy(() => import("../pages/qc/QcPdcaPage"));
 
 const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
 const PacsStudyListPage = lazy(
@@ -621,6 +626,7 @@ const ThirdPartyAiPage = lazy(() => import("../pages/ai/ThirdPartyAiPage"));
 const MprPage = lazy(() => import("../pages/dicom/MprPage"));
 const MipPage = lazy(() => import("../pages/dicom/MipPage"));
 const VrPage = lazy(() => import("../pages/dicom/VrPage"));
+const LesionTrackingPage = lazy(() => import("../pages/dicom/LesionTrackingPage")); // [v3.0.6.11-99 Wave 4A] 病灶追踪
 const PostProcessingPage = lazy(
   () => import("../pages/dicom/PostProcessingPage"),
 );
@@ -842,6 +848,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system/compliance": ["管理员", "主任"],
   "/system/files": ["管理员", "主任"], // [W1-A v3.0.6.11-79] 文件管理
   "/dicom/radiomics": ["医生", "主任", "管理员"],
+  "/dicom/lesion-tracking": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-99 Wave 4A] 病灶追踪
   "/dicom/compress": ["医生", "技师", "主任", "管理员"],
   "/dicom/sr-manager": ["医生", "技师", "主任", "管理员"],
   "/orchestrator": ["管理员", "主任"],
@@ -909,6 +916,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/cardiac/vessel-analysis": ["医生", "主任", "管理员"],
   // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
   "/ops/kpi-wall": ["主任", "管理员"],
+  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
+  "/ops/tech-schedule": ["主任", "管理员", "技师"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -945,6 +954,8 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立页 (行"详情"按钮 /exam/:id 跳转可达)
   wrapped("/exam/:id", React.createElement(ExamDetailPage)),
   wrapped("/reports", React.createElement(ReportPage)),
+  // [v3.0.6.11-99 Wave7B] 离线报告包 (IndexedDB 快照浏览/管理; 断网可用)
+  wrapped("/reports/offline", React.createElement(OfflineReportsPage)),
   wrapped("/write-report", React.createElement(ReportWritePage)),
   wrapped("/report/write", React.createElement(ReportWritePage)), // [v3.0.6.11-92 Wave1B P0] 移动端医生工作台 /report/write 目标路由
   wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
@@ -1088,6 +1099,8 @@ export const routes: RouteObject[] = [
   wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
   // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏 (大屏看板)
   wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
+  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
+  wrapped("/ops/tech-schedule", React.createElement(TechSchedulePage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1236,6 +1249,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
   wrapped("/dicom/segmentation", React.createElement(SegmentationPage)), // [v3.0.6.11-62] 3D 分割与定量 (结节/骨/肝/肺)
+  // [v3.0.6.11-99 Wave 4A] 病灶追踪 (登记/跨期对比/趋势图/随访联动)
+  wrapped("/dicom/lesion-tracking", React.createElement(LesionTrackingPage)),
   // [v3.0.6.11-41] A12 影像处理补齐路由
   wrapped("/dicom/mpr", React.createElement(MprPage)),
   wrapped("/dicom/mip", React.createElement(MipPage)),
@@ -1313,6 +1328,8 @@ export const routes: RouteObject[] = [
     React.createElement(RadiologistAnnualQCPage),
   ),
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
+  // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
+  wrapped("/qc/pdca", React.createElement(QcPdcaPage)),
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/triage/worklist", React.createElement(TriagePage)),

@@ -2713,6 +2713,8 @@ const eyePixelRenderModule = [
 // ============= [v3.0.6.8-44] PR 11: 视光中心闭环 (8 端点) =============
 // 对标: Optometry 视光中心 (OK 镜 / 角膜塑形镜 / 离焦镜 / 配镜订单)
 // 近视防控闭环: 筛查 → 验光 → OK 镜设计 → 配镜 → 复查 → 进展监控
+// [v3.0.6.11-99 Wave1A 17] 后端 eye-optometry 模块已实现同路径 (Exam/vision 派生 + seed + 内存),
+//   本模块仅 dev 兜底 (页面标注"后端真实")
 
 const eyeOptometryClosedLoopModule = [
   // 1) 视光筛查 (屈光档案)

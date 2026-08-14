@@ -79,7 +79,7 @@ import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Hea
 import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
 import { ScanEye, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
 import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, BadgeCheck, Flame, Building2, Share2, Library, HardDrive, QrCode, Ruler, CalendarCheck, AlertTriangle } from 'lucide-react';
-import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge } from 'lucide-react';
+import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge, Images } from 'lucide-react';
 import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
 import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, AlarmClock, Timer } from 'lucide-react';
 import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal } from 'lucide-react';
@@ -471,6 +471,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.qcImageAi",
         roles: ["主任", "管理员", "技师"],
       },
+      // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
+      {
+        path: "/qc/pdca",
+        icon: <RefreshCw size={18} />,
+        labelKey: "nav.qcPdca",
+        roles: ["主任", "管理员"],
+      },
       {
         path: "/cosign",
         icon: React.createElement(UserCheck, { size: 18 }),
@@ -618,6 +625,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.segmentation",
         roles: ["医生", "技师", "主任", "管理员"],
       },
+      // [v3.0.6.11-99 Wave 4A] 病灶追踪 (登记/跨期对比/趋势图/随访联动)
+      {
+        path: "/dicom/lesion-tracking",
+        icon: <Target size={18} />,
+        labelKey: "nav.lesionTracking",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
       // [v3.0.6.11-41] A12 影像处理补齐: MPR / MIP / VR / 后处理 / DBT
       {
         path: "/dicom/mpr",
@@ -702,14 +716,14 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-60] G005 相似病例检索 (对标 Siemens Similar Patient Search)
       {
         path: "/similar-case",
-        icon: <Brain size={18} />,
+        icon: <Images size={18} />,
         labelKey: "nav.similarCaseSearch",
         roles: ["医生", "主任", "技师", "管理员",],
       },
       // [P1-fix] 删除上方已重复的 cross-modal-search 条目
       {
         path: "/dicom/sr-manager",
-        icon: <FileText size={18} />,
+        icon: <ScrollText size={18} />,
         labelKey: "nav.dicomSr",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1296,7 +1310,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ops/devices",
-        icon: <Server size={18} />,
+        icon: <Monitor size={18} />,
         labelKey: "nav.deviceOps",
         roles: ["主任", "管理员"],
       },
@@ -1318,6 +1332,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     icon: <Monitor size={18} />,
     labelKey: "nav.kpiWall",
     roles: ["主任", "管理员"],
+  },
+  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班
+  {
+    path: "/ops/tech-schedule",
+    icon: <CalendarCog size={18} />,
+    labelKey: "nav.techSchedule",
+    roles: ["主任", "管理员", "技师"],
   },
       {
         path: "/operations/occupancy",
@@ -1798,7 +1819,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 口腔影像查看
       {
         path: "/dental/viewer",
-        icon: React.createElement(Eye, { size: 18 }),
+        icon: React.createElement(Scan, { size: 18 }),
         labelKey: "nav.dentalViewer",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -2039,7 +2060,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom-sr-manager",
-        icon: <FileText size={18} />,
+        icon: <FileSignature size={18} />,
         labelKey: "nav.dicomSrManager",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2306,7 +2327,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/devices",
-        icon: <Server size={18} />,
+        icon: <Cpu size={18} />,
         labelKey: "nav.devices",
         roles: ["技师", "管理员"],
       },

@@ -157,6 +157,41 @@ const SEED_CLINICAL_DATA = [
   { id: 'CD003', patientId: 'P002', patientName: '李四', examType: '腰椎DR正侧位', examDate: '2026-07-08', bodyPart: '腰椎', modality: 'DR', findings: '腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。', diagnosis: '腰椎DR未见明显异常', reportStatus: '已出报告' },
 ]
 
+// [v3.0.6.11-99 Wave7B] 患者自助随访 seed (无数据时返回, 与 followup 模块 DTO 形状对齐)
+const SEED_FOLLOWUPS = [
+  { id: 'FU-P001-001', patientId: 'P001', patientName: '张三', reportId: 'RPT-P001-001', planDate: '2026-08-20T00:00:00+08:00', intervalDays: 30, nextDate: '2026-08-20T00:00:00+08:00', status: 'PENDING', note: '胸部 CT 复查随访', reminderEnabled: true, completedAt: null, createdAt: '2026-07-20T08:00:00+08:00', updatedAt: '2026-07-20T08:00:00+08:00' },
+  { id: 'FU-P001-002', patientId: 'P001', patientName: '张三', planDate: '2026-09-01T00:00:00+08:00', intervalDays: 90, nextDate: '2026-09-01T00:00:00+08:00', status: 'IN_PROGRESS', note: '乳腺 BI-RADS 3 定期复查', reminderEnabled: true, completedAt: null, createdAt: '2026-07-21T09:00:00+08:00', updatedAt: '2026-07-21T09:00:00+08:00' },
+]
+
+// [v3.0.6.11-99 Wave7B] 随访 DTO 映射 (与 frontend FollowUpPlan 契约对齐: OVERDUE 派生 + 时间戳 ISO)
+function mapFollowUp(p: any) {
+  const terminal = ['COMPLETED', 'MISSED', 'CANCELLED'].includes(p.status)
+  const overdue = !terminal && p.nextDate && new Date(p.nextDate).getTime() < Date.now()
+  const toIso = (v: unknown): string | null => {
+    if (!v) return null
+    return typeof (v as Date).toISOString === 'function' ? (v as Date).toISOString() : String(v)
+  }
+  return {
+    id: p.id,
+    patientId: p.patientId,
+    patientName: p.patientName,
+    reportId: p.reportId ?? undefined,
+    examId: p.examId ?? undefined,
+    planDate: toIso(p.planDate) ?? p.planDate,
+    intervalDays: p.intervalDays,
+    nextDate: toIso(p.nextDate) ?? p.nextDate,
+    status: overdue ? 'OVERDUE' : p.status,
+    note: p.note ?? '',
+    reminderEnabled: p.reminderEnabled ?? false,
+    remindedAt: toIso(p.remindedAt),
+    missedAt: toIso(p.missedAt),
+    cancelledAt: toIso(p.cancelledAt),
+    completedAt: toIso(p.completedAt),
+    createdAt: toIso(p.createdAt) ?? new Date().toISOString(),
+    updatedAt: toIso(p.updatedAt) ?? new Date().toISOString(),
+  }
+}
+
 @Injectable()
 export class PatientPortalService {
   constructor(private readonly prisma: PrismaService) {}
@@ -379,5 +414,51 @@ export class PatientPortalService {
       data: { key: record.id, value: record as any },
     })
     return { data: record }
+  }
+
+  // ===== [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5): 列表 + 完成登记 =====
+
+  async listFollowups(patientId?: string) {
+    const tenantId = getCurrentTenantId()
+    const where: any = { tenantId }
+    if (patientId) where.patientId = patientId
+    let items: any[] = []
+    try {
+      items = await this.prisma.followUpPlan.findMany({
+        where,
+        orderBy: { nextDate: 'asc' },
+        take: 50,
+      })
+    } catch {
+      items = []
+    }
+    if (items.length === 0) {
+      const data = patientId
+        ? SEED_FOLLOWUPS.filter(f => f.patientId === patientId)
+        : SEED_FOLLOWUPS
+      return { data: data.map(mapFollowUp) }
+    }
+    return { data: items.map(mapFollowUp) }
+  }
+
+  async completeFollowup(id: string) {
+    let plan: any = null
+    try {
+      plan = await this.prisma.followUpPlan.findUnique({ where: { id } })
+    } catch {
+      plan = null
+    }
+    if (!plan) {
+      const seed = SEED_FOLLOWUPS.find(f => f.id === id)
+      if (seed) {
+        return { data: mapFollowUp({ ...seed, status: 'COMPLETED', completedAt: new Date().toISOString() }) }
+      }
+      throw new NotFoundException(`FollowUp plan ${id} not found`)
+    }
+    const updated = await this.prisma.followUpPlan.update({
+      where: { id },
+      data: { status: 'COMPLETED', completedAt: new Date() },
+    })
+    return { data: mapFollowUp(updated as any) }
   }
 }

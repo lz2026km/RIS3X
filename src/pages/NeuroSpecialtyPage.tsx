@@ -1,5 +1,5 @@
 // Neuro Specialty Page — 神经影像分析 · 脑卒中 · 脑肿瘤 · 癫痫
-// [v3.0.6.11-81] W2-B: mockStudies → neuroSpecialtyApi (MSW /neuro/* 演示数据)
+// [v3.0.6.11-99] Wave1A 17: 接真实后端 /neuro/* (Exam 派生 + seed 回退, MSW 仅 dev 兜底)
 import { useState, useMemo, useEffect } from 'react';
 import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X } from 'lucide-react';
 import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
@@ -60,7 +60,7 @@ const NeuroSpecialtyPage = () => {
   const [typeFilter, _setTypeFilter] = useState('');
   const [tab, setTab] = useState<'stroke' | 'tumor' | 'epilepsy' | 'stats'>('stroke');
 
-  // [W2-B] 真实化: /neuro/* API (MSW 演示数据) + loading/error
+  // [W2-B] 真实化: /neuro/* API (后端真实, MSW 仅 dev 兜底) + loading/error/回退标注
   const [studies, setStudies] = useState<NeuroStudy[]>([]);
   const [stats, setStats] = useState<NeuroStats | null>(null);
   const [tumorGrades, setTumorGrades] = useState<{ grade: string; count: number }[]>([]);
@@ -137,7 +137,8 @@ const NeuroSpecialtyPage = () => {
   const handleAnalyze = async () => {
     setAnalyzing(true);
     try {
-      const res = await neuroSpecialtyApi.analyze();
+      const target = studies.find(r => r.type === 'stroke')?.id;
+      const res = await neuroSpecialtyApi.analyze(target);
       if (!res.success) setError(res.error?.message ?? '急诊分析失败');
     } catch {
       setError('急诊分析失败，请稍后重试');
@@ -154,7 +155,7 @@ const NeuroSpecialtyPage = () => {
           <p style={s.subtitle}>神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
             <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: '#1e40af' }}>
-              数据来源: /neuro/* API（MSW 演示数据）
+              数据来源: /neuro/* API（后端真实 · Exam 派生 + seed 回退）
             </span>
             {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: '#dc2626' }}>{error}</span>}
           </div>

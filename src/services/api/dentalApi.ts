@@ -259,6 +259,42 @@ export const dentalApi = {
   savePsrRecord: (patientId: string, data: any) =>
     api.post<any>(`${DENTAL_API}/chart/${patientId}/psr`, data),
 
+  // ===== [G005 Wave1B] 正畸 ortho (DentalOrthoPage / DentalAlignerPage, 后端 /dental/ortho/*) =====
+  listOrthoPlans: () => api.get<any[]>(`${DENTAL_API}/ortho/plans`),
+  createOrthoPlan: (data: any) => api.post<any>(`${DENTAL_API}/ortho/plans`, data),
+  getOrthoPlan: (id: string) => api.get<any>(`${DENTAL_API}/ortho/plans/${encodeURIComponent(id)}`),
+  analyzeDentalArch: (data?: any) =>
+    api.post<any>(`${DENTAL_API}/ortho/arch-analysis`, data ?? {}),
+  listAlignerPlans: () => api.get<any[]>(`${DENTAL_API}/ortho/aligner-plans`),
+  createAlignerPlan: (data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans`, data),
+  getAlignerPlan: (id: string) => api.get<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}`),
+  getAlignerStages: (id: string) => api.get<any[]>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/stages`),
+  generateAlignerStages: (id: string) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/stages`),
+  getAlignerProgress: (id: string) => api.get<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/progress`),
+  updateAlignerProgress: (id: string, data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/progress`, data),
+  approveAlignerPlan: (id: string) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/approve`, {}),
+  orderAlignerLab: (id: string, data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/order-lab`, data),
+
+  // ===== [G005 Wave1B] 头影测量 ceph (DentalCephPage, 后端 /dental/ceph/*) =====
+  listCephStudies: (params?: { patientId?: string }) =>
+    api.get<any[]>(`${DENTAL_API}/ceph/studies${params?.patientId ? '?patientId=' + encodeURIComponent(params.patientId) : ''}`),
+  getCephStudy: (id: string) => api.get<any>(`${DENTAL_API}/ceph/studies/${encodeURIComponent(id)}`),
+  createCephStudy: (data: any) => api.post<any>(`${DENTAL_API}/ceph/studies`, data),
+  getCephAnalysisTypes: () => api.get<any[]>(`${DENTAL_API}/ceph/analysis-types`),
+  getCephLandmarks: (studyId?: string) =>
+    api.get<any>(`${DENTAL_API}/ceph/${studyId ? encodeURIComponent(studyId) + '/landmarks' : 'landmarks'}`),
+  saveCephLandmarks: (studyId: string, landmarks: Record<string, { x: number; y: number }>) =>
+    api.put<any>(`${DENTAL_API}/ceph/${encodeURIComponent(studyId)}/landmarks`, { landmarks }),
+  getCephAnalysis: (studyId: string) => api.get<any>(`${DENTAL_API}/ceph/${encodeURIComponent(studyId)}/analysis`),
+  runCephAnalysis: (studyId: string, type: string) =>
+    api.post<any>(`${DENTAL_API}/ceph/${encodeURIComponent(studyId)}/analysis`, { type }),
+
+  // ===== [G005 Wave1B] CBCT 体绘制 (DentalVolumeViewerPage, 后端 /dental/volume/*) =====
+  listVolumeStudies: () => api.get<any[]>(`${DENTAL_API}/volume/studies`),
+  getVolumeStudy: (id: string) => api.get<any>(`${DENTAL_API}/volume/studies/${encodeURIComponent(id)}`),
+  listVolumePresets: () => api.get<any[]>(`${DENTAL_API}/volume/presets`),
+  applyVolumePreset: (id: string) => api.post<any>(`${DENTAL_API}/volume/presets/${encodeURIComponent(id)}/apply`, {}),
+
   // [v3.0.6.11-96 Wave2A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用, 后端 /dental/patients/:id/overview*)
   getPatientOverview: (patientId: string) =>
     api.get<any>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview`),

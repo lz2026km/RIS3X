@@ -96,8 +96,10 @@ const VNADashboardPage: React.FC = () => {
   const [patientLoading, setPatientLoading] = useState(false)
 
   // [G-26] ILM 生命周期
-  const [policies, setPolicies] = useState<LifecyclePolicy[]>([])
-  const [events, setEvents] = useState<LifecycleEvent[]>([])
+const [policies, setPolicies] = useState<LifecyclePolicy[]>([])
+const [events, setEvents] = useState<LifecycleEvent[]>([])
+// [v3.0.6.11-99 Wave8A P1] 生命周期事件表分页受控化
+const { pageData: eventPageData, pagination: eventPagination } = usePagination(events, 8)
   const [lifecycleLoading, setLifecycleLoading] = useState(false)
   const [policyModalOpen, setPolicyModalOpen] = useState(false)
   const [editingPolicy, setEditingPolicy] = useState<LifecyclePolicy | null>(null)
@@ -678,8 +680,8 @@ const VNADashboardPage: React.FC = () => {
                       rowKey="id"
                       size="small"
                       scroll={{ x: 'max-content' }}
-                      dataSource={events}
-                      pagination={{ pageSize: 8, showSizeChanger: false }}
+                      dataSource={eventPageData}
+                      pagination={eventPagination}
                       columns={[
                         { title: '时间', dataIndex: 'createdAt', key: 'at', width: 160, render: (v: string) => formatDate(v) },
                         { title: '对象', dataIndex: 'objectName', key: 'name', ellipsis: true },

@@ -1,1 +1,9 @@
-{}
+{
+  "patientId": "患者 ID",
+  "startScoring": "开始评分",
+  "loadHistory": "加载历史",
+  "confidence": "置信度",
+  "findings": "影像所见",
+  "recommendations": "处理建议",
+  "historyTrend": "分级趋势"
+}

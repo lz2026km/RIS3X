@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { message } from 'antd'
 import { Bell, BellOff, Send, Trash2, Clock, CheckCircle, AlertTriangle, Filter } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
-import { mobileApi } from '../../services/api'
+import { mobileApi, notificationsApi } from '../../services/api'
 import type { PushPayload, PushSubscription } from '../../types/mobile'
+import type { NotificationSubscriptionType } from '../../services/api/notificationsApi'
 
 interface PushNotificationItem {
   id: string
@@ -29,6 +30,28 @@ const TOPIC_LABELS: Record<string, string> = {
   report: '报告',
   appointment: '预约',
   system: '系统',
+}
+
+// [v3.0.6.11-99 Wave7B] 推送订阅类型 (与通知中心订阅管理共享后端 GET/PUT /notifications/subscriptions)
+const SUBSCRIPTION_OPTIONS: Array<{ key: NotificationSubscriptionType; label: string }> = [
+  { key: 'CRITICAL', label: '危急值' },
+  { key: 'REPORT', label: '报告完成' },
+  { key: 'FOLLOWUP', label: '随访提醒' },
+  { key: 'QUALITY', label: '质控通知' },
+  { key: 'SYSTEM', label: '系统公告' },
+]
+
+const SUB_STORAGE_KEY = 'notify-subscription-types'
+
+function loadLocalSubTypes(): string[] {
+  try {
+    const raw = localStorage.getItem(SUB_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[]
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* ignore */ }
+  return ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
 }
 
 /**
@@ -58,6 +81,30 @@ export default function MobilePushPage() {
   const [showTestPanel, setShowTestPanel] = useState(false)
   const [testTitle, setTestTitle] = useState('测试推送通知')
   const [testBody, setTestBody] = useState('这是一条测试推送消息')
+  // [v3.0.6.11-99 Wave7B] 推送订阅类型: 后端 /notifications/subscriptions + localStorage 持久化
+  const [subTypes, setSubTypes] = useState<string[]>(loadLocalSubTypes)
+
+  useEffect(() => {
+    void (async () => {
+      const res = await notificationsApi.getSubscriptions('demo-user')
+      if (res.success && res.data?.types?.length) {
+        setSubTypes(res.data.types)
+        localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(res.data.types))
+      }
+    })()
+  }, [])
+
+  const toggleSubType = (t: NotificationSubscriptionType) => {
+    const next = subTypes.includes(t)
+      ? t === 'CRITICAL' ? subTypes : subTypes.filter(x => x !== t)
+      : [...subTypes, t]
+    const finalTypes = next.length > 0 ? next : ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
+    setSubTypes(finalTypes)
+    localStorage.setItem(SUB_STORAGE_KEY, JSON.stringify(finalTypes))
+    void notificationsApi.updateSubscriptions('demo-user', finalTypes as NotificationSubscriptionType[]).then(res => {
+      if (!res.success) console.warn('[push] subscription update failed', res.error?.message)
+    })
+  }
 
   useEffect(() => {
     setPushPermission(pushService.permission)
@@ -298,6 +345,33 @@ export default function MobilePushPage() {
           </button>
         </div>
       )}
+
+      {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
+      <div style={{ ...cardStyle, padding: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>推送订阅类型</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {SUBSCRIPTION_OPTIONS.map(opt => {
+            const checked = subTypes.includes(opt.key)
+            return (
+              <button
+                key={opt.key}
+                onClick={() => toggleSubType(opt.key)}
+                style={{
+                  padding: '5px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                  background: checked ? (opt.key === 'CRITICAL' ? '#dc2626' : '#1e40af') : 'var(--bg-card)',
+                  color: checked ? '#fff' : '#64748b',
+                  opacity: opt.key === 'CRITICAL' && !checked ? 0.5 : 1,
+                }}
+              >
+                {checked ? '✓ ' : ''}{opt.label}
+              </button>
+            )
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
+          订阅设置与通知中心同步（GET/PUT /notifications/subscriptions），危急值通知始终推荐开启。
+        </div>
+      </div>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

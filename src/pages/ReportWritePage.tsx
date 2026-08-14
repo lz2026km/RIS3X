@@ -21,13 +21,15 @@ import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { sanitizeHtml } from '@utils/sanitization';
 import { getCurrentUser } from '@utils/auth';
 import { resolveTemplateVariables, describeTemplateVariables, collectTemplateVariables, variablesTooltipTitle } from '@utils/templateVariables';
+// [v3.0.6.11-99 Wave 2A 报告批注] 书写页批注面板 (右侧抽屉 Tab)
+import ReportAnnotationPanel from '@components/report/ReportAnnotationPanel';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { displayStatus, toEnState } from '@components/report/statusMeta';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse, Checkbox, Radio,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy} from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy, MessageSquareText, Ruler, Plus, Trash2, Download } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Inbox, SearchX } from 'lucide-react'
@@ -537,6 +539,87 @@ export default function ReportWritePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // [G005 v3.0.6.11-99 Wave 4B] 测量入报告 (SR 段落): 数据源 = 影像浏览器 sessionStorage 导出 + 手动添加
+  type MeasureRow = { type: string; typeLabel: string; label: string; value: number | string; unit: string; location: string };
+  const [measureRows, setMeasureRows] = useState<MeasureRow[]>([]);
+  const [measureDraft, setMeasureDraft] = useState<{ type: string; location: string; value: string; unit: string }>({ type: 'line', location: '', value: '', unit: 'mm' });
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('g005_measurements_v1');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? '长度'), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
+      }
+    } catch { /* storage 不可用则忽略 */ }
+  }, []);
+  const importMeasureRows = useCallback(() => {
+    try {
+      const raw = sessionStorage.getItem('g005_measurements_v1');
+      if (!raw) {
+        message.info('影像浏览器暂无测量数据: 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加');
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? '长度'), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
+        message.success(`已从影像浏览器导入 ${parsed.length} 条测量数据`);
+      } else {
+        message.info('影像浏览器暂无测量数据, 可手动添加测量行');
+      }
+    } catch {
+      message.info('测量数据读取失败, 可手动添加测量行');
+    }
+  }, []);
+  const addMeasureRow = useCallback(() => {
+    const typeMeta: Record<string, { label: string; unit: string }> = {
+      line: { label: '长度', unit: 'mm' }, angle: { label: '角度', unit: '°' }, cobb: { label: 'Cobb角', unit: '°' },
+      ellipse: { label: '椭圆面积', unit: 'mm²' }, rectangle: { label: '矩形面积', unit: 'mm²' }, circle: { label: '圆面积', unit: 'mm²' },
+      polygon: { label: '多边形面积', unit: 'mm²' }, ctvalue: { label: 'CT值', unit: 'HU' }, volume: { label: '体积', unit: 'cm³' },
+    };
+    const meta = typeMeta[measureDraft.type] ?? typeMeta.line!;
+    const val = Number(measureDraft.value);
+    if (!Number.isFinite(val) || String(measureDraft.value).trim() === '') {
+      message.warning('请输入测量数值');
+      return;
+    }
+    const row: MeasureRow = {
+      type: measureDraft.type,
+      typeLabel: meta.label,
+      label: measureDraft.location ? `${meta.label} · ${measureDraft.location}` : meta.label,
+      value: val,
+      unit: measureDraft.unit || meta.unit,
+      location: measureDraft.location,
+    };
+    setMeasureRows((prev) => [...prev, row]);
+    setMeasureDraft((d) => ({ ...d, value: '', location: '' }));
+  }, [measureDraft]);
+  const removeMeasureRow = useCallback((idx: number) => {
+    setMeasureRows((prev) => prev.filter((_, i) => i !== idx));
+  }, []);
+  const escHtml = useCallback((v: unknown): string =>
+    String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch), []);
+  const buildMeasureTableHtml = useCallback((): string => {
+    const TABLE_CSS = 'border-collapse:collapse;width:100%;margin:8px 0;';
+    const TH_CSS = 'border:1px solid #cbd5e1;padding:6px 8px;background:#f1f5f9;font-weight:600;text-align:left;';
+    const TD_CSS = 'border:1px solid #cbd5e1;padding:6px 8px;';
+    const rows = measureRows.map((r, i) =>
+      `<tr><td style="${TD_CSS}">${i + 1}</td><td style="${TD_CSS}">${escHtml(r.typeLabel)}</td><td style="${TD_CSS}">${escHtml(r.location || '-')}</td><td style="${TD_CSS}">${escHtml(r.label)}</td><td style="${TD_CSS}">${escHtml(r.value)}</td><td style="${TD_CSS}">${escHtml(r.unit)}</td></tr>`,
+    ).join('');
+    return [
+      '<h3>影像测量数据</h3>',
+      `<table style="${TABLE_CSS}"><thead><tr><th style="${TH_CSS}">#</th><th style="${TH_CSS}">测量类型</th><th style="${TH_CSS}">部位</th><th style="${TH_CSS}">描述</th><th style="${TH_CSS}">数值</th><th style="${TH_CSS}">单位</th></tr></thead><tbody>${rows}</tbody></table>`,
+    ].join('\n');
+  }, [measureRows, escHtml]);
+  const handleInsertMeasurement = useCallback(() => {
+    if (measureRows.length === 0) {
+      message.info('暂无测量数据: 可从影像浏览器导入或手动添加后生成');
+      return;
+    }
+    editorRef.current?.insertHtml(buildMeasureTableHtml());
+    message.success('测量表已插入报告正文 (SR 段落)');
+  }, [measureRows, buildMeasureTableHtml]);
+
   const runQualityEvaluate = useCallback(async (opts?: { force?: boolean }) => {
     const rid = reportId ?? (context as any).reportId;
     if (!rid) return;
@@ -633,6 +716,51 @@ export default function ReportWritePage() {
   const contextRef = useRef(context);
   useEffect(() => { contextRef.current = context; });
 
+  // [v3.0.6.11-99 G-20] RADS 评分段落插入通道: AI 评分页等外部页面 dispatch report-insert-html → 编辑器
+  //   跨页导航兜底: localStorage 待插入队列 (ris_rads_pending_insert), 报告加载完成后补插
+  const radsPendingRef = useRef('');
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { html?: string } | undefined;
+      if (!detail?.html) return;
+      editorRef.current?.insertHtml(detail.html);
+      message.success('已插入 AI RADS 评分段落');
+    };
+    window.addEventListener('report-insert-html', handler);
+    try {
+      const pending = window.localStorage.getItem('ris_rads_pending_insert');
+      if (pending) {
+        window.localStorage.removeItem('ris_rads_pending_insert');
+        if (pending.length > 0) radsPendingRef.current = pending;
+      }
+    } catch { /* 忽略 */ }
+    return () => window.removeEventListener('report-insert-html', handler);
+  }, []);
+  // 报告内容异步加载可能多次整篇回填(首次 + IDB 延迟补读), 轮询等待编辑器内容稳定后再补插 RADS 段落
+  useEffect(() => {
+    if (!radsPendingRef.current) return;
+    const html = radsPendingRef.current;
+    let lastLen = -1;
+    let stableCount = 0;
+    const timer = window.setInterval(() => {
+      const ed = document.querySelector('[contenteditable="true"]');
+      const len = ed ? (ed as HTMLElement).innerHTML.length : 0;
+      if (len > 0 && len === lastLen) {
+        stableCount += 1;
+        if (stableCount >= 2) {
+          window.clearInterval(timer);
+          editorRef.current?.insertHtml(html);
+          radsPendingRef.current = '';
+          message.success('已插入 AI RADS 评分段落 (跨页补插)');
+        }
+      } else {
+        stableCount = 0;
+      }
+      lastLen = len;
+    }, 600);
+    return () => window.clearInterval(timer);
+  }, []);
+
   // [W2-2] 报告模板选择器 (自由文本模板)
   const [templateList, setTemplateList] = useState<any[]>([]);
   const [templateLoading, setTemplateLoading] = useState(true);
@@ -659,6 +787,19 @@ export default function ReportWritePage() {
       }
     } catch { /* 忽略 */ }
     return '';
+  }, []);
+  // [v3.0.6.11-99 Wave 2A 报告批注] 当前登录用户 (id+name) → 批注面板
+  const annotationCurrentUser = useMemo(() => {
+    const mem = getCurrentUser();
+    if (mem?.id) return { id: mem.id, name: mem.name || '当前用户' };
+    try {
+      const raw = localStorage.getItem('ris_current_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u?.id) return { id: String(u.id), name: String(u.fullName ?? u.username ?? '当前用户') };
+      }
+    } catch { /* 忽略 */ }
+    return { id: 'A001', name: '当前用户' };
   }, []);
   // [W2-2] 短语库
   const [phraseOpen, setPhraseOpen] = useState(false);
@@ -1472,6 +1613,8 @@ export default function ReportWritePage() {
     { key: 'kw', label: <Space size={4}><TagIcon className="w-3 h-3" />关键词</Space>, children: null },
     { key: 'compliance', label: <Space size={4}><ListChecks className="w-3 h-3" />合规</Space>, children: null },
     { key: 'collab', label: <Space size={4}><Eye className="w-3 h-3" />协作</Space>, children: null },
+    // [v3.0.6.11-99 Wave 2A 报告批注] 书写页批注面板 (引用选中文本/定位正文)
+    { key: 'annotations', label: <Space size={4}><MessageSquareText className="w-3 h-3" />批注</Space>, children: null },
   ], []);
 
   const renderActiveTab = () => {
@@ -1485,6 +1628,17 @@ export default function ReportWritePage() {
       case 'kw': return <KWTab keywords={kwSource === 'api' ? kwHighlights : KEYWORD_HIGHLIGHTS_MOCK} source={kwSource} />;
       case 'compliance': return <ComplianceTab evaluation={qualityEval} />;
       case 'collab': return <CollabTab />;
+      // [v3.0.6.11-99 Wave 2A 报告批注] 书写页批注: editorSelector 指向富文本编辑器 (选区引用/定位)
+      case 'annotations': return (
+        <ReportAnnotationPanel
+          reportId={reportId ?? ''}
+          currentUser={annotationCurrentUser}
+          compact
+          maxHeight={560}
+          testIdPrefix="write-annotations"
+          editorSelector={'.v3-content [contenteditable="true"]'}
+        />
+      );
       default: return null;
     }
   };
@@ -1654,16 +1808,17 @@ export default function ReportWritePage() {
           )}
           <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span><Tag color="orange" className="text-[10px]" title="患者/检查无真实数据时保留本地兜底值并标注来源">示例数据</Tag></Space>}>
             <div className="v3-clinical-grid">
-              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>{(context.gender || '男')} / {(context.age || 58)} 岁</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}{!context.patientName && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>{(context.gender || '男')} / {(context.age || 58)} 岁{!context.gender && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
               <div className="v3-clinical-item"><div className="v3-clinical-label">检查号</div><div className="v3-clinical-code">{context.patientId}</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>{context.clinicalDiagnosis || '右肺占位性病变'}</div></div>
+              {/* [v3.0.6.11-99 Wave8A P1] 临床信息 fallback 行级来源标注 */}
+              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>{context.clinicalDiagnosis || '右肺占位性病变'}{!context.clinicalDiagnosis && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
               <div className="v3-clinical-full">
                 <b>报告状态:</b>{' '}
                 {statusRaw ? displayStatus(statusRaw) : '草稿'}<br />
-                <b>主诉:</b>体检发现右肺结节 1 周<br />
-                <b>现病史:</b>患者 1 周前体检发现右肺上叶结节<br />
-                <b>既往史:</b>无肿瘤病史
+                <b>主诉:</b>体检发现右肺结节 1 周 <span className="text-[10px] text-orange-500">（示例）</span><br />
+                <b>现病史:</b>患者 1 周前体检发现右肺上叶结节 <span className="text-[10px] text-orange-500">（示例）</span><br />
+                <b>既往史:</b>无肿瘤病史 <span className="text-[10px] text-orange-500">（示例）</span>
               </div>
             </div>
           </Card>
@@ -1695,13 +1850,14 @@ export default function ReportWritePage() {
                       }
                       return (
                         <>
+                          {/* [v3.0.6.11-99 Wave8A P1] 无真实影像数据时保留 mock 缩略图渲染 + 「示例影像」标注 */}
                           <div className="flex flex-col items-center gap-1">
                             <img src="/mock/thumb-ct-001.png" alt="CT-1" loading="lazy" className="w-36 h-28 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onClick={() => openViewer()} />
-                            <span className="text-xs text-slate-500">CT 横断面</span>
+                            <span className="text-xs text-slate-500">CT 横断面 <Tag color="orange" className="text-[10px]">示例影像</Tag></span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <img src="/mock/thumb-ct-002.png" alt="CT-2" loading="lazy" className="w-36 h-28 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onClick={() => openViewer()} />
-                            <span className="text-xs text-slate-500">CT 增强</span>
+                            <span className="text-xs text-slate-500">CT 增强 <Tag color="orange" className="text-[10px]">示例影像</Tag></span>
                           </div>
                         </>
                       );
@@ -1716,6 +1872,46 @@ export default function ReportWritePage() {
                 ),
               }]}
             />
+          </Card>
+
+          {/* [G005 v3.0.6.11-99 Wave 4B] 测量入报告: 影像测量结果 (sessionStorage 导入) + 手动添加 → SR 测量表 */}
+          <Card size="small" className="v3-card no-print" title={<Space><Ruler className="w-4 h-4 text-emerald-500" /><span>影像测量</span><Tag color="green">SR 段落</Tag></Space>}
+            extra={<Space>
+              <Button size="small" icon={<Download className="w-3 h-3" />} onClick={importMeasureRows}>从影像浏览器导入</Button>
+              <Button size="small" type="primary" icon={<FileText className="w-3 h-3" />} disabled={measureRows.length === 0} onClick={handleInsertMeasurement}>插入测量表</Button>
+            </Space>}>
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <Select size="small" style={{ width: 110 }} value={measureDraft.type}
+                onChange={(v) => setMeasureDraft((d) => ({ ...d, type: String(v) }))}
+                options={[
+                  { value: 'line', label: '长度 (mm)' }, { value: 'angle', label: '角度 (°)' }, { value: 'cobb', label: 'Cobb角 (°)' },
+                  { value: 'ellipse', label: '椭圆面积' }, { value: 'rectangle', label: '矩形面积' }, { value: 'circle', label: '圆面积' },
+                  { value: 'polygon', label: '多边形面积' }, { value: 'ctvalue', label: 'CT值 (HU)' }, { value: 'volume', label: '体积 (cm³)' },
+                ]} />
+              <Input size="small" style={{ width: 110 }} placeholder="部位/位置" value={measureDraft.location}
+                onChange={(e) => setMeasureDraft((d) => ({ ...d, location: e.target.value }))} />
+              <Input size="small" style={{ width: 90 }} placeholder="数值" value={measureDraft.value}
+                onChange={(e) => setMeasureDraft((d) => ({ ...d, value: e.target.value }))} />
+              <Select size="small" style={{ width: 80 }} value={measureDraft.unit}
+                onChange={(v) => setMeasureDraft((d) => ({ ...d, unit: String(v) }))}
+                options={[{ value: 'mm', label: 'mm' }, { value: '°', label: '°' }, { value: 'mm²', label: 'mm²' }, { value: 'HU', label: 'HU' }, { value: 'cm³', label: 'cm³' }]} />
+              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={addMeasureRow}>添加</Button>
+            </div>
+            {measureRows.length === 0 ? (
+              <div className="text-xs text-slate-400 py-2">暂无测量数据 — 在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行</div>
+            ) : (
+              <div className="flex flex-col gap-1 max-h-56 overflow-auto">
+                {measureRows.map((r, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs border border-slate-100 rounded px-2 py-1.5">
+                    <Tag color="green" className="w-20 text-center">{r.typeLabel}</Tag>
+                    <span className="text-slate-500 w-24 truncate">{r.location || '-'}</span>
+                    <span className="text-slate-700 flex-1 truncate">{r.label}</span>
+                    <span className="font-bold text-emerald-600">{r.value} {r.unit}</span>
+                    <Button size="small" type="text" danger icon={<Trash2 className="w-3 h-3" />} onClick={() => removeMeasureRow(i)} />
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           <Card size="small" className="v3-card no-print" title={<Space><FileText className="w-4 h-4 text-blue-500" /><span>结构化字段</span><Tag color="blue">RECIST 1.1</Tag></Space>}>

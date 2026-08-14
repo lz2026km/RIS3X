@@ -41,6 +41,19 @@ export interface S3Response {
 
 export type S3Requester = (req: S3RequestInit) => Promise<S3Response>
 
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] 驱动来源标注: 真实 SigV4 原生 / 内存模拟
+export type S3DriverSource = 'aws-sigv4-native' | 'simulated'
+
+export interface S3DeleteManyResult {
+  deleted: string[]
+  errors: Array<{ key: string; code: string }>
+}
+
+export interface S3CopyResult {
+  etag?: string
+  lastModified?: string
+}
+
 const EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 
 function sha256Hex(input: Buffer | string): string {
@@ -49,6 +62,16 @@ function sha256Hex(input: Buffer | string): string {
 
 function hmac(key: Buffer, data: string): Buffer {
   return crypto.createHmac('sha256', key).update(data, 'utf8').digest()
+}
+
+/** XML 特殊字符转义 (批量删除 payload) */
+function xmlEscape(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
 }
 
 /** RFC 3986 编码: 保留 / 不转义, 用于 S3 canonical URI/query */
@@ -69,6 +92,8 @@ function extractXmlTag(xml: string, tag: string): string | undefined {
 
 export class S3StorageDriver implements StorageDriver {
   readonly name = 's3'
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 驱动来源: 真实 AWS SigV4 原生 HTTP 实现 */
+  readonly source: S3DriverSource = 'aws-sigv4-native'
   private readonly endpoint: URL
   private readonly bucket: string
   private readonly accessKey: string
@@ -127,8 +152,8 @@ export class S3StorageDriver implements StorageDriver {
     })
   }
 
-  private buildUrl(objectKey?: string, query?: Record<string, string>): string {
-    const bucketPath = `/${this.bucket}`
+  private buildUrl(bucket: string, objectKey?: string, query?: Record<string, string>): string {
+    const bucketPath = `/${bucket}`
     const keyPath = objectKey ? `/${objectKey.split('/').map(uriEncode).join('/')}` : ''
     const qs = query
       ? '?' +
@@ -141,8 +166,10 @@ export class S3StorageDriver implements StorageDriver {
   }
 
   /**
-   * AWS Signature V4 简化签名 (path-style):
+   * AWS Signature V4 签名 (path-style):
    * canonicalRequest = METHOD\ncanonicalUri\ncanonicalQuery\ncanonicalHeaders\nsignedHeaders\npayloadHash
+   * [G005 v3.0.6.11-99 Wave 7A (G-28)] 深化: 全部 x-amz-* 头 (含 x-amz-copy-source /
+   * x-amz-meta-*) + host 均参与签名, 符合 AWS 官方要求, 与 AWS SDK 行为一致。
    */
   private sign(req: S3RequestInit): void {
     const url = new URL(req.url)
@@ -170,11 +197,13 @@ export class S3StorageDriver implements StorageDriver {
       .map(([k, v]) => `${k}=${v ?? ''}`)
       .join('&')
 
-    const signedHeaders = ['host', 'x-amz-content-sha256', 'x-amz-date'].sort().join(';')
-    const canonicalHeaders = ['host', 'x-amz-content-sha256', 'x-amz-date']
+    const headerNames = Object.keys(headers)
+      .map((h) => h.toLowerCase().trim())
+      .filter((h) => h === 'host' || h.startsWith('x-amz-'))
       .sort()
-      .map((h) => `${h}:${headers[h] ?? ''}\n`)
-      .join('')
+
+    const signedHeaders = headerNames.join(';')
+    const canonicalHeaders = headerNames.map((h) => `${h}:${headers[h] ?? ''}\n`).join('')
 
     const canonicalRequest = [method, canonicalUri, canonicalQuery, canonicalHeaders, signedHeaders, payloadHash].join('\n')
     const scope = `${dateStamp}/${this.region}/s3/aws4_request`
@@ -193,9 +222,13 @@ export class S3StorageDriver implements StorageDriver {
   }
 
   private async request(objectKey: string | undefined, method: string, query?: Record<string, string>, body?: Buffer, headers: Record<string, string> = {}): Promise<S3Response> {
+    return this.requestToBucket(this.bucket, objectKey, method, query, body, headers)
+  }
+
+  private async requestToBucket(bucket: string, objectKey: string | undefined, method: string, query?: Record<string, string>, body?: Buffer, headers: Record<string, string> = {}): Promise<S3Response> {
     const req: S3RequestInit = {
       method,
-      url: this.buildUrl(objectKey, query),
+      url: this.buildUrl(bucket, objectKey, query),
       headers,
       body,
     }
@@ -235,6 +268,52 @@ export class S3StorageDriver implements StorageDriver {
   async delete(key: string): Promise<void> {
     const res = await this.request(key, 'DELETE')
     this.assertOk(res, key, 'DELETE')
+  }
+
+  /**
+   * [G005 v3.0.6.11-99 Wave 7A (G-28)] 批量删除对象:
+   * POST /{bucket}?delete= 携带 <Delete> XML (AWS S3 原生语义, 等价 AWS SDK DeleteObjectsCommand)。
+   * 解析 <Deleted> / <Error> 返回成功与失败明细。
+   */
+  async deleteMany(keys: string[]): Promise<S3DeleteManyResult> {
+    if (!keys.length) return { deleted: [], errors: [] }
+    const objectsXml = keys.map((k) => `  <Object><Key>${xmlEscape(k)}</Key></Object>`).join('\n')
+    const body = Buffer.from(`<Delete>\n${objectsXml}\n</Delete>`, 'utf8')
+    const res = await this.requestToBucket(this.bucket, undefined, 'POST', { delete: '' }, body, {
+      'Content-Type': 'application/xml',
+    })
+    this.assertOk(res, '*', 'DELETE_MANY')
+    const xml = res.body.toString('utf8')
+    const deleted: string[] = []
+    const errors: Array<{ key: string; code: string }> = []
+    for (const block of xml.match(/<Deleted>[\s\S]*?<\/Deleted>/g) ?? []) {
+      const key = extractXmlTag(block, 'Key')
+      if (key) deleted.push(key)
+    }
+    for (const block of xml.match(/<Error>[\s\S]*?<\/Error>/g) ?? []) {
+      const key = extractXmlTag(block, 'Key')
+      if (key) errors.push({ key, code: extractXmlTag(block, 'Code') ?? 'Unknown' })
+    }
+    return { deleted, errors }
+  }
+
+  /**
+   * [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象复制:
+   * PUT /{targetBucket}/{targetKey} + x-amz-copy-source 头 (等价 AWS SDK CopyObjectCommand,
+   * 支持跨桶复制 targetBucket 缺省为同桶)。
+   */
+  async copy(sourceKey: string, targetKey: string, targetBucket?: string): Promise<S3CopyResult> {
+    const destBucket = targetBucket?.trim() || this.bucket
+    const encodedSource = `/${this.bucket}/${sourceKey.split('/').map(uriEncode).join('/')}`
+    const res = await this.requestToBucket(destBucket, targetKey, 'PUT', undefined, undefined, {
+      'x-amz-copy-source': encodedSource,
+    })
+    this.assertOk(res, `${sourceKey} → ${destBucket}/${targetKey}`, 'COPY')
+    const xml = res.body.toString('utf8')
+    return {
+      etag: extractXmlTag(xml, 'ETag'),
+      lastModified: extractXmlTag(xml, 'LastModified'),
+    }
   }
 
   async stat(key: string): Promise<StorageObjectMeta> {
@@ -282,7 +361,8 @@ export class S3StorageDriver implements StorageDriver {
         return {
           ok: true,
           driver: 's3',
-          detail: `S3 连接成功: ${this.endpoint.host}/${this.bucket} (region=${this.region})`,
+          source: this.source,
+          detail: `S3 连接成功: ${this.endpoint.host}/${this.bucket} (region=${this.region}, SigV4 原生)`,
           latencyMs: Date.now() - started,
         }
       }
@@ -291,6 +371,7 @@ export class S3StorageDriver implements StorageDriver {
       return {
         ok: false,
         driver: 's3',
+        source: this.source,
         detail: `S3 连接失败: ${code}${message ? ` - ${message}` : ''} (status=${res.status})`,
         latencyMs: Date.now() - started,
       }
@@ -298,6 +379,7 @@ export class S3StorageDriver implements StorageDriver {
       return {
         ok: false,
         driver: 's3',
+        source: this.source,
         detail: `S3 连接失败: ${(err as Error).message}`,
         latencyMs: Date.now() - started,
       }

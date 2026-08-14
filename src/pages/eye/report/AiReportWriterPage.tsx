@@ -34,7 +34,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
 const { TextArea } = Input;
 
@@ -193,42 +193,96 @@ export const AiReportWriterPage: React.FC = () => {
     }
   }, [aiText, condition]);
 
-  // 模拟录音
-  const handleRecord = useCallback(async () => {
-    setRecording(true);
-    setSttProgress(0);
-    const interval = setInterval(() => {
-      setSttProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setRecording(false);
-          return 100;
-        }
-        return p + 5;
+  // [v3.0.6.11-99 Wave8A P1] 真实录音: MediaRecorder 采集 → 现有 transcribe 接口 (base64);
+  // 浏览器无 navigator.mediaDevices / 麦克风不可用时回退模拟录音 + 标注
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const transcribeAudio = useCallback(async (audioBase64: string, simulated: boolean) => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    setSttProgress(100);
+    setRecording(false);
+    try {
+      const r = await fetch("/api/v1/eye/report/voice/transcribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audio: audioBase64, language: "zh-CN", condition }),
       });
-    }, 200);
-    // 30s 后停? 模拟语音转文?
-    setTimeout(async () => {
-      try {
-        const r = await fetch("/api/v1/eye/report/voice/transcribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ audio: "", language: "zh-CN", condition }),
-        });
-        const data = await r.json();
-        if (data.success) {
-          setFindings((prev) =>
-            prev ? prev + " " + data.data.text : data.data.text,
-          );
-          message.success(
-            `已识别${data.data.termsDetected?.length || 0} 个术语`,
-          );
-        }
-      } catch (e) {
-        console.warn("[F03] Error:", (e as Error)?.message);
+      const data = await r.json();
+      if (data.success) {
+        setFindings((prev) =>
+          prev ? prev + " " + data.data.text : data.data.text,
+        );
+        message.success(
+          `已识别${data.data.termsDetected?.length || 0} 个术语${simulated ? "（模拟音频）" : "（真实录音）"}`,
+        );
       }
-    }, 7000);
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+      message.warning("转写服务暂不可用");
+    }
   }, [condition]);
+
+  const handleRecord = useCallback(async () => {
+    if (recording) {
+      // 再次点击 → 停止并转写
+      mediaRecorderRef.current?.stop();
+      return;
+    }
+    const supportsRecorder =
+      typeof navigator !== "undefined" &&
+      !!navigator.mediaDevices?.getUserMedia &&
+      typeof MediaRecorder !== "undefined";
+    if (!supportsRecorder) {
+      // 回退: 模拟录音 (7s 后调用同一转写接口, 标注)
+      setRecording(true);
+      setSttProgress(0);
+      const interval = setInterval(() => {
+        setSttProgress((p) => {
+          if (p >= 100) { clearInterval(interval); return 100; }
+          return p + 5;
+        });
+      }, 200);
+      timerRef.current = interval;
+      setTimeout(() => { void transcribeAudio("", true); }, 7000);
+      message.warning("当前浏览器不支持录音，已回退模拟录音");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (ev) => {
+        if (ev.data.size > 0) chunksRef.current.push(ev.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = String(reader.result ?? "").split(",")[1] ?? "";
+          void transcribeAudio(base64, false);
+        };
+        reader.readAsDataURL(blob);
+        mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+        mediaStreamRef.current = null;
+        mediaRecorderRef.current = null;
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      mediaStreamRef.current = stream;
+      setRecording(true);
+      setSttProgress(0);
+      const interval = setInterval(() => {
+        setSttProgress((p) => (p >= 100 ? 100 : p + 5));
+      }, 200);
+      timerRef.current = interval;
+      message.success("录音中，再次点击「停止录音」并转写");
+    } catch {
+      message.error("无法访问麦克风，请检查浏览器权限设置");
+    }
+  }, [recording, transcribeAudio]);
 
   // 反馈
   const handleFeedback = useCallback(
@@ -342,14 +396,14 @@ export const AiReportWriterPage: React.FC = () => {
                       unCheckedChildren="键盘"
                     />
                     {voiceEnabled && (
-                      <Tooltip title="按住说话 7 秒">
+                      <Tooltip title="点击开始录音，再次点击停止并转写（浏览器不支持时回退模拟）">
                         <Button
                           size="small"
                           icon={<Mic size={12} />}
-                          onClick={handleRecord}
+                          onClick={() => void handleRecord()}
                           danger={recording}
                         >
-                          {recording ? "录音中.." : "开始录音"}
+                          {recording ? "录音中..点击停止" : "开始录音"}
                         </Button>
                       </Tooltip>
                     )}

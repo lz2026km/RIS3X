@@ -11,7 +11,7 @@ import {
   Mail, Smartphone, BarChart3, Send
 } from 'lucide-react'
 import { notificationsApi } from '../services/api'
-import type { NotificationDto } from '../services/api/notificationsApi'
+import type { NotificationDto, NotificationSubscriptionType } from '../services/api/notificationsApi'
 import { realtime, type RealtimePayload } from '../services/realtime'
 import { getCurrentUser } from '../utils/auth'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -259,6 +259,15 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             }}>
               {typeConfig.label}
             </span>
+            {/* [v3.0.6.11-99] Wave 5B-C: 报表订阅推送 */}
+            {notification.title.includes('报表已生成') && (
+              <span style={{
+                background: '#05966920', color: '#059669',
+                padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+              }}>
+                报表已生成
+              </span>
+            )}
             <span style={{
               background: priorityConfig.bg, color: priorityConfig.color,
               padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
@@ -475,6 +484,15 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
           }}>
             {typeConfig.label}
           </span>
+          {/* [v3.0.6.11-99] Wave 5B-C: 报表订阅推送 — 「报表已生成」通知类型 */}
+          {notification.title.includes('报表已生成') && (
+            <span style={{
+              background: '#05966920', color: '#059669',
+              padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
+            }}>
+              报表已生成
+            </span>
+          )}
           {notification.priority === 'high' && (
             <span style={{
               background: DANGER, color: WHITE,
@@ -954,6 +972,93 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
 }
 
 // ============================================================
+// [v3.0.6.11-99 Wave7B] 站内信/推送订阅管理
+// 订阅类型开关: 危急值/报告完成/随访提醒/质控通知/系统公告
+// 后端 GET/PUT /notifications/subscriptions/:userId, 失败回退 localStorage
+// ============================================================
+const SUBSCRIPTION_DEFS: Array<{ key: NotificationSubscriptionType; label: string; desc: string; icon: React.ReactNode }> = [
+  { key: 'CRITICAL', label: '危急值通知', desc: '危急检查结果实时提醒', icon: <AlertTriangle size={16} /> },
+  { key: 'REPORT', label: '报告完成', desc: '报告审核完成通知', icon: <FileText size={16} /> },
+  { key: 'FOLLOWUP', label: '随访提醒', desc: '随访计划到期提醒', icon: <Calendar size={16} /> },
+  { key: 'QUALITY', label: '质控通知', desc: '质控与缺陷整改通知', icon: <BarChart3 size={16} /> },
+  { key: 'SYSTEM', label: '系统公告', desc: '系统维护与升级公告', icon: <Settings size={16} /> },
+]
+
+const DEFAULT_SUBSCRIPTION_TYPES: NotificationSubscriptionType[] = ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
+
+const SUBSCRIPTION_STORAGE_KEY = 'notify-subscription-types'
+
+function loadLocalSubscriptions(): NotificationSubscriptionType[] {
+  try {
+    const raw = localStorage.getItem(SUBSCRIPTION_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[]
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const allowed = new Set(DEFAULT_SUBSCRIPTION_TYPES)
+        const valid = parsed.filter((t): t is NotificationSubscriptionType => allowed.has(t as NotificationSubscriptionType))
+        if (valid.length > 0) return valid
+      }
+    }
+  } catch { /* ignore */ }
+  return [...DEFAULT_SUBSCRIPTION_TYPES]
+}
+
+function SubscriptionPanel({
+  types,
+  onToggle,
+  saving,
+}: {
+  types: NotificationSubscriptionType[]
+  onToggle: (t: NotificationSubscriptionType) => void
+  saving?: boolean
+}) {
+  return (
+    <div style={{
+      background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)',
+      padding: 16, marginTop: 12,
+    }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <BellRing size={16} />
+        订阅管理
+        {saving && <span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>保存中...</span>}
+      </div>
+      <div style={{ fontSize: 12, color: GRAY, marginBottom: 12 }}>选择需要接收的站内信 / 推送通知类型（危急值通知始终推荐开启）</div>
+      {SUBSCRIPTION_DEFS.map(def => {
+        const checked = types.includes(def.key)
+        return (
+          <div key={def.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ color: checked ? def.key === 'CRITICAL' ? DANGER : ACCENT : GRAY }}>{def.icon}</div>
+              <div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{def.label}</div>
+                <div style={{ fontSize: 11, color: GRAY }}>{def.desc}</div>
+              </div>
+            </div>
+            <div
+              onClick={() => onToggle(def.key)}
+              style={{
+                width: 40, height: 22, borderRadius: 11, cursor: 'pointer',
+                background: checked ? (def.key === 'CRITICAL' ? DANGER : ACCENT) : '#e2e8f0', position: 'relative',
+                transition: 'background 0.2s', flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', background: 'var(--bg-card)',
+                position: 'absolute', top: 2, transition: 'left 0.2s',
+                left: checked ? 20 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+              }} />
+            </div>
+          </div>
+        )
+      })}
+      <div style={{ marginTop: 12, padding: 8, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+        订阅设置实时同步至服务端；后端不可用时保存于本地浏览器。
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // 后端类型映射
 // ============================================================
 function mapNotificationType(type: string): SystemNotification['type'] {
@@ -1121,6 +1226,34 @@ export default function NotificationCenter() {
   const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null)
   const [pushSubscribed, setPushSubscribed] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)
+
+  // [v3.0.6.11-99 Wave7B] 订阅管理: 后端 GET/PUT /notifications/subscriptions/:userId + localStorage 兜底
+  const [subscriptionTypes, setSubscriptionTypes] = useState<NotificationSubscriptionType[]>(loadLocalSubscriptions)
+  const [subSaving, setSubSaving] = useState(false)
+
+  useEffect(() => {
+    void (async () => {
+      const res = await notificationsApi.getSubscriptions(userId)
+      if (res.success && res.data?.types && res.data.types.length > 0) {
+        setSubscriptionTypes(res.data.types)
+        localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(res.data.types))
+      }
+    })()
+  }, [userId])
+
+  const handleSubscriptionToggle = useCallback((t: NotificationSubscriptionType) => {
+    setSubSaving(true)
+    // 危急值通知始终保持开启 (业务硬性要求, 与设置面板既有提示一致)
+    const next = subscriptionTypes.includes(t)
+      ? t === 'CRITICAL' ? subscriptionTypes : subscriptionTypes.filter(x => x !== t)
+      : [...subscriptionTypes, t]
+    const finalTypes = next.length > 0 ? next : [...DEFAULT_SUBSCRIPTION_TYPES]
+    setSubscriptionTypes(finalTypes)
+    localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(finalTypes))
+    void notificationsApi.updateSubscriptions(userId, finalTypes).then(res => {
+      if (!res.success) setLoadError(`订阅保存失败: ${res.error?.message ?? '未知错误'}（已保存于本地）`)
+    }).finally(() => setSubSaving(false))
+  }, [userId, subscriptionTypes])
 
   useEffect(() => {
     void (async () => {
@@ -1653,6 +1786,7 @@ export default function NotificationCenter() {
               {showSettings && (
                 <div>
                   <SettingsPanel settings={settings} onUpdate={handleSettingUpdate} />
+                  <SubscriptionPanel types={subscriptionTypes} onToggle={handleSubscriptionToggle} saving={subSaving} />
                   <div style={{ marginTop: 12 }}>
                     <RulesEnginePanel rules={rules} onToggle={(id) => setRules(prev => prev.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r))}
                       onDelete={(id) => setRules(prev => prev.filter(r => r.id !== id))} />

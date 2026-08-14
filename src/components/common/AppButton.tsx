@@ -94,13 +94,13 @@ function resolveVariantStyle(variant: AppButtonVariant): CSSProperties {
       };
     case "default":
       return {
-        background: "#fff",
+        background: "var(--bg-card, #fff)",
         borderColor: "var(--c-border, #e2e8f0)",
         color: "var(--c-text, #1e293b)",
       };
     case "dashed":
       return {
-        background: "#fff",
+        background: "var(--bg-card, #fff)",
         borderColor: "var(--c-border, #e2e8f0)",
         borderStyle: "dashed",
         color: "var(--c-text, #1e293b)",

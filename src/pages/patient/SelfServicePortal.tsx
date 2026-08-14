@@ -426,22 +426,30 @@ export default function SelfServicePortal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loggedIn])
 
-  // [v3.0.6.11-96 Wave3B G-30 P2] 加载当前患者随访计划 (followupApi.list), 失败回退演示 + 标注
+  // [v3.0.6.11-96 Wave3B G-30 P2] 加载当前患者随访计划
+  // [v3.0.6.11-99 Wave7B] 移动 H5: 优先 patient-portal 随访端点, 失败回退 followupApi → 演示数据 + 标注
   useEffect(() => {
     if (!loggedIn || !user?.id) return
     let cancelled = false
     void (async () => {
       setFollowupLoading(true)
       try {
-        const res = await followupApi.list({ patientId: user.id })
+        const portalRes = await patientPortalApi.listFollowups(user.id)
         if (cancelled) return
-        const items = res.success ? ((res.data as any)?.items ?? []) : []
-        if (res.success && items.length > 0) {
-          setFollowups(items)
+        if (portalRes.success && Array.isArray(portalRes.data) && portalRes.data.length > 0) {
+          setFollowups(portalRes.data as unknown as FollowUpPlan[])
           setFollowupSource('api')
         } else {
-          setFollowups(MOCK_FOLLOWUPS.map((f, i) => ({ ...f, id: `FU-DEMO-${i + 1}`, createdAt: '', updatedAt: '' })) as FollowUpPlan[])
-          setFollowupSource('fallback')
+          const res = await followupApi.list({ patientId: user.id })
+          if (cancelled) return
+          const items = res.success ? ((res.data as any)?.items ?? []) : []
+          if (res.success && items.length > 0) {
+            setFollowups(items)
+            setFollowupSource('api')
+          } else {
+            setFollowups(MOCK_FOLLOWUPS.map((f, i) => ({ ...f, id: `FU-DEMO-${i + 1}`, createdAt: '', updatedAt: '' })) as FollowUpPlan[])
+            setFollowupSource('fallback')
+          }
         }
       } catch {
         if (cancelled) return
@@ -504,13 +512,17 @@ export default function SelfServicePortal() {
     }
   }
 
-  // [v3.0.6.11-96 Wave3B G-30 P2] 完成登记 (followupApi.complete), 失败回退本地标注
+  // [v3.0.6.11-96 Wave3B G-30 P2] 完成登记
+  // [v3.0.6.11-99 Wave7B] 移动 H5: 优先 patient-portal 完成端点, 失败回退 followupApi → 本地标注
   const completeFollowup = async (plan: FollowUpPlan) => {
     setFollowupCompletingId(plan.id)
     try {
-      const res = await followupApi.complete(plan.id)
+      let res = await patientPortalApi.completeFollowup(plan.id)
+      if (!res.success || !res.data) res = await followupApi.complete(plan.id) as unknown as typeof res
       if (res.success && res.data) {
-        setFollowups(prev => prev.map(p => p.id === plan.id ? res.data as FollowUpPlan : p))
+        const data = (res.data as { data?: FollowUpPlan } | null)?.data ?? res.data
+        setFollowups(prev => prev.map(p => p.id === plan.id ? data as FollowUpPlan : p))
+        setFollowupSource('api')
         message.success('随访完成登记成功')
       } else {
         message.error(res.error?.message ?? '登记失败，请稍后重试')
@@ -1214,35 +1226,43 @@ export default function SelfServicePortal() {
             ) : followups.length === 0 ? (
               <Empty description="暂无随访计划，可自助预约随访" image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <table style={styles.table}>
-                <thead><tr>
-                  <th style={styles.th}>计划日期</th><th style={styles.th}>下次日期</th><th style={styles.th}>间隔</th>
-                  <th style={styles.th}>说明</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th>
-                </tr></thead>
-                <tbody>
-                  {followups.map(p => (
-                    <tr key={p.id}>
-                      <td style={styles.td}>{p.planDate ? fmtDateTime(p.planDate) : '-'}</td>
-                      <td style={styles.td}>{p.nextDate ? fmtDateTime(p.nextDate) : '-'}</td>
-                      <td style={styles.td}>{p.intervalDays ? `${p.intervalDays} 天` : '-'}</td>
-                      <td style={styles.td}>{p.note || '-'}</td>
-                      <td style={styles.td}>
-                        <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
-                          {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
-                        </Tag>
-                        {p.status === 'COMPLETED' && p.completedAt && <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 6 }}>完成于 {fmtDateTime(p.completedAt)}</span>}
-                      </td>
-                      <td style={styles.td}>
-                        {p.status !== 'COMPLETED' && (
-                          <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void completeFollowup(p)} disabled={followupCompletingId === p.id}>
-                            {followupCompletingId === p.id ? '登记中...' : '完成登记'}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              // [v3.0.6.11-99 Wave7B] 移动卡片化: 响应式 grid (桌面 2 列 / 手机 1 列) + 提醒展示
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+                {followups.map(p => (
+                  <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? '#dc2626' : p.status === 'IN_PROGRESS' ? '#0d9488' : '#d97706'}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || '随访计划'}</div>
+                      <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
+                        {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
+                      </Tag>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
+                      <span>计划 {p.planDate ? fmtDateTime(p.planDate) : '-'}</span>
+                      <span>下次 {p.nextDate ? fmtDateTime(p.nextDate) : '-'}</span>
+                      {p.intervalDays ? <span>每 {p.intervalDays} 天</span> : null}
+                    </div>
+                    {/* 提醒展示 */}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                      <Tag color={p.reminderEnabled ? 'green' : 'default'} style={{ margin: 0 }}>
+                        {p.reminderEnabled ? '提醒已开启' : '未开启提醒'}
+                      </Tag>
+                      {p.status === 'OVERDUE' && <Tag color="error" style={{ margin: 0 }}>已逾期请尽快复查</Tag>}
+                      {p.status === 'COMPLETED' && p.completedAt && (
+                        <Tag color="success" style={{ margin: 0 }}>完成于 {fmtDateTime(p.completedAt)}</Tag>
+                      )}
+                    </div>
+                    {p.status !== 'COMPLETED' && (
+                      <button
+                        style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                        onClick={() => void completeFollowup(p)}
+                        disabled={followupCompletingId === p.id}
+                      >
+                        {followupCompletingId === p.id ? '登记中...' : '完成登记'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </Card>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>

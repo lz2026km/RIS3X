@@ -1,4 +1,5 @@
-// [v3.0.6.8-44] PR 11: 视光中心闭环 (OK ?角膜塑形?离焦?复查)
+// [v3.0.6.8-44] PR 11: 视光中心闭环 (OK 镜/角膜塑形/离焦/复查)
+// [v3.0.6.11-99 Wave1A 17] 裸 fetch → eyeApi.optometry* (后端真实 /eye/optometry/*, MSW 仅 dev 兜底)
 // 对标: 视光中心 (近视防控闭环)
 import {
   Card,
@@ -32,6 +33,7 @@ import {
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
+import { eyeApi } from "../../../services/api/eyeApi";
 
 export const OptometryClosedLoopPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("screening");
@@ -66,9 +68,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch("/api/v1/eye/optometry/stats");
-        const data = await r.json();
-        if (data.success) setStats(data.data);
+        const res = await eyeApi.getOptometryStats();
+        if (res.success) setStats(res.data);
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
@@ -78,21 +79,16 @@ export const OptometryClosedLoopPage: React.FC = () => {
   // 筛查
   const handleScreening = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/screening", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          age,
-          parentRefraction: {
-            reSphere: parentReSphere,
-            leSphere: parentLeSphere,
-          },
-        }),
+      const res = await eyeApi.optometryScreening({
+        patientId,
+        age,
+        parentRefraction: {
+          reSphere: parentReSphere,
+          leSphere: parentLeSphere,
+        },
       });
-      const data = await r.json();
-      if (data.success) {
-        setScreening(data.data);
+      if (res.success) {
+        setScreening(res.data);
         message.success("筛查完成");
       }
     } catch (e: any) {
@@ -103,12 +99,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
   // 屈光发育曲线
   const handleRefractionCurve = async () => {
     try {
-      const r = await fetch(
-        `/api/v1/eye/optometry/refraction-curve/${patientId}`,
-      );
-      const data = await r.json();
-      if (data.success) {
-        setRefractionCurve(data.data);
+      const res = await eyeApi.getRefractionCurve(patientId);
+      if (res.success) {
+        setRefractionCurve(res.data);
         message.success("屈光发育数据加载");
       }
     } catch (e: any) {
@@ -116,17 +109,12 @@ export const OptometryClosedLoopPage: React.FC = () => {
     }
   };
 
-  // OK 镜试?
+  // OK 镜试戴
   const handleOkTrial = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/ok-trial", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientId, trialLensId, fluoresceinPattern }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setOkTrial(data.data);
+      const res = await eyeApi.okTrial({ patientId, trialLensId, fluoresceinPattern });
+      if (res.success) {
+        setOkTrial(res.data);
         message.success("试戴评估完成");
       }
     } catch (e: any) {
@@ -134,27 +122,22 @@ export const OptometryClosedLoopPage: React.FC = () => {
     }
   };
 
-  // OK 镜订?
+  // OK 镜订单
   const handleOrthoOrder = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/ortho-k-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          design: {
-            baseCurve: 7.8,
-            returnZoneDepth: 0.55,
-            landingZoneAngle: 33,
-            diameter: 10.6,
-            brand: "Euclid Emerald",
-          },
-          prescriptionId: "PRES001",
-        }),
+      const res = await eyeApi.orthoKOrder({
+        patientId,
+        design: {
+          baseCurve: 7.8,
+          returnZoneDepth: 0.55,
+          landingZoneAngle: 33,
+          diameter: 10.6,
+          brand: "Euclid Emerald",
+        },
+        prescriptionId: "PRES001",
       });
-      const data = await r.json();
-      if (data.success) {
-        setOrthoOrder(data.data);
+      if (res.success) {
+        setOrthoOrder(res.data);
         message.success("OK 镜订单已生成");
       }
     } catch (e: any) {
@@ -162,21 +145,16 @@ export const OptometryClosedLoopPage: React.FC = () => {
     }
   };
 
-  // 离焦镜订?
+  // 离焦镜订单
   const handleDefocusOrder = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/defocus-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          frameSelection: "Ray-Ban Junior",
-          lensType,
-        }),
+      const res = await eyeApi.defocusOrder({
+        patientId,
+        frameSelection: "Ray-Ban Junior",
+        lensType,
       });
-      const data = await r.json();
-      if (data.success) {
-        setDefocusOrder(data.data);
+      if (res.success) {
+        setDefocusOrder(res.data);
         message.success("离焦镜订单已生成");
       }
     } catch (e: any) {
@@ -194,8 +172,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
         <Tag color="cyan">PR11</Tag>
         <Tag color="purple">v3.0.6.8-44</Tag>
         <Tag color="blue">OK 镜 / 离焦镜 / 阿托品</Tag>
-        {/* [v3.0.6.11-88 Round10] /eye/optometry/* 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1B] /eye/optometry/* 后端真实 (eye-optometry 模块), eyeApi 封装 */}
+        <Tag color="green">真实后端 /eye/optometry/*</Tag>
       </Space>
 
       {stats && (

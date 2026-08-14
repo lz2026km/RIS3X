@@ -138,6 +138,9 @@ interface Props {
   isDrawingMeasure: boolean
   interactiveMeasures: Measurement[]
   drawingPoints: { x: number; y: number }[]
+  // [G005 v3.0.6.11-99 Wave 4B] 测量族增强: 画布取点 + 多边形完成
+  handleMeasurePoint: (x: number, y: number) => void
+  finishPolygonMeasure: () => void
   annotations: Annotation[]
   showAnnotationsOverlay: boolean
   selectedAnnotationId: string | null
@@ -193,6 +196,7 @@ export default function ViewportArea(props: Props) {
     layout, isCompareMode, compareExam, compareImageIndex, syncScroll, showDiffHighlight, diffRegions,
     selectedHistoryExams, activeTool, showWlPopup, showPseudoColorPanel,
     showMeasurementsOverlay, measureSubMenu, isDrawingMeasure, interactiveMeasures, drawingPoints,
+    handleMeasurePoint, finishPolygonMeasure,
     annotations, showAnnotationsOverlay, selectedAnnotationId, activeAnnotationType, activeAnnotationColor,
     activeAnnotationFontSize, pseudoColorMode, pseudoColorTools, annotationTypes, gridConfig,
     gsofEnabled, gsofMode, showGsofPanel, setGsofEnabled, setGsofMode, setShowGsofPanel,
@@ -237,12 +241,15 @@ export default function ViewportArea(props: Props) {
     <div style={s.centerArea}>
       <div style={s.roiToolbar}>
         <span style={s.roiLabel}>ROI工具:</span>
-        {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as const).map(type => (
+        {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as const).map(type => (
           <button key={type} style={{ ...s.roiToolBtn, ...(measureSubMenu === type ? s.roiToolBtnActive : {}) }}
             onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }} title={type}>
-            {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
+            {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : type === 'ctvalue' ? 'CT值' : type === 'cobb' ? 'Cobb角' : '多边形面积'}
           </button>
         ))}
+        {isDrawingMeasure && measureSubMenu === 'polygon' && (
+          <button style={{ ...s.roiToolBtn, background: '#22c55e', borderColor: '#22c55e', color: '#fff' }} onClick={finishPolygonMeasure}>完成 ({drawingPoints.length}点)</button>
+        )}
         <div style={s.roiToolDivider} />
         <button style={{ ...s.roiToolBtn, color: '#ef4444' }} onClick={clearAllMeasures}>清空</button>
         <button style={s.exportBtn} onClick={() => exportMeasurements('clipboard')}>导出报告</button>
@@ -304,7 +311,7 @@ export default function ViewportArea(props: Props) {
       </div>
 
       <div id="image-main-area" style={isCompareMode ? { ...s.imageMain, display: 'flex' } : s.imageMain}
-        onClick={() => { if (activeTool === 'wl') setShowWlPopup(false); if (activeTool === 'measure') setMeasureSubMenu(null) }}>
+        onClick={() => { if (activeTool === 'wl') setShowWlPopup(false); if (activeTool === 'measure' && !isDrawingMeasure) setMeasureSubMenu(null) }}>
         {isCompareMode ? (
           <div style={s.compareSplitContainer}>
             <div style={s.compareSplitPane}>
@@ -336,7 +343,16 @@ export default function ViewportArea(props: Props) {
             </div>
           </div>
         ) : (
-          <div style={{ ...s.imageWrapper, width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%', height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%' }}>
+          <div style={{ ...s.imageWrapper, width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%', height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%' }}
+            onClick={(e) => {
+              if (activeTool !== 'measure' || !measureSubMenu) return
+              e.stopPropagation()
+              const canvas = (e.currentTarget as HTMLElement).querySelector('canvas')
+              const rect = canvas ? canvas.getBoundingClientRect() : (e.currentTarget as HTMLElement).getBoundingClientRect()
+              const scaleX = canvas && rect.width > 0 ? rect.width / 512 : 1
+              const scaleY = canvas && rect.height > 0 ? rect.height / 512 : 1
+              handleMeasurePoint((e.clientX - rect.left) / scaleX, (e.clientY - rect.top) / scaleY)
+            }}>
             {viewMode === 'MPR' && <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
               activeTool={activeTool} panX={panX} panY={panY}
               activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} gsofEnabled={gsofEnabled} gsofMode={gsofMode} />}
@@ -380,7 +396,7 @@ export default function ViewportArea(props: Props) {
               </div>
               <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
               <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? '反色 ' : ''}亮度:{brightness}% 对比度:{contrast}%</span>
-              {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : 'CT值'}</span>}
+              {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度(2点)' : measureSubMenu === 'angle' ? '角度(顶点+2点)' : measureSubMenu === 'cobb' ? 'Cobb角(两条线4点)' : measureSubMenu === 'polygon' ? '多边形(逐点+完成)' : measureSubMenu === 'ellipse' || measureSubMenu === 'rectangle' || measureSubMenu === 'circle' ? '面积(2点)' : 'CT值(1点)'}</span>}
               {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}</span>}
               {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? '标准'} (PS3.14)</span>}
             </div>
@@ -413,6 +429,38 @@ export default function ViewportArea(props: Props) {
                   if (measure.type === 'ctvalue' && points.length >= 1) {
                     const p = points[0]!
                     return <g key={measure.id}><circle cx={p.x} cy={p.y} r={10} fill={color} fillOpacity={0.3} stroke={color} strokeWidth={2} /><text x={p.x + 15} y={p.y + 5} fill={color} fontSize={12} fontFamily="monospace">{measure.value}{measure.unit}</text></g>
+                  }
+                  // [G005 v3.0.6.11-99 Wave 4B] Cobb 角: 两条线段 + 夹角弧 + 角度标注
+                  if (measure.type === 'cobb' && points.length >= 4) {
+                    const [a1, a2, b1, b2] = [points[0]!, points[1]!, points[2]!, points[3]!]
+                    const midA = { x: (a1.x + a2.x) / 2, y: (a1.y + a2.y) / 2 }
+                    const midB = { x: (b1.x + b2.x) / 2, y: (b1.y + b2.y) / 2 }
+                    const arcCx = (midA.x + midB.x) / 2; const arcCy = (midA.y + midB.y) / 2
+                    const r = Math.max(24, Math.hypot(midB.x - midA.x, midB.y - midA.y) / 2.2)
+                    const angA = Math.atan2(a2.y - a1.y, a2.x - a1.x)
+                    const angB = Math.atan2(b2.y - b1.y, b2.x - b1.x)
+                    const start = Math.min(angA, angB); const end = Math.max(angA, angB)
+                    const large = end - start > Math.PI ? 1 : 0
+                    const arcX = arcCx + r * Math.cos((start + end) / 2); const arcY = arcCy + r * Math.sin((start + end) / 2)
+                    return <g key={measure.id}>
+                      <line x1={a1.x} y1={a1.y} x2={a2.x} y2={a2.y} stroke={color} strokeWidth={2} />
+                      <line x1={b1.x} y1={b1.y} x2={b2.x} y2={b2.y} stroke={color} strokeWidth={2} />
+                      <circle cx={a1.x} cy={a1.y} r={4} fill={color} /><circle cx={a2.x} cy={a2.y} r={4} fill={color} />
+                      <circle cx={b1.x} cy={b1.y} r={4} fill={color} /><circle cx={b2.x} cy={b2.y} r={4} fill={color} />
+                      <path d={`M ${arcCx + r * Math.cos(start)} ${arcCy + r * Math.sin(start)} A ${r} ${r} 0 ${large} 1 ${arcCx + r * Math.cos(end)} ${arcCy + r * Math.sin(end)}`} fill="none" stroke={color} strokeWidth={1.5} strokeDasharray="4 3" />
+                      <text x={arcX} y={arcY - 6} fill={color} fontSize={13} fontWeight={700} fontFamily="monospace" textAnchor="middle">Cobb {measure.value}{measure.unit}</text>
+                    </g>
+                  }
+                  // [G005 v3.0.6.11-99 Wave 4B] 多边形面积: 鞋带公式结果 + 顶点
+                  if (measure.type === 'polygon' && points.length >= 3) {
+                    const poly = points.map(p => `${p.x},${p.y}`).join(' ')
+                    const cx = points.reduce((s, p) => s + p.x, 0) / points.length
+                    const cy = points.reduce((s, p) => s + p.y, 0) / points.length
+                    return <g key={measure.id}>
+                      <polygon points={poly} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={2} />
+                      {points.map((p, i) => <circle key={`p-${i}`} cx={p.x} cy={p.y} r={4} fill={color} />)}
+                      <text x={cx} y={cy} fill={color} fontSize={13} fontWeight={700} fontFamily="monospace" textAnchor="middle">{measure.label}</text>
+                    </g>
                   }
                   return null
                 })}
@@ -469,9 +517,9 @@ export default function ViewportArea(props: Props) {
 
         {activeTool === 'measure' && measureSubMenu !== null && (
           <div ref={measureMenuRef} role="dialog" aria-modal="true" aria-label="测量工具" style={s.measureMenu} onClick={e => e.stopPropagation()}>
-            {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
+            {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as MeasureSubMenu[]).map(type => (
               <button key={type} style={{ ...s.measureMenuItem, ...(measureSubMenu === type ? { background: `${PRIMARY}15`, color: PRIMARY } : {}) }} onClick={() => setMeasureSubMenu(type)}>
-                {type === 'length' ? '长度测量' : type === 'angle' ? '角度测量' : type === 'ellipse' ? '椭圆ROI' : type === 'rectangle' ? '矩形ROI' : type === 'circle' ? '圆ROI' : 'CT值(HU)'}
+                {type === 'length' ? '长度测量 (2点)' : type === 'angle' ? '角度测量 (顶点+2点)' : type === 'ellipse' ? '椭圆ROI面积' : type === 'rectangle' ? '矩形ROI面积' : type === 'circle' ? '圆ROI面积' : type === 'cobb' ? 'Cobb角测量 (两条线/4点)' : type === 'polygon' ? '多边形面积 (逐点+完成)' : 'CT值(HU)'}
               </button>
             ))}
             <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>

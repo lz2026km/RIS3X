@@ -11,6 +11,8 @@ export interface TemplateDto {
   category: string
   bodyPart: string
   body: string
+  // [v3.0.6.11-99 Wave2B P1] 结构化段落块 (模板设计器可视化保存, 可选)
+  structure?: TemplateStructure
   modality?: string
   shared?: boolean
   parentId?: string
@@ -44,6 +46,24 @@ export interface TemplateCategoryDto {
   updatedAt?: string
 }
 
+// [v3.0.6.11-99 Wave2B (模板设计器 P1)] 结构化段落块
+// type: text=文本段落 / variable=变量占位 {{key}} / field=结构化字段占位 {{field:KEY}} / structured=RADS 等结构段
+export type TemplateBlockType = 'text' | 'field' | 'variable' | 'structured'
+
+export interface TemplateBlock {
+  type: TemplateBlockType
+  content: string
+  fieldKey?: string
+  variable?: string
+}
+
+export type TemplateStructure = TemplateBlock[]
+
+export interface TemplateStructureDto {
+  structure: TemplateStructure | null
+  body: string
+}
+
 export const templatesApi = {
   list: (params?: TemplateListParams) =>
     api.get<TemplateDto[]>('/templates' + (params ? '?' + new URLSearchParams(
@@ -64,6 +84,13 @@ export const templatesApi = {
 
   clone: (id: string) =>
     api.post<TemplateDto>(`/templates/${id}/clone`),
+
+  // [v3.0.6.11-99 Wave2B P1] 模板结构化内容 (模板设计器段落块) — GET/PATCH /templates/:id/structure
+  getStructure: (id: string) =>
+    api.get<TemplateStructureDto>(`/templates/${id}/structure`),
+
+  saveStructure: (id: string, structure: TemplateStructure, body?: string) =>
+    api.patch<TemplateStructureDto>(`/templates/${id}/structure`, { structure, body }),
 
   // [v3.0.6.11-98 Wave2A P1] 模板审批流
   submit: (id: string) =>

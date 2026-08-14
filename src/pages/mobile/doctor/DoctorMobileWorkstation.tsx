@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { message } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, ChevronRight, Bell, AlertTriangle, ListChecks, Image, Mic, BarChart3, FileText, RefreshCw, CheckCircle } from 'lucide-react'
+import { Search, Filter, ChevronRight, Bell, AlertTriangle, ListChecks, Image, Mic, BarChart3, FileText, RefreshCw, CheckCircle, FileCheck2, X } from 'lucide-react'
 import {
   mobileApi,
+  reportApi,
   type WorklistItem,
   type TodaySummary,
   type CriticalValueItem,
   type LatestReportItem,
+  type ReportDto,
 } from '../../../services/api'
 
 export { type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
@@ -48,6 +50,16 @@ const MOCK_REPORTS: LatestReportItem[] = [
   { id: 'R2', patientName: '王建军', gender: 'MALE', modality: 'CT', bodyPart: '腹部', accessionNumber: 'ACC003', state: 'SUBMITTED', isCritical: true, impression: '肝右叶占位待查', conclusion: '建议增强MRI进一步检查', findings: '肝右叶见类圆形低密度灶，边界欠清。', radiologistName: null, signedAt: null, createdAt: new Date().toISOString() },
 ]
 
+// ── 待审批报告兜底 (reportApi 不可用时展示) ──
+const MOCK_REVIEWS: ReportDto[] = [
+  { id: 'REV1', reportId: 'RPT-20260815-001', patientId: 'P001', patientName: '张志刚', examId: 'E1', modality: 'CT', bodyPart: '胸部', status: '初审中', state: 'INITIAL_REVIEW', findings: '右肺上叶见磨玻璃样密度结节影，大小约 8mm，边界欠清。', impression: '右肺上叶磨玻璃结节，建议随访', createdTime: new Date().toISOString(), updatedTime: new Date().toISOString() },
+  { id: 'REV2', reportId: 'RPT-20260815-002', patientId: 'P002', patientName: '李秀英', examId: 'E2', modality: 'MR', bodyPart: '头颅', status: '终审中', state: 'FINAL_REVIEW', findings: '右侧基底节区见点状缺血灶，余脑实质未见明显异常。', impression: '腔隙性脑梗死', createdTime: new Date().toISOString(), updatedTime: new Date().toISOString() },
+]
+
+const REVIEW_STATE_LABELS: Record<string, string> = {
+  INITIAL_REVIEW: '初核待审', FINAL_REVIEW: '终核待审', CO_SIGN_REVIEW: '待双签', REVIEWED: '已审核',
+}
+
 const s = {
   container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 16px 12px' },
@@ -84,13 +96,19 @@ function formatTime(iso: string | null | undefined): string {
 
 export default function DoctorMobileWorkstation() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'worklist' | 'critical' | 'reports' | 'stats'>('worklist')
+  const [tab, setTab] = useState<'worklist' | 'critical' | 'reports' | 'stats' | 'approval'>('worklist')
   const [filter, setFilter] = useState<'all' | 'pending' | 'reading'>('all')
   const [search, setSearch] = useState('')
   const [worklist, setWorklist] = useState<WorklistItem[]>([])
   const [summary, setSummary] = useState<TodaySummary>({ examsToday: 0, pendingExams: 0, inProgressExams: 0, criticalValues: 0, reportsToday: 0, signedReportsToday: 0, date: '' })
   const [criticals, setCriticals] = useState<CriticalValueItem[]>([])
   const [reports, setReports] = useState<LatestReportItem[]>([])
+  // [Wave7B] 待审批报告: reportApi.list({ state: INITIAL_REVIEW,FINAL_REVIEW }) + 审批 Modal
+  const [pendingReviews, setPendingReviews] = useState<ReportDto[]>([])
+  const [reviewTarget, setReviewTarget] = useState<ReportDto | null>(null)
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [failedReviewIds, setFailedReviewIds] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [usingMock, setUsingMock] = useState(false)
@@ -100,11 +118,12 @@ export default function DoctorMobileWorkstation() {
 
   const loadData = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true)
-    const [wl, sm, cv, rp] = await Promise.allSettled([
+    const [wl, sm, cv, rp, rv] = await Promise.allSettled([
       mobileApi.getDoctorWorklist(filter !== 'all' ? { status: filter } : undefined),
       mobileApi.getDoctorStats(),
       mobileApi.getCriticalValues(),
       mobileApi.getReportsLatest(10),
+      reportApi.list({ state: 'INITIAL_REVIEW,FINAL_REVIEW' }),
     ])
     let fallback = false
     if (wl.status === 'fulfilled' && wl.value.success && Array.isArray(wl.value.data)) setWorklist(wl.value.data)
@@ -115,6 +134,11 @@ export default function DoctorMobileWorkstation() {
     else { setCriticals(MOCK_CRITICALS); fallback = true }
     if (rp.status === 'fulfilled' && rp.value.success && Array.isArray(rp.value.data)) setReports(rp.value.data)
     else { setReports(MOCK_REPORTS); fallback = true }
+    if (rv.status === 'fulfilled' && rv.value.success) {
+      const raw = rv.value.data as unknown
+      const items = Array.isArray(raw) ? raw : (raw as { items?: ReportDto[] } | null)?.items ?? []
+      setPendingReviews(items.filter((x): x is ReportDto => !!x && typeof x === 'object'))
+    } else { setPendingReviews(MOCK_REVIEWS); fallback = true }
     setUsingMock(fallback)
     if (isRefresh) setRefreshing(false); else setLoading(false)
   }, [filter])
@@ -171,6 +195,36 @@ export default function DoctorMobileWorkstation() {
 
   const isAcked = (c: CriticalValueItem) => c.state === 'ACKNOWLEDGED' || !!c.ackedAt
 
+  // [Wave7B] 移动审批: 通过 reportApi.review (按当前状态自动推下一步) / 驳回 reportApi.reject
+  // 失败回退: 保留卡片并标注「同步失败」, 不中断其余操作
+  const handleReviewSubmit = useCallback(async (approve: boolean) => {
+    if (!reviewTarget) return
+    const id = reviewTarget.id
+    if (!approve && !reviewComment.trim()) {
+      message.warning('驳回原因不能为空')
+      return
+    }
+    setReviewSubmitting(true)
+    try {
+      const res = approve ? await reportApi.review(id) : await reportApi.reject(id, reviewComment.trim())
+      if (res.success) {
+        setPendingReviews(prev => prev.filter(r => r.id !== id))
+        setFailedReviewIds(prev => { const n = { ...prev }; delete n[id]; return n })
+        setReviewTarget(null)
+        setReviewComment('')
+        message.success(approve ? '审批通过' : '已驳回')
+      } else {
+        setFailedReviewIds(prev => ({ ...prev, [id]: res.error?.message ?? '审批失败' }))
+        message.error(`审批失败: ${res.error?.message ?? '未知错误'}`)
+      }
+    } catch (e) {
+      setFailedReviewIds(prev => ({ ...prev, [id]: e instanceof Error ? e.message : '网络错误' }))
+      message.error(`审批失败: ${e instanceof Error ? e.message : '网络错误'}`)
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }, [reviewTarget, reviewComment])
+
   return (
     <div
       style={s.container}
@@ -209,10 +263,13 @@ export default function DoctorMobileWorkstation() {
       </div>
 
       <div style={s.tabRow}>
-        {[{ key: 'worklist' as const, icon: ListChecks, label: '工作列表' }, { key: 'critical' as const, icon: AlertTriangle, label: '危急值' }, { key: 'reports' as const, icon: FileText, label: '报告' }, { key: 'stats' as const, icon: BarChart3, label: '统计' }].map(t => (
+        {[{ key: 'worklist' as const, icon: ListChecks, label: '工作列表' }, { key: 'critical' as const, icon: AlertTriangle, label: '危急值' }, { key: 'approval' as const, icon: FileCheck2, label: '待审批' }, { key: 'reports' as const, icon: FileText, label: '报告' }, { key: 'stats' as const, icon: BarChart3, label: '统计' }].map(t => (
           <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
             <t.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
             {t.label}
+            {t.key === 'approval' && pendingReviews.length > 0 && (
+              <span style={{ marginLeft: 2, background: '#dc2626', color: '#fff', borderRadius: 8, padding: '0 5px', fontSize: 10, fontWeight: 700 }}>{pendingReviews.length}</span>
+            )}
           </div>
         ))}
       </div>
@@ -308,6 +365,46 @@ export default function DoctorMobileWorkstation() {
           ))}
           {reports.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>暂无报告</div>}
         </div>
+      ) : tab === 'approval' ? (
+        <div style={{ padding: 16 }}>
+          {pendingReviews.length > 0 && (
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {pendingReviews.map(r => (
+                <span key={`badge-${r.id}`} style={s.badge(r.state === 'FINAL_REVIEW' ? '#7c3aed' : '#d97706')}>{REVIEW_STATE_LABELS[r.state ?? ''] ?? r.state ?? r.status}</span>
+              ))}
+            </div>
+          )}
+          {pendingReviews.map(r => (
+            <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: '1px solid var(--border-color)', borderLeft: `4px solid ${r.state === 'FINAL_REVIEW' ? '#7c3aed' : '#d97706'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName}</span>
+                <span style={s.badge(r.state === 'FINAL_REVIEW' ? '#7c3aed' : '#d97706')}>{REVIEW_STATE_LABELS[r.state ?? ''] ?? r.state ?? r.status}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.modality} {r.bodyPart}</span>
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{r.reportId} · {formatTime(r.updatedTime ?? r.createdTime)}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5, WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
+                {r.impression || r.diagnosis || r.findings || '暂无描述'}
+              </div>
+              {failedReviewIds[r.id] && (
+                <div style={{ marginTop: 6, fontSize: 12, color: '#dc2626', background: 'var(--color-error-bg)', borderRadius: 6, padding: '4px 8px' }}>
+                  ⚠ 审批同步失败（{failedReviewIds[r.id]}），可重试
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                <button
+                  onClick={() => setReviewTarget(r)}
+                  style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                >审批（通过 / 驳回）</button>
+              </div>
+            </div>
+          ))}
+          {pendingReviews.length === 0 && (
+            <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13, background: 'var(--bg-card)', borderRadius: 12 }}>
+              <CheckCircle size={28} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.5 }} />
+              暂无待审批报告
+            </div>
+          )}
+        </div>
       ) : (
         <div style={{ padding: 16 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
@@ -344,6 +441,48 @@ export default function DoctorMobileWorkstation() {
           </div>
         ))}
       </div>
+
+      {/* [Wave7B] 移动报告审批 Modal: 通过 / 驳回 + 原因 */}
+      {reviewTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { if (!reviewSubmitting) setReviewTarget(null) }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 14, width: '90%', maxWidth: 420, padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>报告审批</div>
+              <button onClick={() => setReviewTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>
+              <div><strong>{reviewTarget.patientName}</strong> · {reviewTarget.modality} {reviewTarget.bodyPart}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{reviewTarget.reportId} · {REVIEW_STATE_LABELS[reviewTarget.state ?? ''] ?? reviewTarget.state ?? reviewTarget.status}</div>
+              <div style={{ marginTop: 6, padding: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                {reviewTarget.impression || reviewTarget.diagnosis || reviewTarget.findings || '暂无描述'}
+              </div>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>驳回原因（驳回时必填）</div>
+              <textarea
+                value={reviewComment}
+                onChange={e => setReviewComment(e.target.value)}
+                rows={2}
+                maxLength={200}
+                placeholder="如：影像描述不完整，请补充..."
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => void handleReviewSubmit(false)}
+                disabled={reviewSubmitting}
+                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
+              >{reviewSubmitting ? '提交中...' : '驳回'}</button>
+              <button
+                onClick={() => void handleReviewSubmit(true)}
+                disabled={reviewSubmitting}
+                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
+              >{reviewSubmitting ? '提交中...' : '通过'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

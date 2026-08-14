@@ -1,4 +1,4 @@
-import { Ruler, Triangle, Circle as CircleIcon, Square, Circle, Activity, Trash2, EyeIcon, EyeOff, FileText } from 'lucide-react'
+import { Ruler, Triangle, Circle as CircleIcon, Square, Circle, Activity, Trash2, EyeIcon, EyeOff, FileText, Bone, ScanLine } from 'lucide-react'
 const RectIcon = Square
 import type { Dispatch, SetStateAction } from 'react'
 import type { MeasureSubMenu, Measurement, RightTab, Tool } from './DicomViewerTypes'
@@ -44,13 +44,13 @@ export default function MeasurementPanel(props: Props) {
       <div style={s.infoSection}>
         <div style={s.infoSectionTitle}>ROI测量工具</div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
-          {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
+          {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue', 'cobb', 'polygon'] as MeasureSubMenu[]).map(type => (
             <button key={type} style={{
               flex: 1, minWidth: 60, padding: '6px 4px', borderRadius: 6, border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
               background: measureSubMenu === type ? PRIMARY : '#fff', color: measureSubMenu === type ? '#fff' : '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2
             }} onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }}>
-              {type === 'length' && <Ruler size={14} />}{type === 'angle' && <Triangle size={14} />}{type === 'ellipse' && <CircleIcon size={14} />}{type === 'rectangle' && <RectIcon size={14} />}{type === 'circle' && <Circle size={14} />}{type === 'ctvalue' && <Activity size={14} />}
-              {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
+              {type === 'length' && <Ruler size={14} />}{type === 'angle' && <Triangle size={14} />}{type === 'ellipse' && <CircleIcon size={14} />}{type === 'rectangle' && <RectIcon size={14} />}{type === 'circle' && <Circle size={14} />}{type === 'ctvalue' && <Activity size={14} />}{type === 'cobb' && <Bone size={14} />}{type === 'polygon' && <ScanLine size={14} />}
+              {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : type === 'ctvalue' ? 'CT值' : type === 'cobb' ? 'Cobb角' : '多边形'}
             </button>
           ))}
         </div>
@@ -76,8 +76,14 @@ export default function MeasurementPanel(props: Props) {
             <div key={measure.id} style={s.measureItem}>
               <div style={{ ...s.measureItemColor, background: (measure as any).color || '#22c55e' }} />
               <div style={s.measureItemInfo}>
-                <div style={s.measureItemValue}>{measure.label || `${measure.value} ${measure.unit}`}</div>
-                <div style={s.measureItemType}>{getMeasureTypeLabel(measure.type)}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={s.measureItemValue}>{measure.label || `${measure.value} ${measure.unit}`}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: '#1e40af', whiteSpace: 'nowrap' }}>{getMeasureTypeLabel(measure.type)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{measure.value} {measure.unit}</span>
+                  {measure.location && <span style={{ fontSize: 11, color: '#94a3b8' }}>· {measure.location}</span>}
+                </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button style={{ width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => deleteMeasure(measure.id)}><Trash2 size={12} color="#ef4444" /></button>

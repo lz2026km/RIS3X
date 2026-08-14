@@ -1,7 +1,10 @@
 
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Plus, CheckCircle2 } from 'lucide-react'
 import { PermissionGate } from '../../components/common/PermissionGate'
 import { toEnState } from '../../components/report/statusMeta'
+import { reportApi } from '../../services/api/reportApi'
 import { PRIMARY, WHITE } from './reportUtils'
 
 export interface ReportPageHeaderProps {
@@ -12,6 +15,33 @@ export interface ReportPageHeaderProps {
 }
 
 export default function ReportPageHeader({ selectedIds, allReports, setReviewReport, showToast }: ReportPageHeaderProps) {
+  const navigate = useNavigate()
+  const [creating, setCreating] = useState(false)
+
+  // [v3.0.6.11-99 Wave8A P1] 新建报告真实化: reportApi.create → 跳转书写页 (替代 localStorage 假记录)
+  const handleCreateReport = async () => {
+    setCreating(true)
+    try {
+      const res = await reportApi.create({
+        patientName: '新患者',
+        modality: 'CT',
+        bodyPart: '胸部',
+        status: 'PENDING_ASSIGNMENT',
+        state: 'PENDING_ASSIGNMENT',
+      })
+      if (res.success && res.data) {
+        showToast(`报告 ${res.data.id} 已创建，进入书写页`, 'success')
+        navigate(`/reports/v3-write?reportId=${encodeURIComponent(res.data.id)}`)
+      } else {
+        showToast(res.error?.message ?? '创建报告失败', 'error')
+      }
+    } catch {
+      showToast('创建报告失败，请稍后重试', 'error')
+    } finally {
+      setCreating(false)
+    }
+  }
+
   return (
     <div className="no-print" style={{ background: PRIMARY, padding: '20px 28px', marginBottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <div>
@@ -34,23 +64,12 @@ export default function ReportPageHeader({ selectedIds, allReports, setReviewRep
             <CheckCircle2 size={14} /> 批量审核
           </button>
         </PermissionGate>
-        <button onClick={async (evt) => {
-          const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement
-          const orig = btn.innerHTML
-          btn.innerHTML = '⏳ 创建中...'
-          btn.disabled = true
-          await new Promise(r => setTimeout(r, 1500))
-          const reports = (() => { try { return JSON.parse(localStorage.getItem('g005_reports') || '[]') } catch { return [] } })()
-          reports.push({ id: `R${Date.now()}`, createdAt: new Date().toISOString(), status: '待审核' })
-          localStorage.setItem('g005_reports', JSON.stringify(reports))
-          btn.innerHTML = '✅ 已创建'
-          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false }, 2000)
-        }} style={{
+        <button onClick={() => void handleCreateReport()} disabled={creating} style={{
           padding: '8px 16px', borderRadius: 8, border: 'none',
           background: 'rgba(255,255,255,0.15)', color: WHITE, fontSize: 12, fontWeight: 600,
-          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+          cursor: creating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          <Plus size={14} /> 新建报告
+          <Plus size={14} /> {creating ? '创建中...' : '新建报告'}
         </button>
       </div>
     </div>

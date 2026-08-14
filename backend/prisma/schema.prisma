@@ -504,6 +504,9 @@ model ReportTemplate {
   modality     String?   @map("modality")
   bodyPart     String    @map("body_part")
   body         String
+  // [v3.0.6.11-99 Wave2B (模板设计器 P1)] 结构化模板段落块数组
+  // [{ type:'text'|'field'|'variable'|'structured', content, fieldKey?, variable? }] — 设计器可视化保存, 兼容纯文本 body
+  structure    Json?
   parentId     String?   @map("parent_id")
   version      Int       @default(1)
   radsCategory String?   @map("rads_category")
@@ -1750,7 +1753,8 @@ model ComplianceDocument {
 }
 
 // v3.0.6.11-79 W4-B: 随访计划 (FollowUpPlan)
-// 状态流转: PENDING -> IN_PROGRESS -> COMPLETED; nextDate 早于今天自动标记 OVERDUE
+// v3.0.6.11-99 Wave3B 状态机: PENDING(计划) -> REMINDED(已提醒) -> IN_PROGRESS(进行中) -> COMPLETED(已完成)
+//   PENDING/REMINDED/IN_PROGRESS -> MISSED(已失访) | CANCELLED(已取消); OVERDUE 为派生态 (nextDate 早于今天)
 model FollowUpPlan {
   id              String    @id @default(cuid())
   tenantId        String    @map("tenant_id")
@@ -1759,12 +1763,20 @@ model FollowUpPlan {
   // [v3.0.6.11-92 Wave1B P0] 报告→随访关联 (报告详情"创建随访"入口)
   reportId        String?   @map("report_id")
   examId          String?   @map("exam_id")
+  // [v3.0.6.11-99 Wave3B] 来源模板 (模板库 apply/检查联动批量生成带入)
+  templateId      String?   @map("template_id")
   planDate        DateTime  @map("plan_date")
   intervalDays    Int       @default(30) @map("interval_days")
   nextDate        DateTime  @map("next_date")
-  status          String    @default("PENDING") // PENDING | IN_PROGRESS | COMPLETED | OVERDUE
+  status          String    @default("PENDING") // PENDING | REMINDED | IN_PROGRESS | COMPLETED | MISSED | CANCELLED | OVERDUE(派生)
   note            String    @default("")
   reminderEnabled Boolean   @default(true) @map("reminder_enabled")
+  // [v3.0.6.11-99 Wave3B] 闭环时间戳: 提醒/失访/取消 (完成用 completedAt)
+  remindedAt      DateTime? @map("reminded_at")
+  missedAt        DateTime? @map("missed_at")
+  cancelledAt     DateTime? @map("cancelled_at")
+  // [v3.0.6.11-99 Wave3B] 失访/取消原因
+  reason          String?   @map("reason")
   completedAt     DateTime? @map("completed_at")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
@@ -1774,7 +1786,25 @@ model FollowUpPlan {
   @@index([status])
   @@index([nextDate])
   @@index([reportId])
+  @@index([templateId])
   @@map("follow_up_plans")
+}
+
+// v3.0.6.11-99 Wave3B: 随访模板库 (病种/术式/检查类型 → 间隔数组 + 随访项目)
+model FollowUpTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  name      String
+  category  String   @default("") // 病种 | 术式 | 检查类型
+  intervals Json     @default("[]") // 默认间隔天数数组, 如 [30, 90, 180]
+  items     Json     @default("[]") // 随访项目数组, 如 ["影像学复查", "对比剂反应评估"]
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([category])
+  @@map("follow_up_templates")
 }
 
 // v3.0.6.11-79 W4-B: 设备保养计划 (MaintenancePlan)

@@ -79,6 +79,49 @@ const UploadObjectSchema = z.object({
   size: z.number().int().nonnegative().max(10_737_418_240).default(1024),
 })
 
+// [G005 v3.0.6.11-99 Wave 7A (PACS P1 G-28)] 对象生命周期策略
+const LifecycleTransitionTier = z.enum(['tier2', 'archive', 'backup'])
+
+const LifecyclePolicyCreateSchema = z
+  .object({
+    bucket: z.string().trim().min(1).max(63),
+    prefix: z.string().trim().max(255).optional().default(''),
+    transitionTo: LifecycleTransitionTier,
+    afterDays: z.number().int().min(1).max(3650),
+    deleteAfterDays: z.number().int().min(1).max(36500).optional(),
+    enabled: z.boolean().optional().default(true),
+  })
+  .superRefine((v, ctx) => {
+    if (v.deleteAfterDays !== undefined && v.deleteAfterDays < v.afterDays) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deleteAfterDays'], message: '删除天数必须 ≥ 转存天数' })
+    }
+  })
+
+const LifecyclePolicyPatchSchema = z
+  .object({
+    bucket: z.string().trim().min(1).max(63).optional(),
+    prefix: z.string().trim().max(255).optional(),
+    transitionTo: LifecycleTransitionTier.optional(),
+    afterDays: z.number().int().min(1).max(3650).optional(),
+    deleteAfterDays: z.number().int().min(1).max(36500).nullable().optional(),
+    enabled: z.boolean().optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.deleteAfterDays !== undefined && v.deleteAfterDays !== null && v.afterDays !== undefined && v.deleteAfterDays < v.afterDays) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deleteAfterDays'], message: '删除天数必须 ≥ 转存天数' })
+    }
+  })
+
+// [G005 v3.0.6.11-99 Wave 7A (PACS P1 G-28)] 对象批量操作
+const BatchDeleteObjectsSchema = z.object({
+  keys: z.array(z.string().trim().min(1).max(255)).min(1).max(1000),
+})
+
+const CopyObjectSchema = z.object({
+  key: z.string().trim().min(1).max(255),
+  targetBucket: z.string().trim().min(1).max(63),
+})
+
 @ApiTags('system')
 @ApiBearerAuth()
 @Roles('ADMIN')
@@ -145,6 +188,47 @@ export class SystemStorageController {
   @Get('storage/buckets/:name/objects/:key/download')
   downloadObject(@Param('name') name: string, @Param('key') key: string) {
     return this.service.downloadObject(name, key)
+  }
+
+  // [G005 v3.0.6.11-99 Wave 7A (PACS P1 G-28)] 对象生命周期策略
+  @Get('storage/lifecycle-policies')
+  listLifecyclePolicies() {
+    return this.service.listLifecyclePolicies()
+  }
+
+  @Post('storage/lifecycle-policies')
+  createLifecyclePolicy(@Body(new ZodValidationPipe(LifecyclePolicyCreateSchema)) body: z.infer<typeof LifecyclePolicyCreateSchema>) {
+    return this.service.createLifecyclePolicy(body)
+  }
+
+  @Patch('storage/lifecycle-policies/:id')
+  updateLifecyclePolicy(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(LifecyclePolicyPatchSchema)) body: z.infer<typeof LifecyclePolicyPatchSchema>,
+  ) {
+    return this.service.updateLifecyclePolicy(id, body)
+  }
+
+  @Delete('storage/lifecycle-policies/:id')
+  deleteLifecyclePolicy(@Param('id') id: string) {
+    return this.service.deleteLifecyclePolicy(id)
+  }
+
+  // [G005 v3.0.6.11-99 Wave 7A (PACS P1 G-28)] 对象批量操作
+  @Post('storage/buckets/:name/batch-delete')
+  batchDeleteObjects(
+    @Param('name') name: string,
+    @Body(new ZodValidationPipe(BatchDeleteObjectsSchema)) body: z.infer<typeof BatchDeleteObjectsSchema>,
+  ) {
+    return this.service.batchDeleteObjects(name, body.keys)
+  }
+
+  @Post('storage/buckets/:name/copy')
+  copyObject(
+    @Param('name') name: string,
+    @Body(new ZodValidationPipe(CopyObjectSchema)) body: z.infer<typeof CopyObjectSchema>,
+  ) {
+    return this.service.copyObject(name, body)
   }
 
   @Get('admin/configs')

@@ -1,6 +1,8 @@
 // [v3.0.6.8-92] Phase 2: 隐形矫治模拟
 // 对标: Planmeca Align + 3Shape Trios Ortho + Invisalign
+// [G005 Wave1B] 5 处裸 fetch → dentalApi (后端 /dental/ortho/aligner-plans* 真实实现)
 import React, { useState, useEffect, useRef } from "react";
+import { dentalApi } from "../../services/api/dentalApi";
 import {
   Card,
   Space,
@@ -42,8 +44,8 @@ export const DentalAlignerPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    fetch("/api/v1/dental/ortho/aligner-plans")
-      .then((r) => r.json())
+    dentalApi
+      .listAlignerPlans()
       .then((d) => {
         if (d.success) setPlans(d.data || []);
       })
@@ -58,12 +60,8 @@ export const DentalAlignerPage: React.FC = () => {
     setMode("detail");
     try {
       const [sr, pr] = await Promise.all([
-        fetch(`/api/v1/dental/ortho/aligner-plans/${p.id}/stages`).then((r) =>
-          r.json(),
-        ),
-        fetch(`/api/v1/dental/ortho/aligner-plans/${p.id}/progress`).then((r) =>
-          r.json(),
-        ),
+        dentalApi.getAlignerStages(p.id),
+        dentalApi.getAlignerProgress(p.id),
       ]);
       if (sr.success) setStages(sr.data || []);
       if (pr.success) setProgress(pr.data);
@@ -177,8 +175,8 @@ export const DentalAlignerPage: React.FC = () => {
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             隐形矫治方案中心
           </span>
-          {/* [v3.0.6.11-88 Round10] /dental/ortho/aligner-plans 后端未实现, MSW 演示数据 */}
-          <Tag color="orange">演示数据 (MSW)</Tag>
+          {/* [G005 Wave1B] /dental/ortho/aligner-plans 后端真实实现, dentalApi 封装 */}
+          <Tag color="green">真实后端 /dental/ortho/*</Tag>
           <Tag color="cyan">v3.0.6.8-92</Tag>
           <Tag color="blue">Planmeca Align 对标</Tag>
           <Tag color="purple">Invisalign 对标</Tag>
@@ -469,11 +467,8 @@ export const DentalAlignerPage: React.FC = () => {
                 block
                 icon={<CheckCircle2 size={14} />}
                 onClick={async () => {
-                  await fetch(
-                    `/api/v1/dental/ortho/aligner-plans/${current.id}/approve`,
-                    { method: "POST" },
-                  );
-                  message.success("方案已审批");
+                  const r = await dentalApi.approveAlignerPlan(current.id);
+                  if (r.success) message.success("方案已审批");
                 }}
               >
                 审批方案
@@ -482,19 +477,12 @@ export const DentalAlignerPage: React.FC = () => {
                 block
                 icon={<Save size={14} />}
                 onClick={async () => {
-                  await fetch(
-                    `/api/v1/dental/ortho/aligner-plans/${current.id}/order-lab`,
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        lab: "AlignTech",
-                        quantity: 6,
-                        shippingMethod: "express",
-                      }),
-                    },
-                  );
-                  message.success("已提交加工厂");
+                  const r = await dentalApi.orderAlignerLab(current.id, {
+                    lab: "AlignTech",
+                    quantity: 6,
+                    shippingMethod: "express",
+                  });
+                  if (r.success) message.success("已提交加工厂");
                 }}
               >
                 提交加工 (6副)

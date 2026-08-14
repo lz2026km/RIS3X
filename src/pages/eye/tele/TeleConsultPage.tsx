@@ -1,5 +1,6 @@
 // [v3.0.6.8-41] PR 8: 远程眼科 (WebRTC) + 视光中心闭环
-// 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK?角膜塑形?
+// 对标: Topcon Harmony + Biotics3D 3Dnet Cloud + 视光中心 (OK?角膜塑形?
+// [G005 Wave1B] 7 处裸 fetch → eyeApi (tele 走 MSW 兜底, optometry 走后端真实)
 import {
   Card,
   Space,
@@ -39,6 +40,7 @@ import {
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
+import { eyeApi } from "../../../services/api/eyeApi";
 
 export const TeleConsultPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tele");
@@ -81,11 +83,11 @@ export const TeleConsultPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch("/api/v1/eye/optometry/vision-record/P000001");
-        const data = await r.json();
-        if (data.success) {
+        const res = await eyeApi.getOptometryVisionRecord(patientId);
+        if (res.success) {
           // set last record to form
-          const last = data.data.history[0];
+          const data = res.data as any;
+          const last = data.history[0];
           if (last) {
             setReSphere(last.rightEye.sphere);
             setReCylinder(last.rightEye.cylinder);
@@ -99,15 +101,15 @@ export const TeleConsultPage: React.FC = () => {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 远程会诊 - 加载 TURN
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch("/api/v1/eye/tele/turn");
-        const data = await r.json();
-        if (data.success) setTurnInfo(data.data);
+        const res = await eyeApi.getTeleTurn();
+        if (res.success) setTurnInfo(res.data);
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
@@ -117,14 +119,9 @@ export const TeleConsultPage: React.FC = () => {
   // 创建会诊
   const handleCreateSession = async () => {
     try {
-      const r = await fetch("/api/v1/eye/tele/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientId, studyId, participants, mode }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setSession(data.data);
+      const res = await eyeApi.createTeleSession({ patientId, studyId, participants, mode });
+      if (res.success && res.data) {
+        setSession(res.data);
         message.success("会诊会话已建立");
       }
     } catch (e: any) {
@@ -135,18 +132,13 @@ export const TeleConsultPage: React.FC = () => {
   // 远程?
   const handleStream = async () => {
     try {
-      const r = await fetch("/api/v1/eye/tele/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studyId,
-          targetHospital: "PUMC-眼科",
-          protocol: "dicom-tls",
-        }),
+      const res = await eyeApi.createTeleStream({
+        studyId,
+        targetHospital: "PUMC-眼科",
+        protocol: "dicom-tls",
       });
-      const data = await r.json();
-      if (data.success) {
-        message.success(`远程流已建立: ${data.data.endpoint}`);
+      if (res.success && res.data) {
+        message.success(`远程流已建立: ${res.data.endpoint}`);
       }
     } catch (e: any) {
       message.error(e.message);
@@ -156,18 +148,13 @@ export const TeleConsultPage: React.FC = () => {
   // 会诊意见见
   const handleConsult = async () => {
     try {
-      const r = await fetch("/api/v1/eye/tele/consult", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: session?.sessionId,
-          specialistId: "D005",
-          question: "请评估该眼底彩照DR 分级和AMD 风险",
-        }),
+      const res = await eyeApi.createTeleConsult({
+        sessionId: session?.sessionId,
+        specialistId: "D005",
+        question: "请评估该眼底彩照DR 分级和AMD 风险",
       });
-      const data = await r.json();
-      if (data.success) {
-        setConsult(data.data);
+      if (res.success && res.data) {
+        setConsult(res.data);
         message.success("会诊意见已发出");
       }
     } catch (e: any) {
@@ -178,23 +165,18 @@ export const TeleConsultPage: React.FC = () => {
   // 验光
   const handleRefraction = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/refraction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          reSphere,
-          reCylinder,
-          reAxis,
-          leSphere,
-          leCylinder,
-          leAxis,
-          prescriptionType,
-        }),
+      const res = await eyeApi.createRefractionRecord({
+        patientId,
+        reSphere,
+        reCylinder,
+        reAxis,
+        leSphere,
+        leCylinder,
+        leAxis,
+        prescriptionType,
       });
-      const data = await r.json();
-      if (data.success) {
-        setRefraction(data.data);
+      if (res.success) {
+        setRefraction(res.data);
         message.success("验光处方已保存");
       }
     } catch (e: any) {
@@ -202,23 +184,18 @@ export const TeleConsultPage: React.FC = () => {
     }
   };
 
-  // OK ?
+  // OK 镜
   const handleOkLens = async () => {
     try {
-      const r = await fetch("/api/v1/eye/optometry/ok-lens", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientId,
-          k1: 43.0,
-          k2: 43.5,
-          kAxis: 180,
-          targetReduction,
-        }),
+      const res = await eyeApi.createOkLens({
+        patientId,
+        k1: 43.0,
+        k2: 43.5,
+        kAxis: 180,
+        targetReduction,
       });
-      const data = await r.json();
-      if (data.success) {
-        setOkLens(data.data);
+      if (res.success) {
+        setOkLens(res.data);
         message.success("OK 镜设计已生成");
       }
     } catch (e: any) {
@@ -244,8 +221,9 @@ export const TeleConsultPage: React.FC = () => {
         <Tag color="purple">v3.0.6.8-41</Tag>
         <Tag color="blue">WebRTC + 5G 边缘</Tag>
         <Tag color="green">OK镜 / 角膜塑形</Tag>
-        {/* [v3.0.6.11-88 Round10] /eye/tele/* /eye/optometry/* 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [v3.0.6.11-99 Wave1A 17] /eye/optometry/* 后端已实现 (验光/OK镜/视力档案); /eye/tele/* 仍 MSW 演示 */}
+        <Tag color="green">视光后端真实</Tag>
+        <Tag color="orange">远程会诊演示 (MSW)</Tag>
       </Space>
 
       <Tabs

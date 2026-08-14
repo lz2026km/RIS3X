@@ -6,6 +6,8 @@
  */
 
 import { asrApi } from '@services/api/asrApi';
+import { voiceWorkstationApi } from '@services/api/voiceWorkstationApi';
+import type { CorrectionItem, LexiconEntry } from '@services/api/voiceWorkstationApi';
 import {
   startVoiceDictation, pauseVoiceDictation, resumeVoiceDictation, stopVoiceDictation,
   getVoiceDictationHistory,
@@ -13,7 +15,7 @@ import {
 import type { VoiceDictationSession, VoiceDictationState, VoiceDictationLang } from '@types/R3/R3.WRITING';
 import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
 import { TableProps } from 'antd'
-import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type} from 'lucide-react';
+import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type, CheckCircle } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 
@@ -132,6 +134,10 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
   const [speaker, setSpeaker] = useState<SpeakerKey>('resident');
   const [speakerHistory, setSpeakerHistory] = useState<{ speaker: string; time: Date }[]>([]);
   const [showVocab, setShowVocab] = useState(false);
+  const [lexiconSize, setLexiconSize] = useState(0);
+  const [onlineLexicon, setOnlineLexicon] = useState<LexiconEntry[] | null>(null);
+  const [wsCorrections, setWsCorrections] = useState<CorrectionItem[]>([]);
+  const [correctionSubmitted, setCorrectionSubmitted] = useState(false);
   const recognitionRef = useRef<any>(null);
   const startTimeRef = useRef<number>(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -156,6 +162,25 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       }
     };
   }, []);
+
+  // 医学词库: 加载规模用于校正提示, 失败静默 (不影响听写主链路)
+  useEffect(() => {
+    let cancelled = false;
+    voiceWorkstationApi.listLexicon()
+      .then((items) => { if (!cancelled) setLexiconSize(items.length); })
+      .catch(() => { /* 词库不可用 */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // 词汇面板打开时拉取在线词库 (失败回退静态词汇表)
+  useEffect(() => {
+    if (!showVocab) return;
+    let cancelled = false;
+    voiceWorkstationApi.listLexicon()
+      .then((items) => { if (!cancelled) setOnlineLexicon(items); })
+      .catch(() => { if (!cancelled) setOnlineLexicon(null); });
+    return () => { cancelled = true; };
+  }, [showVocab]);
 
   const handleSpeakerChange = useCallback((value: SpeakerKey) => {
     setSpeaker(value);
@@ -186,9 +211,21 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
     setInterimDisplay('正在转写音频...');
     try {
       const res = await asrApi.transcribe(blob, durationSec, lang);
+      // 词库校正: 同音词纠正 + corrections[] 提示
+      let finalText = res.text;
+      let corrections: CorrectionItem[] = [];
+      try {
+        const wsRes = await voiceWorkstationApi.transcribe({ text: res.text, reportId });
+        finalText = wsRes.correctedText;
+        corrections = wsRes.corrections;
+      } catch (e) {
+        console.warn('医学词库校正不可用,使用原始转写文本:', e);
+      }
+      setWsCorrections(corrections);
+      setCorrectionSubmitted(false);
       const nextDone = {
         ...current,
-        finalText: res.text,
+        finalText,
         interimText: '',
         state: 'idle' as const,
         endedAt: new Date().toISOString(),
@@ -204,8 +241,12 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       sessionRef.current = nextDone;
       setSession(nextDone);
       setInterimDisplay('');
-      onTextChange?.(res.text);
-      message.success(`转写完成(${res.engine}引擎,置信度 ${(res.confidence * 100).toFixed(0)}%)`);
+      onTextChange?.(finalText);
+      message.success(
+        corrections.length > 0
+          ? `转写完成(${res.engine}引擎,词库校正 ${corrections.length} 处)`
+          : `转写完成(${res.engine}引擎,置信度 ${(res.confidence * 100).toFixed(0)}%)`,
+      );
     } catch (e) {
       console.error('transcribe failed:', e);
       const nextError = { ...current, state: 'error' as const, interimText: '' };
@@ -367,6 +408,24 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
     message.success('已清空');
   }, []);
 
+  // 纠正反馈: 将本次校正结果提交给词库学习 (同音词积累为别名/新词条)
+  const submitCorrections = useCallback(async () => {
+    if (wsCorrections.length === 0) return;
+    let ok = 0;
+    for (const c of wsCorrections) {
+      try {
+        await voiceWorkstationApi.submitCorrection({ original: c.original, corrected: c.corrected });
+        ok++;
+      } catch { /* 单条失败不影响其余 */ }
+    }
+    if (ok > 0) {
+      setCorrectionSubmitted(true);
+      message.success(`已提交 ${ok} 条纠正反馈,医学词库已学习`);
+    } else {
+      message.error('纠正反馈提交失败,请重试');
+    }
+  }, [wsCorrections]);
+
   const loadHistory = useCallback(async () => {
     const h = await getVoiceDictationHistory(reportId);
     setHistory(h);
@@ -484,6 +543,38 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           )}
         </div>
 
+        {/* 4.5 医学词库校正提示 */}
+        {wsCorrections.length > 0 && (
+          <div className="border border-green-200 bg-green-50 rounded p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                <BookOpen className="w-3 h-3" />医学词库校正 ({wsCorrections.length} 处)
+              </span>
+              <Tag color="green">{lexiconSize > 0 ? `${lexiconSize} 词条` : '词库加载中'}</Tag>
+            </div>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {wsCorrections.map((c, i) => (
+                <div key={i} className="text-xs bg-white border border-green-100 rounded px-2 py-1 flex items-center gap-1.5">
+                  <span className="text-red-500 line-through">{c.original}</span>
+                  <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span className="text-green-700 font-medium">{c.corrected}</span>
+                  <Tag className="ml-auto shrink-0" color="cyan">{c.category}</Tag>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              {!correctionSubmitted ? (
+                <Button size="small" type="primary" ghost icon={<BookOpen className="w-3 h-3" />} onClick={submitCorrections}>
+                  提交纠正反馈(词库学习)
+                </Button>
+              ) : (
+                <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="w-3 h-3" />已提交,词库已更新</span>
+              )}
+              <Button size="small" onClick={() => { setWsCorrections([]); }}>忽略</Button>
+            </div>
+          </div>
+        )}
+
         {/* 5. 控制按钮 */}
         <div className="flex items-center justify-center gap-2">
           {state === 'idle' && (
@@ -568,16 +659,37 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         )}
       </div>
 
-      {/* 9. 医学术语词汇 Modal */}
-      <Modal title="医学术语词汇" open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={520}>
-        <Table
-          dataSource={MEDICAL_VOCAB}
-          columns={VOCAB_COLUMNS}
-          size="small"
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          rowKey="term"
-        />
+      {/* 9. 医学术语词汇 Modal (在线医学词库 + 静态回退) */}
+      <Modal title={
+        <span className="flex items-center gap-2">
+          医学术语词汇
+          <Tag color="green">{onlineLexicon ? `${onlineLexicon.length} 词条` : '在线加载中'}</Tag>
+        </span>
+      } open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={640}>
+        {onlineLexicon ? (
+          <Table
+            dataSource={onlineLexicon.slice(0, 100)}
+            columns={[
+              { title: '术语', dataIndex: 'term', key: 'term', width: 140 },
+              { title: '分类', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color="cyan">{v}</Tag> },
+              { title: '优先级', dataIndex: 'priority', key: 'priority', width: 70 },
+              { title: '同音词/别名', dataIndex: 'aliases', key: 'aliases', render: (v: string[]) => v.length > 0 ? v.join(' / ') : '-' },
+            ]}
+            size="small"
+            pagination={{ pageSize: 10, showSizeChanger: false }}
+            scroll={{ x: 'max-content' }}
+            rowKey="id"
+          />
+        ) : (
+          <Table
+            dataSource={MEDICAL_VOCAB}
+            columns={VOCAB_COLUMNS}
+            size="small"
+            pagination={false}
+            scroll={{ x: 'max-content' }}
+            rowKey="term"
+          />
+        )}
       </Modal>
 
       {/* 10. 语音听写历史 Modal */}

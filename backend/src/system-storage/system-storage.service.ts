@@ -15,11 +15,17 @@ import {
   buildS3DriverOptions,
 } from '../common/storage/storage.module'
 import { isMaskedSecret, maskSecret } from '../common/storage/storage-crypto'
+import { currentTenantId } from '../common/tenant/tenant-utils'
 import { SystemConfigService } from './system-config.service'
+
+/** [G005 v3.0.6.11-99 Wave 7A (G-28)] 数据源标注 */
+export type StorageSource = 'local-fs' | 'aws-sigv4-native' | 'simulated'
 
 export interface StorageStatsDto {
   driver: string
   status: 'active' | 'inactive'
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 驱动来源: local-fs / aws-sigv4-native / simulated */
+  source?: StorageSource
   detail?: string
   objectCount?: number
   usedBytes?: number
@@ -36,10 +42,13 @@ export interface StorageAlertsConfig {
 
 // ═══════════ [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 ═══════════
 
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] 多租户桶隔离: 桶记录携带 tenantId,
+// 列表/访问均按当前租户过滤, 非 default 租户新建桶自动加 `${tenantId}-` 前缀。
 export interface StorageBucketDto {
   name: string
   provider: 'local' | 's3' | 'minio'
   region: string
+  tenantId: string
   objectCount: number
   usedBytes: number
   createdAt: string
@@ -60,16 +69,61 @@ export interface StorageDownloadDto {
   contentBase64: string
 }
 
+// ═══════════ [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略 ═══════════
+
+export type LifecycleTransitionTier = 'tier2' | 'archive' | 'backup'
+
+export interface LifecyclePolicyDto {
+  id: string
+  bucket: string
+  prefix: string
+  transitionTo: LifecycleTransitionTier
+  afterDays: number
+  deleteAfterDays?: number
+  enabled: boolean
+  tenantId: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LifecyclePolicyInput {
+  bucket: string
+  prefix?: string
+  transitionTo: LifecycleTransitionTier
+  afterDays: number
+  deleteAfterDays?: number | null
+  enabled?: boolean
+}
+
+export interface BatchDeleteResultDto {
+  bucket: string
+  deleted: string[]
+  missing: string[]
+  source: StorageSource
+}
+
+export interface CopyObjectResultDto {
+  key: string
+  targetBucket: string
+  size: number
+  modified: string
+  copied: true
+  source: StorageSource
+}
+
+interface LifecyclePolicyRecord extends LifecyclePolicyDto {}
+
 interface BucketRecord extends StorageBucketDto {
   objects: StorageObjectDto[]
 }
 
-// 内存 seed: 桶列表 (与 S3/MinIO/本地 三种 provider 对齐)
-const BUCKET_SEED: Array<Pick<StorageBucketDto, 'name' | 'provider' | 'region'> & { objects: Array<[string, number]> }> = [
+// 内存 seed: 桶列表 (与 S3/MinIO/本地 三种 provider 对齐), 归属 default 租户
+const BUCKET_SEED: Array<Pick<StorageBucketDto, 'name' | 'provider' | 'region' | 'tenantId'> & { objects: Array<[string, number]> }> = [
   {
     name: 'g005-dicom',
     provider: 's3',
     region: 'us-east-1',
+    tenantId: 'default',
     objects: [
       ['ct-frame-0001.dcm', 512_000],
       ['ct-frame-0002.dcm', 512_000],
@@ -81,6 +135,7 @@ const BUCKET_SEED: Array<Pick<StorageBucketDto, 'name' | 'provider' | 'region'> 
     name: 'g005-vna',
     provider: 'minio',
     region: 'cn-north-1',
+    tenantId: 'default',
     objects: [
       ['report-0001.pdf', 128_000],
       ['report-0002.pdf', 96_000],
@@ -91,10 +146,41 @@ const BUCKET_SEED: Array<Pick<StorageBucketDto, 'name' | 'provider' | 'region'> 
     name: 'g005-files',
     provider: 'local',
     region: 'us-east-1',
+    tenantId: 'default',
     objects: [
       ['teaching-case-001.png', 2_048_000],
       ['dicom-export-20260813.zip', 8_388_608],
     ],
+  },
+]
+
+// 内存 seed: 对象生命周期策略 (default 租户, 与桶 seed 对齐)
+const LIFECYCLE_SEED: Array<Omit<LifecyclePolicyDto, 'id' | 'createdAt' | 'updatedAt'>> = [
+  {
+    bucket: 'g005-dicom',
+    prefix: 'ct-',
+    transitionTo: 'tier2',
+    afterDays: 90,
+    deleteAfterDays: 365,
+    enabled: true,
+    tenantId: 'default',
+  },
+  {
+    bucket: 'g005-dicom',
+    prefix: '',
+    transitionTo: 'archive',
+    afterDays: 365,
+    enabled: true,
+    tenantId: 'default',
+  },
+  {
+    bucket: 'g005-vna',
+    prefix: 'report-',
+    transitionTo: 'backup',
+    afterDays: 30,
+    deleteAfterDays: 730,
+    enabled: false,
+    tenantId: 'default',
   },
 ]
 
@@ -133,6 +219,9 @@ export class SystemStorageService {
   private alertsConfig: StorageAlertsConfig
   // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 (内存 + seed)
   private readonly buckets: Map<string, BucketRecord>
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略 (内存 + seed)
+  private readonly lifecyclePolicies: Map<string, LifecyclePolicyRecord>
+  private lifecycleSeq = 0
 
   constructor(
     private readonly prisma: PrismaService,
@@ -158,6 +247,7 @@ export class SystemStorageService {
           name: seed.name,
           provider: seed.provider,
           region: seed.region,
+          tenantId: seed.tenantId,
           objectCount: seed.objects.length,
           usedBytes: seed.objects.reduce((s, [, size]) => s + size, 0),
           createdAt: '2026-06-01T08:00:00.000Z',
@@ -169,6 +259,25 @@ export class SystemStorageService {
         },
       ]),
     )
+    this.lifecyclePolicies = new Map(
+      LIFECYCLE_SEED.map((seed) => {
+        const id = this.nextLifecycleId()
+        return [
+          id,
+          {
+            ...seed,
+            id,
+            createdAt: '2026-07-01T08:00:00.000Z',
+            updatedAt: '2026-07-01T08:00:00.000Z',
+          },
+        ]
+      }),
+    )
+  }
+
+  private nextLifecycleId(): string {
+    this.lifecycleSeq += 1
+    return `lp-${String(this.lifecycleSeq).padStart(3, '0')}`
   }
 
   async getConfig(): Promise<{
@@ -262,6 +371,7 @@ export class SystemStorageService {
       return {
         driver: 's3',
         status: result.ok ? 'active' : 'inactive',
+        source: 'aws-sigv4-native',
         detail: result.detail,
         latencyMs: result.latencyMs,
       }
@@ -271,6 +381,7 @@ export class SystemStorageService {
     return {
       driver: 'local',
       status: result.ok ? 'active' : 'inactive',
+      source: 'local-fs',
       detail: result.detail,
       latencyMs: result.latencyMs,
     }
@@ -284,7 +395,7 @@ export class SystemStorageService {
         const driver = new S3StorageDriver(buildS3DriverOptions(effective, 10_000))
         const test = await driver.testConnection()
         if (!test.ok) {
-          return { driver: 's3', status: 'inactive', detail: test.detail }
+          return { driver: 's3', status: 'inactive', source: 'aws-sigv4-native', detail: test.detail }
         }
         let objectCount = 0
         let usedBytes = 0
@@ -304,6 +415,7 @@ export class SystemStorageService {
         return {
           driver: 's3',
           status: 'active',
+          source: 'aws-sigv4-native',
           detail: `S3 对象存储统计 (${effective.endpoint}/${effective.bucket})`,
           objectCount,
           usedBytes,
@@ -311,7 +423,7 @@ export class SystemStorageService {
           latencyMs: test.latencyMs,
         }
       } catch (err) {
-        return { driver: 's3', status: 'inactive', detail: (err as Error).message }
+        return { driver: 's3', status: 'inactive', source: 'aws-sigv4-native', detail: (err as Error).message }
       }
     }
     // local: 聚合 DICOM / VNA / Uploads 三个目录
@@ -343,6 +455,7 @@ export class SystemStorageService {
     return {
       driver: 'local',
       status: 'active',
+      source: 'local-fs',
       detail: `本地存储统计 (${roots.length} 个目录)`,
       objectCount,
       usedBytes,
@@ -351,32 +464,71 @@ export class SystemStorageService {
   }
 
   // ═══════════ [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 云存储桶管理 ═══════════
+  // ═══════════ [G005 v3.0.6.11-99 Wave 7A (G-28)] 多租户桶隔离 + 对象批量操作 ═══════════
 
   private toBucketDto(rec: BucketRecord): StorageBucketDto {
     return {
       name: rec.name,
       provider: rec.provider,
       region: rec.region,
+      tenantId: rec.tenantId,
       objectCount: rec.objects.length,
       usedBytes: rec.objects.reduce((s, o) => s + o.size, 0),
       createdAt: rec.createdAt,
     }
   }
 
+  /** 当前请求租户 (AsyncLocalStorage, 无上下文回退 default) */
+  private currentTenant(): string {
+    return currentTenantId()
+  }
+
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 租户桶前缀: default 无前缀, 其余租户 `${tenantId}-` (sanitize) */
+  private tenantBucketPrefix(tenantId: string): string {
+    if (tenantId === 'default') return ''
+    const safe = tenantId.toLowerCase().replace(/[^a-z0-9.-]/g, '-').replace(/^-+|-+$/g, '')
+    return safe ? `${safe}-` : ''
+  }
+
+  /** 跨租户命名防护: 拒绝以其他租户前缀开头的桶名 (防止租户 A 抢占租户 B 的桶) */
+  private assertNoForeignTenantPrefix(name: string, tenantId: string): void {
+    const ownPrefix = this.tenantBucketPrefix(tenantId)
+    for (const rec of this.buckets.values()) {
+      if (rec.tenantId === tenantId) continue
+      const foreign = this.tenantBucketPrefix(rec.tenantId)
+      if (foreign && name.startsWith(foreign)) {
+        throw new BadRequestException(`Bucket name ${name} conflicts with tenant ${rec.tenantId}`)
+      }
+    }
+    if (ownPrefix && name.startsWith(ownPrefix)) {
+      throw new BadRequestException(`Bucket name ${name} already carries tenant prefix, 请直接使用不带前缀的名称`)
+    }
+  }
+
   private getBucketOrThrow(name: string): BucketRecord {
     const rec = this.buckets.get(name)
     if (!rec) throw new NotFoundException(`Bucket ${name} not found`)
+    // [G005 v3.0.6.11-99 Wave 7A (G-28)] 租户隔离: 非本租户桶视为不存在
+    if (rec.tenantId !== this.currentTenant()) {
+      throw new NotFoundException(`Bucket ${name} not found`)
+    }
     return rec
   }
 
-  /** GET /system/storage/buckets — 桶列表 (内存 + seed) */
+  /** GET /system/storage/buckets — 桶列表 (内存 + seed, 按当前租户过滤) */
   listBuckets(): StorageBucketDto[] {
-    return [...this.buckets.values()].map((rec) => this.toBucketDto(rec))
+    const tenantId = this.currentTenant()
+    return [...this.buckets.values()]
+      .filter((rec) => rec.tenantId === tenantId)
+      .map((rec) => this.toBucketDto(rec))
   }
 
-  /** POST /system/storage/buckets — 创建桶 */
+  /** POST /system/storage/buckets — 创建桶 (非 default 租户自动加前缀, 校验租户归属) */
   createBucket(dto: { name: string; provider: 'local' | 's3' | 'minio'; region: string }): StorageBucketDto {
-    const name = dto.name.trim()
+    const tenantId = this.currentTenant()
+    const rawName = dto.name.trim()
+    this.assertNoForeignTenantPrefix(rawName, tenantId)
+    const name = (this.tenantBucketPrefix(tenantId) + rawName).slice(0, 63)
     if (this.buckets.has(name)) {
       throw new BadRequestException(`Bucket ${name} already exists`)
     }
@@ -385,23 +537,23 @@ export class SystemStorageService {
       name,
       provider: dto.provider,
       region: dto.region.trim() || 'us-east-1',
+      tenantId,
       objectCount: 0,
       usedBytes: 0,
       createdAt: now.toISOString(),
       objects: [],
     }
     this.buckets.set(name, rec)
-    this.logger.log(`Bucket created: ${name} (${rec.provider}/${rec.region})`)
+    this.logger.log(`Bucket created: ${name} (${rec.provider}/${rec.region}, tenant=${tenantId})`)
     return this.toBucketDto(rec)
   }
 
   /** DELETE /system/storage/buckets/:name — 删除桶 */
   deleteBucket(name: string): { deleted: string } {
-    if (!this.buckets.delete(name)) {
-      throw new NotFoundException(`Bucket ${name} not found`)
-    }
-    this.logger.log(`Bucket deleted: ${name}`)
-    return { deleted: name }
+    const rec = this.getBucketOrThrow(name)
+    this.buckets.delete(rec.name)
+    this.logger.log(`Bucket deleted: ${rec.name} (tenant=${rec.tenantId})`)
+    return { deleted: rec.name }
   }
 
   /** GET /system/storage/buckets/:name/objects — 对象列表 */
@@ -428,6 +580,139 @@ export class SystemStorageService {
     }
     rec.objects.push(obj)
     return { ...obj }
+  }
+
+  /**
+   * [G005 v3.0.6.11-99 Wave 7A (G-28)] POST /system/storage/buckets/:name/batch-delete
+   * 批量删除对象 (等价 S3 POST ?delete / AWS SDK DeleteObjectsCommand),
+   * 内存模拟执行, source=simulated 标注。
+   */
+  batchDeleteObjects(name: string, keys: string[]): BatchDeleteResultDto {
+    const rec = this.getBucketOrThrow(name)
+    const wanted = new Set(keys)
+    const deleted: string[] = []
+    const missing: string[] = []
+    rec.objects = rec.objects.filter((o) => {
+      if (wanted.has(o.key)) {
+        deleted.push(o.key)
+        return false
+      }
+      return true
+    })
+    for (const k of keys) {
+      if (!deleted.includes(k)) missing.push(k)
+    }
+    this.logger.log(`Objects batch-deleted from ${name}: ${deleted.length} deleted, ${missing.length} missing`)
+    return { bucket: name, deleted, missing, source: 'simulated' }
+  }
+
+  /**
+   * [G005 v3.0.6.11-99 Wave 7A (G-28)] POST /system/storage/buckets/:name/copy
+   * 对象跨桶复制 (等价 S3 PUT + x-amz-copy-source / AWS SDK CopyObjectCommand),
+   * 内存模拟执行, 同名覆盖, source=simulated 标注。
+   */
+  copyObject(name: string, dto: { key: string; targetBucket: string }): CopyObjectResultDto {
+    const src = this.getBucketOrThrow(name)
+    const obj = src.objects.find((o) => o.key === dto.key)
+    if (!obj) throw new NotFoundException(`Object ${name}/${dto.key} not found`)
+    const dst = this.getBucketOrThrow(dto.targetBucket)
+    if (dst.name === src.name) {
+      throw new BadRequestException('目标桶不能与源桶相同')
+    }
+    const copy: StorageObjectDto = { key: dto.key, size: obj.size, modified: new Date().toISOString() }
+    const existing = dst.objects.find((o) => o.key === dto.key)
+    if (existing) {
+      existing.size = copy.size
+      existing.modified = copy.modified
+    } else {
+      dst.objects.push(copy)
+    }
+    this.logger.log(`Object copied: ${src.name}/${dto.key} → ${dst.name}/${dto.key}`)
+    return {
+      key: copy.key,
+      targetBucket: dst.name,
+      size: copy.size,
+      modified: copy.modified,
+      copied: true,
+      source: 'simulated',
+    }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略 ═══════════
+
+  private toLifecycleDto(rec: LifecyclePolicyRecord): LifecyclePolicyDto {
+    return { ...rec }
+  }
+
+  private getPolicyOrThrow(id: string): LifecyclePolicyRecord {
+    const rec = this.lifecyclePolicies.get(id)
+    if (!rec) throw new NotFoundException(`Lifecycle policy ${id} not found`)
+    if (rec.tenantId !== this.currentTenant()) {
+      throw new NotFoundException(`Lifecycle policy ${id} not found`)
+    }
+    return rec
+  }
+
+  /** GET /system/storage/lifecycle-policies — 策略列表 (按当前租户过滤) */
+  listLifecyclePolicies(): LifecyclePolicyDto[] {
+    const tenantId = this.currentTenant()
+    return [...this.lifecyclePolicies.values()]
+      .filter((rec) => rec.tenantId === tenantId)
+      .sort((a, b) => a.bucket.localeCompare(b.bucket) || a.afterDays - b.afterDays)
+      .map((rec) => this.toLifecycleDto(rec))
+  }
+
+  /** POST /system/storage/lifecycle-policies — 新建策略 */
+  createLifecyclePolicy(dto: LifecyclePolicyInput): LifecyclePolicyDto {
+    if (dto.deleteAfterDays !== undefined && dto.deleteAfterDays !== null && dto.deleteAfterDays < dto.afterDays) {
+      throw new BadRequestException('deleteAfterDays 必须 ≥ afterDays')
+    }
+    this.getBucketOrThrow(dto.bucket)
+    const now = new Date()
+    const rec: LifecyclePolicyRecord = {
+      id: this.nextLifecycleId(),
+      bucket: dto.bucket,
+      prefix: dto.prefix?.trim() ?? '',
+      transitionTo: dto.transitionTo,
+      afterDays: dto.afterDays,
+      deleteAfterDays: dto.deleteAfterDays === null ? undefined : dto.deleteAfterDays,
+      enabled: dto.enabled ?? true,
+      tenantId: this.currentTenant(),
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+    }
+    this.lifecyclePolicies.set(rec.id, rec)
+    this.logger.log(`Lifecycle policy created: ${rec.id} (${rec.bucket}/${rec.prefix || '*'})`)
+    return this.toLifecycleDto(rec)
+  }
+
+  /** PATCH /system/storage/lifecycle-policies/:id — 更新策略 (含启用开关) */
+  updateLifecyclePolicy(id: string, dto: Partial<LifecyclePolicyInput>): LifecyclePolicyDto {
+    const rec = this.getPolicyOrThrow(id)
+    const afterDays = dto.afterDays ?? rec.afterDays
+    const deleteAfterDays = dto.deleteAfterDays !== undefined ? (dto.deleteAfterDays === null ? undefined : dto.deleteAfterDays) : rec.deleteAfterDays
+    if (deleteAfterDays !== undefined && deleteAfterDays < afterDays) {
+      throw new BadRequestException('deleteAfterDays 必须 ≥ afterDays')
+    }
+    if (dto.bucket !== undefined && dto.bucket !== rec.bucket) {
+      this.getBucketOrThrow(dto.bucket)
+    }
+    rec.bucket = dto.bucket?.trim() ?? rec.bucket
+    rec.prefix = dto.prefix?.trim() ?? rec.prefix
+    rec.transitionTo = dto.transitionTo ?? rec.transitionTo
+    rec.afterDays = afterDays
+    rec.deleteAfterDays = deleteAfterDays
+    rec.enabled = dto.enabled ?? rec.enabled
+    rec.updatedAt = new Date().toISOString()
+    return this.toLifecycleDto(rec)
+  }
+
+  /** DELETE /system/storage/lifecycle-policies/:id — 删除策略 */
+  deleteLifecyclePolicy(id: string): { deleted: string } {
+    const rec = this.getPolicyOrThrow(id)
+    this.lifecyclePolicies.delete(rec.id)
+    this.logger.log(`Lifecycle policy deleted: ${rec.id}`)
+    return { deleted: rec.id }
   }
 
   /** GET /system/storage/buckets/:name/objects/:key/download — Blob 模拟下载 */

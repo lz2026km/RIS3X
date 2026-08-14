@@ -26,6 +26,21 @@ const UpdateSchema = z.object({
   tags: z.array(z.string()).optional(),
 })
 
+// [v3.0.6.11-99 Wave2B (模板设计器 P1)] 结构化内容保存: 段落块数组 + 可选预览文本
+const SaveStructureSchema = z.object({
+  structure: z
+    .array(
+      z.object({
+        type: z.enum(['text', 'field', 'variable', 'structured']),
+        content: z.string(),
+        fieldKey: z.string().optional(),
+        variable: z.string().optional(),
+      }),
+    )
+    .optional(),
+  body: z.string().optional(),
+})
+
 // [v3.0.6.11-98 Wave2A P1] 模板审批流请求体
 const ApproveSchema = z.object({
   approvedBy: z.string().min(1),
@@ -148,6 +163,19 @@ export class TemplatesController {
   @Post(':id/reject')
   reject(@Param('id') id: string, @Body(new ZodValidationPipe(RejectSchema)) body: z.infer<typeof RejectSchema>) {
     return this.service.reject(id, body.reason)
+  }
+
+  // [v3.0.6.11-99 Wave2B (模板设计器 P1)] 结构化内容读取/保存 — 静态路径必须先于 @Get(':id') 注册
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
+  @Get(':id/structure')
+  getStructure(@Param('id') id: string) {
+    return this.service.getStructure(id)
+  }
+
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
+  @Patch(':id/structure')
+  saveStructure(@Param('id') id: string, @Body(new ZodValidationPipe(SaveStructureSchema)) body: z.infer<typeof SaveStructureSchema>) {
+    return this.service.saveStructure(id, body.structure, body.body)
   }
 
   @Get(':id')

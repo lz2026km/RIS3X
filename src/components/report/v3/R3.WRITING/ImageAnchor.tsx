@@ -218,7 +218,10 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   <Button size="small" type={isFullscreen ? 'primary' : 'default'} icon={<Maximize2 className="w-3 h-3" />} onClick={toggleFullscreen} />
                   {frameMode === 'cine' && (
                     <>
-                      <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(暂未实现)')} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                      {/* [v3.0.6.11-99 Wave8A P1] 动态序列暂无序列帧数据 → 保留 disabled + tooltip 标注 */}
+                      <Tooltip title="动态序列待接入（序列帧数据暂不可用）">
+                        <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(暂未实现)')} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+                      </Tooltip>
                     </>
                   )}
                 </div>
@@ -343,9 +346,9 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
               <Info className="w-3 h-3" />DICOM SR 元数据
             </h5>
             <div className="text-xs font-mono bg-slate-50 p-2 rounded space-y-1">
-              <div>Template ID: <span className="text-blue-600">{DICOM_SR_MOCK.templateId}</span></div>
-              <div>Observation Context: <span className="text-blue-600">{DICOM_SR_MOCK.observationContext}</span></div>
-              <div>Number of Measurements: <span className="text-blue-600">{DICOM_SR_MOCK.measurementCount}</span></div>
+              <div>模板 ID: <span className="text-blue-600">{DICOM_SR_MOCK.templateId}</span></div>
+              <div>观察上下文: <span className="text-blue-600">{DICOM_SR_MOCK.observationContext}</span></div>
+              <div>测量数量: <span className="text-blue-600">{DICOM_SR_MOCK.measurementCount}</span></div>
             </div>
           </div>
         )}
@@ -354,8 +357,8 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
         {selected && (
           <div className="text-xs text-slate-500 font-mono bg-slate-50 p-2 rounded">
             <div>SOP Instance UID: <span className="text-blue-600">{selected.sopInstanceUID}</span></div>
-            <div>Study UID: <span className="text-blue-600">{selected.studyInstanceUID}</span></div>
-            <div>Series UID: <span className="text-blue-600">{selected.seriesInstanceUID}</span></div>
+            <div>检查 UID: <span className="text-blue-600">{selected.studyInstanceUID}</span></div>
+            <div>序列 UID: <span className="text-blue-600">{selected.seriesInstanceUID}</span></div>
           </div>
         )}
       </div>

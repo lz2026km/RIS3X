@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCache } from './client'
 
 // 云存储配置 API (G005 RIS v3.0.6.11-60)
 // GET/PUT /system/storage-config + POST /system/storage-config/test
@@ -17,6 +17,8 @@ export interface StorageConfigDto {
 export interface StorageStatsDto {
   driver: string
   status: 'active' | 'inactive'
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 驱动来源: local-fs / aws-sigv4-native / simulated */
+  source?: 'local-fs' | 'aws-sigv4-native' | 'simulated'
   detail?: string
   objectCount?: number
   usedBytes?: number
@@ -54,6 +56,8 @@ export interface StorageBucketDto {
   name: string
   provider: BucketProvider
   region: string
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 多租户桶隔离: 桶归属租户 */
+  tenantId: string
   objectCount: number
   usedBytes: number
   createdAt: string
@@ -71,6 +75,47 @@ export interface StorageDownloadDto {
   contentType: string
   filename: string
   contentBase64: string
+}
+
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略
+export type LifecycleTransitionTier = 'tier2' | 'archive' | 'backup'
+
+export interface LifecyclePolicyDto {
+  id: string
+  bucket: string
+  prefix: string
+  transitionTo: LifecycleTransitionTier
+  afterDays: number
+  deleteAfterDays?: number
+  enabled: boolean
+  tenantId: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LifecyclePolicyInput {
+  bucket: string
+  prefix?: string
+  transitionTo: LifecycleTransitionTier
+  afterDays: number
+  deleteAfterDays?: number | null
+  enabled?: boolean
+}
+
+export interface BatchDeleteResult {
+  bucket: string
+  deleted: string[]
+  missing: string[]
+  source: 'simulated' | 'aws-sigv4-native'
+}
+
+export interface CopyObjectResult {
+  key: string
+  targetBucket: string
+  size: number
+  modified: string
+  copied: true
+  source: 'simulated' | 'aws-sigv4-native'
 }
 
 export const storageConfigApi = {
@@ -91,20 +136,66 @@ export const storageConfigApi = {
   // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-28)] 桶管理
   listBuckets: () => api.get<StorageBucketDto[]>('/system/storage/buckets'),
 
-  createBucket: (body: { name: string; provider: BucketProvider; region: string }) =>
-    api.post<StorageBucketDto>('/system/storage/buckets', body),
+  createBucket: async (body: { name: string; provider: BucketProvider; region: string }) => {
+    const res = await api.post<StorageBucketDto>('/system/storage/buckets', body);
+    if (res.success) await invalidateApiCache('/system/storage/buckets');
+    return res;
+  },
 
-  deleteBucket: (name: string) =>
-    api.delete<{ deleted: string }>(`/system/storage/buckets/${encodeURIComponent(name)}`),
+  deleteBucket: async (name: string) => {
+    const res = await api.delete<{ deleted: string }>(`/system/storage/buckets/${encodeURIComponent(name)}`);
+    if (res.success) await invalidateApiCache('/system/storage/buckets');
+    return res;
+  },
 
   listBucketObjects: (name: string) =>
     api.get<StorageObjectDto[]>(`/system/storage/buckets/${encodeURIComponent(name)}/objects`),
 
-  uploadObject: (name: string, body: { key: string; size: number }) =>
-    api.post<StorageObjectDto>(`/system/storage/buckets/${encodeURIComponent(name)}/upload`, body),
+  uploadObject: async (name: string, body: { key: string; size: number }) => {
+    const res = await api.post<StorageObjectDto>(`/system/storage/buckets/${encodeURIComponent(name)}/upload`, body);
+    if (res.success) await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(name)}/objects`);
+    return res;
+  },
 
   downloadObject: (name: string, key: string) =>
     api.get<StorageDownloadDto>(`/system/storage/buckets/${encodeURIComponent(name)}/objects/${encodeURIComponent(key)}/download`),
+
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略
+  listLifecyclePolicies: () => api.get<LifecyclePolicyDto[]>('/system/storage/lifecycle-policies'),
+
+  createLifecyclePolicy: async (body: LifecyclePolicyInput) => {
+    const res = await api.post<LifecyclePolicyDto>('/system/storage/lifecycle-policies', body);
+    if (res.success) await invalidateApiCache('/system/storage/lifecycle-policies');
+    return res;
+  },
+
+  updateLifecyclePolicy: async (id: string, body: Partial<LifecyclePolicyInput>) => {
+    const res = await api.patch<LifecyclePolicyDto>(`/system/storage/lifecycle-policies/${encodeURIComponent(id)}`, body);
+    if (res.success) await invalidateApiCache('/system/storage/lifecycle-policies');
+    return res;
+  },
+
+  deleteLifecyclePolicy: async (id: string) => {
+    const res = await api.delete<{ deleted: string }>(`/system/storage/lifecycle-policies/${encodeURIComponent(id)}`);
+    if (res.success) await invalidateApiCache('/system/storage/lifecycle-policies');
+    return res;
+  },
+
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象批量操作
+  batchDeleteObjects: async (name: string, keys: string[]) => {
+    const res = await api.post<BatchDeleteResult>(`/system/storage/buckets/${encodeURIComponent(name)}/batch-delete`, { keys });
+    if (res.success) await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(name)}/objects`);
+    return res;
+  },
+
+  copyObject: async (name: string, body: { key: string; targetBucket: string }) => {
+    const res = await api.post<CopyObjectResult>(`/system/storage/buckets/${encodeURIComponent(name)}/copy`, body);
+    if (res.success) {
+      await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(name)}/objects`);
+      await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(body.targetBucket)}/objects`);
+    }
+    return res;
+  },
 }
 
 export default storageConfigApi

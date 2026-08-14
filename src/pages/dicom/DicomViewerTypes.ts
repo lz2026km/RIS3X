@@ -4,7 +4,8 @@ export type WindowPreset = { name: string; ww: number; wc: number; icon?: string
 export type MeasureType = 'length' | 'angle' | 'area' | 'ct'
 export type LayoutMode = '1x1' | '2x2' | '1x2' | '2x1'
 export type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print' | 'reset'
-export type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | null
+// [G005 v3.0.6.11-99 Wave 4B] 测量族增强: cobb (Cobb角 双线夹角) / polygon (多边形面积)
+export type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | 'cobb' | 'polygon' | null
 export type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history' | 'external'
 export type AnnotationType = 'text' | 'arrow' | 'rect' | 'ellipse'
 export type PseudoColorMode = 'none' | 'hotIron' | 'coolBlue' | 'grayscale' | 'pet' | 'softTissue'
@@ -35,11 +36,12 @@ export type MeasurePoint = {
 
 export interface Measurement {
   id: string
-  type: 'line' | 'angle' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue'
+  type: 'line' | 'angle' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | 'cobb' | 'polygon'
   points: { x: number; y: number }[]
   value: number
   unit: string
   label: string
+  location?: string
 }
 
 export type InteractiveMeasure = Measurement & { color: string; visible: boolean }

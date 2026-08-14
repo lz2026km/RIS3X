@@ -1,7 +1,15 @@
 import { api, invalidateApiCacheByPrefix } from './client'
 import type { ListData } from './client'
 
-export type FollowUpStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE'
+// [v3.0.6.11-99 Wave3B] 状态机扩展: 计划/已提醒/进行中/已完成/已失访/已取消 (OVERDUE 派生态)
+export type FollowUpStatus =
+  | 'PENDING'
+  | 'REMINDED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'MISSED'
+  | 'CANCELLED'
+  | 'OVERDUE'
 
 export interface FollowUpPlan {
   id: string
@@ -10,12 +18,19 @@ export interface FollowUpPlan {
   // [v3.0.6.11-92 Wave1B P0] 报告→随访关联 (报告详情"创建随访"入口带入)
   reportId?: string
   examId?: string
+  // [v3.0.6.11-99 Wave3B] 来源模板
+  templateId?: string
   planDate: string
   intervalDays: number
   nextDate: string
   status: FollowUpStatus
   note: string
   reminderEnabled: boolean
+  // [v3.0.6.11-99 Wave3B] 闭环时间戳/原因
+  remindedAt?: string | null
+  missedAt?: string | null
+  cancelledAt?: string | null
+  reason?: string
   completedAt: string | null
   createdAt: string
   updatedAt: string
@@ -26,6 +41,7 @@ export interface CreateFollowUpPlanDto {
   patientName: string
   reportId?: string
   examId?: string
+  templateId?: string
   planDate: string
   intervalDays?: number
   status?: FollowUpStatus
@@ -35,9 +51,27 @@ export interface CreateFollowUpPlanDto {
 
 export interface UpdateFollowUpPlanDto extends Partial<CreateFollowUpPlanDto> {}
 
+// [v3.0.6.11-99 Wave3B] 统计 DTO (完成率/失访率/异常率/按类别/按时段)
+export interface FollowUpStats {
+  total: number
+  completed: number
+  missed: number
+  cancelled: number
+  overdue: number
+  inProgress: number
+  reminded: number
+  pending: number
+  completionRate: number
+  missRate: number
+  abnormalRate: number
+  byCategory: Array<{ category: string; count: number }>
+  byMonth: Array<{ month: string; total: number; completed: number; missed: number }>
+}
+
 const LIST_PREFIX = '/followups'
 
 // [W4-B] 随访计划: 列表/创建/更新/删除/完成/到期提醒
+// [v3.0.6.11-99 Wave3B] + 状态机 (remind/miss/cancel/in-progress) + 统计 + 检查联动 (from-exam)
 export const followupApi = {
   list: (params?: { status?: FollowUpStatus; date?: string; search?: string; patientId?: string }) => {
     const query = params ? '?' + new URLSearchParams(
@@ -72,6 +106,44 @@ export const followupApi = {
 
   due: (days: number = 7) =>
     api.get<{ items: FollowUpPlan[]; total: number; days: number }>(`${LIST_PREFIX}/due?days=${days}`),
+
+  // [v3.0.6.11-99 Wave3B] 状态机流转
+  remind: async (id: string) => {
+    const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/remind`)
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  miss: async (id: string, reason: string) => {
+    const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/miss`, { reason })
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  cancel: async (id: string, reason: string) => {
+    const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/cancel`, { reason })
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  markInProgress: async (id: string) => {
+    const res = await api.post<FollowUpPlan>(`${LIST_PREFIX}/${id}/in-progress`)
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  // [v3.0.6.11-99 Wave3B] 统计 (完成率/失访率/异常率/按类别/按时段)
+  getStats: () => api.get<FollowUpStats>(`${LIST_PREFIX}/stats`),
+
+  // [v3.0.6.11-99 Wave3B] 检查联动: 检查完成 → 自动创建随访计划
+  fromExam: async (examId: string, templateId?: string) => {
+    const res = await api.post<{ items: FollowUpPlan[]; total: number }>(`${LIST_PREFIX}/from-exam`, {
+      examId,
+      templateId,
+    })
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
 }
 
 export type FollowUpListResult = ListData<FollowUpPlan>

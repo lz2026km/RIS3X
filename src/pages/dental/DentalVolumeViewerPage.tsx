@@ -1,8 +1,10 @@
 // [v3.0.6.8-93] Phase 3: CBCT 体绘制 + Curve MPR
 // 对标: Planmeca Romexis + Sirona Galileos 3D
+// [G005 Wave1B] 3 处裸 fetch → dentalApi (后端 /dental/volume/*)
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
 import { Eye, RotateCcw, Layers, Crosshair, Download, Box } from 'lucide-react';
+import { dentalApi } from '../../services/api/dentalApi';
 
 export const DentalVolumeViewerPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
@@ -18,8 +20,8 @@ export const DentalVolumeViewerPage: React.FC = () => {
   const [showCurved, setShowCurved] = useState(false);
 
   useEffect(() => {
-    fetch('/api/v1/dental/volume/studies').then(r=>r.json()).then(d=>{if(d.success)setStudies(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
-    fetch('/api/v1/dental/volume/presets').then(r=>r.json()).then(d=>{if(d.success)setPresets(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
+    dentalApi.listVolumeStudies().then(d=>{if(d.success)setStudies(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
+    dentalApi.listVolumePresets().then(d=>{if(d.success)setPresets(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const handleExportMesh = (format: 'stl' | 'obj') => {
@@ -100,8 +102,8 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
           <Tag color="purple">Romexis 对标</Tag>
-          {/* [v3.0.6.11-88 Round10] /dental/volume/* 后端未实现, MSW 演示数据 */}
-          <Tag color="orange">演示数据 (MSW)</Tag>
+          {/* [G005 Wave1B] /dental/volume/* 后端真实实现, dentalApi 封装 */}
+          <Tag color="green">真实后端 /dental/volume/*</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}><Card size="small"><Statistic title="总 CBCT" value={studies.length} /></Card></Col>
@@ -134,7 +136,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
       <Row gutter={12}>
         <Col span={12}>
           <Card size="small" title={<Space><Layers size={14}/>体绘制</Space>}
-            extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); fetch(`/api/v1/dental/volume/presets/${v}/apply`);}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
+            extra={<Select size="small" value={activePreset} onChange={v => {setActivePreset(v); dentalApi.applyVolumePreset(v).catch((err) => console.error('[F04]', err));}} options={presets.map((p:any)=>({value:p.id,label:p.name}))} />}>
             <canvas ref={canvasRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
             <Row gutter={8} style={{marginTop:8}}>
               <Col span={8}><Form.Item label="窗宽" size="small"><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>

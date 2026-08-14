@@ -189,6 +189,67 @@ function buildTrend(days: number) {
   })
 }
 
+// ── [v3.0.6.11-99 Wave 5B-B] 医生绩效 (RVU×单价×质量系数→奖金) ──────────
+function qualityCoefficient(score: number): number {
+  if (score >= 95) return 1.15
+  if (score >= 90) return 1.05
+  if (score >= 85) return 1.0
+  return 0.9
+}
+
+function buildPerformance() {
+  const rand = mulberry32(seedFor() ^ 0x9b1a)
+  const unitPrice = 12
+  const physicians = buildRvu().physicians.map((p) => {
+    const qualityScore = round1(82 + rand() * 16)
+    const accuracyScore = round1(Math.max(70, qualityScore - Math.floor(rand() * 4)))
+    const coefficient = qualityCoefficient(qualityScore)
+    return {
+      doctorName: p.doctorName,
+      reportCount: p.reportCount,
+      rvu: p.rvu,
+      avgTurnaround: p.avgMinutes,
+      qualityScore,
+      accuracyScore,
+      qualityCoefficient: coefficient,
+      bonus: Math.round(p.rvu * unitPrice * coefficient * 100) / 100,
+    }
+  })
+  const totalRvu = round1(physicians.reduce((s, p) => s + p.rvu, 0))
+  const reportCount = physicians.reduce((s, p) => s + p.reportCount, 0)
+  return {
+    totalRvu,
+    bonus: Math.round(physicians.reduce((s, p) => s + p.bonus, 0) * 100) / 100,
+    reportCount,
+    avgTurnaround: reportCount > 0 ? round1(physicians.reduce((s, p) => s + p.avgTurnaround * p.reportCount, 0) / reportCount) : 0,
+    qualityScore: round1(physicians.reduce((s, p) => s + p.qualityScore, 0) / physicians.length),
+    accuracyScore: round1(physicians.reduce((s, p) => s + p.accuracyScore, 0) / physicians.length),
+    byPhysician: physicians,
+    rules: { rvuUnitPrice: unitPrice, qualityCoefficients: { '>=95': 1.15, '>=90': 1.05, '>=85': 1.0, '<85': 0.9 } },
+  }
+}
+
+// ── [v3.0.6.11-99 Wave 5B-A] 大屏模板库 (内存 CRUD, 与后端结构一致) ──────
+const WALL_SEEDS = [
+  { id: 'wall-overview', name: '科室总览', layout: 'overview', config: { blocks: ['kpi', 'top10', 'critical'], autoRotateMs: 15000 }, active: true },
+  { id: 'wall-equipment', name: '设备监控', layout: 'equipment', config: { blocks: ['occupancy', 'oee'], autoRotateMs: 10000 }, active: false },
+  { id: 'wall-quality', name: '质控看板', layout: 'quality', config: { blocks: ['quality', 'sla'], autoRotateMs: 15000 }, active: false },
+  { id: 'wall-finance', name: '财务绩效', layout: 'finance', config: { blocks: ['revenue', 'bonus'], autoRotateMs: 12000 }, active: false },
+  { id: 'wall-mixed', name: '综合大屏', layout: 'mixed', config: { blocks: ['kpi', 'occupancy', 'quality', 'top10'], autoRotateMs: 15000 }, active: false },
+]
+
+const wallState: { items: Array<Record<string, unknown> & { id: string; name: string; layout: string }> } = {
+  items: WALL_SEEDS.map((t) => ({
+    ...t,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  })),
+}
+
+function wallEnvelope() {
+  return { source: 'database' as const, data: wallState.items.map((t) => ({ ...t })) }
+}
+
 export const biHandlers = [
   http.get(`${API_BASE}/bi/kpi`, async () => {
     await delay(60)
@@ -222,5 +283,60 @@ export const biHandlers = [
     const url = new URL(request.url)
     const days = Math.min(Math.max(parseInt(url.searchParams.get('days') || '30', 10), 7), 90)
     return HttpResponse.json(envelope(buildTrend(days)))
+  }),
+
+  // [v3.0.6.11-99 Wave 5B-B] 医生绩效
+  http.get(`${API_BASE}/bi/physician-performance`, async () => {
+    await delay(80)
+    return HttpResponse.json(envelope(buildPerformance()))
+  }),
+
+  // [v3.0.6.11-99 Wave 5B-A] 大屏模板库 CRUD
+  http.get(`${API_BASE}/bi/wall-templates`, async () => {
+    await delay(60)
+    return HttpResponse.json(wallEnvelope())
+  }),
+
+  http.get(`${API_BASE}/bi/wall-templates/:id`, async ({ params }) => {
+    await delay(50)
+    const item = wallState.items.find((t) => t.id === params.id)
+    if (!item) return HttpResponse.json({ message: `模板不存在: ${params.id}` }, { status: 404 })
+    return HttpResponse.json({ ...item })
+  }),
+
+  http.post(`${API_BASE}/bi/wall-templates`, async ({ request }) => {
+    await delay(80)
+    const body = (await request.json()) as { name?: string; layout?: string; config?: Record<string, unknown>; active?: boolean }
+    const now = new Date().toISOString()
+    const item = {
+      id: `wall-${Date.now()}`,
+      name: String(body.name ?? '未命名模板'),
+      layout: String(body.layout ?? 'overview'),
+      config: body.config ?? {},
+      active: Boolean(body.active),
+      createdAt: now,
+      updatedAt: now,
+    }
+    wallState.items.unshift(item)
+    return HttpResponse.json({ ...item }, { status: 201 })
+  }),
+
+  http.patch(`${API_BASE}/bi/wall-templates/:id`, async ({ params, request }) => {
+    await delay(70)
+    const item = wallState.items.find((t) => t.id === params.id)
+    if (!item) return HttpResponse.json({ message: `模板不存在: ${params.id}` }, { status: 404 })
+    const body = (await request.json()) as Record<string, unknown>
+    for (const key of ['name', 'layout', 'config', 'active']) {
+      if (body[key] !== undefined) item[key] = body[key]
+    }
+    item.updatedAt = new Date().toISOString()
+    return HttpResponse.json({ ...item })
+  }),
+
+  http.delete(`${API_BASE}/bi/wall-templates/:id`, async ({ params }) => {
+    await delay(60)
+    const before = wallState.items.length
+    wallState.items = wallState.items.filter((t) => t.id !== params.id)
+    return HttpResponse.json({ id: params.id, deleted: wallState.items.length < before })
   }),
 ]

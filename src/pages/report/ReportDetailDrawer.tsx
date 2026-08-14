@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
-  ShieldCheck, Zap, CheckCircle, Download, FileCheck2, Edit3,
+  ShieldCheck, Zap, CheckCircle, Download, FileCheck2, Edit3, MessageSquareText,
 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline } from '../../components/report'
@@ -11,6 +11,10 @@ import { useReportStore } from '../../store'
 import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable } from './reportUtils'
 import { reportApi } from '../../services/api'
 import type { AuditTrailEvent } from '../../components/report/StatusTimeline'
+import { getCurrentUser } from '../../utils/auth'
+import ReportAnnotationPanel from '../../components/report/ReportAnnotationPanel'
+// [v3.0.6.11-99 Wave7B] 离线报告包: 检测本地离线副本
+import { offlineStorage } from '../../services/pwa/offlineStorage'
 
 const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
@@ -74,19 +78,32 @@ export interface ReportDetailDrawerProps {
   onWrite?: (r: RadiologyReport) => void
   // [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360
   onOpen360?: (r: RadiologyReport) => void
+  // [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照 / 展示「离线副本」标注
+  onOfflineSave?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360 }: ReportDetailDrawerProps) {
-  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave }: ReportDetailDrawerProps) {
+  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
   // [v3.0.6.11-95 Wave2B P1] 状态时间线真实化: reportApi.auditTrail 数据驱动
   const [timelineTrail, setTimelineTrail] = useState<AuditTrailEvent[] | null>(null)
   const [timelineLoading, setTimelineLoading] = useState(false)
+  // [v3.0.6.11-99 Wave7B] 离线副本检测: 打开详情时查询 IndexedDB 是否有本地快照
+  const [offlineSaved, setOfflineSaved] = useState(false)
 
   useEffect(() => {
     if (report) { setTab('content'); setShowHistory(false); setTimelineTrail(null); setTimelineLoading(false) }
+  }, [report?.id])
+
+  useEffect(() => {
+    if (!report) return
+    let cancelled = false
+    void offlineStorage.hasReport(report.id).then(exists => {
+      if (!cancelled) setOfflineSaved(exists)
+    }).catch(() => { if (!cancelled) setOfflineSaved(false) })
+    return () => { cancelled = true }
   }, [report?.id])
 
   // [v3.0.6.11-95 Wave2B P1] 进入时间线 Tab 时拉取真实审计轨迹
@@ -109,6 +126,20 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
     })()
     return () => { cancelled = true }
   }, [report, tab])
+
+  // [v3.0.6.11-99 Wave 2A 报告批注] 详情批注 Tab 当前用户 (JWT/本地会话回退)
+  const drawerUser = useMemo(() => {
+    const mem = getCurrentUser()
+    if (mem?.id) return { id: mem.id, name: mem.name || '当前用户' }
+    try {
+      const raw = localStorage.getItem('ris_current_user')
+      if (raw) {
+        const u = JSON.parse(raw)
+        if (u?.id) return { id: String(u.id), name: String(u.fullName ?? u.username ?? '当前用户') }
+      }
+    } catch { /* 忽略 */ }
+    return { id: 'A001', name: '当前用户' }
+  }, [])
 
   const reportStatus = (report?.status as string) || '待分配'
   if (!report) return null
@@ -139,6 +170,12 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             <div style={{ fontSize: 12, color: GRAY, marginTop: 1 }}>{report.reportId} · {report.accessionNumber}</div>
           </div>
           <StatusBadge status={reportStatus} size="md" />
+          {/* [v3.0.6.11-99 Wave7B] 离线副本标注 */}
+          {offlineSaved && (
+            <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 600, border: '1px solid #fcd34d' }}>
+              ✓ 离线副本
+            </span>
+          )}
           <button onClick={onClose} style={{ padding: 6, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', color: GRAY, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
         </div>
 
@@ -165,6 +202,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             { key: 'timeline', label: '状态时间线', icon: <Activity size={13} />, badge: 'R0' },
             { key: 'history', label: '历史版本', icon: <History size={13} /> },
             { key: 'print', label: '打印预览', icon: <Printer size={13} /> },
+            { key: 'annotations', label: '批注', icon: <MessageSquareText size={13} /> },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key as any)}
               style={{
@@ -291,6 +329,18 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </div>
           )}
 
+          {tab === 'annotations' && (
+            <div>
+              {/* [v3.0.6.11-99 Wave 2A 报告批注] 报告协作批注 (后端 report-annotation 模块 + MSW 兜底) */}
+              <ReportAnnotationPanel
+                reportId={report.reportId}
+                currentUser={drawerUser}
+                maxHeight={440}
+                testIdPrefix="detail-annotations"
+              />
+            </div>
+          )}
+
           {tab === 'print' && (
             <div style={{ textAlign: 'center', padding: 40 }}>
               <Printer size={48} style={{ color: '#cbd5e1', marginBottom: 16 }} />
@@ -329,6 +379,12 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           <button onClick={() => onExportPDF(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} /> 导出PDF
           </button>
+          {/* [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照 (断网可浏览) */}
+          {onOfflineSave && (
+            <button onClick={() => onOfflineSave(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Download size={13} /> {offlineSaved ? '更新离线副本' : '离线保存'}
+            </button>
+          )}
           {onGenerateSr && (
             <button onClick={() => onGenerateSr(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileCheck2 size={14} /> 生成SR

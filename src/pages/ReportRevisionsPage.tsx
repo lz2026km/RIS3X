@@ -6,7 +6,8 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { message, Modal } from 'antd';
+import { message, Modal, Input } from 'antd';
+import { getCurrentUser } from '../utils/auth';
 import { notificationsApi } from '../services/api/notificationsApi';
 import {
   History, GitCompare, ChevronRight, Plus, Edit2, Eye, X,
@@ -198,7 +199,9 @@ export default function ReportRevisionsPage() {
   const [rightVersion, setRightVersion] = useState<number>(2);
   const [diffField, setDiffField] = useState<'findings' | 'diagnosis' | 'impression'>('impression');
   const [showDiff, setShowDiff] = useState(true);
-  const [, setShowAddendumModal] = useState(false);
+  const [showAddendumModal, setShowAddendumModal] = useState(false);
+  const [addendumNote, setAddendumNote] = useState('');
+  const [addendumLoading, setAddendumLoading] = useState(false);
   const [search, setSearch] = useState('');
   // [v3.0.6.11-98 Wave3B P1] 终版预览 / 通知患者 / 撤回报告
   const [previewFinal, setPreviewFinal] = useState(false);
@@ -266,6 +269,43 @@ export default function ReportRevisionsPage() {
         }
       },
     });
+  };
+
+  // [v3.0.6.11-99 Wave8A P1] 创建修订/补发: reportApi.revise → AMENDING (修订说明本地记录, 随修订链展示)
+  const handleCreateAddendum = async () => {
+    if (!addendumNote.trim()) { message.warning('请填写修订说明'); return; }
+    setAddendumLoading(true);
+    try {
+      const res = await reportApi.revise(selectedReportId);
+      if (!res.success) { message.error(res.error?.message ?? '补发失败'); return; }
+      const user = getCurrentUser();
+      const latest = currentRevisions[currentRevisions.length - 1];
+      const newRev: ReportRevision = {
+        id: `rev-add-${Date.now()}`,
+        reportId: selectedReportId,
+        versionNumber: (latest?.versionNumber ?? 0) + 1,
+        versionLabel: `v1.${(latest?.versionNumber ?? 0) + 1}`,
+        authorId: user?.id ?? 'unknown',
+        authorName: (user as any)?.name ?? '当前用户',
+        authorTitle: '—',
+        action: 'addendum',
+        reason: addendumNote.trim(),
+        changes: [],
+        findings: latest?.findings ?? '',
+        diagnosis: latest?.diagnosis ?? '',
+        impression: latest?.impression ?? '',
+        createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        patientNotified: false,
+      };
+      setAllRevisions(prev => [...prev, newRev]);
+      setAddendumNote('');
+      setShowAddendumModal(false);
+      message.success(`报告 ${selectedReportId} 已置为修订中 (AMENDING)，补发说明已记录`);
+    } catch {
+      message.error('补发失败，请稍后重试');
+    } finally {
+      setAddendumLoading(false);
+    }
   };
 
   return (
@@ -673,6 +713,33 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
             )}
           </div>
         )}
+      </Modal>
+
+      {/* [v3.0.6.11-99 Wave8A P1] 创建修订/补发 Modal: 修订说明 → reportApi.revise (AMENDING) */}
+      <Modal
+        title={`创建修订/补发 · ${selectedReportId}`}
+        open={showAddendumModal}
+        onCancel={() => setShowAddendumModal(false)}
+        onOk={() => void handleCreateAddendum()}
+        confirmLoading={addendumLoading}
+        okText="确认补发"
+        cancelText="取消"
+        width={480}
+      >
+        <div style={{ fontSize: 13 }}>
+          <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
+            将报告 {selectedReportId} 置为修订中 (AMENDING)，修订完成后需重新签署发布。当前已有 {currentRevisions.length} 个版本。
+          </p>
+          <label style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>修订说明 (必填)</label>
+          <Input.TextArea
+            rows={4}
+            value={addendumNote}
+            onChange={e => setAddendumNote(e.target.value)}
+            placeholder="例如: 补充危急值说明 / 修正诊断意见 / 增加影像补充"
+            maxLength={200}
+            showCount
+          />
+        </div>
       </Modal>
     </div>
   );

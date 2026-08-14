@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CacheService } from '../../cache/cache.service'
 import { SystemConfigService } from '../../system-storage/system-config.service'
@@ -69,6 +69,52 @@ export interface TrendPoint {
   avgReportMinutes: number
   overtimeCount: number
   criticalCount: number
+}
+
+// ── [v3.0.6.11-99 Wave 5B-A] BI 大屏模板库 ──────────────────────────────
+export type WallLayout = 'overview' | 'equipment' | 'quality' | 'finance' | 'mixed'
+
+export const WALL_LAYOUTS: WallLayout[] = ['overview', 'equipment', 'quality', 'finance', 'mixed']
+
+export interface WallTemplate {
+  id: string
+  name: string
+  layout: WallLayout
+  /** 区块组合: kpi | top10 | critical | occupancy | oee | quality | sla | revenue | bonus */
+  config: { blocks?: string[]; autoRotateMs?: number } & Record<string, unknown>
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateWallTemplateDto {
+  name: string
+  layout: WallLayout
+  config?: { blocks?: string[]; autoRotateMs?: number } & Record<string, unknown>
+  active?: boolean
+}
+
+// ── [v3.0.6.11-99 Wave 5B-B] 医生绩效 (RVU/奖金) ─────────────────────────
+export interface PhysicianPerformanceRow {
+  doctorName: string
+  reportCount: number
+  rvu: number
+  avgTurnaround: number
+  qualityScore: number
+  accuracyScore: number
+  qualityCoefficient: number
+  bonus: number
+}
+
+export interface PhysicianPerformancePayload {
+  totalRvu: number
+  bonus: number
+  reportCount: number
+  avgTurnaround: number
+  qualityScore: number
+  accuracyScore: number
+  byPhysician: PhysicianPerformanceRow[]
+  rules: { rvuUnitPrice: number; qualityCoefficients: Record<string, number> }
 }
 
 interface RvuReportRecord {
@@ -147,10 +193,46 @@ function rvuFor(modality: string | undefined): number {
   return RVU_BY_MODALITY[modality ?? ''] ?? DEFAULT_RVU
 }
 
+function round2(v: number): number {
+  return Math.round(v * 100) / 100
+}
+
+/** 奖金质量系数: 质控分越高系数越大 (≥95: ×1.15 / ≥90: ×1.05 / ≥85: ×1.0 / <85: ×0.9) */
+function qualityCoefficient(score: number): number {
+  if (score >= 95) return 1.15
+  if (score >= 90) return 1.05
+  if (score >= 85) return 1.0
+  return 0.9
+}
+
+function stringHash(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h
+}
+
+function aggregatePerformance(rows: PhysicianPerformanceRow[], unitPrice: number): PhysicianPerformancePayload {
+  const totalRvu = round1(rows.reduce((s, r) => s + r.rvu, 0))
+  const reportCount = rows.reduce((s, r) => s + r.reportCount, 0)
+  const totalMinutes = rows.reduce((s, r) => s + r.avgTurnaround * r.reportCount, 0)
+  const n = rows.length || 1
+  return {
+    totalRvu,
+    bonus: round2(rows.reduce((s, r) => s + r.bonus, 0)),
+    reportCount,
+    avgTurnaround: reportCount > 0 ? round1(totalMinutes / reportCount) : 0,
+    qualityScore: round1(rows.reduce((s, r) => s + r.qualityScore, 0) / n),
+    accuracyScore: round1(rows.reduce((s, r) => s + r.accuracyScore, 0) / n),
+    byPhysician: rows,
+    rules: { rvuUnitPrice: unitPrice, qualityCoefficients: { '>=95': 1.15, '>=90': 1.05, '>=85': 1.0, '<85': 0.9 } },
+  }
+}
+
 interface DemoWindow {
   demoKpi: (dateSeed: number) => KpiPayload
   demoTimeliness: (dateSeed: number) => { total: number; buckets: TimelinessBucket[]; medianMinutes: number; p90Minutes: number }
   demoRvu: (dateSeed: number) => { totalRvu: number; physicians: PhysicianRvuRow[] }
+  demoPerformance: (dateSeed: number, unitPrice: number) => PhysicianPerformancePayload
   demoOee: (dateSeed: number, days: number) => { devices: DeviceOeeRow[]; dailyTrend: OeeDay[] }
   demoSla: (dateSeed: number) => { total: number; slaMinutes: number; complianceRate: number; avgResponseMinutes: number; distribution: CriticalSlaBucket[]; overdue: CriticalOverdueRow[] }
   demoTrend: (dateSeed: number, days: number) => TrendPoint[]
@@ -203,6 +285,27 @@ function buildDemo(): DemoWindow {
       }
     }).sort((a, b) => b.rvu - a.rvu)
     return { totalRvu: round1(physicians.reduce((s, p) => s + p.rvu, 0)), physicians }
+  }
+
+  const demoPerformance = (seed: number, unitPrice: number): PhysicianPerformancePayload => {
+    const { physicians } = demoRvu(seed)
+    const rand = mulberry32(seed ^ 0x9b1a)
+    const rows: PhysicianPerformanceRow[] = physicians.map((p) => {
+      const qualityScore = round1(82 + rand() * 16)
+      const accuracyScore = round1(Math.max(70, qualityScore - Math.floor(rand() * 4)))
+      const coefficient = qualityCoefficient(qualityScore)
+      return {
+        doctorName: p.doctorName,
+        reportCount: p.reportCount,
+        rvu: p.rvu,
+        avgTurnaround: p.avgMinutes,
+        qualityScore,
+        accuracyScore,
+        qualityCoefficient: coefficient,
+        bonus: round2(p.rvu * unitPrice * coefficient),
+      }
+    })
+    return aggregatePerformance(rows, unitPrice)
   }
 
   const demoOee = (seed: number, days: number) => {
@@ -304,8 +407,57 @@ function buildDemo(): DemoWindow {
     })
   }
 
-  return { demoKpi, demoTimeliness, demoRvu, demoOee, demoSla, demoTrend }
+  return { demoKpi, demoTimeliness, demoRvu, demoPerformance, demoOee, demoSla, demoTrend }
 }
+
+// ── [v3.0.6.11-99 Wave 5B-A] 内置大屏模板种子 (5 种布局) ──────────────────
+const WALL_TEMPLATE_SEEDS: WallTemplate[] = [
+  {
+    id: 'wall-overview',
+    name: '科室总览',
+    layout: 'overview',
+    config: { blocks: ['kpi', 'top10', 'critical'], autoRotateMs: 15000 },
+    active: true,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'wall-equipment',
+    name: '设备监控',
+    layout: 'equipment',
+    config: { blocks: ['occupancy', 'oee'], autoRotateMs: 10000 },
+    active: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'wall-quality',
+    name: '质控看板',
+    layout: 'quality',
+    config: { blocks: ['quality', 'sla'], autoRotateMs: 15000 },
+    active: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'wall-finance',
+    name: '财务绩效',
+    layout: 'finance',
+    config: { blocks: ['revenue', 'bonus'], autoRotateMs: 12000 },
+    active: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'wall-mixed',
+    name: '综合大屏',
+    layout: 'mixed',
+    config: { blocks: ['kpi', 'occupancy', 'quality', 'top10'], autoRotateMs: 15000 },
+    active: false,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+]
 
 @Injectable()
 export class BiService {
@@ -463,6 +615,119 @@ export class BiService {
       physicians.sort((a, b) => b.rvu - a.rvu)
       return { totalRvu: round1(physicians.reduce((s, p) => s + p.rvu, 0)), physicians }
     })
+  }
+
+  /**
+   * [v3.0.6.11-99 Wave 5B-B] 医生绩效: RVU × 单价 × 质量系数 → 奖金
+   * 数据从 report(数量/RVU/周转) + ReportQualityScore(质控分) 派生;
+   * 单价 rvu_unit_price 来自 admin config (默认 12), 质量系数规则见 qualityCoefficient
+   */
+  async getPhysicianPerformance() {
+    const seed = dateSeed()
+    const unitPrice = await this.systemConfig.getNumber('rvu_unit_price', 12)
+    return this.run<PhysicianPerformancePayload>('bi:physician-performance', 60, () => this.demo.demoPerformance(seed, unitPrice), async () => {
+      const since = new Date()
+      since.setDate(since.getDate() - 30)
+      const rows = await this.prisma.report.findMany({
+        where: { radiologistId: { not: null }, createdAt: { gte: since } },
+        select: {
+          createdAt: true,
+          signedAt: true,
+          radiologist: { select: { fullName: true } },
+          exam: { select: { modality: true } },
+          ReportQualityScore: {
+            orderBy: { evaluatedAt: 'desc' },
+            take: 1,
+            select: { totalScore: true, dimensions: true },
+          },
+        },
+      })
+      if (rows.length === 0) return null
+      const byDoctor = new Map<string, { count: number; rvu: number; durations: number[]; quality: number[]; accuracy: number[] }>()
+      for (const r of rows) {
+        const name = r.radiologist?.fullName ?? '未分配'
+        const entry = byDoctor.get(name) ?? { count: 0, rvu: 0, durations: [], quality: [], accuracy: [] }
+        entry.count += 1
+        entry.rvu += rvuFor(r.exam?.modality)
+        if (r.signedAt) entry.durations.push(minutesBetween(r.createdAt, r.signedAt))
+        const q = r.ReportQualityScore?.[0]
+        if (q) {
+          entry.quality.push(q.totalScore)
+          const dims = (q.dimensions as Record<string, unknown> | null) ?? null
+          const acc = typeof dims?.accuracy === 'number' && dims.accuracy > 0 ? dims.accuracy : null
+          entry.accuracy.push(acc ?? Math.max(70, q.totalScore - (stringHash(name) % 4)))
+        }
+        byDoctor.set(name, entry)
+      }
+      const physicians: PhysicianPerformanceRow[] = Array.from(byDoctor.entries()).map(([doctorName, e]) => {
+        const qualityScore = e.quality.length > 0 ? round1(e.quality.reduce((s, v) => s + v, 0) / e.quality.length) : round1(85 + (stringHash(doctorName) % 10))
+        const accuracyScore = e.accuracy.length > 0 ? round1(e.accuracy.reduce((s, v) => s + v, 0) / e.accuracy.length) : qualityScore
+        const rvu = round1(e.rvu)
+        const coefficient = qualityCoefficient(qualityScore)
+        return {
+          doctorName,
+          reportCount: e.count,
+          rvu,
+          avgTurnaround: median(e.durations),
+          qualityScore,
+          accuracyScore,
+          qualityCoefficient: coefficient,
+          bonus: round2(rvu * unitPrice * coefficient),
+        }
+      })
+      physicians.sort((a, b) => b.bonus - a.bonus)
+      return aggregatePerformance(physicians, unitPrice)
+    })
+  }
+
+  // ── [v3.0.6.11-99 Wave 5B-A] 大屏模板 CRUD (内存存储, 重启恢复内置种子) ──
+  private wallTemplates: WallTemplate[] = WALL_TEMPLATE_SEEDS.map((t) => ({ ...t }))
+
+  listWallTemplates(): { source: 'database'; data: WallTemplate[] } {
+    return { source: 'database', data: [...this.wallTemplates] }
+  }
+
+  getWallTemplate(id: string): WallTemplate | null {
+    return this.wallTemplates.find((t) => t.id === id) ?? null
+  }
+
+  createWallTemplate(dto: CreateWallTemplateDto): WallTemplate {
+    if (!dto?.name?.trim() || !WALL_LAYOUTS.includes(dto.layout)) {
+      throw new BadRequestException('模板名称必填, 布局(layout)必须为 overview|equipment|quality|finance|mixed')
+    }
+    const now = new Date().toISOString()
+    const template: WallTemplate = {
+      id: `wall-${Date.now()}`,
+      name: dto.name.trim(),
+      layout: dto.layout,
+      config: dto.config ?? {},
+      active: dto.active ?? false,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.wallTemplates.unshift(template)
+    return template
+  }
+
+  updateWallTemplate(id: string, dto: Partial<CreateWallTemplateDto>): WallTemplate | null {
+    const target = this.wallTemplates.find((t) => t.id === id)
+    if (!target) return null
+    if (dto.name != null && !dto.name.trim()) throw new BadRequestException('模板名称不能为空')
+    if (dto.layout != null && !WALL_LAYOUTS.includes(dto.layout)) {
+      throw new BadRequestException('布局(layout)必须为 overview|equipment|quality|finance|mixed')
+    }
+    if (dto.name != null) target.name = dto.name.trim()
+    if (dto.layout != null) target.layout = dto.layout
+    if (dto.config != null) target.config = dto.config
+    if (dto.active != null) target.active = dto.active
+    target.updatedAt = new Date().toISOString()
+    return target
+  }
+
+  deleteWallTemplate(id: string): { id: string; deleted: boolean } {
+    const before = this.wallTemplates.length
+    this.wallTemplates = this.wallTemplates.filter((t) => t.id !== id)
+    return { id, deleted: this.wallTemplates.length < before }
   }
 
   async getDeviceOee(days: number) {

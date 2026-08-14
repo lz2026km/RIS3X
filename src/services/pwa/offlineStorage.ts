@@ -21,6 +21,15 @@ export interface OfflineReport {
   patientId: string
   synced: boolean
   updatedAt: number
+  // [v3.0.6.11-99 Wave7B] 离线报告包: 保存报告 HTML 快照 + 患者/检查信息 (列表与离线浏览用)
+  htmlContent?: string
+  patientName?: string
+  modality?: string
+  bodyPart?: string
+  accessionNumber?: string
+  reportNo?: string
+  state?: string
+  savedAt?: number
 }
 
 class OfflineDatabase extends Dexie {
@@ -50,6 +59,19 @@ export const offlineStorage = {
 
   async saveReport(report: OfflineReport): Promise<void> {
     await db.reports.put({ ...report, updatedAt: Date.now() })
+  },
+
+  // [v3.0.6.11-99 Wave7B] 离线报告包: 列表 (最新在前) / 删除 / 是否存在
+  async listReports(): Promise<OfflineReport[]> {
+    return db.reports.orderBy('updatedAt').reverse().toArray()
+  },
+
+  async removeReport(id: string): Promise<void> {
+    await db.reports.delete(id)
+  },
+
+  async hasReport(id: string): Promise<boolean> {
+    return (await db.reports.get(id)) !== undefined
   },
 
   async getReport(id: string): Promise<OfflineReport | undefined> {

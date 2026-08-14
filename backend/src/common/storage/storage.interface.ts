@@ -33,6 +33,8 @@ export interface StorageListResult {
 export interface StorageTestResult {
   ok: boolean
   driver: string
+  /** [G005 v3.0.6.11-99 Wave 7A (G-28)] 驱动来源标注: aws-sigv4-native / local-fs / simulated */
+  source?: string
   detail?: string
   latencyMs?: number
 }

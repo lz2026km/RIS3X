@@ -1,6 +1,15 @@
 import { z } from 'zod'
 
-export const FollowUpStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE'])
+// [v3.0.6.11-99 Wave3B] 状态机扩展: 计划/已提醒/进行中/已完成/已失访/已取消 (OVERDUE 为派生态, 允许查询)
+export const FollowUpStatusEnum = z.enum([
+  'PENDING',
+  'REMINDED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'MISSED',
+  'CANCELLED',
+  'OVERDUE',
+])
 
 export const CreateFollowUpPlanSchema = z.object({
   patientId: z.string().min(1),
@@ -13,6 +22,8 @@ export const CreateFollowUpPlanSchema = z.object({
   // [v3.0.6.11-92 Wave1B P0] 报告→随访关联: 可选来源报告/检查 (报告详情"创建随访"入口带入)
   reportId: z.string().optional(),
   examId: z.string().optional(),
+  // [v3.0.6.11-99 Wave3B] 来源模板 (模板库 apply / 检查联动 from-exam 带入)
+  templateId: z.string().optional(),
 })
 
 export const UpdateFollowUpPlanSchema = CreateFollowUpPlanSchema.partial()
@@ -22,4 +33,30 @@ export const ListFollowUpQuerySchema = z.object({
   date: z.string().optional(),
   patientId: z.string().optional(),
   search: z.string().optional(),
+})
+
+// [v3.0.6.11-99 Wave3B] 失访/取消: 必填原因
+export const MissFollowUpSchema = z.object({
+  reason: z.string().min(1, '请填写失访原因'),
+})
+
+export const CancelFollowUpSchema = z.object({
+  reason: z.string().min(1, '请填写取消原因'),
+})
+
+// [v3.0.6.11-99 Wave3B] 检查联动: 检查完成 → 自动创建随访计划 (可选模板批量生成)
+export const FromExamFollowUpSchema = z.object({
+  examId: z.string().min(1),
+  templateId: z.string().optional(),
+  note: z.string().optional(),
+})
+
+// [v3.0.6.11-99 Wave3B] 模板应用到患者
+export const ApplyTemplateSchema = z.object({
+  patientId: z.string().min(1),
+  patientName: z.string().min(1),
+  planDate: z.string().min(1),
+  reportId: z.string().optional(),
+  examId: z.string().optional(),
+  note: z.string().optional(),
 })

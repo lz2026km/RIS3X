@@ -435,6 +435,16 @@ export type {
   DicomCompressStats,
 } from "./dicomCompressApi";
 
+// [v3.0.6.11-99 Wave 2A] 报告批注 (报告详情/书写页协作批注)
+export { reportAnnotationApi } from "./reportAnnotationApi";
+export type {
+  ReportAnnotation,
+  ReportAnnotationReply,
+  ReportAnnotationStats,
+  ReportAnnotationStatus,
+  CreateReportAnnotationDto,
+} from "./reportAnnotationApi";
+
 export { occupancyApi } from "./occupancyApi";
 export type {
   OccupancyRoom,

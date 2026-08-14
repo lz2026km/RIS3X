@@ -1,1 +1,9 @@
-{}
+{
+  "patientId": "Patient ID",
+  "startScoring": "Start Scoring",
+  "loadHistory": "Load History",
+  "confidence": "Confidence",
+  "findings": "Findings",
+  "recommendations": "Recommendations",
+  "historyTrend": "Grading Trend"
+}

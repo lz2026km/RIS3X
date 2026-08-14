@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query, HttpCode } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { DentalService } from './dental.service'
@@ -365,4 +365,77 @@ export class DentalController {
 
   @Post('ai/oral-cavity-screening')
   screenOralCavity() { return this.svc.screenOralCavity() }
+
+  // ── [G005 Wave1B] 正畸 ortho 真实化 (DentalOrthoPage / DentalAlignerPage; 形状对齐 dentalHandlers) ──
+
+  @Get('ortho/plans')
+  listOrthoPlans() { return this.svc.listOrthoPlans() }
+
+  @Post('ortho/plans')
+  @HttpCode(201)
+  createOrthoPlan(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createOrthoPlan(body) }
+
+  @Get('ortho/plans/:id')
+  getOrthoPlan(@Param('id') id: string) { return this.svc.getOrthoPlan(id) }
+
+  @Post('ortho/arch-analysis')
+  archAnalysis(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.archAnalysis(body) }
+
+  @Get('ortho/aligner-plans')
+  listAlignerPlans() { return this.svc.listAlignerPlans() }
+
+  @Post('ortho/aligner-plans')
+  @HttpCode(201)
+  createAlignerPlan(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createAlignerPlan(body) }
+
+  @Get('ortho/aligner-plans/:id')
+  getAlignerPlan(@Param('id') id: string) { return this.svc.getAlignerPlan(id) }
+
+  @Get('ortho/aligner-plans/:id/stages')
+  getAlignerStages(@Param('id') id: string) { return this.svc.getAlignerStages(id) }
+
+  @Post('ortho/aligner-plans/:id/stages')
+  generateAlignerStages(@Param('id') id: string) { return this.svc.generateAlignerStages(id) }
+
+  @Get('ortho/aligner-plans/:id/progress')
+  getAlignerProgress(@Param('id') id: string) { return this.svc.getAlignerProgress(id) }
+
+  @Post('ortho/aligner-plans/:id/progress')
+  updateAlignerProgress(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.updateAlignerProgress(id, body) }
+
+  @Post('ortho/aligner-plans/:id/approve')
+  approveAlignerPlan(@Param('id') id: string) { return this.svc.approveAlignerPlan(id) }
+
+  @Post('ortho/aligner-plans/:id/order-lab')
+  orderAlignerLab(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { lab?: string; quantity?: number; shippingMethod?: string }) { return this.svc.orderAlignerLab(id, body) }
+
+  // ── [G005 Wave1B] 头影测量 ceph 真实化 (DentalCephPage; 形状对齐 dentalHandlers dentalCephModule) ──
+
+  @Get('ceph/studies')
+  listCephStudies() { return this.svc.listCephStudies() }
+
+  @Post('ceph/studies')
+  @HttpCode(201)
+  createCephStudy(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createCephStudy(body) }
+
+  @Get('ceph/studies/:id')
+  getCephStudy(@Param('id') id: string) { return this.svc.getCephStudy(id) }
+
+  @Get('ceph/analysis-types')
+  listCephAnalysisTypes() { return this.svc.listCephAnalysisTypes() }
+
+  @Get('ceph/landmarks')
+  getDefaultCephLandmarks() { return this.svc.getDefaultCephLandmarks() }
+
+  @Get('ceph/:id/landmarks')
+  getCephLandmarks(@Param('id') id: string) { return this.svc.getCephLandmarks(id) }
+
+  @Put('ceph/:id/landmarks')
+  saveCephLandmarks(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { landmarks?: Record<string, { x: number; y: number }> }) { return this.svc.saveCephLandmarks(id, body) }
+
+  @Get('ceph/:id/analysis')
+  getCephAnalysis(@Param('id') id: string) { return this.svc.getCephAnalysis(id) }
+
+  @Post('ceph/:id/analysis')
+  runCephAnalysis(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { type?: string }) { return this.svc.runCephAnalysis(id, body) }
 }

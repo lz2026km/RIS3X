@@ -1272,7 +1272,13 @@ export default function PrintManagementPage() {
     ctx.font = 'bold 24px "Microsoft YaHei", sans-serif'
     ctx.textAlign = 'center'
     ctx.fillText('胶片打印预览 · 4合1 布局', canvas.width / 2, 38)
-    const labels = ['胸部正位', '胸部侧位', '腹部CT', '头颅MR']
+    // [v3.0.6.11-99 Wave8A P1] 预览标签取自当前队列/历史真实任务 (无任务时通用占位 + 标注)
+    const previewSources = [previewItem, ...printQueue, ...printHistory]
+      .filter((it): it is NonNullable<typeof it> => !!it)
+      .slice(0, 4)
+    const labels = previewSources.length > 0
+      ? previewSources.map((it) => (it as any).studyDesc ?? (it as any).studyType ?? `${(it as any).modality ?? '影像'} 检查`)
+      : ['胸部正位', '胸部侧位', '腹部CT', '头颅MR']
     const cellW = 280
     const cellH = 340
     labels.forEach((label, i) => {
@@ -1293,7 +1299,7 @@ export default function PrintManagementPage() {
     })
     ctx.fillStyle = '#94a3b8'
     ctx.font = '13px "Microsoft YaHei", sans-serif'
-    ctx.fillText(`${new Date().toLocaleString('zh-CN')} · ${customCols}x${customRows} 布局 · G005 RIS`, canvas.width / 2, 776)
+    ctx.fillText(`${new Date().toLocaleString('zh-CN')} · ${customCols}x${customRows} 布局 · ${previewSources.length > 0 ? '标签来源: 当前打印队列' : '标签为通用占位(队列无任务, 待接入序列数据)'}`, canvas.width / 2, 776)
     canvas.toBlob((blob) => {
       if (!blob) {
         displayToast('预览图导出失败', 'error')

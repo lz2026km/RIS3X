@@ -1,5 +1,6 @@
 // [v3.0.6.8-43] PR 10: 真实 DICOM 像素渲染 (Canvas + WebGL + 伪彩?+ MPR)
 // 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
+// [G005 Wave1B] 9 处裸 fetch → eyeApi (pixel/pacs-measurement, MSW 兜底)
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import {
@@ -27,6 +28,7 @@ import {
   Aperture,
   Crosshair,
 } from "lucide-react";
+import { eyeApi } from "@/services/api/eyeApi";
 import {
   useCornerstone3D,
   useViewport,
@@ -160,11 +162,8 @@ export const RealDicomViewerPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch(
-          `/api/v1/eye/pixel/instance/${imageIds[currentIndex]}`,
-        );
-        const data = await r.json();
-        if (data.success) setPixelInfo(data.data);
+        const res = await eyeApi.getPixelInstance(imageIds[currentIndex]!);
+        if (res.success) setPixelInfo(res.data);
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }
@@ -174,12 +173,9 @@ export const RealDicomViewerPage: React.FC = () => {
   // 直方?
   const handleHistogram = async () => {
     try {
-      const r = await fetch(
-        `/api/v1/eye/pixel/histogram/${imageIds[currentIndex]}`,
-      );
-      const data = await r.json();
-      if (data.success) {
-        setHistogram(data.data);
+      const res = await eyeApi.getPixelHistogram(imageIds[currentIndex]!);
+      if (res.success && res.data) {
+        setHistogram(res.data);
         setShowHistogram(true);
         message.success("直方图已加载");
       }
@@ -191,10 +187,9 @@ export const RealDicomViewerPage: React.FC = () => {
   // 伪彩?
   const handleColormap = async () => {
     try {
-      const r = await fetch(`/api/v1/eye/pixel/colormap/${modality}`);
-      const data = await r.json();
-      if (data.success) {
-        setColormap(data.data);
+      const res = await eyeApi.getPixelColormap(modality);
+      if (res.success && res.data) {
+        setColormap(res.data);
         setShowColormap(true);
       }
     } catch (e: any) {
@@ -205,14 +200,9 @@ export const RealDicomViewerPage: React.FC = () => {
   // 锐度
   const handleSharpness = async () => {
     try {
-      const r = await fetch("/api/v1/eye/pixel/sharpness", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ instanceId: imageIds[currentIndex] }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setSharpness(data.data);
+      const res = await eyeApi.analyzePixelSharpness({ instanceId: imageIds[currentIndex] });
+      if (res.success && res.data) {
+        setSharpness(res.data);
         setShowSharpness(true);
       }
     } catch (e: any) {
@@ -223,14 +213,9 @@ export const RealDicomViewerPage: React.FC = () => {
   // MPR
   const handleMpr = async () => {
     try {
-      const r = await fetch("/api/v1/eye/pixel/mpr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studyId, axis: mprAxis, seriesIds: imageIds }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setMprInfo(data.data);
+      const res = await eyeApi.reconstructPixelMpr({ studyId, axis: mprAxis, seriesIds: imageIds });
+      if (res.success && res.data) {
+        setMprInfo(res.data);
         setShowMpr(true);
         message.success(`MPR ${mprAxis} 重建完成`);
       }
@@ -242,14 +227,9 @@ export const RealDicomViewerPage: React.FC = () => {
   // 伪影检?
   const handleDetectArtifact = async () => {
     try {
-      const r = await fetch("/api/v1/eye/pixel/detect-artifact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ instanceId: imageIds[currentIndex] }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setArtifacts(data.data);
+      const res = await eyeApi.detectPixelArtifact({ instanceId: imageIds[currentIndex] });
+      if (res.success && res.data) {
+        setArtifacts(res.data);
         setShowArtifacts(true);
       }
     } catch (e: any) {
@@ -265,27 +245,22 @@ export const RealDicomViewerPage: React.FC = () => {
         return;
       }
       try {
-        const r = await fetch("/api/v1/eye/pacs/measurement", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            studyId,
-            measurementType: m.type,
-            value: m.value,
-            unit: m.unit,
-            coordinates: m.coordinates,
-            text: m.text,
-          }),
+        const res = await eyeApi.savePacsMeasurement({
+          studyId,
+          measurementType: m.type,
+          value: m.value,
+          unit: m.unit,
+          coordinates: m.coordinates,
+          text: m.text,
         });
-        const data = await r.json();
-        if (data.success) {
+        if (res.success && res.data) {
           setMeasurements((prev) => [
             ...prev,
             {
               ...m,
-              id: data.data.id,
-              createdAt: data.data.createdAt,
-              createdBy: data.data.createdBy,
+              id: res.data.id,
+              createdAt: res.data.createdAt,
+              createdBy: res.data.createdBy,
             },
           ]);
           message.success("已保存");
@@ -314,7 +289,7 @@ export const RealDicomViewerPage: React.FC = () => {
 
   const handleDelete = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/v1/eye/pacs/measurement/${id}`, { method: "DELETE" });
+      await eyeApi.deletePacsMeasurement(id);
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -324,16 +299,11 @@ export const RealDicomViewerPage: React.FC = () => {
   const handleExportSR = useCallback(
     async (items: MeasurementItem[]) => {
       try {
-        const r = await fetch("/api/v1/eye/pacs/measurement/export-sr", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ studyId, measurements: items }),
-        });
-        const data = await r.json();
-        if (data.success)
+        const res = await eyeApi.exportPacsMeasurementSr({ studyId, measurements: items });
+        if (res.success && res.data)
           return {
-            url: data.data.url,
-            sopInstanceUID: data.data.sopInstanceUID,
+            url: res.data.url,
+            sopInstanceUID: res.data.sopInstanceUID,
           };
         throw new Error();
       } catch {

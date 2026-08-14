@@ -1,0 +1,671 @@
+/**
+ * G005 RIS v3.0.6.11-99 Wave 3A - PDCA 质控闭环看板 (/qc/pdca)
+ * Plan/Do/Check/Act 阶段流转 + 周期 CRUD + 阶段条目 + 缺陷关联
+ * 数据源: qcPdcaApi (后端 /qc-pdca 或 MSW 演示回退, 响应带 source 徽标)
+ */
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import {
+  RefreshCw,
+  Plus,
+  Eye,
+  ArrowRight,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  Target,
+  CalendarClock,
+  User,
+  GitBranch,
+  Bug,
+  Database,
+  HardDrive,
+  History,
+} from 'lucide-react'
+import { Button, Tag, Space, Modal, Form, Input, Select, Drawer, Popconfirm, message, Timeline, Empty, Table } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { PageContainer } from "../../components/common/PageContainer"
+import { PageHeader } from "../../components/common/PageHeader"
+import { StatCard, StatCardGrid } from "../../components/common/StatCard"
+import {
+  qcPdcaApi,
+  type PdcaCycle,
+  type PdcaCycleDetail,
+  type PdcaPhaseEntry,
+  type PdcaDefectRef,
+  type PdcaCategory,
+  type PdcaStats,
+} from '../../services/api/qcPdcaApi'
+
+const PHASE_META: Record<string, { label: string; color: string; next: string }> = {
+  plan: { label: '计划', color: 'blue', next: '执行' },
+  do: { label: '执行', color: 'gold', next: '检查' },
+  check: { label: '检查', color: 'purple', next: '处理' },
+  act: { label: '处理', color: 'cyan', next: '已完成' },
+  completed: { label: '已完成', color: 'green', next: '' },
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  报告质控: 'magenta',
+  图像质控: 'geekblue',
+  流程质控: 'orange',
+  服务质控: 'cyan',
+}
+
+const CATEGORY_OPTIONS = ['报告质控', '图像质控', '流程质控', '服务质控']
+const OWNER_OPTIONS = [
+  { value: 'u-001', label: '张主任' },
+  { value: 'u-002', label: '李医生' },
+  { value: 'u-003', label: '王技师' },
+]
+
+const STATUS_COLORS: Record<string, string> = {
+  open: 'red',
+  in_progress: 'orange',
+  resolved: 'green',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  open: '待处理',
+  in_progress: '整改中',
+  resolved: '已闭环',
+}
+
+const fmtDate = (s?: string) => (s ? s.slice(0, 10) : '-')
+
+export default function QcPdcaPage() {
+  const [params] = useSearchParams()
+  const pendingDefectId = params.get('defectId')
+
+  const [cycles, setCycles] = useState<PdcaCycle[]>([])
+  const [stats, setStats] = useState<PdcaStats | null>(null)
+  const [source, setSource] = useState<'database' | 'demo' | 'offline'>('demo')
+  const [loading, setLoading] = useState(false)
+
+  // 新建/编辑
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editing, setEditing] = useState<PdcaCycle | null>(null)
+  const [form] = Form.useForm()
+  const [saving, setSaving] = useState(false)
+
+  // 详情抽屉
+  const [detail, setDetail] = useState<PdcaCycleDetail | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [phases, setPhases] = useState<PdcaPhaseEntry[]>([])
+  const [defects, setDefects] = useState<PdcaDefectRef[]>([])
+  const [allDefects, setAllDefects] = useState<PdcaDefectRef[]>([])
+  const [linkedDefectId, setLinkedDefectId] = useState<string>()
+
+  // 阶段条目编辑
+  const [phaseEditing, setPhaseEditing] = useState<PdcaPhaseEntry | null>(null)
+  const [phaseModalOpen, setPhaseModalOpen] = useState(false)
+  const [phaseForm] = Form.useForm()
+
+  // 完成周期
+  const [completeOpen, setCompleteOpen] = useState(false)
+  const [completing, setCompleting] = useState<PdcaCycle | null>(null)
+  const [completeForm] = Form.useForm()
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    const [cyclesRes, statsRes] = await Promise.all([
+      qcPdcaApi.listCycles().catch(() => ({ success: false as const, data: null as unknown as { source: 'database' | 'demo'; generatedAt: string; data: PdcaCycle[] } })),
+      qcPdcaApi.getStats().catch(() => ({ success: false as const, data: null as unknown as { source: 'database' | 'demo'; generatedAt: string; data: PdcaStats } })),
+    ])
+    if (cyclesRes.success && cyclesRes.data?.data) {
+      setCycles(cyclesRes.data.data)
+      setSource(cyclesRes.data.source)
+    } else {
+      setCycles([])
+      setSource('offline')
+      message.warning('周期列表加载失败, 已回退演示数据')
+      const demo = demoFallbackCycles()
+      setCycles(demo)
+      setStats(demoStats(demo))
+      setLoading(false)
+      return
+    }
+    if (statsRes.success && statsRes.data?.data) setStats(statsRes.data.data)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { void load() }, [load])
+
+  const openCreate = () => {
+    setEditing(null)
+    form.resetFields()
+    setCreateOpen(true)
+  }
+
+  const openEdit = (c: PdcaCycle) => {
+    setEditing(c)
+    form.setFieldsValue({
+      title: c.title,
+      category: c.category,
+      description: c.description,
+      target: c.target,
+      ownerId: c.ownerId,
+      dueDate: c.dueDate.slice(0, 10),
+    })
+    setCreateOpen(true)
+  }
+
+  const handleSave = async () => {
+    const values = await form.validateFields()
+    setSaving(true)
+    try {
+      if (editing) {
+        const res = await qcPdcaApi.updateCycle(editing.id, {
+          title: values.title,
+          category: values.category,
+          description: values.description ?? '',
+          target: values.target ?? '',
+          ownerId: values.ownerId,
+          dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : undefined,
+        })
+        if (!res.success) throw new Error(res.error?.message ?? '编辑失败')
+        message.success('周期已更新')
+      } else {
+        const res = await qcPdcaApi.createCycle({
+          title: values.title,
+          category: values.category,
+          description: values.description ?? '',
+          target: values.target ?? '',
+          ownerId: values.ownerId,
+        })
+        if (!res.success) throw new Error(res.error?.message ?? '创建失败')
+        message.success('周期已创建')
+        if (pendingDefectId) {
+          const linkRes = await qcPdcaApi.linkDefect(res.data.id, { defectId: pendingDefectId }).catch(() => ({ success: false as const }))
+          if (linkRes.success) message.success(`已自动关联缺陷 ${pendingDefectId}`)
+        }
+      }
+      setCreateOpen(false)
+      void load()
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : '保存失败')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAdvance = async (c: PdcaCycle) => {
+    const res = await qcPdcaApi.advanceCycle(c.id)
+    if (!res.success) {
+      message.error(res.error?.message ?? '推进失败')
+      return
+    }
+    message.success(`已推进至「${PHASE_META[res.data.phase]?.label ?? res.data.phase}」`)
+    void load()
+  }
+
+  const handleDelete = async (id: string) => {
+    const res = await qcPdcaApi.deleteCycle(id)
+    if (!res.success) {
+      message.error(res.error?.message ?? '删除失败')
+      return
+    }
+    message.success('周期已删除')
+    setDetailOpen(false)
+    void load()
+  }
+
+  const openDetail = async (c: PdcaCycle) => {
+    setDetailOpen(true)
+    setDetail({ ...c, phases: [] })
+    setDetailLoading(true)
+    const [detailRes, phaseRes, defectRes, allRes] = await Promise.all([
+      qcPdcaApi.getCycle(c.id).catch(() => ({ success: false as const })),
+      qcPdcaApi.listPhases(c.id).catch(() => ({ success: false as const })),
+      qcPdcaApi.listCycleDefects(c.id).catch(() => ({ success: false as const })),
+      qcPdcaApi.listAllDefects().catch(() => ({ success: false as const })),
+    ])
+    if (detailRes.success && 'phases' in (detailRes.data ?? {})) setDetail(detailRes.data as PdcaCycleDetail)
+    setPhases(phaseRes.success ? (phaseRes.data?.data ?? []) : [])
+    setDefects(defectRes.success ? (defectRes.data?.data ?? []) : [])
+    setAllDefects(allRes.success ? (allRes.data?.data ?? []) : [])
+    setDetailLoading(false)
+  }
+
+  const handleAddPhase = async (values: { phase: PdcaPhaseEntry['phase']; content: string }) => {
+    if (!detail) return
+    const res = await qcPdcaApi.addPhase(detail.id, values)
+    if (!res.success) {
+      message.error(res.error?.message ?? '添加失败')
+      return
+    }
+    message.success('阶段条目已添加')
+    setPhases((prev) => [...prev, res.data])
+    setPhaseModalOpen(false)
+  }
+
+  const handleUpdatePhase = async (values: { phase?: PdcaPhaseEntry['phase']; content?: string }) => {
+    if (!phaseEditing) return
+    const res = await qcPdcaApi.updatePhase(phaseEditing.id, values)
+    if (!res.success) {
+      message.error(res.error?.message ?? '更新失败')
+      return
+    }
+    message.success('阶段条目已更新')
+    setPhases((prev) => prev.map((p) => (p.id === phaseEditing.id ? res.data : p)))
+    setPhaseEditing(null)
+    setPhaseModalOpen(false)
+  }
+
+  const handleLinkDefect = async () => {
+    if (!detail || !linkedDefectId) return
+    const res = await qcPdcaApi.linkDefect(detail.id, { defectId: linkedDefectId })
+    if (!res.success) {
+      message.error(res.error?.message ?? '关联失败')
+      return
+    }
+    message.success('缺陷已关联')
+    const ref = allDefects.find((d) => d.id === linkedDefectId)
+    if (ref && !defects.some((d) => d.id === ref.id)) setDefects((prev) => [...prev, ref])
+    setLinkedDefectId(undefined)
+  }
+
+  const openComplete = (c: PdcaCycle) => {
+    setCompleting(c)
+    completeForm.resetFields()
+    setCompleteOpen(true)
+  }
+
+  const handleComplete = async () => {
+    if (!completing) return
+    const values = await completeForm.validateFields()
+    const res = await qcPdcaApi.completeCycle(completing.id, { summary: values.summary ?? '' })
+    if (!res.success) {
+      message.error(res.error?.message ?? '完成失败')
+      return
+    }
+    message.success('周期已闭环完成')
+    setCompleteOpen(false)
+    void load()
+  }
+
+  const columns: ColumnsType<PdcaCycle> = [
+    {
+      title: '周期',
+      dataIndex: 'title',
+      key: 'title',
+      render: (v: string, r) => (
+        <Space direction="vertical" size={2}>
+          <span style={{ fontWeight: 600 }}>{v}</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.id}</span>
+        </Space>
+      ),
+    },
+    {
+      title: '阶段',
+      dataIndex: 'phase',
+      key: 'phase',
+      width: 110,
+      render: (v: PdcaCycle['phase']) => {
+        const meta = PHASE_META[v]
+        return <Tag color={meta?.color ?? 'default'}>{meta?.label ?? v}</Tag>
+      },
+    },
+    {
+      title: '类别',
+      dataIndex: 'category',
+      key: 'category',
+      width: 110,
+      render: (v: PdcaCategory) => <Tag color={CATEGORY_COLORS[v] ?? 'default'}>{v}</Tag>,
+    },
+    {
+      title: '目标',
+      dataIndex: 'target',
+      key: 'target',
+      ellipsis: true,
+      render: (v: string) => v || <span style={{ color: '#cbd5e1' }}>-</span>,
+    },
+    {
+      title: '负责人',
+      dataIndex: 'ownerName',
+      key: 'ownerName',
+      width: 100,
+      render: (v: string) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <User size={12} color="#64748b" /> {v}
+        </span>
+      ),
+    },
+    {
+      title: '截止日期',
+      dataIndex: 'dueDate',
+      key: 'dueDate',
+      width: 120,
+      render: (v: string, r) => (
+        <Space direction="vertical" size={2}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <CalendarClock size={12} color="#64748b" /> {fmtDate(v)}
+          </span>
+          {r.completedAt && <span style={{ color: '#10b981', fontSize: 12 }}>闭环 {fmtDate(r.completedAt)}</span>}
+        </Space>
+      ),
+    },
+    {
+      title: '关联缺陷',
+      dataIndex: 'defectIds',
+      key: 'defectIds',
+      width: 100,
+      render: (v: string[]) => <Tag icon={<Bug size={11} />}>{v.length} 个</Tag>,
+    },
+    {
+      title: '操作',
+      key: 'actions',
+      width: 260,
+      render: (_, r) => (
+        <Space size={4} wrap>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(r)}>详情</Button>
+          {r.phase !== 'completed' ? (
+            <Popconfirm
+              title="推进阶段"
+              description={`确认推进至「${PHASE_META[r.phase]?.next ?? ''}」?`}
+              onConfirm={() => void handleAdvance(r)}
+              okText="推进"
+              cancelText="取消"
+            >
+              <Button size="small" icon={<ArrowRight size={12} />}>推进</Button>
+            </Popconfirm>
+          ) : (
+            <Button size="small" icon={<CheckCircle2 size={12} />} disabled>已闭环</Button>
+          )}
+          <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(r)}>编辑</Button>
+          {r.phase !== 'completed' && (
+            <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => openComplete(r)}>完成</Button>
+          )}
+          <Popconfirm title="删除周期" description="删除后不可恢复, 确认?" onConfirm={() => void handleDelete(r.id)} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}>
+            <Button size="small" danger icon={<Trash2 size={12} />} />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ]
+
+  const statCards = useMemo(() => {
+    const byPhase = stats?.byPhase ?? {}
+    return [
+      { label: '周期总数', value: stats?.total ?? cycles.length, icon: <GitBranch size={20} />, color: '#3b82f6', sub: `进行中 ${stats?.inProgress ?? 0} 个` },
+      { label: '计划 P', value: byPhase.plan ?? 0, icon: <Target size={20} />, color: '#8b5cf6', sub: 'Plan' },
+      { label: '执行 D', value: byPhase.do ?? 0, icon: <History size={20} />, color: '#f59e0b', sub: 'Do' },
+      { label: '检查 C', value: byPhase.check ?? 0, icon: <Eye size={20} />, color: '#06b6d4', sub: 'Check' },
+      { label: '处理 A', value: byPhase.act ?? 0, icon: <RefreshCw size={20} />, color: '#ec4899', sub: 'Act' },
+      { label: '已完成', value: byPhase.completed ?? 0, icon: <CheckCircle2 size={20} />, color: '#10b981', sub: `完成率 ${stats?.completionRate ?? 0}%` },
+    ]
+  }, [stats, cycles.length])
+
+  const sourceBadge = source === 'database'
+    ? <Tag icon={<Database size={12} />} color="green">真实数据</Tag>
+    : source === 'demo'
+      ? <Tag icon={<HardDrive size={12} />} color="orange">演示回退</Tag>
+      : <Tag color="red">离线</Tag>
+
+  return (
+    <PageContainer background="slate" maxWidth="wide">
+      <PageHeader
+        icon={<GitBranch size={20} color="#3b82f6" />}
+        title="PDCA 质控闭环"
+        subtitle="Plan / Do / Check / Act 阶段流转 · 报告 / 图像 / 流程 / 服务四类质控周期"
+        actions={
+          <Space>
+            {sourceBadge}
+            <Button size="small" icon={<RefreshCw size={12} />} loading={loading} onClick={() => void load()}>刷新</Button>
+            <Button size="small" type="primary" icon={<Plus size={14} />} onClick={openCreate}>新建周期</Button>
+          </Space>
+        }
+      />
+
+      <div style={{ padding: 24 }}>
+        <StatCardGrid gap={12}>
+          {statCards.map((s, i) => (
+            <StatCard key={i} title={s.label} value={s.value} icon={s.icon} color={s.color} sub={s.sub} />
+          ))}
+        </StatCardGrid>
+
+        {pendingDefectId && (
+          <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: '#1e40af', fontSize: 13 }}>
+            <Bug size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
+            已从缺陷中心带入缺陷 {pendingDefectId} —— 新建周期后将自动关联该缺陷
+          </div>
+        )}
+
+        <Table<PdcaCycle>
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={cycles}
+          pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 个周期` }}
+          scroll={{ x: 1080 }}
+          locale={{ emptyText: <Empty description="暂无 PDCA 周期, 点击右上角新建" /> }}
+          size="middle"
+        />
+      </div>
+
+      {/* 新建 / 编辑 Modal */}
+      <Modal
+        title={editing ? '编辑周期' : '新建 PDCA 周期'}
+        open={createOpen}
+        onOk={() => void handleSave()}
+        onCancel={() => setCreateOpen(false)}
+        confirmLoading={saving}
+        okText={editing ? '保存' : '创建'}
+        cancelText="取消"
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" preserve={false} initialValues={{ category: '报告质控', ownerId: 'u-001' }}>
+          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
+            <Input placeholder="如: 报告术语规范专项" maxLength={60} />
+          </Form.Item>
+          <Form.Item name="category" label="类别" rules={[{ required: true }]}>
+            <Select options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: c }))} />
+          </Form.Item>
+          <Form.Item name="description" label="描述">
+            <Input.TextArea rows={2} placeholder="周期背景与问题描述" maxLength={200} />
+          </Form.Item>
+          <Form.Item name="target" label="目标">
+            <Input placeholder="如: 模糊表述率 ≤ 5%" maxLength={80} />
+          </Form.Item>
+          <Space size={12} style={{ width: '100%' }} align="start">
+            <Form.Item name="ownerId" label="负责人" style={{ flex: 1 }}>
+              <Select options={OWNER_OPTIONS} />
+            </Form.Item>
+            <Form.Item name="dueDate" label="截止日期" style={{ flex: 1 }}>
+              <Input type="date" />
+            </Form.Item>
+          </Space>
+          {pendingDefectId && (
+            <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: '#1e40af' }}>
+              创建后将自动关联缺陷 {pendingDefectId}
+            </div>
+          )}
+        </Form>
+      </Modal>
+
+      {/* 详情 Drawer */}
+      <Drawer
+        title={detail ? `${detail.title} — ${PHASE_META[detail.phase]?.label ?? detail.phase}` : '周期详情'}
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        width={640}
+        extra={sourceBadge}
+      >
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
+        ) : detail ? (
+          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
+              <Space size={8} wrap>
+                <Tag color={CATEGORY_COLORS[detail.category]}>{detail.category}</Tag>
+                <Tag color={PHASE_META[detail.phase]?.color}>{PHASE_META[detail.phase]?.label}</Tag>
+                <Tag color={detail.status === '已完成' ? 'green' : 'blue'}>{detail.status}</Tag>
+              </Space>
+              <div style={{ marginTop: 10, color: '#475569', fontSize: 13, lineHeight: 1.7 }}>
+                <div><b>描述:</b> {detail.description || '-'}</div>
+                <div><b>目标:</b> {detail.target || '-'}</div>
+                <div><b>负责人:</b> {detail.ownerName} · <b>起始:</b> {fmtDate(detail.startDate)} · <b>截止:</b> {fmtDate(detail.dueDate)}</div>
+                {detail.summary && <div style={{ color: '#10b981' }}><b>闭环总结:</b> {detail.summary}</div>}
+              </div>
+            </div>
+
+            {/* 阶段时间线 + 条目 CRUD */}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <b>阶段计划与结果</b>
+                <Button
+                  size="small"
+                  icon={<Plus size={12} />}
+                  disabled={detail.phase === 'completed'}
+                  onClick={() => {
+                    phaseForm.resetFields()
+                    setPhaseEditing(null)
+                    setPhaseModalOpen(true)
+                  }}
+                >
+                  添加条目
+                </Button>
+              </div>
+              {phases.length === 0 ? (
+                <Empty description="暂无阶段条目" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              ) : (
+                <Timeline
+                  items={phases.map((p) => ({
+                    color: PHASE_META[p.phase]?.color,
+                    children: (
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                        <Tag color={PHASE_META[p.phase]?.color} style={{ marginTop: 1, flexShrink: 0 }}>{PHASE_META[p.phase]?.label}</Tag>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13 }}>{p.content}</div>
+                          <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>
+                            {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · 更新 ${fmtDate(p.updatedAt)}` : ''}
+                          </div>
+                        </div>
+                        <Button
+                          size="small"
+                          type="text"
+                          icon={<Pencil size={12} />}
+                          onClick={() => {
+                            setPhaseEditing(p)
+                            phaseForm.setFieldsValue({ phase: p.phase, content: p.content })
+                            setPhaseModalOpen(true)
+                          }}
+                        />
+                      </div>
+                    ),
+                  }))}
+                />
+              )}
+            </div>
+
+            {/* 缺陷关联 */}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <b>关联缺陷 ({defects.length})</b>
+                <Space size={6}>
+                  <Select
+                    size="small"
+                    style={{ width: 220 }}
+                    placeholder="选择缺陷"
+                    value={linkedDefectId}
+                    onChange={setLinkedDefectId}
+                    options={allDefects.filter((d) => !defects.some((x) => x.id === d.id)).map((d) => ({
+                      value: d.id,
+                      label: `${d.defectType}: ${d.description.slice(0, 20)}`,
+                    }))}
+                    showSearch
+                    optionFilterProp="label"
+                  />
+                  <Button size="small" type="primary" icon={<Plus size={12} />} disabled={!linkedDefectId} onClick={() => void handleLinkDefect()}>关联</Button>
+                </Space>
+              </div>
+              {defects.length === 0 ? (
+                <Empty description="暂未关联缺陷" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              ) : (
+                <Space direction="vertical" size={6} style={{ width: '100%' }}>
+                  {defects.map((d) => (
+                    <div key={d.id} style={{ display: 'flex', gap: 8, alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12 }}>
+                      <Tag color={CATEGORY_COLORS[d.defectType] ?? 'default'} style={{ flexShrink: 0 }}>{d.defectType}</Tag>
+                      <span style={{ flex: 1, color: '#475569' }}>{d.description}</span>
+                      <Tag color={STATUS_COLORS[d.status] ?? 'default'}>{STATUS_LABELS[d.status] ?? d.status}</Tag>
+                      <span style={{ color: '#94a3b8' }}>{d.reportedBy}</span>
+                    </div>
+                  ))}
+                </Space>
+              )}
+            </div>
+
+            {detail.phase !== 'completed' && (
+              <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                <Button icon={<ArrowRight size={14} />} onClick={() => void handleAdvance(detail)}>推进阶段</Button>
+                <Button type="primary" icon={<CheckCircle2 size={14} />} onClick={() => openComplete(detail)}>完成周期</Button>
+              </Space>
+            )}
+          </Space>
+        ) : null}
+      </Drawer>
+
+      {/* 阶段条目编辑 Modal */}
+      <Modal
+        title={phaseEditing ? '编辑阶段条目' : '添加阶段条目'}
+        open={phaseModalOpen}
+        onOk={() => void (phaseEditing ? handleUpdatePhase(phaseForm.getFieldsValue()) : handleAddPhase(phaseForm.getFieldsValue()))}
+        onCancel={() => { setPhaseModalOpen(false); setPhaseEditing(null) }}
+        okText={phaseEditing ? '保存' : '添加'}
+        cancelText="取消"
+        width={480}
+        destroyOnClose
+      >
+        <Form form={phaseForm} layout="vertical" preserve={false} initialValues={{ phase: 'plan' }}>
+          <Form.Item name="phase" label="阶段" rules={[{ required: true }]}>
+            <Select options={['plan', 'do', 'check', 'act'].map((p) => ({ value: p, label: `${PHASE_META[p]?.label} (${p})` }))} />
+          </Form.Item>
+          <Form.Item name="content" label="内容(措施/结果/指标/问题)" rules={[{ required: true, message: '请输入内容' }]}>
+            <Input.TextArea rows={3} placeholder="填写该阶段的措施、结果、指标或问题" maxLength={300} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 完成周期 Modal */}
+      <Modal
+        title="完成周期"
+        open={completeOpen}
+        onOk={() => void handleComplete()}
+        onCancel={() => setCompleteOpen(false)}
+        okText="确认完成"
+        cancelText="取消"
+        destroyOnClose
+      >
+        <Form form={completeForm} layout="vertical" preserve={false}>
+          <Form.Item name="summary" label="闭环总结" rules={[{ required: true, message: '请填写闭环总结' }]}>
+            <Input.TextArea rows={4} placeholder="记录周期闭环成果与固化措施..." maxLength={300} />
+          </Form.Item>
+          <div style={{ color: '#94a3b8', fontSize: 12 }}>
+            完成后周期状态变为「已完成」, 并记录 completedAt 与总结, 不可再推进。
+          </div>
+        </Form>
+      </Modal>
+    </PageContainer>
+  )
+}
+
+// ── 离线回退: 确定性演示数据 (后端与 MSW 均不可达时兜底) ──────────────────
+const demoFallbackCycles = (): PdcaCycle[] => [
+  { id: 'pdca-d-001', title: '报告术语规范专项', category: '报告质控', description: '降低模糊表述占比', target: '模糊表述率 ≤ 5%', ownerId: 'u-001', ownerName: '张主任', phase: 'completed', status: '已完成', startDate: '2026-05-06T00:00:00.000Z', dueDate: '2026-06-30T00:00:00.000Z', completedAt: '2026-06-28T00:00:00.000Z', summary: '术语规范化培训完成', defectIds: ['df-001'], createdAt: '2026-05-06T00:00:00.000Z', updatedAt: '2026-06-28T00:00:00.000Z' },
+  { id: 'pdca-d-002', title: '危急值报告复核流程再造', category: '流程质控', description: '电话复核闭环', target: '复核率 ≥ 98%', ownerId: 'u-001', ownerName: '张主任', phase: 'check', status: '进行中', startDate: '2026-06-20T00:00:00.000Z', dueDate: '2026-08-31T00:00:00.000Z', defectIds: ['df-005'], createdAt: '2026-06-20T00:00:00.000Z', updatedAt: '2026-07-20T00:00:00.000Z' },
+  { id: 'pdca-d-003', title: 'DR 胸片曝光参数校准', category: '图像质控', description: '曝光不足整改', target: '曝光合格率 ≥ 95%', ownerId: 'u-003', ownerName: '王技师', phase: 'do', status: '进行中', startDate: '2026-07-01T00:00:00.000Z', dueDate: '2026-09-10T00:00:00.000Z', defectIds: ['df-006'], createdAt: '2026-07-01T00:00:00.000Z', updatedAt: '2026-07-15T00:00:00.000Z' },
+  { id: 'pdca-d-004', title: '报告排版模板统一', category: '报告质控', description: '模板字段统一', target: '模板统一率 100%', ownerId: 'u-003', ownerName: '王技师', phase: 'plan', status: '进行中', startDate: '2026-07-15T00:00:00.000Z', dueDate: '2026-09-30T00:00:00.000Z', defectIds: ['df-004'], createdAt: '2026-07-15T00:00:00.000Z', updatedAt: '2026-07-15T00:00:00.000Z' },
+]
+
+const demoStats = (cycles: PdcaCycle[]): PdcaStats => {
+  const byPhase: Record<string, number> = { plan: 0, do: 0, check: 0, act: 0, completed: 0 }
+  const byCategory: Record<string, number> = { 报告质控: 0, 图像质控: 0, 流程质控: 0, 服务质控: 0 }
+  let completed = 0
+  for (const c of cycles) {
+    byPhase[c.phase] = (byPhase[c.phase] ?? 0) + 1
+    byCategory[c.category] = (byCategory[c.category] ?? 0) + 1
+    if (c.phase === 'completed') completed += 1
+  }
+  return { total: cycles.length, byPhase, byCategory, completionRate: Math.round((completed / cycles.length) * 1000) / 10, avgDurationDays: 45, inProgress: cycles.length - completed }
+}

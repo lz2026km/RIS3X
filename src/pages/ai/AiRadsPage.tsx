@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from 'react'
-import { Card, Space, Select, InputNumber, Button, Typography, Tag, Divider, message, Form, Tabs } from 'antd'
-import { Sparkles, Cpu, History } from 'lucide-react'
+import React, { useState, useCallback, useEffect } from 'react'
+import { Card, Space, Select, InputNumber, Button, Typography, Tag, Divider, message, Form, Tabs, Table, Tooltip } from 'antd'
+import { Sparkles, Cpu, History, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import RadsScoring from '../../components/ai/RadsScoring'
 import { radsApi } from '../../services/api/radsApi'
-import type { RadsScore, RadsHistoryEntry } from '../../services/api/radsApi'
+import type { RadsScore, RadsHistoryEntry, RadsRules, RadsRule } from '../../services/api/radsApi'
+import { scoreRadsLocally } from '../../services/radsLocalScore'
+import type { RadsType as LocalRadsType } from '../../services/radsLocalScore'
 
 const { Text, Title } = Typography
 
@@ -65,9 +67,23 @@ const AiRadsPage: React.FC = () => {
   const [radsType, setRadsType] = useState<RadsType>('lung')
   const [patientId, setPatientId] = useState('P2024001')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<RadsScore | null>(null)
+  const [result, setResult] = useState<(RadsScore & { source?: 'api' | 'local' }) | null>(null)
   const [history, setHistory] = useState<RadsHistoryEntry[]>([])
+  const [rules, setRules] = useState<RadsRules[]>([])
+  const [rulesSource, setRulesSource] = useState<'api' | 'local'>('api')
   const [form] = Form.useForm()
+
+  // [v3.0.6.11-99 G-20] 评分规则表 (后端 /rules, 失败回退本地规则标注)
+  useEffect(() => {
+    radsApi.getRules().then((res) => {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setRules(res.data)
+        setRulesSource('api')
+      } else {
+        setRulesSource('local')
+      }
+    }).catch(() => setRulesSource('local'))
+  }, [])
 
   const handleTypeChange = useCallback((key: string) => {
     const next = key as RadsType
@@ -87,21 +103,44 @@ const AiRadsPage: React.FC = () => {
     }
     setLoading(true)
     try {
-      let res
-      if (radsType === 'lung') res = await radsApi.scoreLung(dto)
-      else if (radsType === 'breast') res = await radsApi.scoreBreast({ biradsCategory: undefined })
-      else if (radsType === 'prostate') res = await radsApi.scorePiRads(dto)
-      else if (radsType === 'liver') res = await radsApi.scoreLiRads(dto)
-      else res = await radsApi.scoreTiRads(dto)
-      if (res.success) {
-        setResult(res.data)
+      // [v3.0.6.11-99 G-20] 评分后端化: 统一 /score 确定性评分, 失败回退本地规则 + 标注
+      const res = await radsApi.score({ type: radsType, findings: dto })
+      if (res.success && res.data) {
+        setResult({ ...res.data, source: 'api' })
       } else {
-        message.error(res.error?.message || '评分失败')
+        const local = scoreRadsLocally(radsType as LocalRadsType, dto)
+        setResult({ ...local, source: 'local' })
+        message.warning(`后端评分不可用, 已按本地规则回退: ${res.error?.message ?? '未知错误'}`)
       }
+    } catch {
+      const local = scoreRadsLocally(radsType as LocalRadsType, dto)
+      setResult({ ...local, source: 'local' })
+      message.warning('后端评分不可用, 已按本地规则回退')
     } finally {
       setLoading(false)
     }
   }, [radsType, form])
+
+  // [v3.0.6.11-99 G-20] 评分结果 → 报告段落 (复用 insertHtml 通道: report-insert-html 事件)
+  const handleInsertToReport = useCallback(() => {
+    if (!result) return
+    const esc = (v: unknown): string =>
+      String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch)
+    const sourceTag = result.source === 'local' ? '(本地规则回退)' : '(后端规则)'
+    const findingsHtml = (result.findings ?? [])
+      .map((f) => `<li>${esc(f)}</li>`)
+      .join('')
+    const html = [
+      '<h3>AI 影像辅助分级</h3>',
+      `<p><strong>${esc(result.category)}</strong> ${esc(sourceTag)}</p>`,
+      `<p>分级: <strong>${esc(result.score)}</strong> · ${esc(result.description)}</p>`,
+      findingsHtml ? `<ul>${findingsHtml}</ul>` : '',
+      `<p><strong>建议</strong>: ${esc(result.recommendations)}</p>`,
+    ].join('\n')
+    window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))
+    try { window.localStorage.setItem('ris_rads_pending_insert', html) } catch { /* 忽略 */ }
+    message.success('RADS 评分段落已发送至报告编辑器')
+  }, [result])
 
   const handleLoadHistory = useCallback(async () => {
     setLoading(true)
@@ -176,6 +215,14 @@ const AiRadsPage: React.FC = () => {
           <Button icon={<History size={14} />} onClick={() => handleLoadHistory()} loading={loading}>
             {t('loadHistory')}
           </Button>
+          <Tooltip title="评分结果生成报告段落, 经 insertHtml 通道插入书写页编辑器">
+            <Button icon={<FileText size={14} />} disabled={!result} onClick={() => handleInsertToReport()}>
+              插入报告
+            </Button>
+          </Tooltip>
+          <Tag color={result?.source === 'local' ? 'orange' : 'green'}>
+            {result ? (result.source === 'local' ? '本地规则回退' : '后端规则') : (rulesSource === 'api' ? '规则来源: 后端' : '规则来源: 本地')}
+          </Tag>
         </Space>
 
         <Tabs
@@ -203,6 +250,32 @@ const AiRadsPage: React.FC = () => {
       </Card>
 
       <RadsScoring result={result} history={history} loading={loading} />
+
+      {/* [v3.0.6.11-99 G-20] 评分规则表 (后端 /rules, criteria/level 映射) */}
+      {(() => {
+        const group = rules.find((r) => r.type === radsType)
+        if (!group) return null
+        return (
+          <Card
+            size="small"
+            title={`${group.name} 评分规则表 (${rulesSource === 'api' ? '后端规则' : '内置规则'})`}
+            style={{ marginTop: 16 }}
+          >
+            <Table<RadsRule>
+              rowKey="level"
+              size="small"
+              dataSource={group.levels}
+              pagination={false}
+              columns={[
+                { title: '级别', dataIndex: 'level', width: 80, render: (v) => <Tag color="blue">{v}</Tag> },
+                { title: '描述', dataIndex: 'description', width: 130 },
+                { title: '判定标准 (criteria)', dataIndex: 'criteria' },
+                { title: '建议', dataIndex: 'recommendations' },
+              ]}
+            />
+          </Card>
+        )
+      })()}
     </div>
   )
 }

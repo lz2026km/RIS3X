@@ -5,6 +5,7 @@ import { rdsrApi, type DrlEntry, type DoseAlert, type DrlCheckRecordInput, type 
 import { criticalAlertApi } from "../../services/api/criticalAlertApi";
 import { drlRecords } from "./mockData";
 import type { DRLRecord } from "./types";
+import { usePagination } from "../../hooks/usePagination";
 
 interface CheckDraft {
   key: string;
@@ -28,6 +29,8 @@ export default function DRLManagement() {
   const [checking, setChecking] = useState(false);
   const [reportingId, setReportingId] = useState<string | null>(null);
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
+  // [v3.0.6.11-99 Wave8A P1] 历史超限告警表分页受控化
+  const { pageData: alertPageData, pagination: alertPagination } = usePagination(alerts, 10);
 
   const loadDrls = async () => {
     setRowsLoading(true);
@@ -354,10 +357,10 @@ export default function DRLManagement() {
         <Table scroll={{ x: 'max-content' }}
           rowKey="id"
           columns={alertColumns}
-          dataSource={alerts}
+          dataSource={alertPageData}
           size="small"
           loading={alertsLoading}
-          pagination={{ pageSize: 10, showSizeChanger: false }}
+          pagination={alertPagination}
           locale={{ emptyText: "暂无超限告警" }}
         />
       </div>

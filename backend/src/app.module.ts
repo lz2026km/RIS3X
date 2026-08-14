@@ -92,6 +92,7 @@ import { VnaModule } from "./modules/vna/vna.module";
 import { TenantModule } from "./modules/tenant/tenant.module";
 import { FollowUpModule } from "./modules/followup/followup.module";
 import { DictionaryModule } from "./modules/dictionary/dictionary.module";
+import { VoiceWorkstationModule } from "./modules/voice-workstation/voice-workstation.module";
 import { MobileModule } from "./mobile/mobile.module";
 import { CallQueueModule } from "./modules/queue/queue.module";
 import { CriticalAlertModule } from "./modules/critical-alert/critical-alert.module";
@@ -132,8 +133,20 @@ import { EyeSubspecialtyModule } from "./modules/eye-subspecialty/eye-subspecial
 // [G005 Wave3A P2] 急诊通道管理 + 科室公告/值班管理
 import { EmergencyChannelModule } from "./modules/emergency-channel/emergency-channel.module";
 import { DeptAnnouncementModule } from "./modules/dept-announcement/dept-announcement.module";
+import { ReportAnnotationModule } from "./modules/report-annotation/report-annotation.module";
 // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库后端化: GET /finding-library + /finding-library/search
 import { FindingLibraryModule } from "./modules/finding-library/finding-library.module";
+// [G005 Wave1A 17] 神经专科 + 视光中心闭环 (MSW 真实化)
+import { NeuroModule } from "./modules/neuro/neuro.module";
+import { EyeOptometryModule } from "./modules/eye-optometry/eye-optometry.module";
+// [G005 Wave 3A v3.0.6.11-99] qc-pdca 质控闭环模块
+import { QcPdcaModule } from "./modules/qc-pdca/qc-pdca.module";
+// [v3.0.6.11-99 Wave 4A] 病灶追踪 (lesion-tracking): 登记/测量/趋势/对比/统计/随访联动
+import { LesionTrackingModule } from "./modules/lesion-tracking/lesion-tracking.module";
+// [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report): 定义 CRUD + 执行/结果/历史/定时/导出
+import { CustomReportModule } from "./modules/custom-report/custom-report.module";
+// [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班: 班次/换班/统计/月历/批量生成
+import { TechScheduleModule } from "./modules/tech-schedule/tech-schedule.module";
 
 @Module({
   imports: [
@@ -217,6 +230,7 @@ import { FindingLibraryModule } from "./modules/finding-library/finding-library.
     RdsrModule,
     CriticalExtModule,
     QcExtModule,
+    QcPdcaModule,
     CaModule,
     FhirModule,
     DeviceMgmtModule,
@@ -255,6 +269,8 @@ import { FindingLibraryModule } from "./modules/finding-library/finding-library.
     VnaModule,
     TenantModule,
     DictionaryModule,
+    // [v3.0.6.11-99 Wave3B] 随访闭环 (计划状态机 + 模板库 + 统计 + 检查联动)
+    FollowUpModule,
     CallQueueModule,
     CriticalAlertModule,
     RemoteReadingModule,
@@ -280,7 +296,18 @@ import { FindingLibraryModule } from "./modules/finding-library/finding-library.
     EyeSubspecialtyModule,
     EmergencyChannelModule,
     DeptAnnouncementModule,
+    ReportAnnotationModule,
     FindingLibraryModule,
+    NeuroModule,
+    EyeOptometryModule,
+    // [v3.0.6.11-99 Wave 4A] 病灶追踪 (lesion-tracking)
+    LesionTrackingModule,
+    // [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report)
+    CustomReportModule,
+    // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班
+    TechScheduleModule,
+    // [v3.0.6.11-99 Wave 6A] 语音工作站 (voice-workstation)
+    VoiceWorkstationModule,
   ],
   controllers: [HealthController],
   providers: [

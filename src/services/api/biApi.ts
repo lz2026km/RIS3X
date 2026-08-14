@@ -101,6 +101,43 @@ export interface TrendPointDto {
   criticalCount: number
 }
 
+// ── [v3.0.6.11-99 Wave 5B-A] BI 大屏模板库 ──────────────────────────────
+export type WallLayout = 'overview' | 'equipment' | 'quality' | 'finance' | 'mixed'
+
+export interface WallTemplateDto {
+  id: string
+  name: string
+  layout: WallLayout
+  /** 区块组合: kpi | top10 | critical | occupancy | oee | quality | sla | revenue | bonus */
+  config: { blocks?: string[]; autoRotateMs?: number } & Record<string, unknown>
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+// ── [v3.0.6.11-99 Wave 5B-B] 医生绩效 ───────────────────────────────────
+export interface PhysicianPerformanceRowDto {
+  doctorName: string
+  reportCount: number
+  rvu: number
+  avgTurnaround: number
+  qualityScore: number
+  accuracyScore: number
+  qualityCoefficient: number
+  bonus: number
+}
+
+export interface PhysicianPerformanceDto {
+  totalRvu: number
+  bonus: number
+  reportCount: number
+  avgTurnaround: number
+  qualityScore: number
+  accuracyScore: number
+  byPhysician: PhysicianPerformanceRowDto[]
+  rules: { rvuUnitPrice: number; qualityCoefficients: Record<string, number> }
+}
+
 export const biApi = {
   getKpi: () => api.get<BiEnvelope<KpiDto>>('/bi/kpi'),
 
@@ -115,4 +152,21 @@ export const biApi = {
 
   getTrend: (days = 30) =>
     api.get<BiEnvelope<TrendPointDto[]>>(`/bi/trend?days=${days}`),
+
+  getPhysicianPerformance: () =>
+    api.get<BiEnvelope<PhysicianPerformanceDto>>('/bi/physician-performance'),
+
+  // ── Wave 5B-A 大屏模板库 (后端返回 { source, data } 信封) ──
+  getWallTemplates: () => api.get<BiEnvelope<WallTemplateDto[]>>('/bi/wall-templates'),
+
+  getWallTemplate: (id: string) => api.get<WallTemplateDto>(`/bi/wall-templates/${id}`),
+
+  createWallTemplate: (data: { name: string; layout: WallLayout; config?: Record<string, unknown>; active?: boolean }) =>
+    api.post<WallTemplateDto>('/bi/wall-templates', data),
+
+  updateWallTemplate: (id: string, data: Partial<{ name: string; layout: WallLayout; config: Record<string, unknown>; active: boolean }>) =>
+    api.patch<WallTemplateDto>(`/bi/wall-templates/${id}`, data),
+
+  deleteWallTemplate: (id: string) =>
+    api.delete<{ id: string; deleted: boolean }>(`/bi/wall-templates/${id}`),
 }

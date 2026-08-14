@@ -1,4 +1,5 @@
 // [v3.0.6.11-60] Batch 3: 正畸管理 (dentalApi 真实数据 + 新建病例 Modal + 治疗阶段)
+// [G005 Wave1B] 裸 fetch → dentalApi.listOrthoPlans (后端 /dental/ortho/plans 真实实现)
 import { dentalApi } from '../../services/api/dentalApi';
 import { DentalPageLayout } from './DentalShared';
 import { Table, Tag, Button, message, Space, Alert, Spin, Modal, Form, Input, InputNumber, Steps, Descriptions, Empty, Progress } from 'antd';
@@ -30,11 +31,10 @@ export const DentalOrthoPage: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/v1/dental/ortho/plans');
-      const d = await res.json();
-      if (d.success && Array.isArray(d.data)) {
-        setPlans(d.data);
-        if (!d.data.length) message.info('暂无正畸病例，可点击"新建病例"创建');
+      const res = await dentalApi.listOrthoPlans();
+      if (res.success && Array.isArray(res.data)) {
+        setPlans(res.data);
+        if (!res.data.length) message.info('暂无正畸病例，可点击"新建病例"创建');
       } else {
         setError('正畸病例加载失败');
       }
@@ -92,7 +92,7 @@ export const DentalOrthoPage: React.FC = () => {
       header={{
         title: '正畸管理',
         icon: <Smile size={20} color="#eb2f96" />,
-        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>, <Tag color="orange" key="demo">演示数据 (MSW)</Tag>],
+        tags: [<Tag color="cyan" key="v">v3.0.6.11-60</Tag>, <Tag color="green" key="real">真实后端 /dental/ortho/plans</Tag>],
         extra: (
           <Space>
             <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>

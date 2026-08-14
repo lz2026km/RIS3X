@@ -218,4 +218,35 @@ describe('NotificationsService', () => {
     const bare = new NotificationsService({} as any)
     await expect(bare.getStats('u1')).resolves.toEqual({ userId: 'u1', total: 0, unread: 0, today: 0, critical: 0 })
   })
+
+  // [v3.0.6.11-99 Wave7B] 站内信/推送订阅类型 (GET/PUT /notifications/subscriptions/:userId)
+  describe('subscription config', () => {
+    it('returns default all types when never set', () => {
+      const res = svc.getSubscriptionConfig('u-sub-1')
+      expect(res.defaulted).toBe(true)
+      expect(res.types).toEqual(['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM'])
+    })
+
+    it('updates subscription types and persists per user', () => {
+      const updated = svc.updateSubscriptionConfig('u-sub-1', ['CRITICAL', 'REPORT', 'SYSTEM'])
+      expect(updated.types).toEqual(['CRITICAL', 'REPORT', 'SYSTEM'])
+      const res = svc.getSubscriptionConfig('u-sub-1')
+      expect(res.defaulted).toBe(false)
+      expect(res.types).toEqual(['CRITICAL', 'REPORT', 'SYSTEM'])
+    })
+
+    it('dedupes and ignores unknown types, resets to default when empty', () => {
+      const updated = svc.updateSubscriptionConfig('u-sub-2', ['CRITICAL', 'CRITICAL', 'HACK', 'FOLLOWUP'])
+      expect(updated.types).toEqual(['CRITICAL', 'FOLLOWUP'])
+      const empty = svc.updateSubscriptionConfig('u-sub-2', [])
+      expect(empty.types).toEqual(['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM'])
+    })
+
+    it('keeps per-user isolation', () => {
+      svc.updateSubscriptionConfig('u-a', ['QUALITY'])
+      svc.updateSubscriptionConfig('u-b', ['SYSTEM'])
+      expect(svc.getSubscriptionConfig('u-a').types).toEqual(['QUALITY'])
+      expect(svc.getSubscriptionConfig('u-b').types).toEqual(['SYSTEM'])
+    })
+  })
 })

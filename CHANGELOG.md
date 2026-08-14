@@ -1,5 +1,64 @@
 # CHANGELOG
 
+## v3.0.6.11-99 (2026-08-08) — 大规模升级（999999 升级点）：8 大域+MSW真实化5模块+报告批注/模板设计器/语音工作站/PDCA/随访闭环/病灶追踪/测量全量/自定义报表/BI绩效/技师排班/生产级S3/移动深化/多RADS后端化+全量交互回归368路由0失败
+
+> **目标**: 999999 升级点——代码量 5 万行以上：放射流程 + 技师/报告工作站 + 报告强大功能 + UI/图标专业优化 + PACS 对标 + 翻译严查 + 点击所有页面杜绝红蓝屏
+> **范围**: 18 agents 九波实施（197 suites/2006 tests）
+
+### Wave 1: MSW 真实化 5 模块（2 agents）
+
+- **neuro 神经专科模块**（新建：studies/:id/stats/tumor-grades/stroke-windows/analyze——Exam/Report 派生 + 12 例 seed + LVO/ASPECTS/时间窗确定性规则 + spec 9 用例）
+- **eye-optometry 视光闭环模块**（新建：stats/screening/refraction-curve/ok-trial/ortho-k-order/defocus-order/refraction/ok-lens/vision-record——EyeStudy 派生 + spec 10 用例）
+- **eye-iol-toric**（并入 eye：constant/toric-plan/candidate/predict-postop/calculate 泛化 4 公式 + spec 7 用例）
+- **dental-ortho**（并入 dental：plans CRUD/arch-analysis/aligner-plans 6 子端点 + spec 8 用例）
+- **dental-ceph**（并入 dental：studies/analysis-types/landmarks/analysis——SNA/SNB/ANB 标定点确定性计算 + spec 7 用例）
+- **裸 fetch 双通道收敛 9 文件**（DentalBilling/Volume/Tele/Optometry/Toric/RealDicomViewer——eyeApi/dentalApi 统一，残留 0）
+
+### Wave 2: 报告批注 + 模板设计器（2 agents）
+
+- **报告批注系统**（新建 report-annotation 8 端点：CRUD/reply/resolve/reopen/stats + ReportAnnotationPanel 组件 + 详情抽屉「批注」Tab + 书写页批注面板（选中文本引用 + 定位滚动）+ spec 13 用例）
+- **模板设计器可视化**（templates 补 structure JSON 字段（迁移 16）+ GET/PATCH structure 端点 + TemplateDesignerPage 可视化模式：三栏（变量面板 14 变量/结构化字段面板 9 类/段落块画布 拖拽排序/实时预览/保存）+ spec 4 用例）
+
+### Wave 3: PDCA 质控闭环 + 随访闭环（2 agents）
+
+- **qc-pdca 模块**（新建 14 端点：cycles CRUD/advance(plan→do→check→act→completed)/phases/defects 关联/complete/stats + QcPdcaPage 看板页（统计卡/周期表/阶段 Timeline/缺陷关联）+ 路由/菜单/i18n + spec 21 用例）
+- **随访闭环**（followup 状态机 7 枚举（PENDING/REMINDED/IN_PROGRESS/COMPLETED/MISSED/CANCELLED）+ remind/miss/cancel/in-progress + stats + from-exam 检查联动 + 模板库模块（followup-templates CRUD/apply 批量）+ FollowUpPage 8 统计卡/行操作/模板 Modal + ExamDetailView 创建随访入口 + spec 16 用例）
+
+### Wave 4: 病灶追踪 + 测量全量（2 agents）
+
+- **lesion-tracking 模块**（新建 11 端点：lesions CRUD/measurements/trend/compare(RECIST CR/PR/SD/PD)/stats/followup 联动 + LesionTrackingPage 工作台（趋势折线/跨期对比/统计卡）+ DicomViewerPro 病灶追踪入口 + 路由/菜单/i18n + spec 18 用例）
+- **测量族全量**（DicomViewerTypes 加 cobb/polygon 类型 + DicomViewerPage Cobb 角（atan2 锐角）/多边形面积（鞋带公式）绘制 + sessionStorage 测量导出 + MeasurementPanel 类型 Tag + ReportWritePage「影像测量」Card（自动导入/手动添加/插入测量表 HTML 到正文）+ spec）
+
+### Wave 5: 自定义报表 + BI/绩效/订阅（2 agents）
+
+- **custom-report 模块**（新建 10 端点：definitions CRUD/run/result/history/schedule/fields-catalog(64 字段)/export + 定时推送联动 notifications/report-generated + DataReportCenterPage 报表定义管理 + spec 18 用例）
+- **BI 大屏模板库**（bi wall-templates CRUD 5 布局 + KpiWallPage 模板选择器/保存布局 + spec 11 用例）；**医生绩效**（/bi/physician-performance：奖金=RVU×单价×质量系数 + DoctorWorkloadPage 奖金列/总奖金 + spec 4 用例）；**报表订阅推送**（/notifications/report-generated + 报表历史「已推送」+ 通知中心类型）
+
+### Wave 6: 语音工作站 + 技师排班（2 agents）
+
+- **voice-workstation 模块**（新建 9 端点：lexicon(176 词条 seed)/search/transcribe(同音词校正+corrections)/corrections/sessions/stats + VoiceDictation 校正面板 + AsrPage 词库管理/听写历史/统计卡 + spec 19 用例）
+- **tech-schedule 技师排班模块**（新建 12 端点：schedules CRUD/confirm/swap/leave/calendar 月历/stats/batch-create/meta + TechSchedulePage（统计卡/月历矩阵/批量生成/换班请假）+ 路由/菜单/i18n + spec 19 用例）
+
+### Wave 7: 生产级 S3 + 移动深化（2 agents）
+
+- **G-28 S3 驱动深化**（SigV4 全 x-amz 头签名 + deleteMany(DeleteObjects XML)/copy(CopyObject) AWS SDK 同款语义 + 生命周期策略 CRUD（tier2/archive/backup 转存+删除规则）+ 多租户桶隔离（tenantId 前缀/跨租户抢占拒绝）+ 批量删除/复制端点 + CloudStorageDashboardPage 生命周期 Tab/批量操作/驱动徽标 + spec 20 用例）
+- **移动深化**（DoctorMobileWorkstation 待审批 Tab（review/reject 真实）+ patient-portal 随访移动端点（list/complete + spec 9 用例）+ SelfServicePortal 随访移动卡片 + 订阅管理（/notifications/subscriptions 5 类 + NotificationCenter/MobilePush 开关）+ PWA 离线报告（offlineStorage HTML 快照 + ReportPage 离线保存 + OfflineReportsPage 浏览/删除 + 路由））
+
+### Wave 8: 页面补丁 + 翻译/图标/G-20（2 agents）
+
+- **16 项补丁**：ReportRevisions 补发 Modal（revise 真实）、ReportPageHeader 新建报告真实化、Appointment 批量导入 CSV/JSON 真实解析、规则保存持久化、OctViewer 真实测量（canvas 两点+比例换算）、AiReportWriter 真实 MediaRecorder 录音、ImageAnchor 播放 tooltip、4 处分页受控、TemplateCategory 真实模板行+真实计数、PrintManagement 预览真实标签、ReportWritePage 示例标注 2 处
+- **翻译**：-99 全 15 页 0 残留 + ImageAnchor/RadsScoring 5 处 + nav 4 文件补 qcPdca/lesionTracking/techSchedule + rads 命名空间 7 键补齐
+- **图标 6 处**（dentalViewer→Scan/sr-manager→ScrollText/dicom-sr-manager→FileSignature/devices→Monitor/Cpu/similar-case→Images）+ **深色共用组件 2 处**（AppButton/BackButton）
+- **G-20 多 RADS 后端化**（/ai/cad/rads/rules 5 类规则表 + score 确定性评分 + stats + AiRadsPage 接真实/规则表卡/插入报告 + spec 12 用例）
+
+### 验证
+
+- 后端: tsc 0 错误、jest **197 suites / 2006 tests 全部通过**（+15 suites +224 tests）
+- 前端: tsc 844（基线持平 0 新增）、vite build 成功
+- **全量交互回归：click-all 353 + 基线 15 = 368/368 通过（0 失败，19.9 分钟）**（新增 4 路由：/qc/pdca、/dicom/lesion-tracking、/ops/tech-schedule、/reports/offline）
+- 浏览器实测: 9 大域全部功能抽查通过（模块真实数据渲染/批注/设计器/PDCA/随访/病灶/报表/语音/排班/S3/移动/离线）
+- **代码量指标**：git diff 基线统计（见发布说明）
+
 ## v3.0.6.11-98 (2026-08-08) — 大规模升级：补齐放射报告强大功能(HTML持久化/模板变量/上例复制/影像锚定/推荐/审批流/结构化融合/打印模板/征象库后端化/收藏服务端)+G-02真JPEG2000 WASM+G-24深化+22假按钮+ai-diagnosis后端500修复+全量交互回归364路由0失败
 
 > **目标**: 99999 升级点——补齐放射报告的强大功能 + 技师/报告工作站 + 放射流程 + UI/图标专业优化 + PACS 对标 + 翻译严查 + 点击所有页面杜绝红蓝屏
@@ -701,7 +760,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-98 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-99 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -738,7 +797,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-98 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-99 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -969,7 +1028,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-98.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-99.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -1078,16 +1137,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-98（含 package-lock.json）
-- backend/package.json → 3.0.6.11-98
-- index.html title + window.__appVersion → v3.0.6.11-98
-- src/main.tsx APP_VERSION → v3.0.6.11-98
-- backend/src/main.ts + app.module.ts → v3.0.6.11-98
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-98
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-98
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-98
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-98
-- CHANGELOG.md 新增 v3.0.6.11-98 条目
+- package.json → 3.0.6.11-99（含 package-lock.json）
+- backend/package.json → 3.0.6.11-99
+- index.html title + window.__appVersion → v3.0.6.11-99
+- src/main.tsx APP_VERSION → v3.0.6.11-99
+- backend/src/main.ts + app.module.ts → v3.0.6.11-99
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-99
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-99
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-99
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-99
+- CHANGELOG.md 新增 v3.0.6.11-99 条目
 
 ### 验证结果
 
@@ -1101,7 +1160,7 @@
 ## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-98
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-99
 
 ### A13: 后端安全加固
 
@@ -1132,19 +1191,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-98
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-98
-- backend/src/app.module.ts → v3.0.6.11-98
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-98
-- index.html title + window.__appVersion → v3.0.6.11-98
-- src/i18n/appI18n.ts → v3.0.6.11-98
-- src/main.tsx APP_VERSION → v3.0.6.11-98
-- src/routes/routeTable.tsx → v3.0.6.11-98
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-98
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-98
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-98
-- CONTRIBUTING.md → v3.0.6.11-98
-- CHANGELOG.md 新增 v3.0.6.11-98 条目
+- backend/package.json → 3.0.6.11-99
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-99
+- backend/src/app.module.ts → v3.0.6.11-99
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-99
+- index.html title + window.__appVersion → v3.0.6.11-99
+- src/i18n/appI18n.ts → v3.0.6.11-99
+- src/main.tsx APP_VERSION → v3.0.6.11-99
+- src/routes/routeTable.tsx → v3.0.6.11-99
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-99
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-99
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-99
+- CONTRIBUTING.md → v3.0.6.11-99
+- CHANGELOG.md 新增 v3.0.6.11-99 条目
 
 ### 验证结果
 

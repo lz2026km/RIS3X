@@ -59,6 +59,24 @@ const PORTAL_TECHS_SEED: any[] = [
   { id: 'T003', name: '周强', role: 'TECHNICIAN', title: '技师', department: 'DR组', phone: '13801030003' },
 ];
 
+// ===== [v3.0.6.11-99 Wave7B] 患者自助随访种子 (GET/POST /patient-portal/followups) =====
+const PORTAL_FOLLOWUPS_SEED: any[] = [
+  {
+    id: 'FU-P001-001', patientId: 'P001', patientName: '张三', reportId: 'RPT-P001-001',
+    planDate: '2026-08-20T00:00:00+08:00', intervalDays: 30, nextDate: '2026-08-20T00:00:00+08:00',
+    status: 'PENDING', note: '胸部 CT 复查随访', reminderEnabled: true,
+    remindedAt: null, missedAt: null, cancelledAt: null, completedAt: null,
+    createdAt: '2026-07-20T08:00:00+08:00', updatedAt: '2026-07-20T08:00:00+08:00',
+  },
+  {
+    id: 'FU-P001-002', patientId: 'P001', patientName: '张三',
+    planDate: '2026-09-01T00:00:00+08:00', intervalDays: 90, nextDate: '2026-09-01T00:00:00+08:00',
+    status: 'IN_PROGRESS', note: '乳腺 BI-RADS 3 定期复查', reminderEnabled: true,
+    remindedAt: null, missedAt: null, cancelledAt: null, completedAt: null,
+    createdAt: '2026-07-21T09:00:00+08:00', updatedAt: '2026-07-21T09:00:00+08:00',
+  },
+];
+
 // [Phase 2] 患者宣教资料库（含视频/音频/图文）
 const EDUCATION_MATERIALS = [
   {
@@ -425,5 +443,33 @@ export const patientPortalHandlers = [
   http.get(`${API}/mobile/techs`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: PORTAL_TECHS_SEED });
+  }),
+
+  // ===== [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5): 与后端 /patient-portal/followups 对齐 =====
+  // GET  /patient-portal/followups?patientId=  → { success, data: FollowUpPlan[] }
+  // POST /patient-portal/followups/:id/complete → { success, data: FollowUpPlan }
+  http.get(`${API}/followups`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let items = PORTAL_FOLLOWUPS_SEED.map(m => ({ ...m }));
+    if (patientId) items = items.filter(f => f.patientId === patientId);
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
+
+  http.post(`${API}/followups/:id/complete`, async ({ params }) => {
+    await delay(delayMs());
+    const id = params.id as string;
+    const item = PORTAL_FOLLOWUPS_SEED.find(f => f.id === id);
+    if (!item) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `随访计划不存在: ${id}` } },
+        { status: 404 },
+      );
+    }
+    const updated = { ...item, status: 'COMPLETED', completedAt: new Date().toISOString() };
+    const idx = PORTAL_FOLLOWUPS_SEED.findIndex(f => f.id === id);
+    if (idx >= 0) PORTAL_FOLLOWUPS_SEED[idx] = updated;
+    return HttpResponse.json({ success: true, data: updated });
   }),
 ];

@@ -1,16 +1,18 @@
 /**
  * Cloud Storage & Archiving Dashboard
  * v3.0.6.11-60: 增加「存储配置」页签 — 驱动选择 (本地/S3) + 配置表单 + 连接测试 + 存储统计
+ * v3.0.6.11-99 Wave 7A (G-28): 生命周期策略 Tab + 对象批量操作 (复制/批量删除) + 驱动/数据源徽标 + 多租户桶隔离
  */
 import { useEffect, useMemo, useState } from "react";
 import {
   Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Typography, Space, Alert,
-  Radio, Form, Input, Button, message, InputNumber, Select, Modal, Upload, Tooltip, Popconfirm,
+  Radio, Form, Input, Button, message, InputNumber, Select, Modal, Upload, Tooltip, Popconfirm, Switch,
 } from "antd";
 import {
   Cloud, Database, Archive, HardDrive, Layers, Activity, Clock, TrendingUp, AlertCircle,
   CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw, BellRing,
   FolderPlus, Boxes, UploadCloud, Download, Eye, Trash2, FileJson, FileText, File as FileIcon, Inbox,
+  Copy as CopyIcon, CalendarClock, ShieldCheck,
 } from "lucide-react";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
@@ -23,6 +25,9 @@ import {
   type StorageBucketDto,
   type StorageObjectDto,
   type BucketProvider,
+  type LifecyclePolicyDto,
+  type LifecyclePolicyInput,
+  type LifecycleTransitionTier,
 } from "../services/api/storageConfigApi";
 
 const { Text } = Typography;
@@ -44,6 +49,20 @@ const STATUS_MAP: Record<string, { color: string; label: string }> = {
   syncing: { color: "blue", label: "同步中" },
   offline: { color: "red", label: "离线" },
   readonly: { color: "orange", label: "只读" },
+};
+
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动来源徽标映射
+const DRIVER_SOURCE_META: Record<string, { label: string; color: string; desc: string }> = {
+  "aws-sigv4-native": { label: "SigV4 原生驱动", color: "geekblue", desc: "AWS SDK 风格 SigV4 签名, 直连 S3/MinIO REST API" },
+  simulated: { label: "本地模拟", color: "gold", desc: "内存模拟对象存储 (无真实 S3 端点)" },
+  "local-fs": { label: "本地文件系统", color: "green", desc: "DICOM/VNA/Uploads 目录聚合" },
+};
+
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] 生命周期转存层徽标
+const TIER_TRANSITION_META: Record<string, { label: string; color: string }> = {
+  tier2: { label: "二级转存", color: "blue" },
+  archive: { label: "冷归档", color: "purple" },
+  backup: { label: "备份", color: "green" },
 };
 
 const JOB_TYPE: Record<string, { color: string; label: string }> = {
@@ -187,6 +206,41 @@ function StorageMonitorTab() {
         </Col>
         <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
       </Row>
+
+      {/* [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动状态徽标 + 数据源徽标 */}
+      <Card size="small" style={{ marginBottom: 16 }} title={<Space><ShieldCheck size={16} />驱动状态与数据源</Space>}>
+        <Space size={8} wrap>
+          <Tag icon={<Cloud size={12} />} color={storageStats?.driver === "s3" ? "cyan" : "green"}>
+            {storageStats?.driver === "s3" ? "S3 / MinIO" : "本地存储"}
+          </Tag>
+          {(() => {
+            const meta: { label: string; color: string; desc: string } =
+              DRIVER_SOURCE_META[storageStats?.source ?? ""]
+              ?? (storageStats?.driver === "s3" ? DRIVER_SOURCE_META["aws-sigv4-native"] : DRIVER_SOURCE_META["local-fs"])
+              ?? { label: "未知来源", color: "default", desc: "驱动来源未上报" };
+            return (
+              <Tooltip title={meta.desc}>
+                <Tag color={meta.color} icon={storageStats?.source === "aws-sigv4-native" ? <CheckCircle size={12} /> : <HardDrive size={12} />}>
+                  {meta.label}
+                </Tag>
+              </Tooltip>
+            );
+          })()}
+          <Tooltip title={storageStats?.source === "aws-sigv4-native" ? "统计来自真实 S3 API (ListObjectsV2)" : "统计来自内存模拟/本地目录"}>
+            <Tag color={storageStats?.source === "aws-sigv4-native" ? "blue" : "orange"} icon={<Database size={12} />}>
+              数据源: {storageStats?.source === "aws-sigv4-native" ? "真实" : storageStats ? "模拟" : "示例"}
+            </Tag>
+          </Tooltip>
+          <Tooltip title={twentyFourH.derived ? "24h 吞吐由存储统计按 30 天日均近似" : "展示示例值"}>
+            <Tag color={twentyFourH.derived ? "geekblue" : "default"} icon={<TrendingUp size={12} />}>
+              24h 吞吐: {twentyFourH.derived ? "统计派生" : "示例值"}
+            </Tag>
+          </Tooltip>
+          {storageStats?.latencyMs !== undefined && (
+            <Tag color="purple" icon={<Activity size={12} />}>驱动延迟 {storageStats.latencyMs} ms</Tag>
+          )}
+        </Space>
+      </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
@@ -512,24 +566,38 @@ function objectIcon(key: string) {
 
 function BucketObjectsModal({
   bucket,
+  buckets,
   visible,
   onClose,
   onChanged,
 }: {
   bucket: StorageBucketDto | null;
+  buckets: StorageBucketDto[];
   visible: boolean;
   onClose: () => void;
   onChanged: () => void;
 }) {
   const [objects, setObjects] = useState<StorageObjectDto[]>([]);
   const [loading, setLoading] = useState(false);
+  // [v3.0.6.11-99 Wave8A P1] 对象表分页受控化 (usePagination)
+  const { pageData: objectPageData, pagination: objectPagination } = usePagination(objects, 10);
   const [uploading, setUploading] = useState(false);
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 批量勾选 + 批量删除 / 单对象删除 / 复制到…
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [batchDeleting, setBatchDeleting] = useState(false);
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const [copyVisible, setCopyVisible] = useState(false);
+  const [copyKey, setCopyKey] = useState<string | null>(null);
+  const [copyTarget, setCopyTarget] = useState<string | undefined>(undefined);
+  const [copying, setCopying] = useState(false);
 
   const load = async (name: string) => {
     setLoading(true);
     const res = await storageConfigApi.listBucketObjects(name);
-    if (res.success && Array.isArray(res.data)) setObjects(res.data);
-    else message.error(res.error?.message ?? "对象列表加载失败");
+    if (res.success && Array.isArray(res.data)) {
+      setObjects(res.data);
+      setSelectedKeys([]);
+    } else message.error(res.error?.message ?? "对象列表加载失败");
     setLoading(false);
   };
 
@@ -558,6 +626,58 @@ function BucketObjectsModal({
     }
   };
 
+  const deleteKeys = async (keys: string[]) => {
+    if (!bucket || !keys.length) return;
+    setBatchDeleting(true);
+    const res = await storageConfigApi.batchDeleteObjects(bucket.name, keys);
+    if (res.success && res.data) {
+      message.success(`已删除 ${res.data.deleted.length} 个对象${res.data.missing.length ? `, ${res.data.missing.length} 个未命中` : ""}`);
+      void load(bucket.name);
+      onChanged();
+    } else {
+      message.error(res.error?.message ?? "批量删除失败");
+    }
+    setBatchDeleting(false);
+  };
+
+  const deleteOne = async (obj: StorageObjectDto) => {
+    if (!bucket) return;
+    setDeletingKey(obj.key);
+    const res = await storageConfigApi.batchDeleteObjects(bucket.name, [obj.key]);
+    if (res.success && res.data) {
+      message.success(`已删除 ${obj.key}`);
+      void load(bucket.name);
+      onChanged();
+    } else {
+      message.error(res.error?.message ?? "删除失败");
+    }
+    setDeletingKey(null);
+  };
+
+  const openCopy = (obj: StorageObjectDto) => {
+    setCopyKey(obj.key);
+    setCopyTarget(undefined);
+    setCopyVisible(true);
+  };
+
+  const doCopy = async () => {
+    if (!bucket || !copyKey || !copyTarget) return;
+    setCopying(true);
+    const res = await storageConfigApi.copyObject(bucket.name, { key: copyKey, targetBucket: copyTarget });
+    if (res.success && res.data) {
+      message.success(`已复制 ${copyKey} → ${res.data.targetBucket} (${formatBytes(res.data.size)})`);
+      setCopyVisible(false);
+      setCopyKey(null);
+      void load(bucket.name);
+      onChanged();
+    } else {
+      message.error(res.error?.message ?? "复制失败");
+    }
+    setCopying(false);
+  };
+
+  const copyTargets = (buckets ?? []).filter((b) => b.name !== bucket?.name);
+
   return (
     <Modal
       title={
@@ -569,15 +689,15 @@ function BucketObjectsModal({
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={760}
+      width={860}
     >
       <Alert
         type="info"
         showIcon
         style={{ marginBottom: 12 }}
-        message="上传为本地模拟 (仅注册元数据)，下载生成 JSON/文本 Blob 模拟真实拉取。"
+        message="上传为本地模拟 (仅注册元数据)，下载生成 JSON/文本 Blob 模拟真实拉取。批量删除/复制为内存模拟 (source=simulated)。"
       />
-      <div style={{ marginBottom: 12 }}>
+      <Space style={{ marginBottom: 12 }} wrap>
         <Upload
           accept="*"
           showUploadList={false}
@@ -604,14 +724,35 @@ function BucketObjectsModal({
             上传对象 (本地模拟)
           </Button>
         </Upload>
-      </div>
+        <Popconfirm
+          title={`确认批量删除选中的 ${selectedKeys.length} 个对象?`}
+          description="内存态删除, 不可恢复"
+          okText="删除"
+          cancelText="取消"
+          disabled={selectedKeys.length === 0}
+          onConfirm={() => void deleteKeys(selectedKeys as string[])}
+        >
+          <Button
+            danger
+            icon={<Trash2 size={14} />}
+            disabled={selectedKeys.length === 0 || !bucket}
+            loading={batchDeleting}
+          >
+            批量删除{selectedKeys.length ? ` (${selectedKeys.length})` : ""}
+          </Button>
+        </Popconfirm>
+      </Space>
       <Table
         size="small"
         rowKey="key"
         loading={loading}
-        dataSource={objects}
-        pagination={{ pageSize: 10, showSizeChanger: false }}
+        dataSource={objectPageData}
+        pagination={objectPagination}
         scroll={{ x: 'max-content' }}
+        rowSelection={{
+          selectedRowKeys: selectedKeys,
+          onChange: (keys) => setSelectedKeys(keys),
+        }}
         columns={[
           {
             title: "对象键",
@@ -641,15 +782,55 @@ function BucketObjectsModal({
           {
             title: "操作",
             key: "action",
-            width: 120,
+            width: 220,
             render: (_: unknown, obj: StorageObjectDto) => (
-              <Button size="small" icon={<Download size={13} />} onClick={() => void download(obj)}>
-                下载
-              </Button>
+              <Space size={4}>
+                <Button size="small" icon={<Download size={13} />} onClick={() => void download(obj)}>
+                  下载
+                </Button>
+                <Button size="small" icon={<CopyIcon size={13} />} disabled={copyTargets.length === 0} onClick={() => openCopy(obj)}>
+                  复制到…
+                </Button>
+                <Popconfirm
+                  title={`确认删除对象 ${obj.key}?`}
+                  okText="删除"
+                  cancelText="取消"
+                  onConfirm={() => void deleteOne(obj)}
+                >
+                  <Button size="small" danger icon={<Trash2 size={13} />} loading={deletingKey === obj.key}>
+                    删除
+                  </Button>
+                </Popconfirm>
+              </Space>
             ),
           },
         ]}
       />
+
+      <Modal
+        title={<Space><CopyIcon size={16} color="#0ea5e9" />复制对象到其他桶</Space>}
+        open={copyVisible}
+        onCancel={() => setCopyVisible(false)}
+        onOk={() => void doCopy()}
+        confirmLoading={copying}
+        okText="复制"
+        cancelText="取消"
+        destroyOnHidden
+      >
+        <div style={{ marginBottom: 8 }}>
+          <Text strong>对象: {copyKey}</Text>
+        </div>
+        <Select
+          style={{ width: "100%" }}
+          placeholder="选择目标桶"
+          value={copyTarget}
+          onChange={setCopyTarget}
+          options={copyTargets.map((b) => ({ value: b.name, label: `${b.name} (${PROVIDER_LABELS[b.provider]?.label ?? b.provider})` }))}
+        />
+        {copyTarget && (
+          <Alert type="info" showIcon style={{ marginTop: 8 }} message={`${copyKey} 将复制到 ${copyTarget}, 同名覆盖 (source=simulated)`} />
+        )}
+      </Modal>
     </Modal>
   );
 }
@@ -776,6 +957,19 @@ function StorageBucketsTab() {
                 return <Tag color={cfg.color}>{cfg.label}</Tag>;
               },
             },
+            {
+              title: "租户",
+              dataIndex: "tenantId",
+              key: "tenantId",
+              width: 130,
+              render: (t: string) => (
+                <Tooltip title="多租户桶隔离 (x-tenant-id 校验, 非 default 租户桶自动前缀)">
+                  <Tag color={t === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
+                    {t === "default" ? "默认租户" : t}
+                  </Tag>
+                </Tooltip>
+              ),
+            },
             { title: "区域", dataIndex: "region", key: "region", width: 140 },
             {
               title: "对象数",
@@ -859,7 +1053,280 @@ function StorageBucketsTab() {
         </Form>
       </Modal>
 
-      <BucketObjectsModal bucket={selectedBucket} visible={objectsVisible} onClose={() => setObjectsVisible(false)} onChanged={() => void load()} />
+      <BucketObjectsModal bucket={selectedBucket} buckets={buckets} visible={objectsVisible} onClose={() => setObjectsVisible(false)} onChanged={() => void load()} />
+    </>
+  );
+}
+
+// ─────────────────────────── 生命周期策略 (G-28 v3.0.6.11-99) ───────────────────────────
+
+function LifecyclePoliciesTab() {
+  const [policies, setPolicies] = useState<LifecyclePolicyDto[]>([]);
+  const [buckets, setBuckets] = useState<StorageBucketDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editing, setEditing] = useState<LifecyclePolicyDto | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
+  const [form] = Form.useForm<LifecyclePolicyInput>();
+
+  const load = async () => {
+    setLoading(true);
+    const [pRes, bRes] = await Promise.all([
+      storageConfigApi.listLifecyclePolicies(),
+      storageConfigApi.listBuckets(),
+    ]);
+    if (pRes.success && Array.isArray(pRes.data)) setPolicies(pRes.data);
+    else message.error(pRes.error?.message ?? "策略列表加载失败");
+    if (bRes.success && Array.isArray(bRes.data)) setBuckets(bRes.data);
+    setLoading(false);
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const openCreate = () => {
+    setEditing(null);
+    form.resetFields();
+    form.setFieldsValue({ transitionTo: "tier2", afterDays: 90, enabled: true });
+    setModalVisible(true);
+  };
+
+  const openEdit = (p: LifecyclePolicyDto) => {
+    setEditing(p);
+    form.setFieldsValue({
+      bucket: p.bucket,
+      prefix: p.prefix,
+      transitionTo: p.transitionTo,
+      afterDays: p.afterDays,
+      deleteAfterDays: p.deleteAfterDays ?? null,
+      enabled: p.enabled,
+    });
+    setModalVisible(true);
+  };
+
+  const onSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      setSaving(true);
+      const payload: LifecyclePolicyInput = {
+        bucket: values.bucket,
+        prefix: values.prefix ?? "",
+        transitionTo: values.transitionTo,
+        afterDays: values.afterDays,
+        deleteAfterDays: values.deleteAfterDays ?? null,
+        enabled: values.enabled ?? true,
+      };
+      if (payload.deleteAfterDays !== null && payload.deleteAfterDays !== undefined && payload.deleteAfterDays < payload.afterDays) {
+        message.error("删除天数必须 ≥ 转存天数");
+        setSaving(false);
+        return;
+      }
+      const res = editing
+        ? await storageConfigApi.updateLifecyclePolicy(editing.id, payload)
+        : await storageConfigApi.createLifecyclePolicy(payload);
+      if (res.success && res.data) {
+        message.success(editing ? `策略 ${res.data.id} 已更新` : `策略 ${res.data.id} 已创建`);
+        setModalVisible(false);
+        void load();
+      } else {
+        message.error(res.error?.message ?? (editing ? "策略更新失败" : "策略创建失败"));
+      }
+    } catch {
+      /* 校验失败忽略 */
+    }
+    setSaving(false);
+  };
+
+  const onDelete = async (p: LifecyclePolicyDto) => {
+    setDeleting(p.id);
+    const res = await storageConfigApi.deleteLifecyclePolicy(p.id);
+    if (res.success) {
+      message.success(`策略 ${p.id} 已删除`);
+      void load();
+    } else {
+      message.error(res.error?.message ?? "删除失败");
+    }
+    setDeleting(null);
+  };
+
+  const toggleEnabled = async (p: LifecyclePolicyDto, enabled: boolean) => {
+    setToggling(p.id);
+    const res = await storageConfigApi.updateLifecyclePolicy(p.id, { enabled });
+    if (res.success && res.data) {
+      message.success(`策略 ${p.id} 已${enabled ? "启用" : "停用"}`);
+      setPolicies((prev) => prev.map((x) => (x.id === p.id ? { ...x, enabled: res.data!.enabled } : x)));
+    } else {
+      message.error(res.error?.message ?? "状态切换失败");
+    }
+    setToggling(null);
+  };
+
+  const bucketNames = buckets.map((b) => b.name);
+
+  return (
+    <>
+      <Card
+        size="small"
+        title={<Space><CalendarClock size={16} />对象生命周期策略<Text type="secondary" style={{ fontSize: 12 }}>转存层 (二级/归档/备份) · 天数规则 · 启用开关 (内存 + seed, 多租户隔离)</Text></Space>}
+        extra={
+          <Space>
+            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
+            <Button type="primary" icon={<FolderPlus size={14} />} onClick={openCreate}>新建策略</Button>
+          </Space>
+        }
+        style={{ marginBottom: 16 }}
+      >
+        <Table
+          scroll={{ x: 'max-content' }}
+          rowKey="id"
+          loading={loading}
+          dataSource={policies}
+          size="small"
+          pagination={{ pageSize: 10, showSizeChanger: false }}
+          columns={[
+            {
+              title: "策略 ID",
+              dataIndex: "id",
+              key: "id",
+              width: 110,
+              render: (id: string) => <Text code>{id}</Text>,
+            },
+            {
+              title: "桶",
+              dataIndex: "bucket",
+              key: "bucket",
+              width: 180,
+              render: (b: string) => (
+                <Space>
+                  <Cloud size={13} color="#0ea5e9" />
+                  <span style={{ fontWeight: 600 }}>{b}</span>
+                </Space>
+              ),
+            },
+            {
+              title: "前缀",
+              dataIndex: "prefix",
+              key: "prefix",
+              width: 180,
+              render: (p: string) => (p ? <Tag>{p}</Tag> : <Tag color="default">全部 (*)</Tag>),
+            },
+            {
+              title: "转存层",
+              dataIndex: "transitionTo",
+              key: "transitionTo",
+              width: 120,
+              render: (t: LifecycleTransitionTier) => {
+                const meta = TIER_TRANSITION_META[t] ?? { label: t, color: "default" };
+                return <Tag color={meta.color}>{meta.label}</Tag>;
+              },
+            },
+            {
+              title: "转存天数",
+              dataIndex: "afterDays",
+              key: "afterDays",
+              width: 110,
+              render: (d: number) => `${d} 天`,
+            },
+            {
+              title: "删除天数",
+              dataIndex: "deleteAfterDays",
+              key: "deleteAfterDays",
+              width: 110,
+              render: (d?: number) => (d !== undefined && d !== null ? `${d} 天` : <Text type="secondary">—</Text>),
+            },
+            {
+              title: "启用",
+              dataIndex: "enabled",
+              key: "enabled",
+              width: 100,
+              render: (enabled: boolean, p: LifecyclePolicyDto) => (
+                <Switch size="small" checked={enabled} loading={toggling === p.id} onChange={(v) => void toggleEnabled(p, v)} />
+              ),
+            },
+            {
+              title: "租户",
+              dataIndex: "tenantId",
+              key: "tenantId",
+              width: 130,
+              render: (t: string) => (
+                <Tag color={t === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
+                  {t === "default" ? "默认租户" : t}
+                </Tag>
+              ),
+            },
+            {
+              title: "更新时间",
+              dataIndex: "updatedAt",
+              key: "updatedAt",
+              width: 170,
+              render: (u: string) => new Date(u).toLocaleString("zh-CN"),
+            },
+            {
+              title: "操作",
+              key: "action",
+              width: 130,
+              render: (_: unknown, p: LifecyclePolicyDto) => (
+                <Space size={4}>
+                  <Button size="small" icon={<Settings size={13} />} onClick={() => openEdit(p)}>编辑</Button>
+                  <Popconfirm
+                    title={`确认删除策略 ${p.id}?`}
+                    okText="删除"
+                    cancelText="取消"
+                    onConfirm={() => void onDelete(p)}
+                  >
+                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === p.id}>删除</Button>
+                  </Popconfirm>
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </Card>
+
+      <Modal
+        title={<Space><CalendarClock size={16} color="#0ea5e9" />{editing ? `编辑策略 ${editing.id}` : "新建生命周期策略"}</Space>}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={() => void onSubmit()}
+        confirmLoading={saving}
+        okText={editing ? "保存" : "创建"}
+        cancelText="取消"
+        destroyOnHidden
+      >
+        <Form form={form} layout="vertical" style={{ marginTop: 8 }}>
+          <Form.Item name="bucket" label="桶" rules={[{ required: true, message: "请选择桶" }]}>
+            <Select
+              placeholder="选择存储桶"
+              disabled={!!editing}
+              options={bucketNames.map((n) => ({ value: n, label: n }))}
+            />
+          </Form.Item>
+          <Form.Item name="prefix" label="对象前缀" tooltip="空 = 桶内全部对象">
+            <Input placeholder="如 ct- / study- (留空表示全部)" prefix={<Inbox size={13} />} />
+          </Form.Item>
+          <Form.Item name="transitionTo" label="转存层" rules={[{ required: true, message: "请选择转存层" }]}>
+            <Select
+              options={Object.entries(TIER_TRANSITION_META).map(([value, meta]) => ({ value, label: meta.label }))}
+            />
+          </Form.Item>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="afterDays" label="转存天数 (afterDays)" rules={[{ required: true, message: "必填" }]}>
+                <InputNumber min={1} max={3650} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="deleteAfterDays" label="删除天数 (可空)" tooltip="为空则不自动删除">
+                <InputNumber min={1} max={36500} style={{ width: "100%" }} placeholder="不删除" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="enabled" label="启用" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 }
@@ -898,6 +1365,11 @@ export default function CloudStorageDashboardPage() {
             key: "buckets",
             label: <Space><Boxes size={14} />桶管理</Space>,
             children: <StorageBucketsTab />,
+          },
+          {
+            key: "lifecycle",
+            label: <Space><CalendarClock size={14} />生命周期策略</Space>,
+            children: <LifecyclePoliciesTab />,
           },
         ]}
       />

@@ -28,6 +28,9 @@ export default function DoctorWorkloadPage() {
   // [v3.0.6.11-92] W2-B P2: RVU 列 (biApi.getPhysicianRvu, 按医生名匹配, 无则 0; 失败回退不阻断)
   const [rvuByDoctor, setRvuByDoctor] = useState<Record<string, number>>({});
   const [totalRvu, setTotalRvu] = useState(0);
+  // [v3.0.6.11-99] Wave 5B-B: 奖金预估 (RVU × 单价 × 质量系数) + 质量系数 Tag; 失败回退本地估算
+  const [bonusByDoctor, setBonusByDoctor] = useState<Record<string, { bonus: number; qualityScore: number; coefficient: number }>>({});
+  const [totalBonus, setTotalBonus] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,6 +89,45 @@ export default function DoctorWorkloadPage() {
         }
       } catch {
         // RVU 失败回退不阻断
+      }
+    })();
+    // [v3.0.6.11-99] Wave 5B-B: 医生绩效 (奖金预估 + 质量系数); 失败回退本地估算 (RVU × 12 × 系数)
+    void (async () => {
+      try {
+        const res = await biApi.getPhysicianPerformance();
+        if (cancelled || !res.success) return;
+        const env = res.data as any;
+        const payload = env?.data ?? null;
+        const rows = Array.isArray(payload?.byPhysician) ? payload.byPhysician : [];
+        if (rows.length === 0) return;
+        const map: Record<string, { bonus: number; qualityScore: number; coefficient: number }> = {};
+        for (const p of rows) {
+          if (p?.doctorName) map[p.doctorName] = {
+            bonus: Number(p.bonus) || 0,
+            qualityScore: Number(p.qualityScore) || 0,
+            coefficient: Number(p.qualityCoefficient) || 1,
+          };
+        }
+        if (!cancelled) {
+          setBonusByDoctor(map);
+          setTotalBonus(Number(payload?.bonus) || 0);
+        }
+      } catch {
+        // 失败回退: 本地估算 (单价 ¥12 × 质量系数)
+        const fallbackMap: Record<string, { bonus: number; qualityScore: number; coefficient: number }> = {};
+        let fallbackTotal = 0;
+        for (const d of DOCTOR_WORKLOADS) {
+          const rvu = rvuByDoctor[d.doctorName] ?? 0;
+          const qs = d.qualityScore ?? 85;
+          const coef = qs >= 95 ? 1.15 : qs >= 90 ? 1.05 : qs >= 85 ? 1 : 0.9;
+          const bonus = Math.round(rvu * 12 * coef * 100) / 100;
+          fallbackMap[d.doctorName] = { bonus, qualityScore: qs, coefficient: coef };
+          fallbackTotal += bonus;
+        }
+        if (!cancelled && Object.keys(fallbackMap).length > 0) {
+          setBonusByDoctor(fallbackMap);
+          setTotalBonus(fallbackTotal);
+        }
       }
     })();
     return () => { cancelled = true; };
@@ -221,15 +263,33 @@ export default function DoctorWorkloadPage() {
                       <div><strong style={{ color: '#7c3aed' }}>{d.avgSignTime}m</strong> 签</div>
                       <div><strong style={{ color: '#b45309' }}>{rvuByDoctor[d.doctorName] ?? 0}</strong> RVU</div>
                     </div>
+                    {/* [v3.0.6.11-99] Wave 5B-B: 奖金预估列 + 质量系数 Tag */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 12 }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>奖金预估</span>
+                      <strong style={{ color: '#059669', fontSize: 13 }}>¥{Number(bonusByDoctor[d.doctorName]?.bonus ?? 0).toLocaleString()}</strong>
+                      <span
+                        style={{
+                          padding: '1px 6px', borderRadius: 4, fontWeight: 600, fontSize: 11,
+                          background: (bonusByDoctor[d.doctorName]?.coefficient ?? 1) >= 1.1 ? '#dcfce7' : (bonusByDoctor[d.doctorName]?.coefficient ?? 1) > 1 ? '#fef9c3' : '#fee2e2',
+                          color: (bonusByDoctor[d.doctorName]?.coefficient ?? 1) >= 1.1 ? '#15803d' : (bonusByDoctor[d.doctorName]?.coefficient ?? 1) > 1 ? '#a16207' : '#b91c1c',
+                        }}
+                      >
+                        ×{bonusByDoctor[d.doctorName]?.coefficient ?? 1}
+                      </span>
+                      {bonusByDoctor[d.doctorName] && (
+                        <span style={{ color: '#94a3b8' }}>质量{bonusByDoctor[d.doctorName]!.qualityScore}分</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })}
-            {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU) */}
+            {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU); [v3.0.6.11-99] + 总奖金 */}
             <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
               <span><strong style={{ color: 'var(--text-primary)' }}>合计</strong> · {filtered.length} 人</span>
               <span>报告 <strong style={{ color: '#1e40af' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> 份</span>
               <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
+              <span>总奖金 <strong style={{ color: '#059669' }}>¥{totalBonus.toLocaleString()}</strong></span>
             </div>
           </div>
         </div>
@@ -263,6 +323,23 @@ export default function DoctorWorkloadPage() {
               <BigKpi icon={Clock} label="日均" value={selected.avgPerDay} sub="份/天" color="#7c3aed" />
               <BigKpi icon={Clock} label="平均签发" value={selected.avgSignTime} sub="分钟" color="#f59e0b" />
               <BigKpi icon={Award} label="质量分" value={selected.qualityScore} sub="0-100" color="#10b981" />
+            </div>
+
+            {/* [v3.0.6.11-99] Wave 5B-B: 奖金预估详情卡 (RVU × 单价 × 质量系数) */}
+            <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', borderRadius: 8, padding: 12, border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: '#05966920', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Award size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>奖金预估 (RVU × 单价¥12 × 质量系数)</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#059669' }}>
+                  ¥{Number(bonusByDoctor[selected.doctorName]?.bonus ?? 0).toLocaleString()}
+                  <span style={{ fontSize: 12, fontWeight: 600, marginLeft: 8, color: '#15803d' }}>×{bonusByDoctor[selected.doctorName]?.coefficient ?? 1} 质量{bonusByDoctor[selected.doctorName]?.qualityScore ?? selected.qualityScore}分</span>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#065f46' }}>
+                RVU {rvuByDoctor[selected.doctorName] ?? 0} · 报告 {selected.totalReports} 份
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>

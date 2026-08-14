@@ -769,6 +769,7 @@
     "qcImage": "影像质控",
     "qcImageAi": "影像 AI 自动质控",
     "qcRadiologistAnnual": "医生年度档案",
+    "qcPdca": "PDCA 质控闭环",
     "specialAssessment": "特殊评估",
     "statsDashboardV2": "统计大屏V2",
     "securityCompliance": "安全合规",
@@ -947,6 +948,7 @@
     "teachLecture": "教学讲座",
     "oeDashboard": "OEE 看板",
     "roomOccupancy": "检查室占用率",
+    "techSchedule": "技师排班",
     "benchmarkCompare": "报表同比环比",
     "aiDiagnosisAccuracy": "AI 准确率仪表盘",
     "tatDashboard": "报告完成率TAT",
@@ -1082,6 +1084,7 @@
     "reports": "报告",
     "security": "安全",
     "segmentation": "3D 分割与定量",
+    "lesionTracking": "病灶追踪",
     "smart": "智能",
     "systemAudit": "系统审计",
     "systemBackup": "系统备份",
@@ -4568,7 +4571,15 @@
     "causeSpeed": "速度减速",
     "causeDefect": "缺陷返工"
   },
-  "rads": {},
+  "rads": {
+    "patientId": "患者 ID",
+    "startScoring": "开始评分",
+    "loadHistory": "加载历史",
+    "confidence": "置信度",
+    "findings": "影像所见",
+    "recommendations": "处理建议",
+    "historyTrend": "分级趋势"
+  },
   "dicomCompress": {},
   "worklistSmart": {},
   "dicom4d": {

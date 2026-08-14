@@ -769,6 +769,7 @@
     "qcImage": "Image QC",
     "qcImageAi": "AI Image QC",
     "qcRadiologistAnnual": "Radiologist Annual",
+    "qcPdca": "QC PDCA Loop",
     "specialAssessment": "Special Assessment",
     "statsDashboardV2": "Stats Dashboard V2",
     "securityCompliance": "Security & Compliance",
@@ -947,6 +948,7 @@
     "teachLecture": "Teaching Lecture",
     "oeDashboard": "OEE Dashboard",
     "roomOccupancy": "Room Occupancy",
+    "techSchedule": "Tech Schedule",
     "benchmarkCompare": "Benchmark Compare",
     "aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
     "tatDashboard": "Report TAT Dashboard",
@@ -1082,6 +1084,7 @@
     "reports": "Reports",
     "security": "Security",
     "segmentation": "3D Segmentation",
+    "lesionTracking": "Lesion Tracking",
     "smart": "Smart",
     "systemAudit": "System Audit",
     "systemBackup": "System Backup",
@@ -4568,7 +4571,15 @@
     "causeSpeed": "Speed Loss",
     "causeDefect": "Defect & Rework"
   },
-  "rads": {},
+  "rads": {
+    "patientId": "Patient ID",
+    "startScoring": "Start Scoring",
+    "loadHistory": "Load History",
+    "confidence": "Confidence",
+    "findings": "Findings",
+    "recommendations": "Recommendations",
+    "historyTrend": "Grading Trend"
+  },
   "dicomCompress": {},
   "worklistSmart": {},
   "dicom4d": {

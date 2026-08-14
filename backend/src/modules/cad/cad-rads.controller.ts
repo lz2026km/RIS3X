@@ -69,12 +69,41 @@ class RadsThyroidDto {
   echogenicFoci?: 'none' | 'comet' | 'macrocalc' | 'rim' | 'punctate'
 }
 
+// v3.0.6.11-99 G-20: 统一评分端点 {type, findings} → 确定性评分
+const ScoreSchema = z.object({
+  type: z.enum(['lung', 'breast', 'prostate', 'liver', 'thyroid']),
+  findings: z.record(z.unknown()).optional(),
+})
+
+class RadsScoreDto {
+  type!: 'lung' | 'breast' | 'prostate' | 'liver' | 'thyroid'
+  findings?: Record<string, unknown>
+}
+
 @ApiTags('ai/cad/rads')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('ai/cad/rads')
 export class CadRadsController {
   constructor(private readonly service: CadRadsService) {}
+
+  // [v3.0.6.11-99 G-20] 评分规则表 (criteria/level 映射)
+  @Get('rules')
+  getRules() {
+    return this.service.getRules()
+  }
+
+  // [v3.0.6.11-99 G-20] 统一确定性评分: {type, findings} → level + description
+  @Post('score')
+  score(@Body(new ZodValidationPipe(ScoreSchema)) dto: RadsScoreDto) {
+    return this.service.score(dto.type, dto.findings ?? {})
+  }
+
+  // [v3.0.6.11-99 G-20] 评分统计
+  @Get('stats')
+  getStats() {
+    return this.service.getStats()
+  }
 
   @Post('lung')
   scoreLung(@Body(new ZodValidationPipe(LungSchema)) dto: RadsLungDto) {

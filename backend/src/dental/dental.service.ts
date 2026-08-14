@@ -962,6 +962,331 @@ export class DentalService {
     }
   }
 
+  // ── [G005 Wave1B] 正畸 ortho 真实化 (DentalOrthoPage / DentalAlignerPage; 形状对齐 dentalHandlers) ──
+
+  // GET /dental/ortho/plans — 正畸计划列表 (从 DENTAL_TREATMENTS_STORE type=Orthodontic 派生)
+  listOrthoPlans() {
+    const items = DENTAL_TREATMENTS_STORE.filter(
+      (t: any) => String(t.type ?? '').toLowerCase().includes('ortho') || String(t.type ?? '').includes('正畸'),
+    )
+    const data = items.map((t: any) => ({
+      id: t.id,
+      patientId: t.patientId,
+      patientName: t.patientName ?? '',
+      toothNo: t.toothNo === '全口' || t.toothNo === '0' ? undefined : Number(t.toothNo ?? 0),
+      diagnosis: t.diagnosis ?? t.plan ?? '正畸评估',
+      plan: t.plan ?? '正畸治疗计划',
+      cost: Number(t.cost ?? 0),
+      status: t.status ?? 'Planned',
+      doctorName: t.doctorName ?? '',
+      createdAt: t.createdAt,
+    }))
+    return { success: true, data }
+  }
+
+  // POST /dental/ortho/plans — 创建正畸计划 (写入治疗 store)
+  createOrthoPlan(body: Record<string, unknown>) {
+    const item: any = {
+      id: `T-${Date.now()}`,
+      patientId: (body.patientId as string) ?? 'PDNT-005',
+      patientName: (body.patientName as string) ?? '',
+      type: 'Orthodontic',
+      toothNo: body.toothNo ? String(body.toothNo) : '全口',
+      diagnosis: (body.diagnosis as string) ?? '正畸评估',
+      plan: (body.plan as string) ?? '正畸治疗计划',
+      cost: Number(body.cost ?? 0),
+      status: (body.status as string) ?? 'Planned',
+      doctorName: (body.doctorName as string) ?? '当前医生',
+      createdAt: new Date().toISOString(),
+    }
+    DENTAL_TREATMENTS_STORE.unshift(item)
+    return { success: true, data: this.toOrthoPlanDto(item) }
+  }
+
+  // GET /dental/ortho/plans/:id — 详情: 分期 + 弓分析
+  getOrthoPlan(id: string) {
+    const t = DENTAL_TREATMENTS_STORE.find((x: any) => x.id === id)
+    if (!t) return { success: false, error: { code: 'NOT_FOUND', message: `OrthoPlan ${id} not found` } }
+    const plan = this.toOrthoPlanDto(t)
+    return {
+      success: true,
+      data: {
+        ...plan,
+        totalStages: ORTHO_TOTAL_STAGES,
+        stages: generateAlignerStageData(ORTHO_TOTAL_STAGES).slice(0, 6),
+        archAnalysis: this.archAnalysis({}).data,
+      },
+    }
+  }
+
+  // POST /dental/ortho/arch-analysis — 弓形分析 (确定性计算, {landmarks} 可选)
+  archAnalysis(body: Record<string, unknown> = {}) {
+    const landmarks = Array.isArray(body.landmarks) ? (body.landmarks as any[]) : []
+    const maxillaCrowding = landmarks.length > 0 ? Number((landmarks.length * 0.5).toFixed(1)) : 2.5
+    const mandibleCrowding = landmarks.length > 0 ? Number((landmarks.length * 0.3).toFixed(1)) : 1.5
+    return {
+      success: true,
+      data: {
+        maxillaArch: { intermolarWidth: 42.5, intercanineWidth: 35.2, archLength: 48.0, archPerimeter: 65.2, spacing: 0, crowding: -maxillaCrowding, shape: 'oval' },
+        mandibleArch: { intermolarWidth: 38.0, intercanineWidth: 28.5, archLength: 42.0, archPerimeter: 58.5, spacing: 0.5, crowding: -mandibleCrowding, shape: 'parabolic' },
+        discrepancy: {
+          maxillaCrowding, mandibleCrowding, maxillarySpace: 0, mandibularSpace: 0.5,
+          boltonRatio: 0.902, boltonNormMin: 0.87, boltonNormMax: 0.93, boltonStatus: 'normal',
+          needExtraction: maxillaCrowding + mandibleCrowding > 4, extractionTeeth: [],
+        },
+        analysisType: 'space-analysis',
+        computedFrom: landmarks.length > 0 ? 'landmarks' : 'default',
+      },
+    }
+  }
+
+  // GET /dental/ortho/aligner-plans — 隐形矫治方案列表
+  listAlignerPlans() {
+    return { success: true, data: ALIGNER_PLANS_STORE, meta: { total: ALIGNER_PLANS_STORE.length } }
+  }
+
+  // POST /dental/ortho/aligner-plans — 创建方案
+  createAlignerPlan(body: Record<string, unknown>) {
+    const item: any = {
+      id: `ALIGN-${Date.now()}`,
+      patientId: (body.patientId as string) ?? 'P100004',
+      patientName: (body.patientName as string) ?? '未命名患者',
+      diagnosis: (body.diagnosis as string) ?? '错颌畸形',
+      totalStages: Number(body.totalStages ?? 24),
+      currentStage: 0,
+      wearDaysPerStage: Number(body.wearDaysPerStage ?? 7),
+      startedAt: null,
+      estimatedEnd: null,
+      attachments: Array.isArray(body.attachments) ? body.attachments : [],
+      ipr: Array.isArray(body.ipr) ? body.ipr : [],
+      status: 'pending',
+      doctor: (body.doctor as string) ?? '李正畸',
+      lab: (body.lab as string) ?? 'AlignTech',
+      createdBy: (body.createdBy as string) ?? 'Dr. Li',
+      createdAt: new Date().toISOString(),
+    }
+    ALIGNER_PLANS_STORE.unshift(item)
+    return { success: true, data: item }
+  }
+
+  // GET /dental/ortho/aligner-plans/:id
+  getAlignerPlan(id: string) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    if (!p) return { success: false, error: { code: 'NOT_FOUND', message: `AlignerPlan ${id} not found` } }
+    return { success: true, data: p }
+  }
+
+  // GET /dental/ortho/aligner-plans/:id/stages — 分期牙移动数据 (确定性生成)
+  getAlignerStages(id: string) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    return { success: true, data: generateAlignerStageData(p?.totalStages ?? 24) }
+  }
+
+  // POST /dental/ortho/aligner-plans/:id/stages — 生成分期 (固化到内存 store)
+  generateAlignerStages(id: string) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    const total = Number(p?.totalStages ?? 24)
+    const stages = generateAlignerStageData(total)
+    if (p) p.stages = stages
+    return { success: true, data: stages, meta: { planId: id, total } }
+  }
+
+  // GET /dental/ortho/aligner-plans/:id/progress — 治疗进度
+  getAlignerProgress(id: string) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    const total = Number(p?.totalStages ?? 24)
+    const current = Number(p?.currentStage ?? 0)
+    return {
+      success: true,
+      data: {
+        planId: id,
+        totalStages: total,
+        currentStage: current,
+        completedStages: current,
+        patientCompliance: 0.92,
+        trackingQuality: 'good',
+        lastStageWornDays: current > 0 ? 8 : 0,
+        nextStageDate: current < total ? new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10) : null,
+        refinementSuggested: false,
+        refinementCount: 0,
+      },
+    }
+  }
+
+  // POST /dental/ortho/aligner-plans/:id/progress — 进度更新
+  updateAlignerProgress(id: string, body: Record<string, unknown>) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    if (!p) return { success: false, error: { code: 'NOT_FOUND', message: `AlignerPlan ${id} not found` } }
+    if (body.currentStage !== undefined) p.currentStage = Number(body.currentStage)
+    if (body.patientCompliance !== undefined) p.patientCompliance = Number(body.patientCompliance)
+    if (body.trackingQuality !== undefined) p.trackingQuality = String(body.trackingQuality)
+    return {
+      success: true,
+      data: { planId: id, currentStage: p.currentStage, patientCompliance: p.patientCompliance, trackingQuality: p.trackingQuality, updatedAt: new Date().toISOString() },
+    }
+  }
+
+  // POST /dental/ortho/aligner-plans/:id/approve — 批准方案
+  approveAlignerPlan(id: string) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    if (!p) return { success: false, error: { code: 'NOT_FOUND', message: `AlignerPlan ${id} not found` } }
+    p.status = 'approved'
+    return { success: true, data: { id, status: 'approved', approvedAt: new Date().toISOString() } }
+  }
+
+  // POST /dental/ortho/aligner-plans/:id/order-lab — 加工厂下单
+  orderAlignerLab(id: string, body: { lab?: string; quantity?: number; shippingMethod?: string }) {
+    const p = ALIGNER_PLANS_STORE.find((x: any) => x.id === id)
+    if (!p) return { success: false, error: { code: 'NOT_FOUND', message: `AlignerPlan ${id} not found` } }
+    const order = {
+      planId: id,
+      orderId: `ORD-${Date.now()}`,
+      lab: body.lab ?? p.lab ?? 'AlignTech',
+      quantity: Number(body.quantity ?? 6),
+      shippingMethod: body.shippingMethod ?? 'express',
+      status: 'submitted',
+      estimatedDelivery: new Date(Date.now() + 14 * 86400000).toISOString(),
+    }
+    ALIGNER_LAB_ORDERS_STORE.unshift(order)
+    p.status = 'ordered'
+    return { success: true, data: order }
+  }
+
+  private toOrthoPlanDto(t: any) {
+    return {
+      id: t.id,
+      patientId: t.patientId,
+      patientName: t.patientName ?? '',
+      toothNo: t.toothNo === '全口' || t.toothNo === '0' ? undefined : Number(t.toothNo ?? 0),
+      diagnosis: t.diagnosis ?? t.plan ?? '正畸评估',
+      plan: t.plan ?? '正畸治疗计划',
+      cost: Number(t.cost ?? 0),
+      status: t.status ?? 'Planned',
+      doctorName: t.doctorName ?? '',
+      createdAt: t.createdAt,
+    }
+  }
+
+  // ── [G005 Wave1B] 头影测量 ceph 真实化 (DentalCephPage; 形状对齐 dentalHandlers dentalCephModule) ──
+
+  // GET /dental/ceph/studies — 检查列表 (DentalStudy 表 modality=Ceph 派生 + seed)
+  async listCephStudies() {
+    try {
+      const rows = await this.prisma.dentalStudy.findMany({ where: { modality: 'Ceph' } as any, orderBy: { createdAt: 'desc' }, take: 50 })
+      if (rows.length > 0) {
+        return {
+          success: true,
+          data: rows.map((s: any) => ({
+            id: s.id,
+            patientId: s.patientId,
+            patientName: s.patientName ?? '',
+            age: 12,
+            gender: 'M',
+            studyType: 'lateral',
+            acquisitionDate: String(s.acquisitionDate ?? s.createdAt ?? '').slice(0, 10),
+            device: s.deviceModel ?? '',
+            imageUrl: s.dicomPath ?? 'data:image/png;base64,CEPH_LATERAL_DUMMY',
+            status: s.status === 'reported' ? 'analyzed' : 'pending',
+            analysisType: null,
+          })),
+        }
+      }
+    } catch {
+      // DB 不可用 → seed
+    }
+    return { success: true, data: SEED_CEPH_STUDIES }
+  }
+
+  // POST /dental/ceph/studies — 创建检查
+  createCephStudy(body: Record<string, unknown>) {
+    const item: any = {
+      id: `CEPH-${Date.now()}`,
+      patientId: (body.patientId as string) ?? 'P100004',
+      patientName: (body.patientName as string) ?? '未命名患者',
+      age: Number(body.age ?? 12),
+      gender: (body.gender as string) ?? 'M',
+      studyType: (body.studyType as string) ?? 'lateral',
+      acquisitionDate: new Date().toISOString().slice(0, 10),
+      device: (body.device as string) ?? 'Sirona Orthophos S3 Ceph',
+      imageUrl: 'data:image/png;base64,CEPH_LATERAL_DUMMY',
+      status: 'pending',
+      analysisType: null,
+    }
+    SEED_CEPH_STUDIES.unshift(item)
+    return { success: true, data: item }
+  }
+
+  // GET /dental/ceph/studies/:id
+  getCephStudy(id: string) {
+    const s = SEED_CEPH_STUDIES.find((x: any) => x.id === id)
+    if (!s) return { success: false, error: { code: 'NOT_FOUND', message: `CephStudy ${id} not found` } }
+    return { success: true, data: s }
+  }
+
+  // GET /dental/ceph/analysis-types — 分析类型字典
+  listCephAnalysisTypes() {
+    return { success: true, data: SEED_CEPH_ANALYSIS_TYPES }
+  }
+
+  // GET /dental/ceph/landmarks — 默认标定点集 (全局)
+  getDefaultCephLandmarks() {
+    return { success: true, data: SEED_CEPH_LANDMARKS }
+  }
+
+  // GET /dental/ceph/:id/landmarks — 检查标定点 (seed 默认点集)
+  getCephLandmarks(id: string) {
+    const saved = CEPH_LANDMARKS_STORE[id]
+    return { success: true, data: saved ?? SEED_CEPH_LANDMARKS, meta: { studyId: id, source: saved ? 'saved' : 'default' } }
+  }
+
+  // PUT /dental/ceph/:id/landmarks — 保存标定
+  saveCephLandmarks(id: string, body: { landmarks?: Record<string, { x: number; y: number }> }) {
+    if (body.landmarks && typeof body.landmarks === 'object') {
+      CEPH_LANDMARKS_STORE[id] = body.landmarks
+    }
+    return { success: true, data: { studyId: id, landmarks: body.landmarks ?? {}, updatedAt: new Date().toISOString() } }
+  }
+
+  // GET /dental/ceph/:id/analysis — 已有分析结果
+  getCephAnalysis(id: string) {
+    const saved = CEPH_ANALYSIS_STORE[id]
+    if (saved) return { success: true, data: saved }
+    const study = SEED_CEPH_STUDIES.find((x: any) => x.id === id)
+    if (!study || !study.analysisType) return { success: false, error: { code: 'NOT_FOUND', message: `Ceph analysis for ${id} not found` } }
+    return { success: true, data: this.computeCephAnalysis(id, study.analysisType, CEPH_LANDMARKS_STORE[id]) }
+  }
+
+  // POST /dental/ceph/:id/analysis — 确定性测量计算 (SNA/SNB/ANB 由标定点夹角计算, 缺失回退 seed)
+  runCephAnalysis(id: string, body: { type?: string }) {
+    const study = SEED_CEPH_STUDIES.find((x: any) => x.id === id)
+    if (!study) return { success: false, error: { code: 'NOT_FOUND', message: `CephStudy ${id} not found` } }
+    const type = String(body.type ?? study.analysisType ?? 'steiner')
+    const data = this.computeCephAnalysis(id, type, CEPH_LANDMARKS_STORE[id])
+    CEPH_ANALYSIS_STORE[id] = data
+    return { success: true, data: { ...data, studyId: id, performedAt: new Date().toISOString() } }
+  }
+
+  private computeCephAnalysis(studyId: string, type: string, landmarks?: Record<string, { x: number; y: number }>) {
+    const base = SEED_STEINER_ANALYSIS
+    const computed = { ...base }
+    if (landmarks && landmarks.S && landmarks.N && landmarks.A && landmarks.B) {
+      const sna = Math.round(angleAt(landmarks.A, landmarks.S, landmarks.N) * 10) / 10
+      const snb = Math.round(angleAt(landmarks.B, landmarks.S, landmarks.N) * 10) / 10
+      const anb = Math.round((sna - snb) * 10) / 10
+      computed.measurements = base.measurements.map((m: any) => {
+        if (m.key === 'SNA') return { ...m, value: sna, status: sna >= 80 && sna <= 84 ? 'normal' : 'abnormal' }
+        if (m.key === 'SNB') return { ...m, value: snb, status: snb >= 78 && snb <= 82 ? 'normal' : 'abnormal' }
+        if (m.key === 'ANB') return { ...m, value: anb, status: anb >= 0 && anb <= 4 ? 'normal' : 'abnormal' }
+        return m
+      })
+      computed.diagnosis = anb > 4 ? '骨性 II 类, 均角面型' : anb < 0 ? '骨性 III 类, 均角面型' : '骨性 I 类, 均角面型'
+      computed.computedFrom = 'landmarks'
+    }
+    computed.analysisType = type
+    computed.studyId = studyId
+    return computed
+  }
+
   private async getStudyOrSeed(id: string) {
     try {
       const row = await this.prisma.dentalStudy.findUnique({ where: { id } })
@@ -1285,3 +1610,131 @@ const SEED_EMR_BILLING = [
   { id: 'BILL-002', date: '2026-06-20', items: [{ name: '种植体 Straumann BLT', qty: 1, price: 8000 }, { name: '种植手术费', qty: 1, price: 4000 }], total: 12000, insurance: 3000, selfPay: 9000, status: 'partial' },
   { id: 'BILL-003', date: '2026-06-25', items: [{ name: '根管治疗', qty: 1, price: 2500 }], total: 2500, insurance: 1200, selfPay: 1300, status: 'pending' },
 ]
+
+// ── [G005 Wave1B] 正畸/头影 seed (形状对齐 src/data/dental/dentalAlignerMock + dentalCephMock) ──
+
+const ORTHO_TOTAL_STAGES = 24
+
+// 各阶段牙移动数据 (确定性生成, 与前端 MOCK_ALIGNER 同规则)
+function generateAlignerStageData(totalStages: number) {
+  const teeth = [11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45]
+  const out: any[] = []
+  for (let s = 0; s < totalStages; s++) {
+    const progress = s / totalStages
+    out.push({
+      stage: s,
+      toothMovements: teeth.map((tno, ti) => {
+        const targetDx = ti < 10 ? -2.5 : 1.5
+        const targetDy = [11,12,21,22,31,32,41,42].includes(tno) ? -3 : -1
+        return {
+          toothNo: tno,
+          dx: Number((targetDx * progress).toFixed(3)),
+          dy: Number((targetDy * progress * (s / totalStages)).toFixed(3)),
+          dz: [14,15,24,25].includes(tno) ? Number((progress * 1.5).toFixed(3)) : 0,
+          rotation: [13,23,33,43].includes(tno) ? Number((progress * 8).toFixed(3)) : 0,
+        }
+      }),
+    })
+  }
+  return out
+}
+
+const SEED_ALIGNER_PLANS: any[] = [
+  {
+    id: 'ALIGN-001', patientId: 'P100004', patientName: '赵雪', age: 28, gender: 'F',
+    diagnosis: '安氏 II 类 1 分类, 前牙深覆盖 6mm, 下前牙轻度拥挤',
+    totalStages: 24, currentStage: 8, wearDaysPerStage: 7,
+    startedAt: '2026-04-15', estimatedEnd: '2026-12-15',
+    attachments: [
+      { toothNo: 13, type: 'horizontal', position: 'buccal' },
+      { toothNo: 23, type: 'horizontal', position: 'buccal' },
+      { toothNo: 33, type: 'vertical', position: 'buccal' },
+      { toothNo: 43, type: 'vertical', position: 'buccal' },
+      { toothNo: 16, type: 'beveled', position: 'occlusal' },
+      { toothNo: 26, type: 'beveled', position: 'occlusal' },
+    ],
+    ipr: [{ toothNo: 33, amount: 0.3 }, { toothNo: 43, amount: 0.3 }, { toothNo: 32, amount: 0.2 }],
+    status: 'in-progress', doctor: '李正畸', lab: 'AlignTech',
+    createdBy: 'Dr. Li', createdAt: '2026-04-01T10:00:00Z',
+  },
+  {
+    id: 'ALIGN-002', patientId: 'P100005', patientName: '刘阳', age: 32, gender: 'M',
+    diagnosis: '安氏 III 类, 反合, 上前牙舌倾',
+    totalStages: 30, currentStage: 0, wearDaysPerStage: 7,
+    startedAt: null, estimatedEnd: null,
+    attachments: [
+      { toothNo: 14, type: 'horizontal', position: 'buccal' },
+      { toothNo: 24, type: 'horizontal', position: 'buccal' },
+      { toothNo: 34, type: 'horizontal', position: 'buccal' },
+      { toothNo: 44, type: 'horizontal', position: 'buccal' },
+    ],
+    ipr: [{ toothNo: 34, amount: 0.3 }, { toothNo: 44, amount: 0.3 }],
+    status: 'pending', doctor: '李正畸', lab: 'AlignTech',
+    createdBy: 'Dr. Li', createdAt: '2026-06-20T14:30:00Z',
+  },
+]
+
+const ALIGNER_PLANS_STORE: any[] = [...SEED_ALIGNER_PLANS]
+const ALIGNER_LAB_ORDERS_STORE: any[] = []
+
+const SEED_CEPH_STUDIES: any[] = [
+  { id: 'CEPH-001', patientId: 'P100001', patientName: '张伟', age: 12, gender: 'M', studyType: 'lateral', acquisitionDate: '2026-06-28', device: 'Sirona Orthophos S3 Ceph', imageUrl: 'data:image/png;base64,CEPH_LATERAL_DUMMY', status: 'analyzed', analysisType: 'steiner' },
+  { id: 'CEPH-002', patientId: 'P100004', patientName: '赵雪', age: 9, gender: 'F', studyType: 'lateral', acquisitionDate: '2026-06-27', device: 'Planmeca ProMax Ceph', imageUrl: 'data:image/png;base64,CEPH_LATERAL_DUMMY', status: 'pending', analysisType: null },
+  { id: 'CEPH-003', patientId: 'P100005', patientName: '刘阳', age: 15, gender: 'M', studyType: 'lateral', acquisitionDate: '2026-06-25', device: 'Carestream CS 9600', imageUrl: 'data:image/png;base64,CEPH_LATERAL_DUMMY', status: 'analyzed', analysisType: 'mcmamara' },
+  { id: 'CEPH-004', patientId: 'P100006', patientName: '陈雨', age: 28, gender: 'F', studyType: 'lateral', acquisitionDate: '2026-06-24', device: 'Sirona Orthophos S3 Ceph', imageUrl: 'data:image/png;base64,CEPH_LATERAL_DUMMY', status: 'analyzed', analysisType: 'steiner' },
+]
+
+// 标准 18 个解剖标志点
+const SEED_CEPH_LANDMARKS: Record<string, { x: number; y: number }> = {
+  N: { x: 250, y: 80 }, S: { x: 220, y: 150 }, A: { x: 240, y: 200 },
+  B: { x: 230, y: 260 }, Pog: { x: 225, y: 300 }, Me: { x: 225, y: 320 },
+  Go: { x: 180, y: 280 }, Ar: { x: 180, y: 155 }, PNS: { x: 280, y: 170 },
+  ANS: { x: 260, y: 195 }, Or: { x: 280, y: 100 }, Po: { x: 160, y: 120 },
+  Ba: { x: 195, y: 165 }, Na: { x: 250, y: 80 }, Pt: { x: 210, y: 195 },
+  Cd: { x: 190, y: 145 }, Gn: { x: 225, y: 310 }, Xi: { x: 230, y: 230 },
+}
+
+const SEED_CEPH_ANALYSIS_TYPES = [
+  { id: 'steiner', name: 'Steiner 分析法', description: 'SNA/SNB/ANB ± 角度测量', landmarks: ['N','S','A','B','Pog','Me','Go','Ar','PNS','ANS'], keyMeasurements: ['SNA','SNB','ANB','SN-MP','FMA'] },
+  { id: 'downs', name: 'Downs 分析法', description: '面部骨骼角度分析 + 颅颌面', landmarks: ['N','S','A','B','Pog','Me','Go','Ar','Or','Po'], keyMeasurements: ['FPA','SNB','AB-MP','YAxis','OP-FH'] },
+  { id: 'mcmamara', name: 'McNamara 分析法', description: '线距分析 + 气道分析', landmarks: ['N','A','B','Pog','ANS','PNS','Go','Cd','Gn','Ba'], keyMeasurements: ['Maxilla-Mandible','LFH','LTA-Pog','Airway-PS','NaPerp-A'] },
+  { id: 'ricketts', name: 'Ricketts 分析法', description: '面部生长预测 + 面部三角', landmarks: ['N','S','A','B','Pog','Me','Go','Ar','Ba','Pt','Cd','Xi'], keyMeasurements: ['FacialAxis','FacialAngle','Convexity','MandArc','LowerFacialHt'] },
+  { id: 'tweeds', name: 'Tweed 分析法', description: '诊断三角 + 矫治目标', landmarks: ['N','A','B','Pog','Me','Go','Or','Po'], keyMeasurements: ['FMA','IMPA','FMIA','ZAngle'] },
+  { id: 'coben', name: 'Coben 分析法', description: '颅底三角分析', landmarks: ['N','S','Ba','Ar','PNS','A','B','Pog','Gn','Go'], keyMeasurements: ['S-N','N-Ba','N-ANS','N-Me','ANS-PNS'] },
+]
+
+const SEED_STEINER_ANALYSIS: any = {
+  analysisType: 'steiner',
+  measurements: [
+    { key: 'SNA', label: 'SNA', value: 82, unit: '°', norm: { min: 80, max: 84 }, status: 'normal' },
+    { key: 'SNB', label: 'SNB', value: 80, unit: '°', norm: { min: 78, max: 82 }, status: 'normal' },
+    { key: 'ANB', label: 'ANB', value: 2, unit: '°', norm: { min: 0, max: 4 }, status: 'normal' },
+    { key: 'SN-MP', label: 'SN-MP (下颌平面角)', value: 32, unit: '°', norm: { min: 28, max: 36 }, status: 'normal' },
+    { key: 'FMA', label: 'FMA (下颌平面角-FH)', value: 25, unit: '°', norm: { min: 20, max: 30 }, status: 'normal' },
+    { key: 'MP-SN', label: 'MP-SN', value: 32, unit: '°', norm: { min: 27, max: 37 }, status: 'normal' },
+    { key: 'U1-SN', label: 'U1-SN (上中切牙角)', value: 104, unit: '°', norm: { min: 100, max: 108 }, status: 'normal' },
+    { key: 'L1-MP', label: 'L1-MP (下中切牙角)', value: 92, unit: '°', norm: { min: 88, max: 98 }, status: 'normal' },
+    { key: 'IMPA', label: 'IMPA', value: 92, unit: '°', norm: { min: 85, max: 95 }, status: 'normal' },
+    { key: 'ZAngle', label: 'Z 角', value: 72, unit: '°', norm: { min: 65, max: 80 }, status: 'normal' },
+    { key: 'Wits', label: 'Wits 值', value: -1, unit: 'mm', norm: { min: -2, max: 2 }, status: 'normal' },
+    { key: 'U1-L1', label: 'U1-L1 (上下切牙角)', value: 128, unit: '°', norm: { min: 120, max: 140 }, status: 'normal' },
+    { key: 'Holdaway', label: 'Holdaway 角', value: 12, unit: '°', norm: { min: 8, max: 15 }, status: 'normal' },
+  ],
+  diagnosis: '骨性 I 类, 均角, 均角型面型',
+  facialType: 'dolichofacial',
+  growthDirection: 'clockwise',
+  createdAt: new Date().toISOString(),
+}
+
+// 内存 store: 标定点 / 分析结果
+const CEPH_LANDMARKS_STORE: Record<string, Record<string, { x: number; y: number }>> = {}
+const CEPH_ANALYSIS_STORE: Record<string, any> = {}
+
+// 三点夹角 (p1-apex-p2, 度)
+function angleAt(apex: { x: number; y: number }, p1: { x: number; y: number }, p2: { x: number; y: number }): number {
+  const a1 = Math.atan2(p1.y - apex.y, p1.x - apex.x)
+  const a2 = Math.atan2(p2.y - apex.y, p2.x - apex.x)
+  let deg = Math.abs((a1 - a2) * 180 / Math.PI)
+  if (deg > 180) deg = 360 - deg
+  return deg
+}

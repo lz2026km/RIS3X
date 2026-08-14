@@ -53,7 +53,7 @@ export function BackButton({
         padding,
         fontSize,
         fontWeight: 600,
-        background: "#fff",
+        background: "var(--bg-card, #fff)",
         color: "#475569",
         border: "1px solid #cbd5e1",
         borderRadius: 6,

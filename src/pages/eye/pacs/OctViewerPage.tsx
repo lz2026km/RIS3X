@@ -32,7 +32,14 @@ const ETDRS_ZONES = [
 ];
 
 // 合成 OCT B-scan: 简化视网膜分层渲染 (RNFL 亮带 / 视网膜 / RPE 亮带 / 脉络膜)
-const OctCanvas: React.FC<{ width: number; height: number; seed: string }> = ({ width, height, seed }) => {
+// [v3.0.6.11-99 Wave8A P1] 支持测量取点: measurePoints 渲染标记/连线, onMeasurePoint 上报画布像素坐标
+const OctCanvas: React.FC<{
+  width: number;
+  height: number;
+  seed: string;
+  measurePoints?: Array<{ x: number; y: number }>;
+  onMeasurePoint?: (x: number, y: number) => void;
+}> = ({ width, height, seed, measurePoints, onMeasurePoint }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -105,9 +112,51 @@ const OctCanvas: React.FC<{ width: number; height: number; seed: string }> = ({ 
     ctx.fillStyle = 'rgba(80,200,255,0.85)';
     ctx.font = '11px sans-serif';
     ctx.fillText('中心凹', cx + 48, 52);
-  }, [width, height, seed]);
 
-  return <canvas ref={canvasRef} width={width} height={height} style={{ width: '100%', display: 'block', borderRadius: 4 }} />;
+    // 测量标记: 十字 + 连线 + 像素距离标签
+    if (measurePoints && measurePoints.length > 0) {
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.5;
+      if (measurePoints.length === 2) {
+        const p0 = measurePoints[0]!;
+        const p1 = measurePoints[1]!;
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#22d3ee';
+      measurePoints.forEach((p, i) => {
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(p.x - 6, p.y);
+        ctx.lineTo(p.x + 6, p.y);
+        ctx.moveTo(p.x, p.y - 6);
+        ctx.lineTo(p.x, p.y + 6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#a5f3fc';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(String(i + 1), p.x + 8, p.y - 8);
+        ctx.fillStyle = '#22d3ee';
+      });
+    }
+  }, [width, height, seed, measurePoints]);
+
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onMeasurePoint) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (e.currentTarget.width / rect.width);
+    const y = (e.clientY - rect.top) * (e.currentTarget.height / rect.height);
+    onMeasurePoint(x, y);
+  };
+
+  return <canvas ref={canvasRef} width={width} height={height} onClick={handleClick} style={{ width: '100%', display: 'block', borderRadius: 4, cursor: onMeasurePoint ? 'crosshair' : 'default' }} />;
 };
 
 const OctViewerPage: React.FC = () => {
@@ -118,6 +167,11 @@ const OctViewerPage: React.FC = () => {
   const [eyeFilter, setEyeFilter] = useState<'ALL' | 'OD' | 'OS' | 'OU'>('ALL');
   const [measuring, setMeasuring] = useState(false);
   const [measureMode, setMeasureMode] = useState<'none' | 'distance'>('none');
+  // [v3.0.6.11-99 Wave8A P1] 真实测量: canvas 取点 (两点距离 → μm 换算)
+  // 页面无真实 OCT 比例尺数据 → 从合成影像派生「示例比例」: 560px ↔ 6mm 扫描宽度 (Macular Cube 典型值)
+  const [measurePoints, setMeasurePoints] = useState<Array<{ x: number; y: number }>>([]);
+  const [measureResult, setMeasureResult] = useState<{ px: number; um: number } | null>(null);
+  const UM_PER_PX = 6000 / 560;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -156,10 +210,29 @@ const OctViewerPage: React.FC = () => {
   });
 
   const measure = (kind: 'distance') => {
-    setMeasuring(true);
     setMeasureMode(kind);
-    message.info('请在两处点击标注测量点');
-    setTimeout(() => { setMeasuring(false); message.success('测量完成: 中心凹厚度 285μm / RNFL 88μm'); }, 1200);
+    setMeasurePoints([]);
+    setMeasureResult(null);
+    message.info('请在影像上依次点击两点，计算两点距离（示例比例 560px ↔ 6000μm）');
+  };
+
+  const handleMeasurePoint = (x: number, y: number) => {
+    if (measureMode !== 'distance') return;
+    if (measurePoints.length >= 2) { message.warning('已记录两点，点击「测量」可重新开始'); return; }
+    const next = [...measurePoints, { x, y }];
+    setMeasurePoints(next);
+    if (next.length === 2) {
+      const a = next[0]!;
+      const b = next[1]!;
+      const px = Math.hypot(b.x - a.x, b.y - a.y);
+      const um = px * UM_PER_PX;
+      setMeasuring(false);
+      setMeasureResult({ px, um });
+      message.success(`两点距离: ${um.toFixed(1)}μm (${px.toFixed(1)}px，示例比例换算)`);
+    } else {
+      setMeasuring(true);
+      message.info('已选第 1 点，请在影像上点击第 2 点');
+    }
   };
 
   return (
@@ -233,8 +306,14 @@ const OctViewerPage: React.FC = () => {
           >
             {study ? (
               <>
-                <OctCanvas width={560} height={220} seed={study.id} />
-                {measureMode === 'distance' && <div style={{ marginTop: 8 }}><Alert type="info" showIcon message="测量工具已启用: 点击影像上的两点即可测量距离 (简化演示)" style={{ fontSize: 12 }} /></div>}
+                <OctCanvas width={560} height={220} seed={study.id} measurePoints={measurePoints} onMeasurePoint={measureMode === 'distance' ? handleMeasurePoint : undefined} />
+                {measureMode === 'distance' && (
+                  <div style={{ marginTop: 8 }}>
+                    <Alert type="info" showIcon message={measureResult
+                      ? `测量结果: ${measureResult.um.toFixed(1)}μm（${measureResult.px.toFixed(1)}px）· 示例比例 560px ↔ 6000μm（页面无真实比例尺数据，由合成影像派生）`
+                      : `测量工具已启用: 在影像上依次点击两点测量距离（示例比例 560px ↔ 6000μm，点击「测量」重新开始）`} style={{ fontSize: 12 }} />
+                  </div>
+                )}
                 <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)' }}>
                   <div>扫描模式: Macular Cube 512×128</div>
                   <div>中心凹厚度: <b>{study.measurements?.centralRetinalThickness ?? (etdrsData[0]?.od ?? '-')}μm</b></div>

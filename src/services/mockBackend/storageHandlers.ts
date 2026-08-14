@@ -1,7 +1,17 @@
 // [v3.0.6.11-60] Cloud Storage 配置 MSW Handlers
 // GET/PUT /system/storage-config, POST /system/storage-config/test
 import { http, HttpResponse, delay } from 'msw';
-import type { StorageAlertsConfig, StorageBucketDto, StorageConfigDto, StorageObjectDto, StorageStatsDto } from '../api/storageConfigApi';
+import type {
+  BatchDeleteResult,
+  CopyObjectResult,
+  LifecyclePolicyDto,
+  LifecyclePolicyInput,
+  StorageAlertsConfig,
+  StorageBucketDto,
+  StorageConfigDto,
+  StorageObjectDto,
+  StorageStatsDto,
+} from '../api/storageConfigApi';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5191/api/v1'; }
@@ -43,6 +53,7 @@ let buckets: BucketRecord[] = [
     name: 'g005-dicom',
     provider: 's3',
     region: 'us-east-1',
+    tenantId: 'default',
     objectCount: 4,
     usedBytes: 2_328_576,
     createdAt: '2026-06-01T08:00:00.000Z',
@@ -57,6 +68,7 @@ let buckets: BucketRecord[] = [
     name: 'g005-vna',
     provider: 'minio',
     region: 'cn-north-1',
+    tenantId: 'default',
     objectCount: 3,
     usedBytes: 228_096,
     createdAt: '2026-06-05T02:30:00.000Z',
@@ -70,6 +82,7 @@ let buckets: BucketRecord[] = [
     name: 'g005-files',
     provider: 'local',
     region: 'us-east-1',
+    tenantId: 'default',
     objectCount: 2,
     usedBytes: 10_436_608,
     createdAt: '2026-06-10T10:00:00.000Z',
@@ -79,6 +92,46 @@ let buckets: BucketRecord[] = [
     ],
   },
 ];
+
+// [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略内存态 (与 backend seed 对齐)
+let lifecyclePolicies: LifecyclePolicyDto[] = [
+  {
+    id: 'lp-001',
+    bucket: 'g005-dicom',
+    prefix: 'ct-',
+    transitionTo: 'tier2',
+    afterDays: 90,
+    deleteAfterDays: 365,
+    enabled: true,
+    tenantId: 'default',
+    createdAt: '2026-07-01T08:00:00.000Z',
+    updatedAt: '2026-07-01T08:00:00.000Z',
+  },
+  {
+    id: 'lp-002',
+    bucket: 'g005-dicom',
+    prefix: '',
+    transitionTo: 'archive',
+    afterDays: 365,
+    enabled: true,
+    tenantId: 'default',
+    createdAt: '2026-07-01T08:00:00.000Z',
+    updatedAt: '2026-07-01T08:00:00.000Z',
+  },
+  {
+    id: 'lp-003',
+    bucket: 'g005-vna',
+    prefix: 'report-',
+    transitionTo: 'backup',
+    afterDays: 30,
+    deleteAfterDays: 730,
+    enabled: false,
+    tenantId: 'default',
+    createdAt: '2026-07-01T08:00:00.000Z',
+    updatedAt: '2026-07-01T08:00:00.000Z',
+  },
+];
+let lifecycleSeq = 3;
 
 function toBase64Utf8(text: string): string {
   const bytes = new TextEncoder().encode(text);
@@ -92,6 +145,7 @@ function bucketDto(rec: BucketRecord): StorageBucketDto {
     name: rec.name,
     provider: rec.provider,
     region: rec.region,
+    tenantId: rec.tenantId,
     objectCount: rec.objects.length,
     usedBytes: rec.objects.reduce((s, o) => s + o.size, 0),
     createdAt: rec.createdAt,
@@ -221,6 +275,7 @@ export const storageHandlers = [
       name,
       provider: body.provider ?? 's3',
       region: (body.region ?? 'us-east-1').trim() || 'us-east-1',
+      tenantId: 'default',
       objectCount: 0,
       usedBytes: 0,
       createdAt: new Date().toISOString(),
@@ -329,5 +384,175 @@ export const storageHandlers = [
         contentBase64: toBase64Utf8(content),
       },
     });
+  }),
+
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略
+  http.get(`${API_BASE}/system/storage/lifecycle-policies`, async () => {
+    await delay(120);
+    const sorted = [...lifecyclePolicies].sort(
+      (a, b) => a.bucket.localeCompare(b.bucket) || a.afterDays - b.afterDays,
+    );
+    return HttpResponse.json({ success: true, data: sorted });
+  }),
+
+  http.post(`${API_BASE}/system/storage/lifecycle-policies`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as LifecyclePolicyInput;
+    if (!buckets.some((b) => b.name === body.bucket)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${body.bucket} not found` } },
+        { status: 404 },
+      );
+    }
+    if (body.deleteAfterDays !== undefined && body.deleteAfterDays !== null && body.deleteAfterDays < body.afterDays) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: '删除天数必须 ≥ 转存天数' } },
+        { status: 400 },
+      );
+    }
+    const now = new Date().toISOString();
+    lifecycleSeq += 1;
+    const rec: LifecyclePolicyDto = {
+      id: `lp-${String(lifecycleSeq).padStart(3, '0')}`,
+      bucket: body.bucket,
+      prefix: (body.prefix ?? '').trim(),
+      transitionTo: body.transitionTo,
+      afterDays: body.afterDays,
+      deleteAfterDays: body.deleteAfterDays === null ? undefined : body.deleteAfterDays,
+      enabled: body.enabled ?? true,
+      tenantId: 'default',
+      createdAt: now,
+      updatedAt: now,
+    };
+    lifecyclePolicies.push(rec);
+    return HttpResponse.json({ success: true, data: rec }, { status: 201 });
+  }),
+
+  http.patch(`${API_BASE}/system/storage/lifecycle-policies/:id`, async ({ params, request }) => {
+    await delay(180);
+    const id = String(params.id);
+    const rec = lifecyclePolicies.find((p) => p.id === id);
+    if (!rec) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Lifecycle policy ${id} not found` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json()) as Partial<LifecyclePolicyInput>;
+    const afterDays = body.afterDays ?? rec.afterDays;
+    const deleteAfterDays = body.deleteAfterDays !== undefined ? (body.deleteAfterDays === null ? undefined : body.deleteAfterDays) : rec.deleteAfterDays;
+    if (deleteAfterDays !== undefined && deleteAfterDays < afterDays) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: '删除天数必须 ≥ 转存天数' } },
+        { status: 400 },
+      );
+    }
+    if (body.bucket !== undefined && body.bucket !== rec.bucket && !buckets.some((b) => b.name === body.bucket)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${body.bucket} not found` } },
+        { status: 404 },
+      );
+    }
+    rec.bucket = body.bucket?.trim() ?? rec.bucket;
+    rec.prefix = body.prefix?.trim() ?? rec.prefix;
+    rec.transitionTo = body.transitionTo ?? rec.transitionTo;
+    rec.afterDays = afterDays;
+    rec.deleteAfterDays = deleteAfterDays;
+    rec.enabled = body.enabled ?? rec.enabled;
+    rec.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: { ...rec } });
+  }),
+
+  http.delete(`${API_BASE}/system/storage/lifecycle-policies/:id`, async ({ params }) => {
+    await delay(150);
+    const id = String(params.id);
+    const idx = lifecyclePolicies.findIndex((p) => p.id === id);
+    if (idx === -1) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Lifecycle policy ${id} not found` } },
+        { status: 404 },
+      );
+    }
+    lifecyclePolicies.splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { deleted: id } });
+  }),
+
+  // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象批量操作
+  http.post(`${API_BASE}/system/storage/buckets/:name/batch-delete`, async ({ params, request }) => {
+    await delay(250);
+    const name = String(params.name);
+    const rec = buckets.find((b) => b.name === name);
+    if (!rec) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json()) as { keys: string[] };
+    const wanted = new Set(body.keys ?? []);
+    const deleted: string[] = [];
+    const missing: string[] = [];
+    rec.objects = rec.objects.filter((o) => {
+      if (wanted.has(o.key)) {
+        deleted.push(o.key);
+        return false;
+      }
+      return true;
+    });
+    for (const k of body.keys ?? []) {
+      if (!deleted.includes(k)) missing.push(k);
+    }
+    const result: BatchDeleteResult = { bucket: name, deleted, missing, source: 'simulated' };
+    return HttpResponse.json({ success: true, data: result });
+  }),
+
+  http.post(`${API_BASE}/system/storage/buckets/:name/copy`, async ({ params, request }) => {
+    await delay(250);
+    const name = String(params.name);
+    const src = buckets.find((b) => b.name === name);
+    if (!src) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json()) as { key: string; targetBucket: string };
+    const obj = src.objects.find((o) => o.key === body.key);
+    if (!obj) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Object ${name}/${body.key} not found` } },
+        { status: 404 },
+      );
+    }
+    const dst = buckets.find((b) => b.name === body.targetBucket);
+    if (!dst) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${body.targetBucket} not found` } },
+        { status: 404 },
+      );
+    }
+    if (dst.name === src.name) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: '目标桶不能与源桶相同' } },
+        { status: 400 },
+      );
+    }
+    const copy: StorageObjectDto = { key: obj.key, size: obj.size, modified: new Date().toISOString() };
+    const existing = dst.objects.find((o) => o.key === copy.key);
+    if (existing) {
+      existing.size = copy.size;
+      existing.modified = copy.modified;
+    } else {
+      dst.objects.push(copy);
+    }
+    const result: CopyObjectResult = {
+      key: copy.key,
+      targetBucket: dst.name,
+      size: copy.size,
+      modified: copy.modified,
+      copied: true,
+      source: 'simulated',
+    };
+    return HttpResponse.json({ success: true, data: result });
   }),
 ];

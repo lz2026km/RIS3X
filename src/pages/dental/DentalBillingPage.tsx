@@ -1,10 +1,10 @@
 // [v3.0.6.8-95] Phase 4: 收费/划价/医保系统
 // 对标: 领健·牙医管家
+// [G005 Wave1B] 收敛 7 处裸 fetch 双通道 → 仅走 dentalApi (后端 /dental/billing/* 真实), 失败走现有回退标注
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider, Form, Input } from 'antd';
 import { DollarSign, FileText, XCircle, Printer, Calculator, Plus } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
-// [G005 Wave1B] 发票列表: dentalApi.listInvoices (GET /dental/invoices), 失败回退 billing 端点
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 
@@ -67,10 +67,6 @@ export const DentalBillingPage: React.FC = () => {
         }
         throw new Error('listBillingInvoices 空/不可用');
       } catch {
-        try {
-          const d = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r => r.json());
-          if (d.success) { setInvoices(d.data || []); return; }
-        } catch { /* keep empty */ }
         setBackendDown(true);
       }
     }
@@ -82,11 +78,8 @@ export const DentalBillingPage: React.FC = () => {
       const list = unwrapList(res);
       if (Array.isArray(list) && list.length > 0) { setCatalog(list); return; }
       throw new Error('fee-catalog 空/不可用');
-    } catch {
-      try {
-        const d = await fetch('/api/v1/dental/billing/fee-catalog').then(r => r.json());
-        if (d.success) setCatalog(d.data || []);
-      } catch (err) { console.error('[F04]', err); }
+    } catch (err) {
+      console.error('[F04]', err);
       setBackendDown(true);
     }
   };
@@ -97,11 +90,8 @@ export const DentalBillingPage: React.FC = () => {
       const list = unwrapList(res);
       if (Array.isArray(list) && list.length > 0) { setPayMethods(list); return; }
       throw new Error('payment-methods 空/不可用');
-    } catch {
-      try {
-        const d = await fetch('/api/v1/dental/billing/payment-methods').then(r => r.json());
-        if (d.success) setPayMethods(d.data || []);
-      } catch (err) { console.error('[F04]', err); }
+    } catch (err) {
+      console.error('[F04]', err);
       setBackendDown(true);
     }
   };
@@ -130,16 +120,14 @@ export const DentalBillingPage: React.FC = () => {
           openId: currentInvoice.patientId || selectedPatient,
           patientId: currentInvoice.patientId || selectedPatient,
           onSuccess: async (res) => {
-            // [G005 Wave1A P0] dentalApi 优先, 失败回退 MSW/dev 端点
+            // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
             try {
               const pres = await dentalApi.payBillingInvoice(currentInvoice.id, { paymentMethod, transactionId: res.transactionId, outTradeNo: orderNo });
               if (pres.success) { message.success(`收费成功 (${paymentMethod})`); }
               else { setBackendDown(true); message.warning(`收费接口不可用: ${pres.error?.message ?? '未知错误'}`); }
             } catch {
               setBackendDown(true);
-              const confirm = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod, transactionId: res.transactionId, outTradeNo: orderNo }) });
-              const d = await confirm.json();
-              if (d.success) message.success(`收费成功 (${paymentMethod})`);
+              message.warning('收费接口不可用');
             }
             setPayModal(false);
             await loadInvoices();
@@ -150,16 +138,14 @@ export const DentalBillingPage: React.FC = () => {
         });
         if (!r.success) message.error(r.error?.message || '微信下单失败');
       } else {
-        // [G005 Wave1A P0] dentalApi 优先, 失败回退 MSW/dev 端点
+        // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
         try {
           const pres = await dentalApi.payBillingInvoice(currentInvoice.id, { paymentMethod });
           if (pres.success) { message.success(`收费成功 (${paymentMethod})`); }
           else { setBackendDown(true); message.warning(`收费接口不可用: ${pres.error?.message ?? '未知错误'}`); }
         } catch {
           setBackendDown(true);
-          const r = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod }) });
-          const d = await r.json();
-          if (d.success) message.success(`收费成功 (${paymentMethod})`);
+          message.warning('收费接口不可用');
         }
         setPayModal(false);
         await loadInvoices();
@@ -268,17 +254,11 @@ export const DentalBillingPage: React.FC = () => {
                   <div style={{display:'flex',justifyContent:'space-between',fontWeight:600}}><span>合计</span><span>¥{newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)}</span></div>
                   <Button type="primary" block style={{marginTop:8}} icon={<DollarSign size={14}/>} onClick={async()=>{
                     try {
-                      // [G005 Wave1A P0] dentalApi 优先, 失败回退 MSW/dev 端点
-                      try {
-                        const pres = await dentalApi.createBillingInvoice({ patientId: selectedPatient, items: newInvoice.items, total: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
-                        if (pres.success) { message.success('账单已创建'); setNewInvoice({ patientId: selectedPatient, items: [] }); return; }
-                        throw new Error(pres.error?.message ?? '创建失败');
-                      } catch {
-                        setBackendDown(true);
-                        const r = await fetch('/api/v1/dental/billing/invoices', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ patientId: selectedPatient, items: newInvoice.items, total: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) }) });
-                        const d = await r.json();
-                        if (d.success) { message.success('账单已创建'); setNewInvoice({ patientId: selectedPatient, items: [] }); }
-                      }
+                      // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
+                      const pres = await dentalApi.createBillingInvoice({ patientId: selectedPatient, items: newInvoice.items, total: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
+                      if (pres.success) { message.success('账单已创建'); setNewInvoice({ patientId: selectedPatient, items: [] }); return; }
+                      setBackendDown(true);
+                      message.error(pres.error?.message ?? '创建失败');
                     } catch { message.error('账单创建失败'); }
                   }}>创建账单</Button>
                 </Card>
@@ -288,16 +268,10 @@ export const DentalBillingPage: React.FC = () => {
                   <InputNumber placeholder="输入总金额" style={{width:'100%',marginBottom:8}} />
                   <Button block icon={<Calculator size={14}/>} onClick={async()=>{
                     try {
-                      // [G005 Wave1A P0] dentalApi 优先, 失败回退 MSW/dev 端点
-                      try {
-                        const pres = await dentalApi.verifyInsurance({ patientId: selectedPatient, insuranceType: '城镇职工', feeTotal: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
-                        if (pres.success) message.info(`医保报销: ¥${pres.data.insuranceCover}, 自付: ¥${pres.data.selfPay}`);
-                        else throw new Error(pres.error?.message ?? '验算失败');
-                      } catch {
-                        setBackendDown(true);
-                        const r = await fetch('/api/v1/dental/billing/insurance-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientId:selectedPatient,insuranceType:'城镇职工',feeTotal:newInvoice.items.reduce((s:number,i:any)=>s+i.unitPrice*(i.qty||1),0)})});
-                        const d=await r.json();if(d.success)message.info(`医保报销: ¥${d.data.insuranceCover}, 自付: ¥${d.data.selfPay}`);
-                      }
+                      // [G005 Wave1B] 仅走 dentalApi (后端真实), 失败标注回退
+                      const pres = await dentalApi.verifyInsurance({ patientId: selectedPatient, insuranceType: '城镇职工', feeTotal: newInvoice.items.reduce((s: number, i: any) => s + i.unitPrice * (i.qty || 1), 0) });
+                      if (pres.success) message.info(`医保报销: ¥${pres.data.insuranceCover}, 自付: ¥${pres.data.selfPay}`);
+                      else { setBackendDown(true); message.error(pres.error?.message ?? '验算失败'); }
                     } catch { message.error('医保预核验失败'); }
                   }}>医保预核验</Button>
                   <Divider style={{margin:'8px 0'}} />

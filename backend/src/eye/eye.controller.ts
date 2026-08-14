@@ -40,6 +40,23 @@ const IolCalculationRecordSchema = z.object({
 const GenerateReportSchema = z.object({ studyId: z.string().min(1), template: z.string().optional() })
 const CompareStudiesSchema = z.object({ studyIds: z.array(z.string()).optional() })
 const LooseBodySchema = z.object({}).passthrough()
+// [G005 Wave1B] Toric 散光 IOL 规划/预测 (ToricPlannerPage 在用, 宽松校验)
+const ToricPlanSchema = z.object({
+  eye: z.string().optional(),
+  preOpK1: z.number().optional(),
+  preOpK2: z.number().optional(),
+  preOpAxis: z.number().optional(),
+  inducedAstigmatism: z.number().optional(),
+  iolModel: z.string().optional(),
+  iolCylinderPower: z.number().optional(),
+}).passthrough()
+const PostopPredictSchema = z.object({
+  targetPower: z.number().optional(),
+  K1: z.number().optional(),
+  K2: z.number().optional(),
+  AL: z.number().optional(),
+  ACD: z.number().optional(),
+}).passthrough()
 
 type CreateIolItemDto = z.infer<typeof CreateIolItemSchema>
 type IolOutDto = z.infer<typeof IolOutSchema>
@@ -420,6 +437,34 @@ export class EyeController {
   @Post('iol/calculate/kane')
   calculateKane(@Body(new ZodValidationPipe(IolCalculationSchema)) data: { lensId: string; axialLength: number; keratometry: number }) {
     return this.eye.calculateKane(data)
+  }
+
+  // [G005 Wave1B] 泛化公式 (必须在 barrett|kane 之后声明; ToricPlannerPage 传 Barrett-true-K/Hill-RBF/SRK-T 等)
+  @Post('iol/calculate/:formula')
+  calculateIolByFormula(@Param('formula') formula: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.calculateIolByFormula(formula, body)
+  }
+
+  // ── [G005 Wave1B] Toric 散光 IOL 真实化 (ToricPlannerPage 在用; 确定性公式, 形状对齐 eyeHandlers) ──
+
+  @Get('iol/constant/:model')
+  getIolConstant(@Param('model') model: string) {
+    return this.eye.getIolConstant(model)
+  }
+
+  @Post('iol/toric/plan')
+  planToricIol(@Body(new ZodValidationPipe(ToricPlanSchema)) body: Record<string, unknown>) {
+    return this.eye.planToricIol(body)
+  }
+
+  @Get('iol/toric/candidate')
+  listToricCandidates(@Query('cornealAst') cornealAst?: string, @Query('sia') sia?: string) {
+    return this.eye.listToricCandidates({ cornealAst: cornealAst ? Number(cornealAst) : undefined, sia: sia ? Number(sia) : undefined })
+  }
+
+  @Post('iol/predict/postop')
+  predictPostopIol(@Body(new ZodValidationPipe(PostopPredictSchema)) body: Record<string, unknown>) {
+    return this.eye.predictPostopIol(body)
   }
 
   // [G005 Wave4A P1] IOL 计算记录 (内存 + seed, IolCalculatorPage 提交到病历)

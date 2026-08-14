@@ -69,4 +69,78 @@ describe('PatientPortalService (W5 education write)', () => {
       expect(del).toHaveBeenCalledWith({ where: { key: 'education_123' } })
     })
   })
+
+  // [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5): GET /patient-portal/followups + POST .../:id/complete
+  describe('listFollowups', () => {
+    it('returns seed followups filtered by patientId when DB empty', async () => {
+      const service = new PatientPortalService(
+        makePrisma({ followUpPlan: { findMany: jest.fn().mockRejectedValue(new Error('no db')) } }),
+      )
+      const res = await service.listFollowups('P001')
+      expect(Array.isArray(res.data)).toBe(true)
+      expect(res.data.length).toBeGreaterThan(0)
+      expect(res.data.every((f: any) => f.patientId === 'P001')).toBe(true)
+      expect(res.data[0]).toHaveProperty('planDate')
+      expect(res.data[0]).toHaveProperty('nextDate')
+      expect(res.data[0]).toHaveProperty('reminderEnabled')
+    })
+
+    it('returns DB plans when present', async () => {
+      const findMany = jest.fn().mockResolvedValue([
+        {
+          id: 'FU-1', patientId: 'P001', patientName: '张三',
+          planDate: new Date(), intervalDays: 30, nextDate: new Date(Date.now() + 86400000),
+          status: 'PENDING', note: 'x', reminderEnabled: true,
+          completedAt: null, createdAt: new Date(), updatedAt: new Date(),
+        },
+      ])
+      const service = new PatientPortalService(makePrisma({ followUpPlan: { findMany } }))
+      const res = await service.listFollowups('P001')
+      expect(res.data).toHaveLength(1)
+      expect(res.data[0].id).toBe('FU-1')
+      expect(findMany).toHaveBeenCalled()
+    })
+  })
+
+  describe('completeFollowup', () => {
+    it('completes an existing DB plan', async () => {
+      const update = jest.fn().mockImplementation(({ data }: any) => Promise.resolve({
+        id: 'FU-1', patientId: 'P001', patientName: '张三',
+        planDate: new Date(), intervalDays: 30, nextDate: new Date(Date.now() + 86400000),
+        status: 'COMPLETED', note: 'x', reminderEnabled: true, completedAt: data.completedAt,
+        createdAt: new Date(), updatedAt: new Date(),
+      }))
+      const service = new PatientPortalService(
+        makePrisma({
+          followUpPlan: {
+            findUnique: jest.fn().mockResolvedValue({ id: 'FU-1', status: 'PENDING' }),
+            update,
+          },
+        }),
+      )
+      const res = await service.completeFollowup('FU-1')
+      expect(res.data.status).toBe('COMPLETED')
+      expect(res.data.completedAt).toBeTruthy()
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'FU-1' },
+        data: expect.objectContaining({ status: 'COMPLETED' }),
+      }))
+    })
+
+    it('completes seed plan when DB unavailable', async () => {
+      const service = new PatientPortalService(
+        makePrisma({ followUpPlan: { findUnique: jest.fn().mockRejectedValue(new Error('no db')) } }),
+      )
+      const res = await service.completeFollowup('FU-P001-001')
+      expect(res.data.status).toBe('COMPLETED')
+      expect(res.data.completedAt).toBeTruthy()
+    })
+
+    it('throws 404 for unknown plan', async () => {
+      const service = new PatientPortalService(
+        makePrisma({ followUpPlan: { findUnique: jest.fn().mockResolvedValue(null) } }),
+      )
+      await expect(service.completeFollowup('FU-NOPE')).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
 })

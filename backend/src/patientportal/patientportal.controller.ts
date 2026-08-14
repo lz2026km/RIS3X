@@ -111,4 +111,17 @@ export class PatientPortalController {
 
   @Get('mobile/techs')
   getTechMobile() { return this.svc.getTechMobile() }
+
+  // [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5):
+  //   GET  /patient-portal/followups?patientId=  (按患者查随访计划)
+  //   POST /patient-portal/followups/:id/complete (患者自助完成登记)
+  @Get('followups')
+  listFollowups(@Query('patientId') patientId?: string) {
+    return this.svc.listFollowups(patientId)
+  }
+
+  @Post('followups/:id/complete')
+  completeFollowup(@Param('id') id: string) {
+    return this.svc.completeFollowup(id)
+  }
 }

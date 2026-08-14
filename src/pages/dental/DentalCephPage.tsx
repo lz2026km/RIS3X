@@ -1,5 +1,6 @@
 // [v3.0.6.8-90] Phase 2: 头影测量分析
 // 对标: Sidexis Ceph + Dolphin Imaging + Planmeca Romexis Ceph
+// [G005 Wave1B] 6 处裸 fetch → dentalApi (后端 /dental/ceph/* + /dental/ortho/arch-analysis 真实实现)
 import { dentalApi } from "../../services/api/dentalApi";
 import {
   Card,
@@ -66,16 +67,14 @@ export const DentalCephPage: React.FC = () => {
 
   const fetchStudies = async () => {
     try {
-      const res = await fetch("/api/v1/dental/ceph/studies");
-      const d = await res.json();
-      if (d.success) setStudies(d.data || []);
+      const res = await dentalApi.listCephStudies();
+      if (res.success) setStudies(res.data || []);
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
     try {
-      const at = await fetch("/api/v1/dental/ceph/analysis-types");
-      const d = await at.json();
-      if (d.success) setAnalysisTypes(d.data || []);
+      const at = await dentalApi.getCephAnalysisTypes();
+      if (at.success) setAnalysisTypes(at.data || []);
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -86,12 +85,12 @@ export const DentalCephPage: React.FC = () => {
     setMode("analysis");
     setBusy(true);
     try {
-      const lm = await fetch("/api/v1/dental/ceph/landmarks");
-      const ld = await lm.json();
+      const lm = await dentalApi.getCephLandmarks();
+      const ld = lm;
       if (ld.success) setLandmarks(ld.data || {});
       if (s.analysisType) {
-        const ar = await fetch(`/api/v1/dental/ceph/${s.id}/analysis`);
-        const ad = await ar.json();
+        const ar = await dentalApi.getCephAnalysis(s.id);
+        const ad = ar;
         if (ad.success) setAnalysis(ad.data);
       }
     } catch (e) {
@@ -104,13 +103,8 @@ export const DentalCephPage: React.FC = () => {
     if (!current) return;
     setBusy(true);
     try {
-      const r = await fetch(`/api/v1/dental/ceph/${current.id}/analysis`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: selType }),
-      });
-      const d = await r.json();
-      if (d.success) setAnalysis(d.data);
+      const r = await dentalApi.runCephAnalysis(current.id, selType);
+      if (r.success && r.data) setAnalysis(r.data);
       message.success("头影测量分析完成");
     } catch (e: any) {
       message.error(e.message);
@@ -121,11 +115,8 @@ export const DentalCephPage: React.FC = () => {
   const handleArchAnalysis = async () => {
     setBusy(true);
     try {
-      const r = await fetch("/api/v1/dental/ortho/arch-analysis", {
-        method: "POST",
-      });
-      const d = await r.json();
-      if (d.success) setArchData(d.data);
+      const r = await dentalApi.analyzeDentalArch();
+      if (r.success && r.data) setArchData(r.data);
       message.success("牙弓分析完成");
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
@@ -254,8 +245,8 @@ export const DentalCephPage: React.FC = () => {
           <Tag color="cyan">v3.0.6.8-90</Tag>
           <Tag color="blue">Sidexis Ceph 对标</Tag>
           <Tag color="purple">Dolphin 对标</Tag>
-          {/* [v3.0.6.11-88 Round10] /dental/ceph/* 后端未实现, MSW 演示数据 */}
-          <Tag color="orange">演示数据 (MSW)</Tag>
+          {/* [G005 Wave1B] /dental/ceph/* + /dental/ortho/arch-analysis 后端真实实现, dentalApi 封装 */}
+          <Tag color="green">真实后端 /dental/ceph/*</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
@@ -403,12 +394,8 @@ export const DentalCephPage: React.FC = () => {
                 icon={<Save size={10} />}
                 onClick={async () => {
                   try {
-                    await fetch(`/api/v1/dental/ceph/${current.id}/landmarks`, {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ landmarks }),
-                    });
-                    message.success("已保存");
+                    const r = await dentalApi.saveCephLandmarks(current.id, landmarks);
+                    if (r.success) message.success("已保存");
                   } catch (e) {
                     console.warn("[F03] Error:", (e as Error)?.message);
                   }

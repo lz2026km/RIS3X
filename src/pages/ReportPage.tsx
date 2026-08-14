@@ -21,6 +21,8 @@ import { reportApi } from "../services/api";
 // [W2-3] 导出审批流 / 危急值转入
 import { exportApprovalApi } from "../services/api/analyticsApi";
 import { criticalApi } from "../services/api/criticalApi";
+// [v3.0.6.11-99 Wave7B] 离线报告包 (IndexedDB)
+import { offlineStorage } from "../services/pwa/offlineStorage";
 import { useReportStore } from "../store";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { useRBAC } from "../hooks/useRBAC";
@@ -421,6 +423,41 @@ export default function ReportPage() {
     navigate(`/follow-up?${q.toString()}`);
   };
 
+  // [v3.0.6.11-99 Wave7B] 离线报告包: 保存报告 HTML 快照 → IndexedDB (断网可离线浏览)
+  const handleOfflineSave = async (r: RadiologyReport) => {
+    try {
+      const esc = (s?: string) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+      const html = [
+        '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>离线报告</title>',
+        '<style>body{font-family:-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#1e293b;line-height:1.8}h1{font-size:20px;border-bottom:2px solid #1e40af;padding-bottom:8px;margin-bottom:8px}.meta{color:#64748b;font-size:12px;margin-bottom:16px}label{font-weight:600;color:#1e40af;display:block;margin:14px 0 4px;font-size:13px}section{white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0}</style>',
+        `</head><body><h1>影像检查报告</h1><div class="meta">患者: ${esc(r.patientName)} · ${esc(r.modality)} ${esc(r.bodyPart)} · 报告号: ${esc(r.reportId)} · 检查号: ${esc(r.accessionNumber)}<br/>离线保存时间: ${new Date().toLocaleString('zh-CN')}</div>`,
+        `<label>检查所见</label><section>${esc(r.examFindings)}</section>`,
+        `<label>诊断意见</label><section>${esc(r.diagnosis)}</section>`,
+        `<label>影像印象</label><section>${esc(r.impression)}</section>`,
+        '<p style="font-size:12px;color:#94a3b8;margin-top:20px">电子报告与纸质报告具有同等法律效力。</p></body></html>',
+      ].join('');
+      await offlineStorage.saveReport({
+        id: r.id,
+        patientId: r.patientId ?? '',
+        reportText: [r.examFindings, r.diagnosis, r.impression].filter(Boolean).join('\n'),
+        findings: r.examFindings ?? '',
+        conclusion: r.impression ?? r.diagnosis ?? '',
+        synced: true,
+        htmlContent: html,
+        patientName: r.patientName,
+        modality: r.modality,
+        bodyPart: r.bodyPart,
+        accessionNumber: r.accessionNumber,
+        reportNo: r.reportId,
+        state: toEnState(r.status),
+        savedAt: Date.now(),
+      });
+      showToast(`报告 ${r.reportId} 已保存至离线包`, 'success');
+    } catch {
+      showToast('离线保存失败: IndexedDB 不可用', 'error');
+    }
+  };
+
   // [v3.0.6.11-92 Wave1B P0] 报告特殊态: 补充报告/整改/跨院区重分配/升级 (失败回退提示)
   const handleReportSpecial = async (r: RadiologyReport, action: 'supplement' | 'rectify' | 'redistribute' | 'escalate', reason?: string) => {
     try {
@@ -540,14 +577,14 @@ export default function ReportPage() {
 
         <div className="no-print">
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} deletingIds={deletingIds} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} onCreateFollowUp={handleCreateFollowUp} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={handleWriteReport} onOpen360={handleOpen360} onOfflineSave={handleOfflineSave} deletingIds={deletingIds} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 

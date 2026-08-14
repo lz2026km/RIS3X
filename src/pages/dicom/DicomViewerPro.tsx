@@ -9,7 +9,7 @@ import { dicomWebApi, type DicomWebStudy, type DicomWebSeries } from '../../serv
 import {
   Select, Space, Tag, Button, Spin, Alert, Empty, Row, Col, Typography, Segmented, message,
 } from 'antd'
-import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X, PenLine } from 'lucide-react'
+import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X, PenLine, Crosshair } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Inbox } from 'lucide-react'
@@ -353,6 +353,15 @@ const DicomViewerProPage: React.FC = () => {
                 data-testid="viewer-write-report"
               >
                 写报告
+              </Button>
+              {/* [v3.0.6.11-99 Wave 4A] 阅片→病灶追踪: 携带患者 ID 跳转工作台 */}
+              <Button
+                size="small"
+                icon={<Crosshair size={12} />}
+                onClick={() => navigate(`/dicom/lesion-tracking?patientId=${encodeURIComponent(selectedStudy?.patientID ?? '')}`)}
+                data-testid="viewer-lesion-tracking"
+              >
+                病灶追踪
               </Button>
             </Space>
           </Col>

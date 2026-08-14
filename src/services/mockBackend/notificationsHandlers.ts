@@ -63,6 +63,10 @@ function buildSeed(): MockNotification[] {
 
 const state: { items: MockNotification[] } = { items: buildSeed() }
 
+// [v3.0.6.11-99 Wave7B] 订阅类型内存存储 (GET/PUT /notifications/subscriptions/:userId)
+const DEFAULT_SUBSCRIPTION_TYPES = ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
+const subscriptionState = new Map<string, string[]>()
+
 function toDto(n: MockNotification) {
   return { ...n }
 }
@@ -207,4 +211,56 @@ export const notificationsHandlers = [
       total: 1,
     })
   }),
+
+  // [v3.0.6.11-99 Wave 5B-C] 报表生成完成推送 (内部端点; 按 recipients 创建「报表已生成」通知)
+  // 抽取为可复用函数: Wave 5A custom-report schedule handler 联动复用 (同一内存 store)
+  http.post(`${API_BASE}/notifications/report-generated`, async ({ request }) => {
+    await delay(120)
+    const body = (await request.json()) as { reportId?: string; reportName?: string; recipients?: string[]; summary?: string; link?: string }
+    return HttpResponse.json(pushReportGenerated(body), { status: 201 })
+  }),
+
+  // [v3.0.6.11-99 Wave7B] 站内信/推送订阅管理 (与后端 GET/PUT /notifications/subscriptions/:userId 对齐):
+  //   危急值/报告完成/随访提醒/质控通知/系统公告
+  http.get(`${API_BASE}/notifications/subscriptions/:userId`, async ({ params }) => {
+    await delay(60)
+    const userId = params.userId as string
+    const existing = subscriptionState.get(userId)
+    return HttpResponse.json(existing
+      ? { userId, types: [...existing], defaulted: false }
+      : { userId, types: DEFAULT_SUBSCRIPTION_TYPES, defaulted: true })
+  }),
+
+  http.put(`${API_BASE}/notifications/subscriptions/:userId`, async ({ request, params }) => {
+    await delay(80)
+    const userId = params.userId as string
+    const body = (await request.json()) as { types?: string[] }
+    const allowed = new Set<string>(DEFAULT_SUBSCRIPTION_TYPES)
+    const cleaned = Array.from(new Set(body.types ?? []))
+      .filter((t): t is string => allowed.has(t))
+    const normalized = cleaned.length > 0 ? cleaned : DEFAULT_SUBSCRIPTION_TYPES
+    subscriptionState.set(userId, [...normalized])
+    return HttpResponse.json({ userId, types: [...normalized] })
+  }),
 ]
+
+export function pushReportGenerated(body: { reportId?: string; reportName?: string; recipients?: string[]; summary?: string; link?: string }): { count: number; items: MockNotification[] } {
+  const recipients = (Array.isArray(body.recipients) && body.recipients.length > 0 ? body.recipients : ['current']) as string[]
+  const items = recipients.map((userId) => {
+    const item: MockNotification = {
+      id: `notif-${Date.now()}-${userId}`,
+      userId,
+      type: 'REPORT',
+      severity: 'INFO',
+      title: `报表已生成: ${String(body.reportName ?? '未命名报表')}`,
+      content: body.summary || `报表「${String(body.reportName ?? '未命名报表')}」(ID: ${String(body.reportId ?? '')}) 已生成, 请在报表中心查看。`,
+      link: body.link,
+      targetId: body.reportId,
+      read: false,
+      createdAt: new Date().toISOString(),
+    }
+    state.items.unshift(item)
+    return item
+  })
+  return { count: items.length, items: items.map(toDto) }
+}

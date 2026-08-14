@@ -84,4 +84,18 @@ export const notificationsApi = {
 
   sendPush: (data: { userId: string; title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) =>
     api.post<{ success: boolean; userId: string; delivered: number; total?: number; reason?: string }>('/notifications/push-send', data),
+
+  // [v3.0.6.11-99] Wave 5B-C: 报表生成完成推送 (内部端点, 定时报表执行器/报表模块调用)
+  reportGenerated: (data: { reportId: string; reportName: string; recipients: string[]; summary?: string; link?: string }) =>
+    api.post<{ count: number; items: NotificationDto[] }>('/notifications/report-generated', data),
+
+  // [v3.0.6.11-99 Wave7B] 站内信/推送订阅管理:
+  //   GET /notifications/subscriptions/:userId · PUT /notifications/subscriptions/:userId
+  getSubscriptions: (userId: string) =>
+    api.get<{ userId: string; types: NotificationSubscriptionType[]; defaulted?: boolean }>(`/notifications/subscriptions/${userId}`),
+
+  updateSubscriptions: (userId: string, types: NotificationSubscriptionType[]) =>
+    api.put<{ userId: string; types: NotificationSubscriptionType[] }>(`/notifications/subscriptions/${userId}`, { types }),
 }
+
+export type NotificationSubscriptionType = 'CRITICAL' | 'REPORT' | 'FOLLOWUP' | 'QUALITY' | 'SYSTEM'

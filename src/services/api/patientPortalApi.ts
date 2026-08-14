@@ -139,6 +139,27 @@ export interface CreatePortalFeedbackInput {
   comment?: string
 }
 
+// [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5) — 与 followupApi.FollowUpPlan 形状对齐
+export interface PortalFollowUpDto {
+  id: string
+  patientId: string
+  patientName: string
+  reportId?: string
+  examId?: string
+  planDate: string
+  intervalDays: number
+  nextDate: string
+  status: string
+  note: string
+  reminderEnabled: boolean
+  remindedAt?: string | null
+  missedAt?: string | null
+  cancelledAt?: string | null
+  completedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 // [W5] 宣教资料写入
 export interface CreateEducationInput {
   title: string
@@ -287,6 +308,19 @@ export const patientPortalApi = {
 
   submitFeedback: (input: CreatePortalFeedbackInput) =>
     api.post<PortalFeedbackDto>('/patient-portal/feedback', input),
+
+  // [v3.0.6.11-99 Wave7B] 患者自助随访 (移动 H5): 后端 patientportal.controller 新增端点
+  //   GET  /patient-portal/followups?patientId=  → { data: FollowUpPlan[] }
+  //   POST /patient-portal/followups/:id/complete → { data: FollowUpPlan }
+  listFollowups: async (patientId?: string) => {
+    const res = await api.get<PortalFollowUpDto[] | { data: PortalFollowUpDto[] }>(
+      `/patient-portal/followups${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
+    )
+    return unwrapList(res)
+  },
+
+  completeFollowup: (id: string) =>
+    api.post<{ data: PortalFollowUpDto } | PortalFollowUpDto>(`/patient-portal/followups/${encodeURIComponent(id)}/complete`),
 }
 
 // [G005 W1-C] 列表响应归一化: 兼容 MSW 裸数组 与 后端 { data: [...] } 包装

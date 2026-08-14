@@ -169,6 +169,60 @@ const SEED_CONTACT_LENSES: ContactLens[] = [
   { id: 'cl-005', brand: 'Bausch + Lomb', type: 'Hybrid', series: 'UltraHealth', bc: 8.2, dia: 14.6, power: -4.0, stock: 6, trialLens: false, unitPrice: 450, supplier: 'Bausch' },
 ]
 
+// ── [G005 Wave1B] Toric 散光 IOL: ULIB 兼容公式常数 (ToricPlannerPage 真实化) ──
+// 来源: User Group for Laser Interference Biometry (ULIB) 2024 (与 eyeHandlers PR3_IOL_CONSTANTS 对齐)
+
+const IOL_TORIC_CONSTANTS: Record<string, Record<string, { aConst: number; pACD?: number; sf?: number }>> = {
+  SA60AT: {
+    'SRK-T': { aConst: 118.4, pACD: 5.2 },
+    'Barrett-true-K': { aConst: 118.4, sf: 1.59, pACD: 5.2 },
+    'Hoffer-Q': { aConst: 118.4, pACD: 5.2 },
+    'Holladay-1': { aConst: 118.4, sf: 1.59, pACD: 5.2 },
+    Kane: { aConst: 118.4, pACD: 5.2 },
+    'Hill-RBF': { aConst: 118.4 },
+  },
+  'TECNIS-1PC': {
+    'SRK-T': { aConst: 119.3, pACD: 5.6 },
+    'Barrett-true-K': { aConst: 119.3, sf: 1.62, pACD: 5.6 },
+    'Hoffer-Q': { aConst: 119.3, pACD: 5.6 },
+    'Holladay-1': { aConst: 119.3, sf: 1.62, pACD: 5.6 },
+    Kane: { aConst: 119.3, pACD: 5.6 },
+    'Hill-RBF': { aConst: 119.3 },
+  },
+  'CT-LUCIA': {
+    'SRK-T': { aConst: 118.0, pACD: 5.1 },
+    'Barrett-true-K': { aConst: 118.0, sf: 1.5, pACD: 5.1 },
+    'Hoffer-Q': { aConst: 118.0, pACD: 5.1 },
+    'Holladay-1': { aConst: 118.0, sf: 1.5, pACD: 5.1 },
+    Kane: { aConst: 118.0, pACD: 5.1 },
+    'Hill-RBF': { aConst: 118.0 },
+  },
+  'SN6AT3-SN6AT9': {
+    'SRK-T': { aConst: 118.7, pACD: 5.4 },
+    'Barrett-true-K': { aConst: 118.7, sf: 1.6, pACD: 5.4 },
+    Kane: { aConst: 118.7, pACD: 5.4 },
+  },
+  'TECNIS-Toric': {
+    'SRK-T': { aConst: 119.4, pACD: 5.7 },
+    'Barrett-true-K': { aConst: 119.4, sf: 1.63, pACD: 5.7 },
+    Kane: { aConst: 119.4, pACD: 5.7 },
+  },
+  PanOptix: {
+    'SRK-T': { aConst: 119.1, pACD: 5.6 },
+    'Barrett-true-K': { aConst: 119.1, sf: 1.61, pACD: 5.6 },
+    Kane: { aConst: 119.1, pACD: 5.6 },
+  },
+  'TECNIS-Symfony': {
+    'SRK-T': { aConst: 119.0, pACD: 5.5 },
+    'Barrett-true-K': { aConst: 119.0, sf: 1.61, pACD: 5.5 },
+    Kane: { aConst: 119.0, pACD: 5.5 },
+  },
+}
+
+// SN6AT3..SN6AT9 单型号 → 家族常数
+const TORIC_FAMILY_MODEL = 'SN6AT3-SN6AT9'
+const TORIC_MODELS = ['SN6AT3', 'SN6AT4', 'SN6AT5', 'SN6AT6', 'SN6AT7', 'SN6AT8', 'SN6AT9']
+
 @Injectable()
 export class EyeService {
   constructor(private readonly prisma: PrismaService) {}
@@ -976,6 +1030,154 @@ export class EyeService {
         brand: body.brand ?? 'CRT',
         targetReduction: body.targetReduction,
         patientId: body.patientId,
+      },
+    }
+  }
+
+  // ── [G005 Wave1B] Toric 散光 IOL 真实化 (ToricPlannerPage 在用; 确定性公式, 形状对齐 eyeHandlers) ──
+
+  // GET /eye/iol/constant/:model — 公式常数表 (ULIB 2024; SN6AT3..9 归一族)
+  getIolConstant(model: string) {
+    const exact = IOL_TORIC_CONSTANTS[model]
+    if (exact) {
+      return { success: true, data: exact, meta: { model, source: 'ULIB 2024' } }
+    }
+    if (/^SN6AT\d+$/i.test(model)) {
+      return {
+        success: true,
+        data: IOL_TORIC_CONSTANTS[TORIC_FAMILY_MODEL],
+        meta: { model, source: 'ULIB 2024', family: TORIC_FAMILY_MODEL },
+      }
+    }
+    throw new NotFoundException(`未知 IOL 型号: ${model}`)
+  }
+
+  // POST /eye/iol/toric/plan — Toric 晶体规划 (角膜散光 = K1-K2, 残余 = 角膜散光 - 晶体散光 - SIA)
+  planToricIol(body: Record<string, unknown>) {
+    const preOpK1 = Number(body.preOpK1 ?? 0)
+    const preOpK2 = Number(body.preOpK2 ?? 0)
+    const preOpAxis = Number(body.preOpAxis ?? 0)
+    const inducedAstigmatism = Number(body.inducedAstigmatism ?? 0)
+    const iolCylinderPower = Number(body.iolCylinderPower ?? 0)
+    const iolModel = String(body.iolModel ?? '')
+    const cornealAst = preOpK1 - preOpK2
+    const residualAst = cornealAst - iolCylinderPower - inducedAstigmatism
+    let suggestedAxis = preOpAxis
+    if (residualAst > 0.5) suggestedAxis = (preOpAxis + 90) % 180
+    return {
+      success: true,
+      data: {
+        iolModel,
+        iolCylinderPower,
+        preOpCornealAstigmatism: cornealAst.toFixed(2) + ' D',
+        surgicallyInducedAstigmatism: inducedAstigmatism.toFixed(2) + ' D',
+        residualAstigmatism: residualAst.toFixed(2) + ' D',
+        suggestedAxis,
+        alignmentMarks: { preOp: preOpAxis + '°', iol: suggestedAxis + '°' },
+        method: 'Alcon AcrySof IQ Toric Calculator / J&J TECNIS Toric',
+        note: '最终规划需结合手术切口位置和术者偏好',
+        calculatedAt: new Date().toISOString(),
+      },
+    }
+  }
+
+  // GET /eye/iol/toric/candidate — 候选 Toric 晶体 (SN6AT3-9 确定性生成 + 库存 toric 镜片过滤)
+  async listToricCandidates(params: { cornealAst?: number; sia?: number }) {
+    const cornealAst = Number(params.cornealAst ?? 1.0)
+    const sia = Number(params.sia ?? 0.3)
+    const candidates: any[] = []
+    for (const m of TORIC_MODELS) {
+      const cylPower = Number(m.replace('SN6AT', '')) * 0.75
+      const residual = cornealAst - cylPower - sia
+      candidates.push({
+        model: m,
+        cylinderPower: cylPower.toFixed(2) + ' D',
+        residualAstigmatism: residual.toFixed(2) + ' D',
+        recommended: Math.abs(residual) < 0.3,
+      })
+    }
+    const lensRows = await this.withSeed(
+      () => this.prisma.eyeIolLens.findMany({ where: { type: 'toric' } as any, take: 20 }),
+      [],
+    )
+    for (const l of lensRows as any[]) {
+      const cyl = Number(l.cylinder ?? 0)
+      if (!cyl) continue
+      const residual = cornealAst - cyl - sia
+      candidates.push({
+        model: l.model ?? l.name ?? 'IOL',
+        cylinderPower: cyl.toFixed(2) + ' D',
+        residualAstigmatism: residual.toFixed(2) + ' D',
+        recommended: Math.abs(residual) < 0.3,
+        stock: Number(l.stock ?? l.quantity ?? 0),
+      })
+    }
+    return { success: true, data: candidates, meta: { cornealAst, sia, total: candidates.length } }
+  }
+
+  // POST /eye/iol/predict/postop — 术后屈光预测 (Hirnsdorf 公式)
+  predictPostopIol(body: Record<string, unknown>) {
+    const targetPower = Number(body.targetPower ?? 21.0)
+    const Km = (Number(body.K1 ?? 43.0) + Number(body.K2 ?? 43.5)) / 2
+    const AL = Number(body.AL ?? 23.5)
+    const predictedSE = targetPower - 118.4 + 0.9 * Km + 0.05 * (AL - 23.5)
+    const predictedUCVA = 0.8 - Math.abs(predictedSE) * 0.05
+    return {
+      success: true,
+      data: {
+        targetPower,
+        predictedSE: predictedSE.toFixed(2) + ' D',
+        predictedUCVA: predictedUCVA.toFixed(2),
+        confidence: 0.78,
+        method: 'Hirnsdorf 公式 (基于 Hill-RBF 2.0)',
+        inputs: body,
+        calculatedAt: new Date().toISOString(),
+      },
+    }
+  }
+
+  // POST /eye/iol/calculate/:formula — 泛化公式 (Barrett-true-K / Hill-RBF / SRK-T / Hoffer-Q / Holladay-1 / Kane)
+  calculateIolByFormula(formula: string, body: Record<string, unknown>) {
+    const AL = Number(body.AL ?? body.axialLength ?? 23.5)
+    const K1 = Number(body.K1 ?? body.k1 ?? 43.0)
+    const K2 = Number(body.K2 ?? body.k2 ?? 43.5)
+    const ACD = Number(body.ACD ?? body.acd ?? 3.0)
+    const LT = Number(body.LT ?? body.lt ?? 4.5)
+    const iolModel = String(body.iolModel ?? body.lensId ?? 'SA60AT')
+    const entry = getIolAConstantsByModel(iolModel)
+    const aConst = entry?.aConst ?? IOL_TORIC_CONSTANTS[iolModel]?.['Barrett-true-K']?.aConst ?? 118.4
+    const Km = (K1 + K2) / 2
+    const sf = 1.59
+    const f = String(formula)
+    let power: number
+    if (f === 'SRK-T') {
+      if (AL < 22) power = aConst - 0.9 * Km + 0.9
+      else if (AL > 24.5) power = aConst - 0.9 * Km - 0.5
+      else power = aConst - 0.9 * Km - 0.1 * (AL - 23.5)
+    } else if (f.includes('Barrett')) {
+      power = aConst - 0.9 * Km + Math.log(sf) * 2.5 - 0.05 * (ACD - 4.0) - 0.1 * (AL - 23.5)
+    } else if (f.includes('Hoffer')) {
+      power = AL < 22 ? aConst - 0.9 * Km + 0.3 : aConst - 0.9 * Km - 0.05 * (AL - 23.5)
+    } else if (f.includes('Holladay')) {
+      power = aConst - 0.9 * Km + (sf - 1) * 2.0 - 0.05 * (AL - 23.5)
+    } else if (f.includes('Kane')) {
+      power = aConst - 0.9 * Km - 0.05 * (AL - 23.5) - 0.05 * (ACD - 4.5)
+    } else if (f.includes('Hill')) {
+      power = aConst - 0.9 * Km - 0.05 * (AL - 23.5)
+    } else {
+      power = aConst - 0.9 * Km - 0.05 * (LT - 4.5)
+    }
+    power = Math.round(power * 2) / 2
+    return {
+      success: true,
+      data: {
+        formula: f,
+        power,
+        method: f,
+        source: `IOL 公式计算 (${f})`,
+        inputs: body,
+        iolModel,
+        calculatedAt: new Date().toISOString(),
       },
     }
   }

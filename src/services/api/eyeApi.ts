@@ -322,6 +322,66 @@ export const eyeApi = {
   // [G005 Wave1A P0] OK 镜设计 (后端 POST /eye/optometry/ok-lens/design)
   okLensDesign: (data: any) =>
     api.post(`${EYE_API}/optometry/ok-lens/design`, data),
+
+  // ===== [G005 Wave1B] IOL Toric 散光规划 (ToricPlannerPage 真实化, 后端 /eye/iol/*) =====
+  getIolConstant: (model: string) =>
+    api.get<any>(`${EYE_API}/iol/constant/${encodeURIComponent(model)}`),
+  calculateIolFormula: (formula: string, data: Record<string, any>) =>
+    api.post<any>(`${EYE_API}/iol/calculate/${encodeURIComponent(formula)}`, data),
+  planToricIol: (data: any) => api.post<any>(`${EYE_API}/iol/toric/plan`, data),
+  getToricCandidates: (params: { cornealAst: number; sia: number }) =>
+    api.get<any>(`${EYE_API}/iol/toric/candidate?cornealAst=${params.cornealAst}&sia=${params.sia}`),
+  predictPostopIol: (data: any) =>
+    api.post<any>(`${EYE_API}/iol/predict/postop`, data),
+
+  // ===== [G005 Wave1B] 远程眼科 tele (TeleConsultPage, MSW eyeTeleModule 对齐) =====
+  getTeleTurn: () => api.get<any>(`${EYE_API}/tele/turn`),
+  createTeleSession: (data: any) => api.post<any>(`${EYE_API}/tele/session`, data),
+  createTeleStream: (data: any) => api.post<any>(`${EYE_API}/tele/stream`, data),
+  createTeleConsult: (data: any) => api.post<any>(`${EYE_API}/tele/consult`, data),
+
+  // ===== [G005 Wave1B] 像素级图像处理 pixel (RealDicomViewerPage, MSW eyePixelModule 对齐) =====
+  getPixelInstance: (instanceId: string) =>
+    api.get<any>(`${EYE_API}/pixel/instance/${encodeURIComponent(instanceId)}`),
+  getPixelHistogram: (instanceId: string) =>
+    api.get<any>(`${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}`),
+  getPixelColormap: (modality: string) =>
+    api.get<any>(`${EYE_API}/pixel/colormap/${encodeURIComponent(modality)}`),
+  analyzePixelSharpness: (data: any) => api.post<any>(`${EYE_API}/pixel/sharpness`, data),
+  reconstructPixelMpr: (data: any) => api.post<any>(`${EYE_API}/pixel/mpr`, data),
+  detectPixelArtifact: (data: any) => api.post<any>(`${EYE_API}/pixel/detect-artifact`, data),
+
+  // ===== [G005 Wave1B] PACS 测量 (RealDicomViewerPage, MSW eyeHandlers 对齐) =====
+  savePacsMeasurement: (data: any) => api.post<any>(`${EYE_API}/pacs/measurement`, data),
+  deletePacsMeasurement: (id: string) =>
+    api.delete<any>(`${EYE_API}/pacs/measurement/${encodeURIComponent(id)}`),
+  exportPacsMeasurementSr: (data: any) =>
+    api.post<any>(`${EYE_API}/pacs/measurement/export-sr`, data),
+
+  // ===== Optometry 视光中心闭环 (后端 /eye/optometry/*, MSW 仅 dev 兜底) =====
+  // [G005 Wave1A 17] OptometryClosedLoopPage / TeleConsultPage 裸 fetch → eyeApi 封装
+  getOptometryStats: () => api.get(`${EYE_API}/optometry/stats`),
+  optometryScreening: (data: any) =>
+    api.post(`${EYE_API}/optometry/screening`, data),
+  getRefractionCurve: (patientId: string) =>
+    api.get(`${EYE_API}/optometry/refraction-curve/${encodeURIComponent(patientId)}`),
+  okTrial: (data: any) => api.post(`${EYE_API}/optometry/ok-trial`, data),
+  orthoKOrder: (data: any) =>
+    api.post(`${EYE_API}/optometry/ortho-k-order`, data),
+  defocusOrder: (data: any) =>
+    api.post(`${EYE_API}/optometry/defocus-order`, data),
+  // 屈光检查记录 (与 vision-records 兼容)
+  listRefractionRecords: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/optometry/refraction${buildQuery(params)}`),
+  createRefractionRecord: (data: any) =>
+    api.post(`${EYE_API}/optometry/refraction`, data),
+  // OK 镜档案
+  listOkLens: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/optometry/ok-lens${buildQuery(params)}`),
+  createOkLens: (data: any) => api.post(`${EYE_API}/optometry/ok-lens`, data),
+  // 视力记录序列
+  getOptometryVisionRecord: (patientId: string) =>
+    api.get(`${EYE_API}/optometry/vision-record/${encodeURIComponent(patientId)}`),
   // 低视力助视器处方 POST (原有, 保留兼容); GET 见 Subspecialty 区块
   lowVisionPrescription: (data: any) =>
     api.post(`${EYE_API}/low-vision/prescription`, data),

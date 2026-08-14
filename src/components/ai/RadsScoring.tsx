@@ -138,7 +138,7 @@ const TrendChart: React.FC<{ data: RadsHistoryEntry[] }> = ({ data }) => {
       ctx.fillStyle = '#999'
       ctx.textAlign = 'center'
       ctx.font = '12px sans-serif'
-      ctx.fillText('Insufficient data for trend', w / 2, h / 2)
+      ctx.fillText('数据不足,无法绘制趋势', w / 2, h / 2)
       return
     }
 

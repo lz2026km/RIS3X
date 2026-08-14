@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Button, Empty, Skeleton, Tag, Dropdown, Popconfirm } from 'antd'
-import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp, PenLine, AlertTriangle, Radar } from 'lucide-react'
+import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp, PenLine, AlertTriangle, Radar, Save } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
@@ -90,6 +90,8 @@ export interface ReportTableViewProps {
   onWrite?: (report: RadiologyReport) => void
   // [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360
   onOpen360?: (report: RadiologyReport) => void
+  // [v3.0.6.11-99 Wave7B] 离线报告包: 行操作「离线保存」(保存 HTML 快照到 IndexedDB)
+  onOfflineSave?: (report: RadiologyReport) => void
   deletingIds?: Set<string>
   loading?: boolean
 }
@@ -121,6 +123,7 @@ export default function ReportTableView({
   onEscalate,
   onWrite,
   onOpen360,
+  onOfflineSave,
   deletingIds,
   loading = false,
 }: ReportTableViewProps) {
@@ -207,6 +210,10 @@ export default function ReportTableView({
             <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title="查看" />
             <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title="打印" />
             <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title="导出PDF" />
+            {/* [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照到 IndexedDB */}
+            {onOfflineSave && (
+              <Button size="small" icon={<Save size={12} />} onClick={(event) => { event.stopPropagation(); onOfflineSave(report) }} title="离线保存（断网可浏览）" />
+            )}
             {isPending && <Button size="small" type="primary" icon={<ShieldCheck size={12} />} onClick={(event) => { event.stopPropagation(); onReview(report) }}>审核</Button>}
             {menuItems.length > 0 && (
               <Dropdown
@@ -260,7 +267,7 @@ export default function ReportTableView({
         )
       },
     },
-  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360]);
+  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave]);
 
   return (
     <ProTable<RadiologyReport>

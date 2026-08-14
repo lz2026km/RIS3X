@@ -1,7 +1,7 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - Notifications Controller
  */
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, ServiceUnavailableException } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, ServiceUnavailableException } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -46,6 +46,20 @@ const PushSendSchema = z.object({
   url: z.string().optional(),
   tag: z.string().optional(),
   requireInteraction: z.boolean().optional(),
+})
+
+// [v3.0.6.11-99 Wave 5B-C] 报表生成完成推送 (定时报表执行器/报表模块内部调用)
+const ReportGeneratedSchema = z.object({
+  reportId: z.string().min(1),
+  reportName: z.string().min(1),
+  recipients: z.array(z.string().min(1)).min(1),
+  summary: z.string().optional(),
+  link: z.string().optional(),
+})
+
+// [v3.0.6.11-99 Wave7B] 站内信/推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告
+const UpdateSubscriptionSchema = z.object({
+  types: z.array(z.enum(['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM'])),
 })
 
 @ApiTags('notifications')
@@ -126,5 +140,29 @@ export class NotificationsController {
   @Roles('ADMIN')
   pushSend(@Body(new ZodValidationPipe(PushSendSchema)) body: { userId: string; title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) {
     return this.service.sendPush(body.userId, body)
+  }
+
+  // [v3.0.6.11-99 Wave 5B-C] 报表生成完成推送 (内部端点; Wave 5A 调度落地后由执行器联动)
+  @Post('report-generated')
+  @HttpCode(HttpStatus.CREATED)
+  reportGenerated(@Body(new ZodValidationPipe(ReportGeneratedSchema)) body: z.infer<typeof ReportGeneratedSchema>) {
+    return this.service.reportGenerated(body)
+  }
+
+  // [v3.0.6.11-99 Wave7B] 站内信/推送订阅管理:
+  //   GET /notifications/subscriptions/:userId  (查订阅类型)
+  //   PUT /notifications/subscriptions/:userId  (更新订阅类型, body { types: [...] })
+  @Get('subscriptions/:userId')
+  subscriptions(@Param('userId') userId: string) {
+    return this.service.getSubscriptionConfig(userId)
+  }
+
+  @Put('subscriptions/:userId')
+  @HttpCode(HttpStatus.OK)
+  updateSubscriptions(
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(UpdateSubscriptionSchema)) body: { types: Array<'CRITICAL' | 'REPORT' | 'FOLLOWUP' | 'QUALITY' | 'SYSTEM'> },
+  ) {
+    return this.service.updateSubscriptionConfig(userId, body.types)
   }
 }

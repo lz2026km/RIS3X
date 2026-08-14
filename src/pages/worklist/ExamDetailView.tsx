@@ -23,6 +23,7 @@ import {
   Pause,
   RefreshCw,
   CheckCircle,
+  CalendarPlus,
 } from "lucide-react";
 import {
   initialModalityDevices,
@@ -1237,6 +1238,30 @@ export function ExamDetailView({
         >
           <Printer size={12} />
           打印条码
+        </button>
+        {/* [v3.0.6.11-99 Wave3B] 检查联动: 检查详情 → 创建随访计划 (跳转 /follow-up?examId=..) */}
+        <button
+          onClick={() => {
+            const q = new URLSearchParams({ examId: exam.id, patientId: exam.patientId });
+            window.location.href = `/follow-up?${q.toString()}`;
+          }}
+          style={{
+            padding: "10px 16px",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#059669",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          <CalendarPlus size={12} />
+          创建随访计划
         </button>
       </div>
     </div>

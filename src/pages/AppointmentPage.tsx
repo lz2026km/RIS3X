@@ -32,6 +32,7 @@ import {
 import { appointmentApi, type AppointmentDto } from "../services/api";
 import { notificationsApi } from "../services/api/notificationsApi";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
+import { getCurrentUser } from "../utils/auth";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
   replayOrderEvent,
@@ -123,6 +124,64 @@ interface CancellationRecord {
   cancelTime: string;
   reason: string;
   rebooked: "是" | "否" | "待确认";
+}
+
+// ==================== 批量导入工具 ====================
+// [v3.0.6.11-99 Wave8A P1] CSV/JSON 真实解析 → appointmentApi.create 逐条导入 (xlsx 二进制暂不支持, 提示导出 CSV/JSON)
+function parseCsv(text: string): Record<string, unknown>[] {
+  const lines = text
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length < 2) return [];
+  const headers = lines[0]!.split(/[,，\t]/).map((h) => h.trim());
+  const rows: Record<string, unknown>[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = lines[i]!.split(/[,，\t]/).map((c) => c.trim());
+    const row: Record<string, unknown> = {};
+    headers.forEach((h, idx) => { row[h] = cells[idx] ?? ""; });
+    if (Object.values(row).some((v) => String(v) !== "")) rows.push(row);
+  }
+  return rows;
+}
+
+// 导入行 → AppointmentDto 载荷 (字段宽松匹配: 中文/英文表头)
+function rowToAppointment(row: Record<string, unknown>): Omit<AppointmentDto, "id" | "state" | "createdAt" | "updatedAt"> | null {
+  const get = (...keys: string[]) => {
+    for (const k of keys) {
+      const v = row[k] ?? row[k.toLowerCase()] ?? row[k.toUpperCase()];
+      if (v !== undefined && String(v).trim() !== "") return String(v).trim();
+    }
+    return "";
+  };
+  const patientName = get("姓名", "患者姓名", "name", "patientName");
+  const deviceName = get("设备", "deviceName", "device");
+  const dateStr = get("日期", "date", "examDate");
+  const timeStr = get("时段", "时间", "time", "examTime");
+  if (!patientName || !deviceName || !dateStr || !timeStr) return null;
+  const startAt = `${dateStr} ${timeStr.includes(":") ? timeStr : timeStr.slice(0, 2) + ":00"}`;
+  const start = new Date(startAt.replace(" ", "T"));
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
+  if (Number.isNaN(start.getTime())) return null;
+  const device =
+    initialModalityDevices.find((d) => String(d.name).includes(deviceName)) ??
+    initialModalityDevices.find((d) => deviceName.includes(String(d.modality)));
+  return {
+    patientName,
+    patientId: get("患者ID", "patientId", "idCard") || `P${Date.now().toString().slice(-6)}`,
+    modality: (device?.modality ?? get("检查项目", "检查类型", "modality", "examItemName")) || "CT",
+    bodyPart: get("部位", "bodyPart", "检查项目", "examItemName") || "",
+    startAt: start.toISOString(),
+    endAt: end.toISOString(),
+    deviceId: device?.id ?? `DEV-IMP-${Date.now().toString().slice(-4)}`,
+    deviceName,
+    room: device?.location ?? undefined,
+    priority: "ROUTINE",
+    note: get("备注", "note") || undefined,
+    referringDoctor: get("申请医生", "referringDoctor") || undefined,
+    createdById: getCurrentUser()?.id ?? "unknown",
+  };
 }
 
 // ==================== 工具函数 ====================
@@ -384,6 +443,11 @@ export default function AppointmentPage() {
         }
         if (rulesRes.success && Array.isArray(rulesRes.data)) {
           setRules(rulesRes.data as unknown as AppointmentRules[]);
+          // [v3.0.6.11-99 Wave8A P1] 本地持久化规则优先 (后端无规则保存端点, 标注: 待后端规则 CRUD)
+          try {
+            const saved = JSON.parse(localStorage.getItem("g005_appointment_rules") || "null");
+            if (Array.isArray(saved) && saved.length > 0) setRules(saved as AppointmentRules[]);
+          } catch { /* ignore */ }
         }
       } catch {
         if (!cancelled) setLoadError("加载预约数据失败");
@@ -1710,7 +1774,14 @@ const borderGray = "var(--border-color)";
                     );
                   })}
                   <button
-                    onClick={() => setShowRules(false)}
+                    onClick={() => {
+                      // [v3.0.6.11-99 Wave8A P1] 规则受控表单已就绪: localStorage 持久化 + toast (后端无规则保存端点, 标注)
+                      try {
+                        localStorage.setItem("g005_appointment_rules", JSON.stringify(rules));
+                      } catch { /* ignore */ }
+                      message.success("预约规则已保存（本地持久化，后端暂无规则保存端点）");
+                      setShowRules(false);
+                    }}
                     style={{
                       padding: "8px",
                       background: primaryBlue,
@@ -1816,8 +1887,7 @@ const borderGray = "var(--border-color)";
                       点击上传Excel文件
                     </div>
                     <div style={{ fontSize: 12, color: textGray }}>
-                      支持 .xlsx, .xls
-                      格式，每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话
+                      支持 .csv / .json 格式（.xlsx 请先另存为 CSV），每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话
                     </div>
                     <button
                       style={{
@@ -1834,38 +1904,64 @@ const borderGray = "var(--border-color)";
                       onClick={() => {
                         const input = document.createElement("input");
                         input.type = "file";
-                        input.accept = ".xlsx,.xls";
+                        input.accept = ".csv,.json,.xlsx,.xls";
+                        // [v3.0.6.11-99 Wave8A P1] 真实导入: CSV/JSON 解析 → appointmentApi.create 逐条 (xlsx 二进制不支持, 提示)
                         input.onchange = async (e) => {
                           const file = (e.target as HTMLInputElement)
                             .files?.[0];
                           if (!file) return;
-                          const btn =
-                            document.activeElement as HTMLButtonElement;
-                          const orig = btn.innerHTML;
-                          btn.innerHTML = "⏳ 上传中...";
-                          btn.disabled = true;
-                          await new Promise((r) => setTimeout(r, 1500));
-                          const uploads = (() => {
+                          if (/\.(xlsx|xls)$/i.test(file.name)) {
+                            message.warning("暂不支持 .xlsx 二进制解析，请将 Excel 导出为 CSV 或 JSON 格式后再导入（表头: 姓名/设备/日期/时段 等）");
+                            return;
+                          }
+                          let rows: Record<string, unknown>[] = [];
+                          try {
+                            const text = await file.text();
+                            if (file.name.toLowerCase().endsWith(".json")) {
+                              const parsed = JSON.parse(text);
+                              rows = Array.isArray(parsed)
+                                ? parsed
+                                : Array.isArray((parsed as any)?.rows)
+                                  ? (parsed as any).rows
+                                  : [];
+                            } else {
+                              rows = parseCsv(text);
+                            }
+                          } catch {
+                            message.error("文件解析失败，请检查 CSV/JSON 格式");
+                            return;
+                          }
+                          if (rows.length === 0) {
+                            message.warning("文件中没有可导入的数据行");
+                            return;
+                          }
+                          let ok = 0;
+                          let fail = 0;
+                          const errors: string[] = [];
+                          for (const row of rows) {
+                            const payload = rowToAppointment(row);
+                            if (!payload) { fail++; errors.push("缺少必填字段(姓名/设备/日期/时段)"); continue; }
                             try {
-                              return JSON.parse(
-                                localStorage.getItem("g005_appointment_uploads") ||
-                                  "[]",
-                              )
-                            } catch { return [] }
-                          })();
-                          uploads.push({
-                            name: file.name,
-                            timestamp: new Date().toISOString(),
-                          });
-                          localStorage.setItem(
-                            "g005_appointment_uploads",
-                            JSON.stringify(uploads),
-                          );
-                          btn.innerHTML = "✅ 已上传";
-                          setTimeout(() => {
-                            btn.innerHTML = orig;
-                            btn.disabled = false;
-                          }, 2000);
+                              const res = await appointmentApi.create(payload);
+                              if (res.success) ok++;
+                              else { fail++; errors.push(res.error?.message ?? "创建失败"); }
+                            } catch {
+                              fail++;
+                              errors.push("接口异常");
+                            }
+                          }
+                          message.success(`导入完成: 成功 ${ok} 条, 失败 ${fail} 条`);
+                          if (fail > 0) {
+                            message.warning(errors.slice(0, 3).join("；") + (errors.length > 3 ? ` 等 ${errors.length} 条错误` : ""));
+                          }
+                          if (ok > 0) {
+                            try {
+                              const reloadRes = await appointmentApi.list();
+                              const items = (reloadRes.data as { items?: unknown[] } | null)?.items ?? reloadRes.data;
+                              if (reloadRes.success && Array.isArray(items)) setAppointments(items as unknown as Appointment[]);
+                            } catch { /* 列表刷新失败不阻断 */ }
+                            setShowBatchImport(false);
+                          }
                         };
                         input.click();
                       }}

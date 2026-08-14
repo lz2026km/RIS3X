@@ -59,4 +59,56 @@ describe('TemplatesService favorites', () => {
       expect(res.templates).toEqual([])
     })
   })
+
+  // [v3.0.6.11-99 Wave2B P1] 模板结构化内容 (模板设计器段落块)
+  describe('template structure', () => {
+    it('normalizeStructure filters invalid blocks and defaults type to text', () => {
+      const service = new TemplatesService(makePrisma({}))
+      const normalized = service.normalizeStructure([
+        { type: 'text', content: '检查所见:' },
+        { type: 'variable', content: '{{patientName}}', variable: 'patientName' },
+        { type: 'field', content: '{{field:RECIST}}', fieldKey: 'RECIST' },
+        { type: 'bogus', content: 'x' },
+        { type: 'text', content: '' },
+        null,
+      ])
+      expect(normalized).toHaveLength(4)
+      expect(normalized?.[0]?.type).toBe('text')
+      expect(normalized?.[1]?.type).toBe('variable')
+      expect(normalized?.[2]?.fieldKey).toBe('RECIST')
+      expect(normalized?.[3]?.type).toBe('text')
+      expect(service.normalizeStructure(null)).toBeNull()
+      expect(service.normalizeStructure([])).toBeNull()
+    })
+
+    it('getStructure returns stored blocks and body', async () => {
+      const structure = [{ type: 'text', content: '双肺纹理清晰' }]
+      const findUnique = jest.fn().mockResolvedValue({ id: 'tpl-x', body: '双肺纹理清晰', structure })
+      const service = new TemplatesService(makePrisma({ reportTemplate: { findUnique } }))
+      const res = await service.getStructure('tpl-x')
+      expect(res.structure).toHaveLength(1)
+      expect(res.body).toBe('双肺纹理清晰')
+    })
+
+    it('saveStructure persists normalized blocks and updates body + version', async () => {
+      const update = jest.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'tpl-x', ...data, body: data.body ?? 'old' }))
+      const findUnique = jest.fn().mockResolvedValue({ id: 'tpl-x', body: 'old', structure: null })
+      const service = new TemplatesService(makePrisma({ reportTemplate: { findUnique, update } }))
+      const res = await service.saveStructure('tpl-x', [
+        { type: 'variable', content: '{{patientName}}', variable: 'patientName' },
+        { type: 'text', content: '未见异常' },
+      ], '{{patientName}}未见异常')
+      expect(res.structure).toHaveLength(2)
+      expect(res.body).toBe('{{patientName}}未见异常')
+      const callData = (update as jest.Mock).mock.calls[0][0].data
+      expect(callData.version.increment).toBe(1)
+      expect(callData.structure).toHaveLength(2)
+    })
+
+    it('saveStructure throws NotFound for missing template', async () => {
+      const findUnique = jest.fn().mockResolvedValue(null)
+      const service = new TemplatesService(makePrisma({ reportTemplate: { findUnique } }))
+      await expect(service.saveStructure('missing', [])).rejects.toThrow('not found')
+    })
+  })
 })

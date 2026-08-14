@@ -1,9 +1,11 @@
 // [v3.0.6.8-36] PR 3: Toric 散光晶体规划 + 真实 Barrett II/Kane/Hill-RBF
 // 对标: ZEISS IOLMaster 700 + Alcon/J&J Toric Calculator
+// [G005 Wave1B] 5 处裸 fetch → eyeApi (后端 /eye/iol/* 真实实现, MSW 仅 dev 兜底)
 import { Card, Space, Tag, Button, Select, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
 import { Calculator, Compass, TrendingUp } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useCallback, useEffect } from 'react';
+import { eyeApi } from '../../../services/api/eyeApi';
 
 interface IOLResult {
   formula: string;
@@ -79,11 +81,10 @@ export const ToricPlannerPage: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`/api/v1/eye/iol/constant/${iolModel}`);
-        const data = await r.json();
+        const res = await eyeApi.getIolConstant(iolModel);
         if (cancelled) return;
-        if (data.success && data.data && data.data[formula]) {
-          const c = data.data[formula];
+        if (res.success && res.data && res.data[formula]) {
+          const c = res.data[formula];
           setAConstant(c.aConst ?? null);
         } else {
           setAConstant(null);
@@ -99,15 +100,10 @@ export const ToricPlannerPage: React.FC = () => {
   const handleCalculateIOL = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch(`/api/v1/eye/iol/calculate/${formula}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ AL, K1, K2, ACD, LT, CCT, eye, iolModel }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        setResults(prev => [data.data, ...prev].slice(0, 10));
-        message.success(`${data.data.formula}: ${data.data.power} D`);
+      const res = await eyeApi.calculateIolFormula(formula, { AL, K1, K2, ACD, LT, CCT, eye, iolModel });
+      if (res.success && res.data) {
+        setResults(prev => [res.data, ...prev].slice(0, 10));
+        message.success(`${res.data.formula}: ${res.data.power} D`);
       }
     } catch (e: any) {
       message.error(`计算失败: ${e.message}`);
@@ -120,18 +116,12 @@ export const ToricPlannerPage: React.FC = () => {
   const handleToricPlan = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch('/api/v1/eye/iol/toric/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eye, preOpK1, preOpK2, preOpAxis, inducedAstigmatism: SIA, iolModel: toricModel, iolCylinderPower: toricCylinder }),
-      });
-      const data = await r.json();
-      if (data.success) setToricPlan(data.data);
+      const res = await eyeApi.planToricIol({ eye, preOpK1, preOpK2, preOpAxis, inducedAstigmatism: SIA, iolModel: toricModel, iolCylinderPower: toricCylinder });
+      if (res.success && res.data) setToricPlan(res.data);
 
       // 同时获取候选晶体
-      const cR = await fetch(`/api/v1/eye/iol/toric/candidate?cornealAst=${Math.abs(preOpK1 - preOpK2)}&sia=${SIA}`);
-      const cData = await cR.json();
-      if (cData.success) setCandidates(cData.data);
+      const cRes = await eyeApi.getToricCandidates({ cornealAst: Math.abs(preOpK1 - preOpK2), sia: SIA });
+      if (cRes.success && cRes.data) setCandidates(cRes.data);
     } catch (e: any) {
       message.error(`Toric 规划失败: ${e.message}`);
     } finally {
@@ -143,13 +133,8 @@ export const ToricPlannerPage: React.FC = () => {
   const handlePostopPredict = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch('/api/v1/eye/iol/predict/postop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetPower, K1, K2, AL, ACD }),
-      });
-      const data = await r.json();
-      if (data.success) setPostopPrediction(data.data);
+      const res = await eyeApi.predictPostopIol({ targetPower, K1, K2, AL, ACD });
+      if (res.success && res.data) setPostopPrediction(res.data);
     } catch (e: any) {
       message.error(`预测失败: ${e.message}`);
     } finally {
@@ -165,8 +150,8 @@ export const ToricPlannerPage: React.FC = () => {
         <Tag color="cyan">PR3</Tag>
         <Tag color="purple">v3.0.6.8-36</Tag>
         <Tag color="blue">Barrett II / Kane / Hill-RBF 真实</Tag>
-        {/* [v3.0.6.11-88 Round10] /eye/iol/toric|predict 后端未实现, MSW 演示数据 */}
-        <Tag color="orange">演示数据 (MSW)</Tag>
+        {/* [G005 Wave1B] /eye/iol/toric|predict|constant|calculate 后端真实实现, eyeApi 封装 */}
+        <Tag color="green">真实后端 /eye/iol/*</Tag>
       </Space>
 
       <Tabs

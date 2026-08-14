@@ -4,10 +4,10 @@
 // 左：字段库 / 中：画布 / 右：属性面板 / 顶：元数据
 // ============================================================
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
-import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity } from 'lucide-react';
+import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity, ArrowUp, ArrowDown, Braces, Layers } from 'lucide-react';
 import type { LucideIcon } from "lucide-react";
 import {
   STRUCTURED_FIELD_TEMPLATES,
@@ -15,6 +15,13 @@ import {
 } from "../data/structuredFieldTemplates";
 import { v3WritingApi } from "../services/api/v3Api";
 import { api } from "../services/api/client";
+// [v3.0.6.11-99 Wave2B P1] 可视化设计器: 变量面板 (templateVariables) + 结构化内容保存 (templatesApi)
+import { TEMPLATE_VARIABLES } from "../utils/templateVariables";
+import {
+  templatesApi,
+  type TemplateBlock,
+  type TemplateStructure,
+} from "../services/api/templatesApi";
 
 // ============================================================
 // 字段类型配置
@@ -194,6 +201,43 @@ const PRESET_CATEGORIES = [
   "Mannheim",
 ];
 
+// [v3.0.6.11-99 Wave2B (模板设计器 P1)] 可视化模式 — 结构化字段面板 (RECIST/RADS 等)
+const STRUCTURED_FIELD_PRESETS: Array<{
+  fieldKey: string;
+  label: string;
+  desc: string;
+  color: string;
+}> = [
+  { fieldKey: "RECIST", label: "RECIST 1.1 靶病灶", desc: "最长径测量 (mm)", color: "#dc2626" },
+  { fieldKey: "lungRads", label: "Lung-RADS", desc: "肺结节分类 1-4X", color: "#0891b2" },
+  { fieldKey: "biRads", label: "BI-RADS", desc: "乳腺分类 0-6", color: "#7c3aed" },
+  { fieldKey: "piRads", label: "PI-RADS", desc: "前列腺 1-5", color: "#f59e0b" },
+  { fieldKey: "liRads", label: "LI-RADS", desc: "肝脏 1-5/M", color: "#10b981" },
+  { fieldKey: "tiRads", label: "TI-RADS", desc: "甲状腺 1-5", color: "#f97316" },
+  { fieldKey: "cadRads", label: "CAD-RADS", desc: "冠脉 0-5", color: "#dc2626" },
+  { fieldKey: "lesionSize", label: "病灶大小", desc: "多病灶测量汇总", color: "#6366f1" },
+  { fieldKey: "lymphNodes", label: "淋巴结", desc: "区域淋巴结描述", color: "#0ea5e9" },
+  { fieldKey: "effusion", label: "胸腔积液", desc: "少量/中量/大量", color: "#0ea5e9" },
+];
+
+// 可视化模式段落预设 (所见/印象/结论 等)
+const VISUAL_SECTION_PRESETS = [
+  { name: "检查所见", color: "#1e40af" },
+  { name: "诊断意见", color: "#7c3aed" },
+  { name: "建议", color: "#0891b2" },
+  { name: "结论", color: "#f59e0b" },
+  { name: "对比", color: "#475569" },
+];
+
+const defaultVisualBlocks = (): TemplateStructure => [
+  { type: "text", content: "检查所见:" },
+  { type: "text", content: "" },
+  { type: "text", content: "诊断意见:" },
+  { type: "text", content: "" },
+  { type: "text", content: "建议:" },
+  { type: "text", content: "" },
+];
+
 // ---------- IHE RR / DICOM SR 模板 ----------
 interface IheRRMapping {
   fieldId: string;
@@ -299,6 +343,106 @@ export default function TemplateDesignerPage() {
   const [, setDraggedType] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // ---------- [v3.0.6.11-99 Wave2B P1] 可视化模式: 段落块画布 ----------
+  const [designerMode, setDesignerMode] = useState<"fields" | "visual">("fields");
+  const [visualApiId, setVisualApiId] = useState<string | null>(null);
+  const [visualLoading, setVisualLoading] = useState(false);
+  const [visualBlocks, setVisualBlocks] = useState<TemplateStructure>(() => defaultVisualBlocks());
+  const [selectedVisualIdx, setSelectedVisualIdx] = useState<number | null>(null);
+
+  // 进入可视化模式且带模板 id 时读取已保存的 structure, 失败(无/不存在)回退默认段落
+  useEffect(() => {
+    if (designerMode !== "visual" || !id) return;
+    let cancelled = false;
+    setVisualLoading(true);
+    templatesApi
+      .getStructure(id)
+      .then((res) => {
+        if (cancelled || !res.success) return;
+        if (Array.isArray(res.data?.structure) && res.data.structure.length > 0) {
+          setVisualBlocks(res.data.structure);
+          setVisualApiId(id);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setVisualLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [designerMode, id]);
+
+  const insertVisualBlock = (block: TemplateBlock, idx?: number | null) => {
+    const at = idx != null && idx >= 0 ? idx + 1 : visualBlocks.length;
+    setVisualBlocks((prev) => [...prev.slice(0, at), block, ...prev.slice(at)]);
+    setSelectedVisualIdx(at);
+  };
+
+  const moveVisualBlock = (idx: number, dir: -1 | 1) => {
+    setVisualBlocks((prev) => {
+      const next = [...prev];
+      const target = idx + dir;
+      if (target < 0 || target >= next.length) return prev;
+      const tmp: TemplateBlock = next[idx] ?? { type: "text", content: "" };
+      next[idx] = next[target] ?? tmp;
+      next[target] = tmp;
+      return next;
+    });
+    setSelectedVisualIdx(idx + dir);
+  };
+
+  const removeVisualBlock = (idx: number) => {
+    setVisualBlocks((prev) => prev.filter((_, i) => i !== idx));
+    setSelectedVisualIdx(null);
+  };
+
+  const changeVisualBlockContent = (idx: number, content: string) => {
+    setVisualBlocks((prev) =>
+      prev.map((b, i) => (i === idx ? { ...b, content } : b)),
+    );
+  };
+
+  const visualContent = visualBlocks
+    .map((b) => b.content)
+    .filter((c) => c && c.trim() !== "")
+    .join("\n");
+
+  // 保存可视化模板: 有 id → PATCH structure; 无 id → 先 create 再写入 structure
+  const saveVisualTemplate = async () => {
+    const content = visualContent;
+    const targetId = visualApiId ?? id ?? null;
+    try {
+      if (targetId) {
+        const res = await templatesApi.saveStructure(targetId, visualBlocks, content);
+        if (res.success) {
+          setVisualApiId(targetId);
+          message.success(`可视化模板已保存 (${targetId})`);
+        } else {
+          message.error(res.error?.message || "保存失败");
+        }
+      } else {
+        const res = await templatesApi.create({
+          name: meta.name || "可视化报告模板",
+          category: meta.modality || "CT",
+          modality: meta.modality,
+          bodyPart: meta.bodyPart || "通用",
+          body: content || "待编辑",
+          structure: visualBlocks,
+          createdById: "u-current",
+        });
+        if (res.success && res.data?.id) {
+          setVisualApiId(res.data.id);
+          message.success(`已创建模板 ${res.data.id}, 段落结构已保存`);
+        } else {
+          message.error(res.error?.message || "创建失败");
+        }
+      }
+    } catch (e: any) {
+      message.error("可视化保存失败: " + (e?.message || String(e)));
+    }
+  };
 
   // ---------- IHE RR / 条件规则状态 ----------
   const [srMappings, setSrMappings] = useState<IheRRMapping[]>([]);
@@ -599,6 +743,24 @@ export default function TemplateDesignerPage() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
+            onClick={() => setDesignerMode(designerMode === "visual" ? "fields" : "visual")}
+            style={{
+              padding: "4px 10px",
+              border: "1px solid #7c3aed",
+              borderRadius: 6,
+              background: designerMode === "visual" ? "#7c3aed" : "var(--bg-card)",
+              color: designerMode === "visual" ? "#fff" : "#7c3aed",
+              fontSize: 12,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <Layers size={12} />{" "}
+            {designerMode === "visual" ? "可视化" : "字段设计"}
+          </button>
+          <button
             onClick={() => setPreviewMode(!previewMode)}
             style={{
               padding: "4px 10px",
@@ -668,6 +830,11 @@ export default function TemplateDesignerPage() {
           </button>
           <button
             onClick={async () => {
+              // [v3.0.6.11-99 Wave2B P1] 可视化模式 → 保存 structure JSON + content 预览文本
+              if (designerMode === "visual") {
+                await saveVisualTemplate();
+                return;
+              }
               const targetId = id ?? meta.code;
               try {
                 const res = await v3WritingApi.updateTemplate(targetId, {
@@ -826,6 +993,19 @@ export default function TemplateDesignerPage() {
       )}
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden", gap: 0 }}>
+        {designerMode === "visual" ? (
+          <VisualDesignerBody
+            blocks={visualBlocks}
+            loading={visualLoading}
+            selectedIdx={selectedVisualIdx}
+            onSelect={setSelectedVisualIdx}
+            onInsertBlock={insertVisualBlock}
+            onMoveBlock={moveVisualBlock}
+            onRemoveBlock={removeVisualBlock}
+            onChangeBlockContent={changeVisualBlockContent}
+          />
+        ) : (
+          <>
         {!isFullscreen && !previewMode && (
           <div
             style={{
@@ -1993,6 +2173,8 @@ e.currentTarget.style.background = "var(--bg-card)";
             </div>
           </div>
         )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -2386,3 +2568,473 @@ const PreviewCanvas: React.FC<{
     ))}
   </div>
 );
+
+// ═══════════════════════════════════════════════════════════════════
+// [v3.0.6.11-99 Wave2B (模板设计器 P1)] 可视化模式主体
+// 左: 变量面板 + 结构化字段面板 / 中: 段落块画布 (上移/下移/删除) / 右: 实时预览 ({{变量}} 高亮)
+// ═══════════════════════════════════════════════════════════════════
+const VARIABLE_PLACEHOLDER_RE = /(\{\{[^}]*\}\})/g;
+
+const VisualDesignerBody: React.FC<{
+  blocks: TemplateStructure;
+  loading: boolean;
+  selectedIdx: number | null;
+  onSelect: (idx: number | null) => void;
+  onInsertBlock: (block: TemplateBlock, idx?: number | null) => void;
+  onMoveBlock: (idx: number, dir: -1 | 1) => void;
+  onRemoveBlock: (idx: number) => void;
+  onChangeBlockContent: (idx: number, content: string) => void;
+}> = ({
+  blocks,
+  loading,
+  selectedIdx,
+  onSelect,
+  onInsertBlock,
+  onMoveBlock,
+  onRemoveBlock,
+  onChangeBlockContent,
+}) => {
+  const content = blocks
+    .map((b) => b.content)
+    .filter((c) => c && c.trim() !== "")
+    .join("\n");
+  const varCount = (content.match(/[{}]\s*[\w\u4e00-\u9fa5]+\s*[{}]/g) || []).filter((m) => m.includes("{{")).length;
+
+  return (
+    <div style={{ display: "flex", width: "100%", overflow: "hidden" }}>
+      {/* 左: 变量面板 + 结构化字段面板 */}
+      <div
+        style={{
+          width: 250,
+          background: "var(--bg-card)",
+          borderRight: "1px solid var(--border-color)",
+          display: "flex",
+          flexDirection: "column",
+          flexShrink: 0,
+          overflowY: "auto",
+        }}
+      >
+        <div
+          style={{
+            padding: "8px 12px",
+            borderBottom: "1px solid var(--border-color)",
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#0891b2",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <Braces size={13} /> 变量面板 (点击插入)
+        </div>
+        <div style={{ padding: 8, borderBottom: "1px solid var(--border-color)" }}>
+          {TEMPLATE_VARIABLES.map((v) => (
+            <button
+              key={v.key}
+              onClick={() =>
+                onInsertBlock(
+                  { type: "variable", content: `{{${v.key}}}`, variable: v.key },
+                  selectedIdx,
+                )
+              }
+              title={v.auto ? "自动填充" : "手动填写"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                width: "100%",
+                padding: "5px 8px",
+                marginBottom: 3,
+                border: "1px solid #0891b260",
+                borderRadius: 4,
+                background: "var(--content-bg)",
+                color: "var(--text-primary)",
+                fontSize: 12,
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <code style={{ color: "#0891b2", fontSize: 12 }}>{"{{" + v.key + "}}"}</code>
+              <span style={{ marginLeft: "auto", color: "var(--text-secondary)" }}>
+                {v.label}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div
+          style={{
+            padding: "8px 12px",
+            borderBottom: "1px solid var(--border-color)",
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#7c3aed",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <Layers size={13} /> 结构化字段 (RECIST / RADS)
+        </div>
+        <div style={{ padding: 8 }}>
+          {STRUCTURED_FIELD_PRESETS.map((f) => (
+            <button
+              key={f.fieldKey}
+              onClick={() =>
+                onInsertBlock(
+                  {
+                    type: "field",
+                    content: `{{field:${f.fieldKey}}}`,
+                    fieldKey: f.fieldKey,
+                  },
+                  selectedIdx,
+                )
+              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                width: "100%",
+                padding: "5px 8px",
+                marginBottom: 3,
+                border: `1px solid ${f.color}40`,
+                borderRadius: 4,
+                background: `${f.color}08`,
+                color: "var(--text-primary)",
+                fontSize: 12,
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 2,
+                  background: f.color,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontWeight: 600 }}>{f.label}</span>
+              <span
+                style={{ marginLeft: "auto", color: "var(--text-secondary)", fontSize: 12 }}
+              >
+                {f.desc}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 中: 段落块画布 */}
+      <div
+        style={{
+          flex: 1,
+          background: "var(--content-bg)",
+          overflowY: "auto",
+          padding: 12,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            段落块画布 ({blocks.length})
+          </span>
+          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+            点击变量/字段 → 插入到选中块之后
+          </span>
+          <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-secondary)" }}>
+            {varCount} 个变量占位符
+          </span>
+        </div>
+        {loading && (
+          <div style={{ padding: 20, fontSize: 12, color: "var(--text-secondary)" }}>
+            正在加载已保存的结构化内容...
+          </div>
+        )}
+        {blocks.map((block, idx) => {
+          const selected = selectedIdx === idx;
+          return (
+            <div
+              key={idx}
+              onClick={() => onSelect(selected ? null : idx)}
+              style={{
+                background: "var(--bg-card)",
+                border: `1px solid ${selected ? "#7c3aed" : "var(--border-color)"}`,
+                borderRadius: 6,
+                marginBottom: 8,
+                padding: 8,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  marginBottom: 6,
+                }}
+              >
+                {block.type === "text" && (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: "0 5px",
+                      borderRadius: 3,
+                      background: "#3b82f610",
+                      color: "#3b82f6",
+                      fontWeight: 600,
+                    }}
+                  >
+                    文本
+                  </span>
+                )}
+                {block.type === "variable" && (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: "0 5px",
+                      borderRadius: 3,
+                      background: "#0891b210",
+                      color: "#0891b2",
+                      fontWeight: 600,
+                    }}
+                  >
+                    变量 {block.variable && `· ${block.variable}`}
+                  </span>
+                )}
+                {block.type === "field" && (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: "0 5px",
+                      borderRadius: 3,
+                      background: "#7c3aed10",
+                      color: "#7c3aed",
+                      fontWeight: 600,
+                    }}
+                  >
+                    字段 {block.fieldKey && `· ${block.fieldKey}`}
+                  </span>
+                )}
+                {block.type === "structured" && (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      padding: "0 5px",
+                      borderRadius: 3,
+                      background: "#f59e0b15",
+                      color: "#d97706",
+                      fontWeight: 600,
+                    }}
+                  >
+                    结构化标记
+                  </span>
+                )}
+                <span style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveBlock(idx, -1);
+                    }}
+                    disabled={idx === 0}
+                    title="上移"
+                    style={blockBtnStyle}
+                  >
+                    <ArrowUp size={11} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveBlock(idx, 1);
+                    }}
+                    disabled={idx === blocks.length - 1}
+                    title="下移"
+                    style={blockBtnStyle}
+                  >
+                    <ArrowDown size={11} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveBlock(idx);
+                    }}
+                    title="删除"
+                    style={{ ...blockBtnStyle, color: "#dc2626" }}
+                  >
+                    <Trash2 size={11} />
+                  </button>
+                </span>
+              </div>
+              {block.type === "text" ? (
+                <textarea
+                  value={block.content}
+                  onChange={(e) => onChangeBlockContent(idx, e.target.value)}
+                  onFocus={() => onSelect(idx)}
+                  rows={block.content.includes("\n") ? 3 : 2}
+                  placeholder="输入段落文本, 支持 {{变量}} 占位符..."
+                  style={{
+                    width: "100%",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 4,
+                    padding: "6px 8px",
+                    fontSize: 12,
+                    lineHeight: 1.6,
+                    resize: "vertical",
+                    outline: "none",
+                    background: "var(--bg-card)",
+                    color: "var(--text-primary)",
+                  }}
+                />
+              ) : (
+                <code
+                  style={{
+                    display: "block",
+                    padding: "6px 8px",
+                    borderRadius: 4,
+                    background: block.type === "field" ? "#7c3aed0d" : "#0891b20d",
+                    color: block.type === "field" ? "#7c3aed" : "#0891b2",
+                    fontSize: 12,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {block.content}
+                </code>
+              )}
+            </div>
+          );
+        })}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <button
+            onClick={() => onInsertBlock({ type: "text", content: "" })}
+            style={{
+              padding: "6px 12px",
+              border: "2px dashed var(--border-color)",
+              borderRadius: 6,
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
+              fontSize: 12,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <Plus size={12} /> 添加段落
+          </button>
+          {VISUAL_SECTION_PRESETS.map((s) => (
+            <button
+              key={s.name}
+              onClick={() =>
+                onInsertBlock({ type: "text", content: `${s.name}:` })
+              }
+              style={{
+                padding: "6px 12px",
+                border: `1px solid ${s.color}40`,
+                borderRadius: 6,
+                background: `${s.color}08`,
+                color: s.color,
+                fontSize: 12,
+                cursor: "pointer",
+              }}
+            >
+              + {s.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 右: 实时预览 */}
+      <div
+        style={{
+          width: 340,
+          background: "var(--bg-card)",
+          borderLeft: "1px solid var(--border-color)",
+          display: "flex",
+          flexDirection: "column",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            padding: "8px 12px",
+            borderBottom: "1px solid var(--border-color)",
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#10b981",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <Eye size={13} /> 实时预览 {"{{变量}} 高亮"}
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
+          {content ? (
+            <div
+              style={{
+                background: "var(--content-bg)",
+                borderRadius: 6,
+                padding: 12,
+                fontSize: 13,
+                lineHeight: 1.9,
+                whiteSpace: "pre-wrap",
+                color: "var(--text-primary)",
+              }}
+            >
+              {content.split(VARIABLE_PLACEHOLDER_RE).map((part, i) =>
+                part.startsWith("{{") ? (
+                  <mark
+                    key={i}
+                    style={{
+                      background: "#10b98122",
+                      color: "#0d9488",
+                      borderRadius: 3,
+                      padding: "0 3px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {part}
+                  </mark>
+                ) : (
+                  <span key={i}>{part}</span>
+                ),
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: "center",
+                color: "var(--text-secondary)",
+                padding: 30,
+                fontSize: 12,
+              }}
+            >
+              <Eye size={28} style={{ color: "#cbd5e1", display: "block", margin: "0 auto 8px" }} />
+              段落内容将在此实时渲染
+              <br />
+              保存时同步写入 content 纯文本与 structure JSON
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const blockBtnStyle: React.CSSProperties = {
+  padding: 2,
+  border: "1px solid var(--border-color)",
+  borderRadius: 3,
+  background: "var(--bg-card)",
+  color: "var(--text-secondary)",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+};

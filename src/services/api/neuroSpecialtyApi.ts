@@ -1,5 +1,6 @@
 // Neuro Specialty API — 神经专科 (脑卒中/脑肿瘤/癫痫/动脉瘤)
-// [v3.0.6.11-81] W2-B: 后端无 /neuro/* controller → MSW 演示数据 (neuroHandlers)
+// [v3.0.6.11-99 Wave1A 17] 后端已实现 /neuro/* controller (Exam 派生 + seed 回退)
+//   mock 模式: BASE /api/v1 + /neuro/* → MSW neuroHandlers 仅 dev 兜底
 import { api } from './client'
 
 export type NeuroStudyType = 'stroke' | 'tumor' | 'epilepsy' | 'aneurysm'
@@ -71,8 +72,8 @@ export const neuroSpecialtyApi = {
   getStrokeWindows: () =>
     api.get<StrokeWindow[]>('/neuro/stroke-windows'),
 
-  analyze: () =>
-    api.post<{ queued: boolean; message: string }>('/neuro/analyze'),
+  analyze: (studyId?: string) =>
+    api.post<{ queued: boolean; message: string; analysis?: unknown }>('/neuro/analyze', { studyId }),
 }
 
 export default neuroSpecialtyApi

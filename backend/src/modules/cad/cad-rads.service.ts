@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 
 export interface RadsScore {
   category: string
   score: string
+  level?: string
   description: string
   confidence: number
   findings: string[]
@@ -15,6 +16,77 @@ export interface RadsHistoryEntry {
   category: string
   confidence: number
 }
+
+// v3.0.6.11-99 G-20: 评分规则种子 (criteria/level 映射, GET /ai/cad/rads/rules 返回)
+export interface RadsRule {
+  level: string
+  category: string
+  description: string
+  criteria: string
+  recommendations: string
+}
+
+export interface RadsRules {
+  type: string
+  name: string
+  levels: RadsRule[]
+}
+
+const lungRules: RadsRule[] = [
+  { level: '1', category: 'Lung-RADS 1', description: '阴性', criteria: '无肺结节', recommendations: '常规随访' },
+  { level: '2', category: 'Lung-RADS 2', description: '良性结节', criteria: '实性结节 ≤ 6mm / 部分实性结节 ≤ 6mm', recommendations: '12个月低剂量CT随访' },
+  { level: '3', category: 'Lung-RADS 3', description: '可能良性', criteria: '实性结节 6-8mm / 部分实性结节 6-8mm', recommendations: '6个月低剂量CT随访' },
+  { level: '4A', category: 'Lung-RADS 4A', description: '可疑恶性', criteria: '实性结节 8-15mm / 部分实性结节 > 8mm', recommendations: '3个月低剂量CT随访 或 PET-CT' },
+  { level: '4B', category: 'Lung-RADS 4B', description: '高度可疑', criteria: '实性结节 > 15mm / 新发结节 > 8mm', recommendations: '立即胸外科会诊 或 PET-CT' },
+  { level: '4X', category: 'Lung-RADS 4X', description: '提示高度可疑', criteria: '分叶状或毛刺状边缘 / 生长速度 > 1.5mm/年', recommendations: '建议活检 或 手术切除' },
+]
+
+const biRules: RadsRule[] = [
+  { level: '0', category: 'BI-RADS 0', description: '评估未完成', criteria: '需要补充影像学检查', recommendations: '建议进一步影像学检查（超声/MRI）' },
+  { level: '1', category: 'BI-RADS 1', description: '阴性', criteria: '乳腺影像正常', recommendations: '常规筛查随访' },
+  { level: '2', category: 'BI-RADS 2', description: '良性发现', criteria: '良性钙化 / 纤维腺瘤 / 单纯囊肿', recommendations: '常规筛查随访' },
+  { level: '3', category: 'BI-RADS 3', description: '可能良性', criteria: '形态规则肿块 / 簇状分布的点状钙化', recommendations: '6个月短期随访' },
+  { level: '4A', category: 'BI-RADS 4A', description: '低度可疑恶性', criteria: '部分边缘模糊肿块', recommendations: '建议穿刺活检' },
+  { level: '4B', category: 'BI-RADS 4B', description: '中度可疑恶性', criteria: '形态不规则肿块 / 细小多形性钙化', recommendations: '建议穿刺活检' },
+  { level: '4C', category: 'BI-RADS 4C', description: '高度可疑恶性', criteria: '边缘毛刺肿块 / 线样分布钙化', recommendations: '建议穿刺活检' },
+  { level: '5', category: 'BI-RADS 5', description: '高度提示恶性', criteria: '典型恶性形态 / 毛刺征 / 结构扭曲', recommendations: '立即活检并多学科会诊' },
+  { level: '6', category: 'BI-RADS 6', description: '已活检证实恶性', criteria: '已通过活检证实恶性', recommendations: '制定治疗方案' },
+]
+
+const piRules: RadsRule[] = [
+  { level: '1', category: 'PI-RADS 1', description: '极低概率', criteria: '无明确病变', recommendations: '常规随访' },
+  { level: '2', category: 'PI-RADS 2', description: '低概率', criteria: 'T2WI 低信号病变 / DWI 无高信号', recommendations: '常规随访' },
+  { level: '3', category: 'PI-RADS 3', description: '中等概率', criteria: 'DWI 轻度高信号 / 边界不清', recommendations: '6-12个月随访MRI' },
+  { level: '4', category: 'PI-RADS 4', description: '高概率', criteria: 'DWI 明显高信号 / ADC 低信号', recommendations: '建议MRI引导活检' },
+  { level: '5', category: 'PI-RADS 5', description: '极高概率', criteria: 'T2WI 低信号实性病变 > 1.5cm / DWI 明显受限 / ADC 显著降低', recommendations: '立即活检' },
+]
+
+const liRules: RadsRule[] = [
+  { level: 'LR-1', category: 'LI-RADS LR-1', description: '肯定良性', criteria: '无增强的单纯囊肿/血管瘤 / 典型良性特征', recommendations: '无需特殊处理，常规随访' },
+  { level: 'LR-2', category: 'LI-RADS LR-2', description: '可能良性', criteria: '小病灶无高危特征', recommendations: '6个月常规随访' },
+  { level: 'LR-3', category: 'LI-RADS LR-3', description: 'HCC 中度概率', criteria: '动脉期非环状强化但无廓清 / ≥10mm 无强化特征', recommendations: '3-6个月增强MR/CT随访' },
+  { level: 'LR-4', category: 'LI-RADS LR-4', description: 'HCC 高度概率', criteria: '≥10mm 动脉期非环状强化+廓清 / 增厚假包膜', recommendations: '多学科会诊，考虑活检' },
+  { level: 'LR-5', category: 'LI-RADS LR-5', description: '肯定 HCC', criteria: '≥10mm 动脉期非环状强化+廓清+包膜 / 阈值增长', recommendations: '多学科会诊，启动HCC治疗路径' },
+  { level: 'LR-M', category: 'LI-RADS LR-M', description: '可能恶性(非HCC)', criteria: '环状动脉强化 / 结节内结节征 / 靶样廓清', recommendations: '建议活检明确病理' },
+  { level: 'LR-TIV', category: 'LI-RADS LR-TIV', description: '肿瘤侵犯静脉', criteria: '门静脉/肝静脉内软组织充盈缺损', recommendations: '考虑血管内肿瘤侵犯，立即多学科会诊' },
+]
+
+const tiRules: RadsRule[] = [
+  { level: 'TR1', category: 'TI-RADS TR1', description: '良性', criteria: '纯囊性/海绵状结节 / 无任何高风险特征', recommendations: '无需FNA，常规随访' },
+  { level: 'TR2', category: 'TI-RADS TR2', description: '不可疑', criteria: '基本良性特征 (≤2 分)', recommendations: '无需FNA，常规随访' },
+  { level: 'TR3', category: 'TI-RADS TR3', description: '轻度可疑', criteria: '低风险组合特征 (3 分)', recommendations: '≥2.5cm 建议FNA；随访' },
+  { level: 'TR4', category: 'TI-RADS TR4', description: '中度可疑', criteria: '中等风险组合特征 (4-6 分)', recommendations: '≥1.5cm 建议FNA；随访' },
+  { level: 'TR5', category: 'TI-RADS TR5', description: '高度可疑', criteria: '实性低回声+毛刺/显著钙化 (≥7 分)', recommendations: '≥1cm 建议FNA' },
+]
+
+// [G-20 v3.0.6.11-99] 完整规则表种子 (GET /rules)
+export const RADS_RULES: RadsRules[] = [
+  { type: 'lung', name: 'Lung-RADS', levels: lungRules },
+  { type: 'breast', name: 'BI-RADS', levels: biRules },
+  { type: 'prostate', name: 'PI-RADS', levels: piRules },
+  { type: 'liver', name: 'LI-RADS', levels: liRules },
+  { type: 'thyroid', name: 'TI-RADS', levels: tiRules },
+]
 
 const lungRadss: Record<string, { category: string; description: string; findings: string[]; recommendations: string }> = {
   '1': { category: 'Lung-RADS 1', description: '阴性', findings: ['无肺结节'], recommendations: '常规随访' },
@@ -90,6 +162,47 @@ const toSize = (v: unknown, fallback: number): number => {
 @Injectable()
 export class CadRadsService {
   private confidence = 0.88
+  // [G-20 v3.0.6.11-99] 评分统计 (GET /ai/cad/rads/stats)
+  private stats = new Map<string, number>()
+
+  // [G-20 v3.0.6.11-99] 统一评分入口: {type, findings} → 确定性规则匹配
+  score(type: string, findings: Record<string, unknown>): RadsScore {
+    this.stats.set(type, (this.stats.get(type) ?? 0) + 1)
+    let result: RadsScore
+    switch (type) {
+      case 'lung':
+        result = this.scoreLung(findings)
+        break
+      case 'breast':
+        result = this.scoreBreast(findings)
+        break
+      case 'prostate':
+        result = this.scoreProstate(findings)
+        break
+      case 'liver':
+        result = this.scoreLiver(findings)
+        break
+      case 'thyroid':
+        result = this.scoreThyroid(findings)
+        break
+      default:
+        throw new BadRequestException(`未知 RADS 类型: ${type}`)
+    }
+    return { ...result, level: result.score }
+  }
+
+  // [G-20 v3.0.6.11-99] 完整评分规则表 (criteria/level 映射)
+  getRules(): RadsRules[] {
+    return RADS_RULES
+  }
+
+  // [G-20 v3.0.6.11-99] 评分统计
+  getStats(): { total: number; byType: Record<string, number> } {
+    return {
+      total: Array.from(this.stats.values()).reduce((sum, n) => sum + n, 0),
+      byType: Object.fromEntries(this.stats),
+    }
+  }
 
   scoreLung(dicomFields: Record<string, unknown>): RadsScore {
     const size = (dicomFields.noduleSizeMm as number) ?? Math.floor(Math.random() * 20) + 2
