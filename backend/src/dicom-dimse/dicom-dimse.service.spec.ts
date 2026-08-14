@@ -1,9 +1,10 @@
-/**
+﻿/**
  * [G005 v3.0.6.11-86 Wave 4B (G-03 / G-05)] DICOM DIMSE TLS 配置 + MPPS spec
  * - TLS 配置: 内存 + seed 回退, GET/PUT 语义
  * - MPPS: 内存记录 + Exam 派生回退
  * [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输队列 spec
  * - 内存 + seed, 入队/重试/暂停/恢复/取消/统计 状态机
+ * [G005 v3.0.6.11-96 Wave 2B (B/D)] MPPS 落库 (Prisma 优先, DB 不可用回退内存) + 传输关联检查 (examId/accessionNumber)
  */
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -14,11 +15,12 @@ const makeConfig = (env: Record<string, string> = {}) =>
     get: jest.fn((key: string, fallback?: unknown) => env[key] ?? fallback),
   }) as never as ConfigService
 
-const makePrisma = (exam?: unknown) =>
+const makePrisma = (exam?: unknown, mppsRecord?: unknown) =>
   ({
     exam: {
       findUnique: jest.fn().mockResolvedValue(exam ?? null),
     },
+    ...(mppsRecord ? { mppsRecord } : {}),
   }) as never
 
 describe('DicomDimseService TLS (G-03)', () => {
@@ -72,7 +74,7 @@ describe('DicomDimseService MPPS (G-05)', () => {
     expect(rec.status).toBe('IN_PROGRESS')
     expect(rec.startedAt).toBeDefined()
     expect(rec.performedSteps).toHaveLength(1)
-    expect(service.listMpps()).toHaveLength(1)
+    expect(await service.listMpps()).toHaveLength(1)
   })
 
   it('N-SET COMPLETED 更新同 study 记录并写 completedAt', async () => {
@@ -80,7 +82,7 @@ describe('DicomDimseService MPPS (G-05)', () => {
     await service.createOrUpdateMpps({ studyUid: 'ST1', status: 'IN_PROGRESS' })
     const done = await service.createOrUpdateMpps({ studyUid: 'ST1', status: 'COMPLETED' })
     expect(done.completedAt).toBeDefined()
-    expect(service.listMpps()).toHaveLength(1)
+    expect(await service.listMpps()).toHaveLength(1)
   })
 
   it('无内存记录时从 Exam 派生回退 (studyUid = exam.id)', async () => {
@@ -100,6 +102,79 @@ describe('DicomDimseService MPPS (G-05)', () => {
     const rec = await service.createOrUpdateMpps({ studyUid: 'UNKNOWN', status: 'DISCONTINUED' })
     expect(rec.source).toBe('mpps')
     expect(rec.status).toBe('DISCONTINUED')
+  })
+
+  // [G005 v3.0.6.11-96 Wave 2B (B)] MPPS 落库: Prisma 优先, DB 不可用回退内存
+  it('N-CREATE 经 Prisma upsert 落库并返回 DB 行映射', async () => {
+    const upsert = jest.fn().mockResolvedValue({
+      studyUid: 'ST-DB',
+      status: 'IN_PROGRESS',
+      patientName: '张明远',
+      patientId: 'P1',
+      modality: 'CT',
+      startedAt: new Date('2026-08-10T01:00:00.000Z'),
+      completedAt: null,
+      steps: [{ code: '1.2.3', description: '开始检查' }],
+      source: 'exam',
+      updatedAt: new Date('2026-08-10T01:00:00.000Z'),
+    })
+    const service = new DicomDimseService(
+      makePrisma({ id: 'ST-DB', patientId: 'P1', modality: 'CT', patient: { name: '张明远' } }, { upsert }),
+      makeConfig({}),
+      undefined,
+    )
+    const rec = await service.createOrUpdateMpps({ studyUid: 'ST-DB', status: 'IN_PROGRESS', performedSteps: [{ code: '1.2.3', description: '开始检查' }] })
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
+      where: { studyUid: 'ST-DB' },
+      create: expect.objectContaining({ studyUid: 'ST-DB', status: 'IN_PROGRESS', steps: expect.any(Array) }),
+    }))
+    expect(rec.studyUid).toBe('ST-DB')
+    expect(rec.source).toBe('exam')
+    expect(rec.patientName).toBe('张明远')
+  })
+
+  it('N-SET COMPLETED 更新 DB 行 (upsert update 分支写 completedAt)', async () => {
+    const upsert = jest.fn().mockResolvedValue({
+      studyUid: 'ST1',
+      status: 'COMPLETED',
+      steps: [],
+      source: 'mpps',
+      updatedAt: new Date(),
+    })
+    const service = new DicomDimseService(makePrisma(null, { upsert }), makeConfig({}), undefined)
+    const rec = await service.createOrUpdateMpps({ studyUid: 'ST1', status: 'COMPLETED' })
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
+      update: expect.objectContaining({ status: 'COMPLETED', completedAt: expect.any(Date) }),
+    }))
+    expect(rec.status).toBe('COMPLETED')
+  })
+
+  it('DB upsert 抛错时回退内存 Map (不阻塞上报)', async () => {
+    const upsert = jest.fn().mockRejectedValue(new Error('relation mpps_records does not exist'))
+    const service = new DicomDimseService(makePrisma(null, { upsert }), makeConfig({}), undefined)
+    const rec = await service.createOrUpdateMpps({ studyUid: 'ST-FB', status: 'IN_PROGRESS' })
+    expect(rec.status).toBe('IN_PROGRESS')
+    expect(await service.listMpps()).toHaveLength(1)
+  })
+
+  it('listMpps 优先读 DB (有行时返回 DB 数据)', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      { studyUid: 'ST-DB', status: 'COMPLETED', steps: [], source: 'mpps', updatedAt: new Date('2026-08-10T02:00:00.000Z') },
+    ])
+    const service = new DicomDimseService(makePrisma(null, { findMany }), makeConfig({}), undefined)
+    const list = await service.listMpps()
+    expect(list).toHaveLength(1)
+    expect(list[0]?.studyUid).toBe('ST-DB')
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: { updatedAt: 'desc' } }))
+  })
+
+  it('listMpps: DB 查询失败回退内存记录', async () => {
+    const findMany = jest.fn().mockRejectedValue(new Error('no db'))
+    const service = new DicomDimseService(makePrisma(null, { findMany }), makeConfig({}), undefined)
+    await service.createOrUpdateMpps({ studyUid: 'MEM-1', status: 'IN_PROGRESS' })
+    const list = await service.listMpps()
+    expect(list).toHaveLength(1)
+    expect(list[0]?.studyUid).toBe('MEM-1')
   })
 })
 
@@ -122,13 +197,39 @@ describe('DicomDimseService 传输队列 (PACS P0-1)', () => {
     expect(list.find((t) => t.studyUid === 'ST2')?.status).toBe('failed')
   })
 
-  it('enqueueTransfer 入队: queued + 递增 id + 目标 AE', () => {
+  it('enqueueTransfer 入队: queued + 递增 id + 目标 AE', async () => {
     const service = new DicomDimseService(makePrisma(null), makeConfig({}), undefined)
-    const record = service.enqueueTransfer({ studyUid: '1.2.3.4', targetAe: 'PACS_ARCHIVE' })
+    const record = await service.enqueueTransfer({ studyUid: '1.2.3.4', targetAe: 'PACS_ARCHIVE' })
     expect(record.status).toBe('queued')
     expect(record.progress).toBe(0)
     expect(record.targetAe).toBe('PACS_ARCHIVE')
     expect(service.listTransfers()).toHaveLength(5)
+  })
+
+  // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 入队关联检查
+  it('enqueueTransfer: 显式 examId/accessionNumber 写入记录 (worklist 联动)', async () => {
+    const service = new DicomDimseService(makePrisma(null), makeConfig({}), undefined)
+    const record = await service.enqueueTransfer({ studyUid: '1.2.3.4', targetAe: 'PACS_ARCHIVE', examId: 'E1', accessionNumber: 'ACC-001' })
+    expect(record.examId).toBe('E1')
+    expect(record.accessionNumber).toBe('ACC-001')
+  })
+
+  it('enqueueTransfer: 未传 examId 时从 studyUid 反查检查并回填', async () => {
+    const service = new DicomDimseService(
+      makePrisma({ id: 'EX1', accessionNumber: 'ACC-EX1' }),
+      makeConfig({}),
+      undefined,
+    )
+    const record = await service.enqueueTransfer({ studyUid: '1.2.840.10008.EX1', targetAe: 'PACS_ARCHIVE' })
+    expect(record.examId).toBe('EX1')
+    expect(record.accessionNumber).toBe('ACC-EX1')
+  })
+
+  it('enqueueTransfer: 反查不到检查时 examId 为空 (不阻断入队)', async () => {
+    const service = new DicomDimseService(makePrisma(null), makeConfig({}), undefined)
+    const record = await service.enqueueTransfer({ studyUid: '1.2.3.4', targetAe: 'PACS_ARCHIVE' })
+    expect(record.examId).toBeUndefined()
+    expect(record.status).toBe('queued')
   })
 
   it('retryTransfer: failed → sending 且进度清零', () => {

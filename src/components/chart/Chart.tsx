@@ -36,7 +36,7 @@ const containerStyle: CSSProperties = {
   position: 'relative',
   borderRadius: 8,
   border: '1px solid var(--border-subtle, #e2e8f0)',
-  background: '#fff',
+  background: 'var(--bg-card)',
   padding: 16,
 }
 
@@ -51,8 +51,8 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string> 
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #e2e8f0',
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-color)',
       borderRadius: 6,
       padding: '8px 12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',

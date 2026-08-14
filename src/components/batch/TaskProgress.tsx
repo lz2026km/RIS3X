@@ -66,9 +66,9 @@ export function TaskProgress({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 8,
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color)",
         padding: "10px 14px",
         minWidth: 240,
       }}
@@ -94,7 +94,7 @@ export function TaskProgress({
         </div>
       </div>
 
-      <div style={{ position: "relative", height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
+      <div style={{ position: "relative", height: 6, background: "var(--bg-primary)", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
         <div
           style={{
             height: "100%",

@@ -11,6 +11,11 @@ describe('WorklistService', () => {
         findUnique: jest.fn(),
         update: jest.fn(),
       },
+      // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: complete 会查/建 PENDING_ASSIGNMENT 报告
+      report: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({ id: 'r1', state: 'PENDING_ASSIGNMENT' }),
+      },
     }
     svc = new WorklistService(mockPrisma)
   })

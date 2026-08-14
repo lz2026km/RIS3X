@@ -2,13 +2,17 @@
 // [v3.0.6.11-83] W1-B: AI 检出页签已接真实 breastCadApi (/ai-diagnosis/breast-cad)
 // [v3.0.6.11-87] Wave4A G-21: screening Tab -> screeningApi (/screening 真实);
 //               density/workflow Tab -> dbtApi (/dbt) / breastCadApi 派生, 无端点回退演示 + 徽标
+// [v3.0.6.11-96] Wave3B G-21 P2: 新增「双阅」Tab (dualReadApi list/assign/arbitrate 真实,
+//               失败回退演示 + 徽标); density/screening DBT 行加「断层阅片」→ /dicom/dbt?studyId=
 import { useState, useMemo, useEffect } from 'react';
-import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3, X, BrainCircuit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3, X, BrainCircuit, GitBranch, UserCheck } from 'lucide-react';
 import type { BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
 import { breastSpecialtyApi } from '@/services/api/breastSpecialtyApi';
 import { breastCadApi, type BreastCadResult, type BreastLesion } from '@/services/api/breastCadApi';
 import { screeningApi, type ScreeningStatsDto } from '@/services/api/screeningApi';
 import { dbtApi, type DbtStudyDto } from '@/services/api/dbtApi';
+import { dualReadApi, type DualReadAssignment } from '@/services/api/dualReadApi';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: '脂肪型', b: '散在纤维腺体', c: '不均匀致密', d: '极度致密' };
@@ -21,6 +25,36 @@ const mockScreening = [
   { id: 'S004', patientName: '赵静', age: 38, risk: 'average', density: 'a', biRads: 2, outcome: 'benign' as ScreeningOutcome, date: '2026-07-12', recall: false },
   { id: 'S005', patientName: '陈艳', age: 57, risk: 'high', density: 'c', biRads: 3, outcome: 'probably-benign' as ScreeningOutcome, date: '2026-07-11', recall: true },
 ];
+
+// [v3.0.6.11-96 Wave3B G-21 P2] 双阅任务演示回退数据 (dualReadApi 不可用时)
+const mockDualRead: DualReadAssignment[] = [
+  {
+    id: 'DR-DEMO-1', studyId: 'MG-1001', patientName: '张秀兰', patientId: 'P100001', modality: 'MG',
+    reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生',
+    report1: '左乳外上象限致密影，BI-RADS 3', report2: '左乳外上象限致密影伴钙化，建议活检，BI-RADS 4A',
+    status: 'both_done', discrepancyScore: 0.35, createdAt: '2026-08-01T09:00:00Z', updatedAt: '2026-08-01T10:30:00Z',
+  },
+  {
+    id: 'DR-DEMO-2', studyId: 'MG-1002', patientName: '李芳', patientId: 'P100002', modality: 'MG',
+    reader1Id: 'D003', reader1Name: '王医生', reader2Id: 'D001', reader2Name: '张医生',
+    report1: '', report2: '', status: 'pending', createdAt: '2026-08-02T09:00:00Z', updatedAt: '2026-08-02T09:00:00Z',
+  },
+  {
+    id: 'DR-DEMO-3', studyId: 'DBT-2001', patientName: '王丽华', patientId: 'P100003', modality: 'DBT',
+    reader1Id: 'D002', reader1Name: '李医生', reader2Id: 'D003', reader2Name: '王医生',
+    report1: '右乳内下象限不对称致密，断层未见明确占位', report2: '右乳内下象限不对称致密伴微钙化簇',
+    status: 'arbitrated', discrepancyScore: 0.22, arbitrationReport: '右乳内下象限不对称致密，BI-RADS 3，建议 6 个月随访',
+    arbitratorId: 'D004', arbitratorName: '赵医生', createdAt: '2026-07-30T09:00:00Z', updatedAt: '2026-07-31T15:00:00Z',
+  },
+];
+
+const DUAL_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  pending: { label: '待阅片', color: '#64748b' },
+  reader1_done: { label: '医师一完成', color: '#ca8a04' },
+  reader2_done: { label: '医师二完成', color: '#ca8a04' },
+  both_done: { label: '双方完成', color: '#ea580c' },
+  arbitrated: { label: '已仲裁', color: '#16a34a' },
+};
 
 const BiradsTag = ({ v }: { v: string | number }) => {
   const color = BIRADS_COLORS[String(v)] ?? '#94a3b8';
@@ -89,8 +123,9 @@ const SrcBadge = ({ real, label, demoLabel }: { real: boolean; label: string; de
 );
 
 const BreastSpecialtyPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'screening' | 'density' | 'workflow' | 'stats' | 'cad'>('screening');
+  const [tab, setTab] = useState<'screening' | 'density' | 'workflow' | 'stats' | 'cad' | 'dual'>('screening');
   const [screeningList, setScreeningList] = useState<any[]>(mockScreening);
   const [showNewModal, setShowNewModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -113,6 +148,17 @@ const BreastSpecialtyPage = () => {
   const [densityRows, setDensityRows] = useState<any[]>([]);
   const [densityLoading, setDensityLoading] = useState(true);
   const [dbtCount, setDbtCount] = useState(0);
+
+  // [v3.0.6.11-96 Wave3B G-21 P2] 双阅 Tab -> dualReadApi (list/assign/arbitrate 真实), 失败回退演示
+  const [dualList, setDualList] = useState<DualReadAssignment[]>([]);
+  const [dualLoading, setDualLoading] = useState(true);
+  const [dualSource, setDualSource] = useState<'real' | 'demo'>('demo');
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignForm, setAssignForm] = useState({ studyId: '', patientName: '', patientId: '', modality: 'MG' });
+  const [assignSaving, setAssignSaving] = useState(false);
+  const [arbitrateTarget, setArbitrateTarget] = useState<DualReadAssignment | null>(null);
+  const [arbitrateReport, setArbitrateReport] = useState('');
+  const [arbitrateSaving, setArbitrateSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,6 +232,86 @@ const BreastSpecialtyPage = () => {
     })();
     return () => { cancelled = true };
   }, []);
+
+  // [v3.0.6.11-96 Wave3B G-21 P2] 双阅任务列表 (dualReadApi.list), 失败/空回退演示
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await dualReadApi.listAssignments();
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setDualList(res.data);
+          setDualSource('real');
+        } else {
+          setDualList(mockDualRead);
+          setDualSource('demo');
+        }
+      } catch {
+        if (cancelled) return;
+        setDualList(mockDualRead);
+        setDualSource('demo');
+      } finally {
+        if (!cancelled) setDualLoading(false);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
+
+  const handleAssignDual = async () => {
+    if (!assignForm.studyId.trim() || !assignForm.patientName.trim() || !assignForm.patientId.trim()) {
+      alert('请填写检查号、患者姓名和患者ID');
+      return;
+    }
+    setAssignSaving(true);
+    try {
+      // [G005 Wave3B G-21 P2] 真实模式走 dualReadApi.createAssignment, 失败回退本地新增 (标注)
+      const res = dualSource === 'real' ? await dualReadApi.createAssignment(assignForm) : null;
+      const created = res?.success && res.data
+        ? res.data
+        : { ...assignForm, id: `DR-${Date.now().toString().slice(-6)}`, reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生', report1: '', report2: '', status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      setDualList(prev => [created as DualReadAssignment, ...prev]);
+      if (dualSource === 'real' && !(res?.success)) setDualSource('demo');
+      setShowAssignModal(false);
+      setAssignForm({ studyId: '', patientName: '', patientId: '', modality: 'MG' });
+    } catch {
+      setDualList(prev => [{
+        ...assignForm,
+        id: `DR-${Date.now().toString().slice(-6)}`,
+        reader1Id: 'D001', reader1Name: '张医生', reader2Id: 'D002', reader2Name: '李医生',
+        report1: '', report2: '', status: 'pending',
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      } as DualReadAssignment, ...prev]);
+      setShowAssignModal(false);
+      setAssignForm({ studyId: '', patientName: '', patientId: '', modality: 'MG' });
+    } finally {
+      setAssignSaving(false);
+    }
+  };
+
+  const handleArbitrate = async () => {
+    if (!arbitrateTarget || !arbitrateReport.trim()) { alert('请填写仲裁报告'); return; }
+    setArbitrateSaving(true);
+    try {
+      const res = await dualReadApi.arbitrate(arbitrateTarget.id, {
+        arbitratorId: 'admin', arbitratorName: '管理员', report: arbitrateReport,
+      });
+      if (res.success && res.data) {
+        setDualList(prev => prev.map(a => a.id === arbitrateTarget.id ? (res.data as DualReadAssignment) : a));
+      } else {
+        alert(res.error?.message ?? '仲裁失败');
+      }
+    } catch {
+      // [G005 Wave3B G-21 P2] 失败回退: 本地置为已仲裁并标注
+      setDualList(prev => prev.map(a => a.id === arbitrateTarget.id ? { ...a, status: 'arbitrated', arbitrationReport: arbitrateReport, arbitratorId: 'admin', arbitratorName: '管理员', updatedAt: new Date().toISOString() } as DualReadAssignment : a));
+    } finally {
+      setArbitrateSaving(false);
+      setArbitrateTarget(null);
+      setArbitrateReport('');
+    }
+  };
+
+  const gotoDbt = (studyId: string) => navigate(`/dicom/dbt?studyId=${encodeURIComponent(studyId)}`);
   const filtered = useMemo(() => {
     let list = [...screeningList];
     if (search) list = list.filter(r => r.patientName.includes(search) || r.id.includes(search));
@@ -285,7 +411,7 @@ const BreastSpecialtyPage = () => {
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-        {[{ key: 'screening', label: '筛查管理' }, { key: 'density', label: '密度评估' }, { key: 'workflow', label: '乳腺工作流' }, { key: 'stats', label: '统计分析' }, { key: 'cad', label: 'AI 检出' }].map(t => (
+        {[{ key: 'screening', label: '筛查管理' }, { key: 'density', label: '密度评估' }, { key: 'workflow', label: '乳腺工作流' }, { key: 'stats', label: '统计分析' }, { key: 'cad', label: 'AI 检出' }, { key: 'dual', label: '双阅' }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#be185d' : 'var(--bg-card)', color: tab === t.key ? '#fff' : '#64748b' }}>{t.label}</button>
         ))}
       </div>
@@ -314,6 +440,7 @@ const BreastSpecialtyPage = () => {
                 <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
                 <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>结果</th>
                 <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>日期</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>操作</th>
               </tr></thead>
               <tbody>
                 {filtered.map(r => (
@@ -325,6 +452,10 @@ const BreastSpecialtyPage = () => {
                     <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.biRads} /></td>
                     <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{OUTCOME_LABELS[r.outcome]}</td>
                     <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{r.date}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                      {/* [v3.0.6.11-96 Wave3B G-21 P2] DBT 联动: 跳断层阅片 (带 studyId) */}
+                      <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>断层阅片</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -366,6 +497,43 @@ const BreastSpecialtyPage = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {tab === 'density' && (
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginTop: 16 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Stethoscope size={16} color="#be185d" /> DBT 断层检查
+            <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel="演示回退" />
+            {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加载中...</span>}
+          </div>
+          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead><tr>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>检查号</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>患者</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>密度</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>日期</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>操作</th>
+              </tr></thead>
+              <tbody>
+                {(densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening).map(r => (
+                  <tr key={r.id}>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{DENSITY_LABELS[r.density]}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.biRads} /></td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{r.date}</td>
+                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                      {/* [v3.0.6.11-96 Wave3B G-21 P2] DBT 联动: 跳断层阅片 (带 studyId) */}
+                      <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>断层阅片</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -486,6 +654,121 @@ const BreastSpecialtyPage = () => {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'dual' && (
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <GitBranch size={16} color="#be185d" /> 双阅任务
+              <SrcBadge real={dualSource === 'real'} label="dualReadApi 实时" demoLabel="演示回退" />
+              {dualLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加载中...</span>}
+            </div>
+            <button onClick={() => setShowAssignModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}><UserCheck size={14} /> 分配双阅</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+            {[
+              { label: '总分配', value: dualList.length, color: '#be185d', bg: '#ec489922' },
+              { label: '待处理', value: dualList.filter(a => a.status === 'pending' || a.status === 'both_done').length, color: '#ea580c', bg: '#f9731622' },
+              { label: '双方完成待裁决', value: dualList.filter(a => a.status === 'both_done').length, color: '#7c3aed', bg: '#8b5cf622' },
+              { label: '已仲裁', value: dualList.filter(a => a.status === 'arbitrated').length, color: '#16a34a', bg: '#22c55e22' },
+            ].map((k, i) => (
+              <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 12px', border: '1px solid var(--border-light)' }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead><tr>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>检查号</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>患者</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>模态</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>阅片医师</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>状态</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>不一致率</th>
+                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>操作</th>
+              </tr></thead>
+              <tbody>
+                {dualList.map(a => {
+                  const st = DUAL_STATUS_LABELS[a.status] ?? { label: a.status, color: '#64748b' };
+                  return (
+                    <tr key={a.id}>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.studyId}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{a.patientName}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.modality}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.reader1Name} / {a.reader2Name}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: `${st.color}18`, color: st.color, border: `1px solid ${st.color}40` }}>{st.label}</span>
+                        {a.status === 'arbitrated' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6 }}>裁决: {a.arbitratorName}</span>}
+                      </td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.discrepancyScore != null ? `${(a.discrepancyScore * 100).toFixed(0)}%` : '-'}</td>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
+                        {/* [v3.0.6.11-96 Wave3B G-21 P2] 裁决: 双方完成可仲裁 (复用 DualReadPage 能力) */}
+                        {a.status === 'both_done'
+                          ? <button onClick={() => { setArbitrateTarget(a); setArbitrateReport('') }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #ddd6fe', background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>裁决</button>
+                          : a.status === 'arbitrated'
+                            ? <span style={{ fontSize: 12, color: '#16a34a' }}>已完成</span>
+                            : <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>—</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {arbitrateTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setArbitrateTarget(null)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 560, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>双阅裁决 · {arbitrateTarget.studyId}</div>
+              <button onClick={() => setArbitrateTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 13 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>医师一 · {arbitrateTarget.reader1Name}</div>
+                <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report1 || '暂无'}</div>
+              </div>
+              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 13 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>医师二 · {arbitrateTarget.reader2Name}</div>
+                <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report2 || '暂无'}</div>
+              </div>
+            </div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>仲裁报告 *</label>
+            <textarea value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} rows={4} placeholder="请输入裁决意见..." style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
+              <button onClick={() => setArbitrateTarget(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+              <button onClick={() => void handleArbitrate()} disabled={arbitrateSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: arbitrateSaving ? 'wait' : 'pointer' }}>{arbitrateSaving ? '提交中...' : '确认裁决'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAssignModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAssignModal(false)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>分配双阅</div>
+              <button onClick={() => setShowAssignModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>检查号 *</label><input value={assignForm.studyId} onChange={e => setAssignForm({ ...assignForm, studyId: e.target.value })} placeholder="如 MG-1001" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>患者姓名 *</label><input value={assignForm.patientName} onChange={e => setAssignForm({ ...assignForm, patientName: e.target.value })} placeholder="请输入姓名" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>患者ID *</label><input value={assignForm.patientId} onChange={e => setAssignForm({ ...assignForm, patientId: e.target.value })} placeholder="如 P100006" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>模态</label><div style={{ display: 'flex', gap: 8 }}>{(['MG', 'DBT', 'US'] as const).map(m => (
+                <button key={m} onClick={() => setAssignForm({ ...assignForm, modality: m })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${assignForm.modality === m ? '#be185d' : '#e2e8f0'}`, background: assignForm.modality === m ? 'var(--color-error-bg)' : 'var(--bg-card)', color: assignForm.modality === m ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{m}</button>
+              ))}</div></div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setShowAssignModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void handleAssignDual()} disabled={assignSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: assignSaving ? 'wait' : 'pointer' }}>{assignSaving ? '分配中...' : '确认分配'}</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

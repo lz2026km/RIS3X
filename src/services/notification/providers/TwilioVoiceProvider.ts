@@ -111,7 +111,7 @@ export class TwilioVoiceProvider {
   buildTwiml(ivrMenuId: string, vars: Record<string, string> = {}): string {
     const menu = IVR_MENUS.find((m) => m.id === ivrMenuId);
     if (!menu) {
-      return '<?xml version="1.0" encoding="UTF-8"?><Response><Say>IVR menu not found</Say></Response>';
+      return '<?xml version="1.0" encoding="UTF-8"?><Response><Say>IVR 菜单不存在</Say></Response>';
     }
     const greeting = Object.entries(vars).reduce(
       (acc, [k, v]) => acc.replace(new RegExp(`\\{${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g'), v),

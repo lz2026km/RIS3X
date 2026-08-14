@@ -176,7 +176,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         finalCheckService.listConfigs(),
         finalCheckService.getWorkload(),
       ]);
-      const sorted = t.sort((a, b) => (PRIORITY_META[a.priority]!.rank - PRIORITY_META[b.priority]!.rank) || a.hoursToDeadline - b.hoursToDeadline);
+      const sorted = t.sort((a, b) => ((PRIORITY_META[a.priority]?.rank ?? 0) - (PRIORITY_META[b.priority]?.rank ?? 0)) || a.hoursToDeadline - b.hoursToDeadline);
       setTasks(sorted);
       setLists(l);
       setMultiSigs(ms);
@@ -220,12 +220,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       return;
     }
     setActiveList(l);
-    finalCheckService.listNotes(l.taskId).then(setNotes);
-    finalCheckService.checkConsistency(l.reportId).then(setConsistency);
-    finalCheckService.listScoringResults(l.taskId).then((r) => setScoring(r[0] ?? null));
-    finalCheckService.getDefaultRubric().then(setRubric);
-    finalCheckService.compareWithPrior(l.reportId).then(setPrior);
-    finalCheckService.listMultiSignatures(l.taskId).then((r) => setMultiSigs((prev) => [...r, ...prev.filter((m) => m.taskId !== l.taskId)].slice(0, 20)));
+    finalCheckService.listNotes(l.taskId).then(setNotes).catch(() => setNotes([]));
+    finalCheckService.checkConsistency(l.reportId).then(setConsistency).catch(() => setConsistency(null));
+    finalCheckService.listScoringResults(l.taskId).then((r) => setScoring((Array.isArray(r) ? r : [])[0] ?? null)).catch(() => setScoring(null));
+    finalCheckService.getDefaultRubric().then(setRubric).catch(() => setRubric(null));
+    finalCheckService.compareWithPrior(l.reportId).then(setPrior).catch(() => setPrior(null));
+    finalCheckService.listMultiSignatures(l.taskId).then((r) => setMultiSigs((prev) => [...(r ?? []), ...prev.filter((m) => m.taskId !== l.taskId)].slice(0, 20))).catch(() => { /* 多签加载失败保留旧数据 */ });
   }, [listForTask?.id]);
 
   const stats = useMemo(() => {
@@ -797,7 +797,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       {/* [G005 Wave3A P2] 通道配置卡 */}
       {emConfig && (
         <Card size="small" style={{ marginBottom: 12 }} title={
-          <Space><Settings2 size={14} /><span>急诊通道配置</span><Tag color="purple">emergency-channel/config</Tag></Space>
+          <Space><Settings2 size={14} /><span>急诊通道配置</span></Space>
         } extra={
           <Button type="primary" size="small" icon={<Save size={12} />} loading={emConfigSaving} onClick={handleSaveChannelConfig}>保存配置</Button>
         }>
@@ -846,7 +846,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       )}
       {/* [G005 Wave3A P2] 触发记录列表 (按患者查历史) */}
       <Card size="small" title={
-        <Space><Activity size={14} /><span>触发记录</span><Tag color="purple">emergency-channel/records</Tag></Space>
+        <Space><Activity size={14} /><span>触发记录</span></Space>
       } extra={
         <Space>
           <Input
@@ -910,7 +910,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 </Space>
                 <Space wrap>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>目标:</span>
-                  {e.targets.map((t) => (
+                  {(e.targets ?? []).map((t) => (
                     <Tag key={t.reviewerId} color={t.acknowledgedAt ? 'green' : 'orange'}>
                       {t.reviewerName} {t.acknowledgedAt ? `✓ ${timeAgo(t.acknowledgedAt)}` : '⏳'}
                     </Tag>
@@ -999,9 +999,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <ShieldCheck size={18} />
-            <strong style={{ fontSize: 16 }}>终核清单</strong>
-            <Tag color="purple">R3.REVIEW.201+</Tag>
-            <Tag color="cyan">80 P</Tag>
+            <strong style={{ fontSize: 16 }}>终核清单 v2</strong>
           </Space>
           <Space>
             <Input

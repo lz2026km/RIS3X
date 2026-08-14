@@ -110,8 +110,109 @@ export class QueueService {
   private readonly callStates = new Map<string, CallState>()
   private readonly roomCounters = new Map<string, number>()
   private readonly roomCurrent = new Map<string, string>()
+  // [G005 W2-A P0] 叫号状态落库: DB 可用时读写 queue_states 表, 不可用回退内存 Map
+  private dbAvailable: boolean | null = null
+  private hydrated = false
 
   constructor(private readonly prisma: PrismaService) {}
+
+  // ================= 持久化 (叫号状态落库, DB 不可用静默回退内存) =================
+
+  private async checkDb(): Promise<boolean> {
+    if (this.dbAvailable !== null) return this.dbAvailable
+    try {
+      await (this.prisma as any).queueState?.count()
+      this.dbAvailable = true
+    } catch {
+      this.dbAvailable = false
+    }
+    return this.dbAvailable
+  }
+
+  /** 启动/首次访问时从 queue_states 恢复内存状态 (条目叫号状态 + 房间计数 + 房间当前号) */
+  private async hydrateFromDb(): Promise<void> {
+    if (this.dbAvailable === false || this.hydrated) return
+    try {
+      const rows = await (this.prisma as any).queueState?.findMany({ where: { tenantId: currentTenantId() } })
+      if (!Array.isArray(rows)) return
+      this.dbAvailable = true
+      this.hydrated = true
+      for (const row of rows) {
+        if (String(row.entryId ?? '').startsWith('ROOM:')) {
+          const roomId = String(row.entryId).slice(5)
+          const num = Number(String(row.currentNumber ?? '').replace(/\D/g, ''))
+          if (Number.isFinite(num) && num > 0) this.roomCounters.set(roomId, num)
+        } else {
+          const st = STATUS_TO_ZH[(row.status as QueueStatus) ?? 'waiting']
+          if (!st) continue
+          this.callStates.set(row.entryId, {
+            status: row.status as QueueStatus,
+            calledCount: row.calledCount ?? 0,
+            lastCalledTime: row.lastCallAt ? new Date(row.lastCallAt).toLocaleString('zh-CN') : undefined,
+            completedAt: row.completedAt ? new Date(row.completedAt).toISOString() : undefined,
+          })
+        }
+      }
+      // 房间当前号: 每个房间最新一条 called/in_service 状态条目
+      const currentByRoom = new Map<string, { entryId: string; ts: number }>()
+      for (const row of rows) {
+        if (String(row.entryId ?? '').startsWith('ROOM:')) continue
+        const status = row.status as QueueStatus
+        if (status !== 'called' && status !== 'in_service') continue
+        const ts = row.lastCallAt ? new Date(row.lastCallAt).getTime() : 0
+        const cur = currentByRoom.get(row.roomId)
+        if (!cur || ts >= cur.ts) currentByRoom.set(row.roomId, { entryId: row.entryId, ts })
+      }
+      for (const [roomId, v] of currentByRoom) this.roomCurrent.set(roomId, v.entryId)
+    } catch {
+      this.dbAvailable = false
+    }
+  }
+
+  /** 持久化单条目叫号状态 (upsert queue_states, 失败静默回退内存) */
+  private async persistEntry(entry: QueueCallItem, state: CallState): Promise<void> {
+    if (!(await this.checkDb())) return
+    try {
+      await (this.prisma as any).queueState?.upsert({
+        where: { tenantId_entryId: { tenantId: currentTenantId(), entryId: entry.id } },
+        create: {
+          tenantId: currentTenantId(),
+          roomId: entry.roomId ?? '',
+          entryId: entry.id,
+          status: state.status,
+          currentNumber: entry.queueNum,
+          lastCallAt: state.lastCalledTime ? new Date() : null,
+          calledCount: state.calledCount,
+          completedAt: state.completedAt ? new Date(state.completedAt) : null,
+        },
+        update: {
+          roomId: entry.roomId ?? '',
+          status: state.status,
+          currentNumber: entry.queueNum,
+          lastCallAt: state.lastCalledTime ? new Date() : null,
+          calledCount: state.calledCount,
+          completedAt: state.completedAt ? new Date(state.completedAt) : null,
+        },
+      })
+    } catch {
+      this.dbAvailable = false
+    }
+  }
+
+  /** 持久化房间叫号计数 (ROOM:<roomId> 元数据行, currentNumber=最近叫号序号) */
+  private async persistRoomCounter(roomId: string, queueNum: string): Promise<void> {
+    if (!roomId || !(await this.checkDb())) return
+    try {
+      const entryId = `ROOM:${roomId}`
+      await (this.prisma as any).queueState?.upsert({
+        where: { tenantId_entryId: { tenantId: currentTenantId(), entryId } },
+        create: { tenantId: currentTenantId(), roomId, entryId, status: 'counter', currentNumber: queueNum, lastCallAt: new Date() },
+        update: { roomId, status: 'counter', currentNumber: queueNum, lastCallAt: new Date() },
+      })
+    } catch {
+      this.dbAvailable = false
+    }
+  }
 
   // ================= 派生数据 =================
 
@@ -202,6 +303,7 @@ export class QueueService {
   // ================= API: 列表 =================
 
   async list(): Promise<QueueCallItem[]> {
+    await this.hydrateFromDb()
     const exams = await this.fetchPendingExams()
     if (!exams) return SEED_QUEUE.map((s) => this.applyStateToSeed(s))
     return exams.map((e) => this.toItem(e))
@@ -294,6 +396,7 @@ export class QueueService {
   }
 
   async call(target: string, body: { examId?: string; patientId?: string } = {}): Promise<QueueCallItem> {
+    await this.hydrateFromDb()
     let entry = await this.resolveEntry(target)
     if (!entry && body.examId) entry = await this.resolveEntry(body.examId)
     if (!entry && body.patientId) {
@@ -309,42 +412,52 @@ export class QueueService {
     if (!entry) throw new NotFoundException(`Queue entry ${target} not found`)
 
     const prev = this.callStates.get(entry.id)
-    this.callStates.set(entry.id, {
+    const state: CallState = {
       status: 'called',
       calledCount: (prev?.calledCount ?? 0) + 1,
       lastCalledTime: new Date().toLocaleString('zh-CN'),
       completedAt: undefined,
-    })
+    }
+    this.callStates.set(entry.id, state)
     if (entry.roomId) this.roomCurrent.set(entry.roomId, entry.id)
+    await this.persistEntry(entry, state)
+    if (entry.roomId) await this.persistRoomCounter(entry.roomId, entry.queueNum)
     return { ...entry, ...this.statusOf(entry.id, 'called') }
   }
 
   async complete(id: string): Promise<QueueCallItem> {
+    await this.hydrateFromDb()
     const entry = await this.resolveEntry(id)
     if (!entry) throw new NotFoundException(`Queue entry ${id} not found`)
     const prev = this.callStates.get(entry.id)
-    this.callStates.set(entry.id, {
+    const state: CallState = {
       status: 'completed',
       calledCount: prev?.calledCount ?? 0,
       lastCalledTime: prev?.lastCalledTime,
       completedAt: new Date().toISOString(),
-    })
+    }
+    this.callStates.set(entry.id, state)
     if (entry.roomId && this.roomCurrent.get(entry.roomId) === entry.id) {
       this.roomCurrent.delete(entry.roomId)
     }
+    await this.persistEntry(entry, state)
     return { ...entry, ...this.statusOf(entry.id, 'completed') }
   }
 
   async recall(id: string): Promise<QueueCallItem> {
+    await this.hydrateFromDb()
     const entry = await this.resolveEntry(id)
     if (!entry) throw new NotFoundException(`Queue entry ${id} not found`)
     const prev = this.callStates.get(entry.id)
-    this.callStates.set(entry.id, {
+    const state: CallState = {
       status: 'called',
       calledCount: (prev?.calledCount ?? 0) + 1,
       lastCalledTime: new Date().toLocaleString('zh-CN'),
-    })
+    }
+    this.callStates.set(entry.id, state)
     if (entry.roomId) this.roomCurrent.set(entry.roomId, entry.id)
+    await this.persistEntry(entry, state)
+    if (entry.roomId) await this.persistRoomCounter(entry.roomId, entry.queueNum)
     return { ...entry, ...this.statusOf(entry.id, 'called') }
   }
 }

@@ -33,7 +33,7 @@ const COLORS = {
   primary: '#1e40af',
   info: '#2563eb',
   success: '#059669',
-  successBg: '#ecfdf5',
+  successBg: 'var(--color-success-bg)',
   danger: '#dc2626',
   dangerBg: 'var(--color-error-bg)',
   warning: '#d97706',
@@ -213,7 +213,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                   </div>
                   <div style={{ fontSize: 12, color: COLORS.textMuted }}>教学病例</div>
                 </div>
-                <div style={{ flex: 1, padding: 14, background: '#eff6ff', borderRadius: 10, textAlign: 'center' }}>
+                <div style={{ flex: 1, padding: 14, background: 'var(--color-info-bg)', borderRadius: 10, textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.info }}>{categories.length}</div>
                   <div style={{ fontSize: 12, color: COLORS.textMuted }}>病例分类</div>
                 </div>
@@ -256,7 +256,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                     onClick={() => setCategory('teaching')}
                     style={{
                       padding: '8px 14px', borderRadius: 8, border: `1px solid ${category === 'teaching' ? COLORS.danger : COLORS.border}`,
-                      background: category === 'teaching' ? COLORS.dangerBg : '#fff',
+                      background: category === 'teaching' ? COLORS.dangerBg : 'var(--bg-card)',
                       color: category === 'teaching' ? COLORS.danger : COLORS.textMuted, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     }}
                   >
@@ -315,7 +315,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
 
               {/* 病例信息 */}
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: '#eff6ff', color: COLORS.info }}>
+                <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: 'var(--color-info-bg)', color: COLORS.info }}>
                   {q.modality}
                 </span>
                 <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: COLORS.bg, color: COLORS.textMuted }}>
@@ -424,7 +424,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
                           return (
                             <div key={qq.caseId} style={{
                               padding: '10px 12px', borderRadius: 8, background: COLORS.bg,
-                              border: `1px solid ${ok ? '#a7f3d0' : '#fecaca'}`,
+                              border: `1px solid ${ok ? 'var(--color-success-bg)' : 'var(--color-error-bg)'}`,
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                                 {ok ? <CheckCircle2 size={14} color={COLORS.success} /> : <XCircle size={14} color={COLORS.danger} />}

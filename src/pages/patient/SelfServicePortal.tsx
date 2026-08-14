@@ -12,6 +12,7 @@ import {
   type PortalReportDto,
   type PortalImageStudyDto,
 } from '../../services/api'
+import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
@@ -23,6 +24,24 @@ const MODALITIES: Array<{ value: string; label: string; parts: string[] }> = [
   { value: 'DR', label: 'DR 数字化X线', parts: ['胸部', '腰椎', '四肢', '腹部'] },
   { value: 'US', label: '超声', parts: ['腹部', '甲状腺', '乳腺', '心脏'] },
 ]
+
+// [v3.0.6.11-96 Wave3B G-30 P2] 随访类型选项
+const FOLLOWUP_TYPES = [
+  { value: '复查', label: '常规复查', intervalDays: 30 },
+  { value: '增强随访', label: '增强随访', intervalDays: 90 },
+  { value: '结节随访', label: '结节/占位随访', intervalDays: 180 },
+  { value: '术后随访', label: '术后随访', intervalDays: 90 },
+]
+
+// [v3.0.6.11-96 Wave3B G-30 P2] 随访计划演示回退数据 (followupApi 不可用时)
+const MOCK_FOLLOWUPS = [
+  { id: 'FU-DEMO-1', patientId: 'P001', patientName: '演示患者', planDate: '2026-07-01', intervalDays: 30, nextDate: '2026-08-01', status: 'IN_PROGRESS' as const, note: '肺结节 6 个月随访', reminderEnabled: true, completedAt: null },
+  { id: 'FU-DEMO-2', patientId: 'P001', patientName: '演示患者', planDate: '2026-07-15', intervalDays: 90, nextDate: '2026-10-15', status: 'PENDING' as const, note: '乳腺 BI-RADS 3 定期复查', reminderEnabled: true, completedAt: null },
+]
+
+const FOLLOWUP_STATE_LABEL: Record<string, string> = {
+  PENDING: '待随访', IN_PROGRESS: '随访中', COMPLETED: '已完成', OVERDUE: '已逾期',
+}
 
 const TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']
 
@@ -200,6 +219,18 @@ export default function SelfServicePortal() {
   const [techContacts, setTechContacts] = useState<PortalMobileUserDto[]>([])
   const [contactsLoading, setContactsLoading] = useState(false)
 
+  // [v3.0.6.11-96 Wave3B G-30 P2] 随访管理: followupApi (list/create/complete 真实), 失败回退演示 + 标注
+  const [followups, setFollowups] = useState<FollowUpPlan[]>([])
+  const [followupSource, setFollowupSource] = useState<'api' | 'fallback'>('api')
+  const [followupLoading, setFollowupLoading] = useState(false)
+  const [followupForm, setFollowupForm] = useState<{ date: string; type: string; note: string }>({
+    date: fmtDate(new Date(new Date().getTime() + 7 * 86400000)),
+    type: '复查',
+    note: '',
+  })
+  const [followupCreating, setFollowupCreating] = useState(false)
+  const [followupCompletingId, setFollowupCompletingId] = useState<string | null>(null)
+
   const openClinicalDetail = async (id: string) => {
     setClinicalDrawerOpen(true)
     setClinicalDetailLoading(true)
@@ -360,6 +391,7 @@ export default function SelfServicePortal() {
     setDoctorContacts([])
     setNurseContacts([])
     setTechContacts([])
+    setFollowups([])
   }
 
   useEffect(() => {
@@ -393,6 +425,103 @@ export default function SelfServicePortal() {
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loggedIn])
+
+  // [v3.0.6.11-96 Wave3B G-30 P2] 加载当前患者随访计划 (followupApi.list), 失败回退演示 + 标注
+  useEffect(() => {
+    if (!loggedIn || !user?.id) return
+    let cancelled = false
+    void (async () => {
+      setFollowupLoading(true)
+      try {
+        const res = await followupApi.list({ patientId: user.id })
+        if (cancelled) return
+        const items = res.success ? ((res.data as any)?.items ?? []) : []
+        if (res.success && items.length > 0) {
+          setFollowups(items)
+          setFollowupSource('api')
+        } else {
+          setFollowups(MOCK_FOLLOWUPS.map((f, i) => ({ ...f, id: `FU-DEMO-${i + 1}`, createdAt: '', updatedAt: '' })) as FollowUpPlan[])
+          setFollowupSource('fallback')
+        }
+      } catch {
+        if (cancelled) return
+        setFollowups(MOCK_FOLLOWUPS.map((f, i) => ({ ...f, id: `FU-DEMO-${i + 1}`, createdAt: '', updatedAt: '' })) as FollowUpPlan[])
+        setFollowupSource('fallback')
+      } finally {
+        if (!cancelled) setFollowupLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loggedIn])
+
+  // [v3.0.6.11-96 Wave3B G-30 P2] 自助预约随访 (followupApi.create), 失败回退本地新增 + 标注
+  const submitFollowup = async () => {
+    if (!user) return
+    if (!followupForm.date) {
+      message.warning('请选择随访日期')
+      return
+    }
+    setFollowupCreating(true)
+    try {
+      const res = await followupApi.create({
+        patientId: user.id,
+        patientName: user.name ?? '',
+        planDate: `${followupForm.date}T00:00:00+08:00`,
+        intervalDays: FOLLOWUP_TYPES.find(t => t.value === followupForm.type)?.intervalDays ?? 30,
+        note: followupForm.note || `${followupForm.type}随访`,
+        reminderEnabled: true,
+      })
+      if (res.success && res.data) {
+        setFollowups(prev => [res.data as FollowUpPlan, ...prev])
+        setFollowupSource('api')
+        message.success('随访预约成功')
+        setFollowupForm({ ...followupForm, note: '' })
+      } else {
+        message.error(res.error?.message ?? '预约失败，请稍后重试')
+      }
+    } catch {
+      // 失败回退: 本地新增并标注
+      const local: FollowUpPlan = {
+        id: `FU-LOCAL-${Date.now()}`,
+        patientId: user.id,
+        patientName: user.name ?? '',
+        planDate: `${followupForm.date}T00:00:00+08:00`,
+        intervalDays: FOLLOWUP_TYPES.find(t => t.value === followupForm.type)?.intervalDays ?? 30,
+        nextDate: '',
+        status: 'PENDING',
+        note: followupForm.note || `${followupForm.type}随访`,
+        reminderEnabled: true,
+        completedAt: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      setFollowups(prev => [local, ...prev])
+      if (followupSource !== 'fallback') setFollowupSource('fallback')
+      message.warning('随访服务暂不可用，已在本地登记（回退）')
+    } finally {
+      setFollowupCreating(false)
+    }
+  }
+
+  // [v3.0.6.11-96 Wave3B G-30 P2] 完成登记 (followupApi.complete), 失败回退本地标注
+  const completeFollowup = async (plan: FollowUpPlan) => {
+    setFollowupCompletingId(plan.id)
+    try {
+      const res = await followupApi.complete(plan.id)
+      if (res.success && res.data) {
+        setFollowups(prev => prev.map(p => p.id === plan.id ? res.data as FollowUpPlan : p))
+        message.success('随访完成登记成功')
+      } else {
+        message.error(res.error?.message ?? '登记失败，请稍后重试')
+      }
+    } catch {
+      setFollowups(prev => prev.map(p => p.id === plan.id ? { ...p, status: 'COMPLETED', completedAt: new Date().toISOString(), note: `${p.note}（本地完成登记，同步失败待重试）` } as FollowUpPlan : p))
+      message.warning('随访服务暂不可用，已本地标注完成（同步待重试）')
+    } finally {
+      setFollowupCompletingId(null)
+    }
+  }
 
   useEffect(() => {
     if (!selectedExam) {
@@ -1064,6 +1193,85 @@ export default function SelfServicePortal() {
               </div>
             )}
             <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>联系电话仅供就医咨询使用，工作时间 08:00-17:00。</p>
+          </Card>
+        </div>
+      ),
+    },
+    {
+      key: 'followup',
+      label: '随访管理',
+      children: (
+        <div>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>我的随访计划（{followups.length}）</span>
+              {followupSource === 'api'
+                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>followupApi 实时</span>
+                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>演示回退（followupApi 不可用）</span>}
+            </h3>
+            {followupLoading ? (
+              <div style={{ textAlign: 'center', padding: 40 }}><Spin tip="加载随访计划..." /></div>
+            ) : followups.length === 0 ? (
+              <Empty description="暂无随访计划，可自助预约随访" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
+              <table style={styles.table}>
+                <thead><tr>
+                  <th style={styles.th}>计划日期</th><th style={styles.th}>下次日期</th><th style={styles.th}>间隔</th>
+                  <th style={styles.th}>说明</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th>
+                </tr></thead>
+                <tbody>
+                  {followups.map(p => (
+                    <tr key={p.id}>
+                      <td style={styles.td}>{p.planDate ? fmtDateTime(p.planDate) : '-'}</td>
+                      <td style={styles.td}>{p.nextDate ? fmtDateTime(p.nextDate) : '-'}</td>
+                      <td style={styles.td}>{p.intervalDays ? `${p.intervalDays} 天` : '-'}</td>
+                      <td style={styles.td}>{p.note || '-'}</td>
+                      <td style={styles.td}>
+                        <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
+                          {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
+                        </Tag>
+                        {p.status === 'COMPLETED' && p.completedAt && <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 6 }}>完成于 {fmtDateTime(p.completedAt)}</span>}
+                      </td>
+                      <td style={styles.td}>
+                        {p.status !== 'COMPLETED' && (
+                          <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void completeFollowup(p)} disabled={followupCompletingId === p.id}>
+                            {followupCompletingId === p.id ? '登记中...' : '完成登记'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Card>
+          <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
+            <h3 style={styles.subTitle}>自助预约随访</h3>
+            <div style={styles.grid2}>
+              <div>
+                <div style={styles.label}>随访日期</div>
+                <Input type="date" value={followupForm.date} onChange={e => setFollowupForm({ ...followupForm, date: e.target.value })} style={{ width: '100%' }} />
+              </div>
+              <div>
+                <div style={styles.label}>随访类型</div>
+                <Select
+                  value={followupForm.type}
+                  onChange={v => setFollowupForm({ ...followupForm, type: v })}
+                  style={{ width: '100%' }}
+                  options={FOLLOWUP_TYPES.map(t => ({ value: t.value, label: `${t.label}（${t.intervalDays} 天）` }))}
+                />
+              </div>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <div style={styles.label}>备注说明</div>
+              <Input.TextArea rows={2} maxLength={200} showCount value={followupForm.note} onChange={e => setFollowupForm({ ...followupForm, note: e.target.value })} placeholder="如：乳腺 BI-RADS 3 定期复查（选填）" />
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <button style={{ ...styles.btn, padding: '10px 28px', fontSize: 13 }} onClick={() => void submitFollowup()} disabled={followupCreating}>
+                {followupCreating ? '提交中...' : '提交随访预约'}
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>提交后将在预约日期到期时提醒，检查时请携带既往影像资料。</p>
           </Card>
         </div>
       ),

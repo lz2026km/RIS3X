@@ -66,7 +66,7 @@ export default function ReportToolbar({
       <div
         style={{
           display: "flex",
-          background: "#f1f5f9",
+          background: "var(--bg-primary)",
           borderRadius: 7,
           padding: 3,
         }}

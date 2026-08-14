@@ -140,7 +140,7 @@ export default function NlpCheckPage() {
 
         {spellResult && spellResult.suggestions.length > 0 && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="#f59e0b" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="#f59e0b" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
             {spellResult.suggestions.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <span style={{ background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{s.word}</span>
@@ -165,7 +165,7 @@ export default function NlpCheckPage() {
 
         {termResult && termResult.normalized.length > 0 && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="#3b82f6" />{t("termNormalization")} ({termResult.normalized.length})</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="#3b82f6" />{t("termNormalization")} ({termResult.normalized.length})</h3>
             {termResult.normalized.map((n, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <span style={{ background: "#dbeafe", color: "#1e40af", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.term}</span>

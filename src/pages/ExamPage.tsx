@@ -29,11 +29,18 @@ import {
   Merge as MergeIcon,
   Split as SplitIcon,
   Eye,
+  ExternalLink,
 } from "lucide-react";
-import { initialRadiologyExams, initialPatients } from "../data/initialData";
+import {
+  initialRadiologyExams,
+  initialPatients,
+  initialModalityDevices,
+} from "../data/initialData";
 import { examApi } from "../services/api";
 import type { ImportExamRow } from "../services/api";
 import { worklistApi } from "../services/api/worklistApi";
+import { reportApi } from "../services/api/reportApi";
+import { printApi } from "../services/api/printApi";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
@@ -528,11 +535,124 @@ export default function ExamPage() {
     }
   };
 
-  // Batch action handler
+  // Batch action handler — [v3.0.6.11-96 Wave 3A P1] 4 键真实化:
+  //   分配 → worklistApi.batchAssign | 签字 → reportApi.batchTransition(SIGNED)
+  //   打印 → printApi.createJob | 导出 → 本地 CSV Blob
+  const [batchAssignModal, setBatchAssignModal] = useState<{
+    visible: boolean;
+    deviceId: string;
+  }>({ visible: false, deviceId: "" });
+
+  const runBatchApiAction = async (action: string, ids: string[]) => {
+    if (ids.length === 0) return;
+    const results: string[] = [];
+    let okCount = 0;
+    let failCount = 0;
+    try {
+      if (action === "assign") {
+        // 先选设备, 确认后统一提交 (selection 保留至提交完成)
+        setBatchAssignModal({ visible: true, deviceId: "" });
+        return;
+      }
+      if (action === "sign") {
+        // 检查 → 报告 ID 映射 (无 reportId 时回退检查 ID, 后端将逐条校验过渡)
+        const reportIds = ids.map((id) => allExams.find((e) => e.id === id)?.reportId || id);
+        const res = await reportApi.batchTransition(reportIds, "SIGNED", "批量签字");
+        if (res.success) {
+          const data = (res.data ?? { succeeded: [], failed: [] }) as {
+            succeeded?: Array<{ id: string }>;
+            failed?: Array<{ id: string; message: string }>;
+          };
+          okCount = data.succeeded?.length ?? 0;
+          failCount = data.failed?.length ?? 0;
+          (data.failed ?? []).slice(0, 20).forEach((f) => results.push(`${f.id}: ${f.message}`));
+          (data.succeeded ?? []).forEach((s) => log("batch_sign", s.id));
+        } else {
+          failCount = ids.length;
+          results.push(res.error?.message ?? "批量签字失败");
+        }
+      } else if (action === "print") {
+        for (const id of ids) {
+          const exam = allExams.find((e) => e.id === id);
+          try {
+            const res = await printApi.createJob({
+              patientId: exam?.patientId,
+              patientName: exam?.patientName ?? id,
+              modality: exam?.modality,
+              studyType: exam?.examItemName,
+              copies: 1,
+              status: "queued",
+            });
+            if (res.success) {
+              okCount += 1;
+              log("batch_print", id);
+            } else {
+              failCount += 1;
+              results.push(`${id}: ${res.error?.message ?? "创建打印任务失败"}`);
+            }
+          } catch (err) {
+            failCount += 1;
+            results.push(`${id}: ${err instanceof Error ? err.message : "打印任务失败"}`);
+          }
+        }
+      } else if (action === "export") {
+        const rows = ids.map((id) => {
+          const e = allExams.find((x) => x.id === id);
+          return e
+            ? [e.id, e.accessionNumber, e.patientId, e.patientName, e.modality, e.bodyPart, e.status, e.examDate, e.examTime ?? ""].join(",")
+            : [id].join(",");
+        });
+        const csvContent = ["检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期,检查时间", ...rows].join("\n");
+        const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `批量导出检查_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        okCount = ids.length;
+        ids.forEach((id) => log("batch_export", id));
+      }
+    } catch (err) {
+      failCount = ids.length;
+      results.push(err instanceof Error ? err.message : "批量操作失败");
+    }
+    if (action !== "assign") {
+      if (failCount === 0 && okCount > 0) {
+        message.success(`批量操作成功 ${okCount} 项`);
+      } else if (okCount > 0) {
+        message.warning(`成功 ${okCount} 项，失败 ${failCount} 项${results.length ? "：" + results.slice(0, 3).join("；") : ""}`);
+      } else {
+        message.error(`批量操作失败 ${failCount} 项${results.length ? "：" + results.slice(0, 3).join("；") : ""}`);
+      }
+      void reloadExams();
+      setSelectedIds(new Set());
+    }
+  };
+
+  // 批量分配设备: 弹窗确认 → worklistApi.batchAssign
+  const handleBatchAssignConfirm = async () => {
+    const ids = Array.from(selectedIds);
+    if (!batchAssignModal.deviceId || ids.length === 0) {
+      setBatchAssignModal((prev) => ({ ...prev, visible: false }));
+      return;
+    }
+    const res = await worklistApi.batchAssign(ids, { deviceId: batchAssignModal.deviceId });
+    if (res.success) {
+      message.success(`批量分配设备成功 ${ids.length} 项`);
+      ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
+    } else {
+      message.error(res.error?.message ?? "批量分配设备失败");
+    }
+    void reloadExams();
+    setSelectedIds(new Set());
+    setBatchAssignModal({ visible: false, deviceId: "" });
+  };
+
   const handleBatchAction = (action: string) => {
     const ids = Array.from(selectedIds);
-    ids.forEach((id) => log(action, id));
-    setSelectedIds(new Set());
+    if (ids.length === 0) return;
+    void runBatchApiAction(action, ids);
   };
 
   // [W4-A] 批量导入导出
@@ -1479,6 +1599,25 @@ export default function ExamPage() {
                     }}
                   >
                     <Eye size={10} /> 阅片
+                  </button>
+                  {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id */}
+                  <button
+                    onClick={() => navigate(`/exam/${exam.id}`)}
+                    title="检查详情"
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: 4,
+                      border: "1px solid var(--border-color)",
+                      backgroundColor: "var(--bg-card)",
+                      color: "var(--text-secondary)",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <ExternalLink size={10} /> 详情
                   </button>
                   {(exam.status === "已报告" ||
                     exam.status === "待报告") && (
@@ -2699,6 +2838,27 @@ export default function ExamPage() {
           { key: "export", label: "批量导出", icon: <Download size={14} /> },
         ]}
       />
+
+      {/* [v3.0.6.11-96 Wave 3A P1] 批量分配设备 Modal (worklistApi.batchAssign 真实调用) */}
+      <Modal
+        title={`批量分配设备 (${selectedIds.size} 项)`}
+        open={batchAssignModal.visible}
+        onCancel={() => setBatchAssignModal((prev) => ({ ...prev, visible: false }))}
+        onOk={() => void handleBatchAssignConfirm()}
+        okText="确认分配"
+        cancelText="取消"
+      >
+        <div style={{ padding: "8px 0 4px", fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+          为选中的 {selectedIds.size} 项检查统一分配检查设备:
+        </div>
+        <Select
+          style={{ width: "100%" }}
+          placeholder="请选择设备"
+          value={batchAssignModal.deviceId || undefined}
+          onChange={(v) => setBatchAssignModal((prev) => ({ ...prev, deviceId: v }))}
+          options={initialModalityDevices.map((d) => ({ value: d.id, label: `${d.name}（${d.modality ?? ""}）` }))}
+        />
+      </Modal>
 
       {/* 检查列表Tab */}
       {activeTab === "list" && (

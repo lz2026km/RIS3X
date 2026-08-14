@@ -453,18 +453,22 @@ export default function ReportPage() {
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
   const handleReviewSubmit = async (reportId: string, result: "approved" | "rejected", suggestion: string, password: string) => {
-    if (result === "approved") {
-      const report = allReports.find(r => r.id === reportId);
-      if (report && !canApprove(user?.id ?? '', report.reportDoctorId ?? '')) {
-        message.error('禁止自审：不能审核自己的报告');
-        return;
+    try {
+      if (result === "approved") {
+        const report = allReports.find(r => r.id === reportId);
+        if (report && !canApprove(user?.id ?? '', report.reportDoctorId ?? '')) {
+          message.error('禁止自审：不能审核自己的报告');
+          return;
+        }
+        await useReportStore.getState().review(reportId, 'initial', user?.id ?? '', user?.name ?? '', suggestion, 0);
+        setMfaReportId(reportId);
+      } else {
+        await useReportStore.getState().reject(reportId);
+        setReviewReport(null);
+        setReviewResultModal({ show: true, reportId, result: "已退回", suggestion: suggestion || "(无)" });
       }
-      await useReportStore.getState().review(reportId, 'initial', user?.id ?? '', user?.name ?? '', suggestion, 0);
-      setMfaReportId(reportId);
-    } else {
-      await useReportStore.getState().reject(reportId);
-      setReviewReport(null);
-      setReviewResultModal({ show: true, reportId, result: "已退回", suggestion: suggestion || "(无)" });
+    } catch {
+      message.error('审核提交失败:网络异常,请稍后重试');
     }
   };
 
@@ -472,14 +476,19 @@ export default function ReportPage() {
     const reportId = mfaReportId;
     setMfaReportId(null);
     if (!reportId) return;
-    await useReportStore.getState().sign(reportId);
-    setReviewReport(null);
-    setReviewResultModal({ show: true, reportId, result: "已审核", suggestion: "(MFA已验证)" });
+    try {
+      await useReportStore.getState().sign(reportId);
+      setReviewReport(null);
+      setReviewResultModal({ show: true, reportId, result: "已审核", suggestion: "(MFA已验证)" });
+    } catch {
+      setReviewReport(null);
+      message.error('MFA 签署失败:网络异常,请稍后重试');
+    }
   };
 
   return (
     <PageContainer background="slate" maxWidth="wide" padding={0} testId="report-page">
-      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取报告资源，请联系管理员。</div>}
+      {accessDenied && <div style={{ padding: 24, margin: 24, background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>🔒 资源级访问被拒绝：当前用户无权读取报告资源，请联系管理员。</div>}
       {loading && <LoadingBanner message="正在从 API 加载报告数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } } @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>
@@ -565,13 +574,13 @@ export default function ReportPage() {
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
       <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />保存当前筛选为快捷预置</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText="保存" cancelText="取消" width={400} destroyOnHidden>
         <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder="预置名称, 如: 本周胸片待办 / 危急值跟进" allowClear style={{ marginTop: 8 }} />
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地 (report-filter-presets)。</div>
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>保存后可在上方 Tag 列表点击加载, 关闭小叉可删除; 数据存于本地浏览器。</div>
       </Modal>
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />
       <BatchResultModal show={batchResultModal.show} title={batchResultModal.title} message={batchResultModal.message} type={batchResultModal.type} onClose={() => setBatchResultModal(b => ({ ...b, show: false }))} />
       <PrintModal show={printModal.show} title={printModal.title} message={printModal.message} onClose={() => setPrintModal(p => ({ ...p, show: false }))} onPrint={() => { setPrintModal(p => ({ ...p, show: false })); window.print(); }} />
-      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
+      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { let done = 0; let failed = 0; for (const id of selectedIds) { try { await useReportStore.getState().publish(id, 85); done++; } catch { failed++; } } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && ['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(r.status)) ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量发布完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'error' : 'success'); return; } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
         let done = 0; let failed = 0;
         for (const id of selectedIds) {
           try {
@@ -603,7 +612,45 @@ export default function ReportPage() {
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
         showToast(`批量提交审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
         return;
-        } else if (action === 'review') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'WRITING', 'DRAFT'].includes(toEnState(r.status)); }); for (const id of ids) { await reportApi.review(id, { type: 'initial', doctorId: user?.id ?? '', doctorName: user?.name ?? '', suggestion: '批量审核通过', score: 0 }); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量审核通过 ${ids.length} 份`, 'success'); return; } else if (action === 'sign') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['REVIEWED', 'CO_SIGN_REVIEW', 'SIGNING'].includes(toEnState(r.status)); }); for (const id of ids) { await reportApi.sign(id); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量签署 ${ids.length} 份`, 'success'); return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
+        } else if (action === 'review') { // [v3.0.6.11-96 Wave3B P1] 批量审核: 单次 POST /reports/batch-transition → REVIEWED (逐条校验, 失败计数保留)
+        const ids = Array.from(selectedIds).filter(id => {
+          const r = allReports.find(x => x.id === id);
+          return r && ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW', 'RECTIFYING', 'ESCALATED'].includes(toEnState(r.status));
+        });
+        let done = 0; let failed = 0;
+        try {
+          const res = await reportApi.batchTransition(ids, 'REVIEWED');
+          if (res.success && res.data) {
+            done = (res.data.succeeded ?? []).length;
+            failed = (res.data.failed ?? []).length;
+          }
+        } catch { failed = ids.length - done; }
+        if (done > 0) {
+          setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r));
+        }
+        setSelectedIds(new Set());
+        setBulkActionModal(b => ({ ...b, show: false, loading: false }));
+        showToast(`批量审核完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        return; } else if (action === 'sign') { // [v3.0.6.11-96 Wave3B P1] 批量签署: 单次 POST /reports/batch-transition → SIGNED
+        const ids = Array.from(selectedIds).filter(id => {
+          const r = allReports.find(x => x.id === id);
+          return r && ['REVIEWED', 'SIGNING', 'AMENDED'].includes(toEnState(r.status));
+        });
+        let done = 0; let failed = 0;
+        try {
+          const res = await reportApi.batchTransition(ids, 'SIGNED');
+          if (res.success && res.data) {
+            done = (res.data.succeeded ?? []).length;
+            failed = (res.data.failed ?? []).length;
+          }
+        } catch { failed = ids.length - done; }
+        if (done > 0) {
+          setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r));
+        }
+        setSelectedIds(new Set());
+        setBulkActionModal(b => ({ ...b, show: false, loading: false }));
+        showToast(`批量签署完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );
 }

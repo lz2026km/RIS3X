@@ -281,7 +281,7 @@ export default function BenchmarkPageV2() {
             <BarChart3 size={22} color="#fff" />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>报表同比环比分析</h2>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>报表同比环比分析</h2>
             <span style={{ color: '#94a3b8', fontSize: 13 }}>跨院区对比 · 指标矩阵 · 趋势分析</span>
           </div>
         </Space>

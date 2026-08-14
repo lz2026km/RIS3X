@@ -46,11 +46,11 @@ const STATUS_META: Record<
   DefectRemediation['status'],
   { color: string; label: string; bg: string; stage: 'plan' | 'do' | 'check' | 'act' }
 > = {
-  pending: { color: '#dc2626', label: '待整改', bg: '#fee2e2', stage: 'plan' },
-  'in-progress': { color: '#f59e0b', label: '整改中', bg: '#fef3c7', stage: 'do' },
-  rectified: { color: '#10b981', label: '已整改', bg: '#d1fae5', stage: 'check' },
-  overdue: { color: '#7f1d1d', label: '已逾期', bg: '#fecaca', stage: 'plan' },
-  cancelled: { color: '#64748b', label: '已取消', bg: '#e2e8f0', stage: 'act' },
+  pending: { color: '#dc2626', label: '待整改', bg: 'var(--color-error-bg)', stage: 'plan' },
+  'in-progress': { color: '#f59e0b', label: '整改中', bg: 'var(--color-warning-bg)', stage: 'do' },
+  rectified: { color: '#10b981', label: '已整改', bg: 'var(--color-success-bg)', stage: 'check' },
+  overdue: { color: '#7f1d1d', label: '已逾期', bg: 'var(--color-error-bg)', stage: 'plan' },
+  cancelled: { color: '#64748b', label: '已取消', bg: 'var(--border-color)', stage: 'act' },
 };
 
 const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string }> = {
@@ -268,7 +268,7 @@ export const DefectRemediationTracker: React.FC = () => {
               dataSource={filtered}
               locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无整改任务" /> }}
               style={{
-                background: '#fafafa',
+                background: 'var(--bg-primary)',
                 borderRadius: 6,
                 padding: 4,
                 maxHeight: 400,
@@ -288,7 +288,7 @@ export const DefectRemediationTracker: React.FC = () => {
                     style={{
                       padding: 10,
                       marginBottom: 4,
-                      background: overdue ? '#fee2e2' : sm.bg,
+                      background: overdue ? 'var(--color-error-bg)' : sm.bg,
                       borderRadius: 6,
                       borderLeft: overdue
                         ? '3px solid #dc2626'
@@ -304,7 +304,7 @@ export const DefectRemediationTracker: React.FC = () => {
                             width: 36,
                             height: 36,
                             borderRadius: 6,
-                            background: sev.color === 'red' ? '#fee2e2' : '#fef3c7',
+                            background: sev.color === 'red' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

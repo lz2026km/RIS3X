@@ -360,7 +360,7 @@ export const ComplianceDocsPage: React.FC = () => {
               <Descriptions.Item label="归档时间">{fmt(detail.archivedAt)}</Descriptions.Item>
             </Descriptions>
             <Typography.Title level={5} style={{ marginTop: 16 }}>文档内容</Typography.Title>
-            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#fafafa', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
               {detail.content || '（无内容）'}
             </pre>
           </>

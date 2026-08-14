@@ -40,6 +40,7 @@ import {
   shouldEscalate,
   determineCosignTrigger,
   recordWorkflowEvent, listWorkflowEvents,
+  markPendingAssignmentOnComplete,
   type ReportStatus,
 } from './businessLogic';
 import { v4 as uuidv4 } from 'uuid';
@@ -354,9 +355,14 @@ export const reportHandlers = [
       ...opts,
       pageSize: takeParam ? Math.min(Math.max(Number(takeParam) || 20, 1), 1000) : opts.pageSize,
     }, ['patientName', 'reportId', 'examItem', 'bodyPart']);
+    // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: state=PENDING_ASSIGNMENT 行以待分配态呈现 (对齐后端报告实体)
+    const withPendingAssignment = result.data.map((r: any) => {
+      if (String(r.state ?? '').toUpperCase() === 'PENDING_ASSIGNMENT') return { ...r, status: 'PENDING_ASSIGNMENT' };
+      return r;
+    });
     return HttpResponse.json({
       success: true,
-      data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
+      data: withPendingAssignment.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
       meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
     });
   }),
@@ -1109,7 +1115,43 @@ export const examListHandlers = [
   http.get(`${API_BASE}/exams/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    const exam = get<any>('exams', id);
+    let exam = get<any>('exams', id);
+    // [v3.0.6.11-96 Wave 3A P1] 演示检查 TMP001 兜底 (/exam/TMP001 独立详情路由 e2e/演示)
+    if (!exam && id === 'TMP001') {
+      const demo = {
+        reportId: 'TMP001',
+        patientId: 'TMP001',
+        patientName: '演示患者',
+        patientAge: 45,
+        patientGender: '男',
+        modality: 'CT',
+        examItem: '胸部CT平扫',
+        examItemCode: 'CT-CHEST',
+        bodyPart: '胸部',
+        deviceId: 'DEV-CT-01',
+        deviceModel: 'GE Revolution CT',
+        doctorId: 'TECH01',
+        reportDoctorId: 'DR01',
+        reviewDoctorId: null,
+        cosignDoctorId: null,
+        icd10: 'R91.1',
+        clinicalDiagnosis: '肺结节待查',
+        findings: '',
+        impression: '',
+        examAt: '2026-07-02T09:30:00Z',
+        reportAt: '2026-07-02T09:30:00Z',
+        reviewedAt: null,
+        signedAt: null,
+        status: 'submitted',
+        priority: '普通',
+        defectCount: 0,
+        qcScore: 96,
+        hasCriticalValue: false,
+        criticalValueType: null,
+      } as any;
+      create<any>('exams', demo);
+      exam = demo;
+    }
     if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: toExamDto(exam) });
   }),
@@ -1216,6 +1258,10 @@ const handleBatchTransition = async (body: { ids?: string[] }, action: 'checkin'
     if (action === 'checkin') patch.checkinAt = new Date().toISOString();
     if (action === 'complete') patch.completeAt = new Date().toISOString();
     update<any>('exams', id, patch);
+    // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 无报告实体时标记 PENDING_ASSIGNMENT (对齐后端 complete)
+    if (action === 'complete' && markPendingAssignmentOnComplete(before)) {
+      update<any>('exams', id, { state: 'PENDING_ASSIGNMENT', pendingReportAt: new Date().toISOString() });
+    }
     auditStatusChange('worklist', { ...before, status: target }, String(before.status ?? 'SCHEDULED'), target);
     recordWorkflowEvent({ actorId: 'system', actorName: '系统', action, entityType: 'worklist', entityId: id, fromState: String(before.status ?? 'SCHEDULED'), toState: target });
     succeeded.push({ id, state: target });
@@ -1389,6 +1435,10 @@ export const worklistHandlers = [
     }
     const updated = update<any>('exams', id, { status: 'COMPLETED', completeAt: new Date().toISOString() });
     if (updated) {
+      // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 无报告实体时标记 PENDING_ASSIGNMENT (对齐后端 complete)
+      if (markPendingAssignmentOnComplete(before)) {
+        update<any>('exams', id, { state: 'PENDING_ASSIGNMENT', pendingReportAt: new Date().toISOString() });
+      }
       auditStatusChange('worklist', updated, before?.status || '', 'COMPLETED');
       recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'COMPLETED' });
     }
@@ -3025,6 +3075,22 @@ export const notificationHandlers = [
 // [W3-2] 升级: 内存 CRUD + 版本/使用统计/共享状态 + 智能片段端点 (ReportTemplateManagerPage)
 let templateStore: any[] | null = null;
 let snippetStore: any[] | null = null;
+let categoryStore: any[] | null = null;
+
+// [v3.0.6.11-96 Wave3B P1] 模板分类种子 (name/description/sortOrder, 对齐后端 seed)
+function getCategoryStore(): any[] {
+  if (!categoryStore) {
+    categoryStore = [
+      { id: 'TC-001', name: 'CT', description: 'CT 各类检查的标准化报告模板', sortOrder: 1, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'TC-002', name: 'MR', description: 'MR 各类检查的标准化报告模板', sortOrder: 2, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'TC-003', name: 'MG', description: '乳腺钼靶/断层 (MG/DBT) 检查模板', sortOrder: 3, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'TC-004', name: 'DR', description: 'DR 数字化X线检查模板', sortOrder: 4, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'TC-005', name: 'US', description: '超声检查模板', sortOrder: 5, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'TC-006', name: '特殊检查', description: 'PET-CT / DSA / 胃肠造影等特殊检查', sortOrder: 6, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+    ];
+  }
+  return categoryStore;
+}
 
 function getTemplateStore(): any[] {
   if (!templateStore) {
@@ -3081,6 +3147,42 @@ export const templateHandlers = [
     if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     getSnippetStore().splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
+  }),
+  // [v3.0.6.11-96 Wave3B P1] 模板分类 CRUD (内存 + seed, 对齐后端 /templates/categories) — 静态路径需在 /templates/:id 之前
+  http.get(`${API_BASE}/templates/categories`, async () => {
+    await delay(80);
+    const cats = [...getCategoryStore()].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    return HttpResponse.json({ success: true, data: cats, meta: { total: cats.length } });
+  }),
+  http.post(`${API_BASE}/templates/categories`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const now = new Date().toISOString();
+    const item = {
+      id: `TC-${String(getCategoryStore().length + 1).padStart(3, '0')}`,
+      name: body.name || '未命名分类',
+      description: body.description || '',
+      sortOrder: Number(body.sortOrder ?? getCategoryStore().length + 1),
+      createdAt: now,
+      updatedAt: now,
+    };
+    getCategoryStore().push(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.patch(`${API_BASE}/templates/categories/:id`, async ({ params, request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const cat = getCategoryStore().find((c) => c.id === params.id);
+    if (!cat) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    Object.assign(cat, body, { updatedAt: new Date().toISOString() });
+    return HttpResponse.json({ success: true, data: cat });
+  }),
+  http.delete(`${API_BASE}/templates/categories/:id`, async ({ params }) => {
+    await delay(60);
+    const idx = getCategoryStore().findIndex((c) => c.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    getCategoryStore().splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { ok: true, id: params.id } });
   }),
   http.get(`${API_BASE}/templates`, async ({ request }) => {
     await delay(120);

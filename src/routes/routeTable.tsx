@@ -11,6 +11,8 @@ import { SIDEBAR_ITEMS, type Role } from "./sidebarConfig";
 const HomePage = lazy(() => import("../pages/HomePage"));
 const PatientPage = lazy(() => import("../pages/PatientPage"));
 const ExamPage = lazy(() => import("../pages/ExamPage"));
+// [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立路由 (仅跳转可达, 侧边栏不加菜单)
+const ExamDetailPage = lazy(() => import("../pages/ExamDetailPage"));
 const ReportPage = lazy(() => import("../pages/ReportPage"));
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
@@ -688,6 +690,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/integration/mllp-monitor":
     roleMap["/integration/ihe-connectathon"] ?? ALL_ROLES, // MLLP 监控,管理员专享
   "/patients/:id": roleMap["/patients"] ?? ALL_ROLES,
+  // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立页, 同 /exams 角色
+  "/exam/:id": roleMap["/exams"] ?? ALL_ROLES,
   "/template-designer/:id": roleMap["/template-designer"] ?? ALL_ROLES,
   "/research": ["医生", "主任", "管理员"],
   "/director-dashboard": ["主任", "管理员"],
@@ -938,6 +942,8 @@ export const routes: RouteObject[] = [
   wrapped("/patients/:id", React.createElement(PatientPage)),
   wrapped("/patients/:id/360", React.createElement(Patient360Page)),
   wrapped("/exams", React.createElement(ExamPage)),
+  // [v3.0.6.11-96 Wave 3A P1] 检查执行详情独立页 (行"详情"按钮 /exam/:id 跳转可达)
+  wrapped("/exam/:id", React.createElement(ExamDetailPage)),
   wrapped("/reports", React.createElement(ReportPage)),
   wrapped("/write-report", React.createElement(ReportWritePage)),
   wrapped("/report/write", React.createElement(ReportWritePage)), // [v3.0.6.11-92 Wave1B P0] 移动端医生工作台 /report/write 目标路由

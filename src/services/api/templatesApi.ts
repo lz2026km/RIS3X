@@ -24,6 +24,16 @@ export interface TemplateListParams {
   keyword?: string
 }
 
+// [v3.0.6.11-96 Wave3B P1] 模板分类 (GET/POST/PATCH/DELETE /templates/categories, 后端内存+seed)
+export interface TemplateCategoryDto {
+  id: string
+  name: string
+  description?: string
+  sortOrder: number
+  createdAt?: string
+  updatedAt?: string
+}
+
 export const templatesApi = {
   list: (params?: TemplateListParams) =>
     api.get<TemplateDto[]>('/templates' + (params ? '?' + new URLSearchParams(
@@ -54,4 +64,17 @@ export const templatesApi = {
 
   deleteSnippet: (id: string) =>
     api.delete<void>(`/templates/snippets/${id}`),
+
+  // [v3.0.6.11-96 Wave3B P1] 模板分类 CRUD (TemplateCategoryPage 树渲染/管理)
+  listCategories: () =>
+    api.get<TemplateCategoryDto[]>('/templates/categories'),
+
+  createCategory: (data: { name: string; description?: string; sortOrder?: number }) =>
+    api.post<TemplateCategoryDto>('/templates/categories', data),
+
+  updateCategory: (id: string, data: Partial<{ name: string; description?: string; sortOrder?: number }>) =>
+    api.patch<TemplateCategoryDto>(`/templates/categories/${id}`, data),
+
+  deleteCategory: (id: string) =>
+    api.delete<{ ok: boolean; id: string }>(`/templates/categories/${id}`),
 }

@@ -265,20 +265,25 @@ export default function AIReportDraftPage() {
       return null;
     }
     const user = getCurrentUser();
-    const res = await reportApi.create({
-      patientId: currentExam.patientId,
-      examId: currentExam.examId,
-      patientName: currentExam.patientName,
-      modality: currentExam.modality,
-      bodyPart: currentExam.bodyPart,
-      radiologistId: user?.id,
-      findings: editedFindings,
-      impression: editedImpression,
-      conclusion: editedImpression || editedDiagnosis,
-    });
-    if (res.success && res.data) {
-      message.success(`已生成报告草稿 · 报告号 ${res.data.reportId ?? res.data.id}`);
-      return res.data.reportId ?? res.data.id;
+    try {
+      const res = await reportApi.create({
+        patientId: currentExam.patientId,
+        examId: currentExam.examId,
+        patientName: currentExam.patientName,
+        modality: currentExam.modality,
+        bodyPart: currentExam.bodyPart,
+        radiologistId: user?.id,
+        findings: editedFindings,
+        impression: editedImpression,
+        conclusion: editedImpression || editedDiagnosis,
+      });
+      if (res.success && res.data) {
+        message.success(`已生成报告草稿 · 报告号 ${res.data.reportId ?? res.data.id}`);
+        return res.data.reportId ?? res.data.id;
+      }
+    } catch {
+      message.error('创建报告草稿失败:网络异常,请稍后重试');
+      return null;
     }
     return null;
   };
@@ -286,12 +291,16 @@ export default function AIReportDraftPage() {
   // 应用到报告书写
   const applyToReport = async () => {
     if (!generatedDraft) return;
-    const reportId = await createDraftReport();
-    if (reportId) {
-      navigate(`/reports/v3-write?reportId=${encodeURIComponent(reportId)}`);
-    } else {
-      message.warning(`已跳转到报告书写页 · 草稿创建失败`);
-      navigate(`/reports/v3-write`);
+    try {
+      const reportId = await createDraftReport();
+      if (reportId) {
+        navigate(`/reports/v3-write?reportId=${encodeURIComponent(reportId)}`);
+      } else {
+        message.warning(`已跳转到报告书写页 · 草稿创建失败`);
+        navigate(`/reports/v3-write`);
+      }
+    } catch (e: any) {
+      message.error('应用到报告书写失败: ' + (e?.message || '网络异常'));
     }
   };
 

@@ -46,21 +46,21 @@ export function ConfirmDialog({
 
   const variantConfig = {
     danger: {
-      iconBg: '#fef2f2',
+      iconBg: 'var(--color-error-bg)',
       iconColor: '#ef4444',
       confirmBg: '#ef4444',
       confirmHover: '#dc2626',
       icon: <AlertTriangle size={24} />,
     },
     warning: {
-      iconBg: '#fffbeb',
+      iconBg: 'var(--color-warning-bg)',
       iconColor: '#f59e0b',
       confirmBg: '#f59e0b',
       confirmHover: '#d97706',
       icon: <AlertTriangle size={24} />,
     },
     info: {
-      iconBg: '#eff6ff',
+      iconBg: 'var(--color-info-bg)',
       iconColor: '#3b82f6',
       confirmBg: '#3b82f6',
       confirmHover: '#2563eb',
@@ -137,7 +137,7 @@ export function ConfirmDialog({
             style={{
               padding: '8px 20px',
               fontSize: 14,
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border-color)',
               borderRadius: 8,
               background: 'var(--bg-card)',
               color: '#64748b',

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { Trash2, Save, CheckCircle, RotateCcw } from 'lucide-react';
+import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle } from 'lucide-react';
 import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
 import { reportApi } from '../services/api/reportApi';
 
@@ -418,7 +418,7 @@ export default function FollowUpPage() {
   return (
     <div style={pageStyle}>
       <div style={headerStyle}>
-        <h1 style={titleStyle}>📋 放射科随访管理</h1>
+        <h1 style={titleStyle}>放射科随访管理</h1>
         <p style={subtitleStyle}>CT/MRI增强复查、对比剂反应随访、肿瘤影像跟踪</p>
       </div>
 
@@ -460,7 +460,7 @@ export default function FollowUpPage() {
           backgroundColor: '#f9731622', border: '1px solid #ffd591',
           fontSize: '13px', color: '#ad6800'
         }}>
-          <strong>⏰ 即将到期 ({dueList.length})：</strong>
+          <strong><BellRing size={14} style={{ verticalAlign: 'text-bottom' }} /> 即将到期 ({dueList.length})：</strong>
           {dueList.slice(0, 5).map(p => `${p.patientName}(${p.nextDate.slice(0, 10)})`).join('、')}
           {dueList.length > 5 && ` 等${dueList.length}项`}
         </div>
@@ -469,7 +469,7 @@ export default function FollowUpPage() {
       {/* [W4-B] loading / error */}
       {loading && (
         <div style={{ marginBottom: '16px', padding: '16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px' }}>
-          ⏳ 加载随访计划中...
+          <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> 加载随访计划中...
         </div>
       )}
       {loadError && !loading && (
@@ -478,7 +478,7 @@ export default function FollowUpPage() {
           backgroundColor: 'var(--color-error-bg)', border: '1px solid #ffa39e',
           fontSize: '13px', color: '#cf1322'
         }}>
-          ⚠️ {loadError}
+          <AlertTriangle size={14} style={{ verticalAlign: 'text-bottom' }} /> {loadError}
         </div>
       )}
 

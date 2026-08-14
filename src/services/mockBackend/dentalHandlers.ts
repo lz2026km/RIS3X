@@ -884,6 +884,7 @@ const dentalVolumeModule = [
 ];
 
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图 (8 端点)
+// [v3.0.6.11-96 Wave2A P0] 后端 dental 模块已实现同路径 7 端点 (患者汇总/治疗/预约/费用/处方/知情同意/回访), 本模块仅 dev 兜底
 const dentalEmrModule = [
   http.get(`${DENTAL_API}/patients/:id/overview`, async ({ params }) => {
     await delay(60);

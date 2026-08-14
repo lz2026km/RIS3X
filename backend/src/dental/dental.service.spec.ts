@@ -24,8 +24,7 @@ const makePrisma = () => {
   return { prisma: prisma as any, dentalStudies, patients }
 }
 
-describe('DentalService [G005 W1-A] 在用孤儿端点', () => {
-  it('治疗 CRUD + 状态流转', async () => {
+describe('DentalService [G005 W1-A] 在用孤儿端点', () => {  it('治疗 CRUD + 状态流转', async () => {
     const { prisma } = makePrisma()
     const svc = new DentalService(prisma)
     const list = await svc.listTreatments({})
@@ -199,5 +198,69 @@ describe('DentalService [G005 W1-A] 在用孤儿端点', () => {
     expect((await svc.measureBoneLoss()).data.boneLoss.unit).toBe('%')
     expect((await svc.detectRootCanal()).data.canals.length).toBeGreaterThan(0)
     expect((await svc.screenOralCavity()).data.findings.length).toBeGreaterThan(0)
+  })
+
+  // [G005 W2-A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用, 形状对齐 dentalEmrMock)
+  describe('患者 360° 视图 (overview 7 端点)', () => {
+    it('overview: 汇总基本信息 + 派生统计', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      const res: any = await svc.getPatientOverview('P100001')
+      expect(res.success).toBe(true)
+      expect(res.data.name).toBe('张伟')
+      expect(res.data).toHaveProperty('summary')
+      expect(res.data.summary).toHaveProperty('treatments')
+      expect(res.data.summary).toHaveProperty('appointments')
+      expect(res.data.summary).toHaveProperty('unpaid')
+    })
+
+    it('overview: 未知患者返回 NOT_FOUND', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      const res: any = await svc.getPatientOverview('NO-SUCH-PATIENT')
+      expect(res.success).toBe(false)
+      expect(res.error.code).toBe('NOT_FOUND')
+    })
+
+    it('overview/treatments: 演示患者返回 seed 治疗史', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      const res: any = await svc.getPatientOverviewTreatments('P100001')
+      expect(res.success).toBe(true)
+      expect(res.data.length).toBeGreaterThan(0)
+      expect(res.data[0]).toHaveProperty('toothNo')
+      expect(res.data[0]).toHaveProperty('cost')
+      const other: any = await svc.getPatientOverviewTreatments('P100009')
+      expect(other.data.length).toBe(0)
+    })
+
+    it('overview/appointments: 演示患者返回预约 (scheduled/completed)', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      const res: any = await svc.getPatientOverviewAppointments('P100001')
+      expect(res.success).toBe(true)
+      expect(res.data.length).toBeGreaterThan(0)
+      expect(res.data.some((a: any) => a.status === 'scheduled')).toBe(true)
+      expect(res.data.some((a: any) => a.status === 'completed')).toBe(true)
+    })
+
+    it('overview/billing: 演示患者返回费用 (paid/partial/pending)', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      const res: any = await svc.getPatientOverviewBilling('P100001')
+      expect(res.success).toBe(true)
+      expect(res.data.length).toBeGreaterThan(0)
+      expect(res.data[0]).toHaveProperty('total')
+      expect(res.data[0]).toHaveProperty('selfPay')
+    })
+
+    it('overview/prescriptions|consents|recalls: 演示患者返回 seed 记录', async () => {
+      const { prisma } = makePrisma()
+      const svc = new DentalService(prisma)
+      expect((await svc.getPatientOverviewPrescriptions('P100001')).data.length).toBeGreaterThan(0)
+      expect((await svc.getPatientOverviewConsents('P100001')).data.length).toBeGreaterThan(0)
+      expect((await svc.getPatientOverviewRecalls('P100001')).data.length).toBeGreaterThan(0)
+      expect((await svc.getPatientOverviewRecalls('P100009')).data.length).toBe(0)
+    })
   })
 })

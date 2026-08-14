@@ -38,6 +38,10 @@ const STATUS_COLORS: Record<string, string> = {
 
 const GENDER_CN: Record<string, string> = { MALE: '男', FEMALE: '女', OTHER: '其他', '男': '男', '女': '女' }
 
+const OP_LABELS: Record<string, string> = {
+  START: '开始', COMPLETE: '完成', CHECK_IN: '签到', PAUSE: '暂停', RESUME: '继续', CANCEL: '取消', RETAKE: '重拍', QC: '质控',
+}
+
 const genderCn = (raw?: string | null): string => (raw ? GENDER_CN[raw] ?? '未知' : '未知')
 
 // [v3.0.6.11-95 Wave1B] 后端 worklist state → 技师端状态 (含历史别名, 对齐 MSW WORKLIST_STATUS_ALIASES)
@@ -318,7 +322,7 @@ export default function TechMobileWorkstation() {
     try {
       const nav = navigator as any
       if (typeof nav?.mediaDevices?.getUserMedia === 'function' || typeof nav?.BarcodeDetector !== 'undefined') {
-        message.info('请对准检查申请单条形码扫描 (BarcodeDetector 可用)')
+        message.info('请对准检查申请单条形码扫描（已支持条形码扫描）')
       }
     } catch { /* ignore */ }
     if (scanInputRef.current) scanInputRef.current.click()
@@ -353,7 +357,7 @@ export default function TechMobileWorkstation() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
           {[
             { value: techStats.completedToday, label: '今日完成', bg: 'rgba(255,255,255,0.15)' },
-            { value: techStats.avgDurationMin ? `${techStats.avgDurationMin}min` : '--', label: '平均时长', bg: 'rgba(255,255,255,0.15)' },
+            { value: techStats.avgDurationMin ? `${techStats.avgDurationMin} 分钟` : '--', label: '平均时长', bg: 'rgba(255,255,255,0.15)' },
             { value: techStats.technicianCount, label: '技师', bg: 'rgba(255,255,255,0.15)' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
@@ -436,13 +440,13 @@ export default function TechMobileWorkstation() {
                   {item.status === 'arrived' && (
                     <>
                       <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '开始'}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#f1f5f9', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
                     </>
                   )}
                   {item.status === 'in-progress' && (
                     <>
                       <button onClick={() => void handleCompleteExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? '处理中' : '完成'}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#f1f5f9', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
                     </>
                   )}
                   {item.status === 'completed' && (
@@ -506,7 +510,7 @@ export default function TechMobileWorkstation() {
             ) : (
               detailOps.map((o, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)', fontSize: 12 }}>
-                  <span style={{ color: '#334155' }}>{o.actorName ?? '系统'} · {o.op}</span>
+                  <span style={{ color: '#334155' }}>{o.actorName ?? '系统'} · {OP_LABELS[o.op] ?? o.op}</span>
                   <span style={{ color: '#94a3b8' }}>{o.createdAt}</span>
                 </div>
               ))

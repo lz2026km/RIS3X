@@ -14,8 +14,8 @@ import { type SimilarCaseResult } from '@services/api';
 import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
 import { examApi } from '@services/api/examApi';
 import { reportApi } from '@services/api/reportApi';
+import { reportQualityApi, type QualityEvaluation } from '@services/api/reportQualityApi';
 import { templatesApi } from '@services/api/templatesApi';
-import { v3WritingApi } from '@services/api/v3Api';
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { getCurrentUser } from '@utils/auth';
@@ -63,7 +63,7 @@ function HistoryTab({ priorReports, onCompare, dataSource = 'mock' }: { priorRep
         {dataSource === 'api' ? (
           <Tag color="green" className="text-[10px]">真实数据</Tag>
         ) : (
-          <Tag color="orange" className="text-[10px]" title="后端 GET /reports patientId 筛选待接入 (Wave 3B)">演示数据</Tag>
+          <Tag color="orange" className="text-[10px]" title="历史报告数据为演示数据">演示数据</Tag>
         )}
       </div>
       {priorReports.map((p: any) => (
@@ -132,7 +132,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · Top ${cases.length}` : '输入报告文本后自动检索;可选关联检查启用影像特征融合'}</span>
+        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · 按相关度前 ${cases.length} 条` : '输入报告文本后自动检索;可选关联检查启用影像特征融合'}</span>
         <Space size={4}>
           <Select
             size="small" allowClear showSearch placeholder="关联检查(影像特征)"
@@ -226,12 +226,28 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
   );
 }
 
-function ScoreTab({ preScore }: { preScore: any }) {
+function ScoreTab({ preScore, source, loading }: { preScore: any; source: 'api' | 'mock'; loading?: boolean }) {
   return (
     <>
       <div className="text-center mb-3">
         <Progress type="circle" percent={preScore.score} size={80} strokeColor={preScore.passed ? '#10b981' : '#f59e0b'} format={(p) => <span className="text-2xl font-bold">{p}</span>} />
-        <div className="text-xs text-slate-500 mt-1">{preScore.passed ? '可提交' : '需完善'}</div>
+        <div className="text-xs text-slate-500 mt-1">
+          {preScore.passed ? '可提交' : '需完善'}
+          <span className="ml-1">{loading ? '(评分中…)' : ''}</span>
+        </div>
+        <Tag color={source === 'api' ? 'green' : 'orange'} className="mt-1" title="reportQualityApi.evaluate 真实评分, 失败回退本地演示">
+          {source === 'api' ? '真实评分' : '演示回退'}
+        </Tag>
+      </div>
+      <Divider className="my-2" />
+      <h5 className="text-xs font-semibold mb-1">评分维度</h5>
+      <div className="space-y-1">
+        {(preScore.dimensions ?? []).map((d: any) => (
+          <div key={d.key ?? d.name} className="flex items-center justify-between text-xs">
+            <span className="text-slate-600">{d.label ?? d.name}</span>
+            <span className="text-slate-500">{d.score}/{d.max}</span>
+          </div>
+        ))}
       </div>
       <Divider className="my-2" />
       <h5 className="text-xs font-semibold mb-1">检查清单</h5>
@@ -243,6 +259,17 @@ function ScoreTab({ preScore }: { preScore: any }) {
           </div>
         ))}
       </div>
+      {(preScore.suggestions ?? []).length > 0 && (
+        <>
+          <Divider className="my-2" />
+          <h5 className="text-xs font-semibold mb-1">改进建议</h5>
+          <div className="space-y-1">
+            {(preScore.suggestions ?? []).map((s: string, i: number) => (
+              <div key={i} className="text-xs text-amber-700">• {s}</div>
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -264,9 +291,18 @@ function DraftsTab({ drafts }: { drafts: any[] }) {
   );
 }
 
-function KWTab({ keywords }: { keywords: any[] }) {
+// [v3.0.6.11-96 Wave5A P2] 关键词高亮双源模式: source=api 渲染真实高亮 (从 /reports/quality/rules 关键字派生), mock 回退标注演示数据 (对齐 HistoryTab priorSource 模式)
+function KWTab({ keywords, source = 'mock' }: { keywords: any[]; source?: 'api' | 'mock' }) {
   return (
     <div className="space-y-1">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs text-slate-500">共 {keywords.length} 个关键词</span>
+        {source === 'api' ? (
+          <Tag color="green" className="text-[10px]">真实高亮</Tag>
+        ) : (
+          <Tag color="orange" className="text-[10px]" title="后端无关键词高亮接口, 回退演示数据">演示数据</Tag>
+        )}
+      </div>
       {keywords.map((k: any) => (
         <div key={k.term} className="flex items-center gap-2 text-xs p-1.5 rounded" style={{ background: k.bg, color: k.color }}>
           <Tag color="default" className="m-0">{k.category}</Tag>
@@ -279,18 +315,36 @@ function KWTab({ keywords }: { keywords: any[] }) {
   );
 }
 
-function ComplianceTab() {
-  const items = [
-    { id: 'c1', label: '患者姓名与检查号匹配', labelEn: 'Patient name matches ID', passed: true },
-    { id: 'c2', label: '检查部位与申请单一致', labelEn: 'Body part matches order', passed: true },
-    { id: 'c3', label: '影像所见覆盖全部检查部位', labelEn: 'Findings cover all body parts', passed: true },
-    { id: 'c4', label: '诊断意见与影像所见逻辑一致', labelEn: 'Impression consistent with findings', passed: true },
-    { id: 'c5', label: '危急值已标注并通知临床', labelEn: 'Critical values annotated & notified', passed: false },
-    { id: 'c6', label: '术语符合 ICD 编码规范', labelEn: 'Terms follow ICD coding', passed: true },
-    { id: 'c7', label: '测量数据与图像一致', labelEn: 'Measurements match images', passed: true },
-  ];
+// [v3.0.6.11-96 Wave2A P0] 合规 Tab: 用 evaluate 返回维度渲染通过/未通过列表; 失败回退静态数组并标注
+const COMPLIANCE_FALLBACK_ITEMS = [
+  { id: 'c1', label: '患者姓名与检查号匹配', labelEn: 'Patient name matches ID', passed: true },
+  { id: 'c2', label: '检查部位与申请单一致', labelEn: 'Body part matches order', passed: true },
+  { id: 'c3', label: '影像所见覆盖全部检查部位', labelEn: 'Findings cover all body parts', passed: true },
+  { id: 'c4', label: '诊断意见与影像所见逻辑一致', labelEn: 'Impression consistent with findings', passed: true },
+  { id: 'c5', label: '危急值已标注并通知临床', labelEn: 'Critical values annotated & notified', passed: false },
+  { id: 'c6', label: '术语符合 ICD 编码规范', labelEn: 'Terms follow ICD coding', passed: true },
+  { id: 'c7', label: '测量数据与图像一致', labelEn: 'Measurements match images', passed: true },
+];
+
+function ComplianceTab({ evaluation }: { evaluation: QualityEvaluation | null }) {
+  const items = evaluation
+    ? evaluation.dimensions.map((d) => ({
+        id: d.key,
+        label: d.label,
+        labelEn: d.key,
+        passed: d.issues.length === 0 && d.score >= d.max * 0.6,
+      }))
+    : COMPLIANCE_FALLBACK_ITEMS;
   return (
     <div className="space-y-1">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs text-slate-500">共 {items.length} 项质控规则</span>
+        {evaluation ? (
+          <Tag color="green" className="text-[10px]">真实规则</Tag>
+        ) : (
+          <Tag color="orange" className="text-[10px]" title="reportQualityApi.evaluate 不可用时回退">演示回退</Tag>
+        )}
+      </div>
       {items.map((c) => (
         <div key={c.id} className="flex items-center gap-1 text-xs">
           {c.passed ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
@@ -302,6 +356,7 @@ function ComplianceTab() {
 }
 
 function CollabTab() {
+  // [v3.0.6.11-96 Wave5A P2] 协作列表为本地演示数据 (useCollaborativeYjs 为真实协同通道, 列表未接 API)
   const collaborators = [
     { name: '陈医师', role: '报告医师', status: 'online', lastActive: '当前编辑' },
     { name: '王医师', role: '审核医师', status: 'online', lastActive: '10 分钟前' },
@@ -309,6 +364,9 @@ function CollabTab() {
   ];
   return (
     <div className="space-y-2">
+      <div className="flex justify-end">
+        <Tag color="orange" className="text-[10px]" title="协作医生列表为本地示例, 未接真实 API">演示数据（协作列表示例）</Tag>
+      </div>
       {collaborators.map((c) => (
         <div key={c.name} className="flex items-center justify-between p-2 border border-slate-200 rounded text-xs">
           <div className="flex items-center gap-2">
@@ -364,7 +422,114 @@ export default function ReportWritePage() {
   const [reportId, setReportId] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [context, setContext] = useState<any>(REPORT_WRITING_CONTEXT_MOCK);
-  const [preScore] = useState(PRE_SUBMIT_SCORE_MOCK);
+  // [v3.0.6.11-96 Wave2A P0] 预评分真实化: reportQualityApi.evaluate (POST /reports/quality/evaluate)
+  //   提交前 + 内容变更防抖触发; 失败回退 PRE_SUBMIT_SCORE_MOCK 并标注演示回退
+  const [qualityEval, setQualityEval] = useState<QualityEvaluation | null>(null);
+  const [preScoreSource, setPreScoreSource] = useState<'api' | 'mock'>('mock');
+  const [preScoreLoading, setPreScoreLoading] = useState(false);
+  const qualityEvalRef = useRef<QualityEvaluation | null>(null);
+  const preScoreSourceRef = useRef<'api' | 'mock'>('mock');
+
+  // [v3.0.6.11-96 Wave5A P2] 关键词高亮双源: 真实 /reports/quality/rules 关键字命中报告文本 → api; 否则 mock 回退 (KWTab 标注演示数据)
+  const [kwHighlights, setKwHighlights] = useState<any[]>(KEYWORD_HIGHLIGHTS_MOCK);
+  const [kwSource, setKwSource] = useState<'api' | 'mock'>('mock');
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await reportQualityApi.getRules();
+        const kws: string[] = Array.isArray(res.data?.keywords) ? res.data.keywords : [];
+        if (cancelled || kws.length === 0) return;
+        const text = context.document.plainText ?? '';
+        const real = kws
+          .filter((k) => text.includes(k))
+          .slice(0, 20)
+          .map((k, i) => ({
+            term: k,
+            termEn: '',
+            category: 'finding',
+            color: i % 2 ? '#3b82f6' : '#dc2626',
+            bg: i % 2 ? '#dbeafe' : '#fee2e2',
+            weight: 5,
+          }));
+        if (real.length > 0 && !cancelled) {
+          setKwHighlights(real);
+          setKwSource('api');
+        }
+      } catch {
+        /* 保持 mock 回退 */
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const runQualityEvaluate = useCallback(async (opts?: { force?: boolean }) => {
+    const rid = reportId ?? (context as any).reportId;
+    if (!rid) return;
+    if (!opts?.force && qualityEvalRef.current && preScoreSourceRef.current === 'api') return;
+    setPreScoreLoading(true);
+    try {
+      const text = context.document.plainText ?? '';
+      const res = await reportQualityApi.evaluate({
+        reportId: rid,
+        findings: text,
+        conclusion: text,
+        structuredCompletion: Object.keys(context.fields ?? {}).length > 0 ? 0.9 : 0.5,
+        hasCritical: false,
+        verified: false,
+      });
+      if (res.success && res.data) {
+        qualityEvalRef.current = res.data;
+        preScoreSourceRef.current = 'api';
+        setQualityEval(res.data);
+        setPreScoreSource('api');
+      } else {
+        qualityEvalRef.current = null;
+        preScoreSourceRef.current = 'mock';
+        setQualityEval(null);
+        setPreScoreSource('mock');
+      }
+    } catch {
+      qualityEvalRef.current = null;
+      preScoreSourceRef.current = 'mock';
+      setQualityEval(null);
+      setPreScoreSource('mock');
+    } finally {
+      setPreScoreLoading(false);
+    }
+  }, [reportId, context.reportId, context.document.plainText, context.fields]);
+
+  // 内容变更防抖 1.2s 后重新评分
+  useEffect(() => {
+    if (!reportId) return;
+    const timer = setTimeout(() => { void runQualityEvaluate(); }, 1200);
+    return () => clearTimeout(timer);
+  }, [reportId, context.document.plainText, runQualityEvaluate]);
+
+  // [v3.0.6.11-96 Wave2A P0] 真实评分 → 预评分形状 (维度明细 + 检查清单 + 建议); 失败回退本地 mock
+  const preScore = useMemo(() => {
+    const ev = qualityEval;
+    if (ev) {
+      return {
+        reportId: ev.reportId,
+        score: ev.totalScore,
+        grade: ev.grade,
+        passed: ev.totalScore >= 80,
+        dimensions: ev.dimensions.map((d) => ({ key: d.key, label: d.label, name: d.label, score: d.score, max: d.max, weight: d.weight, issues: d.issues })),
+        checklist: ev.dimensions.map((d, i) => ({
+          id: `dim-${d.key ?? i}`,
+          label: d.label,
+          labelEn: d.key,
+          passed: d.issues.length === 0 && d.score >= d.max * 0.6,
+          weight: d.weight,
+        })),
+        suggestions: ev.suggestions ?? [],
+        evaluatedAt: ev.evaluatedAt,
+      };
+    }
+    return PRE_SUBMIT_SCORE_MOCK;
+  }, [qualityEval]);
   // [v3.0.6.11-70] P0 真实化: 草稿列表来自 reportApi.list
   const [drafts, setDrafts] = useState<any[]>([]);
   const [showSubmit, setShowSubmit] = useState(false);
@@ -406,6 +571,8 @@ export default function ReportWritePage() {
   const [phraseOpen, setPhraseOpen] = useState(false);
   const [phrases, setPhrases] = useState<any[]>([]);
   const [phraseLoading, setPhraseLoading] = useState(true);
+  // [v3.0.6.11-96 Wave 2B (E)] 短语库数据源: templatesApi.listSnippets 真实 → 失败回退 PHRASES_MOCK (演示回退)
+  const [phraseSource, setPhraseSource] = useState<'api' | 'fallback'>('api');
   // [W2-2] 上下例导航 (reportApi.list 上下文)
   const [reportList, setReportList] = useState<any[]>([]);
   const [listIndex, setListIndex] = useState(0);
@@ -576,14 +743,41 @@ export default function ReportWritePage() {
 
   useEffect(() => { templateListRef.current = templateList; }, [templateList]);
 
-  // [W2-2] 加载短语库 (v3WritingApi.listPhrases → mock 兜底)
+  // [v3.0.6.11-96 Wave3B P1] 模板库分类: 从真实 /templates/categories 加载, 失败静默 (回退模板数据派生)
+  const [realCategories, setRealCategories] = useState<string[]>([]);
   useEffect(() => {
     let cancelled = false;
-    v3WritingApi.listPhrases().then((res) => {
+    templatesApi.listCategories().then((res) => {
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) setPhrases(res.data);
-      else setPhrases(PHRASES_MOCK);
-    }).catch(() => { if (!cancelled) setPhrases(PHRASES_MOCK); })
+      const arr = Array.isArray(res.data) ? res.data : [];
+      if (arr.length > 0) setRealCategories(arr.map((c: any) => String(c?.name ?? '')).filter(Boolean));
+    }).catch(() => { /* 静默: 模板库回退模板数据派生分类 */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // [W2-2] 加载短语库
+  // [v3.0.6.11-96 Wave 2B (E)] 数据源切换: v3WritingApi.listPhrases (mockOk) → templatesApi.listSnippets (后端 /templates/snippets 真实)
+  //   snippets 形状 { id, name, content, category, shortcuts } → 短语形状 { id, name, content, category }; 失败回退 PHRASES_MOCK
+  useEffect(() => {
+    let cancelled = false;
+    templatesApi.listSnippets().then((res) => {
+      if (cancelled) return;
+      const arr = Array.isArray(res.data) ? res.data : ((res.data as any)?.items ?? []);
+      if (arr.length > 0) {
+        setPhrases(arr.map((s: any) => ({
+          id: s?.id,
+          name: s?.name ?? '',
+          content: s?.content ?? s?.text ?? '',
+          category: s?.category ?? '通用',
+          subCategory: s?.subCategory,
+          shortcuts: s?.shortcuts,
+        })));
+        setPhraseSource('api');
+      } else {
+        setPhrases(PHRASES_MOCK);
+        setPhraseSource('fallback');
+      }
+    }).catch(() => { if (!cancelled) { setPhrases(PHRASES_MOCK); setPhraseSource('fallback'); } })
       .finally(() => { if (!cancelled) setPhraseLoading(false); });
     return () => { cancelled = true; };
   }, []);
@@ -657,22 +851,27 @@ export default function ReportWritePage() {
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
-    const r = await import('@services/writing/writingService').then((m) =>
-      m.submitReport(reportId ?? '', {
-        finalScore: preScore.score,
-        structured: context.fields,
-        html: context.document.html ?? '',
-        plainText: context.document.plainText ?? '',
-        conclusion: context.document.plainText ?? '',
-      })
-    );
-    setSubmitting(false);
-    if (r.success) {
-      message.success('报告已提交审核');
-      setShowSubmit(false);
-      setTimeout(() => navigate('/report-review'), 1500);
-    } else {
-      message.error('提交失败:报告状态不可提交或网络异常,请先保存后重试');
+    try {
+      const r = await import('@services/writing/writingService').then((m) =>
+        m.submitReport(reportId ?? '', {
+          finalScore: preScore.score,
+          structured: context.fields,
+          html: context.document.html ?? '',
+          plainText: context.document.plainText ?? '',
+          conclusion: context.document.plainText ?? '',
+        })
+      );
+      if (r.success) {
+        message.success('报告已提交审核');
+        setShowSubmit(false);
+        setTimeout(() => navigate('/report-review'), 1500);
+      } else {
+        message.error('提交失败:报告状态不可提交或网络异常,请先保存后重试');
+      }
+    } catch {
+      message.error('提交失败:网络异常,请稍后重试');
+    } finally {
+      setSubmitting(false);
     }
   }, [reportId, preScore, context, navigate]);
 
@@ -688,25 +887,33 @@ export default function ReportWritePage() {
 
   const handleSign = useCallback(async () => {
     if (!reportId) return;
-    const res = await reportApi.sign(reportId);
-    if (res.success) {
-      message.success('报告已签署');
-      setContext((c: any) => ({ ...c, status: 'SIGNED' }));
-      setLockConflict(false);
-    } else {
-      message.error(res.error?.message ?? '签署失败,请稍后重试');
+    try {
+      const res = await reportApi.sign(reportId);
+      if (res.success) {
+        message.success('报告已签署');
+        setContext((c: any) => ({ ...c, status: 'SIGNED' }));
+        setLockConflict(false);
+      } else {
+        message.error(res.error?.message ?? '签署失败,请稍后重试');
+      }
+    } catch {
+      message.error('签署失败:网络异常,请稍后重试');
     }
   }, [reportId]);
 
   const handlePublish = useCallback(async () => {
     if (!reportId) return;
-    const res = await reportApi.publish(reportId);
-    if (res.success) {
-      message.success('报告已发布');
-      setContext((c: any) => ({ ...c, status: 'PUBLISHED' }));
-      setLockConflict(false);
-    } else {
-      message.error(res.error?.message ?? '发布失败,请稍后重试');
+    try {
+      const res = await reportApi.publish(reportId);
+      if (res.success) {
+        message.success('报告已发布');
+        setContext((c: any) => ({ ...c, status: 'PUBLISHED' }));
+        setLockConflict(false);
+      } else {
+        message.error(res.error?.message ?? '发布失败,请稍后重试');
+      }
+    } catch {
+      message.error('发布失败:网络异常,请稍后重试');
     }
   }, [reportId]);
 
@@ -724,6 +931,8 @@ export default function ReportWritePage() {
       } else {
         message.error(res.error?.message ?? '退回重写失败,请稍后重试');
       }
+    } catch {
+      message.error('退回重写失败:网络异常,请稍后重试');
     } finally {
       setReworking(false);
     }
@@ -845,9 +1054,11 @@ export default function ReportWritePage() {
     if (!isLocked && !inFlight && reportId) {
       const found = detectConflicts(context.document.plainText);
       setConflicts(found);
+      // [v3.0.6.11-96 Wave2A P0] 提交前强制重新评分 (真实 reportQualityApi.evaluate)
+      void runQualityEvaluate({ force: true });
       setShowSubmit(true);
     }
-  }, [canSign, canPublish, isLocked, inFlight, reportId, context.document.plainText, handleSign, handlePublish]);
+  }, [canSign, canPublish, isLocked, inFlight, reportId, context.document.plainText, handleSign, handlePublish, runQualityEvaluate]);
 
   useKeyboardShortcuts([
     { key: 's', ctrlKey: true, action: () => { void doSave(false); }, description: '保存草稿' },
@@ -888,23 +1099,27 @@ export default function ReportWritePage() {
   // [v3.0.6.11-61] 环境式 AI 草稿生成
   const handleAiGenerate = useCallback(async () => {
     setAiUi((u) => ({ ...u, loading: true, error: null }));
-    const res = await aiDraftApi.generateReportDraft({
-      reportId: context.reportId,
-      patientId: context.patientId,
-      modality: context.modality,
-      bodyPart: context.bodyPart,
-      clinicalInfo: aiUi.clinical,
-      findings: aiUi.findings,
-      style: aiUi.style,
-    });
-    if (res.success && res.data) {
-      setAiDraft(res.data);
-      setAiEditText(res.data.draftText);
-      setAiEditMode(false);
-      setAiConfirm(true);
-      setAiUi((u) => ({ ...u, open: false, loading: false }));
-    } else {
-      setAiUi((u) => ({ ...u, loading: false, error: res.error?.message ?? 'AI 草稿生成失败' }));
+    try {
+      const res = await aiDraftApi.generateReportDraft({
+        reportId: context.reportId,
+        patientId: context.patientId,
+        modality: context.modality,
+        bodyPart: context.bodyPart,
+        clinicalInfo: aiUi.clinical,
+        findings: aiUi.findings,
+        style: aiUi.style,
+      });
+      if (res.success && res.data) {
+        setAiDraft(res.data);
+        setAiEditText(res.data.draftText);
+        setAiEditMode(false);
+        setAiConfirm(true);
+        setAiUi((u) => ({ ...u, open: false, loading: false }));
+      } else {
+        setAiUi((u) => ({ ...u, loading: false, error: res.error?.message ?? 'AI 草稿生成失败' }));
+      }
+    } catch {
+      setAiUi((u) => ({ ...u, loading: false, error: 'AI 草稿生成失败:网络异常,请稍后重试' }));
     }
   }, [aiUi.clinical, aiUi.findings, aiUi.style, context.reportId, context.patientId, context.modality, context.bodyPart]);
 
@@ -912,30 +1127,40 @@ export default function ReportWritePage() {
   const handleAiAccept = useCallback(async () => {
     if (!aiDraft) return;
     setAiActionLoading(true);
-    const res = await aiDraftApi.acceptDraft(aiDraft.id);
-    if (res.success && res.data) {
-      setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
-      setAiConfirm(false);
-      message.success('已接受 AI 草稿并应用至编辑器');
-    } else {
-      message.error(res.error?.message ?? '接受草稿失败');
+    try {
+      const res = await aiDraftApi.acceptDraft(aiDraft.id);
+      if (res.success && res.data) {
+        setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
+        setAiConfirm(false);
+        message.success('已接受 AI 草稿并应用至编辑器');
+      } else {
+        message.error(res.error?.message ?? '接受草稿失败');
+      }
+    } catch {
+      message.error('接受草稿失败:网络异常,请稍后重试');
+    } finally {
+      setAiActionLoading(false);
     }
-    setAiActionLoading(false);
   }, [aiDraft]);
 
   // 医生修改后保存
   const handleAiModifySave = useCallback(async () => {
     if (!aiDraft) return;
     setAiActionLoading(true);
-    const res = await aiDraftApi.modifyDraft(aiDraft.id, aiEditText);
-    if (res.success && res.data) {
-      setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
-      setAiConfirm(false);
-      message.success('已保存修改并应用至编辑器');
-    } else {
-      message.error(res.error?.message ?? '保存修改失败');
+    try {
+      const res = await aiDraftApi.modifyDraft(aiDraft.id, aiEditText);
+      if (res.success && res.data) {
+        setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
+        setAiConfirm(false);
+        message.success('已保存修改并应用至编辑器');
+      } else {
+        message.error(res.error?.message ?? '保存修改失败');
+      }
+    } catch {
+      message.error('保存修改失败:网络异常,请稍后重试');
+    } finally {
+      setAiActionLoading(false);
     }
-    setAiActionLoading(false);
   }, [aiDraft, aiEditText]);
 
   const applyAiTextToEditor = useCallback((text: string) => {
@@ -961,10 +1186,10 @@ export default function ReportWritePage() {
       case 'voice': return <VoiceTab reportId={reportId ?? ''} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
       case 'history': return <HistoryTab priorReports={priorSource === 'api' ? priorReports : context.priorReports} dataSource={priorSource} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
       case 'similar': return <SimilarTab reportText={context.document.plainText} modality={context.modality} bodyPart={context.bodyPart} />;
-      case 'score': return <ScoreTab preScore={preScore} />;
+      case 'score': return <ScoreTab preScore={preScore} source={preScoreSource} loading={preScoreLoading} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
-      case 'kw': return <KWTab keywords={KEYWORD_HIGHLIGHTS_MOCK} />;
-      case 'compliance': return <ComplianceTab />;
+      case 'kw': return <KWTab keywords={kwSource === 'api' ? kwHighlights : KEYWORD_HIGHLIGHTS_MOCK} source={kwSource} />;
+      case 'compliance': return <ComplianceTab evaluation={qualityEval} />;
       case 'collab': return <CollabTab />;
       default: return null;
     }
@@ -984,6 +1209,10 @@ export default function ReportWritePage() {
           <Tag color="purple">{context.modality} - {context.bodyPart}</Tag>
           <Tag color={preScore.passed ? 'success' : 'warning'}>
             {preScore.passed ? '可提交' : '需完善'}
+          </Tag>
+          {/* [v3.0.6.11-96 Wave2A P0] 预评分数据源标注: 真实 reportQualityApi.evaluate / 演示回退 */}
+          <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} title="预评分数据源">
+            {preScoreSource === 'api' ? '真实评分' : '演示回退'}
           </Tag>
           {/* [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 短语分区 + 点击插入光标处 (替代原下拉) */}
           <Tooltip title="模板库: 分类浏览全文模板与短语, 点击插入光标处">
@@ -1117,7 +1346,7 @@ export default function ReportWritePage() {
               message={`该草稿已 ${Math.round(staleHours)} 小时未更新, 请及时完成书写并提交 (Ctrl+Enter)`}
             />
           )}
-          <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span></Space>}>
+          <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span><Tag color="orange" className="text-[10px]" title="患者/检查无真实数据时保留本地兜底值并标注来源">示例数据</Tag></Space>}>
             <div className="v3-clinical-grid">
               <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}</div></div>
               <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>{(context.gender || '男')} / {(context.age || 58)} 岁</div></div>
@@ -1282,6 +1511,9 @@ export default function ReportWritePage() {
             <div className="p-3 bg-slate-50 rounded text-center">
               <div className="text-slate-500">预评分</div>
               <div className="text-lg font-semibold" style={{ color: preScore.passed ? '#10b981' : '#f59e0b' }}>{preScore.score} / 100</div>
+              <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} className="mt-1 text-[10px]" title="预评分数据源">
+                {preScoreSource === 'api' ? '真实评分' : '演示回退'}
+              </Tag>
             </div>
             <div className="p-3 bg-slate-50 rounded text-center">
               <div className="text-slate-500">字数 / 时长</div>
@@ -1338,6 +1570,7 @@ export default function ReportWritePage() {
         open={phraseOpen}
         phrases={phrases}
         loading={phraseLoading}
+        dataSource={phraseSource}
         onClose={() => setPhraseOpen(false)}
         onPick={insertPhrase}
       />
@@ -1349,6 +1582,8 @@ export default function ReportWritePage() {
         loading={templateLoading || phraseLoading}
         favIds={favTemplateIds}
         recentIds={recentTemplateIds}
+        phraseSource={phraseSource}
+        realCategories={realCategories}
         onClose={() => setTemplateLibOpen(false)}
         onInsert={insertTemplateAtCursor}
         onReplace={(id) => { void handleSelectTemplate(String(id)); }}
@@ -1562,10 +1797,12 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
 }
 
 /* ---------- [W2-2] 短语库插入 ---------- */
-function PhraseLibraryModal({ open, phrases, loading, onClose, onPick }: {
+function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClose, onPick }: {
   open: boolean;
   phrases: any[];
   loading: boolean;
+  /** [v3.0.6.11-96 Wave 2B (E)] 数据源: api=templatesApi.listSnippets 真实 / fallback=演示回退 */
+  dataSource?: 'api' | 'fallback';
   onClose: () => void;
   onPick: (phrase: any) => void;
 }) {
@@ -1581,7 +1818,7 @@ function PhraseLibraryModal({ open, phrases, loading, onClose, onPick }: {
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>短语库</span><Tag color="cyan">{filtered.length} 条</Tag></Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>短语库</span><Tag color="cyan">{filtered.length} 条</Tag>{dataSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 已回退演示数据">演示回退</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -1625,13 +1862,17 @@ function PhraseLibraryModal({ open, phrases, loading, onClose, onPick }: {
 }
 
 /* ---------- [v3.0.6.11-95 Wave3B P1] 模板库: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 ---------- */
-function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
+function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, phraseSource = 'api', realCategories = [], onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
   open: boolean;
   templates: any[];
   phrases: any[];
   loading: boolean;
   favIds: string[];
   recentIds: string[];
+  /** [v3.0.6.11-96 Wave 2B (E)] 短语数据源: api=templatesApi.listSnippets / fallback=演示回退 */
+  phraseSource?: 'api' | 'fallback';
+  /** [v3.0.6.11-96 Wave3B P1] 真实分类 (/templates/categories), 与模板数据派生分类合并 */
+  realCategories?: string[];
   onClose: () => void;
   onInsert: (t: any) => void;
   onReplace: (id: string) => void;
@@ -1641,12 +1882,13 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   const [catTab, setCatTab] = useState<string>('全部');
   const [q, setQ] = useState('');
 
-  // 分类 Tab (按模板 category 分组)
+  // [v3.0.6.11-96 Wave3B P1] 分类 Tab: 真实 /templates/categories 优先, 与模板数据派生分类合并 (去重)
   const categories = useMemo(() => {
     const set = new Set<string>(['全部']);
+    realCategories.forEach((c) => { if (c) set.add(c); });
     templates.forEach((t: any) => { if (t?.category) set.add(String(t.category)); });
     return Array.from(set);
-  }, [templates]);
+  }, [templates, realCategories]);
 
   const favIdsSet = useMemo(() => new Set(favIds), [favIds]);
   const recentIdsSet = useMemo(() => new Set(recentIds), [recentIds]);
@@ -1684,7 +1926,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag></Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 短语已回退演示数据">演示回退</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}

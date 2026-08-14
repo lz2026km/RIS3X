@@ -113,7 +113,7 @@ const MedicalAlliancePage: React.FC = () => {
       {activeTab === 'members' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 500 }}>医联体成员 ({allianceMembers.length})</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 600 }}>医联体成员 ({allianceMembers.length})</h2>
           </div>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
@@ -162,7 +162,7 @@ const MedicalAlliancePage: React.FC = () => {
       {activeTab === 'referrals' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 500 }}>转诊记录 ({allianceReferrals.length})</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 600 }}>转诊记录 ({allianceReferrals.length})</h2>
                 <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />新建转诊</button>
           </div>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -210,7 +210,7 @@ const MedicalAlliancePage: React.FC = () => {
 
       {activeTab === 'dashboard' && (
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 500, marginBottom: 16 }}>联盟运营看板</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>联盟运营看板</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
             {[
               { label: '成员机构', value: allianceMembers.filter(m => m.status === 'active').length, color: '#3b82f6' },
@@ -219,7 +219,7 @@ const MedicalAlliancePage: React.FC = () => {
               { label: '转诊完成率', value: '87.5%', color: '#f59e0b' },
             ].map((card, i) => (
               <div key={i} style={{ padding: 20, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: card.color }}>{card.value}</div>
                 <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{card.label}</div>
               </div>
             ))}

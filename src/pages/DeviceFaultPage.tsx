@@ -95,6 +95,31 @@ const DEVICES = [
   { id: 'DEV-MG-01', name: 'MG（GE Senographe）', modality: 'MG' },
 ]
 
+// [v3.0.6.11-96 Wave 3A P1] DeviceFault (API) → 主表记录形状映射
+// severity: CRITICAL/HIGH/MEDIUM/LOW → 优先级; status 英文态 → 中文展示态
+const mapApiFaultToRecord = (f) => {
+  const device = DEVICES.find(d => d.id === f.deviceId)
+  const priority = f.severity === 'CRITICAL' ? '紧急' : f.severity === 'HIGH' ? '高' : f.severity === 'MEDIUM' ? '中' : '低'
+  const statusMap = {
+    OPEN: '待处理', PENDING: '待处理', IN_PROGRESS: '维修中', REPAIRING: '维修中',
+    RESOLVED: '待验收', CLOSED: '已完成', COMPLETED: '已完成', CANCELLED: '已取消',
+  }
+  const status = statusMap[f.status] || f.status || '待处理'
+  return {
+    id: f.id,
+    deviceId: f.deviceId,
+    deviceName: device?.name || f.deviceId,
+    faultTime: f.createdAt ? new Date(f.createdAt).toLocaleString('zh-CN') : '-',
+    reporter: f.reportedBy || '-',
+    faultType: '设备故障',
+    description: f.description || '-',
+    priority,
+    status,
+    assignEngineer: null,
+    faultSymptoms: f.description || '',
+  }
+}
+
 // 故障类型统计
 const FAULT_TYPE_STATS = [
   { name: '硬件故障', value: 35, color: C.danger },
@@ -269,11 +294,28 @@ export default function DeviceFaultPage() {
   const [selectedRecord, setSelectedRecord] = useState<typeof INITIAL_FAULT_RECORDS[0] | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [apiFaults, setApiFaults] = useState<DeviceFault[]>([])
+  // [v3.0.6.11-96 Wave 3A P1] 主表数据源: apiFaults 优先; 空/失败回退 INITIAL_FAULT_RECORDS
+  const [usingFallback, setUsingFallback] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     deviceMgmtApi.listDeviceFaults().then(res => {
-      if (res.success && res.data) setApiFaults(res.data);
-    }).catch((err) => { console.error('[F04]', err); });
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setApiFaults(res.data)
+        setFaultRecords(res.data.map(mapApiFaultToRecord))
+        setUsingFallback(false)
+      } else {
+        setApiFaults([])
+        setUsingFallback(true)
+      }
+    }).catch((err) => {
+      if (cancelled) return
+      console.error('[F04]', err)
+      setApiFaults([])
+      setUsingFallback(true)
+    })
+    return () => { cancelled = true }
   }, []);
 
   // 新增故障表单状态
@@ -359,6 +401,22 @@ export default function DeviceFaultPage() {
         <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
           <AlertTriangle size={24} color={C.primary} />
           设备故障管理
+          {/* [v3.0.6.11-96 Wave 3A P1] 数据源徽标: 接口回退时提示演示数据 */}
+          {usingFallback ? (
+            <span style={{
+              marginLeft: 4, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+              background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a',
+            }}>
+              演示数据（接口回退）
+            </span>
+          ) : (
+            <span style={{
+              marginLeft: 4, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+              background: '#d1fae5', color: '#047857', border: '1px solid #a7f3d0',
+            }}>
+              接口实时数据
+            </span>
+          )}
         </h1>
         <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 34px' }}>
           设备故障报修 → 维修处理 → 验收归档 全流程闭环管理
@@ -464,7 +522,7 @@ export default function DeviceFaultPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           {/* 进度列表 */}
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Timer size={18} color={C.primary} />
               维修进度跟踪
             </h3>
@@ -514,7 +572,7 @@ export default function DeviceFaultPage() {
 
           {/* 工程师工作状态 */}
           <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
               <User size={18} color={C.primary} />
               工程师工作状态
             </h3>
@@ -571,7 +629,7 @@ export default function DeviceFaultPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
             {/* 故障类型饼图 */}
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PieChartIcon size={18} color={C.primary} />
                 故障类型分布
               </h3>
@@ -589,7 +647,7 @@ export default function DeviceFaultPage() {
 
             {/* 月度故障趋势 */}
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <TrendingUp size={18} color={C.primary} />
                 月度故障与维修趋势
               </h3>
@@ -612,7 +670,7 @@ export default function DeviceFaultPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             {/* 设备故障次数排行 */}
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Gauge size={18} color={C.primary} />
                 设备故障次数排行
               </h3>
@@ -631,7 +689,7 @@ export default function DeviceFaultPage() {
 
             {/* 维修费用统计 */}
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 20 }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Activity size={18} color={C.primary} />
                 维修费用统计（万元）
               </h3>

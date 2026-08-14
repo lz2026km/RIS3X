@@ -148,7 +148,7 @@ export const SignAmendPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>CA 签名 + 修订</span>
         <Tag color="cyan">PR5 (v3.0.6.8-49)</Tag>
         <Tag color="purple">Nuance/GE Centricity 对标</Tag>
-        <Tag color="green">15 client + 77 端点</Tag>
+        <Tag color="green">15 客户端 + 77 端点</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

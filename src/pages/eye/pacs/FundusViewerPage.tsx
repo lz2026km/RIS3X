@@ -159,12 +159,20 @@ const FundusViewerPage: React.FC = () => {
             >
               <Target size={48} />
               <span>眼底彩照影像区域 ({study.patientName})</span>
-              <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
-                <Tag>视盘 C/D 0.55</Tag>
-                <Tag color="red">微动脉瘤 ×8</Tag>
-                <Tag color="orange">出血 ×2</Tag>
-                <Tag color="gold">渗出 ×4</Tag>
-              </div>
+              {/* [v3.0.6.11-96 Wave5A P2] 病灶标签: 接口无病灶数据时展示「示例病灶标注」灰标 + 区块标注 (第 4 个 eye 查看器) */}
+              {lesions.length === 0 ? (
+                <div style={{ display: "flex", gap: 8, fontSize: 12, alignItems: "center" }}>
+                  <Tag style={{ background: "var(--bg-primary)", color: "#64748b", borderColor: "#cbd5e1" }}>示例病灶标注</Tag>
+                  <span style={{ color: "#94a3b8" }}>演示数据 · 接口无病灶分段数据, 以下为本地示例</span>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
+                  <Tag>视盘 C/D 0.55</Tag>
+                  <Tag color="red">微动脉瘤 ×8</Tag>
+                  <Tag color="orange">出血 ×2</Tag>
+                  <Tag color="gold">渗出 ×4</Tag>
+                </div>
+              )}
             </div>
           </Card>
           <div style={{ marginTop: 8 }}>

@@ -408,9 +408,10 @@ describe('WorklistService', () => {
       }))
       const prisma2 = makePrisma({
         exam: {
-          findMany: jest.fn().mockResolvedValue([{ id: 'E1', state: 'IN_PROGRESS' }]),
+          findMany: jest.fn().mockResolvedValue([{ id: 'E1', state: 'IN_PROGRESS', patientId: 'P1', tenantId: 'default' }]),
           update,
         },
+        report: { findFirst: jest.fn().mockResolvedValue(null), create: jest.fn().mockResolvedValue({ id: 'R' }) },
       })
       const service2 = new WorklistService(prisma2)
       await service2.batchTransition(['E1'], 'complete')
@@ -450,6 +451,75 @@ describe('WorklistService', () => {
       const res = await service.batchTransition(['E1', 'gone'], 'checkin')
       expect(res.succeeded).toHaveLength(1)
       expect(res.failed).toEqual([{ id: 'gone', message: '检查不存在' }])
+    })
+  })
+
+  // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: complete 自动创建 PENDING_ASSIGNMENT 报告
+  describe('complete (完成 → 待报告闭环)', () => {
+    const inProgressExam = { ...exam, state: 'IN_PROGRESS' }
+
+    it('complete: 无报告实体时自动创建 PENDING_ASSIGNMENT 报告', async () => {
+      const update = jest.fn().mockResolvedValue({ ...inProgressExam, state: 'COMPLETED', completedAt: new Date() })
+      const reportCreate = jest.fn().mockResolvedValue({ id: 'R-NEW' })
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue(inProgressExam), update },
+        report: { findFirst: jest.fn().mockResolvedValue(null), create: reportCreate },
+      })
+      const service = new WorklistService(prisma)
+      await service.complete('E1')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ state: 'COMPLETED', completedAt: expect.any(Date) }),
+      }))
+      expect(reportCreate).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          examId: 'E1',
+          patientId: 'P1',
+          state: 'PENDING_ASSIGNMENT',
+          tenantId: 'default',
+        }),
+      }))
+    })
+
+    it('complete: 已有报告时不重复创建', async () => {
+      const update = jest.fn().mockResolvedValue({ ...inProgressExam, state: 'COMPLETED' })
+      const reportFind = jest.fn().mockResolvedValue({ id: 'R1' })
+      const reportCreate = jest.fn()
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue(inProgressExam), update },
+        report: { findFirst: reportFind, create: reportCreate },
+      })
+      const service = new WorklistService(prisma)
+      await service.complete('E1')
+      expect(reportCreate).not.toHaveBeenCalled()
+    })
+
+    it('complete: 拒绝非 IN_PROGRESS 状态', async () => {
+      const prisma = makePrisma({
+        exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: 'SCHEDULED' }) },
+      })
+      const service = new WorklistService(prisma)
+      await expect(service.complete('E1')).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('batchTransition complete: 为每个无报告的检查创建 PENDING_ASSIGNMENT', async () => {
+      const reportCreate = jest.fn().mockResolvedValue({ id: 'R' })
+      const prisma = makePrisma({
+        exam: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'E1', state: 'IN_PROGRESS', patientId: 'P1', tenantId: 'default' },
+            { id: 'E2', state: 'IN_PROGRESS', patientId: 'P2', tenantId: 'default' },
+          ]),
+          update: jest.fn().mockResolvedValue({}),
+        },
+        report: { findFirst: jest.fn().mockResolvedValue(null), create: reportCreate },
+      })
+      const service = new WorklistService(prisma)
+      const res = await service.batchTransition(['E1', 'E2'], 'complete')
+      expect(res.succeeded).toHaveLength(2)
+      expect(reportCreate).toHaveBeenCalledTimes(2)
+      expect(reportCreate).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ state: 'PENDING_ASSIGNMENT', examId: 'E2', patientId: 'P2' }),
+      }))
     })
   })
 

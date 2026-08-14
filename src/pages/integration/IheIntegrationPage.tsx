@@ -196,7 +196,7 @@ const IheIntegrationPage: React.FC = () => {
         <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
           <Alert type="info" showIcon message="PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动" />
           <Descriptions bordered column={1} size="small">
-            <Descriptions.Item label="PAM 事务">PAM Message (ADT^A01/A04) · PAM Query (ADT^Q22)</Descriptions.Item>
+            <Descriptions.Item label="PAM 事务">PAM 消息 (ADT^A01/A04) · PAM 查询 (ADT^Q22)</Descriptions.Item>
             <Descriptions.Item label="消息来源">HIS / EMR 通过 HL7 网关 (mllp://localhost:2575) 推送</Descriptions.Item>
             <Descriptions.Item label="PAM 日志条目">{status?.metrics.pamLogSize ?? 0}</Descriptions.Item>
             <Descriptions.Item label="当前配置">就诊状态变更实时同步至 PACS 工作列表与危急值接收端</Descriptions.Item>

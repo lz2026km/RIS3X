@@ -258,4 +258,20 @@ export const dentalApi = {
     api.get<any[]>(`${DENTAL_API}/chart/${patientId}/psr`),
   savePsrRecord: (patientId: string, data: any) =>
     api.post<any>(`${DENTAL_API}/chart/${patientId}/psr`, data),
+
+  // [v3.0.6.11-96 Wave2A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用, 后端 /dental/patients/:id/overview*)
+  getPatientOverview: (patientId: string) =>
+    api.get<any>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview`),
+  getPatientTreatments: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/treatments`),
+  getPatientAppointments: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/appointments`),
+  getPatientBilling: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/billing`),
+  getPatientPrescriptions: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/prescriptions`),
+  getPatientConsents: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/consents`),
+  getPatientRecalls: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/patients/${encodeURIComponent(patientId)}/overview/recalls`),
 };

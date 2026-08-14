@@ -1,7 +1,7 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal } from 'antd';
+import { Card, Space, Tag, Select, Row, Col, Statistic, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal } from 'antd';
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
@@ -20,6 +20,8 @@ export const DentalEmrPage: React.FC = () => {
   const [recalls, setRecalls] = useState<any[]>([]);
   const [tab, setTab] = useState('overview');
   const [_busy, setBusy] = useState(false);
+  // [v3.0.6.11-96 Wave2A P0] 数据源标注: 后端 overview 7 端点成功 → api, 失败回退演示数据 → mock
+  const [emrSource, setEmrSource] = useState<'api' | 'mock'>('mock');
   // [G005 Wave1B] 影像 Tab: dentalApi.listPanoramic / listPeriapical (全景 + 根尖片)
   const [panoImages, setPanoImages] = useState<any[]>([]);
   const [periaImages, setPeriaImages] = useState<any[]>([]);
@@ -83,24 +85,29 @@ export const DentalEmrPage: React.FC = () => {
   const loadPatient = async (pid: string) => {
     setBusy(true);
     setSelectedId(pid);
-    try {
-      const [ov, tr, ap, bl, rx, co, re] = await Promise.all([
-        fetch(`/api/v1/dental/patients/${pid}/overview`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/treatments`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/appointments`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/billing`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/prescriptions`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/consents`).then(r=>r.json()),
-        fetch(`/api/v1/dental/patients/${pid}/overview/recalls`).then(r=>r.json()),
-      ]);
-      if (ov.success) setOverview(ov.data);
-      if (tr.success) setTreatments(tr.data || []);
-      if (ap.success) setAppts(ap.data || []);
-      if (bl.success) setBills(bl.data || []);
-      if (rx.success) setScripts(rx.data || []);
-      if (co.success) setConsents(co.data || []);
-      if (re.success) setRecalls(re.data || []);
-    } catch (e) { message.error('加载失败'); }
+    // [v3.0.6.11-96 Wave2A P0] 7 裸 fetch → dentalApi 封装 (双信封兼容); 任一失败保留旧数据并标注演示回退
+    const [ov, tr, ap, bl, rx, co, re] = await Promise.allSettled([
+      dentalApi.getPatientOverview(pid),
+      dentalApi.getPatientTreatments(pid),
+      dentalApi.getPatientAppointments(pid),
+      dentalApi.getPatientBilling(pid),
+      dentalApi.getPatientPrescriptions(pid),
+      dentalApi.getPatientConsents(pid),
+      dentalApi.getPatientRecalls(pid),
+    ]);
+    const dataOf = (r: PromiseSettledResult<any>): any => (r.status === 'fulfilled' && r.value?.success ? r.value.data : undefined);
+    if (dataOf(ov)) {
+      setOverview(dataOf(ov));
+      setEmrSource('api');
+    } else {
+      setEmrSource('mock');
+    }
+    if (Array.isArray(dataOf(tr))) setTreatments(dataOf(tr));
+    if (Array.isArray(dataOf(ap))) setAppts(dataOf(ap));
+    if (Array.isArray(dataOf(bl))) setBills(dataOf(bl));
+    if (Array.isArray(dataOf(rx))) setScripts(dataOf(rx));
+    if (Array.isArray(dataOf(co))) setConsents(dataOf(co));
+    if (Array.isArray(dataOf(re))) setRecalls(dataOf(re));
     setBusy(false);
   };
 
@@ -113,6 +120,9 @@ export const DentalEmrPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 360° 患者视图</span>
         <Tag color="cyan">v3.0.6.8-94</Tag>
         <Tag color="blue">牙医管家 对标</Tag>
+        <Tag color={emrSource === 'api' ? 'green' : 'orange'} title="后端 /dental/patients/:id/overview* 7 端点真实实现 (失败回退演示数据)">
+          {emrSource === 'api' ? '真实数据' : '演示回退'}
+        </Tag>
         <Select value={selectedId} onChange={loadPatient} style={{ width: 180 }} options={patients.map(p => ({ value: p.id, label: `${p.name} (${p.id})` }))} />
       </Space>
       {overview && (

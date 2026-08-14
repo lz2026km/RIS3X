@@ -267,8 +267,8 @@ export function AppModal({
             <div
               style={{
                 padding: "12px 20px",
-                borderTop: "1px solid #e2e8f0",
-                background: "#f8fafc",
+                borderTop: "1px solid var(--border-color)",
+                background: "var(--bg-primary)",
                 display: "flex",
                 gap: 10,
                 justifyContent: "flex-end",

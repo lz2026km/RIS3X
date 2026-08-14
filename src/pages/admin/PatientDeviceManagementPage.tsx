@@ -104,7 +104,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者 + 设备管理</span>
         <Tag color="cyan">PR2 (v3.0.6.8-46)</Tag>
         <Tag color="purple">Medisoft mediSIGHT 对标</Tag>
-        <Tag color="green">22 client + 14 端点</Tag>
+        <Tag color="green">22 客户端 + 14 端点</Tag>
       </Space>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">

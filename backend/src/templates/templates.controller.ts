@@ -31,6 +31,18 @@ const CreateSnippetSchema = z.object({
   shortcuts: z.string().optional(),
 })
 
+const CreateCategorySchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  sortOrder: z.number().optional(),
+})
+
+const UpdateCategorySchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  sortOrder: z.number().optional(),
+})
+
 @ApiTags('templates')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -52,6 +64,27 @@ export class TemplatesController {
   @Delete('snippets/:id')
   deleteSnippet(@Param('id') id: string) {
     return this.service.deleteSnippet(id)
+  }
+
+  // [v3.0.6.11-96 Wave3B P1] 模板分类管理 — 静态路径必须先于 @Get(':id') 注册
+  @Get('categories')
+  listCategories() {
+    return this.service.listCategories()
+  }
+
+  @Post('categories')
+  createCategory(@Body(new ZodValidationPipe(CreateCategorySchema)) body: z.infer<typeof CreateCategorySchema>) {
+    return this.service.createCategory(body)
+  }
+
+  @Patch('categories/:id')
+  updateCategory(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateCategorySchema)) body: z.infer<typeof UpdateCategorySchema>) {
+    return this.service.updateCategory(id, body)
+  }
+
+  @Delete('categories/:id')
+  deleteCategory(@Param('id') id: string) {
+    return this.service.deleteCategory(id)
   }
 
   @Get()

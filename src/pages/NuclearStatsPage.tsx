@@ -26,15 +26,15 @@ const C = {
   textLight: '#94a3b8',
   border: 'var(--border-color)',
   success: '#059669',
-  successBg: '#ecfdf5',
+  successBg: 'var(--color-success-bg)',
   warning: '#d97706',
-  warningBg: '#fffbeb',
+  warningBg: 'var(--color-warning-bg)',
   danger: '#dc2626',
-  dangerBg: '#fef2f2',
+  dangerBg: 'var(--color-error-bg)',
   info: '#0891b2',
-  infoBg: '#ecfeff',
+  infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
-  purpleBg: '#f5f3ff',
+  purpleBg: 'var(--color-info-bg)',
 }
 
 const DEVICE_COLORS = ['#0891b2', '#3b82f6', '#60a5fa', '#22c55e', '#f59e0b', '#ec4899']

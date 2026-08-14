@@ -571,9 +571,9 @@ export function SettingsPanel({
                                 fontSize: 12,
                                 padding: "2px 8px",
                                 borderRadius: 4,
-                                background: "#f1f5f9",
+                                background: "var(--bg-primary)",
                                 color: "#64748b",
-                                border: "1px solid #e2e8f0",
+                                border: "1px solid var(--border-color)",
                                 fontFamily: "inherit",
                               }}
                             >

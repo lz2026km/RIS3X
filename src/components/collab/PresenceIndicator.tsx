@@ -28,12 +28,12 @@ export interface PresenceIndicatorProps {
 }
 
 const STATUS_META: Record<CollabUserStatus, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
-  viewing: { label: '正在查看', color: '#10b981', bg: '#d1fae5', Icon: Eye },
-  editing: { label: '正在编辑', color: '#3b82f6', bg: '#dbeafe', Icon: Edit3 },
-  idle: { label: '空闲', color: '#94a3b8', bg: '#f1f5f9', Icon: Clock },
-  speaking: { label: '发言中', color: '#f59e0b', bg: '#fef3c7', Icon: Mic },
-  away: { label: '离开', color: '#f97316', bg: '#ffedd5', Icon: Clock },
-  offline: { label: '离线', color: '#64748b', bg: '#e2e8f0', Icon: WifiOff },
+  viewing: { label: '正在查看', color: '#10b981', bg: 'var(--color-success-bg)', Icon: Eye },
+  editing: { label: '正在编辑', color: '#3b82f6', bg: 'var(--color-info-bg)', Icon: Edit3 },
+  idle: { label: '空闲', color: '#94a3b8', bg: 'var(--border-color)', Icon: Clock },
+  speaking: { label: '发言中', color: '#f59e0b', bg: 'var(--color-warning-bg)', Icon: Mic },
+  away: { label: '离开', color: '#f97316', bg: 'var(--color-warning-bg)', Icon: Clock },
+  offline: { label: '离线', color: '#64748b', bg: 'var(--border-color)', Icon: WifiOff },
 };
 
 const ROLE_LABEL: Record<string, string> = {
@@ -93,7 +93,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
           alignItems: 'center',
           gap: 6,
           padding: '4px 8px',
-          background: '#f1f5f9',
+          background: 'var(--bg-primary)',
           borderRadius: 12,
           color: '#64748b',
           fontSize: 12,

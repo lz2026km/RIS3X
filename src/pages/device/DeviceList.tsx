@@ -50,7 +50,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
       }}
     >
       <div style={{
-        padding: '14px 16px', background: '#f8fafc', borderBottom: `1px solid ${C.border}`,
+        padding: '14px 16px', background: 'var(--bg-primary)', borderBottom: `1px solid ${C.border}`,
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -93,7 +93,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
             ['累计检查', `${device.capacity * 30} 例/月`],
             ['购置年份', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
           ].map(([label, val]) => (
-            <div key={label} style={{ background: '#f8fafc', borderRadius: 6, padding: '5px 8px' }}>
+            <div key={label} style={{ background: 'var(--bg-primary)', borderRadius: 6, padding: '5px 8px' }}>
               <div style={{ fontSize: 12, color: C.textLight }}>{label}</div>
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 1 }}>{val}</div>
             </div>

@@ -255,7 +255,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
         </div>
       )}
 
-      <div style={{ background: '#f8fafc', padding: 8, borderRadius: 4, fontSize: 12, color: '#64748b' }}>
+      <div style={{ background: 'var(--bg-primary)', padding: 8, borderRadius: 4, fontSize: 12, color: '#64748b' }}>
         <FileText size={11} style={{ marginRight: 4 }} />
         生成时间：{new Date(result.generatedAt).toLocaleString()} · 模型版本：{result.modelVersion}
       </div>

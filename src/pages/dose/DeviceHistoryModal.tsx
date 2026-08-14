@@ -70,6 +70,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
               {device} 历史趋势
+              <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>演示数据（模拟 7 日历史）</span>
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
               近7日剂量趋势分析

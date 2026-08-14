@@ -373,7 +373,7 @@ const MontagePage: React.FC = () => {
                 </div>
               </Col>
               <Col span={6}>
-                <Tag>融合模式: Multi-Band</Tag>
+                <Tag>多波段融合</Tag>
               </Col>
               <Col span={5}>
                 <Tag>自动裁剪: 是</Tag>

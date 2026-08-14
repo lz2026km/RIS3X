@@ -76,7 +76,7 @@ export default function RdsrPage() {
 
             {rdsrResult && (
               <div style={{ marginTop: 16, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px" }}>{t("parseResult")}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px" }}>{t("parseResult")}</h3>
                 <StatCardGrid columns={4} gap={12}>
                   <StatCard label="CTDIvol" value={`${rdsrResult.ctdivol} mGy`} icon={<Activity size={20} />} color={rdsrResult.alertLevel === "critical" ? "#dc2626" : rdsrResult.alertLevel === "warning" ? "#f59e0b" : "#10b981"} />
                   <StatCard label="DLP" value={`${rdsrResult.dlp} mGy·cm`} icon={<BarChart3 size={20} />} color="#3b82f6" />
@@ -107,7 +107,7 @@ export default function RdsrPage() {
 
         {activeTab === "drls" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <BarChart3 size={16} color="#10b981" />{t("drlComparison")}
             </h3>
             <div style={{ overflowX: "auto" }}>
@@ -146,7 +146,7 @@ export default function RdsrPage() {
 
         {activeTab === "stats" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <TrendingUp size={16} color="#8b5cf6" />{t("doseStats")}
             </h3>
             {stats ? (
@@ -167,7 +167,7 @@ export default function RdsrPage() {
                         const h2 = (Number(p.avgDlp ?? 0) / (Number(stats.maxDlp) || 1)) * 80
                         return (
                           <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                            <div style={{ width: "100%", maxWidth: 28, height: 80, background: "#f1f5f9", borderRadius: "3px 3px 0 0", position: "relative", overflow: "hidden" }}>
+                            <div style={{ width: "100%", maxWidth: 28, height: 80, background: "var(--bg-primary)", borderRadius: "3px 3px 0 0", position: "relative", overflow: "hidden" }}>
                               <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: `${h}%`, background: "#3b82f6", borderRadius: "3px 0 0 0", transition: "height 0.3s" }} />
                               <div style={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: `${h2}%`, background: "#10b981", borderRadius: "0 3px 0 0", transition: "height 0.3s" }} />
                             </div>

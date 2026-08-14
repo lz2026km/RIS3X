@@ -37,7 +37,7 @@ export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] })
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+            <tr style={{ background: 'var(--bg-primary)', borderBottom: `2px solid ${C.border}` }}>
               {['设备名称', '维保日期', '维保类型', '维保内容', '工程师', '费用', '结果', '下次日期'].map(h => (
                 <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
               ))}
@@ -100,7 +100,7 @@ export function MaintenancePlanTable({ plans, onAddPlan, onDeletePlan, onComplet
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
+            <tr style={{ background: 'var(--bg-primary)', borderBottom: `2px solid ${C.border}` }}>
               {['设备名称', '计划日期', '保养类型', '保养内容', '预计费用', '负责人', ...(hasActions ? ['操作'] : [])].map(h => (
                 <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
               ))}

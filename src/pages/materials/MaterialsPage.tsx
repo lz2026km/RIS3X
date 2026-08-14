@@ -199,7 +199,7 @@ export const MaterialsPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼料管理 (IOL 库存 + 接触镜库)</span>
         <Tag color="cyan">PR7 (v3.0.6.8-51)</Tag>
         <Tag color="purple">B 方向</Tag>
-        <Tag color="green">15 client + 15 端点</Tag>
+        <Tag color="green">15 客户端 + 15 端点</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

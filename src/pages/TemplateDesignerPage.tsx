@@ -2336,7 +2336,7 @@ const PreviewCanvas: React.FC<{
         paddingBottom: 12,
       }}
     >
-      <h2 style={{ margin: 0, fontSize: 18, color: "#1e40af" }}>{meta.name}</h2>
+      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#1e40af" }}>{meta.name}</h2>
       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>

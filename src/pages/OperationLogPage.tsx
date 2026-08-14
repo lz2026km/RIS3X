@@ -662,7 +662,7 @@ export default function OperationLogPage() {
             ))}
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
                 {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
@@ -689,7 +689,7 @@ export default function OperationLogPage() {
             )}
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常趋势</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>异常趋势</h3>
             <ResponsiveContainer width='100%' height={200}>
               <AreaChart data={anomalyTrend}>
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
@@ -797,7 +797,7 @@ export default function OperationLogPage() {
             }}><FileJson size={14} />导出PDF</button>
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>
               {reportSchedule === 'daily' ? '日' : reportSchedule === 'weekly' ? '周' : '月'}度合规报告摘要
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>

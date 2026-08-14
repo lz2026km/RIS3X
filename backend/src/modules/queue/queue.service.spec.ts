@@ -6,6 +6,11 @@ const makePrisma = () => {
   return {
     device: { findMany: reject },
     exam: { findMany: reject, count: reject },
+    queueState: {
+      count: reject,
+      findMany: reject,
+      upsert: reject,
+    },
   } as never
 }
 
@@ -69,6 +74,70 @@ describe('QueueService', () => {
     it('未知 id → NotFoundException', async () => {
       const service = new QueueService(makePrisma())
       await expect(service.complete('unknown-id')).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
+
+  // [G005 W2-A P0] 叫号状态落库: DB 可用时 queue_states 读写
+  describe('叫号状态落库 (queue_states)', () => {
+    const makeDbPrisma = () => {
+      const rows: any[] = []
+      const upsert = jest.fn(async ({ where, create, update }: any) => {
+        const idx = rows.findIndex((r) => r.entryId === where.tenantId_entryId.entryId)
+        const merged = idx >= 0 ? { ...rows[idx], ...(update ?? {}), entryId: where.tenantId_entryId.entryId } : { ...(create ?? {}), entryId: where.tenantId_entryId.entryId }
+        if (idx >= 0) rows[idx] = merged
+        else rows.push(merged)
+        return merged
+      })
+      const prisma = {
+        device: { findMany: jest.fn().mockRejectedValue(new Error('no db')) },
+        exam: { findMany: jest.fn().mockRejectedValue(new Error('no db')), count: jest.fn().mockRejectedValue(new Error('no db')) },
+        queueState: {
+          count: jest.fn().mockResolvedValue(rows.length),
+          findMany: jest.fn(async () => rows),
+          upsert,
+        },
+      }
+      return { prisma: prisma as never, rows, upsert }
+    }
+
+    it('call 持久化条目状态 (upsert 写入 status/calledCount)', async () => {
+      const { prisma, upsert } = makeDbPrisma()
+      const service = new QueueService(prisma)
+      const items = await service.list()
+      const target = items.find((i) => i.status === '等待中')!
+      await service.call(target.id)
+      expect(upsert).toHaveBeenCalled()
+      const writes = upsert.mock.calls.map((c) => c[0].create ?? c[0].update)
+      const entryWrite = writes.find((w: any) => w.entryId === target.id)
+      expect(entryWrite).toBeTruthy()
+      expect(entryWrite.status).toBe('called')
+      expect(entryWrite.calledCount).toBe(1)
+    })
+
+    it('重启后 hydrate 从 queue_states 恢复叫号状态', async () => {
+      const { prisma, rows } = makeDbPrisma()
+      const first = new QueueService(prisma)
+      const items = await first.list()
+      const target = items.find((i) => i.status === '等待中')!
+      await first.call(target.id)
+      expect(rows.some((r) => r.entryId === target.id)).toBe(true)
+      // 模拟重启: 同一 prisma 存储, 新 service 实例
+      const restarted = new QueueService(prisma)
+      const after = await restarted.list()
+      expect(after.find((i) => i.id === target.id)!.status).toBe('已呼叫')
+      expect(after.find((i) => i.id === target.id)!.calledCount).toBe(1)
+    })
+
+    it('complete 落库为 completed, 重启后房间不再显示当前患者', async () => {
+      const { prisma } = makeDbPrisma()
+      const first = new QueueService(prisma)
+      const items = await first.list()
+      const target = items.find((i) => i.status === '等待中')!
+      await first.call(target.id)
+      await first.complete(target.id)
+      const restarted = new QueueService(prisma)
+      const after = await restarted.list()
+      expect(after.find((i) => i.id === target.id)!.status).toBe('已完成')
     })
   })
 })

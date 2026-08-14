@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
@@ -22,6 +22,34 @@ export interface SnippetDto {
   shortcuts?: string
   createdAt?: string
   updatedAt?: string
+}
+
+// [v3.0.6.11-96 Wave3B P1] 模板分类 (templates/categories) — 进程内存 + seed
+export interface TemplateCategoryDto {
+  id: string
+  name: string
+  description?: string
+  sortOrder: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+const SEED_CATEGORIES: TemplateCategoryDto[] = [
+  { id: 'TC-001', name: 'CT', description: 'CT 各类检查的标准化报告模板', sortOrder: 1, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'TC-002', name: 'MR', description: 'MR 各类检查的标准化报告模板', sortOrder: 2, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'TC-003', name: 'MG', description: '乳腺钼靶/断层 (MG/DBT) 检查模板', sortOrder: 3, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'TC-004', name: 'DR', description: 'DR 数字化X线检查模板', sortOrder: 4, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'TC-005', name: 'US', description: '超声检查模板', sortOrder: 5, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'TC-006', name: '特殊检查', description: 'PET-CT / DSA / 胃肠造影等特殊检查', sortOrder: 6, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' },
+]
+
+const memCategories: TemplateCategoryDto[] = []
+const deletedSeedCategoryIds = new Set<string>()
+
+function allCategories(): TemplateCategoryDto[] {
+  const seeds = SEED_CATEGORIES.filter((c) => !deletedSeedCategoryIds.has(c.id))
+  const merged = [...memCategories, ...seeds]
+  return merged.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 }
 
 const SEED_SNIPPETS: SnippetDto[] = [
@@ -151,5 +179,58 @@ export class TemplatesService {
         tenantId: getCurrentTenantId(),
       },
     })
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [v3.0.6.11-96 Wave3B P1] 模板分类管理 (GET/POST/PATCH/DELETE /templates/categories)
+  // 进程内存 + seed (name/description/sortOrder), TemplateCategoryPage 树渲染/CRUD 使用
+  // ══════════════════════════════════════════════════════════════════════
+  listCategories(): TemplateCategoryDto[] {
+    return allCategories()
+  }
+
+  createCategory(dto: { name: string; description?: string; sortOrder?: number }): TemplateCategoryDto {
+    if (!dto.name?.trim()) throw new BadRequestException('Category name is required')
+    if (allCategories().some((c) => c.name.toLowerCase() === dto.name.trim().toLowerCase())) {
+      throw new BadRequestException(`Category ${dto.name} already exists`)
+    }
+    const category: TemplateCategoryDto = {
+      id: `TC-${Date.now().toString(36)}`,
+      name: dto.name.trim(),
+      description: dto.description,
+      sortOrder: dto.sortOrder ?? allCategories().length + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    memCategories.unshift(category)
+    return category
+  }
+
+  updateCategory(id: string, dto: { name?: string; description?: string; sortOrder?: number }): TemplateCategoryDto {
+    const idx = memCategories.findIndex((c) => c.id === id)
+    if (idx !== -1) {
+      memCategories[idx] = { ...memCategories[idx]!, ...dto, id, updatedAt: new Date().toISOString() }
+      return memCategories[idx]!
+    }
+    const seedIdx = SEED_CATEGORIES.findIndex((c) => c.id === id)
+    if (seedIdx === -1) throw new NotFoundException(`Category ${id} not found`)
+    const overlay = { ...SEED_CATEGORIES[seedIdx]!, ...dto, id, updatedAt: new Date().toISOString() }
+    SEED_CATEGORIES[seedIdx] = overlay
+    return overlay
+  }
+
+  deleteCategory(id: string): { ok: boolean; id: string } {
+    const idx = memCategories.findIndex((c) => c.id === id)
+    if (idx !== -1) {
+      memCategories.splice(idx, 1)
+      return { ok: true, id }
+    }
+    if (!SEED_CATEGORIES.some((c) => c.id === id)) throw new NotFoundException(`Category ${id} not found`)
+    deletedSeedCategoryIds.add(id)
+    return { ok: true, id }
+  }
+
+  isSeedCategoryDeleted(id: string): boolean {
+    return deletedSeedCategoryIds.has(id)
   }
 }

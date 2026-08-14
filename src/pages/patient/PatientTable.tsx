@@ -686,7 +686,7 @@ export function PatientTable({
                           borderRadius: 4,
                           fontSize: 12,
                           fontWeight: 600,
-                          background: "#f1f5f9",
+                          background: "var(--bg-primary)",
                           color: "#475569",
                         }}
                       >

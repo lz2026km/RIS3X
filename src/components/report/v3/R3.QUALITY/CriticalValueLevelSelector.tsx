@@ -159,8 +159,8 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                   style={{
                     cursor: onSelect ? 'pointer' : 'default',
                     borderLeft: `6px solid ${l.color}`,
-                    background: selectedLevel === l.level ? '#fef2f2' : '#fff',
-                    border: selectedLevel === l.level ? `2px solid ${l.color}` : '1px solid #e2e8f0',
+                    background: selectedLevel === l.level ? 'var(--color-error-bg)' : 'var(--bg-card)',
+                    border: selectedLevel === l.level ? `2px solid ${l.color}` : '1px solid var(--border-color)',
                   }}
                   data-testid={`level-card-${l.level}`}
                   role="button"
@@ -229,7 +229,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                     style={{
                       marginTop: 10,
                       padding: '6px 8px',
-                      background: '#f8fafc',
+                      background: 'var(--bg-primary)',
                       borderRadius: 4,
                       fontSize: 12,
                       color: '#475569',

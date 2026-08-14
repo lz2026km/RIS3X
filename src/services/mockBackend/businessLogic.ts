@@ -104,6 +104,22 @@ export function canTransitionWorklist(from: string, to: string): boolean {
   return WORKLIST_TRANSITIONS[fromNorm]?.includes(toNorm) ?? false;
 }
 
+// ==================== 完成 → 待报告闭环 (v3.0.6.11-96 Wave 2B A) ====================
+// 与后端 worklist.service complete(): 检查完成且无报告实体时自动创建 PENDING_ASSIGNMENT 报告。
+// MSW 中 exam 行同时充当报告实体 (reports 列表由 exams 集合派生), 完成时打 state 标记,
+// reports 列表 handler 据此以待分配态呈现。
+export function markPendingAssignmentOnComplete(
+  exam: { state?: unknown; status?: unknown } | undefined | null,
+): boolean {
+  if (!exam) return false;
+  const state = String(exam.state ?? '').toUpperCase();
+  if (state === 'PENDING_ASSIGNMENT') return false;
+  const status = String(exam.status ?? '').toLowerCase();
+  // 已有报告实体 (草稿/提交/审核等) 不重复标记
+  if (['draft', 'submitted', 'reviewed', 'cosigned', 'published', 'signed', 'rejected'].includes(status)) return false;
+  return true;
+}
+
 // ==================== 危急值 SLA 升级链 ====================
 export type CriticalSeverity = 'life-threatening' | 'critical' | 'warning' | 'info';
 export type CriticalStatus = 'pending' | 'notified' | 'acknowledged' | 'processed' | 'closed';

@@ -410,7 +410,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#92400e',
   },
   queueTagNormal: {
-    background: '#e2e8f0',
+    background: 'var(--border-color)',
     color: 'var(--text-secondary)',
   },
   queueWait: {
@@ -512,7 +512,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#92400e',
   },
   priorityNormal: {
-    background: '#e2e8f0',
+    background: 'var(--border-color)',
     color: 'var(--text-secondary)',
   },
 
@@ -535,7 +535,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     fontWeight: 600,
   },
-  statusWaiting: { background: '#e2e8f0', color: 'var(--text-secondary)' },
+  statusWaiting: { background: 'var(--border-color)', color: 'var(--text-secondary)' },
   statusCalled: { background: 'var(--color-info-bg)', color: '#2563eb' },
   statusExamining: { background: 'var(--color-warning-bg)', color: '#d97706' },
   statusDone: { background: 'var(--color-success-bg)', color: '#16a34a' },
@@ -1127,7 +1127,7 @@ export default function QueueCallPage() {
                       <span style={{ ...styles.typeBadge, ...getTypeStyle(type) }}>{type}</span>
                       <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}人</span>
                     </div>
-                    <div style={{ background: '#e2e8f0', borderRadius: 4, height: 8, overflow: 'hidden' }}>
+                    <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 
                         width: `${percent}%`, 
                         height: '100%', 
@@ -1162,7 +1162,7 @@ export default function QueueCallPage() {
                       <span style={{ ...styles.priorityBadge, ...getPriorityStyle(priority) }}>{priority}</span>
                       <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}人</span>
                     </div>
-                    <div style={{ background: '#e2e8f0', borderRadius: 4, height: 8, overflow: 'hidden' }}>
+                    <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 
                         width: `${percent}%`, 
                         height: '100%', 

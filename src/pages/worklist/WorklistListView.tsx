@@ -24,6 +24,7 @@ import {
   AlertOctagon,
   CheckCircle2,
   CloudDownload,
+  ExternalLink,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Inbox } from 'lucide-react'
@@ -116,6 +117,8 @@ interface ListViewProps {
   onCriticalValueClick?: (exam: RadiologyExam) => void;
   /** [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 行内影像预取状态: examId -> cached/queued/none */
   prefetchStatus?: Record<string, 'cached' | 'queued' | 'none'>;
+  /** [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE 传输状态 (从 listTransfers 派生): examId|accessionNumber -> queued/sending/paused/failed/completed/canceled */
+  transferStatus?: Record<string, string>;
 }
 
 // 影像缩略图预览: 有 thumbnail 用图, 无则显示模态图标 + 帧数
@@ -209,6 +212,7 @@ export function ListView({
   onViewHistory,
   onCriticalValueClick,
   prefetchStatus,
+  transferStatus,
 }: ListViewProps) {
   // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
   const listPagination = usePagination(exams, 10);
@@ -327,6 +331,29 @@ export function ListView({
           return <Tag color="processing" style={{ marginInlineEnd: 0, fontWeight: 600 }} icon={<CloudDownload size={12} />}>排队中</Tag>;
         }
         return <span style={{ fontSize: 12, color: "#cbd5e1" }}>未预取</span>;
+      },
+    },
+    // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE 传输状态列 (按 examId/检查号匹配传输队列, 从 listTransfers 派生)
+    {
+      title: "传输",
+      dataIndex: "id",
+      key: "transfer",
+      width: 96,
+      render: (_value, exam) => {
+        const key1 = String(exam.id ?? "");
+        const key2 = String(exam.accessionNumber ?? "");
+        const state = transferStatus?.[key1] ?? (key2 ? transferStatus?.[key2] : undefined) ?? "none";
+        const meta: Record<string, { color: string; label: string }> = {
+          queued: { color: "default", label: "排队" },
+          sending: { color: "processing", label: "发送中" },
+          paused: { color: "warning", label: "已暂停" },
+          failed: { color: "error", label: "失败" },
+          completed: { color: "success", label: "已完成" },
+          canceled: { color: "default", label: "已取消" },
+        };
+        if (state === "none") return <span style={{ fontSize: 12, color: "#cbd5e1" }}>-</span>;
+        const m = meta[state] ?? { color: "default", label: state };
+        return <Tag color={m.color} style={{ marginInlineEnd: 0, fontWeight: 600 }}>{m.label}</Tag>;
       },
     },
     {
@@ -470,6 +497,18 @@ export function ListView({
             }}
           >
             查看
+          </Button>
+          {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id (新标签打开) */}
+          <Button
+            type="link"
+            size="small"
+            icon={<ExternalLink size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              window.open(`/exam/${encodeURIComponent(exam.id)}`, "_blank");
+            }}
+          >
+            详情
           </Button>
           <Button
             type="link"

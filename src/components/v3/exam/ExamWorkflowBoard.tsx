@@ -134,7 +134,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
               data-testid={`wf-col-${s.key}`}
               style={{
                 flex: '0 0 240px',
-                background: '#f8fafc',
+                background: 'var(--bg-primary)',
                 borderRadius: 6,
                 padding: 8,
                 minHeight: 200,

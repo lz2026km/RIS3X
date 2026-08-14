@@ -191,7 +191,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         </div>
       </div>
 
-      <div style={{ margin: '12px 0', padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
+      <div style={{ margin: '12px 0', padding: 8, background: 'var(--bg-primary)', borderRadius: 6, fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
         <strong>智能推荐公式:</strong>{' '}
         {input.al < 22 ? 'Hoffer Q (短眼最佳)' : input.al < 24.5 ? 'Barrett II + Kane (标准眼)' : input.al < 26 ? 'Barrett II + Kane (中等长眼)' : 'Wang-Koch 校正 (长眼)'}
         &nbsp;·&nbsp;当前 AL = {input.al}mm

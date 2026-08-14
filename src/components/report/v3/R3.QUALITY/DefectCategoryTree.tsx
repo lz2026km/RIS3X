@@ -331,7 +331,7 @@ export const DefectCategoryTree: React.FC<{
                           key={d.id}
                           style={{
                             padding: 6,
-                            background: '#f8fafc',
+                            background: 'var(--bg-primary)',
                             borderRadius: 4,
                             borderLeft: '3px solid ' + selectedNode.data.cat.color,
                             fontSize: 12,

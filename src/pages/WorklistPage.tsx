@@ -13,7 +13,7 @@ import {
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
-import { dicomWebApi } from '../services/api/dicomApi'
+import { dicomDimseApi, dicomWebApi } from '../services/api/dicomApi'
 import { ChartContainer } from '../components/charts'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { realtime } from '../services/realtime'
@@ -614,6 +614,29 @@ export default function WorklistPage() {
   }, [])
 
   useEffect(() => { void refreshPrefetchStatus() }, [refreshPrefetchStatus])
+
+  // ============================================================
+  // [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 行内「传输」状态列
+  // 从 dicomDimseApi.listTransfers 派生 examId/检查号 → 队列状态映射
+  // ============================================================
+  const [transferStatusMap, setTransferStatusMap] = useState<Record<string, string>>({})
+
+  const refreshTransferStatus = useCallback(async () => {
+    try {
+      await invalidateApiCacheByPrefix('/dicom-dimse/transfers')
+      const res = await dicomDimseApi.listTransfers()
+      if (res.success && Array.isArray(res.data)) {
+        const map: Record<string, string> = {}
+        for (const t of res.data) {
+          if (t.examId) map[t.examId] = t.status
+          if (t.accessionNumber) map[t.accessionNumber] = t.status
+        }
+        setTransferStatusMap(map)
+      }
+    } catch { /* 传输队列不可用不阻断 */ }
+  }, [])
+
+  useEffect(() => { void refreshTransferStatus() }, [refreshTransferStatus])
 
   const handlePrefetch = useCallback(async (scope: 'selected' | 'all') => {
     if (prefetchBusy) return
@@ -1567,6 +1590,7 @@ export default function WorklistPage() {
           onViewHistory={(exam) => { setHistoryDrawerTab('history'); setSelectedExam(exam) }}
           onCriticalValueClick={handleCriticalValueClick}
           prefetchStatus={prefetchStatusMap}
+          transferStatus={transferStatusMap}
         />
       )}
 

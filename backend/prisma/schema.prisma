@@ -574,6 +574,29 @@ model DicomInstance {
   @@map("dicom_instances")
 }
 
+// v3.0.6.11-96 Wave 2B (B): MPPS 检查进度记录 (N-CREATE/N-SET 落库)
+// 运行时若表未迁移 (prisma migrate deploy 未执行) 则服务层回退内存 Map, 不阻塞进度上报
+model MppsRecord {
+  id          String    @id @default(cuid())
+  tenantId    String    @map("tenant_id")
+  studyUid    String    @unique @map("study_uid")
+  status      String    @default("IN_PROGRESS")
+  patientName String?   @map("patient_name")
+  patientId   String?   @map("patient_id")
+  modality    String?
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  steps       Json      @default("[]")
+  source      String    @default("mpps")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([tenantId])
+  @@index([updatedAt])
+  @@map("mpps_records")
+}
+
 model Notification {
   id        String    @id @default(cuid())
   tenantId  String    @map("tenant_id")
@@ -1786,4 +1809,27 @@ model DictEntry {
   @@index([tenantId])
   @@index([tenantId, category, active])
   @@map("dict_entries")
+}
+
+// v3.0.6.11-96 Wave 2A P0: 队列叫号状态落库 (queue.service 内存 Map → prisma 持久化)
+// 行类型:
+//   - entryId = 队列条目 id (q-<examId> 或 q-SEED-xxx): 记录该条目叫号状态
+//   - entryId = "ROOM:<roomId>": 房间元数据行 (currentNumber=最近叫号序号 Qxxx, lastCallAt=最近叫号时间)
+// DB 不可用时 service 回退内存 Map (与 worklist examExtras 回退模式一致)
+model QueueState {
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  roomId        String    @default("") @map("room_id")
+  entryId       String    @map("entry_id")
+  status        String    @default("waiting")
+  currentNumber String?   @map("current_number")
+  lastCallAt    DateTime? @map("last_call_at")
+  calledCount   Int       @default(0) @map("called_count")
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@unique([tenantId, entryId])
+  @@index([tenantId, roomId])
+  @@map("queue_states")
 }

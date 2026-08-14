@@ -1,15 +1,17 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.2 - 模板分类树管理
 // Phase R2：按设备 / 部位 / 病种 三维分类树 + 拖拽管理
+// [v3.0.6.11-96 Wave3B P1] 接真实 /templates/categories (CRUD + 树渲染),
+//   失败回退本地静态树 + 标注; 编辑/删除按真实分类
 // ============================================================
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { templatesApi } from '../services/api/templatesApi';
+import { templatesApi, type TemplateCategoryDto } from '../services/api/templatesApi';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
-  ArrowRight, Move, GitBranch,
+  ArrowRight, Move, GitBranch, Trash2, X,
 } from 'lucide-react';
 import {
   TEMPLATE_CATEGORY_TREE,
@@ -18,6 +20,27 @@ import {
   countByLevel,
   findCategoryById,
 } from '../data/templateCategoryTree';
+
+// [v3.0.6.11-96 Wave3B P1] 真实分类(扁平, name/sortOrder) → 树根节点; 按 code 匹配静态子树作为后代
+function buildTreeFromCategories(cats: TemplateCategoryDto[]): TemplateCategoryNode[] {
+  return [...cats]
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    .map((c) => {
+      const staticRoot = TEMPLATE_CATEGORY_TREE.find((n) => n.code.toUpperCase() === String(c.name ?? '').toUpperCase());
+      if (staticRoot) {
+        return { ...staticRoot, id: c.id, name: c.name, description: c.description || staticRoot.description };
+      }
+      return {
+        id: c.id,
+        name: c.name,
+        code: String(c.name ?? '').toUpperCase(),
+        level: 'modality' as const,
+        children: [],
+        templateCount: 0,
+        description: c.description,
+      };
+    });
+}
 
 // ============================================================
 // 模拟每个分类下的模板数量
@@ -208,6 +231,34 @@ export default function TemplateCategoryPage() {
   const [viewMode, setViewMode] = useState<'tree' | 'flat'>('tree');
   const [templateCount, setTemplateCount] = useState<Record<string, number>>(TEMPLATE_COUNT_MAP);
 
+  // [v3.0.6.11-96 Wave3B P1] 真实分类: /templates/categories (CRUD), 失败回退本地静态树 + 标注
+  const [categorySource, setCategorySource] = useState<'api' | 'fallback'>('api');
+  const [realCategories, setRealCategories] = useState<TemplateCategoryDto[]>([]);
+  const [tree, setTree] = useState<TemplateCategoryNode[]>(TEMPLATE_CATEGORY_TREE);
+  const [catModal, setCatModal] = useState<{ mode: 'create' } | { mode: 'edit'; cat: TemplateCategoryNode } | null>(null);
+  const [catForm, setCatForm] = useState({ name: '', description: '', sortOrder: 1 });
+  const [catSaving, setCatSaving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    templatesApi.listCategories().then((res) => {
+      if (cancelled) return;
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setRealCategories(res.data);
+        setTree(buildTreeFromCategories(res.data));
+        setCategorySource('api');
+      } else {
+        setCategorySource('fallback');
+      }
+    }).catch(() => { if (!cancelled) setCategorySource('fallback'); });
+    return () => { cancelled = true };
+  }, []);
+
+  // [v3.0.6.11-96 Wave3B P1] 真实分类变更 → 重建树
+  useEffect(() => {
+    if (categorySource === 'api') setTree(buildTreeFromCategories(realCategories));
+  }, [realCategories, categorySource]);
+
   useEffect(() => {
     templatesApi.list().then(res => {
       if (res.success && Array.isArray(res.data)) {
@@ -220,8 +271,8 @@ export default function TemplateCategoryPage() {
     })
   }, [])
 
-  const stats = useMemo(() => countByLevel(TEMPLATE_CATEGORY_TREE), []);
-  const flatList = useMemo(() => flattenCategoryTree(TEMPLATE_CATEGORY_TREE), []);
+  const stats = useMemo(() => countByLevel(tree), [tree]);
+  const flatList = useMemo(() => flattenCategoryTree(tree), [tree]);
 
   const toggle = (id: string) => {
     const next = new Set(expanded);
@@ -230,7 +281,78 @@ export default function TemplateCategoryPage() {
     setExpanded(next);
   };
 
-  const selectedNode = selectedId ? findCategoryById(TEMPLATE_CATEGORY_TREE, selectedId) : null;
+  // [v3.0.6.11-96 Wave3B P1] CRUD: 保存新建/编辑
+  const openCreateModal = () => {
+    setCatForm({ name: '', description: '', sortOrder: tree.length + 1 });
+    setCatModal({ mode: 'create' });
+  };
+
+  const openEditModal = (cat: TemplateCategoryNode) => {
+    setCatForm({ name: cat.name, description: cat.description ?? '', sortOrder: realCategories.find(c => c.id === cat.id)?.sortOrder ?? 1 });
+    setCatModal({ mode: 'edit', cat });
+  };
+
+  const saveCategory = async () => {
+    if (!catForm.name.trim()) { alert('请填写分类名称'); return; }
+    setCatSaving(true);
+    try {
+      if (catModal?.mode === 'edit' && catModal.cat) {
+        const res = await templatesApi.updateCategory(catModal.cat.id, { name: catForm.name, description: catForm.description, sortOrder: Number(catForm.sortOrder) });
+        if (res.success && res.data) {
+          setRealCategories(prev => prev.map(c => c.id === catModal.cat.id ? res.data as TemplateCategoryDto : c));
+        } else {
+          alert(res.error?.message ?? '更新失败');
+          setCatModal(null);
+          setCatSaving(false);
+          return;
+        }
+      } else {
+        const res = await templatesApi.createCategory({ name: catForm.name, description: catForm.description, sortOrder: Number(catForm.sortOrder) });
+        if (res.success && res.data) {
+          setRealCategories(prev => [...prev, res.data as TemplateCategoryDto]);
+        } else {
+          alert(res.error?.message ?? '创建失败');
+          setCatModal(null);
+          setCatSaving(false);
+          return;
+        }
+      }
+      setCatModal(null);
+    } catch {
+      // [v3.0.6.11-96 Wave3B P1] 失败回退: 本地新增/更新 + 标注
+      if (catModal?.mode === 'edit' && catModal.cat) {
+        setRealCategories(prev => prev.map(c => c.id === catModal.cat.id ? { ...c, name: catForm.name, description: catForm.description, sortOrder: Number(catForm.sortOrder) } : c));
+      } else {
+        setRealCategories(prev => [...prev, { id: `TC-LOCAL-${Date.now()}`, name: catForm.name, description: catForm.description, sortOrder: Number(catForm.sortOrder), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]);
+      }
+      setCategorySource('fallback');
+      setCatModal(null);
+      alert('分类服务暂不可用，已本地回退保存（标注: 待同步后端）');
+    } finally {
+      setCatSaving(false);
+    }
+  };
+
+  const deleteCategory = async (cat: TemplateCategoryNode) => {
+    if (!window.confirm(`确认删除分类「${cat.name}」？其下子分类将保留为静态展示。`)) return;
+    try {
+      const res = await templatesApi.deleteCategory(cat.id);
+      if (res.success) {
+        setRealCategories(prev => prev.filter(c => c.id !== cat.id));
+        if (selectedId === cat.id) setSelectedId(null);
+      } else {
+        alert(res.error?.message ?? '删除失败');
+      }
+    } catch {
+      // [v3.0.6.11-96 Wave3B P1] 失败回退: 本地移除 + 标注
+      setRealCategories(prev => prev.filter(c => c.id !== cat.id));
+      setCategorySource('fallback');
+      if (selectedId === cat.id) setSelectedId(null);
+      alert('分类服务暂不可用，已本地移除（标注: 待同步后端）');
+    }
+  };
+
+  const selectedNode = selectedId ? findCategoryById(tree, selectedId) : null;
   const selectedStats = selectedNode ? countTemplatesInTreeWithOverride(selectedNode, templateCount) : 0;
   const selectedChildren = selectedNode ? selectedNode.children : [];
 
@@ -242,17 +364,20 @@ export default function TemplateCategoryPage() {
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <FolderTree size={20} color="#0891b2" /> 模板分类管理
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
+            {categorySource === 'api'
+              ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>/templates/categories 实时</span>
+              : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>本地静态（后端不可用, 回退）</span>}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
-            按设备 → 部位 → 病种 三级分类管理 36 个标准模板分类
+            按设备 → 部位 → 病种 三级分类管理标准模板分类 {categorySource === 'api' ? `（真实分类 ${realCategories.length} 个）` : '（静态数据）'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => navigate('/template-designer')}
+            onClick={openCreateModal}
             style={{
               padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6,
-              background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600,
+              background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
@@ -332,7 +457,7 @@ export default function TemplateCategoryPage() {
 
           <div style={{ padding: 4, maxHeight: 540, overflowY: 'auto' }}>
             {viewMode === 'tree' ? (
-              TEMPLATE_CATEGORY_TREE.map(node => (
+              tree.map(node => (
                 <TreeNode
                   key={node.id}
                   node={node}
@@ -394,7 +519,7 @@ export default function TemplateCategoryPage() {
 
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <button
-                    onClick={() => navigate('/template-designer')}
+                    onClick={openCreateModal}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
                       background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -404,6 +529,7 @@ export default function TemplateCategoryPage() {
                     <Plus size={11} /> 在此分类下新建模板
                   </button>
                   <button
+                    onClick={() => openEditModal(selectedNode)}
                     style={{
                       padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12,
@@ -411,6 +537,16 @@ export default function TemplateCategoryPage() {
                     }}
                   >
                     <Edit2 size={11} /> 编辑分类
+                  </button>
+                  <button
+                    onClick={() => void deleteCategory(selectedNode)}
+                    style={{
+                      padding: '5px 10px', border: '1px solid #fecaca', borderRadius: 4,
+                      background: 'var(--bg-card)', color: '#dc2626', fontSize: 12,
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                    }}
+                  >
+                    <Trash2 size={11} /> 删除分类
                   </button>
                   <button
                     style={{
@@ -530,6 +666,43 @@ export default function TemplateCategoryPage() {
           )}
         </div>
       </div>
+
+      {/* [v3.0.6.11-96 Wave3B P1] 新建/编辑分类 Modal (name/description/sortOrder) */}
+      {catModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setCatModal(null)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FolderTree size={16} color="#0891b2" /> {catModal.mode === 'edit' ? `编辑分类 · ${catModal.cat.name}` : '新建分类'}
+              </div>
+              <button onClick={() => setCatModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>分类名称 *</label>
+                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder="如 CT / MR / MG / 特殊检查" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>分类描述</label>
+                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder="该分类下模板的用途说明（选填）" style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>排序序号</label>
+                <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              {categorySource === 'fallback' && (
+                <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
+                  当前为本地回退模式：保存将仅在本地生效，待后端 /templates/categories 可用后需重新同步。
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? '保存中...' : '保存分类'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

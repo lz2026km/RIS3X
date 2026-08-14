@@ -296,7 +296,7 @@ const RadPathPage: React.FC = () => {
                     style={{
                       fontSize: 13,
                       padding: 8,
-                      background: "#f8fafc",
+                      background: "var(--bg-primary)",
                       borderRadius: 4,
                       minHeight: 60,
                     }}
@@ -317,7 +317,7 @@ const RadPathPage: React.FC = () => {
                     style={{
                       fontSize: 13,
                       padding: 8,
-                      background: "#f8fafc",
+                      background: "var(--bg-primary)",
                       borderRadius: 4,
                     }}
                   >

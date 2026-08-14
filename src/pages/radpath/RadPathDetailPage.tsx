@@ -83,9 +83,9 @@ export default function RadPathDetailPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={14} /> 影像报告
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所见 (Findings)</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所见</div>
           <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', marginBottom: 12, padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 60 }}>{record.radFinding || record.report.findings}</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>结论 (Conclusion)</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>结论</div>
           <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 40 }}>{record.report.conclusion}</div>
         </div>
 

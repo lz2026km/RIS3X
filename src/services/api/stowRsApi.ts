@@ -48,7 +48,7 @@ function fileFromForm(formData: FormData): File | null {
   return f instanceof File ? f : null
 }
 
-async function store(formData: FormData, studyUid?: string): Promise<StowRsStoreResponse> {
+async function store(formData: FormData, studyUid?: string, onProgress?: (percent: number) => void): Promise<StowRsStoreResponse> {
   const file = fileFromForm(formData)
   if (!file) {
     return {
@@ -60,7 +60,7 @@ async function store(formData: FormData, studyUid?: string): Promise<StowRsStore
     }
   }
   const uid = studyUid ?? `STOW-${Date.now()}`
-  await dicomWebApi.stowRsStore(uid, file)
+  await dicomWebApi.stowRsStore(uid, file, onProgress)
   return {
     contentType: 'application/dicom',
     studyInstanceUid: uid,
@@ -71,9 +71,9 @@ async function store(formData: FormData, studyUid?: string): Promise<StowRsStore
 }
 
 export const stowRsApi = {
-  storeInstances: async (data: { formData: FormData }) => {
+  storeInstances: async (data: { formData: FormData }, onProgress?: (percent: number) => void) => {
     try {
-      const storeRes = await store(data.formData)
+      const storeRes = await store(data.formData, undefined, onProgress)
       return { success: true, data: storeRes }
     } catch (e) {
       return {
@@ -84,9 +84,9 @@ export const stowRsApi = {
     }
   },
 
-  storeToStudy: async (studyUid: string, data: { formData: FormData }) => {
+  storeToStudy: async (studyUid: string, data: { formData: FormData }, onProgress?: (percent: number) => void) => {
     try {
-      const storeRes = await store(data.formData, studyUid)
+      const storeRes = await store(data.formData, studyUid, onProgress)
       return { success: true, data: storeRes }
     } catch (e) {
       return {

@@ -135,7 +135,7 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
               style={{
                 padding: 8,
                 marginBottom: 6,
-                background: '#fafafa',
+                background: 'var(--bg-card)',
                 borderRadius: 4,
                 border: '1px solid #f0f0f0',
               }}

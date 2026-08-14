@@ -1150,7 +1150,10 @@ export default function QCPage() {
 
       {activeTab === 'image' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Stat Cards */}
+          {/* Stat Cards [v3.0.6.11-96 Wave5A P2] imageQCData 为本地硬编码演示数据 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {statCardsImage.map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -1243,7 +1246,10 @@ export default function QCPage() {
 
       {activeTab === 'timeout' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Summary Cards */}
+          {/* Summary Cards [v3.0.6.11-96 Wave5A P2] timeoutData 为本地硬编码演示数据 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -1361,7 +1367,10 @@ export default function QCPage() {
 
       {activeTab === 'inspection' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* 抽检统计卡片 */}
+          {/* 抽检统计卡片 [v3.0.6.11-96 Wave5A P2] inspectionStats 为本地硬编码演示数据 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
             {[
               { label: '本月抽检总数', value: inspectionStats.totalInspected, icon: <ClipboardList size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
@@ -1413,7 +1422,7 @@ export default function QCPage() {
             {/* 抽检缺陷类型分布 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
+                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>演示数据（本地示例）</span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {reportDefectData.map(item => (
@@ -3027,7 +3036,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
@@ -3103,7 +3112,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailModal(d => ({ ...d, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{detailModal.title}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{detailModal.title}</h2>
               <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>{detailModal.content}</div>
@@ -3119,7 +3128,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setFormModal(f => ({ ...f, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>{formModal.title}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{formModal.title}</h2>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>表单内容（模拟）</div>
@@ -3136,7 +3145,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPeerReviewDetail(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: PRIMARY }}>盲审评分详情 - {peerReviewDetail.id}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>盲审评分详情 - {peerReviewDetail.id}</h2>
               <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

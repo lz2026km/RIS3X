@@ -96,6 +96,20 @@ export class WorklistService {
     })
   }
 
+  // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 自动创建 PENDING_ASSIGNMENT 报告后推送报告通知
+  private notifyReportCreated(examId: string): void {
+    this.gateway.emitWorklistRefresh()
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'REPORT',
+      action: 'PENDING_ASSIGNMENT',
+      title: '待报告任务已生成',
+      content: `检查 ${examId} 已完成, 已自动生成待分配报告`,
+      notification: { examId, action: 'PENDING_ASSIGNMENT' },
+      timestamp: Date.now(),
+    })
+  }
+
   private async getExam(id: string) {
     const exam = await this.prisma.exam.findUnique({ where: { id }, include: { patient: true } })
     if (!exam) throw new NotFoundException(`Exam ${id} not found`)
@@ -132,6 +146,24 @@ export class WorklistService {
         },
       })
     }
+  }
+
+  // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 检查无报告实体时自动创建 PENDING_ASSIGNMENT 报告
+  private async ensurePendingAssignmentReport(exam: { id: string; patientId: string; tenantId: string }): Promise<boolean> {
+    const report = await this.prisma.report.findFirst({
+      where: { examId: exam.id, tenantId: currentTenantId() },
+      orderBy: { createdAt: 'asc' },
+    })
+    if (report) return false
+    await this.prisma.report.create({
+      data: {
+        patientId: exam.patientId,
+        examId: exam.id,
+        state: 'PENDING_ASSIGNMENT',
+        tenantId: exam.tenantId,
+      },
+    })
+    return true
   }
 
   async list(params: WorklistListParams) {
@@ -331,14 +363,17 @@ export class WorklistService {
     return result
   }
 
+  // [v3.0.6.11-96 Wave 2B (A)] 完成 → 待报告闭环: 检查完成后若无报告实体自动创建 PENDING_ASSIGNMENT 报告
   async complete(id: string) {
     const exam = await this.getExam(id)
     if (exam.state !== 'IN_PROGRESS') throw new BadRequestException(`Exam ${id} is not in IN_PROGRESS state`)
-    const result = this.prisma.exam.update({
+    const result = await this.prisma.exam.update({
       where: { id },
       data: { state: 'COMPLETED', completedAt: new Date() },
       include: { patient: true },
     })
+    const created = await this.ensurePendingAssignmentReport(exam)
+    if (created) this.notifyReportCreated(id)
     this.notifyWorklistChanged('complete', id)
     return result
   }
@@ -395,7 +430,7 @@ export class WorklistService {
   async batchTransition(ids: string[], action: 'checkin' | 'start' | 'complete') {
     const all = await this.prisma.exam.findMany({
       where: { id: { in: ids }, tenantId: currentTenantId() },
-      select: { id: true, state: true },
+      select: { id: true, state: true, patientId: true, tenantId: true },
     })
     const stateById = new Map(all.map((e) => [e.id, e.state]))
     const meta: Record<'checkin' | 'start' | 'complete', { from: string[]; to: WorklistState; label: string }> = {
@@ -421,6 +456,14 @@ export class WorklistService {
       if (action === 'checkin') data.startedAt = now
       if (action === 'complete') data.completedAt = now
       await this.prisma.exam.update({ where: { id }, data })
+      // [v3.0.6.11-96 Wave 2B (A)] 批量完成 → 待报告闭环: 自动创建 PENDING_ASSIGNMENT 报告 (与单条 complete 一致)
+      if (action === 'complete') {
+        const examRow = all.find((e) => e.id === id)
+        if (examRow) {
+          const created = await this.ensurePendingAssignmentReport({ id: examRow.id, patientId: examRow.patientId, tenantId: examRow.tenantId })
+          if (created) this.notifyReportCreated(id)
+        }
+      }
       succeeded.push({ id, state: to })
     }
     if (succeeded.length > 0) {

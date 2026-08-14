@@ -250,7 +250,7 @@ export function AppDrawer({
             style={{
               padding: "12px 20px",
               borderTop: "1px solid var(--border-color)",
-              background: "#f8fafc",
+              background: "var(--bg-primary)",
               display: "flex",
               gap: 10,
               justifyContent: "flex-end",

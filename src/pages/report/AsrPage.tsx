@@ -107,7 +107,7 @@ export default function AsrPage() {
         {transcribed && !loading && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
                 <FileText size={16} color="#3b82f6" />{t("transcriptionResult")}
               </h3>
               <span style={{ fontSize: 12, color: confidence > 0.9 ? "#10b981" : "#f59e0b", fontWeight: 600, background: confidence > 0.9 ? "#d1fae5" : "#fef3c7", padding: "2px 8px", borderRadius: 4 }}>

@@ -526,7 +526,7 @@ const CriticalValueCenterPage: React.FC = () => {
       >
         <div className="space-y-3 py-1">
           <div>
-            <div className="mb-1 text-xs font-semibold text-slate-600">检查 ID (examId) *</div>
+            <div className="mb-1 text-xs font-semibold text-slate-600">检查 ID *</div>
             <Input
               value={detectForm.examId}
               onChange={(e) => setDetectForm((f) => ({ ...f, examId: e.target.value }))}
@@ -534,7 +534,7 @@ const CriticalValueCenterPage: React.FC = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs font-semibold text-slate-600">报告内容 (reportContent) *</div>
+            <div className="mb-1 text-xs font-semibold text-slate-600">报告内容 *</div>
             <Input.TextArea
               rows={4}
               value={detectForm.reportContent}
@@ -562,7 +562,7 @@ const CriticalValueCenterPage: React.FC = () => {
               患者 <strong className="text-slate-800">{closeTarget.patientName || '-'}</strong> · 发现「{closeTarget.finding || '-'}」
             </div>
             <div>
-              <div className="mb-1 text-xs font-semibold text-slate-600">闭环处置说明 (resolution) *</div>
+              <div className="mb-1 text-xs font-semibold text-slate-600">闭环处置说明 *</div>
               <Input.TextArea
                 rows={3}
                 value={closeForm.resolution}
@@ -571,7 +571,7 @@ const CriticalValueCenterPage: React.FC = () => {
               />
             </div>
             <div>
-              <div className="mb-1 text-xs font-semibold text-slate-600">处置人 (resolvedBy)</div>
+              <div className="mb-1 text-xs font-semibold text-slate-600">处置人</div>
               <Input
                 value={closeForm.resolvedBy}
                 onChange={(e) => setCloseForm((f) => ({ ...f, resolvedBy: e.target.value }))}

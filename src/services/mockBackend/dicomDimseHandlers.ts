@@ -2,6 +2,7 @@
 // 页面: /dicom-dimse (DicomDimsePage: echo/find/store/move) /integration/dimse-upload (DimseUploadPage: upload)
 import { http, HttpResponse, delay } from "msw";
 import { v4 as uuidv4 } from "uuid";
+import { list } from "./store";
 
 const API = "/api/v1/dicom-dimse";
 
@@ -58,6 +59,7 @@ const mockNodeTls = new Map<string, boolean>();
 const mockMpps = new Map<string, any>();
 
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] C-STORE 传输队列内存态 (与 backend seed 对齐)
+// [G005 v3.0.6.11-96 Wave 2B (D)] 传输记录支持 examId/accessionNumber (worklist 联动)
 let transferSeq = 0;
 const makeTransfer = (partial: Partial<any> = {}): any => {
   const now = new Date().toISOString();
@@ -76,6 +78,8 @@ const makeTransfer = (partial: Partial<any> = {}): any => {
     updatedAt: now,
     source: partial.source ?? "queue",
     error: partial.status === "failed" ? "DICOM Association 超时 (MSW)" : undefined,
+    examId: partial.examId,
+    accessionNumber: partial.accessionNumber,
   };
 };
 let mockTransfers: any[] = [
@@ -241,7 +245,23 @@ export const dicomDimseHandlers = [
     if (!body?.studyUid || !body?.targetAe) {
       return HttpResponse.json({ success: false, error: { code: "VALIDATION_ERROR", message: "studyUid / targetAe 必填" } }, { status: 400 });
     }
-    const record = makeTransfer({ studyUid: body.studyUid, targetAe: body.targetAe, priority: body.priority });
+    // [v3.0.6.11-96 Wave 2B (D)] 关联检查透传 (examId/accessionNumber, worklist 联动);
+    // 未传 examId 时从 studyUid 反查 exams 集合 (对齐后端 deriveExamFromStudyUid)
+    const linked = (() => {
+      if (body.examId) {
+        return list<any>('exams').find((e: any) => String(e.id ?? e.reportId ?? e.examId) === String(body.examId)) ?? { reportId: String(body.examId) };
+      }
+      return list<any>('exams').find((e: any) =>
+        String(e.id ?? e.reportId ?? e.examId) === String(body.studyUid) ||
+        String(e.accessionNumber ?? '') === String(body.studyUid));
+    })();
+    const record = makeTransfer({
+      studyUid: body.studyUid,
+      targetAe: body.targetAe,
+      priority: body.priority,
+      examId: body.examId ?? linked?.reportId ?? linked?.id ?? linked?.examId,
+      accessionNumber: body.accessionNumber ?? linked?.accessionNumber,
+    });
     mockTransfers.push(record);
     return HttpResponse.json({ success: true, data: record });
   }),

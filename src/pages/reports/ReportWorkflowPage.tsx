@@ -179,7 +179,7 @@ export const ReportWorkflowPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>报告流程核心</span>
         <Tag color="cyan">PR1 (v3.0.6.8-45)</Tag>
         <Tag color="purple">Nuance PowerScribe 对标</Tag>
-        <Tag color="green">8 端点 + 9 client</Tag>
+        <Tag color="green">8 端点 + 9 客户端</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

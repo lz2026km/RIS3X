@@ -99,7 +99,7 @@ export const CommandCenterPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>全院运营指挥中心 (Command Center)</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>全院运营指挥中心</span>
         <Tag color="cyan">实时</Tag>
         <Space>
           {['today', 'week', 'month'].map((t) =>

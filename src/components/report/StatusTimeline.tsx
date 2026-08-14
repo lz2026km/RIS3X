@@ -218,8 +218,8 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
 
   return (
     <div style={{
-      background: '#f8fafc',
-      border: '1px solid #e2e8f0',
+      background: 'var(--bg-primary)',
+      border: '1px solid var(--border-color)',
       borderRadius: 8,
       padding: compact ? 12 : 16,
     }}>
@@ -235,12 +235,12 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
           {realEvents ? (
             <span style={{
               fontSize: 10, padding: '1px 6px', borderRadius: 3,
-              background: '#dcfce7', color: '#15803d', fontWeight: 700,
+              background: 'var(--color-success-bg)', color: '#15803d', fontWeight: 700,
             }}>真实轨迹</span>
           ) : (
             <span style={{
               fontSize: 10, padding: '1px 6px', borderRadius: 3,
-              background: '#fef3c7', color: '#b45309', fontWeight: 700,
+              background: 'var(--color-warning-bg)', color: '#b45309', fontWeight: 700,
             }}>演示数据</span>
           )}
         </div>
@@ -278,9 +278,9 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 )}
                 {showAuditInfo && ev.reason && (
                   <div style={{
-                    fontSize: 12, color: '#64748b', background: '#fff',
+                    fontSize: 12, color: '#64748b', background: 'var(--bg-card)',
                     padding: '4px 8px', borderRadius: 4, marginTop: 4,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--border-color)',
                   }}>
                     {ev.reason}
                   </div>
@@ -337,11 +337,11 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 <div style={{
                   fontSize: 12,
                   color: '#64748b',
-                  background: '#fff',
+                  background: 'var(--bg-card)',
                   padding: '4px 8px',
                   borderRadius: 4,
                   marginTop: 4,
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border-color)',
                 }}>
                   {node.comment}
                 </div>
@@ -356,7 +356,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
         <div style={{
           marginTop: 12,
           padding: '6px 10px',
-          background: '#eff6ff',
+          background: 'var(--color-info-bg)',
           border: '1px solid #bfdbfe',
           borderRadius: 6,
           fontSize: 12,

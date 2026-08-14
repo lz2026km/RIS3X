@@ -199,7 +199,7 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
     <>
       <div style={{
         display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
-        padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
+        padding: '10px 16px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)',
         fontSize: 12, fontWeight: 600, color: GRAY,
       }}>
         <div>时间</div>

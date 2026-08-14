@@ -82,6 +82,7 @@ import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, Badg
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge } from 'lucide-react';
 import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
 import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, AlarmClock, Timer } from 'lucide-react';
+import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -111,7 +112,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/",
-        icon: <LayoutDashboard size={18} />,
+        icon: <Home size={18} />,
         labelKey: "nav.homeOverview",
         roles: ["医生", "技师", "护士", "管理员", "主任"],
       },
@@ -303,7 +304,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/critical-value-stats",
-        icon: <BarChart3 size={18} />,
+        icon: <AlertOctagon size={18} />,
         labelKey: "nav.cvStats",
         roles: ["医生", "主任", "管理员",],
       },
@@ -339,7 +340,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient-report-portal",
-        icon: <Globe size={18} />,
+        icon: <ExternalLink size={18} />,
         labelKey: "nav.patientPortal",
         roles: ["医生", "主任", "管理员",],
       },
@@ -406,7 +407,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/cds/statistics",
-        icon: <BarChart3 size={18} />,
+        icon: <Activity size={18} />,
         labelKey: "nav.cdsStatistics",
         roles: ["医生", "主任", "管理员",],
       },
@@ -613,7 +614,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-62] G005 3D 分割与定量 (对标 Siemens Lesion Quantification)
       {
         path: "/dicom/segmentation",
-        icon: <Scan size={18} />,
+        icon: <Layers size={18} />,
         labelKey: "nav.segmentation",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -663,7 +664,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ai-assist",
-        icon: <Cpu size={18} />,
+        icon: <Brain size={18} />,
         labelKey: "nav.aiAssist",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -721,7 +722,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-40] A13 WADO-RS / STOW-RS / SR Report
       {
         path: "/dicom/wado-rs",
-        icon: <Globe size={18} />,
+        icon: <RadioTower size={18} />,
         labelKey: "nav.wadoRs",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -811,7 +812,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/ai/providers",
-        icon: <Cpu size={18} />,
+        icon: <Server size={18} />,
         labelKey: "nav.aiProviders",
         roles: ["管理员",],
       },
@@ -957,7 +958,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/safety/radiation-safety",
-        icon: <Radio size={18} />,
+        icon: <Radiation size={18} />,
         labelKey: "nav.radiationSafety",
         roles: ["主任", "管理员"],
       },
@@ -969,7 +970,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/safety/risk-management",
-        icon: <Shield size={18} />,
+        icon: <ShieldAlert size={18} />,
         labelKey: "nav.riskManagement",
         roles: ["主任", "管理员"],
       },
@@ -1053,7 +1054,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/fhir/subscription",
-        icon: <Radio size={18} />,
+        icon: <Webhook size={18} />,
         labelKey: "nav.fhirSubscription",
         roles: ["管理员"],
       },
@@ -1217,7 +1218,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/operations-center",
-        icon: <LayoutDashboard size={18} />,
+        icon: <Command size={18} />,
         labelKey: "nav.operationsCenter",
         roles: ["主任", "管理员"],
       },
@@ -1229,13 +1230,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/stats-report",
-        icon: <BarChart3 size={18} />,
+        icon: <ChartLine size={18} />,
         labelKey: "nav.dataStats",
         roles: ["主任", "管理员"],
       },
       {
         path: "/nuclear-stats",
-        icon: <Radio size={18} />,
+        icon: <Atom size={18} />,
         labelKey: "nav.nuclearStats",
         roles: ["主任", "管理员"],
       },
@@ -1320,7 +1321,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   },
       {
         path: "/operations/occupancy",
-        icon: <LayoutDashboard size={18} />,
+        icon: <Monitor size={18} />,
         labelKey: "nav.roomOccupancy",
         roles: ["主任", "管理员", "技师"],
       },
@@ -1339,7 +1340,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/analytics/benchmark-v2",
-        icon: <BarChart3 size={18} />,
+        icon: <GitCompare size={18} />,
         labelKey: "nav.benchmarkCompare",
         roles: ["主任", "管理员"],
       },
@@ -1450,7 +1451,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/pacs/oct-a",
-        icon: <Scan size={18} />,
+        icon: <ScanEye size={18} />,
         labelKey: "nav.eyeOcta",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1486,7 +1487,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/ris",
-        icon: <Stethoscope size={18} />,
+        icon: <Eye size={18} />,
         labelKey: "nav.eyeRis",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1528,7 +1529,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/kpi-dashboard",
-        icon: <BarChart3 size={18} />,
+        icon: <Activity size={18} />,
         labelKey: "nav.eyeKpi",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1577,7 +1578,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/eye/sub/cornea",
-        icon: <Scan size={18} />,
+        icon: <ScanLine size={18} />,
         labelKey: "nav.eyeCornea",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1631,13 +1632,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/dental",
-        icon: React.createElement(Stethoscope, { size: 18 }),
+        icon: React.createElement(Smile, { size: 18 }),
         labelKey: "nav.dentalWorkspace",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
         path: "/dental/studies",
-        icon: React.createElement(Scan, { size: 18 }),
+        icon: React.createElement(Image, { size: 18 }),
         labelKey: "nav.dentalPacs",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1685,7 +1686,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dental/dashboard",
-        icon: React.createElement(BarChart3, { size: 18 }),
+        icon: React.createElement(Gauge, { size: 18 }),
         labelKey: "nav.dentalDashboard",
         roles: ["医生", "技师", "主任", "管理员",],
       },
@@ -1762,7 +1763,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 牙体牙髓
       {
         path: "/dental/endo",
-        icon: React.createElement(Shield, { size: 18 }),
+        icon: React.createElement(Smile, { size: 18 }),
         labelKey: "nav.dentalEndo",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1797,7 +1798,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 口腔影像查看
       {
         path: "/dental/viewer",
-        icon: React.createElement(Scan, { size: 18 }),
+        icon: React.createElement(Eye, { size: 18 }),
         labelKey: "nav.dentalViewer",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1825,7 +1826,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-42] P2 口腔ONNX AI
       {
         path: "/dental/ai-onnx",
-        icon: React.createElement(Cpu, { size: 18 }),
+        icon: React.createElement(Sparkles, { size: 18 }),
         labelKey: "nav.dentalAiOnnx",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1876,13 +1877,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/regional-imaging",
-        icon: <Globe size={18} />,
+        icon: <Map size={18} />,
         labelKey: "nav.regionalImaging",
         roles: ["管理员"],
       },
       {
         path: "/integration/mllp-monitor",
-        icon: <Radio size={18} />,
+        icon: <RadioTower size={18} />,
         labelKey: "nav.mllpMonitor",
         roles: ["管理员", "技师"],
       },
@@ -1906,7 +1907,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     items: [
       {
         path: "/director-dashboard",
-        icon: <LayoutDashboard size={18} />,
+        icon: <Crown size={18} />,
         labelKey: "nav.directorDashboard",
         roles: ["主任", "管理员"],
       },
@@ -1942,7 +1943,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient-safety",
-        icon: <Shield size={18} />,
+        icon: <HeartPulse size={18} />,
         labelKey: "nav.patientSafety",
         roles: ["主任", "管理员", "护士"],
       },
@@ -1984,7 +1985,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient-device-mgmt",
-        icon: <Cpu size={18} />,
+        icon: <HardDrive size={18} />,
         labelKey: "nav.patientDeviceMgmt",
         roles: ["医生", "主任", "技师", "管理员"],
       },
@@ -2244,7 +2245,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/business-continuity",
-        icon: <Shield size={18} />,
+        icon: <LifeBuoy size={18} />,
         labelKey: "nav.businessContinuity",
         roles: ["管理员"],
       },

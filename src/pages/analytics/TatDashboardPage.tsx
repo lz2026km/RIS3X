@@ -382,9 +382,9 @@ export default function TatDashboardPage() {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           padding: "20px 24px",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--border-color)",
           marginBottom: 20,
         }}
       >
@@ -585,7 +585,7 @@ export default function TatDashboardPage() {
                           style={{
                             flex: 1,
                             height: 20,
-                            background: "#f1f5f9",
+                            background: "var(--bg-primary)",
                             borderRadius: 4,
                             overflow: "hidden",
                           }}
@@ -791,7 +791,7 @@ export default function TatDashboardPage() {
                       return (
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ width: 90, fontSize: 12, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-                          <div style={{ flex: 1, height: 16, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
+                          <div style={{ flex: 1, height: 16, background: "var(--bg-primary)", borderRadius: 4, overflow: "hidden" }}>
                             <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "#2563eb", borderRadius: 4, transition: "width 0.3s" }} />
                           </div>
                           <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: "#334155", textAlign: "right" }}>{val}</span>

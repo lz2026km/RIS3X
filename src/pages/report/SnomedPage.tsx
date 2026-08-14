@@ -50,7 +50,7 @@ export default function SnomedPage() {
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20 }}>
           <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <FileText size={16} color="#3b82f6" />{t("reportInput")}
             </h3>
             <textarea
@@ -97,7 +97,7 @@ export default function SnomedPage() {
           </div>
 
           <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Search size={16} color="#8b5cf6" />{t("searchCodes")}
             </h3>
             <div style={{ display: "flex", gap: 8 }}>

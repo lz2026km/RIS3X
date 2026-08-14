@@ -34,20 +34,20 @@ import { BellOff } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react';
 
 const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: string; icon: React.ReactNode }> = {
-  pending: { color: '#dc2626', label: '待通报', bg: '#fee2e2', icon: <PhoneCall size={12} /> },
-  notified: { color: '#f59e0b', label: '已通报', bg: '#fef3c7', icon: <Bell size={12} /> },
-  acknowledged: { color: '#3b82f6', label: '已确认', bg: '#dbeafe', icon: <CheckCircle2 size={12} /> },
-  resolved: { color: '#10b981', label: '已处置', bg: '#d1fae5', icon: <CheckCircle2 size={12} /> },
-  overdue: { color: '#7f1d1d', label: '已超时', bg: '#fecaca', icon: <Clock size={12} /> },
-  escalated: { color: '#7c3aed', label: '已升级', bg: '#ede9fe', icon: <TrendingUp size={12} /> },
-  cancelled: { color: '#64748b', label: '已取消', bg: '#e2e8f0', icon: <X size={12} /> },
+  pending: { color: '#dc2626', label: '待通报', bg: 'var(--color-error-bg)', icon: <PhoneCall size={12} /> },
+  notified: { color: '#f59e0b', label: '已通报', bg: 'var(--color-warning-bg)', icon: <Bell size={12} /> },
+  acknowledged: { color: '#3b82f6', label: '已确认', bg: 'var(--color-info-bg)', icon: <CheckCircle2 size={12} /> },
+  resolved: { color: '#10b981', label: '已处置', bg: 'var(--color-success-bg)', icon: <CheckCircle2 size={12} /> },
+  overdue: { color: '#7f1d1d', label: '已超时', bg: 'var(--color-error-bg)', icon: <Clock size={12} /> },
+  escalated: { color: '#7c3aed', label: '已升级', bg: 'var(--color-info-bg)', icon: <TrendingUp size={12} /> },
+  cancelled: { color: '#64748b', label: '已取消', bg: 'var(--border-color)', icon: <X size={12} /> },
 };
 
 const LEVEL_META: Record<CriticalLevel, { color: string; label: string; bg: string }> = {
-  critical: { color: '#7f1d1d', label: '危急', bg: '#fee2e2' },
-  urgent: { color: '#dc2626', label: '紧急', bg: '#fef2f2' },
-  warning: { color: '#f59e0b', label: '警告', bg: '#fef3c7' },
-  info: { color: '#3b82f6', label: '提示', bg: '#dbeafe' },
+  critical: { color: '#7f1d1d', label: '危急', bg: 'var(--color-error-bg)' },
+  urgent: { color: '#dc2626', label: '紧急', bg: 'var(--color-error-bg)' },
+  warning: { color: '#f59e0b', label: '警告', bg: 'var(--color-warning-bg)' },
+  info: { color: '#3b82f6', label: '提示', bg: 'var(--color-info-bg)' },
 };
 
 const CHANNEL_META: Record<NotificationChannel, { icon: React.ComponentType<{ size?: number; color?: string }>; color: string; label: string }> = {
@@ -446,7 +446,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         dataSource={filtered}
         locale={{ emptyText: <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description="无危急值事件" /> }}
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: 4,
           maxHeight: 600,
@@ -473,11 +473,11 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                 marginBottom: 6,
                 background:
                   e.status === 'pending'
-                    ? '#fef2f2'
+                    ? 'var(--color-error-bg)'
                     : e.status === 'overdue'
-                      ? '#fee2e2'
+                      ? 'var(--color-error-bg)'
                       : e.status === 'escalated'
-                        ? '#f5f3ff'
+                        ? 'var(--color-info-bg)'
                         : 'transparent',
                 borderLeft:
                   e.status === 'pending'

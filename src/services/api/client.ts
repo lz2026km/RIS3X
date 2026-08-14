@@ -442,7 +442,103 @@ export const api = {
   //   - MSW 旧 handler: data 为裸数组 { success, data: [...] }
   //   - Nest CRUD:      data 为 { items: [], total: number }
   getList: <T>(path: string) => requestList<T>(path),
+  // [v3.0.6.11-96 Wave 3A P2] 影像上传逐帧进度: fetch 无上传进度, 内部 XHR + onprogress
+  // 仅支持 FormData 请求体; onProgress 回调 0-100 整数百分比
+  uploadWithProgress: <T = unknown>(
+    path: string,
+    body: FormData,
+    onProgress?: (percent: number) => void,
+  ) => requestUploadWithProgress<T>(path, body, onProgress),
 };
+
+// ────────────────────────────────────────────────────────────────────────────
+// [v3.0.6.11-96 Wave 3A P2] XHR 上传封装 (DICOM 多帧逐帧进度)
+// 与 request() 相同的鉴权/租户/CSRF 头; 响应按 ApiResponse 协议归一化。
+// ────────────────────────────────────────────────────────────────────────────
+async function requestUploadWithProgress<T>(
+  path: string,
+  body: FormData,
+  onProgress?: (percent: number) => void,
+): Promise<ApiResponse<T>> {
+  const url = `${API_BASE}${path}`;
+  const baseHeaders: Record<string, string> = {};
+  if (API_MODE === "real") {
+    const tenantId = getTenantId();
+    if (tenantId) baseHeaders["X-Tenant-Id"] = tenantId;
+    baseHeaders["X-CSRF-Token"] = getCsrfToken();
+  }
+  const currentToken = getToken();
+  if (currentToken) baseHeaders["Authorization"] = `Bearer ${currentToken}`;
+
+  return new Promise<ApiResponse<T>>((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    Object.entries(baseHeaders).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+    xhr.withCredentials = API_MODE === "real";
+
+    const timeoutId = setTimeout(() => xhr.abort(), API_TIMEOUT_MS);
+
+    xhr.upload.onprogress = (e: ProgressEvent) => {
+      if (!onProgress || !e.lengthComputable) return;
+      const percent = Math.min(100, Math.round((e.loaded / e.total) * 100));
+      onProgress(percent);
+    };
+    xhr.onload = () => {
+      clearTimeout(timeoutId);
+      try {
+        const raw = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+        if (xhr.status >= 200 && xhr.status < 300) {
+          let normalized: ApiResponse<T>;
+          if (raw && typeof raw === "object") {
+            const flags = raw as Record<string, unknown>;
+            const okFlag =
+              typeof flags.success === "boolean"
+                ? flags.success
+                : typeof flags.ok === "boolean"
+                  ? flags.ok
+                  : undefined;
+            normalized = okFlag === false
+              ? { success: false, data: null as unknown as T, error: apiError(raw, xhr.status) }
+              : { success: true, data: raw as T };
+          } else {
+            normalized = { success: true, data: raw as T };
+          }
+          writeCache(url, "POST", normalized);
+          resolve(normalized);
+        } else {
+          resolve({
+            success: false,
+            data: null as unknown as T,
+            error: apiError(raw, xhr.status),
+          });
+        }
+      } catch {
+        resolve({
+          success: false,
+          data: null as unknown as T,
+          error: { code: "PARSE_ERROR", message: "上传响应解析失败" },
+        });
+      }
+    };
+    xhr.onerror = () => {
+      clearTimeout(timeoutId);
+      resolve({
+        success: false,
+        data: null as unknown as T,
+        error: { code: "NETWORK_ERROR", message: "上传网络错误" },
+      });
+    };
+    xhr.ontimeout = () => {
+      clearTimeout(timeoutId);
+      resolve({
+        success: false,
+        data: null as unknown as T,
+        error: { code: "TIMEOUT", message: "上传超时，请稍后重试" },
+      });
+    };
+    xhr.send(body);
+  });
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // [G005 Wave1B] Blob 请求: 与 request() 相同的鉴权/租户/CSRF 头, 但返回 Blob

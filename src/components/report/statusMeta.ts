@@ -122,7 +122,7 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '报告草稿（WRITING/DRAFT）',
   },
   'CoSign双签': {
-    label: 'CoSign双签', color: '#0f766e', bg: '#ccfbf1', border: '#5eead4',
+    label: '双签', color: '#0f766e', bg: '#ccfbf1', border: '#5eead4',
     icon: CheckCheck, order: 20, group: 'review',
     description: '待双签复核（CO_SIGN_REVIEW）',
   },

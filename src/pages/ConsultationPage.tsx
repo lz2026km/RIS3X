@@ -772,7 +772,7 @@ export default function ConsultationPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                          <h2 style={{ fontSize: 18, fontWeight: 700, color: PRIMARY, margin: 0 }}>{selected.patientName}</h2>
+                          <h2 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{selected.patientName}</h2>
                           <span style={{ padding: '2px 10px', background: STATUS_CONFIG[selected.status]?.bg, color: STATUS_CONFIG[selected.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                             {STATUS_CONFIG[selected.status]?.label}
                           </span>

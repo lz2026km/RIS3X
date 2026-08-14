@@ -76,7 +76,7 @@ export const VisitPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE Visit 管理</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 就诊管理</span>
         <Tag color="cyan">v3.0.6.0</Tag>
       </Space>
 

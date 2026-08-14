@@ -245,7 +245,7 @@ export default function MfaSetupPage() {
                 style={{
                   textAlign: "center",
                   padding: 16,
-                  background: "#fafafa",
+                  background: "var(--bg-card)",
                   borderRadius: 8,
                   marginBottom: 16,
                 }}

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Card, Slider, Tag, Select, Spin, Alert, Segmented, Button, message } from 'antd'
 import { Layers, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Maximize, Crosshair, ScanLine, GitCompareArrows } from 'lucide-react'
 import { dbtApi, type DbtStudyDto, type DbtSliceDto, type DbtCompareResultDto, type DbtReconstructResultDto } from '../../services/api/dbtApi'
@@ -245,6 +246,8 @@ function SliceCanvas({ pixels, ww, wl, zoom, pan, markers, label, subLabel, mark
 type ViewMode = 'single' | 'reconstruct' | 'compare'
 
 const DbtPage: React.FC = () => {
+  // [v3.0.6.11-96 Wave3B G-21 P2] 支持 ?studyId 直达 (乳腺专科"断层阅片"入口带入)
+  const [searchParams] = useSearchParams()
   const [studies, setStudies] = useState<DbtStudyDto[]>([])
   const [studiesLoading, setStudiesLoading] = useState(true)
   const [studiesError, setStudiesError] = useState<string | null>(null)
@@ -291,7 +294,11 @@ const DbtPage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setStudies(res.data)
         setStudiesError(null)
-        const current = res.data.find((s) => s.isCurrent) ?? res.data[0]
+        // [v3.0.6.11-96 Wave3B G-21 P2] 优先选中 URL ?studyId 指定检查, 否则当前/首个
+        const paramId = searchParams.get('studyId')
+        const current = res.data.find((s) => String(s.id) === String(paramId))
+          ?? res.data.find((s) => s.isCurrent)
+          ?? res.data[0]
         if (current) {
           setSelectedStudyId(current.id)
           setSelectedSeriesUid(current.series[0]?.seriesInstanceUid ?? '')

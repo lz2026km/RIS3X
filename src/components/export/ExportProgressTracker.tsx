@@ -126,7 +126,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
   }
 
   return (
-    <div style={{ padding: 14, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+    <div style={{ padding: 14, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
       {content}
     </div>
   );

@@ -435,7 +435,7 @@ const ThirdPartyAiPage: React.FC = () => {
               <Descriptions.Item label="超时阈值">{testResult.timeoutMs} ms</Descriptions.Item>
               <Descriptions.Item label="测试时间">{testResult.testedAt}</Descriptions.Item>
               <Descriptions.Item label="输出预览">
-                <div style={{ fontFamily: "monospace", fontSize: 12, background: "#f8fafc", padding: "8px 12px", borderRadius: 6 }}>
+                <div style={{ fontFamily: "monospace", fontSize: 12, background: "var(--bg-primary)", padding: "8px 12px", borderRadius: 6 }}>
                   {JSON.stringify({ id: testResult.id, reachable: testResult.reachable, status: testResult.status, latencyMs: testResult.latencyMs }, null, 2)}
                 </div>
               </Descriptions.Item>

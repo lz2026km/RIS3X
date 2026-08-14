@@ -452,7 +452,7 @@ export default function TermLibraryPage() {
     a.href = URL.createObjectURL(blob)
     a.download = '词库导入模板.csv'
     a.click()
-    URL.revokeObjectURL(url)
+    URL.revokeObjectURL(a.href)
   }
 
   const handleImportAllStandards = async () => {

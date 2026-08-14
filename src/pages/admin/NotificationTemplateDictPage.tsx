@@ -163,7 +163,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>通知 · 模板 · 词典</span>
         <Tag color="cyan">PR3 (v3.0.6.8-47)</Tag>
         <Tag color="purple">系统级基础组件</Tag>
-        <Tag color="green">12 client + 20 端点</Tag>
+        <Tag color="green">12 客户端 + 20 端点</Tag>
       </Space>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">

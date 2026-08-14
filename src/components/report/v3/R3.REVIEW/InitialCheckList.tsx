@@ -9,20 +9,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Inbox } from 'lucide-react'
 
 const STAGE_META: Record<ReviewStage, { color: string; label: string; bg: string }> = {
-  initial: { color: '#f59e0b', label: '初审', bg: '#fef3c7' },
-  final: { color: '#7c2d12', label: '终审', bg: '#fed7aa' },
-  cosign: { color: '#7c3aed', label: '双签', bg: '#ede9fe' },
-  sign: { color: '#be185d', label: '签发', bg: '#fce7f3' },
+  initial: { color: '#f59e0b', label: '初审', bg: 'var(--color-warning-bg)' },
+  final: { color: '#7c2d12', label: '终审', bg: 'var(--color-warning-bg)' },
+  cosign: { color: '#7c3aed', label: '双签', bg: 'var(--color-info-bg)' },
+  sign: { color: '#be185d', label: '签发', bg: 'var(--color-pending-bg)' },
 };
 
 const STATUS_META: Record<string, { color: string; label: string; bg: string }> = {
-  pending: { color: '#f59e0b', label: '待审', bg: '#fef3c7' },
-  'in-progress': { color: '#0891b2', label: '审核中', bg: '#cffafe' },
-  completed: { color: '#10b981', label: '已完成', bg: '#d1fae5' },
-  rejected: { color: '#dc2626', label: '已驳回', bg: '#fee2e2' },
-  overdue: { color: '#7f1d1d', label: '已超时', bg: '#fecaca' },
-  escalated: { color: '#7c3aed', label: '已升级', bg: '#ede9fe' },
-  'cosign-required': { color: '#7c3aed', label: '需双签', bg: '#ede9fe' },
+  pending: { color: '#f59e0b', label: '待审', bg: 'var(--color-warning-bg)' },
+  'in-progress': { color: '#0891b2', label: '审核中', bg: 'var(--color-info-bg)' },
+  completed: { color: '#10b981', label: '已完成', bg: 'var(--color-success-bg)' },
+  rejected: { color: '#dc2626', label: '已驳回', bg: 'var(--color-error-bg)' },
+  overdue: { color: '#7f1d1d', label: '已超时', bg: 'var(--color-error-bg)' },
+  escalated: { color: '#7c3aed', label: '已升级', bg: 'var(--color-info-bg)' },
+  'cosign-required': { color: '#7c3aed', label: '需双签', bg: 'var(--color-info-bg)' },
 };
 
 const PRIORITY_META: Record<string, { color: string; label: string; rank: number }> = {
@@ -181,11 +181,11 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
 
       <div
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           padding: '8px 12px',
           borderRadius: 6,
           marginBottom: 8,
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-color)',
         }}
       >
         <Space wrap>
@@ -227,7 +227,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
         dataSource={tasks}
         locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无初核任务" /> }}
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           borderRadius: 8,
           padding: 4,
           maxHeight: 600,
@@ -247,7 +247,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                 padding: '10px 12px',
                 borderRadius: 6,
                 background:
-                  t.id === selectedId ? '#eff6ff' : t.isOverdue ? '#fef2f2' : 'transparent',
+                  t.id === selectedId ? 'var(--color-info-bg)' : t.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                 borderLeft:
                   t.id === selectedId
                     ? '3px solid #3b82f6'
@@ -272,7 +272,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                       width: 36,
                       height: 36,
                       borderRadius: 6,
-                      background: t.criticalFinding ? '#fee2e2' : stageConf.bg,
+                      background: t.criticalFinding ? 'var(--color-error-bg)' : stageConf.bg,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

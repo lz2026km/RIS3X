@@ -72,14 +72,14 @@ export default function AnnotationOverlay(props: Props) {
       )}
 
       {showAnnotationPanel && (
-        <div ref={panelRef} role="dialog" aria-modal="true" aria-label="标注工具" style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: '#fff', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 10 }}>
+        <div ref={panelRef} role="dialog" aria-modal="true" aria-label="标注工具" style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: 'var(--bg-card)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>标注工具</span>
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label="关闭标注工具">✕</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 }}>
             {annotationTypes.map(({ type, icon, label }) => (
-              <button key={type} style={{ height: 36, borderRadius: 6, border: `1px solid ${activeAnnotationType === type ? PRIMARY : '#e2e8f0'}`, background: activeAnnotationType === type ? PRIMARY : '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4, color: activeAnnotationType === type ? '#fff' : '#64748b' }} onClick={() => setActiveAnnotationType(type)}>
+              <button key={type} style={{ height: 36, borderRadius: 6, border: `1px solid ${activeAnnotationType === type ? PRIMARY : 'var(--border-color)'}`, background: activeAnnotationType === type ? PRIMARY : 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4, color: activeAnnotationType === type ? '#fff' : '#64748b' }} onClick={() => setActiveAnnotationType(type)}>
                 {icon}
                 <span style={{ fontSize: 8, color: activeAnnotationType === type ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{label}</span>
               </button>
@@ -101,7 +101,7 @@ export default function AnnotationOverlay(props: Props) {
               <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 8 }}>点击图像添加标注</div>
             ) : (
               annotations.map(ann => (
-                <div key={ann.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: '#f8fafc', borderRadius: 6, marginBottom: 4, border: `1px solid ${selectedAnnotationId === ann.id ? '#3b82f6' : '#e2e8f0'}`, cursor: 'pointer' }} onClick={() => setSelectedAnnotationId(ann.id)}>
+                <div key={ann.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: `1px solid ${selectedAnnotationId === ann.id ? '#3b82f6' : 'var(--border-color)'}`, cursor: 'pointer' }} onClick={() => setSelectedAnnotationId(ann.id)}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: ann.color, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ann.type === 'text' ? ann.text : ann.type === 'arrow' ? '箭头标注' : ann.type === 'rect' ? '矩形标注' : '椭圆标注'}</div>
@@ -117,12 +117,12 @@ export default function AnnotationOverlay(props: Props) {
             )}
           </div>
           {annotations.length > 0 && (
-            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: '#fef2f2', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>🗑 清除全部标注</button>
+            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-bg)', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>🗑 清除全部标注</button>
           )}
           <button
             type="button"
             aria-label="关闭标注工具"
-            style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#64748b', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: '#64748b', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
             onClick={closePanel}
           >
             关闭 (Esc)

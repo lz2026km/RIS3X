@@ -140,7 +140,7 @@ export function getSequenceHint(seq: SequenceShortcut): string {
 export const NAV_SHORTCUTS: SequenceShortcut[] = [
   { sequence: ['g', 'r'], action: () => window.location.href = '/reports', description: '导航到报告' },
   { sequence: ['g', 'w'], action: () => window.location.href = '/worklist', description: '导航到工作列表' },
-  { sequence: ['g', 'd'], action: () => window.location.href = '/dashboard', description: '导航到仪表盘' },
+  { sequence: ['g', 'd'], action: () => window.location.href = '/workbench', description: '导航到仪表盘' },
   { sequence: ['g', 'p'], action: () => window.location.href = '/patients', description: '导航到患者' },
 ]
 

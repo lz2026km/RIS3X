@@ -23,7 +23,7 @@ interface Props {
 const s = {
   infoSection: { marginBottom: 12 } as React.CSSProperties,
   infoSectionTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 } as React.CSSProperties,
-  measureItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, marginBottom: 6, border: '1px solid #e2e8f0' } as React.CSSProperties,
+  measureItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg-primary)', borderRadius: 8, marginBottom: 6, border: '1px solid var(--border-color)' } as React.CSSProperties,
   measureItemColor: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 } as React.CSSProperties,
   measureItemInfo: { flex: 1, minWidth: 0 } as React.CSSProperties,
   measureItemValue: { fontSize: 13, fontWeight: 700, color: '#1e293b' } as React.CSSProperties,

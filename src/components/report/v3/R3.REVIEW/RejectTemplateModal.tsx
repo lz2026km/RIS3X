@@ -198,7 +198,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
 
         <div
           style={{
-            background: '#f8fafc',
+            background: 'var(--bg-primary)',
             padding: 8,
             borderRadius: 4,
             fontSize: 12,

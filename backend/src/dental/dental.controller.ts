@@ -189,6 +189,30 @@ export class DentalController {
   @Get('patients')
   listDentalPatients() { return this.svc.listDentalPatients() }
 
+  // ── [G005 W2-A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用; 对齐 dentalHandlers dentalEmrModule) ──
+  // 注意: overview/treatments 等具体子路径需声明在 /patients/:id/overview 之前 (Express 通配顺序)
+
+  @Get('patients/:id/overview/treatments')
+  getPatientOverviewTreatments(@Param('id') id: string) { return this.svc.getPatientOverviewTreatments(id) }
+
+  @Get('patients/:id/overview/appointments')
+  getPatientOverviewAppointments(@Param('id') id: string) { return this.svc.getPatientOverviewAppointments(id) }
+
+  @Get('patients/:id/overview/billing')
+  getPatientOverviewBilling(@Param('id') id: string) { return this.svc.getPatientOverviewBilling(id) }
+
+  @Get('patients/:id/overview/prescriptions')
+  getPatientOverviewPrescriptions(@Param('id') id: string) { return this.svc.getPatientOverviewPrescriptions(id) }
+
+  @Get('patients/:id/overview/consents')
+  getPatientOverviewConsents(@Param('id') id: string) { return this.svc.getPatientOverviewConsents(id) }
+
+  @Get('patients/:id/overview/recalls')
+  getPatientOverviewRecalls(@Param('id') id: string) { return this.svc.getPatientOverviewRecalls(id) }
+
+  @Get('patients/:id/overview')
+  getPatientOverview(@Param('id') id: string) { return this.svc.getPatientOverview(id) }
+
   @Get('dentists')
   listDentists() { return this.svc.listDentists() }
 

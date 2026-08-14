@@ -124,7 +124,7 @@ export const Hl7ArchivePage: React.FC = () => {
             <Archive className="w-5 h-5 text-purple-600" />
             <div>
               <div className="text-base font-semibold">HL7 消息归档</div>
-              <div className="text-xs text-slate-500">Hl7MessageArchive · 消息检索与重发</div>
+              <div className="text-xs text-slate-500">消息归档列表（HL7 归档）</div>
             </div>
           </Space>
           <Space>

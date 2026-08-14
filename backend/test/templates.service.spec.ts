@@ -105,4 +105,64 @@ describe('TemplatesService', () => {
       await expect(svc.clone('x')).rejects.toThrow(NotFoundException)
     })
   })
+
+  // [v3.0.6.11-96 Wave3B P1] 模板分类管理 (内存 + seed: name/description/sortOrder)
+  describe('categories', () => {
+    it('listCategories returns seeded categories sorted by sortOrder', () => {
+      const res = svc.listCategories()
+      expect(res.length).toBeGreaterThanOrEqual(6)
+      expect(res[0]!.name).toBe('CT')
+      expect(res[0]!.sortOrder).toBe(1)
+      expect(res.every((c) => c.name && typeof c.sortOrder === 'number')).toBe(true)
+    })
+
+    it('createCategory adds new category', () => {
+      const created = svc.createCategory({ name: '口腔', description: '牙科影像模板', sortOrder: 99 })
+      expect(created.id).toBeTruthy()
+      expect(created.name).toBe('口腔')
+      expect(svc.listCategories().some((c) => c.id === created.id)).toBe(true)
+    })
+
+    it('createCategory rejects duplicate name', () => {
+      expect(() => svc.createCategory({ name: 'CT' })).toThrow()
+    })
+
+    it('createCategory rejects empty name', () => {
+      expect(() => svc.createCategory({ name: '  ' })).toThrow()
+    })
+
+    it('updateCategory updates name/description/sortOrder', () => {
+      const created = svc.createCategory({ name: 'PETCT', sortOrder: 7 })
+      const updated = svc.updateCategory(created.id, { name: 'PET/CT', sortOrder: 8 })
+      expect(updated.name).toBe('PET/CT')
+      expect(updated.sortOrder).toBe(8)
+    })
+
+    it('updateCategory supports seed category', () => {
+      const updated = svc.updateCategory('TC-001', { description: '更新后的CT模板说明' })
+      expect(updated.description).toContain('更新后')
+    })
+
+    it('updateCategory throws on missing', () => {
+      expect(() => svc.updateCategory('TC-GONE', { name: 'x' })).toThrow(NotFoundException)
+    })
+
+    it('deleteCategory removes memory category', () => {
+      const created = svc.createCategory({ name: '临时分类' })
+      const res = svc.deleteCategory(created.id)
+      expect(res.ok).toBe(true)
+      expect(svc.listCategories().some((c) => c.id === created.id)).toBe(false)
+    })
+
+    it('deleteCategory marks seed category deleted', () => {
+      const res = svc.deleteCategory('TC-002')
+      expect(res.ok).toBe(true)
+      expect(svc.isSeedCategoryDeleted('TC-002')).toBe(true)
+      expect(svc.listCategories().some((c) => c.id === 'TC-002')).toBe(false)
+    })
+
+    it('deleteCategory throws on missing', () => {
+      expect(() => svc.deleteCategory('TC-GONE')).toThrow(NotFoundException)
+    })
+  })
 })

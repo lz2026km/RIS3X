@@ -109,7 +109,7 @@ export const V3ReportHubPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>v3 报告全栈</span>
         <Tag color="cyan">PR6 (v3.0.6.8-50)</Tag>
         <Tag color="purple">Medisoft mediSIGHT 升级</Tag>
-        <Tag color="green">40 client + 194 端点</Tag>
+        <Tag color="green">40 客户端 + 194 端点</Tag>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>

@@ -6,6 +6,7 @@ import { STORAGE_DRIVER } from '../common/storage/storage.module'
 import { LocalStorageDriver } from '../common/storage/local-storage.driver'
 import { S3StorageDriver } from '../common/storage/s3-storage.driver'
 import type { StorageDriver } from '../common/storage/storage.interface'
+import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { CFindMwlDto } from './dto'
 
 /** [G005 v3.0.6.11-86 Wave 4B (G-03)] DICOM TLS 配置 (内存 + seed 回退, 对标 HL7 MLLP TLS) */
@@ -31,7 +32,8 @@ export interface MppsRecord {
   source: 'mpps' | 'exam'
 }
 
-/** [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输任务记录 */
+/** [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] DICOM C-STORE 传输任务记录
+ * [G005 v3.0.6.11-96 Wave 2B (D)] 新增 examId/accessionNumber (worklist 联动: 反查检查或前端传入) */
 export interface TransferRecord {
   id: string
   studyUid: string
@@ -45,6 +47,8 @@ export interface TransferRecord {
   updatedAt: string
   error?: string
   source: 'queue' | 'seed'
+  examId?: string
+  accessionNumber?: string
 }
 
 @Injectable()
@@ -426,6 +430,22 @@ export class DicomDimseService {
   }
 
   // ═══════════ [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS (N-CREATE/N-SET 简化) ═══════════
+  // [G005 v3.0.6.11-96 Wave 2B (B)] MPPS 落库: Prisma mpps_records 优先, DB 不可用回退内存 Map
+
+  private toMppsRecord(row: any): MppsRecord {
+    return {
+      studyUid: row.studyUid,
+      status: row.status as MppsRecord['status'],
+      patientName: row.patientName ?? undefined,
+      patientId: row.patientId ?? undefined,
+      modality: row.modality ?? undefined,
+      startedAt: row.startedAt ? new Date(row.startedAt).toISOString() : undefined,
+      completedAt: row.completedAt ? new Date(row.completedAt).toISOString() : undefined,
+      performedSteps: Array.isArray(row.steps) ? row.steps : [],
+      updatedAt: new Date(row.updatedAt ?? Date.now()).toISOString(),
+      source: (row.source ?? 'mpps') as MppsRecord['source'],
+    }
+  }
 
   async createOrUpdateMpps(dto: {
     studyUid: string
@@ -462,11 +482,58 @@ export class DicomDimseService {
       }
     }
     this.mppsRecords.set(dto.studyUid, base)
+    // [v3.0.6.11-96 Wave 2B (B)] 落库 (mpps_records 表未迁移/DB 不可用时回退内存)
+    try {
+      const model = (this.prisma as any).mppsRecord
+      if (model?.upsert) {
+        const row = await model.upsert({
+          where: { studyUid: dto.studyUid },
+          create: {
+            tenantId: currentTenantId(),
+            studyUid: base.studyUid,
+            status: base.status,
+            patientName: base.patientName ?? null,
+            patientId: base.patientId ?? null,
+            modality: base.modality ?? null,
+            startedAt: base.startedAt ? new Date(base.startedAt) : null,
+            completedAt: base.completedAt ? new Date(base.completedAt) : null,
+            steps: base.performedSteps,
+            source: base.source,
+          },
+          update: {
+            status: base.status,
+            patientName: base.patientName ?? null,
+            patientId: base.patientId ?? null,
+            modality: base.modality ?? null,
+            completedAt: base.completedAt ? new Date(base.completedAt) : null,
+            steps: base.performedSteps,
+            source: base.source,
+          },
+        })
+        this.logger.log(`MPPS ${dto.status} for study=${dto.studyUid} persisted (${base.source})`)
+        return this.toMppsRecord(row)
+      }
+    } catch (err) {
+      this.logger.warn(`[DicomDimse] MPPS persist failed, fallback memory: ${(err as Error)?.message}`)
+    }
     this.logger.log(`MPPS ${dto.status} for study=${dto.studyUid} (${base.source})`)
     return { ...base }
   }
 
-  listMpps(): MppsRecord[] {
+  async listMpps(): Promise<MppsRecord[]> {
+    // [v3.0.6.11-96 Wave 2B (B)] 优先读 DB; 表未迁移/DB 不可用或空库时回退内存 Map (seed 演示)
+    try {
+      const model = (this.prisma as any).mppsRecord
+      if (model?.findMany) {
+        const rows = await model.findMany({
+          orderBy: { updatedAt: 'desc' },
+          take: 200,
+        })
+        if (rows.length > 0) return rows.map((r: any) => this.toMppsRecord(r))
+      }
+    } catch (err) {
+      this.logger.warn(`[DicomDimse] MPPS list from DB failed, fallback memory: ${(err as Error)?.message}`)
+    }
     return [...this.mppsRecords.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }
 
@@ -476,13 +543,33 @@ export class DicomDimseService {
     return [...this.transfers.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }
 
-  enqueueTransfer(dto: { studyUid: string; targetAe: string; priority?: 'HIGH' | 'NORMAL' | 'LOW' }): TransferRecord {
+  // [G005 v3.0.6.11-96 Wave 2B (D)] 从 studyUid 反查检查 (studyUid 即 exam.id 或 1.2.840.10008.<examId>)
+  private async deriveExamFromStudyUid(studyUid: string): Promise<{ examId: string; accessionNumber: string } | null> {
+    const candidates = [studyUid, studyUid.replace(/^1\.2\.840\.10008\./, '')]
+    for (const id of candidates) {
+      try {
+        const exam = await this.prisma.exam.findUnique({ where: { id } })
+        if (exam) {
+          return { examId: exam.id, accessionNumber: exam.accessionNumber ?? '' }
+        }
+      } catch {
+        // DB 不可用 → 跳过该候选
+      }
+    }
+    return null
+  }
+
+  // [G005 v3.0.6.11-96 Wave 2B (D)] 入队时关联检查 (前端传入 examId/accessionNumber 或从 studyUid 反查)
+  async enqueueTransfer(dto: { studyUid: string; targetAe: string; priority?: 'HIGH' | 'NORMAL' | 'LOW'; examId?: string; accessionNumber?: string }): Promise<TransferRecord> {
     if (this.transfers.size >= 200) {
       throw new BadRequestException('传输队列已满 (上限 200), 请先清理已完成任务')
     }
     const now = new Date().toISOString()
     const id = `TR-${String(++this.transferSeq).padStart(4, '0')}`
     const total = 8 + (this.transferSeq % 17)
+    const linked = dto.examId
+      ? { examId: dto.examId, accessionNumber: dto.accessionNumber ?? '' }
+      : await this.deriveExamFromStudyUid(dto.studyUid)
     const record: TransferRecord = {
       id,
       studyUid: dto.studyUid,
@@ -495,9 +582,11 @@ export class DicomDimseService {
       createdAt: now,
       updatedAt: now,
       source: 'queue',
+      examId: linked?.examId,
+      accessionNumber: linked?.accessionNumber,
     }
     this.transfers.set(id, record)
-    this.logger.log(`Transfer enqueued: ${id} study=${dto.studyUid} -> ${dto.targetAe}`)
+    this.logger.log(`Transfer enqueued: ${id} study=${dto.studyUid} -> ${dto.targetAe}${linked ? ` exam=${linked.examId}` : ''}`)
     return { ...record }
   }
 

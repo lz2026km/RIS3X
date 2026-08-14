@@ -432,7 +432,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               <Card size="small">
                 {report.sections.map((s) => (
                   <div key={s.key} style={{ marginBottom: 16 }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', margin: 0 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', margin: 0 }}>
                       {s.title} · {s.titleEn}
                     </h3>
                     <p style={{ fontSize: 13, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>

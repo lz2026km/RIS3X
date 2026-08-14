@@ -230,7 +230,7 @@ export type {
 } from "./reportQualityApi";
 
 export { templatesApi } from "./templatesApi";
-export type { TemplateDto, TemplateListParams } from "./templatesApi";
+export type { TemplateDto, TemplateListParams, TemplateCategoryDto } from "./templatesApi";
 
 export { backupApi } from "./systemApi";
 export type {

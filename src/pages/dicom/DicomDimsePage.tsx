@@ -134,7 +134,6 @@ export const DicomDimsePage: React.FC = () => {
   const [mwlLoading, setMwlLoading] = useState(false)
   const [mwlForm] = Form.useForm()
   const [storeResults, setStoreResults] = useState<any[]>([])
-  const [storeLoading, setStoreLoading] = useState(false)
   const [moveForm] = Form.useForm()
   const [moveResults, setMoveResults] = useState<any[]>([])
   const [moveLoading, setMoveLoading] = useState(false)
@@ -329,7 +328,14 @@ export const DicomDimsePage: React.FC = () => {
     try {
       const values = await transferForm.validateFields()
       setTransferSubmitting(true)
-      const res = await dicomDimseApi.enqueueTransfer({ studyUid: values.studyUid, targetAe: values.targetAe, priority: values.priority })
+      // [v3.0.6.11-96 Wave 2B (D)] 可选关联检查 (examId/accessionNumber, worklist 联动)
+      const res = await dicomDimseApi.enqueueTransfer({
+        studyUid: values.studyUid,
+        targetAe: values.targetAe,
+        priority: values.priority,
+        examId: values.examId || undefined,
+        accessionNumber: values.accessionNumber || undefined,
+      })
       if (res.success) {
         message.success(`传输任务已入队: ${res.data.id} → ${values.targetAe}`)
         setTransferModal(false)
@@ -375,26 +381,78 @@ export const DicomDimsePage: React.FC = () => {
     setMwlLoading(false)
   }
 
-  const handleStore = async (file: File) => {
-    setStoreLoading(true)
+  // [v3.0.6.11-96 Wave 3A P2] C-STORE 多帧逐帧上传: 文件列表 + 每帧进度 + 失败重试
+  interface StoreUploadItem {
+    uid: string
+    file: File
+    name: string
+    size: number
+    status: 'pending' | 'uploading' | 'success' | 'fail'
+    progress: number
+    error?: string
+  }
+  const [storeModal, setStoreModal] = useState(false)
+  const [storeItems, setStoreItems] = useState<StoreUploadItem[]>([])
+  const [storeBatchRunning, setStoreBatchRunning] = useState(false)
+  const storeFileInputRef = useRef<HTMLInputElement>(null)
+
+  const onSelectStoreFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const list: StoreUploadItem[] = Array.from(files).map((f) => ({
+      uid: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file: f,
+      name: f.name,
+      size: f.size,
+      status: 'pending',
+      progress: 0,
+    }))
+    setStoreItems(prev => [...prev, ...list])
+    if (storeFileInputRef.current) storeFileInputRef.current.value = ''
+  }
+
+  // 单帧上传 (带逐帧进度回调), 成功/失败同步 storeResults
+  const uploadOneStoreItem = async (item: StoreUploadItem) => {
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', item.file)
+    setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'uploading', progress: 0, error: undefined } : i))
     try {
       // [v3.0.6.11-92] W2-B P2: raw fetch → dicomDimseApi.cStore (multipart 兼容)
-      const res = await dicomDimseApi.cStore(formData)
+      // [v3.0.6.11-96 Wave 3A P2] onProgress 逐帧回调 (XHR upload.onprogress)
+      const res = await dicomDimseApi.cStore(formData, (percent) => {
+        setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, progress: percent } : i))
+      })
       if (res.success) {
-        setStoreResults(prev => [...prev, { fileName: file.name, status: 'SUCCESS', sizeBytes: file.size }])
-        message.success('C-STORE 成功')
-      } else {
-        setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])
-        message.error(res.error?.message ?? 'C-STORE 失败')
+        setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'success', progress: 100 } : i))
+        setStoreResults(prev => [...prev, { fileName: item.name, status: 'SUCCESS', sizeBytes: item.size }])
+        return true
       }
+      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: res.error?.message ?? 'C-STORE 失败' } : i))
+      setStoreResults(prev => [...prev, { fileName: item.name, status: 'FAIL', sizeBytes: item.size }])
+      return false
     } catch {
-      setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sizeBytes: file.size }])
-      message.error('C-STORE 网络错误')
+      setStoreItems(prev => prev.map(i => i.uid === item.uid ? { ...i, status: 'fail', error: 'C-STORE 网络错误' } : i))
+      setStoreResults(prev => [...prev, { fileName: item.name, status: 'FAIL', sizeBytes: item.size }])
+      return false
     }
-    setStoreLoading(false)
   }
+
+  // 逐帧顺序上传 (串行避免并发打满)
+  const handleBatchStore = async () => {
+    const pending = storeItems.filter(i => i.status === 'pending' || i.status === 'fail')
+    if (pending.length === 0) return
+    setStoreBatchRunning(true)
+    let ok = 0
+    for (const item of pending) {
+      const success = await uploadOneStoreItem(item)
+      if (success) ok += 1
+    }
+    setStoreBatchRunning(false)
+    message.success(`上传完成: 成功 ${ok} 帧，失败 ${pending.length - ok} 帧`)
+  }
+
+  const storeOverallPercent = storeItems.length === 0
+    ? 0
+    : Math.round(storeItems.reduce((sum, i) => sum + i.progress, 0) / storeItems.length)
 
   const handleMove = async (values: any) => {
     setMoveLoading(true)
@@ -489,16 +547,14 @@ export const DicomDimsePage: React.FC = () => {
       key: 'cstore',
       label: <Space><UploadIcon />C-STORE</Space>,
       children: (
-        <Card size="small" title="DICOM 文件上传">
-          <Upload
-            accept=".dcm"
-            showUploadList={false}
-            beforeUpload={(file) => { handleStore(file); return false }}
-            disabled={storeLoading}
-          >
-            <Button icon={<Upload />} loading={storeLoading}>选择 .dcm 文件上传</Button>
-          </Upload>
-          <Alert title="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
+        <Card size="small" title="DICOM 文件上传"
+          extra={
+            <Space>
+              <Button icon={<Upload />} type="primary" onClick={() => setStoreModal(true)}>选择 .dcm 文件（多帧）</Button>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>支持多文件选择 · 逐帧进度 · 失败重试</span>
+            </Space>
+          }>
+          <Alert title="支持 DICOM .dcm 文件上传，系统将逐帧解析并存储至 PACS；多文件按顺序逐帧上传并实时显示每帧进度" type="info" showIcon style={{ marginBottom: 12 }} />
           <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
@@ -640,6 +696,8 @@ export const DicomDimsePage: React.FC = () => {
               columns={[
                 { title: '任务 ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? '种子数据' : '队列'}</Tag></Space> },
+                // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 关联检查列
+                { title: '关联检查', key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span> },
                 { title: '目标 AE', dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },
                 { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
@@ -709,6 +767,66 @@ export const DicomDimsePage: React.FC = () => {
         </Form>
       </Modal>
 
+      {/* [v3.0.6.11-96 Wave 3A P2] C-STORE 多帧上传 Modal: 文件列表 + 逐帧进度 + 失败重试 */}
+      <Modal
+        title="C-STORE 多帧上传"
+        open={storeModal}
+        onCancel={() => { if (!storeBatchRunning) setStoreModal(false) }}
+        footer={
+          <Space>
+            <Button onClick={() => { if (!storeBatchRunning) setStoreModal(false) }} disabled={storeBatchRunning}>关闭</Button>
+            <Button onClick={() => onSelectStoreFiles(storeFileInputRef.current?.files ?? null)} disabled={storeBatchRunning} icon={<Plus size={14} />}>选择文件</Button>
+            <Button type="primary" onClick={() => void handleBatchStore()} loading={storeBatchRunning} disabled={!storeItems.some(i => i.status === 'pending' || i.status === 'fail')}>
+              {storeItems.some(i => i.status === 'fail') ? '重试失败 / 继续上传' : '开始上传'}
+            </Button>
+          </Space>
+        }
+        width={640}
+      >
+        <input
+          ref={storeFileInputRef}
+          type="file"
+          accept=".dcm"
+          multiple
+          style={{ display: 'none' }}
+          onChange={(e) => onSelectStoreFiles(e.target.files)}
+        />
+        {storeItems.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8', fontSize: 13 }}>
+            点击"选择文件"添加多个 .dcm 文件（多帧），将按顺序逐帧上传
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflowY: 'auto' }}>
+            {storeItems.map(item => {
+              const tagColor = item.status === 'success' ? 'green' : item.status === 'fail' ? 'red' : item.status === 'uploading' ? 'processing' : 'default'
+              const tagLabel = item.status === 'success' ? '完成' : item.status === 'fail' ? '失败' : item.status === 'uploading' ? '上传中' : '待上传'
+              return (
+                <div key={item.uid} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{(item.size / 1024).toFixed(1)} KB</span>
+                    <Tag color={tagColor}>{tagLabel}</Tag>
+                    {item.status === 'fail' && (
+                      <Button size="small" icon={<RotateCcw size={12} />} disabled={storeBatchRunning}
+                        onClick={() => void uploadOneStoreItem(item)}>重试</Button>
+                    )}
+                  </div>
+                  <Progress percent={item.progress} size="small"
+                    status={item.status === 'fail' ? 'exception' : item.status === 'success' ? 'success' : item.status === 'uploading' ? 'active' : 'normal'} />
+                  {item.status === 'fail' && item.error && (
+                    <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{item.error}</div>
+                  )}
+                </div>
+              )
+            })}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 4 }}>
+              <span>总进度 {storeItems.filter(i => i.status === 'success').length}/{storeItems.length} 帧完成</span>
+              <span style={{ fontWeight: 700, color: '#1e40af' }}>{storeOverallPercent}%</span>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       <Modal title="新建 DICOM C-STORE 传输" open={transferModal} onCancel={() => setTransferModal(false)} onOk={() => void handleEnqueueTransfer()} confirmLoading={transferSubmitting}>
         <Form form={transferForm} layout="vertical" size="small">
           <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
@@ -727,6 +845,15 @@ export const DicomDimsePage: React.FC = () => {
               <Select.Option value="LOW">低</Select.Option>
             </Select>
           </Form.Item>
+          {/* [v3.0.6.11-96 Wave 2B (D)] 可选关联检查 (examId 留空时后端从 studyUid 反查) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 8px' }}>
+            <Form.Item name="examId" label="关联检查 (可选)">
+              <Input placeholder="Exam ID, 留空自动反查" />
+            </Form.Item>
+            <Form.Item name="accessionNumber" label="检查号 (可选)">
+              <Input placeholder="Accession Number" />
+            </Form.Item>
+          </div>
         </Form>
       </Modal>
     </div>

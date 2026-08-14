@@ -399,6 +399,134 @@ export class DentalService {
     return { success: true, data: SEED_DENTAL_DENTISTS }
   }
 
+  // ── [G005 W2-A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用; 形状对齐 dentalHandlers dentalEmrModule / dentalEmrMock) ──
+  // 汇总: 患者基本信息 (prisma patient → 映射, 缺失演示字段 seed 兜底) + 派生统计
+
+  private isEmrDemoPatient(patientId: string): boolean {
+    return EMR_DEMO_IDS.includes(patientId)
+  }
+
+  private async findEmrPatient(patientId: string): Promise<any | null> {
+    const demo = SEED_EMR_PATIENTS.find((x) => x.id === patientId)
+    try {
+      const p = await this.prisma.patient.findUnique({ where: { id: patientId } })
+      if (p) {
+        const age = p.birthDate
+          ? Math.max(0, Math.floor((Date.now() - new Date(p.birthDate).getTime()) / (365.25 * 86400_000)))
+          : demo?.age ?? 0
+        return {
+          ...(demo ?? {}),
+          id: p.id,
+          name: p.name,
+          gender: p.gender === 'MALE' ? 'M' : 'F',
+          age,
+          phone: p.phone ?? demo?.phone ?? '',
+        }
+      }
+    } catch {
+      // DB 不可用 → 回退 seed
+    }
+    return demo ?? null
+  }
+
+  async getPatientOverview(patientId: string) {
+    const patient = await this.findEmrPatient(patientId)
+    if (!patient) {
+      return { success: false, error: { code: 'NOT_FOUND', message: `Patient ${patientId} not found` } }
+    }
+    const [treatments, appts, bills] = await Promise.all([
+      this.getPatientOverviewTreatments(patientId),
+      this.getPatientOverviewAppointments(patientId),
+      this.getPatientOverviewBilling(patientId),
+    ])
+    const summary = {
+      treatments: treatments.data.length,
+      appointments: appts.data.filter((a: any) => a.status !== 'completed').length,
+      unpaid: bills.data.filter((b: any) => b.status !== 'paid').reduce((s: number, b: any) => s + Number(b.selfPay ?? 0), 0),
+    }
+    return { success: true, data: { ...patient, summary } }
+  }
+
+  async getPatientOverviewTreatments(patientId: string) {
+    const fromStore = DENTAL_TREATMENTS_STORE
+      .filter((t: any) => t.patientId === patientId)
+      .map((t: any) => ({
+        id: t.id,
+        date: String(t.createdAt ?? '').slice(0, 10),
+        type: t.type ?? 'Examination',
+        toothNo: t.toothNo === '全口' || t.toothNo === '0' ? 0 : Number(t.toothNo ?? 0),
+        description: t.plan ?? '',
+        dentist: t.doctorName ?? '',
+        cost: 0,
+        insurancePaid: 0,
+        patientPaid: 0,
+      }))
+    if (fromStore.length > 0) return { success: true, data: fromStore }
+    if (this.isEmrDemoPatient(patientId)) return { success: true, data: SEED_EMR_TREATMENTS }
+    return { success: true, data: [] }
+  }
+
+  async getPatientOverviewAppointments(patientId: string) {
+    try {
+      const rows = await this.prisma.dentalAppointment.findMany({ where: { patientId } as any })
+      if (rows.length > 0) {
+        return {
+          success: true,
+          data: rows.map((a: any) => {
+            const dt = a.scheduledAt ? new Date(a.scheduledAt) : null
+            return {
+              id: a.id,
+              date: dt ? dt.toISOString().slice(0, 10) : '',
+              time: dt ? `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}` : '',
+              type: a.modality ?? '复诊',
+              toothNo: '0',
+              description: a.notes ?? '',
+              dentist: a.dentistName ?? '',
+              chair: '',
+              status: ({ SCHEDULED: 'scheduled', CONFIRMED: 'scheduled', COMPLETED: 'completed', CANCELLED: 'cancelled' } as Record<string, string>)[a.state ?? 'SCHEDULED'] ?? 'scheduled',
+            }
+          }),
+        }
+      }
+    } catch {
+      // DB 不可用 → 回退 seed
+    }
+    if (this.isEmrDemoPatient(patientId)) return { success: true, data: SEED_EMR_APPOINTMENTS }
+    return { success: true, data: [] }
+  }
+
+  async getPatientOverviewBilling(patientId: string) {
+    const fromInvoices = BILLING_INVOICES_STORE
+      .filter((inv: any) => inv.patientId === patientId)
+      .map((inv: any) => ({
+        id: inv.id,
+        date: inv.date,
+        items: (inv.items ?? []).map((i: any) => ({ name: i.name ?? '口腔诊疗', qty: Number(i.qty ?? 1), price: Number(i.unitPrice ?? i.amount ?? 0) })),
+        total: Number(inv.total ?? 0),
+        insurance: Number(inv.insuranceCover ?? 0),
+        selfPay: Number(inv.selfPay ?? 0),
+        status: ({ paid: 'paid', partial: 'partial' } as Record<string, string>)[inv.status ?? ''] ?? 'pending',
+      }))
+    if (fromInvoices.length > 0) return { success: true, data: fromInvoices }
+    if (this.isEmrDemoPatient(patientId)) return { success: true, data: SEED_EMR_BILLING }
+    return { success: true, data: [] }
+  }
+
+  async getPatientOverviewPrescriptions(patientId: string) {
+    if (!this.isEmrDemoPatient(patientId)) return { success: true, data: [] }
+    return { success: true, data: SEED_EMR_PRESCRIPTIONS }
+  }
+
+  async getPatientOverviewConsents(patientId: string) {
+    if (!this.isEmrDemoPatient(patientId)) return { success: true, data: [] }
+    return { success: true, data: SEED_EMR_CONSENTS }
+  }
+
+  async getPatientOverviewRecalls(patientId: string) {
+    if (!this.isEmrDemoPatient(patientId)) return { success: true, data: [] }
+    return { success: true, data: SEED_EMR_RECALLS }
+  }
+
   // ── [G005 W1-A] PSR 牙周记录 (DentalSchedulePage 原始 fetch 在用) ──
 
   async listPsrRecords(patientId: string) {
@@ -1088,3 +1216,72 @@ function generateMockScheduleAppointments(date: string): any[] {
     }
   })
 }
+
+// ── [G005 W2-A P0] 患者 360° 视图 seed (形状对齐 src/data/dental/dentalEmrMock) ──
+// 治疗/预约/费用优先从内存 store / prisma 派生; 处方/知情同意/回访为过程性记录, 演示患者走 seed
+
+const EMR_DEMO_IDS = ['P100001', 'P100002', 'P100003']
+
+const SEED_EMR_PATIENTS: any[] = [
+  {
+    id: 'P100001', name: '张伟', gender: 'M', age: 35, phone: '13800138001', idCard: '110101199001011234',
+    address: '北京市朝阳区建国路88号', occupation: '软件工程师',
+    firstVisit: '2025-03-15', lastVisit: '2026-06-28', totalVisits: 12,
+    totalSpent: 28500, insuranceType: '城镇职工',
+    allergies: ['青霉素'], systemicDisease: ['高血压'], medications: ['氨氯地平'],
+    dentist: '王医生', tags: ['VIP', '种植意向'],
+  },
+  {
+    id: 'P100002', name: '李娜', gender: 'F', age: 28, phone: '13900139002', idCard: '110102199512051234',
+    address: '北京市海淀区中关村大街1号', occupation: '教师',
+    firstVisit: '2025-08-20', lastVisit: '2026-06-27', totalVisits: 8,
+    totalSpent: 18600, insuranceType: '城镇职工',
+    allergies: [], systemicDisease: [], medications: [],
+    dentist: '李医生', tags: ['正畸'],
+  },
+  {
+    id: 'P100003', name: '王芳', gender: 'F', age: 45, phone: '13700137003', idCard: '110103197812051234',
+    address: '上海市浦东新区陆家嘴环路1000号', occupation: '银行经理',
+    firstVisit: '2024-11-10', lastVisit: '2026-06-22', totalVisits: 15,
+    totalSpent: 52000, insuranceType: '城镇职工',
+    allergies: ['磺胺类'], systemicDisease: ['糖尿病'], medications: ['二甲双胍'],
+    dentist: '张主任', tags: ['VIP', '种植完成', '定期复查'],
+  },
+]
+
+const SEED_EMR_TREATMENTS = [
+  { id: 'TH-001', date: '2026-06-28', type: 'Restorative', toothNo: 16, description: '树脂充填 MOD', dentist: '王医生', cost: 800, insurancePaid: 400, patientPaid: 400 },
+  { id: 'TH-002', date: '2026-06-25', type: 'Endodontic', toothNo: 36, description: '根管治疗 - 已完成', dentist: '王医生', cost: 2500, insurancePaid: 1200, patientPaid: 1300 },
+  { id: 'TH-003', date: '2026-06-20', type: 'Implant', toothNo: 36, description: '种植体植入 Straumann BLT 4.1x10', dentist: '张主任', cost: 12000, insurancePaid: 3000, patientPaid: 9000 },
+  { id: 'TH-004', date: '2026-06-15', type: 'Periodontal', toothNo: 0, description: '全口洁牙 + 牙周探查', dentist: '李医生', cost: 600, insurancePaid: 300, patientPaid: 300 },
+  { id: 'TH-005', date: '2026-06-10', type: 'Examination', toothNo: 0, description: '初诊检查 + CBCT', dentist: '王医生', cost: 1200, insurancePaid: 600, patientPaid: 600 },
+]
+
+const SEED_EMR_APPOINTMENTS = [
+  { id: 'APT-001', date: '2026-07-05', time: '09:00', type: '复诊', toothNo: '16', description: '充填后复查', dentist: '王医生', chair: '1号椅', status: 'scheduled' },
+  { id: 'APT-002', date: '2026-07-12', time: '14:30', type: '复诊', toothNo: '36', description: '种植二期手术', dentist: '张主任', chair: '1号椅', status: 'scheduled' },
+  { id: 'APT-003', date: '2026-06-28', time: '10:00', type: '治疗', toothNo: '26', description: '根管治疗复诊', dentist: '王医生', chair: '2号椅', status: 'completed' },
+]
+
+const SEED_EMR_RECALLS = [
+  { id: 'REC-001', date: '2026-08-28', type: '复查', description: '种植术后 2 月复查', status: 'pending', method: 'SMS', sent: false },
+  { id: 'REC-002', date: '2026-09-15', type: '洁牙', description: '常规洁牙提醒', status: 'pending', method: 'WeChat', sent: false },
+]
+
+const SEED_EMR_CONSENTS = [
+  { id: 'CON-001', date: '2026-06-20', type: '种植手术同意书', signed: true, signedBy: '张伟', witness: '王医生' },
+  { id: 'CON-002', date: '2026-05-15', type: 'CBCT 检查知情同意', signed: true, signedBy: '张伟', witness: '技师赵' },
+  { id: 'CON-003', date: '2026-06-25', type: '根管治疗同意书', signed: false },
+]
+
+const SEED_EMR_PRESCRIPTIONS = [
+  { id: 'RX-001', date: '2026-06-20', drug: '阿莫西林胶囊 0.5g', dosage: '一次一粒 一日三次', days: 7, dentist: '王医生', note: '种植术后抗感染' },
+  { id: 'RX-002', date: '2026-06-20', drug: '布洛芬缓释胶囊 0.3g', dosage: '必要时服用', days: 3, dentist: '王医生', note: '止痛' },
+  { id: 'RX-003', date: '2026-06-15', drug: '复方氯己定漱口水', dosage: '一日两次 含漱', days: 14, dentist: '李医生', note: '牙周护理' },
+]
+
+const SEED_EMR_BILLING = [
+  { id: 'BILL-001', date: '2026-06-28', items: [{ name: '树脂充填 MOD', qty: 1, price: 800 }], total: 800, insurance: 400, selfPay: 400, status: 'paid' },
+  { id: 'BILL-002', date: '2026-06-20', items: [{ name: '种植体 Straumann BLT', qty: 1, price: 8000 }, { name: '种植手术费', qty: 1, price: 4000 }], total: 12000, insurance: 3000, selfPay: 9000, status: 'partial' },
+  { id: 'BILL-003', date: '2026-06-25', items: [{ name: '根管治疗', qty: 1, price: 2500 }], total: 2500, insurance: 1200, selfPay: 1300, status: 'pending' },
+]

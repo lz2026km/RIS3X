@@ -144,13 +144,32 @@ export const dicomWebApi = {
   // ══════════════════════════════════════════════════════════════════════════
   // STOW-RS (multipart/related)
   // ══════════════════════════════════════════════════════════════════════════
-  stowRsStore: async (studyUID: string, dicomData: Blob | File): Promise<{ id: string }> => {
+  stowRsStore: async (studyUID: string, dicomData: Blob | File, onProgress?: (percent: number) => void): Promise<{ id: string }> => {
     const token = getToken()
     const headers: Record<string, string> = {
       Accept: 'application/dicom+json',
     }
     if (token) headers['Authorization'] = `Bearer ${token}`
     const url = `${API_BASE}/dicom-web/studies/${encodeURIComponent(studyUID)}`
+    if (onProgress && typeof XMLHttpRequest !== 'undefined') {
+      return await new Promise<{ id: string }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', url)
+        Object.entries(headers).forEach(([k, v]) => xhr.setRequestHeader(k, v))
+        xhr.upload.onprogress = (e: ProgressEvent) => {
+          if (e.lengthComputable) onProgress(Math.min(100, Math.round((e.loaded / e.total) * 100)))
+        }
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)) } catch { resolve({ id: studyUID }) }
+          } else {
+            reject(new Error(`STOW-RS failed: ${xhr.status}`))
+          }
+        }
+        xhr.onerror = () => reject(new Error('STOW-RS network error'))
+        xhr.send(dicomData)
+      })
+    }
     const res = await fetch(url, { method: 'POST', headers, body: dicomData })
     if (!res.ok) throw new Error(`STOW-RS failed: ${res.status}`)
     return res.json()
@@ -287,6 +306,9 @@ export interface TransferRecord {
   updatedAt: string
   error?: string
   source: 'queue' | 'seed'
+  // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 关联检查
+  examId?: string
+  accessionNumber?: string
 }
 
 export interface TransferStats {
@@ -306,6 +328,9 @@ export interface EnqueueTransferRequest {
   studyUid: string
   targetAe: string
   priority?: 'HIGH' | 'NORMAL' | 'LOW'
+  // [v3.0.6.11-96 Wave 2B (D)] C-STORE ↔ worklist 联动: 可选关联检查
+  examId?: string
+  accessionNumber?: string
 }
 
 export const dicomDimseApi = {
@@ -313,8 +338,11 @@ export const dicomDimseApi = {
     api.post<DimseResponse>('/dicom-dimse/echo', body),
 
   // [v3.0.6.11-92] W2-B P2: 支持 FormData 文件上传 (multipart, DicomDimsePage C-STORE 迁移)
-  cStore: (body: CStoreRequest | FormData) =>
-    api.post<DimseResponse>('/dicom-dimse/store', body),
+  // [v3.0.6.11-96 Wave 3A P2] FormData 走 XHR 上传并回调逐帧进度 (0-100)
+  cStore: (body: CStoreRequest | FormData, onProgress?: (percent: number) => void) =>
+    body instanceof FormData
+      ? api.uploadWithProgress<DimseResponse>('/dicom-dimse/store', body, onProgress)
+      : api.post<DimseResponse>('/dicom-dimse/store', body),
 
   cFind: (body: CFindMwlRequest) =>
     api.post<DimseResponse>('/dicom-dimse/find', body),
