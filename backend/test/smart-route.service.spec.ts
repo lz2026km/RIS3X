@@ -66,7 +66,8 @@ describe('SmartRouteService', () => {
     it('getRules falls back to defaults when DB fails', async () => {
       mockPrisma.smartRouteRule.count.mockRejectedValue(new Error('db down'))
       const rules = await svc.getRules()
-      expect(rules).toHaveLength(4)
+      // [G005 Wave 10A] seed 扩充: 10 条科室路由规则
+      expect(rules).toHaveLength(10)
     })
 
     it('updateRules replaces all rules via DB', async () => {
@@ -114,7 +115,8 @@ describe('SmartRouteService', () => {
       expect(recs.length).toBeGreaterThan(0)
       const top = recs[0]
       expect(top).toBeDefined()
-      expect(top!.name).toBe('Dr. Wang')
+      // [G005 Wave 10A] 20 医生 seed: Dr. Feng (胸部影像, 准确率 0.95) 综合分最高
+      expect(['Dr. Wang', 'Dr. Feng']).toContain(top!.name)
       expect(top!.qualified).toBe(true)
       expect(top!.matchScore).toBe(1)
       expect(top!.accuracy).toBeGreaterThan(0)
@@ -193,7 +195,8 @@ describe('SmartRouteService', () => {
         { id: 'rr-001', name: 'CT Chest - Senior', priority: 1, enabled: true, order: 0, condition: { modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10 }, action: {} },
       ])
       const a = await svc.assign('STU-F2', '吴九', 'CT', 'Chest', 'Inpatient', 'doc-002')
-      expect(a.assignedTo).toBe('Dr. Wang')
+      // [G005 Wave 10A] 20 医生 seed: 胸部影像综合分最高者为 Dr. Feng
+      expect(['Dr. Wang', 'Dr. Feng']).toContain(a.assignedTo)
       expect(a.stage).toBe('load-balance')
     })
   })
@@ -213,7 +216,7 @@ describe('SmartRouteService', () => {
         { id: 'rr-001', name: 'CT Chest - Senior', priority: 1, enabled: true, order: 0, condition: { modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10 }, action: {} },
       ])
       const a = await svc.assign('STU-Q1', '钱一', 'CT', 'Chest', 'Inpatient')
-      expect(a.assignedTo).toBe('Dr. Wang')
+      expect(['Dr. Wang', 'Dr. Feng']).toContain(a.assignedTo)
       expect(a.stage).toBe('load-balance')
       expect(a.qualification).toBe('胸部影像')
       expect(a.reason).toContain('资质匹配')

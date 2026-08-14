@@ -2195,6 +2195,27 @@ const eyeFusionModule: any[] = [
 // 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK镜/角膜塑形镜)
 // WebRTC 信令 + 5G 边缘 + 视光中心闭环
 
+// [G005 Wave 10A] 历史会诊/流/意见 seed (dev 兜底, 与后端 eye-tele 模块形状一致)
+const TELE_SEED_SESSIONS: any[] = [
+  { sessionId: 'SES-20260701-001', patientId: 'P000001', studyId: 'STU-20260620-00001', mode: 'video', participants: ['D001', 'D005'], status: 'ended', signalingUrl: 'wss://tele.g005.local/signal/SES-20260701-001', iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:turn1.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' }], startedAt: '2026-07-01T09:15:00.000Z', endedAt: '2026-07-01T10:05:00.000Z' },
+  { sessionId: 'SES-20260703-002', patientId: 'P000003', studyId: 'STU-20260702-00003', mode: 'screen', participants: ['D002', 'D003'], status: 'ended', signalingUrl: 'wss://tele.g005.local/signal/SES-20260703-002', iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:turn2.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' }], startedAt: '2026-07-03T14:30:00.000Z', endedAt: '2026-07-03T15:20:00.000Z' },
+  { sessionId: 'SES-20260705-003', patientId: 'P000005', studyId: 'STU-20260705-00005', mode: 'data', participants: ['D001', 'D004'], status: 'ended', signalingUrl: 'wss://tele.g005.local/signal/SES-20260705-003', iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:turn1.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' }], startedAt: '2026-07-05T10:00:00.000Z', endedAt: '2026-07-05T10:45:00.000Z' },
+  { sessionId: 'SES-20260708-004', patientId: 'P000002', studyId: 'STU-20260707-00002', mode: 'video', participants: ['D003', 'D005'], status: 'ended', signalingUrl: 'wss://tele.g005.local/signal/SES-20260708-004', iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:turn2.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' }], startedAt: '2026-07-08T16:20:00.000Z', endedAt: '2026-07-08T17:10:00.000Z' },
+  { sessionId: 'SES-20260710-005', patientId: 'P000004', studyId: 'STU-20260710-00004', mode: 'screen', participants: ['D002', 'D005'], status: 'ended', signalingUrl: 'wss://tele.g005.local/signal/SES-20260710-005', iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'turn:turn1.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' }], startedAt: '2026-07-10T11:00:00.000Z', endedAt: '2026-07-10T11:50:00.000Z' },
+]
+
+const TELE_SEED_STREAMS: any[] = [
+  { streamId: 'STR-20260701-001', studyId: 'STU-20260620-00001', targetHospital: 'PUMC-眼科', protocol: 'dicom-tls', endpoint: 'dicom://tele.g005.local:11112/studies/STU-20260620-00001', aesKey: 'AES256-GCM-001', estimatedLoadTime: 2.5, chunkSize: 524288, status: 'ended', startedAt: '2026-07-01T09:20:00.000Z', endedAt: '2026-07-01T10:00:00.000Z', bytesTransferred: 51200000 },
+  { streamId: 'STR-20260703-001', studyId: 'STU-20260702-00003', targetHospital: '复旦眼耳鼻喉', protocol: 'wado', endpoint: 'wado://tele.g005.local:8080/studies/STU-20260702-00003', aesKey: 'AES256-GCM-002', estimatedLoadTime: 3.1, chunkSize: 524288, status: 'ended', startedAt: '2026-07-03T14:35:00.000Z', endedAt: '2026-07-03T15:15:00.000Z', bytesTransferred: 38800000 },
+]
+
+const TELE_SEED_CONSULTS: any[] = [
+  { consultId: 'CON-20260701-001', sessionId: 'SES-20260701-001', patientId: 'P000001', studyId: 'STU-20260620-00001', specialistId: 'D005', specialistName: '孙会诊专家', question: '请评估该患者 OCT 黄斑水肿程度及抗 VEGF 治疗建议', status: 'answered', sla: { responseTime: '4 hours', priority: 'normal' }, requestedAt: '2026-07-01T09:30:00.000Z', answeredAt: '2026-07-01T11:45:00.000Z', answer: 'OCT 显示黄斑中心凹厚度 428μm,视网膜内液明显,符合糖尿病性黄斑水肿。建议首选抗 VEGF 治疗。', reviewedBy: 'D001' },
+  { consultId: 'CON-20260703-001', sessionId: 'SES-20260703-002', patientId: 'P000003', studyId: 'STU-20260702-00003', specialistId: 'D003', specialistName: '李医师', question: '右眼视野 MD 值进行性下降,是否需要调整青光眼用药方案?', status: 'answered', sla: { responseTime: '1 hour', priority: 'urgent' }, requestedAt: '2026-07-03T14:45:00.000Z', answeredAt: '2026-07-03T16:30:00.000Z', answer: '视野 MD 从 -6.2dB 降至 -8.4dB,眼压控制不佳。建议加用固定复方制剂,4 周后复查眼压及视野。', reviewedBy: 'D002' },
+  { consultId: 'CON-20260705-001', sessionId: 'SES-20260705-003', patientId: 'P000005', studyId: 'STU-20260705-00005', specialistId: 'D004', specialistName: '赵医师', question: 'ICG 造影见脉络膜新生血管,是否建议光动力治疗?', status: 'answered', sla: { responseTime: '4 hours', priority: 'normal' }, requestedAt: '2026-07-05T10:15:00.000Z', answeredAt: '2026-07-05T13:00:00.000Z', answer: '黄斑中心凹下典型性 CNV,病灶面积 2.1mm²。建议行抗 VEGF 玻璃体腔注射。', reviewedBy: 'D001' },
+  { consultId: 'CON-20260708-001', sessionId: 'SES-20260708-004', patientId: 'P000002', studyId: 'STU-20260707-00002', specialistId: 'D005', specialistName: '孙会诊专家', question: '高度近视患者眼底彩照见颞侧弧形斑扩大,需评估病理性近视风险', status: 'pending', sla: { responseTime: '4 hours', priority: 'normal' }, requestedAt: '2026-07-08T16:35:00.000Z' },
+]
+
 const eyeTeleconsultModule = [
   // 1) 创建会诊会话 (WebRTC 信令)
   http.post(`${API_BASE}/tele/session`, async ({ request }) => {
@@ -2277,6 +2298,75 @@ const eyeTeleconsultModule = [
   // 5) 远程会诊意见见答复
   
 
+  // [G005 Wave 10A] 会诊记录/会话/流/统计 (后端 eye-tele 模块已实现, 本模块 dev 兜底)
+  http.get(`${API_BASE}/tele/sessions`, async ({ request }) => {
+    await delay(40);
+    const status = new URL(request.url).searchParams.get('status');
+    let list = [...TELE_SEED_SESSIONS];
+    if (status) list = list.filter(s => s.status === status);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+
+  http.get(`${API_BASE}/tele/session/:sessionId`, async ({ params }) => {
+    await delay(30);
+    const s = TELE_SEED_SESSIONS.find(x => x.sessionId === params.sessionId);
+    if (!s) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: s });
+  }),
+
+  http.delete(`${API_BASE}/tele/session/:sessionId`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: { sessionId: params.sessionId, status: 'ended', endedAt: new Date().toISOString() } });
+  }),
+
+  http.get(`${API_BASE}/tele/streams`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: TELE_SEED_STREAMS });
+  }),
+
+  http.get(`${API_BASE}/tele/consults`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const specialistId = url.searchParams.get('specialistId');
+    let list = [...TELE_SEED_CONSULTS];
+    if (status) list = list.filter(c => c.status === status);
+    if (specialistId) list = list.filter(c => c.specialistId === specialistId);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+
+  http.get(`${API_BASE}/tele/consult/:id`, async ({ params }) => {
+    await delay(30);
+    const c = TELE_SEED_CONSULTS.find(x => x.consultId === params.id);
+    if (!c) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: c });
+  }),
+
+  http.post(`${API_BASE}/tele/consult/:id/answer`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as { answer: string; reviewedBy?: string };
+    const c = TELE_SEED_CONSULTS.find(x => x.consultId === params.id);
+    if (!c) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { ...c, answer: body.answer, reviewedBy: body.reviewedBy ?? 'D005', status: 'answered', answeredAt: new Date().toISOString() } });
+  }),
+
+  http.get(`${API_BASE}/tele/stats`, async () => {
+    await delay(30);
+    const byMode: Record<string, number> = {};
+    for (const s of TELE_SEED_SESSIONS) byMode[s.mode] = (byMode[s.mode] ?? 0) + 1;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalSessions: TELE_SEED_SESSIONS.length,
+        activeSessions: TELE_SEED_SESSIONS.filter(s => s.status === 'active').length,
+        totalConsults: TELE_SEED_CONSULTS.length,
+        answeredConsults: TELE_SEED_CONSULTS.filter(c => c.status === 'answered').length,
+        avgResponseMinutes: 95,
+        hospitals: ['PUMC-眼科', '复旦眼耳鼻喉', '中山眼科中心', '北京同仁眼科', '温州医大眼视光'],
+        byMode,
+      },
+    });
+  }),
   // 6) 视光中心 - 验光记录
   http.post(`${API_BASE}/optometry/refraction`, async ({ request }) => {
     await delay(100);

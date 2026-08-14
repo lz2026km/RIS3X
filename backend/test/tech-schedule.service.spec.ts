@@ -44,7 +44,8 @@ describe('TechScheduleService - 列表/筛选', () => {
 describe('TechScheduleService - 创建/编辑/删除', () => {
   it('create 成功后出现在列表, 技师名/检查室名自动派生', () => {
     const svc = new TechScheduleService()
-    const created = svc.create({ date: dayStr(6), shift: 'NIGHT', technicianId: 'T-005', roomId: 'R-DSA1', notes: '造影备勤' })
+    // [G005 Wave 10A] 月 seed 覆盖 dayStr(6..33), 用远端日期验证创建
+    const created = svc.create({ date: dayStr(35), shift: 'NIGHT', technicianId: 'T-005', roomId: 'R-DSA1', notes: '造影备勤' })
     expect(created.id).toBeTruthy()
     expect(created.technicianName).toBe('陈静')
     expect(created.roomName).toBe('DSA-1 检查室')
@@ -169,7 +170,8 @@ describe('TechScheduleService - 月历/统计/批量', () => {
   it('batchCreate 按模式生成日期×班次并跳过同技师冲突', () => {
     const svc = new TechScheduleService()
     const before = svc.list({}).length
-    const created = svc.batchCreate({ startDate: dayStr(7), endDate: dayStr(10), shiftPattern: ['DAY', 'NIGHT', 'BACKUP'] })
+    // [G005 Wave 10A] 月 seed 已覆盖 dayStr(6..33), 用远端日期验证批量生成
+    const created = svc.batchCreate({ startDate: dayStr(40), endDate: dayStr(43), shiftPattern: ['DAY', 'NIGHT', 'BACKUP'] })
     expect(created.length).toBeGreaterThan(0)
     expect(svc.list({}).length - before).toBe(created.length)
     const days = new Set(created.map((c) => c.date))

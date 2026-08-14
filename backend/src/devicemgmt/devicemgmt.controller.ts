@@ -23,6 +23,22 @@ import {
 export class DeviceMgmtController {
   constructor(private readonly svc: DeviceMgmtService) {}
 
+  // [v3.0.6.11-99 Wave 10D] 设备总览 (总数/在线/故障/维护中)
+  @Get('overview')
+  getOverview() { return this.svc.getOverview() }
+
+  // [v3.0.6.11-99 Wave 10D] 设备使用趋势 (近 N 日)
+  @Get('usage-trend')
+  getUsageTrend(@Query('days') days?: string) { return this.svc.getUsageTrend(Number(days ?? 30)) }
+
+  // [v3.0.6.11-99 Wave 10D] 房间设备分布
+  @Get('by-room')
+  getByRoom() { return this.svc.getByRoom() }
+
+  // [v3.0.6.11-99 Wave 10D] 维护计划日历 (按月分组)
+  @Get('maintenance-calendar')
+  getMaintenanceCalendar(@Query('month') month?: string) { return this.svc.getMaintenanceCalendar(month) }
+
   @Get('equipment-lifecycle')
   listEquipmentLifecycle() { return this.svc.listEquipmentLifecycle() }
 

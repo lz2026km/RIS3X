@@ -102,6 +102,24 @@ export class CriticalsController {
     return this.service.getValue5StepList()
   }
 
+  // [v3.0.6.11-99 Wave 10D] 危急值总览 (今日/未处置/超时) — 静态子路由先于 :id 注册
+  @Get('overview')
+  getOverview() {
+    return this.service.getOverview()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 近 30 日危急值趋势
+  @Get('daily-trend')
+  getDailyTrend(@Query('days') days?: string) {
+    return this.service.getDailyTrend(Number(days ?? 30))
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 科室维度统计
+  @Get('by-department')
+  getByDepartment() {
+    return this.service.getByDepartment()
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.service.get(id)
@@ -145,6 +163,12 @@ export class CriticalsController {
   @Get(':criticalId/history')
   listHistory(@Param('criticalId') criticalId: string) {
     return this.service.listHistory(criticalId)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 危急值全流程时间线
+  @Get(':id/timeline')
+  getTimeline(@Param('id') id: string) {
+    return this.service.getTimeline(id)
   }
 
   @Post(':id/escalation-chain')

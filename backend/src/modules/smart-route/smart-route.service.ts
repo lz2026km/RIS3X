@@ -59,11 +59,18 @@ export interface DoctorRecommendation {
   reasons: string[]
 }
 
+// ── [G005 Wave 10A] 路由规则扩充: 10 科室规则 (资质/负载/优先级/紧急通道) ──
 const DEFAULT_RULES: RoutingRule[] = [
   { id: 'rr-001', name: 'CT Chest - Senior', modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10, priority: 1, enabled: true },
   { id: 'rr-002', name: 'MR Brain - Specialist', modality: 'MR', bodyPart: 'Brain', patientStatus: 'Any', maxLoad: 8, priority: 2, enabled: true },
   { id: 'rr-003', name: 'DX Routine', modality: 'DX', bodyPart: 'Any', patientStatus: 'Outpatient', maxLoad: 20, priority: 3, enabled: true },
   { id: 'rr-004', name: 'CT Emergency', modality: 'CT', bodyPart: 'Any', patientStatus: 'Emergency', maxLoad: 5, priority: 0, enabled: true },
+  { id: 'rr-005', name: 'MR Abdomen - GI Specialist', modality: 'MR', bodyPart: 'Abdomen', patientStatus: 'Any', maxLoad: 6, priority: 2, enabled: true },
+  { id: 'rr-006', name: 'US Obstetric - Prenatal', modality: 'US', bodyPart: 'Obstetric', patientStatus: 'Outpatient', maxLoad: 12, priority: 2, enabled: true },
+  { id: 'rr-007', name: 'MG Breast Screening', modality: 'MG', bodyPart: 'Breast', patientStatus: 'Outpatient', maxLoad: 15, priority: 2, enabled: true },
+  { id: 'rr-008', name: 'DX Fracture Trauma', modality: 'DX', bodyPart: 'Extremity', patientStatus: 'Emergency', maxLoad: 8, priority: 1, enabled: true },
+  { id: 'rr-009', name: 'CT Stroke Green Channel', modality: 'CT', bodyPart: 'Brain', patientStatus: 'Emergency', maxLoad: 3, priority: 0, enabled: true },
+  { id: 'rr-010', name: 'PET-CT Oncology', modality: 'PET', bodyPart: 'Any', patientStatus: 'Inpatient', maxLoad: 4, priority: 1, enabled: true },
 ]
 
 const DEFAULT_HISTORY: Assignment[] = [
@@ -72,12 +79,28 @@ const DEFAULT_HISTORY: Assignment[] = [
 ]
 
 // 医生亚专科资质表 (无 Prisma 模型,内存 seed; 负载/准确率运行时用 DB 信号覆盖)
+// [G005 Wave 10A] 扩充至 20 医生: 胸部/神经/急诊/腹部/骨科/乳腺/超声/心脏/头颈/儿科等
 const DEFAULT_QUALIFICATIONS: DoctorQualification[] = [
   { doctorId: 'doc-001', name: 'Dr. Wang', subspecialty: '胸部影像', modality: ['CT', 'DX'], bodyParts: ['Chest', '胸部'], qualifications: ['CT 高级资质', '胸部亚专科'], currentLoad: 3, maxLoad: 10, priority: 1, accuracy: 0.94 },
   { doctorId: 'doc-002', name: 'Dr. Li', subspecialty: '神经影像', modality: ['MR', 'CT'], bodyParts: ['Brain', '头部', '头颅'], qualifications: ['MR 神经专科', '造影资质'], currentLoad: 2, maxLoad: 8, priority: 2, accuracy: 0.97 },
   { doctorId: 'doc-003', name: 'Dr. Zhang', subspecialty: '急诊影像', modality: ['CT', 'DX'], bodyParts: ['Any'], qualifications: ['急诊资质', '危急值处理'], currentLoad: 5, maxLoad: 5, priority: 0, accuracy: 0.88 },
   { doctorId: 'doc-004', name: 'Dr. Liu', subspecialty: '腹部影像', modality: ['MR', 'CT', 'US'], bodyParts: ['Abdomen', '腹部'], qualifications: ['腹部亚专科'], currentLoad: 6, maxLoad: 12, priority: 3, accuracy: 0.92 },
   { doctorId: 'doc-005', name: 'Dr. Chen', subspecialty: '骨科影像', modality: ['DX', 'CT'], bodyParts: ['Any'], qualifications: ['骨科亚专科'], currentLoad: 4, maxLoad: 20, priority: 4, accuracy: 0.9 },
+  { doctorId: 'doc-006', name: 'Dr. Huang', subspecialty: '乳腺影像', modality: ['MG', 'US', 'MR'], bodyParts: ['Breast', '乳腺'], qualifications: ['乳腺钼靶资质', 'BI-RADS 认证'], currentLoad: 2, maxLoad: 15, priority: 3, accuracy: 0.96 },
+  { doctorId: 'doc-007', name: 'Dr. Zhou', subspecialty: '超声影像', modality: ['US'], bodyParts: ['Obstetric', '腹部', 'Any'], qualifications: ['产科超声', '介入超声'], currentLoad: 4, maxLoad: 12, priority: 3, accuracy: 0.93 },
+  { doctorId: 'doc-008', name: 'Dr. Wu', subspecialty: '心血管影像', modality: ['CT', 'MR'], bodyParts: ['Chest', 'Cardiac'], qualifications: ['冠脉 CTA 资质', '心血管亚专科'], currentLoad: 3, maxLoad: 8, priority: 2, accuracy: 0.95 },
+  { doctorId: 'doc-009', name: 'Dr. Xu', subspecialty: '头颈影像', modality: ['CT', 'MR'], bodyParts: ['Head', 'Neck', '颞骨'], qualifications: ['头颈亚专科', '颞骨 HRCT'], currentLoad: 1, maxLoad: 8, priority: 3, accuracy: 0.94 },
+  { doctorId: 'doc-010', name: 'Dr. Sun', subspecialty: '儿科影像', modality: ['DX', 'CT', 'US'], bodyParts: ['Any'], qualifications: ['儿科放射资质', '低剂量协议认证'], currentLoad: 3, maxLoad: 10, priority: 2, accuracy: 0.91 },
+  { doctorId: 'doc-011', name: 'Dr. Zhao', subspecialty: '核医学', modality: ['PET', 'SPECT'], bodyParts: ['Any'], qualifications: ['核医学资质', 'PET-CT 上岗证'], currentLoad: 2, maxLoad: 4, priority: 1, accuracy: 0.93 },
+  { doctorId: 'doc-012', name: 'Dr. Tang', subspecialty: '介入放射', modality: ['RF', 'CT'], bodyParts: ['Any'], qualifications: ['介入放射资质', 'TACE 认证'], currentLoad: 5, maxLoad: 6, priority: 1, accuracy: 0.92 },
+  { doctorId: 'doc-013', name: 'Dr. Feng', subspecialty: '胸部影像', modality: ['CT', 'DX'], bodyParts: ['Chest', '胸部'], qualifications: ['胸部亚专科', '低剂量筛查'], currentLoad: 2, maxLoad: 10, priority: 2, accuracy: 0.95 },
+  { doctorId: 'doc-014', name: 'Dr. Han', subspecialty: '腹部影像', modality: ['MR', 'CT'], bodyParts: ['Abdomen', '腹部'], qualifications: ['腹部亚专科', 'MRCP 认证'], currentLoad: 4, maxLoad: 10, priority: 3, accuracy: 0.94 },
+  { doctorId: 'doc-015', name: 'Dr. Jiang', subspecialty: '神经影像', modality: ['MR', 'CT'], bodyParts: ['Brain', '头部', 'Spine'], qualifications: ['神经专科', '卒中影像'], currentLoad: 2, maxLoad: 8, priority: 2, accuracy: 0.96 },
+  { doctorId: 'doc-016', name: 'Dr. Shen', subspecialty: '骨科影像', modality: ['DX', 'CT', 'MR'], bodyParts: ['Extremity', 'Any'], qualifications: ['骨科亚专科', '关节 MR'], currentLoad: 3, maxLoad: 15, priority: 3, accuracy: 0.91 },
+  { doctorId: 'doc-017', name: 'Dr. Lu', subspecialty: '急诊影像', modality: ['CT', 'DX', 'US'], bodyParts: ['Any'], qualifications: ['急诊资质', '创伤影像'], currentLoad: 4, maxLoad: 6, priority: 1, accuracy: 0.9 },
+  { doctorId: 'doc-018', name: 'Dr. Cai', subspecialty: '乳腺影像', modality: ['MG', 'US'], bodyParts: ['Breast', '乳腺'], qualifications: ['乳腺钼靶资质', '乳腺介入'], currentLoad: 1, maxLoad: 12, priority: 3, accuracy: 0.95 },
+  { doctorId: 'doc-019', name: 'Dr. Gao', subspecialty: '泌尿影像', modality: ['CT', 'MR', 'US'], bodyParts: ['Abdomen', 'Pelvis'], qualifications: ['泌尿亚专科'], currentLoad: 2, maxLoad: 10, priority: 3, accuracy: 0.92 },
+  { doctorId: 'doc-020', name: 'Dr. Lin', subspecialty: '消化影像', modality: ['CT', 'MR'], bodyParts: ['Abdomen', 'Pelvis'], qualifications: ['消化亚专科', '肝脏影像'], currentLoad: 3, maxLoad: 10, priority: 3, accuracy: 0.93 },
 ]
 
 // 未完成报告状态 (计入当日负载: 尚未 SIGNED 的报告)

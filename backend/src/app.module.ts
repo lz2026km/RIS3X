@@ -147,6 +147,9 @@ import { LesionTrackingModule } from "./modules/lesion-tracking/lesion-tracking.
 import { CustomReportModule } from "./modules/custom-report/custom-report.module";
 // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班: 班次/换班/统计/月历/批量生成
 import { TechScheduleModule } from "./modules/tech-schedule/tech-schedule.module";
+// [G005 Wave 10A] 眼科远程会诊桥接 + 眼科像素级图像处理 (MSW 真实化)
+import { EyeTeleModule } from "./modules/eye-tele/eye-tele.module";
+import { EyePixelModule } from "./modules/eye-pixel/eye-pixel.module";
 
 @Module({
   imports: [
@@ -308,6 +311,9 @@ import { TechScheduleModule } from "./modules/tech-schedule/tech-schedule.module
     TechScheduleModule,
     // [v3.0.6.11-99 Wave 6A] 语音工作站 (voice-workstation)
     VoiceWorkstationModule,
+    // [G005 Wave 10A] 眼科远程会诊桥接 + 眼科像素级图像处理
+    EyeTeleModule,
+    EyePixelModule,
   ],
   controllers: [HealthController],
   providers: [

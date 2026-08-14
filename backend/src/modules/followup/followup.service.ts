@@ -459,11 +459,31 @@ export class FollowUpService {
     return { items: await Promise.all(rows.map((r: any) => this.toTemplateDto(r))), total: rows.length }
   }
 
+  // [G005 Wave 10A] 模板库扩充: 20 个随访模板 (病种: 肺癌/乳腺/甲状腺 + 术式 8 类 + 检查类型)
   private async demoTemplates() {
     const items = [
+      // ── 病种 (肺癌 / 乳腺 / 甲状腺) ──
       { id: 'tpl-onc-ct', name: '肿瘤术后复查(CT)', category: '病种', intervals: [30, 90, 180], items: ['影像学复查', '肿瘤标志物'], active: true },
       { id: 'tpl-contrast', name: '对比剂反应随访', category: '检查类型', intervals: [7, 30], items: ['对比剂反应评估'], active: true },
       { id: 'tpl-nodule', name: '肺结节随访', category: '病种', intervals: [90, 180, 360], items: ['薄层CT复查', '结节大小对比'], active: true },
+      { id: 'tpl-lung-ca', name: '肺癌术后随访', category: '病种', intervals: [90, 180, 270, 360], items: ['胸部CT', '肿瘤标志物(CEA/NSE)', '门诊复诊'], active: true },
+      { id: 'tpl-lung-radio', name: '肺癌放疗后随访', category: '病种', intervals: [30, 90, 180, 360], items: ['胸部CT', '放射性肺炎评估', '肺功能检查'], active: true },
+      { id: 'tpl-lung-target', name: '肺癌靶向治疗随访', category: '病种', intervals: [30, 90, 180], items: ['胸部CT', '靶病灶测量(RECIST)', '基因检测动态'], active: true },
+      { id: 'tpl-breast-ca', name: '乳腺癌术后随访', category: '病种', intervals: [90, 180, 360], items: ['乳腺钼靶/超声', '肿瘤标志物(CA15-3)', '内分泌治疗评估'], active: true },
+      { id: 'tpl-breast-radio', name: '乳腺癌放疗后随访', category: '病种', intervals: [90, 180, 360], items: ['乳腺影像复查', '放疗皮肤反应评估', '心功能评估(左乳放疗)'], active: true },
+      { id: 'tpl-breast-endocrine', name: '乳腺癌内分泌治疗随访', category: '病种', intervals: [90, 180, 360], items: ['骨密度检测', '血脂检查', '妇科超声'], active: true },
+      { id: 'tpl-thyroid-ca', name: '甲状腺癌术后随访', category: '病种', intervals: [90, 180, 360], items: ['甲状腺功能(TSH/Tg)', '颈部超声', '碘131治疗评估'], active: true },
+      { id: 'tpl-thyroid-benign', name: '甲状腺良性结节随访', category: '病种', intervals: [180, 360], items: ['甲状腺超声', '甲状腺功能'], active: true },
+      { id: 'tpl-thyroid-ablation', name: '甲状腺射频消融术后随访', category: '术式', intervals: [30, 90, 180, 360], items: ['消融区超声', '甲状腺功能', '体积变化测量'], active: true },
+      // ── 术式 8 类 ──
+      { id: 'tpl-stent', name: '冠脉支架术后随访', category: '术式', intervals: [30, 90, 180, 360], items: ['心电图', '心功能评估', '药物依从性'], active: true },
+      { id: 'tpl-cabg', name: '冠脉搭桥术后随访', category: '术式', intervals: [90, 180, 360], items: ['冠脉CTA(1年)', '心功能超声', '血糖血脂'], active: true },
+      { id: 'tpl-joint-hip', name: '髋关节置换术后随访', category: '术式', intervals: [30, 90, 180, 360], items: ['髋关节X线', 'Harris 评分', '步态评估'], active: true },
+      { id: 'tpl-joint-knee', name: '膝关节置换术后随访', category: '术式', intervals: [30, 90, 180, 360], items: ['膝关节X线', 'KSS 评分', 'ROM 测量'], active: true },
+      { id: 'tpl-spine-fusion', name: '脊柱融合术后随访', category: '术式', intervals: [90, 180, 360], items: ['脊柱X线/CT', '融合率评估', 'ODI 评分'], active: true },
+      { id: 'tpl-hernia', name: '疝修补术后随访', category: '术式', intervals: [30, 90, 180], items: ['切口评估', '复发超声'], active: true },
+      { id: 'tpl-gallbladder', name: '胆囊切除术后随访', category: '术式', intervals: [30, 90], items: ['腹部超声', '消化功能评估'], active: true },
+      { id: 'tpl-cataract', name: '白内障术后随访', category: '术式', intervals: [7, 30, 90], items: ['视力检查', '眼压测量', '眼底检查'], active: true },
     ]
     return { items, total: items.length }
   }

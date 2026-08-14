@@ -169,6 +169,58 @@ function seedLesions(): TrackedLesion[] {
         m('STU-006-B', ISO_DAY(-20), 8.2, 'SD'),
       ],
     },
+    // [G005 Wave 10A] 扩充: 5 患者 12 病灶 (P000004/P000005 补充 6 病灶, 完整测量序列 3-4 期)
+    {
+      id: 'LT007', lesionId: 'LT007', patientId: 'P000004', name: '肝占位 #1', site: '肝右叶 S5',
+      type: '肝占位', modality: 'CT', createdAt: ISO_DAY(-320), currentStatus: '缩小',
+      measurements: [
+        m('STU-007-A', ISO_DAY(-320), 58.0, 'SD'),
+        m('STU-007-B', ISO_DAY(-180), 44.2, 'PR'),
+        m('STU-007-C', ISO_DAY(-60), 30.5, 'PR'),
+        m('STU-007-D', ISO_DAY(-3), 22.1, 'PR'),
+      ],
+    },
+    {
+      id: 'LT008', lesionId: 'LT008', patientId: 'P000004', name: '腹腔淋巴结', site: '肝门区淋巴结',
+      type: '淋巴结', modality: 'CT', createdAt: ISO_DAY(-320), currentStatus: '稳定',
+      measurements: [
+        m('STU-008-A', ISO_DAY(-320), 9.8, 'SD'),
+        m('STU-008-B', ISO_DAY(-180), 10.2, 'SD'),
+        m('STU-008-C', ISO_DAY(-3), 9.5, 'SD'),
+      ],
+    },
+    {
+      id: 'LT009', lesionId: 'LT009', patientId: 'P000004', name: '肺结节 #1', site: '左肺上叶前段',
+      type: '肺结节', modality: 'CT', createdAt: ISO_DAY(-200), currentStatus: '增大',
+      measurements: [
+        m('STU-009-A', ISO_DAY(-200), 4.6, 'SD'),
+        m('STU-009-B', ISO_DAY(-90), 6.1, 'PD'),
+        m('STU-009-C', ISO_DAY(-3), 8.9, 'PD'),
+      ],
+    },
+    {
+      id: 'LT010', lesionId: 'LT010', patientId: 'P000005', name: '乳腺癌原发灶', site: '左乳外上象限',
+      type: '其他', modality: 'MR', createdAt: ISO_DAY(-400), currentStatus: '消失',
+      measurements: [
+        m('STU-010-A', ISO_DAY(-400), 31.0, 'SD'),
+        m('STU-010-B', ISO_DAY(-240), 18.5, 'PR'),
+        m('STU-010-C', ISO_DAY(-120), 0, 'CR'),
+      ],
+    },
+    {
+      id: 'LT011', lesionId: 'LT011', patientId: 'P000005', name: '腋窝淋巴结', site: '左腋窝 I 站',
+      type: '淋巴结', modality: 'MR', createdAt: ISO_DAY(-400), currentStatus: '缩小',
+      measurements: [
+        m('STU-011-A', ISO_DAY(-400), 14.0, 'SD'),
+        m('STU-011-B', ISO_DAY(-120), 9.6, 'PR'),
+        m('STU-011-C', ISO_DAY(-15), 7.8, 'PR'),
+      ],
+    },
+    {
+      id: 'LT012', lesionId: 'LT012', patientId: 'P000005', name: '肝转移灶', site: '肝右叶 S8',
+      type: '肝占位', modality: 'MR', createdAt: ISO_DAY(-400), currentStatus: '新发',
+      measurements: [m('STU-012-A', ISO_DAY(-400), 12.4, 'SD')],
+    },
   ]
 }
 

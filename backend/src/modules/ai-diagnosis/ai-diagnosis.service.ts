@@ -1,4 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  extraSeedLung,
+  extraSeedBreast,
+  extraSeedFracture,
+  extraSeedCardiac,
+} from './seed-cases'
 
 export interface AccuracyRequest {
   startDate: string
@@ -275,6 +281,7 @@ const seededLung: LungCadResult[] = [
     status: 'confirmed',
     createdAt: '2026-07-25T16:40:00.000Z',
   },
+  ...extraSeedLung,
 ]
 
 const seededBreast: BreastCadResult[] = [
@@ -341,6 +348,7 @@ const seededBreast: BreastCadResult[] = [
     status: 'confirmed',
     createdAt: '2026-07-24T09:15:00.000Z',
   },
+  ...extraSeedBreast,
 ]
 
 const seededFracture: FractureCadResult[] = [
@@ -409,6 +417,7 @@ const seededFracture: FractureCadResult[] = [
     status: 'auto',
     createdAt: '2026-07-26T10:55:00.000Z',
   },
+  ...extraSeedFracture,
 ]
 
 const seededCardiac: CardiacAiResult[] = [
@@ -506,6 +515,7 @@ const seededCardiac: CardiacAiResult[] = [
     status: 'auto',
     createdAt: '2026-07-23T15:35:00.000Z',
   },
+  ...extraSeedCardiac,
 ]
 
 @Injectable()
@@ -919,5 +929,41 @@ export class AiDiagnosisService {
         totalCases: Math.round(Math.random() * 100 + 20),
       }
     })
+  }
+
+  // ── [G005 Wave 10A] 病例库总览 (seed 扩充后 4 模型合计) ─────────────────────
+  async listCaseLibrary() {
+    const summarize = <T extends { id: string; studyId: string; patientName: string; status: string; createdAt: string }>(
+      pool: T[],
+      category: '形态' | 'BI-RADS' | '部位' | 'CAD-RADS',
+      groupKey: (c: T) => string,
+    ) => {
+      const byKey = new Map<string, number>()
+      for (const c of pool) byKey.set(groupKey(c), (byKey.get(groupKey(c)) ?? 0) + 1)
+      return {
+        total: pool.length,
+        byCategory: Array.from(byKey.entries()).map(([key, count]) => ({ key, count })),
+      }
+    }
+    return ok({
+      lungCad: summarize(seededLung, '形态', (c) => (c.nodules[0]?.characteristics[0] ?? '其他')),
+      breastCad: summarize(seededBreast, 'BI-RADS', (c) => c.overallBiRads),
+      fractureCad: summarize(seededFracture, '部位', (c) => c.bodyPart),
+      cardiacAi: summarize(seededCardiac, 'CAD-RADS', (c) => c.cadRads ?? 'MR'),
+      generatedAt: new Date().toISOString(),
+    })
+  }
+
+  async getCaseById(model: string, id: string) {
+    const pool =
+      model === 'lung-cad' ? seededLung
+        : model === 'breast-cad' ? seededBreast
+        : model === 'fracture-cad' ? seededFracture
+        : model === 'cardiac-ai' ? seededCardiac
+        : null
+    if (!pool) throw new NotFoundException(`未知模型: ${model}`)
+    const found = pool.find((c) => c.id === id)
+    if (!found) throw new NotFoundException(`病例不存在: ${model}/${id}`)
+    return ok(found)
   }
 }

@@ -516,4 +516,365 @@ export class WorklistService {
     this.notifyWorklistChanged(`qc=${state}${qcNote ? `:${qcNote}` : ''}`, id)
     return result
   }
+
+  // ============ [v3.0.6.11-99 Wave 10D] 总览 / 模态分组 / 时间线 / 技师备注 / 技师维度 ============
+
+  /** 本地时区 YYYY-MM-DD (避免 toISOString UTC 跨日错位) */
+  private dateKey(d: Date): string {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
+  /**
+   * GET /worklist/overview — 今日总览: 按状态 / 按模态 / 按房间计数。
+   * 数据源: exam (state/modality + device.location 派生房间), completedAt 统计今日完成;
+   * 无数据 (空库/表不可用) 时确定性 seed 回退 (风格与 getStats byTechnician 一致)。
+   */
+  async getOverview() {
+    const tenantId = currentTenantId()
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const where = { tenantId }
+    try {
+      const [byStateRows, byModalityRows, completedToday, todayExams, todayDurations] = await Promise.all([
+        this.prisma.exam.groupBy({ by: ['state'], where, _count: { _all: true } }),
+        this.prisma.exam.groupBy({ by: ['modality'], where, _count: { _all: true } }),
+        this.prisma.exam.count({ where: { ...where, completedAt: { gte: start } } }),
+        this.prisma.exam.findMany({
+          where: { ...where, scheduledAt: { gte: start } },
+          select: { id: true, state: true, modality: true, device: { select: { location: true, name: true } } },
+        }),
+        this.prisma.exam.findMany({
+          where: { ...where, completedAt: { gte: start }, startedAt: { not: null } },
+          select: { startedAt: true, completedAt: true },
+        }),
+      ])
+      const byStatus: Record<string, number> = {}
+      for (const g of byStateRows) byStatus[g.state] = g._count._all
+      const byModality = byModalityRows
+        .map((g) => ({ modality: g.modality, count: g._count._all }))
+        .sort((a, b) => b.count - a.count)
+      const roomMap = new Map<string, { room: string; count: number; completed: number; inProgress: number }>()
+      for (const e of todayExams) {
+        const room = (e as any).device?.location ?? '未分配'
+        const entry = roomMap.get(room) ?? { room, count: 0, completed: 0, inProgress: 0 }
+        entry.count += 1
+        if (e.state === 'COMPLETED') entry.completed += 1
+        if (e.state === 'IN_PROGRESS') entry.inProgress += 1
+        roomMap.set(room, entry)
+      }
+      const byRoom = [...roomMap.values()].sort((a, b) => b.count - a.count)
+      const total = Object.values(byStatus).reduce((a, b) => a + b, 0)
+      if (total === 0 && todayExams.length === 0) return this.seedOverview()
+      // 今日分时段工作量: 按预约/创建小时分布 (08:00-20:00 为主检时段)
+      const byHour = new Array(24).fill(0)
+      for (const e of todayExams) {
+        const ts = (e as any).scheduledAt ?? (e as any).createdAt
+        if (ts instanceof Date) byHour[ts.getHours()] += 1
+      }
+      let peakHour = 9
+      for (let h = 0; h < 24; h++) {
+        if (byHour[h]! > byHour[peakHour]!) peakHour = h
+      }
+      // 今日平均检查时长 (分钟) + 完成率
+      const todayDurs = todayDurations
+        .map((e) => (e.completedAt!.getTime() - e.startedAt!.getTime()) / 60000)
+        .filter((m) => Number.isFinite(m) && m >= 0)
+      const avgDurationMin = todayDurs.length > 0 ? Math.round(todayDurs.reduce((a, b) => a + b, 0) / todayDurs.length) : 0
+      const todayTotal = todayExams.length
+      const completedRate = todayTotal > 0 ? Number(((completedToday / todayTotal) * 100).toFixed(1)) : 0
+      return {
+        date: this.dateKey(start),
+        total,
+        todayTotal,
+        completedToday,
+        completedRate,
+        avgDurationMin,
+        byStatus,
+        byModality,
+        byRoom,
+        byHour: byHour.map((count, hour) => ({ hour: `${String(hour).padStart(2, '0')}:00`, count })),
+        peakHour: `${String(peakHour).padStart(2, '0')}:00`,
+      }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getOverview failed, fallback seed: ${(err as Error)?.message}`)
+      return this.seedOverview()
+    }
+  }
+
+  /** 确定性 seed: 空库/表不可用时的今日总览 (与前端工作列表看板形状对齐) */
+  private seedOverview() {
+    return {
+      date: this.dateKey(new Date()),
+      total: 86,
+      todayTotal: 31,
+      completedToday: 12,
+      completedRate: 38.7,
+      avgDurationMin: 26,
+      byStatus: { SCHEDULED: 12, ARRIVED: 5, IN_PROGRESS: 8, PAUSED: 2, COMPLETED: 46, CANCELLED: 3 },
+      byModality: [
+        { modality: 'CT', count: 20 },
+        { modality: 'MR', count: 15 },
+        { modality: 'DR', count: 12 },
+        { modality: 'US', count: 10 },
+        { modality: 'MG', count: 3 },
+      ],
+      byRoom: [
+        { room: 'CT室1', count: 14, completed: 6, inProgress: 2 },
+        { room: 'MR室1', count: 10, completed: 4, inProgress: 1 },
+        { room: 'DR室1', count: 9, completed: 5, inProgress: 1 },
+        { room: '超声室', count: 8, completed: 3, inProgress: 2 },
+        { room: '未分配', count: 5, completed: 2, inProgress: 0 },
+      ],
+      byHour: Array.from({ length: 24 }, (_, h) => ({ hour: `${String(h).padStart(2, '0')}:00`, count: h >= 8 && h <= 18 ? 2 + ((h * 3) % 5) : 0 })),
+      peakHour: '10:00',
+    }
+  }
+
+  /**
+   * GET /worklist/by-modality — 模态维度分组列表: 每模态 总数/进行中/已完成/平均时长。
+   * 数据源: exam groupBy(modality+state) + 已完成检查 duration 派生; 空数据 seed 回退。
+   */
+  async getByModality() {
+    const where = { tenantId: currentTenantId() }
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    try {
+      const [rows, completed] = await Promise.all([
+        this.prisma.exam.groupBy({ by: ['modality', 'state'], where, _count: { _all: true } }),
+        this.prisma.exam.findMany({
+          where: { ...where, state: 'COMPLETED', startedAt: { not: null }, completedAt: { not: null } },
+          select: { modality: true, startedAt: true, completedAt: true },
+        }),
+      ])
+      const durByModality = new Map<string, number[]>()
+      const todayByModality = new Map<string, number>()
+      for (const e of completed) {
+        const m = (e.completedAt!.getTime() - e.startedAt!.getTime()) / 60000
+        if (Number.isFinite(m) && m >= 0) {
+          const arr = durByModality.get(e.modality) ?? []
+          arr.push(m)
+          durByModality.set(e.modality, arr)
+        }
+        if (e.completedAt! >= todayStart) {
+          todayByModality.set(e.modality, (todayByModality.get(e.modality) ?? 0) + 1)
+        }
+      }
+      const totals = new Map<string, { total: number; inProgress: number; completed: number }>()
+      for (const r of rows) {
+        const entry = totals.get(r.modality) ?? { total: 0, inProgress: 0, completed: 0 }
+        entry.total += r._count._all
+        if (r.state === 'IN_PROGRESS') entry.inProgress += r._count._all
+        if (r.state === 'COMPLETED') entry.completed += r._count._all
+        totals.set(r.modality, entry)
+      }
+      const items = [...totals.entries()]
+        .map(([modality, t]) => {
+          const durs = durByModality.get(modality) ?? []
+          return {
+            modality,
+            total: t.total,
+            inProgress: t.inProgress,
+            completed: t.completed,
+            pending: t.total - t.inProgress - t.completed,
+            todayCompleted: todayByModality.get(modality) ?? 0,
+            avgDurationMin: durs.length > 0 ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : 0,
+          }
+        })
+        .sort((a, b) => b.total - a.total)
+      if (items.length === 0) {
+        return {
+          items: [
+            { modality: 'CT', total: 20, inProgress: 3, completed: 14, pending: 3, todayCompleted: 5, avgDurationMin: 18 },
+            { modality: 'MR', total: 15, inProgress: 2, completed: 10, pending: 3, todayCompleted: 3, avgDurationMin: 32 },
+            { modality: 'DR', total: 12, inProgress: 1, completed: 9, pending: 2, todayCompleted: 3, avgDurationMin: 8 },
+            { modality: 'US', total: 10, inProgress: 2, completed: 6, pending: 2, todayCompleted: 1, avgDurationMin: 15 },
+          ],
+          total: 4,
+        }
+      }
+      return { items, total: items.length }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getByModality failed, fallback seed: ${(err as Error)?.message}`)
+      return {
+        items: [
+          { modality: 'CT', total: 20, inProgress: 3, completed: 14, pending: 3, todayCompleted: 5, avgDurationMin: 18 },
+          { modality: 'MR', total: 15, inProgress: 2, completed: 10, pending: 3, todayCompleted: 3, avgDurationMin: 32 },
+          { modality: 'DR', total: 12, inProgress: 1, completed: 9, pending: 2, todayCompleted: 3, avgDurationMin: 8 },
+        ],
+        total: 3,
+      }
+    }
+  }
+
+  /**
+   * GET /worklist/timeline/:id — 检查时间线: 登记→预约→签到→开始→暂停→恢复→完成→质控 事件流。
+   * 数据源: exam 时间字段 (createdAt/scheduledAt/startedAt/pausedAt/completedAt/retakeCount/qualityRating/qcNotes)
+   *   + worklistOp 操作日志 (START/COMPLETE/ASSIGN/CANCEL...) + auditLog (resource=exam) 派生;
+   *   ops/audit 表不可用时不阻断 (与 getById 的 ops 查询同风格)。
+   */
+  async getTimeline(id: string) {
+    const exam = await this.getExam(id)
+    const tenantId = currentTenantId()
+    type TLEvent = { type: string; label: string; timestamp: string; actor?: string; note?: string }
+    const events: TLEvent[] = []
+    const push = (type: string, label: string, ts?: Date | null, opts?: { actor?: string; note?: string }) => {
+      if (!ts) return
+      events.push({ type, label, timestamp: ts.toISOString(), actor: opts?.actor, note: opts?.note })
+    }
+    push('register', '登记建档', exam.createdAt)
+    push('scheduled', '预约排程', exam.scheduledAt, { note: `模态 ${exam.modality} / ${exam.bodyPart}` })
+    push('checkin', '签到', exam.startedAt, { note: 'SCHEDULED → ARRIVED' })
+    if (['IN_PROGRESS', 'PAUSED', 'COMPLETED', 'IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'PENDING_REPORT'].includes(exam.state)) {
+      push('start', '检查开始', exam.startedAt, { note: 'ARRIVED → IN_PROGRESS' })
+    }
+    push('pause', '暂停检查', exam.pausedAt)
+    if (exam.pausedAt && ['IN_PROGRESS', 'COMPLETED', 'IMAGE_READY', 'QC_PASS', 'PENDING_REPORT'].includes(exam.state)) {
+      push('resume', '恢复检查', exam.pausedAt, { note: 'PAUSED → IN_PROGRESS' })
+    }
+    push('complete', '完成检查', exam.completedAt)
+    const retakeCount = Number((exam as any).retakeCount ?? 0)
+    if (retakeCount > 0) {
+      push('retake', '重拍登记', exam.completedAt ?? exam.pausedAt ?? exam.startedAt, { note: `共重拍 ${retakeCount} 次` })
+    }
+    const rating = (exam as any).qualityRating
+    if (rating) {
+      push('qc-rating', '质控评级', exam.completedAt ?? exam.createdAt, { note: `评级: ${rating}` })
+    }
+    const qcNote = (exam as any).qcNotes
+    if (qcNote) {
+      push('qc-note', '质控备注', exam.completedAt ?? exam.createdAt, { note: String(qcNote).slice(0, 200) })
+    }
+    const opLabels: Record<string, string> = { START: '开始检查', COMPLETE: '完成检查', CANCEL: '取消检查', ASSIGN: '分配报告医生', REASSIGN: '重新分配', PRINT: '打印报告', EXPORT: '导出报告' }
+    try {
+      const ops = await this.prisma.worklistOp.findMany({
+        where: { examId: id, tenantId },
+        orderBy: { createdAt: 'asc' },
+        select: { op: true, createdAt: true, payload: true, actor: { select: { fullName: true } } },
+      })
+      for (const op of ops) {
+        push('op', opLabels[op.op] ?? String(op.op), op.createdAt, { actor: op.actor?.fullName ?? undefined })
+      }
+    } catch { /* ops 表不可用不阻断 */ }
+    try {
+      const audit = await this.prisma.auditLog.findMany({
+        where: { resource: 'exam', resourceId: id },
+        orderBy: { createdAt: 'asc' },
+        select: { action: true, createdAt: true, userId: true, detail: true },
+      })
+      for (const a of audit) {
+        push('audit', `审计: ${a.action}`, a.createdAt, { actor: a.userId ?? undefined })
+      }
+    } catch { /* audit 表不可用不阻断 */ }
+    events.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1))
+    return {
+      examId: exam.id,
+      accessionNumber: exam.accessionNumber,
+      patientId: exam.patientId,
+      patientName: (exam as any).patient?.name ?? '',
+      patientPhone: (exam as any).patient?.phone ?? '',
+      patientGender: (exam as any).patient?.gender ?? '',
+      modality: exam.modality,
+      bodyPart: exam.bodyPart,
+      state: exam.state,
+      totalEvents: events.length,
+      events,
+    }
+  }
+
+  /**
+   * POST /worklist/:id/notes — 技师备注保存: 追加到 techNotes (带时间戳), 新列 DB 未迁移时回退内存。
+   */
+  async saveNotes(id: string, note: string, opts?: { latest?: boolean }) {
+    const exam = await this.getExam(id)
+    const trimmed = note?.trim()
+    if (!trimmed) throw new BadRequestException('备注内容不能为空')
+    const timeLabel = new Date().toLocaleString('zh-CN', { hour12: false })
+    const existing = String((exam as any).techNotes ?? '')
+    const merged = opts?.latest ? trimmed : [existing, `[${timeLabel}] ${trimmed}`].filter(Boolean).join('\n')
+    await this.updateExam(id, { techNotes: merged }, { patient: true })
+    this.notifyWorklistChanged('notes', id)
+    return { ok: true, examId: id, techNotes: merged }
+  }
+
+  /**
+   * GET /worklist/technician-stats — 技师维度明细: 完成数 / 平均时长 / 重拍数 (getStats byTechnician 扩展 detail)。
+   * 数据源: worklistOp (START/COMPLETE 归属操作人) + exam (duration/retakeCount) 派生; 无记录 seed 回退。
+   */
+  async getTechnicianStats() {
+    const where = { tenantId: currentTenantId() }
+    try {
+      const [ops, completed, retakes] = await Promise.all([
+        this.prisma.worklistOp.findMany({
+          where: { tenantId: currentTenantId(), op: { in: ['START', 'COMPLETE'] } },
+          select: { id: true, op: true, examId: true, actorId: true, actor: { select: { id: true, fullName: true } } },
+        }),
+        this.prisma.exam.findMany({
+          where: { ...where, state: 'COMPLETED', startedAt: { not: null }, completedAt: { not: null } },
+          select: { id: true, startedAt: true, completedAt: true, retakeCount: true },
+        }),
+        this.prisma.exam.findMany({
+          where: { ...where, retakeCount: { gt: 0 } },
+          select: { id: true, retakeCount: true },
+        }),
+      ])
+      const durByExam = new Map(completed.map((e) => [e.id, e]))
+      const retakeByExam = new Map(retakes.map((e) => [e.id, Number(e.retakeCount ?? 0)]))
+      const map = new Map<string, { id: string; name: string; completedCount: number; retakeCount: number; durations: number[] }>()
+      for (const op of ops) {
+        const entry = map.get(op.actorId) ?? { id: op.actorId, name: op.actor?.fullName ?? '未知技师', completedCount: 0, retakeCount: 0, durations: [] }
+        if (op.op === 'COMPLETE') entry.completedCount += 1
+        if (op.examId) entry.retakeCount += retakeByExam.get(op.examId) ?? 0
+        const dur = op.examId ? durByExam.get(op.examId) : undefined
+        if (dur) {
+          const m = (dur.completedAt!.getTime() - dur.startedAt!.getTime()) / 60000
+          if (Number.isFinite(m) && m >= 0) entry.durations.push(m)
+        }
+        map.set(op.actorId, entry)
+      }
+      const technicians = [...map.values()].map((t) => ({
+        id: t.id,
+        name: t.name,
+        completedCount: t.completedCount,
+        retakeCount: t.retakeCount,
+        avgDurationMin: t.durations.length > 0 ? Math.round(t.durations.reduce((a, b) => a + b, 0) / t.durations.length) : 0,
+      })).sort((a, b) => b.completedCount - a.completedCount)
+      if (technicians.length === 0) return this.seedTechnicianStats()
+      const totalCompleted = technicians.reduce((a, t) => a + t.completedCount, 0)
+      const totalRetake = technicians.reduce((a, t) => a + t.retakeCount, 0)
+      const totalDurations = [...durByExam.values()].map((e) => (e.completedAt!.getTime() - e.startedAt!.getTime()) / 60000).filter((m) => Number.isFinite(m) && m >= 0)
+      return {
+        summary: {
+          totalCompleted,
+          totalRetake,
+          avgDurationMin: totalDurations.length > 0 ? Math.round(totalDurations.reduce((a, b) => a + b, 0) / totalDurations.length) : 0,
+          retakeRate: totalCompleted > 0 ? Number(((totalRetake / totalCompleted) * 100).toFixed(1)) : 0,
+          technicianCount: technicians.length,
+        },
+        technicians,
+      }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getTechnicianStats failed, fallback seed: ${(err as Error)?.message}`)
+      return this.seedTechnicianStats()
+    }
+  }
+
+  private seedTechnicianStats() {
+    return {
+      summary: {
+        totalCompleted: 19,
+        totalRetake: 3,
+        avgDurationMin: 26,
+        retakeRate: 15.8,
+        technicianCount: 3,
+      },
+      technicians: [
+        { id: 'tech-seed-1', name: '王技师', completedCount: 9, retakeCount: 1, avgDurationMin: 24 },
+        { id: 'tech-seed-2', name: '李技师', completedCount: 6, retakeCount: 0, avgDurationMin: 21 },
+        { id: 'tech-seed-3', name: '张技师', completedCount: 4, retakeCount: 2, avgDurationMin: 30 },
+      ],
+    }
+  }
 }

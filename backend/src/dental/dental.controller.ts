@@ -438,4 +438,22 @@ export class DentalController {
 
   @Post('ceph/:id/analysis')
   runCephAnalysis(@Param('id') id: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: { type?: string }) { return this.svc.runCephAnalysis(id, body) }
+
+  // ── [G005 Wave 10A] CBCT 体绘制 volume 真实化 (DentalVolumeViewerPage, /dental/volume/*) ──
+
+  @Get('volume/studies')
+  listVolumeStudies() { return this.svc.listVolumeStudies() }
+
+  @Get('volume/studies/:id')
+  getVolumeStudy(@Param('id') id: string) { return this.svc.getVolumeStudy(id) }
+
+  @Get('volume/presets')
+  listVolumePresets() { return this.svc.listVolumePresets() }
+
+  // [v3.0.6.11-99 Wave1B] apply 为 POST (MSW 旧 GET 兜底保留, 页面 dentalApi.applyVolumePreset 走 POST)
+  @Post('volume/presets/:id/apply')
+  applyVolumePreset(@Param('id') id: string) { return this.svc.applyVolumePreset(id) }
+
+  @Get('volume/studies/:id/curve-path')
+  getVolumeCurvePath(@Param('id') id: string) { return this.svc.getVolumeCurvePath(id) }
 }

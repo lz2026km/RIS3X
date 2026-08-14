@@ -2,7 +2,7 @@
 import { patientApi } from '../../services/api/patientApi'
 import type { PatientDto } from '../../types/dto'
 import { ExamDto } from '../../types/dto'
-import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty } from 'antd'
+import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty, Divider, Statistic, Row, Col } from 'antd'
 import {
   User,
   Phone,
@@ -14,9 +14,13 @@ import {
   Eye,
   Calendar,
 } from 'lucide-react'
-import { BellOff, Inbox, Map } from 'lucide-react'
+import { BellOff, Inbox, Map, PhoneCall, Wallet, LineChart as LineChartIcon, Crosshair, Stethoscope, Database } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+// [v3.0.6.11-99 Wave10B] 患者360深化: 随访/病灶追踪/费用/频次趋势
+import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
+import { lesionTrackingApi, type TrackedLesion, type LesionStats } from '../../services/api/lesionTrackingApi'
+import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 
 interface ExamView {
   id: string
@@ -146,6 +150,166 @@ export default function Patient360Page() {
   }, [exams])
 
   const criticalExams = useMemo(() => exams.filter((ex) => ex.criticalFinding), [exams])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 深化: 时间轴事件流 / 随访计划 / 病灶追踪 / 费用汇总 / 频次趋势
+  // 全部接真实 API (followupApi / lesionTrackingApi / financeApi / patientApi.getTimeline),
+  // 失败回退本地派生 + 数据源徽标。
+  // ============================================================
+  const [followUps, setFollowUps] = useState<FollowUpPlan[]>([])
+  const [lesions, setLesions] = useState<TrackedLesion[]>([])
+  const [lesionStats, setLesionStats] = useState<LesionStats | null>(null)
+  const [invoices, setInvoices] = useState<InvoiceDto[]>([])
+  const [apiTimelineEvents, setApiTimelineEvents] = useState<any[]>([])
+  const [deepSource, setDeepSource] = useState<'real' | 'demo'>('demo')
+  const [deepLoading, setDeepLoading] = useState(false)
+  const [deepError, setDeepError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      setDeepLoading(true)
+      setDeepError(null)
+      let anyReal = false
+      try {
+        const [fuRes, lesionRes, lesionStatsRes, invRes, tlRes] = await Promise.allSettled([
+          followupApi.list({ patientId: id, search: '' }),
+          lesionTrackingApi.list(id),
+          lesionTrackingApi.stats(id),
+          financeApi.listInvoices(),
+          patientApi.getTimeline(id),
+        ])
+        if (cancelled) return
+        const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+          r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+
+        // 随访计划 (GET /followups?patientId=..)
+        const fu = settled(fuRes)
+        const fuList: FollowUpPlan[] = Array.isArray(fu) ? fu : Array.isArray((fu as any)?.data) ? (fu as any).data : []
+        if (fuList.length > 0) {
+          setFollowUps(fuList.filter(p => p.patientId === id).slice(0, 10))
+          anyReal = true
+        }
+
+        // 病灶追踪 (GET /lesion-tracking/lesions?patientId=..)
+        const lesionPayload = settled(lesionRes)
+        const lesionItems: TrackedLesion[] = Array.isArray(lesionPayload) ? lesionPayload
+          : Array.isArray((lesionPayload as any)?.items) ? (lesionPayload as any).items : []
+        if (lesionItems.length > 0) {
+          setLesions(lesionItems)
+          anyReal = true
+        }
+        const lStats = settled(lesionStatsRes)
+        if (lStats && typeof lStats === 'object' && (lStats as any).total !== undefined) {
+          setLesionStats(lStats as unknown as LesionStats)
+          anyReal = true
+        }
+
+        // 费用汇总 (GET /finance/invoices → 按 patientId 过滤)
+        const inv = settled(invRes)
+        const invList: InvoiceDto[] = Array.isArray(inv) ? inv : []
+        const mine = invList.filter(i => i.patientId === id)
+        if (mine.length > 0) {
+          setInvoices(mine)
+          anyReal = true
+        }
+
+        // 时间轴 (GET /patients/:id/timeline)
+        const tl = settled(tlRes)
+        if (Array.isArray(tl) && tl.length > 0) {
+          setApiTimelineEvents(tl)
+          anyReal = true
+        }
+
+        setDeepSource(anyReal ? 'real' : 'demo')
+        if (!anyReal) setDeepError('深化接口 (随访/病灶/费用/时间轴) 暂不可用，展示派生演示数据')
+      } catch {
+        if (!cancelled) {
+          setDeepSource('demo')
+          setDeepError('深化数据加载失败，展示派生演示数据')
+        }
+      } finally {
+        if (!cancelled) setDeepLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [id])
+
+  // 时间轴事件流: 检查/报告/随访/危急值 合并为统一事件流
+  const eventStream = useMemo(() => {
+    const events: Array<{
+      id: string
+      date: string
+      kind: 'exam' | 'report' | 'followup' | 'critical' | 'system'
+      title: string
+      desc: string
+      color: string
+    }> = []
+    exams.forEach(ex => {
+      events.push({
+        id: `ev-ex-${ex.id}`,
+        date: ex.examDate,
+        kind: 'exam',
+        title: `检查 · ${ex.examItemName}`,
+        desc: `${ex.modality} ${ex.bodyPart || ''} · ${ex.status}${ex.criticalFinding ? ' · 含危急值' : ''}`,
+        color: ex.criticalFinding ? '#dc2626' : '#2563eb',
+      })
+    })
+    followUps.forEach(f => {
+      events.push({
+        id: `ev-fu-${f.id}`,
+        date: f.nextDate || f.planDate,
+        kind: 'followup',
+        title: `随访 · ${f.status}`,
+        desc: f.note || `计划 ${f.planDate} → 下次 ${f.nextDate}`,
+        color: f.status === 'COMPLETED' ? '#16a34a' : f.status === 'MISSED' || f.status === 'OVERDUE' ? '#dc2626' : '#d97706',
+      })
+    })
+    apiTimelineEvents.forEach((t: any) => {
+      events.push({
+        id: `ev-tl-${t.id ?? Math.random()}`,
+        date: t.date ?? t.timestamp ?? '',
+        kind: 'system',
+        title: `事件 · ${t.type ?? t.event ?? '记录'}`,
+        desc: t.description ?? t.content ?? '',
+        color: '#7c3aed',
+      })
+    })
+    return events.sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 30)
+  }, [exams, followUps, apiTimelineEvents])
+
+  // 费用汇总
+  const financeSummary = useMemo(() => {
+    if (invoices.length === 0) return null
+    return {
+      totalAmount: invoices.reduce((s, i) => s + Number(i.totalAmount ?? 0), 0),
+      paidAmount: invoices.reduce((s, i) => s + Number(i.paidAmount ?? 0), 0),
+      balance: invoices.reduce((s, i) => s + Number(i.balance ?? 0), 0),
+      insuranceCovered: invoices.reduce((s, i) => s + Number(i.insuranceCovered ?? 0), 0),
+      selfPay: invoices.reduce((s, i) => s + Number(i.selfPayAmount ?? 0), 0),
+      unpaid: invoices.filter(i => String(i.status).toLowerCase().includes('unpaid') || Number(i.balance ?? 0) > 0).length,
+    }
+  }, [invoices])
+
+  // 检查频次趋势 (按月)
+  const examFreqTrend = useMemo(() => {
+    const byMonth: Record<string, number> = {}
+    exams.forEach(ex => {
+      const m = String(ex.examDate ?? '').slice(0, 7)
+      if (m) byMonth[m] = (byMonth[m] || 0) + 1
+    })
+    const months = Object.keys(byMonth).sort()
+    const max = Math.max(1, ...Object.values(byMonth))
+    return months.slice(-8).map(m => ({
+      month: m,
+      count: byMonth[m] ?? 0,
+      percent: Math.round(((byMonth[m] ?? 0) / max) * 100),
+    }))
+  }, [exams])
+
+  // 病灶追踪汇总 (随访计划与病灶关联展示, 用于病灶卡"关联随访"高亮)
+  // 已在病灶卡内直接通过 followUps.find 渲染, 见渲染区块3
 
   if (loading) {
     return (
@@ -342,6 +506,379 @@ export default function Patient360Page() {
           scroll={{ x: 'max-content' }}
           />
         )}
+      </Card>
+
+      {/* ============================================================
+          [v3.0.6.11-99 Wave10B] 深化: 时间轴事件流 / 随访 / 病灶 / 费用 / 频次趋势
+          ============================================================ */}
+      {/* 数据源徽标 */}
+      <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '3px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+          background: deepSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+          color: deepSource === 'real' ? '#065f46' : '#92400e',
+          border: `1px solid ${deepSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
+        }}>
+          <Database size={12} />
+          深化数据源: {deepSource === 'real' ? '真实 (followupApi / lesionTrackingApi / financeApi / timeline)' : '派生演示'}
+        </span>
+        {deepLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>加载中…</span>}
+        {deepError && <span style={{ fontSize: 11, color: '#d97706' }}>{deepError}</span>}
+      </div>
+
+      {/* 1. 时间轴视图 (事件流: 检查/报告/随访/危急值) */}
+      <Card
+        title={<span><Calendar size={14} /> 患者事件时间轴</span>}
+        style={{ marginTop: 16, borderRadius: 12 }}
+        extra={<Tag color={deepSource === 'real' ? 'green' : 'orange'}>{deepSource === 'real' ? 'API 实时' : '派生'}</Tag>}
+      >
+        {eventStream.length === 0 ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无事件记录" style={{ padding: 16 }} />
+        ) : (
+          <Timeline
+            style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 8 }}
+            items={eventStream.map(ev => ({
+              color: ev.color,
+              dot: ev.kind === 'critical' ? <Badge dot color="#dc2626"><ShieldAlert size={14} color="#dc2626" /></Badge>
+                : ev.kind === 'followup' ? <Stethoscope size={14} style={{ color: ev.color }} />
+                : ev.kind === 'system' ? <Map size={14} style={{ color: ev.color }} />
+                : undefined,
+              children: (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 600, color: ev.color, fontSize: 13 }}>{ev.title}</span>
+                    {ev.kind === 'critical' && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>危急</Tag>}
+                    {ev.kind === 'followup' && <Tag color="orange" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>随访</Tag>}
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
+                      {String(ev.date || '').slice(0, 16).replace('T', ' ')}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{ev.desc}</div>
+                </div>
+              ),
+            }))}
+          />
+        )}
+      </Card>
+
+      {/* 2. 随访计划卡 */}
+      <Card
+        title={<span><PhoneCall size={14} /> 随访计划</span>}
+        style={{ marginTop: 16, borderRadius: 12 }}
+        extra={<Button size="small" type="primary" ghost onClick={() => navigate(`/follow-up?patientId=${patient.id}`)}>前往随访管理</Button>}
+      >
+        {followUps.length === 0 ? (
+          <Empty image={<BellOff size={48} style={{ opacity: 0.4 }} />} description="该患者暂无随访计划" style={{ padding: 16 }} />
+        ) : (
+          <Table
+            dataSource={followUps}
+            rowKey="id"
+            size="small"
+            pagination={false}
+            scroll={{ x: 'max-content' }}
+            columns={[
+              {
+                title: '状态', dataIndex: 'status', key: 'status', width: 100,
+                render: (s: string) => {
+                  const map: Record<string, { label: string; color: string }> = {
+                    PENDING: { label: '待随访', color: '#d97706' },
+                    REMINDED: { label: '已提醒', color: '#2563eb' },
+                    IN_PROGRESS: { label: '进行中', color: '#7c3aed' },
+                    COMPLETED: { label: '已完成', color: '#16a34a' },
+                    MISSED: { label: '已失访', color: '#dc2626' },
+                    CANCELLED: { label: '已取消', color: '#94a3b8' },
+                    OVERDUE: { label: '逾期', color: '#dc2626' },
+                  }
+                  const cfg = map[s] || { label: s, color: '#64748b' }
+                  return <Tag color={cfg.color}>{cfg.label}</Tag>
+                },
+              },
+              { title: '计划日期', dataIndex: 'planDate', key: 'planDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+              { title: '下次日期', dataIndex: 'nextDate', key: 'nextDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+              { title: '间隔', dataIndex: 'intervalDays', key: 'intervalDays', width: 70, render: (v: number) => `${v ?? '-'} 天` },
+              { title: '备注', dataIndex: 'note', key: 'note', ellipsis: true },
+              {
+                title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', width: 130,
+                render: (v: string | null) => v ? String(v).slice(0, 10) : '—',
+              },
+            ]}
+          />
+        )}
+      </Card>
+
+      {/* 3. 病灶追踪摘要 */}
+      <Card
+        title={<span><Crosshair size={14} /> 病灶追踪摘要</span>}
+        style={{ marginTop: 16, borderRadius: 12 }}
+        extra={
+          lesionStats && (
+            <Tag color="purple">
+              共 {lesionStats.total} 个 · 新发 {lesionStats.new} · 增大 {lesionStats.progressed} · 稳定 {lesionStats.stable}
+            </Tag>
+          )
+        }
+      >
+        {lesions.length === 0 ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="该患者暂无登记病灶" style={{ padding: 16 }} />
+        ) : (
+          <Row gutter={[12, 12]}>
+            {lesions.slice(0, 4).map(l => {
+              const ms = [...(l.measurements ?? [])].sort((a, b) => String(a.date).localeCompare(String(b.date)))
+              const first = ms[0]
+              const last = ms[ms.length - 1]
+              const change = first && last && first.sizeMm ? Math.round(((last.sizeMm - first.sizeMm) / first.sizeMm) * 1000) / 10 : 0
+              const linked = followUps.find(f => f.id === l.followupId)
+              return (
+                <Col xs={24} md={12} key={l.id}>
+                  <div style={{
+                    padding: 14, borderRadius: 10, border: '1px solid var(--border-color)',
+                    background: 'var(--bg-card)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 14 }}>{l.name}</span>
+                      <Tag color={l.currentStatus === '增大' ? 'red' : l.currentStatus === '缩小' ? 'green' : l.currentStatus === '消失' ? 'green' : l.currentStatus === '新发' ? 'orange' : 'blue'}>
+                        {l.currentStatus}
+                      </Tag>
+                      <Tag>{l.type}</Tag>
+                      <Tag color="cyan">{l.site}</Tag>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
+                      {l.modality} · 登记于 {String(l.createdAt || '').slice(0, 10)}
+                    </div>
+                    {first && last && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: '#1e40af' }}>{last.sizeMm}mm</div>
+                          <div style={{ fontSize: 11, color: '#94a3b8' }}>最新 ({String(last.date).slice(0, 10)})</div>
+                        </div>
+                        <div style={{ fontSize: 12, color: '#94a3b8' }}>→</div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>{first.sizeMm}mm</div>
+                          <div style={{ fontSize: 11, color: '#94a3b8' }}>基线 ({String(first.date).slice(0, 10)})</div>
+                        </div>
+                        <span style={{
+                          marginLeft: 'auto', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 999,
+                          background: change > 0 ? 'var(--color-error-bg)' : change < 0 ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
+                          color: change > 0 ? '#b91c1c' : change < 0 ? '#065f46' : '#1e40af',
+                        }}>
+                          {change > 0 ? '+' : ''}{change}%
+                        </span>
+                      </div>
+                    )}
+                    {linked && (
+                      <div style={{
+                        marginTop: 10, padding: '8px 10px', borderRadius: 6, fontSize: 12,
+                        background: 'var(--color-info-bg)', color: '#1e40af',
+                        display: 'flex', alignItems: 'center', gap: 6,
+                      }}>
+                        <Stethoscope size={12} />
+                        关联随访: {String(linked.nextDate || '').slice(0, 10)} · {linked.status}
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              )
+            })}
+          </Row>
+        )}
+      </Card>
+
+      {/* 4. 费用汇总 */}
+      <Card title={<span><Wallet size={14} /> 费用汇总</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+        {financeSummary ? (
+          <>
+            <Row gutter={[12, 12]}>
+              <Col xs={12} md={6}>
+                <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-info-bg)', borderRadius: 10 }}>
+                  <Statistic title="总费用" value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 22 }} />
+                </div>
+              </Col>
+              <Col xs={12} md={6}>
+                <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-success-bg)', borderRadius: 10 }}>
+                  <Statistic title="已支付" value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 22 }} />
+                </div>
+              </Col>
+              <Col xs={12} md={6}>
+                <div style={{ textAlign: 'center', padding: 14, background: financeSummary.balance > 0 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', borderRadius: 10 }}>
+                  <Statistic title="待缴" value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 22 }} />
+                </div>
+              </Col>
+              <Col xs={12} md={6}>
+                <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>医保/自付</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#7c3aed' }}>¥{financeSummary.insuranceCovered} / ¥{financeSummary.selfPay}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>未结账单 {financeSummary.unpaid} 笔</div>
+                </div>
+              </Col>
+            </Row>
+            <Divider style={{ margin: '12px 0' }} />
+            <Table
+              dataSource={invoices}
+              rowKey="id"
+              size="small"
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              columns={[
+                { title: '检查项目', dataIndex: 'examItem', key: 'examItem' },
+                { title: '检查日期', dataIndex: 'examDate', key: 'examDate', width: 120, render: (v: string) => String(v || '').slice(0, 10) },
+                { title: '总金额', dataIndex: 'totalAmount', key: 'totalAmount', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
+                { title: '医保', dataIndex: 'insuranceCovered', key: 'insuranceCovered', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
+                { title: '余额', dataIndex: 'balance', key: 'balance', width: 100, render: (v: number) => (
+                    <span style={{ color: Number(v ?? 0) > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>¥{Number(v ?? 0).toFixed(2)}</span>
+                  ) },
+                { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={String(v).toLowerCase().includes('paid') ? 'green' : 'orange'}>{v}</Tag> },
+              ]}
+            />
+          </>
+        ) : (
+          <Empty image={<Wallet size={48} style={{ opacity: 0.4 }} />} description="暂无费用记录" style={{ padding: 16 }} />
+        )}
+      </Card>
+
+      {/* 5. 检查频次趋势 */}
+      <Card title={<span><LineChartIcon size={14} /> 检查频次趋势 (按月)</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+        {examFreqTrend.length === 0 ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无检查频次数据" style={{ padding: 16 }} />
+        ) : (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 140, padding: '0 8px' }}>
+              {examFreqTrend.map((m) => (
+                <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{m.count}</div>
+                  <div style={{
+                    width: '70%', height: `${m.percent * 0.9}px`, minHeight: 6, borderRadius: '3px 3px 0 0',
+                    background: m.count >= Math.max(...examFreqTrend.map(x => x.count)) ? 'linear-gradient(180deg, #1e40af, #3b82f6)' : 'linear-gradient(180deg, #93c5fd, #bfdbfe)',
+                    transition: 'height 0.3s',
+                  }} title={`${m.month}: ${m.count} 次`} />
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{m.month.slice(5)}月</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 10, fontSize: 12, color: '#64748b' }}>
+              近 {examFreqTrend.length} 个月共 <strong>{exams.length}</strong> 次检查 · 峰值 <strong>{Math.max(...examFreqTrend.map(x => x.count))}</strong> 次/月
+            </div>
+            <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Activity size={12} /> 首次检查: {stats?.firstExamDate || '—'}
+              </span>
+              <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Clock size={12} /> 最近一次: {exams.map(e => e.examDate).filter(Boolean).sort().slice(-1)[0]?.slice(0, 10) || '—'}
+              </span>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* ============================================================
+          [v3.0.6.11-99 Wave10B] 深化 II: 报告要点/对比剂/就诊时段分布
+          ============================================================ */}
+      {/* 6. 报告结构化要点卡 */}
+      <Card title={<span><FileText size={14} /> 报告结构化要点</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+        {exams.length === 0 ? (
+          <Empty image={<Inbox size={48} style={{ opacity: 0.4 }} />} description="暂无报告要点" style={{ padding: 16 }} />
+        ) : (
+          <Row gutter={[12, 12]}>
+            {exams.filter(ex => ex.findings || ex.diagnosis).slice(0, 3).map(ex => (
+              <Col xs={24} md={12} xl={8} key={ex.id}>
+                <div style={{
+                  padding: 14, borderRadius: 10, border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)', height: '100%',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 13 }}>{ex.examItemName}</span>
+                    <Tag color="blue">{ex.modality}</Tag>
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>{String(ex.examDate || '').slice(0, 10)}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7, marginBottom: 8, maxHeight: 84, overflow: 'hidden' }}>
+                    <strong style={{ color: '#1e40af' }}>所见:</strong> {ex.findings || '未填写'}
+                  </div>
+                  <div style={{
+                    fontSize: 12, lineHeight: 1.7, padding: '8px 10px', borderRadius: 6,
+                    background: ex.criticalFinding ? 'var(--color-error-bg)' : 'var(--color-info-bg)',
+                    color: ex.criticalFinding ? '#991b1b' : '#1e40af',
+                  }}>
+                    <strong>诊断:</strong> {ex.diagnosis || '—'}
+                    {ex.criticalFinding && <Tag color="red" style={{ marginLeft: 8 }}>危急</Tag>}
+                  </div>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        )}
+      </Card>
+
+      {/* 7. 对比剂与就诊时段分布 */}
+      <Card title={<span><Activity size={14} /> 就诊画像</span>} style={{ marginTop: 16, borderRadius: 12 }}>
+        {(() => {
+          const contrastCount = exams.filter(e => String(e.findings || '').includes('对比剂') || String(e.deviceName || '').includes('增强') || String(e.examItemName).includes('增强')).length
+          const hourBuckets = { '上午 (8-12)': 0, '下午 (12-18)': 0, '晚间 (18-24)': 0, '凌晨 (0-8)': 0 }
+          exams.forEach(e => {
+            const t = String(e.examDate || '')
+            const h = Number(t.slice(11, 13) || 12)
+            if (h >= 8 && h < 12) hourBuckets['上午 (8-12)'] += 1
+            else if (h >= 12 && h < 18) hourBuckets['下午 (12-18)'] += 1
+            else if (h >= 18) hourBuckets['晚间 (18-24)'] += 1
+            else hourBuckets['凌晨 (0-8)'] += 1
+          })
+          const total = exams.length
+          const maxBucket = Math.max(1, ...Object.values(hourBuckets))
+          return (
+            <Row gutter={[12, 12]}>
+              <Col xs={24} md={12}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Activity size={13} /> 对比剂使用
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
+                  <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
+                    <svg viewBox="0 0 100 100" width={90} height={90}>
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" strokeWidth="16" />
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="#8b5cf6" strokeWidth="16"
+                        strokeDasharray={`${(contrastCount / Math.max(1, total)) * 264} 264`}
+                        transform="rotate(-90 50 50)" />
+                      <text x="50" y="48" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1e40af">
+                        {total > 0 ? Math.round((contrastCount / total) * 100) : 0}%
+                      </text>
+                      <text x="50" y="63" textAnchor="middle" fontSize="8" fill="#94a3b8">增强占比</text>
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+                      增强检查 <strong style={{ color: '#8b5cf6' }}>{contrastCount}</strong> 次 / 总检查 <strong>{total}</strong> 次
+                    </div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
+                      CT/MR 增强检查需提前评估肾功能与过敏史；对比剂相关随访已纳入随访计划管理。
+                    </div>
+                  </div>
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Clock size={13} /> 检查时段分布
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {Object.entries(hourBuckets).map(([label, count]) => (
+                    <div key={label}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                        <span style={{ color: '#64748b' }}>{label}</span>
+                        <span style={{ color: '#1e40af', fontWeight: 700 }}>{count} 次</span>
+                      </div>
+                      <div style={{ height: 7, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{
+                          width: `${(count / maxBucket) * 100}%`, height: '100%', borderRadius: 4,
+                          background: 'linear-gradient(90deg, #3b82f6, #1e40af)', transition: 'width 0.3s',
+                        }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+                  高峰时段: {Object.entries(hourBuckets).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'}
+                </div>
+              </Col>
+            </Row>
+          )
+        })()}
       </Card>
     </div>
   )

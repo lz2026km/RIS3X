@@ -116,6 +116,27 @@ export const TeleConsultPage: React.FC = () => {
     })();
   }, []);
 
+  // [G005 Wave10A] 远程会诊记录 (后端 /eye/tele/* 真实): 会话/意见/统计
+  const [teleSessions, setTeleSessions] = useState<any[]>([]);
+  const [teleConsults, setTeleConsults] = useState<any[]>([]);
+  const [teleStats, setTeleStats] = useState<any>(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const [sRes, cRes, stRes] = await Promise.all([
+          eyeApi.listTeleSessions(),
+          eyeApi.listTeleConsults(),
+          eyeApi.getTeleStats(),
+        ]);
+        if (sRes.success) setTeleSessions(sRes.data || []);
+        if (cRes.success) setTeleConsults(cRes.data || []);
+        if (stRes.success) setTeleStats(stRes.data);
+      } catch (e) {
+        console.warn("[F03] tele list Error:", (e as Error)?.message);
+      }
+    })();
+  }, []);
+
   // 创建会诊
   const handleCreateSession = async () => {
     try {
@@ -221,9 +242,11 @@ export const TeleConsultPage: React.FC = () => {
         <Tag color="purple">v3.0.6.8-41</Tag>
         <Tag color="blue">WebRTC + 5G 边缘</Tag>
         <Tag color="green">OK镜 / 角膜塑形</Tag>
-        {/* [v3.0.6.11-99 Wave1A 17] /eye/optometry/* 后端已实现 (验光/OK镜/视力档案); /eye/tele/* 仍 MSW 演示 */}
+        {/* [v3.0.6.11-99 Wave1A 17] /eye/optometry/* 后端已实现 (验光/OK镜/视力档案); [G005 Wave10A] /eye/tele/* 后端真实 (桥接 tele 模块) */}
         <Tag color="green">视光后端真实</Tag>
-        <Tag color="orange">远程会诊演示 (MSW)</Tag>
+        <Tag color="green">远程会诊后端真实 (Wave10A)</Tag>
+        {/* [G005 Wave10A] 失败时回退标注: 后端不可达时操作会以 message.error 提示并保留现场 */}
+        <Tag>失败回退: 本地标注</Tag>
       </Space>
 
       <Tabs
@@ -477,6 +500,76 @@ export const TeleConsultPage: React.FC = () => {
                       </div>
                     </Card>
                   )}
+
+                  {/* [G005 Wave10A] 远程会诊记录 (后端真实 /eye/tele/*) */}
+                  <Card
+                    title={
+                      <Space>
+                        <Activity size={16} color="#2563eb" />
+                        会诊记录
+                        {teleStats && (
+                          <Tag color="blue">
+                            会诊 {teleStats.totalSessions} | 意见{" "}
+                            {teleStats.totalConsults} | 平均答复{" "}
+                            {teleStats.avgResponseMinutes} 分钟
+                          </Tag>
+                        )}
+                      </Space>
+                    }
+                    size="small"
+                    style={{ marginTop: 16 }}
+                  >
+                    {teleSessions.length === 0 && teleConsults.length === 0 ? (
+                      <Empty
+                        image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                        description="暂无历史会诊 (后端不可达时回退本地)"
+                      />
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+                          历史会话
+                        </div>
+                        {teleSessions.slice(0, 5).map((s: any) => (
+                          <div
+                            key={s.sessionId}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              fontSize: 12,
+                              padding: "2px 0",
+                            }}
+                          >
+                            <span>
+                              {s.sessionId} · 患者 {s.patientId}
+                            </span>
+                            <span>
+                              {s.mode} · {s.status}
+                            </span>
+                          </div>
+                        ))}
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            margin: "8px 0 4px",
+                          }}
+                        >
+                          待答复意见
+                        </div>
+                        {teleConsults
+                          .filter((c: any) => c.status === "pending")
+                          .slice(0, 3)
+                          .map((c: any) => (
+                            <div key={c.consultId} style={{ fontSize: 12, padding: "2px 0" }}>
+                              <Tag color="orange" style={{ marginRight: 4 }}>
+                                {c.specialistName}
+                              </Tag>
+                              {c.question}
+                            </div>
+                          ))}
+                      </>
+                    )}
+                  </Card>
                 </Col>
               </Row>
             ),

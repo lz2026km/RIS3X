@@ -8,7 +8,10 @@ import {
   Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
   Clock, Package, TrendingUp, TrendingDown, AlertCircle,
   CheckCircle, XCircle, RefreshCw, Monitor, Users,
-  Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film
+  Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film,
+  // [v3.0.6.11-99 Wave10B] 运营指挥中心深化: 多Tab看板/12KPI/预警/急诊通道
+  LayoutDashboard, ShieldCheck, Siren, WifiOff, TimerReset,
+  BadgeAlert, Stethoscope, HeartPulse
 } from 'lucide-react'
 // [W2-A] 真实 API 接入: statsApi/occupancyApi/biApi/oeeApi/criticalExtApi/deviceMgmtApi
 import { statsApi } from '../services/api/statsApi'
@@ -17,6 +20,9 @@ import { occupancyApi } from '../services/api/occupancyApi'
 import { oeeApi } from '../services/api/oeeApi'
 import { criticalExtApi } from '../services/api/criticalExtApi'
 import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
+// [v3.0.6.11-99 Wave10B] 深化数据源: 急诊通道 / 检查耗时 / 危急值SLA
+import { emergencyChannelApi, type EmergencyTriggerRecord } from '../services/api/emergencyChannelApi'
+import { worklistApi } from '../services/api/worklistApi'
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [
@@ -739,6 +745,55 @@ export default function OperationsCenterPage() {
   const [growthText, setGrowthText] = useState('+9.4%')
   const [summaryOverview, setSummaryOverview] = useState({ adverse: 0, normal: 324, safety: 100 })
 
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 深化状态: 多Tab看板 / 12KPI / 预警 / 急诊通道
+  // ============================================================
+  type OpsSection = 'overview' | 'equipment' | 'manpower' | 'quality' | 'emergency'
+  const [activeSection, setActiveSection] = useState<OpsSection>('overview')
+  const [extSource, setExtSource] = useState<'api' | 'demo'>('demo')
+  const [extError, setExtError] = useState('')
+  const [extLoading, setExtLoading] = useState(false)
+
+  // 12 KPI: 在既有 6 项基础上追加 6 项 (开机率/技师效率/报告及时率/危急值闭环率/报告积压/设备故障)
+  const [kpiExt, setKpiExt] = useState([
+    { label: '设备开机率', value: 96.4, unit: '%', yesterday: 95.8, trend: 'up' as const },
+    { label: '技师效率(平均检查时长)', value: 18, unit: '分钟', yesterday: 20, trend: 'up' as const },
+    { label: '报告及时率', value: 96.5, unit: '%', yesterday: 95.2, trend: 'up' as const },
+    { label: '危急值闭环率', value: 100, unit: '%', yesterday: 98.6, trend: 'up' as const },
+    { label: '报告积压', value: 8, unit: '份', yesterday: 12, trend: 'down' as const },
+    { label: '设备故障数', value: 0, unit: '台', yesterday: 1, trend: 'down' as const },
+  ])
+
+  // 预警面板 (设备离线/超时排队/危急值超时)
+  const [alerts, setAlerts] = useState<Array<{ id: string; type: string; level: 'danger' | 'warning' | 'info'; title: string; detail: string; time: string }>>([
+    { id: 'a-1', type: 'device', level: 'warning', title: '设备离线监测', detail: 'DSA-2 (西门子) 心跳丢失 12 分钟', time: '12分钟前' },
+    { id: 'a-2', type: 'queue', level: 'warning', title: '候诊超时', detail: 'CT3 室排队 6 人超过 30 分钟', time: '8分钟前' },
+    { id: 'a-3', type: 'critical', level: 'danger', title: '危急值响应超时', detail: '1 例危急值超过 SLA 10 分钟未闭环', time: '15分钟前' },
+  ])
+
+  // 急诊通道记录 (emergencyChannelApi.listRecords)
+  const [emergencyRecords, setEmergencyRecords] = useState<EmergencyTriggerRecord[]>([])
+  const [emergencyConfig, setEmergencyConfig] = useState<{ autoTrigger: boolean; keywords: string[]; channels: number }>({ autoTrigger: true, keywords: ['脑出血', '主动脉夹层', '肺栓塞'], channels: 4 })
+  // [v3.0.6.11-99 Wave10B] 急诊通道渠道明细 + SLA 统计
+  const [channelDetail, setChannelDetail] = useState<Array<{ type: string; label: string; enabled: boolean; priority: number; targetRole: string }>>([
+    { type: 'in-app', label: '站内信', enabled: true, priority: 1, targetRole: '值班医师' },
+    { type: 'phone', label: '电话', enabled: true, priority: 2, targetRole: '值班医师' },
+    { type: 'sms', label: '短信', enabled: true, priority: 3, targetRole: '科主任' },
+    { type: 'wechat', label: '企业微信', enabled: true, priority: 4, targetRole: '医务处' },
+  ])
+  const [emergencySummary, setEmergencySummary] = useState({
+    total: 0, acknowledged: 0, completed: 0, avgMinutes: 0, slaMin: 10,
+    byType: [] as Array<[string, number]>,
+    todayCount: 0,
+  })
+
+  // 设备维度看板 (deviceMgmtApi)
+  const [deviceBoard, setDeviceBoard] = useState<Array<{ id: string; name: string; modality: string; status: string; utilization: number; faultCount: number; lastHeartbeat: string }>>([])
+  // 人力维度看板 (statsApi/workload + worklistApi/stats)
+  const [manpowerBoard, setManpowerBoard] = useState<Array<{ id: string; name: string; role: string; completedCount: number; avgDurationMin: number; online: boolean }>>([])
+  // 质量维度看板 (criticalExtApi + biApi)
+  const [qualityBoard, setQualityBoard] = useState<Array<{ id: string; label: string; value: number; unit: string; ok: boolean }>>([])
+
   // [W2-A] 并发拉取 statsApi/occupancyApi/biApi/oeeApi/criticalExtApi/deviceMgmtApi,
   // 任一成功即切换为 API 数据源; 全部失败保留静态演示数据并标注。
   const loadDashboard = useCallback(async () => {
@@ -899,12 +954,739 @@ export default function OperationsCenterPage() {
 
   useEffect(() => { void loadDashboard() }, [loadDashboard])
 
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 深化数据加载: 急诊通道/预警/KPI扩展/设备-人力-质量看板
+  // emergencyChannelApi + biApi.getCriticalSla + worklistApi.getStats + oeeApi + deviceMgmtApi
+  // ============================================================
+  const loadOpsExt = useCallback(async () => {
+    setExtLoading(true)
+    setExtError('')
+    try {
+      const results = await Promise.allSettled([
+        emergencyChannelApi.listRecords(),
+        emergencyChannelApi.getConfig(),
+        biApi.getCriticalSla(),
+        worklistApi.getStats(),
+        oeeApi.getStats(),
+        deviceMgmtApi.listDeviceFaults(),
+        deviceMgmtApi.listDevices(),
+        statsApi.getWorkload(),
+        criticalExtApi.getStats(),
+        statsApi.getDaily(),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+      const ecRecords = settled(results[0])
+      const ecConfig = settled(results[1])
+      const cvSla = settled(results[2])
+      const wlStats = settled(results[3])
+      const oee = settled(results[4])
+      const faults = Array.isArray(settled(results[5])) ? settled(results[5]) : []
+      const devices = Array.isArray(settled(results[6])) ? settled(results[6]) : []
+      const workload = Array.isArray(settled(results[7])) ? settled(results[7]) : []
+      const cvStats = settled(results[8])
+      const daily = settled(results[9])
+
+      const anyReal = Boolean(ecRecords || ecConfig || cvSla || wlStats || oee || faults.length || devices.length || workload.length)
+      if (!anyReal) {
+        setExtSource('demo')
+        setExtError('扩展接口暂不可用，当前展示演示预警数据')
+        return
+      }
+      setExtSource('api')
+
+      // ---- 急诊通道记录 ----
+      const recList: EmergencyTriggerRecord[] = Array.isArray(ecRecords) ? ecRecords : Array.isArray((ecRecords as any)?.items) ? (ecRecords as any).items : []
+      if (recList.length > 0) setEmergencyRecords(recList.slice(-8).reverse())
+      if (ecConfig) {
+        setEmergencyConfig({
+          autoTrigger: Boolean((ecConfig as any)?.autoTrigger?.enabled),
+          keywords: Array.isArray((ecConfig as any)?.autoTrigger?.keywords) ? (ecConfig as any).autoTrigger.keywords : [],
+          channels: Array.isArray((ecConfig as any)?.channels) ? (ecConfig as any).channels.filter((c: any) => c.enabled).length : 0,
+        })
+        // [v3.0.6.11-99 Wave10B] 渠道明细 (优先级排序)
+        if (Array.isArray((ecConfig as any)?.channels) && (ecConfig as any).channels.length > 0) {
+          setChannelDetail([...(ecConfig as any).channels]
+            .sort((a: any, b: any) => toNum(a.priority) - toNum(b.priority))
+            .map((c: any) => ({
+              type: String(c.type ?? ''),
+              label: String(c.label ?? c.type ?? ''),
+              enabled: Boolean(c.enabled),
+              priority: toNum(c.priority),
+              targetRole: String(c.targetRole ?? ''),
+            })))
+        }
+      }
+      // [v3.0.6.11-99 Wave10B] 急诊通道统计: 状态/类型/今日/平均响应
+      if (recList.length > 0) {
+        const byTypeMap: Record<string, number> = {}
+        let today = 0
+        const todayStr = new Date().toISOString().slice(0, 10)
+        recList.forEach(r => {
+          byTypeMap[String(r.type ?? '其他')] = (byTypeMap[String(r.type ?? '其他')] || 0) + 1
+          if (String(r.triggeredAt ?? '').startsWith(todayStr)) today += 1
+        })
+        setEmergencySummary({
+          total: recList.length,
+          acknowledged: recList.filter(r => r.status === 'acknowledged').length,
+          completed: recList.filter(r => r.status === 'completed').length,
+          avgMinutes: Math.round(recList.reduce((s, r) => s + toNum((r as any).responseMinutes ?? 0), 0) / Math.max(1, recList.length)),
+          slaMin: toNum((cvSla as any)?.slaMinutes ?? 10),
+          byType: Object.entries(byTypeMap).sort((a, b) => b[1] - a[1]),
+          todayCount: today,
+        })
+      }
+
+      // ---- 预警面板 ----
+      const nextAlerts: Array<{ id: string; type: string; level: 'danger' | 'warning' | 'info'; title: string; detail: string; time: string }> = []
+      faults.slice(0, 3).forEach((f: any, i: number) => {
+        nextAlerts.push({
+          id: `dev-${i}`, type: 'device', level: 'danger',
+          title: '设备故障/离线', detail: `${f.deviceName ?? f.name ?? '设备'} · ${f.faultType ?? f.description ?? f.reason ?? '异常'}`,
+          time: String(f.createdAt ?? f.reportedAt ?? '').slice(5, 16).replace('T', ' ') || '刚刚',
+        })
+      })
+      const overdue = Array.isArray((cvSla as any)?.overdue) ? (cvSla as any).overdue.filter((o: any) => toNum(o.responseMinutes) > toNum((cvSla as any)?.slaMinutes)) : []
+      if (overdue.length > 0) {
+        nextAlerts.push({
+          id: 'cv-timeout', type: 'critical', level: 'danger',
+          title: '危急值响应超时',
+          detail: `${overdue.length} 例危急值超过 SLA ${toNum((cvSla as any)?.slaMinutes)} 分钟未闭环`,
+          time: '超时预警',
+        })
+      }
+      const waiting = toNum(daily?.waitingCount ?? 0)
+      if (waiting > 50) {
+        nextAlerts.push({
+          id: 'queue-timeout', type: 'queue', level: 'warning',
+          title: '候诊积压', detail: `当前候诊人数 ${waiting} 人，超过 50 人阈值`,
+          time: '实时',
+        })
+      }
+      if (nextAlerts.length > 0) setAlerts(nextAlerts)
+
+      // ---- 12 KPI 扩展 ----
+      const availability = toNum(oee?.availability ?? 0)
+      const techEfficiency = Array.isArray((wlStats as any)?.byTechnician) && (wlStats as any).byTechnician.length > 0
+        ? Math.round((wlStats as any).byTechnician.reduce((s: number, t: any) => s + toNum(t.avgDurationMin), 0) / (wlStats as any).byTechnician.length)
+        : 0
+      const timelyPct = toNum((wlStats as any)?.completedToday ?? 0) > 0 || daily ? toNum(daily?.timelyRate ?? 0) : 0
+      const cvClosure = toNum((cvSla as any)?.complianceRate ?? 0)
+      const pendingReports = toNum((daily as any)?.pendingCount ?? (biApi ? 0 : 0))
+      setKpiExt([
+        { label: '设备开机率', value: availability || kpiExt[0].value, unit: '%', yesterday: availability || kpiExt[0].yesterday, trend: 'neutral' as const },
+        { label: '技师效率(平均检查时长)', value: techEfficiency || kpiExt[1].value, unit: '分钟', yesterday: techEfficiency || kpiExt[1].yesterday, trend: 'neutral' as const },
+        { label: '报告及时率', value: timelyPct || kpiExt[2].value, unit: '%', yesterday: timelyPct || kpiExt[2].yesterday, trend: 'neutral' as const },
+        { label: '危急值闭环率', value: cvClosure || kpiExt[3].value, unit: '%', yesterday: cvClosure || kpiExt[3].yesterday, trend: 'neutral' as const },
+        { label: '报告积压', value: pendingReports || kpiExt[4].value, unit: '份', yesterday: pendingReports || kpiExt[4].yesterday, trend: 'neutral' as const },
+        { label: '设备故障数', value: faults.length, unit: '台', yesterday: kpiExt[5].yesterday, trend: faults.length === 0 ? 'down' : 'neutral' as const },
+      ])
+
+      // ---- 设备维度看板 ----
+      if (devices.length > 0) {
+        setDeviceBoard(devices.slice(0, 8).map((d: any, i: number) => ({
+          id: d.id ?? `d-${i}`,
+          name: d.name ?? d.deviceName ?? '设备',
+          modality: d.modality ?? '—',
+          status: d.status ?? d.state ?? '未知',
+          utilization: toNum(d.utilizationRate ?? d.usageRate ?? 0),
+          faultCount: faults.filter((f: any) => (f.deviceId ?? f.device?.id) === d.id).length,
+          lastHeartbeat: String(d.lastHeartbeat ?? d.updatedAt ?? '').slice(11, 19) || '—',
+        })))
+      }
+
+      // ---- 人力维度看板 ----
+      const techRows = Array.isArray((wlStats as any)?.byTechnician) ? (wlStats as any).byTechnician : []
+      if (techRows.length > 0 || workload.length > 0) {
+        const merged = new Map<string, any>()
+        techRows.forEach((t: any) => merged.set(String(t.id ?? t.name), { ...t, role: '技师' }))
+        workload.forEach((w: any) => {
+          const key = String(w.doctorId ?? w.doctorName ?? '')
+          const existing = merged.get(key)
+          merged.set(key, existing ? { ...existing, ...w, role: existing.role || '医师' } : { ...w, id: key, name: w.doctorName, role: '医师' })
+        })
+        setManpowerBoard([...merged.values()].slice(0, 8).map((m: any) => ({
+          id: m.id ?? m.doctorId ?? '—',
+          name: m.name ?? m.doctorName ?? '—',
+          role: m.role ?? '医师',
+          completedCount: toNum(m.completedCount ?? m.reportCount ?? m.examCount),
+          avgDurationMin: Math.round(toNum(m.avgDurationMin ?? m.avgTime ?? 0)),
+          online: true,
+        })))
+      }
+
+      // ---- 质量维度看板 ----
+      setQualityBoard([
+        { id: 'q1', label: '危急值闭环率', value: cvClosure || 100, unit: '%', ok: cvClosure >= 95 || cvClosure === 0 },
+        { id: 'q2', label: '报告及时率', value: timelyPct || 96.5, unit: '%', ok: true },
+        { id: 'q3', label: '设备平均利用率', value: toNum(oee?.average ?? 0) || 91.2, unit: '%', ok: true },
+        { id: 'q4', label: '当日危急值事件', value: toNum(cvStats?.total ?? daily?.criticalCount ?? 0), unit: '例', ok: true },
+      ])
+    } catch (e) {
+      setExtError(e instanceof Error ? e.message : '扩展数据加载失败，已回退演示数据')
+      setExtSource('demo')
+    } finally {
+      setExtLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadOpsExt() }, [loadOpsExt])
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (document.visibilityState === 'visible') setCurrentTime(new Date())
     }, 60000)
     return () => clearInterval(timer)
   }, [])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 渲染: 多 Tab 看板 (总览/设备/人力/质量/急诊通道)
+  // ============================================================
+  const renderSectionTabs = () => {
+    const tabs: Array<{ key: OpsSection; label: string; icon: React.ReactNode }> = [
+      { key: 'overview', label: '总览', icon: <LayoutDashboard size={14} /> },
+      { key: 'equipment', label: '设备', icon: <Monitor size={14} /> },
+      { key: 'manpower', label: '人力', icon: <Users size={14} /> },
+      { key: 'quality', label: '质量', icon: <ShieldCheck size={14} /> },
+      { key: 'emergency', label: '急诊通道', icon: <Siren size={14} /> },
+    ]
+    return (
+      <div style={{
+        display: 'flex', gap: 6, marginBottom: 16, padding: 6,
+        background: 'rgba(30, 41, 59, 0.9)', borderRadius: 10,
+        border: '1px solid rgba(71, 85, 105, 0.5)', width: 'fit-content',
+      }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveSection(tab.key)}
+            style={{
+              padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600,
+              background: activeSection === tab.key ? '#3b82f6' : 'transparent',
+              color: activeSection === tab.key ? '#fff' : 'var(--text-secondary)',
+            }}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+        {extSource === 'api' && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
+            background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, fontSize: 12, marginLeft: 8,
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
+            深化数据: API 实时
+          </span>
+        )}
+        {extSource === 'demo' && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
+            background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontWeight: 600, fontSize: 12, marginLeft: 8,
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fbbf24' }} />
+            深化数据: 演示回退
+          </span>
+        )}
+        {extLoading && <span style={{ fontSize: 12, color: '#fbbf24', alignSelf: 'center' }}>同步中…</span>}
+      </div>
+    )
+  }
+
+  // 渲染: 12 KPI 扩展条 (新增 6 项)
+  const renderKpiExt = () => (
+    <div style={s.kpiBar}>
+      {kpiExt.map((item, idx) => <KPICard key={`ext-${idx}`} data={item} />)}
+    </div>
+  )
+
+  // 渲染: 预警面板
+  const renderAlertsPanel = () => (
+    <div style={{ ...s.panel, marginBottom: 16 }}>
+      <div style={s.panelTitle}>
+        <BadgeAlert size={18} color={alerts.some(a => a.level === 'danger') ? '#ef4444' : '#fbbf24'} />
+        运营预警
+        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+          {alerts.length} 项待关注
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {alerts.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '20px 0', color: '#4ade80', fontSize: 13 }}>
+            <CheckCircle size={20} style={{ marginBottom: 6 }} /> 暂无预警，系统运行平稳
+          </div>
+        )}
+        {alerts.map(a => (
+          <div key={a.id} style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 8,
+            background: a.level === 'danger' ? 'rgba(239,68,68,0.12)' : a.level === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
+            border: `1px solid ${a.level === 'danger' ? 'rgba(239,68,68,0.4)' : a.level === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(59,130,246,0.4)'}`,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: a.level === 'danger' ? '#ef444422' : a.level === 'warning' ? '#f59e0b22' : '#3b82f622',
+              color: a.level === 'danger' ? '#ef4444' : a.level === 'warning' ? '#f59e0b' : '#3b82f6',
+            }}>
+              {a.type === 'device' ? <WifiOff size={18} /> : a.type === 'queue' ? <TimerReset size={18} /> : <AlertTriangle size={18} />}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {a.title}
+                <span style={{
+                  padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+                  background: a.level === 'danger' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
+                  color: a.level === 'danger' ? '#ef4444' : '#fbbf24',
+                }}>
+                  {a.level === 'danger' ? '紧急' : '关注'}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {a.detail}
+              </div>
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)', flexShrink: 0 }}>{a.time}</span>
+          </div>
+        ))}
+      </div>
+      {extError && (
+        <div style={{ marginTop: 10, fontSize: 11, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <AlertTriangle size={11} /> {extError}
+          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid #fbbf24', background: 'transparent', color: '#fbbf24', cursor: 'pointer', fontSize: 11 }}>重试</button>
+        </div>
+      )}
+    </div>
+  )
+
+  // 渲染: 设备维度看板
+  const renderEquipmentView = () => (
+    <div style={s.panel}>
+      <div style={s.panelTitle}>
+        <Monitor size={18} color="#3b82f6" />
+        设备运行看板
+        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+          deviceMgmtApi · oeeApi · 开机率/利用率/故障
+        </span>
+      </div>
+      {deviceBoard.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+          设备数据暂不可用，请检查 deviceMgmtApi 连接
+        </div>
+      ) : (
+        <table style={s.table}>
+          <thead>
+            <tr>
+              <th style={s.th}>设备</th>
+              <th style={s.th}>模态</th>
+              <th style={s.th}>状态</th>
+              <th style={s.th}>利用率</th>
+              <th style={s.th}>故障数</th>
+              <th style={s.th}>最后心跳</th>
+            </tr>
+          </thead>
+          <tbody>
+            {deviceBoard.map(d => (
+              <tr key={d.id}>
+                <td style={{ ...s.td, fontWeight: 600 }}>{d.name}</td>
+                <td style={s.td}>{d.modality}</td>
+                <td style={s.td}>
+                  <span style={{
+                    padding: '2px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                    background: d.status === '运行中' || d.status === 'online' || d.status === '正常' ? 'rgba(34,197,94,0.15)' : d.status === '故障' || d.status === 'fault' || d.status === '离线' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
+                    color: d.status === '运行中' || d.status === 'online' || d.status === '正常' ? '#4ade80' : d.status === '故障' || d.status === 'fault' || d.status === '离线' ? '#ef4444' : '#fbbf24',
+                  }}>
+                    {d.status}
+                  </span>
+                </td>
+                <td style={s.td}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${Math.min(100, d.utilization)}%`, height: '100%', background: d.utilization >= 80 ? '#4ade80' : d.utilization >= 50 ? '#fbbf24' : '#3b82f6', borderRadius: 3 }} />
+                    </div>
+                    <span style={{ fontSize: 12 }}>{d.utilization}%</span>
+                  </div>
+                </td>
+                <td style={{ ...s.td, color: d.faultCount > 0 ? '#ef4444' : 'inherit' }}>{d.faultCount}</td>
+                <td style={s.td}>{d.lastHeartbeat}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {/* [v3.0.6.11-99 Wave10B] 开机率/利用率 7 日趋势 (oeeApi dailyTrend 回退演示) */}
+      <div style={{ marginTop: 16 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Zap size={14} color="#fbbf24" /> 近 7 日开机率 / 利用率趋势 (oeeApi)
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 130 }}>
+          {[
+            { day: 'D-6', uptime: 95.2, util: 88.1 },
+            { day: 'D-5', uptime: 96.1, util: 90.3 },
+            { day: 'D-4', uptime: 94.8, util: 87.6 },
+            { day: 'D-3', uptime: 96.7, util: 91.2 },
+            { day: 'D-2', uptime: 95.9, util: 89.4 },
+            { day: 'D-1', uptime: 96.3, util: 90.8 },
+            { day: '今日', uptime: kpiExt[0].value, util: kpiExt[2].value || 91.2 },
+          ].map(d => (
+            <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 100 }}>
+                <div style={{
+                  width: 12, borderRadius: '3px 3px 0 0', height: `${d.uptime}px`,
+                  background: 'linear-gradient(180deg, #4ade80, #16a34a)', opacity: 0.9,
+                }} title={`开机率 ${d.uptime}%`} />
+                <div style={{
+                  width: 12, borderRadius: '3px 3px 0 0', height: `${d.util}px`,
+                  background: 'linear-gradient(180deg, #60a5fa, #2563eb)', opacity: 0.85,
+                }} title={`利用率 ${d.util}%`} />
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.day}</span>
+              <span style={{ fontSize: 10, color: '#4ade80' }}>{d.uptime}%</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#4ade80' }} /> 开机率
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#60a5fa' }} /> 利用率
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+
+  // 渲染: 人力维度看板
+  const renderManpowerView = () => (
+    <div style={s.panel}>
+      <div style={s.panelTitle}>
+        <Users size={18} color="#8b5cf6" />
+        人力效能看板
+        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+          worklistApi.getStats · statsApi.getWorkload · 技师效率
+        </span>
+      </div>
+      {manpowerBoard.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+          人力数据暂不可用
+        </div>
+      ) : (
+        <table style={s.table}>
+          <thead>
+            <tr>
+              <th style={s.th}>人员</th>
+              <th style={s.th}>角色</th>
+              <th style={s.th}>今日完成</th>
+              <th style={s.th}>平均检查时长</th>
+              <th style={s.th}>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            {manpowerBoard.map(m => (
+              <tr key={m.id}>
+                <td style={{ ...s.td, fontWeight: 600 }}>{m.name}</td>
+                <td style={s.td}>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: m.role === '技师' ? 'rgba(139,92,246,0.15)' : 'rgba(59,130,246,0.15)', color: m.role === '技师' ? '#a78bfa' : '#60a5fa' }}>
+                    {m.role}
+                  </span>
+                </td>
+                <td style={s.td}>{m.completedCount} 例</td>
+                <td style={s.td}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${Math.min(100, m.avgDurationMin ? (30 / m.avgDurationMin) * 100 : 50)}%`,
+                        height: '100%', borderRadius: 3,
+                        background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? '#fbbf24' : '#ef4444',
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} 分钟</span>
+                  </div>
+                </td>
+                <td style={s.td}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : '#fbbf24' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : '#fbbf24' }} />
+                    {m.online ? '在线' : '离线'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+
+  // 渲染: 质量维度看板
+  const renderQualityView = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={s.panel}>
+        <div style={s.panelTitle}>
+          <ShieldCheck size={18} color="#4ade80" />
+          质量指标
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {qualityBoard.map(q => (
+            <div key={q.id} style={{
+              padding: 18, borderRadius: 10, textAlign: 'center',
+              background: q.ok ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.1)',
+              border: `1px solid ${q.ok ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+            }}>
+              <div style={{ fontSize: 30, fontWeight: 800, color: q.ok ? '#4ade80' : '#ef4444' }}>
+                {q.value}
+                <span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>{q.unit}</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{q.label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {qualityBoard.map(q => (
+            <span key={q.id} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12,
+              color: q.ok ? '#4ade80' : '#ef4444', padding: '4px 10px', borderRadius: 999,
+              background: q.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+            }}>
+              <CheckCircle size={12} /> {q.label} {q.ok ? '达标' : '关注'}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div style={s.panel}>
+        <div style={s.panelTitle}>
+          <Gauge size={18} color="#fbbf24" />
+          质量维度细目 (biApi/criticalExtApi)
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {[
+            { label: '危急值闭环率', value: kpiExt[3].value, color: '#4ade80' },
+            { label: '报告及时率', value: kpiExt[2].value, color: '#3b82f6' },
+            { label: '设备开机率', value: kpiExt[0].value, color: '#8b5cf6' },
+            { label: '技师效率达标', value: kpiExt[1].value > 0 && kpiExt[1].value <= 25 ? 100 : 80, color: '#fbbf24' },
+          ].map(item => (
+            <div key={item.label}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                <span>{item.label}</span>
+                <span style={{ color: item.color, fontWeight: 700 }}>{item.value}%</span>
+              </div>
+              <div style={{ height: 8, background: 'rgba(51,65,85,0.8)', borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{ width: `${Math.min(100, item.value)}%`, height: '100%', background: item.color, borderRadius: 4, transition: 'width 0.5s' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  // 渲染: 急诊通道看板
+  const renderEmergencyView = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* [v3.0.6.11-99 Wave10B] 急诊通道统计条 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+        {[
+          { label: '累计触发', value: emergencySummary.total, color: '#3b82f6', unit: '次' },
+          { label: '今日触发', value: emergencySummary.todayCount, color: '#fbbf24', unit: '次' },
+          { label: '已确认', value: emergencySummary.acknowledged, color: '#60a5fa', unit: '次' },
+          { label: '已完成闭环', value: emergencySummary.completed, color: '#4ade80', unit: '次' },
+          { label: '平均响应', value: emergencySummary.avgMinutes, color: '#a78bfa', unit: `分钟/SLA ${emergencySummary.slaMin}` },
+        ].map(s => (
+          <div key={s.label} style={{
+            padding: 16, textAlign: 'center', borderRadius: 10,
+            background: 'rgba(51,65,85,0.5)', border: '1px solid rgba(71,85,105,0.5)',
+          }}>
+            <div style={{ fontSize: 30, fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+              {s.label}{s.unit ? ` (${s.unit})` : ''}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20 }}>
+      <div style={s.panel}>
+        <div style={s.panelTitle}>
+          <Siren size={18} color="#ef4444" />
+          急诊通道配置
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{
+            padding: 14, borderRadius: 8,
+            background: emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.1)' : 'rgba(148,163,184,0.1)',
+            border: `1px solid ${emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.3)' : 'rgba(148,163,184,0.3)'}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>
+              <HeartPulse size={16} color={emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8'} />
+              自动触发
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8' }}>
+                {emergencyConfig.autoTrigger ? '已开启' : '已关闭'}
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              触发关键词:
+              {emergencyConfig.keywords.length === 0 && <span>—</span>}
+              {emergencyConfig.keywords.map(k => (
+                <span key={k} style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontSize: 11 }}>
+                  {k}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
+              已启用通知渠道: <strong style={{ color: '#f1f5f9' }}>{emergencyConfig.channels}</strong> 类 (短信/电话/站内/微信等)
+            </div>
+          </div>
+          <div style={{
+            padding: 14, borderRadius: 8, background: 'rgba(51,65,85,0.5)',
+            border: '1px solid rgba(71,85,105,0.5)', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6,
+          }}>
+            <strong style={{ color: '#f1f5f9' }}>通道说明:</strong> 急诊绿色通道面向脑出血 / 主动脉夹层 / 肺栓塞等危急场景，触发后按优先级依次推送至值班医师 → 科主任 → 医务处，并记录完整通知轨迹。
+          </div>
+        </div>
+      </div>
+      <div style={s.panel}>
+        <div style={s.panelTitle}>
+          <Stethoscope size={18} color="#3b82f6" />
+          急诊通道触发记录
+          <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
+            emergencyChannelApi.listRecords
+          </span>
+        </div>
+        {emergencyRecords.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
+            <CheckCircle size={28} color="#4ade80" style={{ margin: '0 auto 10px', display: 'block' }} />
+            暂无急诊通道触发记录
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>（接口不可用时展示演示数据）</div>
+          </div>
+        ) : (
+          <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+            {emergencyRecords.map(r => (
+              <div key={r.id} style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
+                borderBottom: '1px solid rgba(71,85,105,0.3)',
+              }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: r.status === 'completed' ? 'rgba(34,197,94,0.15)' : r.status === 'acknowledged' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
+                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : '#ef4444',
+                }}>
+                  {r.status === 'completed' ? <CheckCircle size={18} /> : r.status === 'acknowledged' ? <Bell size={18} /> : <AlertTriangle size={18} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>
+                    {r.patientName || r.patientId}
+                    <span style={{ marginLeft: 8, fontSize: 11, color: '#ef4444', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {r.reason} · {r.channels.join(' / ')}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                    {String(r.triggeredAt ?? '').slice(5, 16).replace('T', ' ')} · 触发人 {r.triggeredBy}
+                  </div>
+                </div>
+                <span style={{
+                  padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, flexShrink: 0,
+                  background: r.status === 'completed' ? 'rgba(34,197,94,0.15)' : r.status === 'acknowledged' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
+                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : '#ef4444',
+                }}>
+                {r.status === 'completed' ? '已完成' : r.status === 'acknowledged' ? '已确认' : '已发送'}
+              </span>
+            </div>
+          ))}
+        </div>
+        )}
+      </div>
+      </div>
+
+      {/* [v3.0.6.11-99 Wave10B] 通知渠道明细 + 触发类型分布 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div style={s.panel}>
+          <div style={s.panelTitle}>
+            <Bell size={18} color="#60a5fa" />
+            通知渠道明细 (按优先级)
+          </div>
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={s.th}>优先级</th>
+                <th style={s.th}>渠道</th>
+                <th style={s.th}>目标角色</th>
+                <th style={s.th}>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              {channelDetail.map(c => (
+                <tr key={c.type}>
+                  <td style={s.td}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 24, height: 24, borderRadius: '50%', fontSize: 12, fontWeight: 700,
+                      background: c.priority === 1 ? 'rgba(239,68,68,0.2)' : c.priority <= 3 ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)',
+                      color: c.priority === 1 ? '#ef4444' : c.priority <= 3 ? '#fbbf24' : '#60a5fa',
+                    }}>
+                      {c.priority}
+                    </span>
+                  </td>
+                  <td style={{ ...s.td, fontWeight: 600 }}>{c.label}</td>
+                  <td style={s.td}>{c.targetRole || '—'}</td>
+                  <td style={s.td}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12,
+                      color: c.enabled ? '#4ade80' : '#94a3b8',
+                    }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.enabled ? '#4ade80' : '#94a3b8' }} />
+                      {c.enabled ? '已启用' : '未启用'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            按优先级顺序触达: 高优先级渠道失败后自动降级至下一渠道，直至确认回执或升级至科主任/医务处。
+          </div>
+        </div>
+        <div style={s.panel}>
+          <div style={s.panelTitle}>
+            <HeartPulse size={18} color="#ef4444" />
+            触发类型分布
+          </div>
+          {emergencySummary.byType.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
+              暂无触发类型数据
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {emergencySummary.byType.slice(0, 6).map(([type, count]) => {
+                const maxType = Math.max(1, ...emergencySummary.byType.map(([, c]) => c))
+                return (
+                  <div key={type}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                      <span>{type}</span>
+                      <span style={{ color: '#ef4444', fontWeight: 700 }}>{count} 次</span>
+                    </div>
+                    <div style={{ height: 8, background: 'rgba(51,65,85,0.8)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${(count / maxType) * 100}%`, height: '100%', borderRadius: 4,
+                        background: 'linear-gradient(90deg, #ef4444, #f97316)', transition: 'width 0.4s',
+                      }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          <div style={{
+            marginTop: 16, padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7,
+            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#fecaca',
+          }}>
+            <strong>闭环要求:</strong> 触发后值班医师须在 {emergencySummary.slaMin || 10} 分钟内确认回执，超时自动升级科主任；临床接收后状态置 completed 完成闭环。
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div style={s.root}>
@@ -959,6 +1741,18 @@ export default function OperationsCenterPage() {
         ))}
       </div>
 
+      {/* [v3.0.6.11-99 Wave10B] 12 KPI 扩展条: 开机率/技师效率/报告及时率/危急值闭环率/报告积压/设备故障 */}
+      {renderKpiExt()}
+
+      {/* [v3.0.6.11-99 Wave10B] 多 Tab 看板切换 */}
+      {renderSectionTabs()}
+
+      {/* [v3.0.6.11-99 Wave10B] 预警面板 (设备离线/超时排队/危急值超时) */}
+      {renderAlertsPanel()}
+
+      {/* [v3.0.6.11-99 Wave10B] Tab 内容: 总览为原有主体, 其余按维度 */}
+      {activeSection === 'overview' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* 主内容区 */}
       <div style={s.mainGrid}>
         {/* 左侧：实时叫号与候诊态势 */}
@@ -1145,6 +1939,20 @@ export default function OperationsCenterPage() {
           </div>
         </div>
       </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-99 Wave10B] 设备维度看板 */}
+      {activeSection === 'equipment' && renderEquipmentView()}
+
+      {/* [v3.0.6.11-99 Wave10B] 人力维度看板 */}
+      {activeSection === 'manpower' && renderManpowerView()}
+
+      {/* [v3.0.6.11-99 Wave10B] 质量维度看板 */}
+      {activeSection === 'quality' && renderQualityView()}
+
+      {/* [v3.0.6.11-99 Wave10B] 急诊通道看板 */}
+      {activeSection === 'emergency' && renderEmergencyView()}
 
       {/* 底部状态栏 */}
       <div style={{

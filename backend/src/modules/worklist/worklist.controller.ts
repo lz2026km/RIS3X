@@ -61,6 +61,12 @@ const BatchTransitionBodySchema = z.object({
   ids: z.array(z.string().max(64)).min(1).max(500),
 })
 
+// [v3.0.6.11-99 Wave 10D] 技师备注保存: note 必填; latest=true 覆盖式写入 (默认追加带时间戳)
+const NoteBodySchema = z.object({
+  note: z.string().min(1).max(2000),
+  latest: z.boolean().optional(),
+})
+
 @ApiTags('worklist')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -77,6 +83,30 @@ export class WorklistController {
   @Get('stats')
   stats() {
     return this.service.getStats()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 今日总览 (按状态/模态/房间) — 静态子路由先于 :id 注册
+  @Get('overview')
+  overview() {
+    return this.service.getOverview()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 模态分组列表
+  @Get('by-modality')
+  byModality() {
+    return this.service.getByModality()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 技师维度明细 (完成数/平均时长/重拍数)
+  @Get('technician-stats')
+  technicianStats() {
+    return this.service.getTechnicianStats()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 检查时间线 (登记→签到→开始→暂停→完成→质控 事件流)
+  @Get('timeline/:id')
+  timeline(@Param('id') id: string) {
+    return this.service.getTimeline(id)
   }
 
   @Get(':id')
@@ -171,5 +201,11 @@ export class WorklistController {
   @Post(':id/cancel')
   cancel(@Param('id') id: string, @Body(new ZodValidationPipe(CancelBodySchema)) body: { reason?: string }) {
     return this.service.cancel(id, body.reason)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 技师备注保存 (techNote 落库, 新列未迁移时回退内存)
+  @Post(':id/notes')
+  notes(@Param('id') id: string, @Body(new ZodValidationPipe(NoteBodySchema)) body: { note: string; latest?: boolean }) {
+    return this.service.saveNotes(id, body.note, { latest: body.latest })
   }
 }

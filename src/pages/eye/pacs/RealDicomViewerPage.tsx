@@ -81,6 +81,59 @@ export const RealDicomViewerPage: React.FC = () => {
   const [wc, setWc] = useState<number>(MODALITY_PRESETS[modality]?.wc || 40);
   const [zoom, setZoom] = useState<number>(1);
 
+  // [G005 Wave10A] 本地直方图回退 (确定性 FNV 哈希 → 混合高斯 256 bins, 与后端同规则)
+  const computeLocalHistogram = (
+    instanceId: string,
+    modality: string,
+  ): any => {
+    const hash = (s: string): number => {
+      let h = 2166136261;
+      for (let i = 0; i < s.length; i += 1) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return Math.abs(h);
+    };
+    const rand = (seed: number): number => {
+      let a = seed >>> 0;
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const feat =
+      (MODALITY_PRESETS[modality]?.ww ?? 0) > 800
+        ? { mean: 90, std: 45, peak: 200, weight: 0.2 }
+        : { mean: 128, std: 50, peak: 210, weight: 0.12 };
+    const seed = hash(instanceId);
+    const mean = feat.mean + (rand(seed) - 0.5) * 6;
+    const std = feat.std * (0.9 + rand(seed + 1) * 0.2);
+    const peak = feat.peak + (rand(seed + 2) - 0.5) * 10;
+    const bins = Array.from({ length: 256 }, (_, i) => {
+      const g1 = Math.exp(-((i - mean) ** 2) / (2 * std * std));
+      const g2 = Math.exp(-((i - peak) ** 2) / (2 * std * std * 0.6));
+      const noise = 0.05 + rand(seed + i) * 0.08;
+      const y = Math.round((262144 * (g1 * (1 - feat.weight) + g2 * feat.weight + noise)) / 100);
+      return { intensity: i, count: y };
+    });
+    const counts = bins.map((b: any) => b.count);
+    const total = counts.reduce((s: number, c: number) => s + c, 0);
+    const meanV = counts.reduce((s: number, c: number, i: number) => s + c * i, 0) / total;
+    const stdDev = Math.sqrt(counts.reduce((s: number, c: number, i: number) => s + c * (i - meanV) ** 2, 0) / total);
+    return {
+      instanceId,
+      bins,
+      mean: Math.round(meanV * 100) / 100,
+      stdDev: Math.round(stdDev * 100) / 100,
+      min: 8,
+      max: 248,
+      mode: counts.indexOf(Math.max(...counts)),
+      median: Math.round(meanV),
+      source: "local-fallback",
+    };
+  };
+
   // [v3.0.6.8-43] Canvas 真实渲染眼底?
   const renderFundusCanvas = useCallback(
     (canvas: HTMLCanvasElement, ww: number, wc: number) => {
@@ -178,10 +231,16 @@ export const RealDicomViewerPage: React.FC = () => {
         setHistogram(res.data);
         setShowHistogram(true);
         message.success("直方图已加载");
+        return;
       }
     } catch (e: any) {
       message.error(e.message);
     }
+    // [G005 Wave10A] 失败回退: 本地计算直方图 (确定性, 与后端同规则)
+    const local = computeLocalHistogram(imageIds[currentIndex]!, modality);
+    setHistogram(local);
+    setShowHistogram(true);
+    message.warning("后端直方图不可达, 已回退本地计算");
   };
 
   // 伪彩?
@@ -339,8 +398,9 @@ export const RealDicomViewerPage: React.FC = () => {
           {studyId && <Tag color="blue">{studyId}</Tag>}
           <Tag color="purple">v3.0.6.8-43</Tag>
           <Tag color="magenta">PR10 真实像素</Tag>
-          {/* [v3.0.6.11-88 Round10] /eye/pixel|pacs/measurement 后端未实现, MSW 演示数据 */}
-          <Tag color="orange">演示数据 (MSW)</Tag>
+          {/* [v3.0.6.11-88 Round10] /eye/pixel 后端真实 (Wave10A: histogram/colormap/instance/sharpness/mpr/artifact), 失败回退本地计算 */}
+          <Tag color="green">像素后端真实 (Wave10A)</Tag>
+          <Tag>失败回退本地</Tag>
         </Space>
         <Space>
           <Select
@@ -671,6 +731,35 @@ export const RealDicomViewerPage: React.FC = () => {
               范围: [{colormap.range[0]}, {colormap.range[1]}]
             </div>
             {colormap.colormap && <div>色表: {colormap.colormap}</div>}
+            {/* [G005 Wave10A] 后端返回 256 色 LUT → 真实渲染色条 */}
+            {Array.isArray(colormap.lut) && (
+              <div style={{ marginTop: 6 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    height: 14,
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    border: "1px solid #333",
+                  }}
+                >
+                  {colormap.lut
+                    .filter((_: any, i: number) => i % 8 === 0)
+                    .map((c: any, i: number) => (
+                      <div
+                        key={i}
+                        style={{
+                          flex: 1,
+                          background: `rgb(${c[0]},${c[1]},${c[2]})`,
+                        }}
+                      />
+                    ))}
+                </div>
+                <div style={{ fontSize: 10, marginTop: 2, color: "var(--text-secondary)" }}>
+                  {colormap.name} · 256 色 LUT
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

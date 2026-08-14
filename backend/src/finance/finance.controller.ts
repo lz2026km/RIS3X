@@ -12,6 +12,22 @@ import { CreateChargeItemSchema, CreateInvoiceSchema, PayInvoiceSchema, UpdateCh
 export class FinanceController {
   constructor(private readonly svc: FinanceService) {}
 
+  // [v3.0.6.11-99 Wave 10D] 财务总览 (本月收入/成本/利润)
+  @Get('overview')
+  getOverview() { return this.svc.getOverview() }
+
+  // [v3.0.6.11-99 Wave 10D] 近 30 日收入趋势
+  @Get('daily-trend')
+  getDailyTrend(@Query('days') days?: string) { return this.svc.getDailyTrend(Number(days ?? 30)) }
+
+  // [v3.0.6.11-99 Wave 10D] 模态收入构成
+  @Get('by-modality')
+  getByModality() { return this.svc.getByModality() }
+
+  // [v3.0.6.11-99 Wave 10D] 应收分析 (账龄分布)
+  @Get('accounts-receivable')
+  getAccountsReceivable() { return this.svc.getAccountsReceivable() }
+
   @Get('charge-items')
   listChargeItems() { return this.svc.listChargeItems() }
 

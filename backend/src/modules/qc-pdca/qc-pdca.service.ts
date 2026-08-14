@@ -61,6 +61,12 @@ export const SEED_DEFECTS: PdcaDefectRef[] = [
   { id: 'df-005', defectType: '流程缺陷', description: '危急值报告口头通知后 30 分钟内未电话复核', severity: 'high', status: 'open', reportedBy: '护士站', reportedAt: '2026-07-12' },
   { id: 'df-006', defectType: '图像缺陷', description: 'DR 胸片曝光不足, 心影后方结构无法评估', severity: 'medium', status: 'resolved', reportedBy: '王技师', reportedAt: '2026-07-15' },
   { id: 'df-007', defectType: '服务缺陷', description: '患者取报告等待时长超过 60 分钟投诉', severity: 'low', status: 'in_progress', reportedBy: '服务中心', reportedAt: '2026-07-18' },
+  // [G005 Wave 10A] 完整周期关联缺陷 (pdca-101..105)
+  { id: 'df-101', defectType: '安全事件', description: '增强扫描对比剂外渗事件月发生率 0.9% 超标', severity: 'high', status: 'resolved', reportedBy: '质控组', reportedAt: '2026-04-03' },
+  { id: 'df-102', defectType: '服务缺陷', description: 'MRI 检查预约平均等待 6.5 天, 患者投诉增多', severity: 'medium', status: 'in_progress', reportedBy: '服务中心', reportedAt: '2026-05-12' },
+  { id: 'df-103', defectType: '流程缺陷', description: 'CT 增强知情同意书签署完整率仅 91%', severity: 'medium', status: 'open', reportedBy: '质控组', reportedAt: '2026-06-05' },
+  { id: 'df-104', defectType: '设备缺陷', description: '移动 DR 图像上传 PACS 平均延迟 95 秒', severity: 'medium', status: 'in_progress', reportedBy: '王技师', reportedAt: '2026-06-18' },
+  { id: 'df-105', defectType: '流程缺陷', description: '疑难报告双签名平均流转 3.5 小时超时', severity: 'medium', status: 'open', reportedBy: '张主任', reportedAt: '2026-07-12' },
 ]
 
 function iso(day: string): string {
@@ -78,7 +84,8 @@ export class QcPdcaService {
   private readonly logger = new Logger(QcPdcaService.name)
   private cycles: PdcaCycle[] = []
   private phaseEntries = new Map<string, PdcaPhaseEntry[]>()
-  private idCounter = 100
+  // [G005 Wave 10A] 起始计数 1000, 避免与 seed 周期 id (pdca-10x) 冲突
+  private idCounter = 1000
 
   constructor(private readonly prisma: PrismaService) {
     this.seed()
@@ -129,6 +136,12 @@ export class QcPdcaService {
       mkCycle('pdca-004', 'DR 胸片曝光参数校准', '图像质控', '胸片曝光不足问题整改与技师培训', '曝光合格率 ≥ 95%', OWNERS[2]!, 'do', '2026-07-01', '2026-09-10', ['df-006'], undefined, undefined),
       mkCycle('pdca-005', '报告排版模板统一', '报告质控', '全科报告模板排版字段统一', '模板统一率 100%', OWNERS[2]!, 'plan', '2026-07-15', '2026-09-30', ['df-004'], undefined, undefined),
       mkCycle('pdca-006', '患者取报告时长优化', '服务质控', '缩短患者取报告等待时长', '平均等待 ≤ 40 分钟', OWNERS[1]!, 'plan', '2026-08-01', '2026-10-15', ['df-007'], undefined, undefined),
+      // [G005 Wave 10A] 5 个完整 PDCA 示例周期 (4 阶段齐全)
+      mkCycle('pdca-101', '增强扫描对比剂外渗事件专项', '流程质控', '降低静脉注射对比剂外渗发生率', '外渗率 ≤ 0.3%', OWNERS[2]!, 'completed', '2026-04-01', '2026-05-31', ['df-101'], '2026-05-28', '外渗率从 0.9% 降至 0.2%, 高压注射流程 SOP 已更新'),
+      mkCycle('pdca-102', 'MRI 检查预约等待时间整改', '服务质控', '缩短 MRI 检查预约等待天数', '预约等待 ≤ 3 天', OWNERS[0]!, 'act', '2026-05-10', '2026-07-20', ['df-102'], undefined, '排班扩容后平均等待 2.8 天, 进入持续监测'),
+      mkCycle('pdca-103', 'CT 检查前知情同意完整性', '报告质控', '提升 CT 增强知情同意书签署完整率', '签署完整率 ≥ 99%', OWNERS[1]!, 'check', '2026-06-01', '2026-08-10', ['df-103'], undefined, undefined),
+      mkCycle('pdca-104', '移动 DR 图像传输延迟优化', '图像质控', '降低床旁 DR 图像上传 PACS 延迟', '上传延迟 ≤ 60 秒', OWNERS[2]!, 'do', '2026-06-15', '2026-08-31', ['df-104'], undefined, undefined),
+      mkCycle('pdca-105', '报告双签名流程效率提升', '流程质控', '缩短疑难报告双签名流转时间', '双签流转 ≤ 2 小时', OWNERS[0]!, 'plan', '2026-07-10', '2026-09-30', ['df-105'], undefined, undefined),
     ]
 
     const entries: Record<string, Array<{ phase: Exclude<PdcaPhaseCode, 'completed'>; content: string }>> = {
@@ -154,6 +167,43 @@ export class QcPdcaService {
       'pdca-004': [
         { phase: 'plan', content: '统计 DR 曝光不足率与设备分布' },
         { phase: 'do', content: '校准 3 台 DR 自动曝光参数并培训技师' },
+      ],
+      // [G005 Wave 10A] 5 个完整周期: plan→do→check→act 全阶段
+      'pdca-101': [
+        { phase: 'plan', content: '回顾 3 月对比剂外渗事件 8 起, 分析原因(流速/穿刺部位/患者依从)' },
+        { phase: 'plan', content: '制定高压注射外渗预防规范与高危患者评估表' },
+        { phase: 'do', content: '组织技师操作规范培训并考核' },
+        { phase: 'do', content: '上线外渗事件上报与追踪系统' },
+        { phase: 'check', content: '5 月外渗率降至 0.2%, 复查 420 例增强扫描' },
+        { phase: 'act', content: '更新科室高压注射 SOP, 纳入新员工岗前培训' },
+      ],
+      'pdca-102': [
+        { phase: 'plan', content: '统计 4 月 MRI 预约平均等待 6.5 天, 瓶颈在夜间机时利用率' },
+        { phase: 'plan', content: '制定延长夜班与周末加机方案' },
+        { phase: 'do', content: '调整技师排班, 夜间及周六开放预约' },
+        { phase: 'check', content: '7 月平均等待 2.8 天, 完成率 96%' },
+        { phase: 'act', content: '固化排班方案并建立预约超时预警' },
+      ],
+      'pdca-103': [
+        { phase: 'plan', content: '抽查 5 月 200 份增强知情同意书, 完整率 91%' },
+        { phase: 'plan', content: '梳理缺失字段(过敏史/肾功能/剂量)' },
+        { phase: 'do', content: '更新电子知情同意模板并增加必填校验' },
+        { phase: 'check', content: '7 月复抽查完整率 97.5%, 待 8 月满月评估' },
+        { phase: 'act', content: '纳入护理核对清单, 每周质控抽检' },
+      ],
+      'pdca-104': [
+        { phase: 'plan', content: '测量床旁 DR 上传延迟平均 95 秒, 定位网络瓶颈' },
+        { phase: 'plan', content: '制定 AP 带宽扩容与队列优化方案' },
+        { phase: 'do', content: '升级移动 DR 网络模块并部署 QoS 策略' },
+        { phase: 'check', content: '试运行两周平均延迟 48 秒, 达标率 92%' },
+        { phase: 'act', content: '形成网络运维基线, 纳入月度巡检项' },
+      ],
+      'pdca-105': [
+        { phase: 'plan', content: '梳理双签名流程耗时分布, 平均 3.5 小时' },
+        { phase: 'plan', content: '确定电子签名与消息提醒优化点' },
+        { phase: 'do', content: '上线签名消息提醒与超时升级机制' },
+        { phase: 'check', content: '8 月运行两周平均流转 1.8 小时, 待满月复评' },
+        { phase: 'act', content: '固化提醒规则并设置月度指标监测' },
       ],
     }
     this.phaseEntries = new Map(

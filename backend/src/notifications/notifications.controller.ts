@@ -74,6 +74,37 @@ export class NotificationsController {
     return this.service.getUnreadCount(userId)
   }
 
+  // [v3.0.6.11-99 Wave 10D] 通知总览 (按类型/未读/今日) — 静态子路由先于 :id 注册
+  @Get('overview')
+  overview(@Query('userId') userId?: string) {
+    return this.service.getOverview(userId)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 近 30 日通知趋势
+  @Get('daily-trend')
+  dailyTrend(@Query('days') days?: string, @Query('userId') userId?: string) {
+    return this.service.getDailyTrend(Number(days ?? 30), userId)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 用户偏好 (类型开关 + 渠道 + 免打扰)
+  @Get('preferences/:userId')
+  preferences(@Param('userId') userId: string) {
+    return this.service.getPreferences(userId)
+  }
+
+  @Put('preferences/:userId')
+  @HttpCode(HttpStatus.OK)
+  updatePreferences(
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(z.object({
+      types: z.array(z.enum(['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM'])).optional(),
+      channels: z.record(z.boolean()).optional(),
+      quietHours: z.object({ enabled: z.boolean(), from: z.string(), to: z.string() }).optional(),
+    }))) body: { types?: string[]; channels?: Record<string, boolean>; quietHours?: { enabled: boolean; from: string; to: string } },
+  ) {
+    return this.service.updatePreferences(userId, body)
+  }
+
   @Get('history/:userId')
   history(@Param('userId') userId: string, @Query('limit') limit?: string) {
     return this.service.getHistory(userId, Number(limit ?? 50))

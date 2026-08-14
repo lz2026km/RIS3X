@@ -7,6 +7,8 @@ import { radsApi } from '../../services/api/radsApi'
 import type { RadsScore, RadsHistoryEntry, RadsRules, RadsRule } from '../../services/api/radsApi'
 import { scoreRadsLocally } from '../../services/radsLocalScore'
 import type { RadsType as LocalRadsType } from '../../services/radsLocalScore'
+import { RADS_RULES } from '../../data/radsRules'
+import type { RadsSystem } from '../../data/radsRules'
 
 const { Text, Title } = Typography
 
@@ -20,6 +22,31 @@ const radsTabs: { key: RadsType; label: string }[] = [
   { key: 'liver', label: 'LI-RADS (肝脏)' },
   { key: 'thyroid', label: 'TI-RADS (甲状腺)' },
 ]
+
+// [v3.0.6.11-99 W10C] 本地规则回退: RADS 规则词典 (radsRules.ts) → 后端规则表结构
+const radsTypeToSystem: Record<RadsType, RadsSystem> = {
+  lung: 'Lung-RADS',
+  breast: 'BI-RADS',
+  prostate: 'PI-RADS',
+  liver: 'LI-RADS',
+  thyroid: 'TI-RADS',
+}
+
+const localRadsRules = (): RadsRules[] =>
+  radsTabs.map((tab) => {
+    const rules = RADS_RULES.filter((r) => r.category === radsTypeToSystem[tab.key])
+    return {
+      type: tab.key,
+      name: tab.label,
+      levels: rules.map((r) => ({
+        level: r.score,
+        category: r.category,
+        description: r.title,
+        criteria: r.description,
+        recommendations: r.management,
+      })),
+    }
+  })
 
 interface FieldDef {
   name: string
@@ -73,16 +100,20 @@ const AiRadsPage: React.FC = () => {
   const [rulesSource, setRulesSource] = useState<'api' | 'local'>('api')
   const [form] = Form.useForm()
 
-  // [v3.0.6.11-99 G-20] 评分规则表 (后端 /rules, 失败回退本地规则标注)
+  // [v3.0.6.11-99 G-20] 评分规则表 (后端 /rules, 失败回退本地 radsRules 词典)
   useEffect(() => {
     radsApi.getRules().then((res) => {
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setRules(res.data)
         setRulesSource('api')
       } else {
+        setRules(localRadsRules())
         setRulesSource('local')
       }
-    }).catch(() => setRulesSource('local'))
+    }).catch(() => {
+      setRules(localRadsRules())
+      setRulesSource('local')
+    })
   }, [])
 
   const handleTypeChange = useCallback((key: string) => {

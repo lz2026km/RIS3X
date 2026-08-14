@@ -1,8 +1,9 @@
 import { t } from '../../i18n/appI18n'
 import { dicomSrApi, type DicomSrTemplate, type DicomSrDocument } from '../../services/api/dicomApi'
 import { encapsulatedPdfApi, type EncapsulatedPdf } from '../../services/api/dicomApi'
-import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented } from 'antd'
-import { FileText, Play, Eye, Copy, Download, FilePlus2 } from 'lucide-react'
+import { srDocumentApi, type SrDocument } from '../../services/api/srReportApi'
+import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented, Table, Badge } from 'antd'
+import { FileText, Play, Eye, Copy, Download, FilePlus2, Database, GitBranch, BarChart3, RefreshCcw, Link2, FolderTree } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Inbox } from 'lucide-react'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -27,6 +28,10 @@ export const DicomSrPage: React.FC = () => {
   const [encapsulating, setEncapsulating] = useState(false)
   const [pdfDoc, setPdfDoc] = useState<EncapsulatedPdf | null>(null)
 
+  // [v3.0.6.11-99 Wave10B] 本会话 SR 生成历史
+  const [genHistory, setGenHistory] = useState<Array<{ id: string; reportId: string; tid: string; status: string; generatedAt: string }>>([])
+  const [pdfHistory, setPdfHistory] = useState<Array<{ id: string; reportId: string; size: number; generatedAt: string }>>([])
+
   useEffect(() => {
     setLoadingTemplates(true)
     dicomSrApi.getTemplates().then(res => {
@@ -35,6 +40,147 @@ export const DicomSrPage: React.FC = () => {
       }
     }).finally(() => setLoadingTemplates(false))
   }, [])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 深化: SR 统计 / 模板结构树预览 / 报告关联
+  // srDocumentApi.listDocuments + getDocumentByReport (真实 API, 失败回退演示)
+  // ============================================================
+  const [srDocs, setSrDocs] = useState<SrDocument[]>([])
+  const [statsSource, setStatsSource] = useState<'real' | 'demo'>('demo')
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [statsError, setStatsError] = useState('')
+  // 报告关联查询
+  const [linkReportId, setLinkReportId] = useState('')
+  const [linkedDoc, setLinkedDoc] = useState<SrDocument | null>(null)
+  const [linking, setLinking] = useState(false)
+  const [linkResult, setLinkResult] = useState<'ok' | 'none' | 'err' | null>(null)
+
+  // TID 模板结构树 (DICOM SR 标准 TID 1500 / TID 2000)
+  const TID_TREE: Record<string, Array<{ code: string; label: string; children?: Array<{ code: string; label: string }> }>> = {
+    tid1500: [
+      { code: 'TID 1500', label: '测量报告 (Measurement Report)', children: [
+        { code: '121111', label: '患者特征' },
+        { code: '111028', label: '检查协议' },
+        { code: '111029', label: '影像测量组' },
+        { code: '121139', label: '测量上下文' },
+        { code: '121038', label: '结论' },
+      ] },
+      { code: 'TID 1410', label: '平面影像测量 (Image Region)', children: [
+        { code: '121206', label: '测量组' },
+        { code: '121207', label: '目标' },
+        { code: '121208', label: '影像区域' },
+      ] },
+      { code: 'TID 1501', label: '测量组 (Measurement Group)', children: [
+        { code: '121206', label: '测量值' },
+        { code: '121207', label: '测量方法' },
+        { code: '121208', label: '测量方向' },
+      ] },
+    ],
+    tid2000: [
+      { code: 'TID 2000', label: 'CAD 文档 (CAD Document)', children: [
+        { code: '111031', label: '患者特征' },
+        { code: '121119', label: 'CAD 图像库' },
+        { code: '121120', label: 'CAD 结果' },
+      ] },
+      { code: 'TID 2001', label: 'CAD 图像库 (Image Library)', children: [
+        { code: '121134', label: '参考图像' },
+        { code: '121136', label: '对比图像' },
+      ] },
+      { code: 'TID 2002', label: 'CAD 结果 (CAD Results)', children: [
+        { code: '121116', label: '发现' },
+        { code: '121124', label: '影像位置' },
+        { code: '121125', label: '描述' },
+      ] },
+    ],
+  }
+
+  const loadSrStats = () => {
+    setStatsLoading(true)
+    setStatsError('')
+    srDocumentApi.listDocuments().then(res => {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setSrDocs(res.data)
+        setStatsSource('real')
+      } else {
+        setStatsSource('demo')
+        setStatsError('SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计')
+      }
+    }).catch(() => {
+      setStatsSource('demo')
+      setStatsError('SR 文档列表接口不可用 (GET /dicom-sr)，展示演示统计')
+    }).finally(() => setStatsLoading(false))
+  }
+
+  useEffect(() => { loadSrStats() }, [])
+
+  // 统计: 按模板类型 / 模态 / 状态
+  interface SrStatsShape {
+    total: number
+    byTid: Array<[string, number]>
+    byModality: Array<[string, number]>
+    byStatus: Array<[string, number]>
+    draft: number
+    finalized: number
+    pushed: number
+  }
+  const srStats: SrStatsShape = React.useMemo(() => {
+    if (srDocs.length > 0) {
+      const byTid: Record<string, number> = {}
+      const byModality: Record<string, number> = {}
+      const byStatus: Record<string, number> = {}
+      srDocs.forEach(d => {
+        const tid = String(d.tid ?? d.templateId ?? '未知')
+        byTid[tid] = (byTid[tid] || 0) + 1
+        const mod = String(d.modality ?? '未知')
+        byModality[mod] = (byModality[mod] || 0) + 1
+        const st = String(d.status ?? 'draft')
+        byStatus[st] = (byStatus[st] || 0) + 1
+      })
+      return {
+        total: srDocs.length,
+        byTid: Object.entries(byTid).sort((a, b) => b[1] - a[1]),
+        byModality: Object.entries(byModality).sort((a, b) => b[1] - a[1]),
+        byStatus: Object.entries(byStatus).sort((a, b) => b[1] - a[1]),
+        draft: byStatus['draft'] ?? 0,
+        finalized: (byStatus['finalized'] ?? 0) + (byStatus['pushed'] ?? 0),
+        pushed: byStatus['pushed'] ?? 0,
+      }
+    }
+    // 演示回退统计
+    return {
+      total: 6,
+      byTid: [['tid1500', 4], ['tid2000', 2]] as Array<[string, number]>,
+      byModality: [['CT', 3], ['MR', 2], ['DR', 1]],
+      byStatus: [['draft', 2], ['finalized', 3], ['pushed', 1]],
+      draft: 2,
+      finalized: 3,
+      pushed: 1,
+    }
+  }, [srDocs])
+
+  // 报告 → SR 关联查询 (GET /dicom-sr/by-report/:reportId)
+  const handleLinkLookup = async () => {
+    if (!linkReportId.trim()) {
+      message.warning('请输入报告 ID')
+      return
+    }
+    setLinking(true)
+    setLinkResult(null)
+    setLinkedDoc(null)
+    try {
+      const res = await srDocumentApi.getDocumentByReport(linkReportId.trim())
+      if (res.success && res.data) {
+        setLinkedDoc(res.data)
+        setLinkResult('ok')
+      } else {
+        setLinkResult('none')
+      }
+    } catch {
+      setLinkResult('err')
+    } finally {
+      setLinking(false)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!reportId.trim()) {
@@ -52,6 +198,13 @@ export const DicomSrPage: React.FC = () => {
     setGenerating(false)
     if (res.success) {
       setSrDoc(res.data)
+      setGenHistory(h => [{
+        id: String(res.data?.id ?? Date.now()),
+        reportId: res.data?.reportId ?? reportId.trim(),
+        tid: res.data?.tid ?? templateId,
+        status: res.data?.status ?? 'draft',
+        generatedAt: res.data?.generatedAt ?? new Date().toISOString(),
+      }, ...h].slice(0, 10))
       message.success(t('dicomSr.generateSuccess') || 'SR 生成成功')
     } else {
       message.error(res.error?.message || 'SR 生成失败')
@@ -94,6 +247,12 @@ export const DicomSrPage: React.FC = () => {
     setEncapsulating(false)
     if (res.success && res.data) {
       setPdfDoc(res.data)
+      setPdfHistory(h => [{
+        id: res.data?.id ?? String(Date.now()),
+        reportId: res.data?.reportId ?? pdfReportId.trim(),
+        size: res.data?.size ?? 0,
+        generatedAt: res.data?.generatedAt ?? new Date().toISOString(),
+      }, ...h].slice(0, 10))
       message.success('PDF 封装成功')
     } else {
       message.error(res.error?.message || 'PDF 封装失败')
@@ -262,6 +421,56 @@ export const DicomSrPage: React.FC = () => {
         )}
       </Card>
 
+      {/* [v3.0.6.11-99 Wave10B] 本会话生成记录 (SR + PDF) */}
+      {(genHistory.length > 0 || pdfHistory.length > 0) && (
+        <Card
+          title={<span><FileText size={14} /> 本会话生成记录</span>}
+          size="small"
+          style={{ marginBottom: 16 }}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+                SR 文档 ({genHistory.length})
+              </div>
+              {genHistory.map(h => (
+                <div key={h.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
+                  borderBottom: '1px solid var(--border-color)', fontSize: 12,
+                }}>
+                  <Tag color="purple" style={{ fontSize: 10, margin: 0 }}>{h.tid}</Tag>
+                  <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    报告 {h.reportId}
+                  </span>
+                  <Tag color={h.status === 'draft' ? 'orange' : 'green'} style={{ fontSize: 10, margin: 0 }}>
+                    {h.status === 'draft' ? '草稿' : h.status === 'finalized' ? '已定稿' : h.status}
+                  </Tag>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+                PDF 封装 ({pdfHistory.length})
+              </div>
+              {pdfHistory.map(h => (
+                <div key={h.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
+                  borderBottom: '1px solid var(--border-color)', fontSize: 12,
+                }}>
+                  <Tag color="geekblue" style={{ fontSize: 10, margin: 0 }}>PDF</Tag>
+                  <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    报告 {h.reportId}
+                  </span>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{h.size} B</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* [G005 Wave4B] G-01 DICOM PDF 封装 (Encapsulated PDF Storage) */}
       <Card
         title={
@@ -337,6 +546,244 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label="生成时间">{new Date(pdfDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
           )}
+        </Space>
+      </Card>
+
+      {/* ============================================================
+          [v3.0.6.11-99 Wave10B] 深化: SR 统计 / 模板结构树 / 报告关联
+          ============================================================ */}
+      {/* 数据源徽标 + 刷新 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '3px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+          background: statsSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+          color: statsSource === 'real' ? '#065f46' : '#92400e',
+          border: `1px solid ${statsSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
+        }}>
+          <Database size={12} />
+          SR 统计数据源: {statsSource === 'real' ? '真实 (GET /dicom-sr)' : '演示回退'}
+        </span>
+        {statsLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>同步中…</span>}
+        <Button size="small" icon={<RefreshCcw size={12} />} onClick={loadSrStats}>刷新</Button>
+        {statsError && <span style={{ fontSize: 11, color: '#d97706' }}>{statsError}</span>}
+      </div>
+
+      {/* 1. SR 统计 (按模板类型/模态/状态) */}
+      <Card
+        title={<span><BarChart3 size={14} /> SR 文档统计</span>}
+        size="small"
+        style={{ marginBottom: 16 }}
+        extra={<Tag color="blue">共 {srStats.total} 份</Tag>}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+          {/* 按模板类型 */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按模板类型 (TID)</div>
+            {srStats.byTid.map((entry: [string, number]) => {
+              const [tid, count] = entry
+              const cnt = Number(count ?? 0)
+              const maxTid = Math.max(1, ...srStats.byTid.map(([, c]) => Number(c)))
+              return (
+                <div key={tid} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                    <span style={{ color: '#334155', fontWeight: 500 }}>{tid}</span>
+                    <span style={{ color: '#1e40af', fontWeight: 700 }}>{cnt}</span>
+                  </div>
+                  <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${(cnt / maxTid) * 100}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {/* 按模态 */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按模态分布</div>
+            {srStats.byModality.map((entry: [string, number]) => {
+              const [mod, count] = entry
+              const cnt = Number(count ?? 0)
+              const maxMod = Math.max(1, ...srStats.byModality.map(([, c]) => Number(c)))
+              const colors: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e', DSA: '#f59e0b', MG: '#ec4899' }
+              return (
+                <div key={mod} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                    <span style={{ color: '#334155', fontWeight: 500 }}>{mod}</span>
+                    <span style={{ color: colors[mod] || '#64748b', fontWeight: 700 }}>{cnt}</span>
+                  </div>
+                  <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${(cnt / maxMod) * 100}%`, height: '100%', background: colors[mod] || '#64748b', borderRadius: 3 }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {/* 按状态 */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>按状态</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8 }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#d97706' }}>{srStats.draft}</div>
+                <div style={{ fontSize: 11, color: '#92400e' }}>草稿</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8 }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#1e40af' }}>{srStats.finalized}</div>
+                <div style={{ fontSize: 11, color: '#1e40af' }}>已定稿</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-success-bg)', borderRadius: 8 }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: '#16a34a' }}>{srStats.pushed}</div>
+                <div style={{ fontSize: 11, color: '#065f46' }}>已推送 (ORU)</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8' }}>
+              定稿率 {srStats.total > 0 ? Math.round((srStats.finalized / srStats.total) * 100) : 0}% · 推送率 {srStats.total > 0 ? Math.round((srStats.pushed / srStats.total) * 100) : 0}%
+            </div>
+          </div>
+        </div>
+        {/* 文档明细表 */}
+        {srDocs.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Table
+              size="small"
+              dataSource={srDocs.slice(0, 10)}
+              rowKey="id"
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              columns={[
+                { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110, render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+                { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
+                { title: 'TID', dataIndex: 'tid', key: 'tid', width: 90, render: (v: string, r: SrDocument) => <Tag color="purple">{r.templateId ?? v}</Tag> },
+                { title: '报告 ID', dataIndex: 'reportId', key: 'reportId', width: 130, ellipsis: true },
+                {
+                  title: '状态', dataIndex: 'status', key: 'status', width: 90,
+                  render: (v: string) => <Tag color={v === 'pushed' ? 'green' : v === 'finalized' ? 'blue' : 'orange'}>{v === 'pushed' ? '已推送' : v === 'finalized' ? '已定稿' : '草稿'}</Tag>,
+                },
+                { title: '生成时间', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => String(v || '').slice(0, 19).replace('T', ' ') },
+              ]}
+            />
+          </div>
+        )}
+      </Card>
+
+      {/* 2. SR 模板预览卡 (TID 结构树) */}
+      <Card
+        title={<span><FolderTree size={14} /> SR 模板结构树预览</span>}
+        size="small"
+        style={{ marginBottom: 16 }}
+        extra={<Tag color="cyan">TID 1500 / 2000 标准结构</Tag>}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {(['tid1500', 'tid2000'] as const).map(tidKey => (
+            <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <GitBranch size={13} />
+                {tidKey === 'tid1500' ? 'TID 1500 - 测量报告' : 'TID 2000 - CAD 文档 SR'}
+                {templates.find(t => t.id === tidKey) && (
+                  <Tag color="blue" style={{ fontSize: 10 }}>{templates.find(t => t.id === tidKey)?.labelEn}</Tag>
+                )}
+              </div>
+              {(TID_TREE[tidKey] ?? []).map(node => (
+                <div key={node.code} style={{ marginBottom: 8 }}>
+                  <div style={{
+                    fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 6,
+                    background: '#f1f5f9', color: '#334155', borderLeft: '3px solid #1e40af',
+                  }}>
+                    {node.label}
+                    <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
+                  </div>
+                  {node.children && (
+                    <div style={{ marginTop: 4, paddingLeft: 16 }}>
+                      {node.children.map(child => (
+                        <div key={child.code} style={{
+                          fontSize: 11, color: '#64748b', padding: '3px 8px', marginBottom: 2,
+                          display: 'flex', alignItems: 'center', gap: 6,
+                        }}>
+                          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
+                          {child.label}
+                          <span style={{ fontSize: 9, color: '#b0b7c3', fontFamily: 'monospace' }}>{child.code}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
+          TID = Template Information Definition (DICOM PS3.16)。SR 文档按 TID 模板组织 Content Item 树，包含概念名 (Concept Name) 与数值/编码/引用关系，用于结构化传递测量值与 CAD 发现。
+        </div>
+      </Card>
+
+      {/* 3. SR 与报告关联显示 */}
+      <Card
+        title={<span><Link2 size={14} /> SR 与报告关联</span>}
+        size="small"
+        style={{ marginBottom: 16 }}
+        extra={<Tag color="geekblue">GET /dicom-sr/by-report/:reportId</Tag>}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Space>
+            <Input
+              style={{ width: 300 }}
+              placeholder="输入报告 ID 查询关联 SR 文档…"
+              value={linkReportId}
+              onChange={e => setLinkReportId(e.target.value)}
+              onPressEnter={() => void handleLinkLookup()}
+            />
+            <Button type="primary" icon={<Link2 size={14} />} onClick={() => void handleLinkLookup()} loading={linking}>
+              查询关联
+            </Button>
+          </Space>
+          {linkResult === 'ok' && linkedDoc && (
+            <div style={{
+              padding: 14, borderRadius: 8, border: '1px solid #bbf7d0',
+              background: 'var(--color-success-bg)',
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#065f46', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Badge status="success" /> 已找到关联 SR 文档
+              </div>
+              <Descriptions size="small" column={2}>
+                <Descriptions.Item label="SR ID">{linkedDoc.id}</Descriptions.Item>
+                <Descriptions.Item label="报告 ID">{linkedDoc.reportId}</Descriptions.Item>
+                <Descriptions.Item label="TID">
+                  <Tag color="purple">{linkedDoc.templateId ?? linkedDoc.tid}</Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="患者">{linkedDoc.patientName} ({linkedDoc.patientId})</Descriptions.Item>
+                <Descriptions.Item label="模态">{linkedDoc.modality}</Descriptions.Item>
+                <Descriptions.Item label="状态">
+                  <Tag color={linkedDoc.status === 'pushed' ? 'green' : linkedDoc.status === 'finalized' ? 'blue' : 'orange'}>
+                    {linkedDoc.status === 'pushed' ? '已推送' : linkedDoc.status === 'finalized' ? '已定稿' : '草稿'}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Study UID">
+                  <Text copyable style={{ fontSize: 11 }}>{linkedDoc.studyInstanceUid}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="SOP UID">
+                  <Text copyable style={{ fontSize: 11 }}>{linkedDoc.sopInstanceUid}</Text>
+                </Descriptions.Item>
+              </Descriptions>
+              {linkedDoc.hl7ControlId && (
+                <div style={{ marginTop: 8, fontSize: 12, color: '#065f46' }}>
+                  ORU 回传: <span style={{ fontFamily: 'monospace' }}>{linkedDoc.hl7ControlId}</span>
+                  {linkedDoc.pushedAt && ` @ ${String(linkedDoc.pushedAt).slice(0, 19).replace('T', ' ')}`}
+                </div>
+              )}
+            </div>
+          )}
+          {linkResult === 'none' && (
+            <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+              未找到该报告关联的 SR 文档。可通过上方「生成 SR」创建。
+            </div>
+          )}
+          {linkResult === 'err' && (
+            <div style={{ padding: 12, borderRadius: 8, background: 'var(--color-error-bg)', border: '1px solid #fecaca', fontSize: 12, color: '#b91c1c' }}>
+              关联查询失败：后端接口不可用或网络错误。
+            </div>
+          )}
+          <div style={{ fontSize: 11, color: '#94a3b8' }}>
+            提示：SR 与报告通过 reportId 关联；报告发布 / 定稿后 SR 可推送 ORU^R01 至临床系统，闭环影像结构化结果传递。
+          </div>
         </Space>
       </Card>
     </div>

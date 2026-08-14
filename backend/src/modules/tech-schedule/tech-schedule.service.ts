@@ -134,9 +134,51 @@ const SEED_SCHEDULES: TechSchedule[] = [
   { id: 'TS-012', date: dayStr(5), shift: 'WEEKEND', technicianId: 'T-006', technicianName: '周婷', roomId: 'R-MG1', roomName: 'MG-1 检查室', status: 'SCHEDULED', notes: '周末上午半天', swapReason: null, leaveReason: null, createdAt: iso(24 * 60), updatedAt: iso(24 * 60) },
 ]
 
+// [G005 Wave 10A] 月排班 seed 扩充: 4 周 × 8 技师 (28 天完整排班, 确定性轮转)
+// 轮转模式: 每组 (CT 3 人 / MR 2 人 / DR 1 人 / DSA 1 人 / MG 1 人) 按 4 天周期轮换白/夜班
+const SEED_MONTH_SCHEDULES: TechSchedule[] = (() => {
+  const out: TechSchedule[] = []
+  const groups: Array<{ techId: string; name: string; roomId: string }[]> = [
+    [{ techId: 'T-001', name: '刘洋', roomId: 'R-CT1' }, { techId: 'T-002', name: '赵志刚', roomId: 'R-CT2' }, { techId: 'T-007', name: '吴强', roomId: 'R-CT1' }],
+    [{ techId: 'T-003', name: '孙伟', roomId: 'R-MR1' }, { techId: 'T-008', name: '郑爽', roomId: 'R-MR1' }],
+    [{ techId: 'T-004', name: '王磊', roomId: 'R-DR1' }],
+    [{ techId: 'T-005', name: '陈静', roomId: 'R-DSA1' }],
+    [{ techId: 'T-006', name: '周婷', roomId: 'R-MG1' }],
+  ]
+  const shifts: TechShift[] = ['DAY', 'DAY', 'NIGHT', 'WEEKEND']
+  let seq = 1000
+  for (let d = 6; d <= 33; d += 1) {
+    const date = dayStr(d)
+    const weekday = WEEKDAYS[new Date(date + 'T00:00:00Z').getUTCDay()]!
+    groups.forEach((group, gi) => {
+      const shift = weekday === '周六' || weekday === '周日' ? 'WEEKEND' : shifts[(d + gi) % shifts.length]!
+      const member = group[d % group.length]!
+      seq += 1
+      out.push({
+        id: `TS-${seq}`,
+        date,
+        shift,
+        technicianId: member.techId,
+        technicianName: member.name,
+        roomId: member.roomId,
+        roomName: member.roomId === 'R-CT1' ? 'CT-1 检查室' : member.roomId === 'R-CT2' ? 'CT-2 检查室' : member.roomId === 'R-MR1' ? 'MR-1 检查室' : member.roomId === 'R-DR1' ? 'DR-1 检查室' : member.roomId === 'R-DSA1' ? 'DSA-1 检查室' : 'MG-1 检查室',
+        status: d % 11 === 0 ? 'ON_LEAVE' : d % 7 === 4 ? 'SWAPPED' : d % 3 === 0 ? 'CONFIRMED' : 'SCHEDULED',
+        notes: weekday === '周六' || weekday === '周日' ? '周末轮值' : null,
+        swapReason: d % 7 === 4 ? '组内对调夜班' : null,
+        leaveReason: d % 11 === 0 ? '调休' : null,
+        createdAt: iso(24 * 60),
+        updatedAt: iso(24 * 60),
+      })
+    })
+  }
+  return out
+})()
+
+const ALL_SEED_SCHEDULES = [...SEED_SCHEDULES, ...SEED_MONTH_SCHEDULES]
+
 @Injectable()
 export class TechScheduleService {
-  private schedules: TechSchedule[] = SEED_SCHEDULES.map((s) => ({ ...s }))
+  private schedules: TechSchedule[] = ALL_SEED_SCHEDULES.map((s) => ({ ...s }))
 
   getTechnicians(): TechTechnician[] {
     return TECH_ROSTER.map((t) => ({ ...t }))

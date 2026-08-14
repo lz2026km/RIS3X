@@ -175,19 +175,60 @@ interface StoredDoseRecord {
   createdAt: string
 }
 
+// ── [G005 Wave 10A] DRL 阈值表完整版 (国家 DRLs 2023) ──
+// CT 10 部位 × 成人/儿童; MG 2 视角; DR 5 部位; 介入 4 类
 const DRL_DATA: DrlEntry[] = [
+  // ── CT 成人 (10 部位) ──
   { modality: 'CT', bodyPart: '头部', ctdivolDrl: 60, dlpDrl: 1000, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '胸部', ctdivolDrl: 15, dlpDrl: 500, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '腹部', ctdivolDrl: 25, dlpDrl: 800, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '盆腔', ctdivolDrl: 20, dlpDrl: 600, source: '国家DRLs 2023' },
   { modality: 'CT', bodyPart: '腰椎', ctdivolDrl: 40, dlpDrl: 700, source: '国家DRLs 2023' },
+  { modality: 'CT', bodyPart: '颈椎', ctdivolDrl: 30, dlpDrl: 500, source: '国家DRLs 2023' },
+  { modality: 'CT', bodyPart: '胸椎', ctdivolDrl: 20, dlpDrl: 450, source: '国家DRLs 2023' },
+  { modality: 'CT', bodyPart: '鼻窦', ctdivolDrl: 25, dlpDrl: 350, source: '国家DRLs 2023' },
+  { modality: 'CT', bodyPart: '颞骨', ctdivolDrl: 50, dlpDrl: 650, source: '国家DRLs 2023' },
+  { modality: 'CT', bodyPart: '冠状动脉CTA', ctdivolDrl: 60, dlpDrl: 1100, source: '国家DRLs 2023' },
+  // ── MG 乳腺钼靶 (2 视角) ──
+  { modality: 'MG', bodyPart: '乳腺 CC', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023', ageGroup: 'adult' },
+  { modality: 'MG', bodyPart: '乳腺 MLO', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023', ageGroup: 'adult' },
+  // ── DR 数字化摄影 (5 部位) ──
+  { modality: 'DR', bodyPart: '胸部正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'DR', bodyPart: '腰椎正侧位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'DR', bodyPart: '腹部正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'DR', bodyPart: '膝关节正侧位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'DR', bodyPart: '骨盆正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  // ── 介入放射 (4 类) ──
+  { modality: 'RF', bodyPart: '冠脉造影', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'RF', bodyPart: '冠脉介入(PCI)', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'RF', bodyPart: '脑血管造影', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
+  { modality: 'RF', bodyPart: '肝动脉栓塞(TACE)', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023' },
 ]
 
-// 儿童 (年龄 < 15) DRL 默认值: 常见成人 DRL 的 60-75%
+// 儿童 (年龄 < 15) DRL 默认值: 常见成人 DRL 的 60-75% (10 部位完整)
 const CHILD_DRL_DATA: DrlEntry[] = [
   { modality: 'CT', bodyPart: '头部', ctdivolDrl: 40, dlpDrl: 700, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
   { modality: 'CT', bodyPart: '胸部', ctdivolDrl: 12, dlpDrl: 400, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
   { modality: 'CT', bodyPart: '腹部', ctdivolDrl: 20, dlpDrl: 600, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '盆腔', ctdivolDrl: 15, dlpDrl: 450, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '腰椎', ctdivolDrl: 28, dlpDrl: 500, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '颈椎', ctdivolDrl: 20, dlpDrl: 350, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '胸椎', ctdivolDrl: 14, dlpDrl: 320, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '鼻窦', ctdivolDrl: 18, dlpDrl: 250, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '颞骨', ctdivolDrl: 35, dlpDrl: 480, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'CT', bodyPart: '冠状动脉CTA', ctdivolDrl: 40, dlpDrl: 780, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  // ── 儿童 MG/DR/RF 阈值 (按部位) ──
+  { modality: 'MG', bodyPart: '乳腺 CC', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'MG', bodyPart: '乳腺 MLO', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'DR', bodyPart: '胸部正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'DR', bodyPart: '腰椎正侧位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'DR', bodyPart: '腹部正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'DR', bodyPart: '膝关节正侧位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'DR', bodyPart: '骨盆正位', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'RF', bodyPart: '冠脉造影', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'RF', bodyPart: '冠脉介入(PCI)', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'RF', bodyPart: '脑血管造影', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
+  { modality: 'RF', bodyPart: '肝动脉栓塞(TACE)', ctdivolDrl: 0, dlpDrl: 0, source: '国家DRLs 2023(儿童)', ageGroup: 'child' },
 ]
 
 const ANNUAL_DLP_LIMIT = 5000

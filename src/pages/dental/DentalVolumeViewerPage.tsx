@@ -102,8 +102,9 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
           <Tag color="purple">Romexis 对标</Tag>
-          {/* [G005 Wave1B] /dental/volume/* 后端真实实现, dentalApi 封装 */}
+          {/* [G005 Wave1B] /dental/volume/* 后端真实; [Wave10A] POST apply + curve-path + 8 预设 (seed 扩充) */}
           <Tag color="green">真实后端 /dental/volume/*</Tag>
+          <Tag>apply=POST</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}><Card size="small"><Statistic title="总 CBCT" value={studies.length} /></Card></Col>

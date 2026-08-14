@@ -120,6 +120,24 @@ export class ReportsController {
     return this.reports.exportStatus(id)
   }
 
+  // [v3.0.6.11-99 Wave 10D] 报告总览 (各状态/今日完成/平均时效) — 静态子路由先于 :id 注册
+  @Get('overview')
+  overview() {
+    return this.reports.getOverview()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 医生维度报告统计
+  @Get('by-doctor')
+  byDoctor() {
+    return this.reports.getByDoctor()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 近 30 日报告趋势
+  @Get('daily-trend')
+  dailyTrend(@Query('days') days?: string) {
+    return this.reports.getDailyTrend(Number(days ?? 30))
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.reports.get(id)
@@ -174,5 +192,21 @@ export class ReportsController {
   @Get(':id/audit-trail')
   auditTrail(@Param('id') id: string) {
     return this.reports.auditTrail(id)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 报告关联: 检查/患者/既往报告/随访/危急值
+  @Get(':id/related')
+  related(@Param('id') id: string) {
+    return this.reports.getRelated(id)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 应用模板到报告 (合并 ReportTemplate 内容)
+  @Post(':id/templates-apply')
+  templatesApply(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(z.object({ templateId: z.string().min(1), mode: z.enum(['append', 'overwrite']).default('append') })))
+    body: { templateId: string; mode?: 'append' | 'overwrite' },
+  ) {
+    return this.reports.applyTemplate(id, body.templateId, body.mode ?? 'append')
   }
 }

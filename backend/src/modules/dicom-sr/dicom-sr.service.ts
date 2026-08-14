@@ -6,6 +6,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { Hl7Service, type ReportForHL7 } from '../../hl7/hl7.service'
+import { SEED_SR_TEMPLATES, type SrMeasurementTemplate } from './seed-templates'
 
 export interface TemplateInfo {
   id: string
@@ -219,6 +220,35 @@ export class DicomSrService {
 
   getTemplates(): TemplateInfo[] {
     return this.templates
+  }
+
+  // ── [G005 Wave 10A] 测量模板库 (TID 1500/2000, 20 个完整模板 seed) ─────────
+  /** GET /dicom-sr/measurement-templates — 测量模板列表 (可按 modality/bodyPart 过滤) */
+  getMeasurementTemplates(filter?: { modality?: string; bodyPart?: string; category?: string }): SrMeasurementTemplate[] {
+    let out = [...SEED_SR_TEMPLATES]
+    if (filter?.modality) out = out.filter((t) => t.modality === filter.modality)
+    if (filter?.bodyPart) out = out.filter((t) => t.bodyPart === filter.bodyPart)
+    if (filter?.category) out = out.filter((t) => t.category === filter.category)
+    return out
+  }
+
+  /** GET /dicom-sr/measurement-templates/:id — 模板详情 (含全部测量项) */
+  getMeasurementTemplate(id: string): SrMeasurementTemplate {
+    const tpl = SEED_SR_TEMPLATES.find((t) => t.id === id)
+    if (!tpl) throw new NotFoundException(`测量模板不存在: ${id}`)
+    return tpl
+  }
+
+  /** GET /dicom-sr/measurement-templates/categories — 模板分类统计 */
+  getMeasurementTemplateCategories(): Array<{ category: string; count: number; modalities: string[] }> {
+    const map = new Map<string, { count: number; modalities: Set<string> }>()
+    for (const t of SEED_SR_TEMPLATES) {
+      const entry = map.get(t.category) ?? { count: 0, modalities: new Set<string>() }
+      entry.count += 1
+      entry.modalities.add(t.modality)
+      map.set(t.category, entry)
+    }
+    return Array.from(map.entries()).map(([category, v]) => ({ category, count: v.count, modalities: [...v.modalities] }))
   }
 
   async list(): Promise<SrDocumentDto[]> {

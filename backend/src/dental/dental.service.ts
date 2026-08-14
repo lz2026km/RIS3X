@@ -1296,6 +1296,61 @@ export class DentalService {
     }
     return SEED_DENTAL_STUDIES.find(s => s.id === id) ?? null
   }
+
+  // ── [G005 Wave 10A] CBCT 体绘制 (DentalVolumeViewerPage, /dental/volume/*) ──
+  // 牙科 CBCT 序列: 从 SEED_CBCT_VOLUME_STUDIES 确定性派生 (业务真实 FOV/层数/设备)
+
+  async listVolumeStudies(): Promise<{ success: boolean; data: unknown[] }> {
+    try {
+      const rows = await this.prisma.dentalStudy.findMany({
+        where: { modality: 'CBCT' },
+        orderBy: { acquisitionDate: 'desc' },
+        take: 20,
+      })
+      if (rows.length > 0) {
+        return {
+          success: true,
+          data: rows.map((r: any) => ({
+            id: r.id,
+            patientId: r.patientId,
+            patientName: r.patientName ?? '未知患者',
+            device: r.deviceModel ?? 'Planmeca ProMax 3D',
+            fov: '16×12 cm',
+            slices: 400,
+            status: (r.status ?? 'processed') === 'reported' ? 'processed' : (r.status ?? 'processed'),
+            acquisitionDate: r.acquisitionDate ? new Date(r.acquisitionDate).toISOString().slice(0, 10) : undefined,
+          })),
+        }
+      }
+    } catch {
+      // fallthrough to seed
+    }
+    return { success: true, data: SEED_CBCT_VOLUME_STUDIES }
+  }
+
+  async getVolumeStudy(id: string): Promise<{ success: boolean; data?: unknown; error?: { code: string; message: string } }> {
+    const s = SEED_CBCT_VOLUME_STUDIES.find((x: any) => x.id === id)
+    if (!s) return { success: false, error: { code: 'NOT_FOUND', message: `CBCT volume study ${id} not found` } }
+    return { success: true, data: s }
+  }
+
+  async listVolumePresets(): Promise<{ success: boolean; data: unknown[] }> {
+    return { success: true, data: SEED_CBCT_VOLUME_PRESETS }
+  }
+
+  /** POST /dental/volume/presets/:id/apply — 应用渲染预设 (返回窗宽窗位等参数) */
+  async applyVolumePreset(id: string): Promise<{ success: boolean; data?: unknown; error?: { code: string; message: string } }> {
+    const preset = SEED_CBCT_VOLUME_PRESETS.find((p: any) => p.id === id)
+    if (!preset) return { success: false, error: { code: 'NOT_FOUND', message: `CBCT preset ${id} not found` } }
+    return { success: true, data: { preset, applied: true, appliedAt: new Date().toISOString() } }
+  }
+
+  // 曲断重建路径 (Curve MPR): 牙弓展开路径点 (确定性)
+  async getVolumeCurvePath(id: string): Promise<{ success: boolean; data?: unknown; error?: { code: string; message: string } }> {
+    const s = SEED_CBCT_VOLUME_STUDIES.find((x: any) => x.id === id)
+    if (!s) return { success: false, error: { code: 'NOT_FOUND', message: `CBCT volume study ${id} not found` } }
+    return { success: true, data: { studyId: id, points: SEED_CBCT_CURVE_POINTS, expandedLengthMm: 152, spacingMm: 0.5 } }
+  }
 }
 
 // ── [G005-P1] seed: 口腔影像专项 + 治疗计划 (demo 级) ──
@@ -1738,3 +1793,38 @@ function angleAt(apex: { x: number; y: number }, p1: { x: number; y: number }, p
   if (deg > 180) deg = 360 - deg
   return deg
 }
+
+// ── [G005 Wave 10A] CBCT 体绘制 seed (DentalVolumeViewerPage, 形状对齐 MSW MOCK_VOLUME_STUDIES) ──
+
+const SEED_CBCT_VOLUME_STUDIES: any[] = [
+  { id: 'CBCT-001', patientId: 'PDNT-001', patientName: '钱立军', device: 'Planmeca ProMax 3D', fov: '16×12 cm', voxelSize: '0.2mm', slices: 400, series: 'SER-CBCT-001', status: 'processed', acquisitionDate: '2026-07-05', region: '右下颌后牙区', indication: '46 种植术前评估', dose: { kvp: 90, mas: 120, dlp: 520 }, operator: '技师赵' },
+  { id: 'CBCT-002', patientId: 'PDNT-002', patientName: '吴玉兰', device: 'Sirona GALILEOS', fov: '15×15 cm', voxelSize: '0.3mm', slices: 300, series: 'SER-CBCT-002', status: 'processed', acquisitionDate: '2026-07-04', region: '上颌前牙区', indication: '11/21 阻生牙定位', dose: { kvp: 85, mas: 110, dlp: 480 }, operator: '技师钱' },
+  { id: 'CBCT-003', patientId: 'PDNT-003', patientName: '郑晓东', device: 'Carestream CS 9600', fov: '17×14 cm', voxelSize: '0.25mm', slices: 350, series: 'SER-CBCT-003', status: 'processed', acquisitionDate: '2026-07-02', region: '全口', indication: '全口种植规划', dose: { kvp: 95, mas: 130, dlp: 610 }, operator: '技师孙' },
+  { id: 'CBCT-004', patientId: 'PDNT-004', patientName: '冯丽华', device: 'Planmeca ProMax 3D', fov: '16×12 cm', voxelSize: '0.2mm', slices: 420, series: 'SER-CBCT-004', status: 'processing', acquisitionDate: '2026-07-01', region: '下颌全牙弓', indication: '36 根管解剖评估', dose: { kvp: 90, mas: 115, dlp: 505 }, operator: '技师赵' },
+  { id: 'CBCT-005', patientId: 'PDNT-005', patientName: '褚一鸣', device: 'Sirona GALILEOS', fov: '12×8 cm', voxelSize: '0.15mm', slices: 500, series: 'SER-CBCT-005', status: 'processed', acquisitionDate: '2026-06-29', region: '上颌窦区', indication: '上颌窦提升术前评估', dose: { kvp: 88, mas: 125, dlp: 560 }, operator: '技师钱' },
+  { id: 'CBCT-006', patientId: 'PDNT-006', patientName: '卫晓霞', device: 'Carestream CS 9600', fov: '10×10 cm', voxelSize: '0.2mm', slices: 380, series: 'SER-CBCT-006', status: 'archived', acquisitionDate: '2026-06-25', region: '右下颌第三磨牙', indication: '38 水平阻生评估', dose: { kvp: 90, mas: 108, dlp: 470 }, operator: '技师孙' },
+  { id: 'CBCT-007', patientId: 'PDNT-007', patientName: '胡海峰', device: 'Planmeca ProMax 3D', fov: '16×12 cm', voxelSize: '0.2mm', slices: 410, series: 'SER-CBCT-007', status: 'processed', acquisitionDate: '2026-06-22', region: '上颌前牙区', indication: '12/22 根尖囊肿评估', dose: { kvp: 90, mas: 118, dlp: 515 }, operator: '技师赵' },
+  { id: 'CBCT-008', patientId: 'PDNT-008', patientName: '罗素珍', device: 'Sirona GALILEOS', fov: '15×15 cm', voxelSize: '0.3mm', slices: 320, series: 'SER-CBCT-008', status: 'processed', acquisitionDate: '2026-06-18', region: '全口', indication: '牙周病骨量评估', dose: { kvp: 86, mas: 112, dlp: 495 }, operator: '技师钱' },
+]
+
+// 8 种牙科渲染预设 (骨/软组织/气道/神经/种植/牙釉质/上颌窦/MPR)
+const SEED_CBCT_VOLUME_PRESETS: any[] = [
+  { id: 'bone', name: '骨组织', ww: 2500, wc: 480, opacity: 0.85, transfer: 'bone', description: '高密度骨组织显影, 用于种植规划', color: '#f2d9a6' },
+  { id: 'soft', name: '软组织', ww: 400, wc: 40, opacity: 0.5, transfer: 'linear', description: '软组织窗, 观察牙龈与黏膜轮廓', color: '#e8a0a0' },
+  { id: 'airway', name: '气道', ww: 1500, wc: -600, opacity: 0.35, transfer: 'lung', description: '上气道通道显影, 评估 OSA 与气道容积', color: '#8fb8e8' },
+  { id: 'nerve', name: '神经管', ww: 1200, wc: 300, opacity: 0.9, transfer: 'hot', description: '下颌神经管高亮, 种植风险规避', color: '#ff4d4f' },
+  { id: 'implant', name: '种植体', ww: 4000, wc: 1200, opacity: 1, transfer: 'metal', description: '钛金属高密度增强, 评估骨整合', color: '#d9d9d9' },
+  { id: 'enamel', name: '牙釉质', ww: 3500, wc: 800, opacity: 0.9, transfer: 'bone', description: '牙釉质/牙本质高亮, 龋坏评估', color: '#e8f4ff' },
+  { id: 'sinus', name: '上颌窦', ww: 1000, wc: 100, opacity: 0.6, transfer: 'soft', description: '上颌窦黏膜与窦腔显影', color: '#7ec8e8' },
+  { id: 'mpr', name: 'MPR 灰阶', ww: 1500, wc: 500, opacity: 1, transfer: 'linear', description: '标准三平面灰阶重建', color: '#ffffff' },
+]
+
+// 曲断重建牙弓路径点 (25 点, 沿牙弓展开)
+const SEED_CBCT_CURVE_POINTS: Array<{ x: number; y: number; z: number }> = [
+  { x: -55, y: 28, z: 0 }, { x: -50, y: 22, z: 0 }, { x: -45, y: 17, z: 0 }, { x: -40, y: 13, z: 0 },
+  { x: -35, y: 10, z: 0 }, { x: -30, y: 8, z: 0 }, { x: -25, y: 6, z: 0 }, { x: -20, y: 5, z: 0 },
+  { x: -15, y: 5, z: 0 }, { x: -10, y: 5, z: 0 }, { x: -5, y: 5, z: 0 }, { x: 0, y: 5, z: 0 },
+  { x: 5, y: 5, z: 0 }, { x: 10, y: 5, z: 0 }, { x: 15, y: 5, z: 0 }, { x: 20, y: 5, z: 0 },
+  { x: 25, y: 6, z: 0 }, { x: 30, y: 8, z: 0 }, { x: 35, y: 10, z: 0 }, { x: 40, y: 13, z: 0 },
+  { x: 45, y: 17, z: 0 }, { x: 50, y: 22, z: 0 }, { x: 55, y: 28, z: 0 },
+]

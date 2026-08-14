@@ -60,6 +60,8 @@ export class NotificationsService {
   private readonly pushSubscriptions = new Map<string, PushSubscriptionEntry[]>()
   /** [v3.0.6.11-99 Wave7B] 站内信/推送订阅类型 (内存存储, 默认全开; 前端 localStorage 兜底持久化) */
   private readonly subscriptions = new Map<string, NotificationSubscriptionType[]>()
+  /** [v3.0.6.11-99 Wave 10D] 用户偏好 (类型/渠道/免打扰) 内存存储 */
+  private readonly preferences = new Map<string, NotificationPreferences>()
   private demoVapidWarned = false
   private readonly gateway: NotificationsGateway
 
@@ -448,4 +450,185 @@ export class NotificationsService {
     this.logger.log(`subscriptions updated userId=${userId} types=${normalized.join(',')}`)
     return { userId, types: [...normalized] }
   }
+
+  // ============ [v3.0.6.11-99 Wave 10D] 总览 / 30日趋势 / 用户偏好 ============
+
+  /** 日期工具: 近 N 天日期数组 (升序, YYYY-MM-DD, 本地时区) */
+  private lastNDays(days: number): string[] {
+    const out: string[] = []
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date()
+      d.setHours(0, 0, 0, 0)
+      d.setDate(d.getDate() - i)
+      out.push(this.dateKey(d))
+    }
+    return out
+  }
+
+  /** 本地时区 YYYY-MM-DD (避免 toISOString UTC 跨日错位) */
+  private dateKey(d: Date): string {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
+  /**
+   * GET /notifications/overview — 通知总览: 按类型计数 / 未读 / 今日 / 严重度。
+   * 数据源: notification 表 (可用时); DB 不可用回退确定性 seed (与 getUnreadCount 风格一致)。
+   */
+  async getOverview(userId?: string) {
+    const model = (this.prisma as any).notification
+    if (model?.groupBy && model?.count) {
+      try {
+        const base = userId ? { userId } : {}
+        const weekAgo = new Date()
+        weekAgo.setDate(weekAgo.getDate() - 7)
+        const twoWeeksAgo = new Date()
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
+        const [byType, bySeverity, total, unread, today, critical, lastWeek, prevWeek] = await Promise.all([
+          model.groupBy({ by: ['type'], where: base, _count: { _all: true } }),
+          model.groupBy({ by: ['severity'], where: base, _count: { _all: true } }),
+          model.count({ where: base }),
+          model.count({ where: { ...base, read: false } }),
+          model.count({ where: { ...base, createdAt: { gte: this.dayStart() } } }),
+          model.count({ where: { ...base, severity: 'CRITICAL', read: false } }),
+          model.count({ where: { ...base, createdAt: { gte: weekAgo } } }),
+          model.count({ where: { ...base, createdAt: { gte: twoWeeksAgo, lt: weekAgo } } }),
+        ])
+        const byTypeCount: Record<string, number> = {}
+        for (const g of byType) byTypeCount[g.type] = g._count._all
+        const bySeverityCount: Record<string, number> = {}
+        for (const g of bySeverity) bySeverityCount[g.severity] = g._count._all
+        const typesTotal = Object.values(byTypeCount).reduce((a, b) => a + b, 0)
+        if (typesTotal === 0) {
+          return this.seedNotificationOverview(userId)
+        }
+        return {
+          userId: userId ?? '*',
+          total,
+          unread,
+          today,
+          critical,
+          lastWeek: lastWeek ?? 0,
+          lastWeekDeltaPercent: (prevWeek ?? 0) > 0 ? Number((((lastWeek - prevWeek) / prevWeek) * 100).toFixed(1)) : 0,
+          byType: byTypeCount,
+          bySeverity: bySeverityCount,
+        }
+      } catch (e) {
+        this.logger.warn(`getOverview DB failed, fallback seed: ${(e as Error)?.message}`)
+      }
+    }
+    return this.seedNotificationOverview(userId)
+  }
+
+  private seedNotificationOverview(userId?: string) {
+    return {
+      userId: userId ?? '*',
+      total: 48,
+      unread: 6,
+      today: 9,
+      critical: 2,
+      lastWeek: 41,
+      lastWeekDeltaPercent: 10.8,
+      byType: { CRITICAL: 8, REPORT: 21, TASK: 9, SYSTEM: 6, APPOINTMENT: 4 },
+      bySeverity: { INFO: 32, WARN: 11, ERROR: 3, CRITICAL: 2 },
+    }
+  }
+
+  private dayStart(): Date {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }
+
+  /**
+   * GET /notifications/daily-trend — 近 30 日通知趋势: 每日 总数/未读/危急值。
+   * 数据源: notification 表分桶; 空数据回退确定性 seed。
+   */
+  async getDailyTrend(days = 30, userId?: string) {
+    const n = Number.isFinite(days) && days > 0 && days <= 365 ? Math.floor(days) : 30
+    const start = this.dayStart()
+    start.setDate(start.getDate() - (n - 1))
+    const model = (this.prisma as any).notification
+    if (model?.findMany) {
+      try {
+        const base = { ...(userId ? { userId } : {}), createdAt: { gte: start } }
+        const rows = await model.findMany({ where: base, select: { createdAt: true, read: true, severity: true } })
+        const dates = this.lastNDays(n)
+        const totalMap = new Map<string, number>()
+        const unreadMap = new Map<string, number>()
+        const criticalMap = new Map<string, number>()
+        for (const r of rows) {
+          const iso = r.createdAt instanceof Date ? this.dateKey(r.createdAt) : String(r.createdAt ?? '').slice(0, 10)
+          const key = iso
+          totalMap.set(key, (totalMap.get(key) ?? 0) + 1)
+          if (r.read === false) unreadMap.set(key, (unreadMap.get(key) ?? 0) + 1)
+          if (r.severity === 'CRITICAL') criticalMap.set(key, (criticalMap.get(key) ?? 0) + 1)
+        }
+        const items = dates.map((date) => ({
+          date,
+          total: totalMap.get(date) ?? 0,
+          unread: unreadMap.get(date) ?? 0,
+          critical: criticalMap.get(date) ?? 0,
+        }))
+        if (items.reduce((a, i) => a + i.total, 0) === 0) {
+          return { items: dates.map((date, idx) => ({ date, total: (idx * 4) % 12, unread: (idx * 2) % 6, critical: idx % 3 })), total: n }
+        }
+        return { items, total: n }
+      } catch (e) {
+        this.logger.warn(`getDailyTrend DB failed, fallback seed: ${(e as Error)?.message}`)
+      }
+    }
+    const dates = this.lastNDays(n)
+    return { items: dates.map((date, idx) => ({ date, total: (idx * 4) % 12, unread: (idx * 2) % 6, critical: idx % 3 })), total: n }
+  }
+
+  /**
+   * GET /notifications/preferences/:userId — 用户偏好: 类型开关 (订阅) + 渠道 + 免打扰时段。
+   * 内存存储 (与 subscriptions 一致), 未设置返回默认 (全开)。
+   */
+  getPreferences(userId: string): NotificationPreferences {
+    const existing = this.preferences.get(userId)
+    if (!existing) return { ...DEFAULT_PREFERENCES, userId, defaulted: true }
+    return { ...existing, userId, defaulted: false }
+  }
+
+  /**
+   * PUT /notifications/preferences/:userId — 更新用户偏好 (类型/渠道/免打扰)。
+   */
+  updatePreferences(userId: string, prefs: { types?: string[]; channels?: Record<string, boolean>; quietHours?: { enabled: boolean; from: string; to: string } }): NotificationPreferences {
+    const current = this.getPreferences(userId)
+    const merged: NotificationPreferences = {
+      userId,
+      defaulted: false,
+      types: Array.isArray(prefs.types) ? this.cleanTypes(prefs.types) : current.types,
+      channels: prefs.channels && typeof prefs.channels === 'object' ? { ...DEFAULT_PREFERENCES.channels, ...prefs.channels } : current.channels,
+      quietHours: prefs.quietHours && typeof prefs.quietHours === 'object' ? { ...DEFAULT_PREFERENCES.quietHours, ...prefs.quietHours } : current.quietHours,
+    }
+    this.preferences.set(userId, merged)
+    this.logger.log(`preferences updated userId=${userId}`)
+    return merged
+  }
+
+  private cleanTypes(types: string[]): NotificationSubscriptionType[] {
+    const allowed = new Set<string>(DEFAULT_SUBSCRIPTION_TYPES)
+    const cleaned = Array.from(new Set(types)).filter((t): t is NotificationSubscriptionType => allowed.has(t))
+    return cleaned.length > 0 ? cleaned : [...DEFAULT_SUBSCRIPTION_TYPES]
+  }
+}
+
+// [v3.0.6.11-99 Wave 10D] 用户通知偏好结构 (类型开关 + 渠道开关 + 免打扰时段)
+export interface NotificationPreferences {
+  userId: string
+  types: NotificationSubscriptionType[]
+  channels: Record<string, boolean>
+  quietHours: { enabled: boolean; from: string; to: string }
+  defaulted: boolean
+}
+
+export const DEFAULT_PREFERENCES: Omit<NotificationPreferences, 'userId' | 'defaulted'> = {
+  types: [...DEFAULT_SUBSCRIPTION_TYPES],
+  channels: { SMS: true, WECHAT: true, APP: true, SYSTEM: true, EMAIL: false, PHONE: true },
+  quietHours: { enabled: false, from: '22:00', to: '07:00' },
 }

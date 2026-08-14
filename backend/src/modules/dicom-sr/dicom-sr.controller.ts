@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, NotFoundException, Param, Post, Res } from '@nestjs/common'
+import { Body, Controller, Get, Header, NotFoundException, Param, Post, Query, Res } from '@nestjs/common'
 import { Response } from 'express'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
@@ -55,6 +55,23 @@ export class DicomSrController {
   @Post('templates')
   getTemplates() {
     return this.service.getTemplates()
+  }
+
+  // ── [G005 Wave 10A] 测量模板库 (TID 1500/2000, 20 个完整模板 seed) ──
+  // 注意: 静态路径 (categories) 必须先于 :id 声明
+  @Get('measurement-templates/categories')
+  getMeasurementTemplateCategories() {
+    return { success: true, data: this.service.getMeasurementTemplateCategories() }
+  }
+
+  @Get('measurement-templates')
+  getMeasurementTemplates(@Query('modality') modality?: string, @Query('bodyPart') bodyPart?: string, @Query('category') category?: string) {
+    return { success: true, data: this.service.getMeasurementTemplates({ modality, bodyPart, category }) }
+  }
+
+  @Get('measurement-templates/:id')
+  getMeasurementTemplate(@Param('id') id: string) {
+    return { success: true, data: this.service.getMeasurementTemplate(id) }
   }
 
   @Get()

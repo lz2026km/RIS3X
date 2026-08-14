@@ -67,6 +67,19 @@ export class AiDiagnosisController {
   private readonly logger = new Logger(AiDiagnosisController.name)
   constructor(private readonly service: AiDiagnosisService) {}
 
+  // ── [G005 Wave 10A] 病例库 (seed 扩充: 每模型 +15 例) ──
+  @Get('cases')
+  @ApiOperation({ summary: 'AI 病例库总览 (seed 扩充: 肺 10 类/乳腺 BI-RADS/骨折 8 类/心脏 6 类)' })
+  listCases() {
+    return this.service.listCaseLibrary()
+  }
+
+  @Get('cases/:model/:id')
+  @ApiOperation({ summary: 'AI 病例详情 (按模型)' })
+  getCase(@Param('model') model: string, @Param('id') id: string) {
+    return this.service.getCaseById(model, id)
+  }
+
   // ── 肺结节 CAD ────────────────────────────────────────────────────────────
   @Get('lung-cad/results')
   @ApiOperation({ summary: 'Lung CAD result list' })

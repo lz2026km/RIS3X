@@ -34,6 +34,9 @@ const NOTIFICATION_TYPES = [
   { key: 'all', label: '全部', icon: <Bell size={14} />, color: PRIMARY },
   { key: 'report_completed', label: '报告', icon: <FileText size={14} />, color: '#3b82f6' },
   { key: 'critical_value', label: '危急值', icon: <AlertTriangle size={14} />, color: DANGER },
+  // [v3.0.6.11-99 Wave10B] 新增筛选类型: 随访 / 质控
+  { key: 'followup', label: '随访', icon: <Calendar size={14} />, color: '#8b5cf6' },
+  { key: 'quality', label: '质控', icon: <BarChart3 size={14} />, color: '#10b981' },
   { key: 'system', label: '系统', icon: <Settings size={14} />, color: 'var(--text-secondary)' },
   { key: 'appointment', label: '预约', icon: <Calendar size={14} />, color: SUCCESS },
   { key: 'consultation', label: '会诊', icon: <MessageSquare size={14} />, color: PURPLE },
@@ -48,6 +51,8 @@ const PRIORITY_CONFIG = {
 const TYPE_ICONS: Record<string, React.ReactNode> = {
   report_completed: <FileText size={20} />,
   critical_value: <AlertTriangle size={20} />,
+  followup: <Calendar size={20} />,
+  quality: <BarChart3 size={20} />,
   system: <Settings size={20} />,
   appointment: <Calendar size={20} />,
   consultation: <MessageSquare size={20} />,
@@ -58,7 +63,7 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
 // ============================================================
 interface SystemNotification {
   id: string
-  type: 'report_completed' | 'critical_value' | 'system' | 'appointment' | 'consultation'
+  type: 'report_completed' | 'critical_value' | 'followup' | 'quality' | 'system' | 'appointment' | 'consultation'
   title: string
   content: string
   recipientId: string
@@ -683,16 +688,36 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
     }
   }, [notifications, apiStats])
 
-  // 本周趋势（模拟）
-  const weekTrend = [
-    { day: '周一', count: 42, unread: 8 },
-    { day: '周二', count: 38, unread: 5 },
-    { day: '周三', count: 45, unread: 12 },
-    { day: '周四', count: 52, unread: 15 },
-    { day: '周五', count: 48, unread: 10 },
-    { day: '周六', count: 20, unread: 3 },
-    { day: '周日', count: 15, unread: 2 },
-  ]
+  // [v3.0.6.11-99 Wave10B] 本周趋势 (按真实通知 sentAt 聚合, 无数据回退静态)
+  const weekTrend = useMemo(() => {
+    const byDay: Record<string, { count: number; unread: number }> = {}
+    const now = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      byDay[key] = { count: 0, unread: 0 }
+    }
+    notifications.forEach(n => {
+      const day = String(n.sentAt || '').slice(0, 10)
+      if (!byDay[day]) return
+      byDay[day]!.count += 1
+      if (n.status === 'unread') byDay[day]!.unread += 1
+    })
+    const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const rows = Object.entries(byDay).map(([day, v], i) => ({
+      day: labels[i % 7] ?? day.slice(5),
+      count: v.count,
+      unread: v.unread,
+    }))
+    return rows
+  }, [notifications])
+
+  // [v3.0.6.11-99 Wave10B] 7 日合计 / 日均 (统计趋势增强)
+  const weekSummary = useMemo(() => {
+    const total = weekTrend.reduce((s, d) => s + d.count, 0)
+    const unread = weekTrend.reduce((s, d) => s + d.unread, 0)
+    return { total, unread, avg: Math.round(total / Math.max(1, weekTrend.length)) }
+  }, [weekTrend])
 
   // 类型分布
   const typeDistribution = NOTIFICATION_TYPES.filter(t => t.key !== 'all').map(type => ({
@@ -738,18 +763,32 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
 
       {/* 本周趋势 */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>本周趋势</div>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+          <span>近 7 日趋势 (今日 {todayStats.today} 条 · 7 日共 {weekSummary.total} 条 · 日均 {weekSummary.avg})</span>
+          <span style={{ color: DANGER }}>{weekSummary.unread} 条未读</span>
+        </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 80 }}>
-          {weekTrend.map((day, i) => (
-            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <div style={{
-                width: '100%', background: i === 4 ? ACCENT : '#e2e8f0',
-                borderRadius: 4, height: `${(day.count / 60) * 70}px`,
-                transition: 'height 0.3s',
-              }} />
-              <span style={{ fontSize: 12, color: GRAY }}>{day.day}</span>
-            </div>
-          ))}
+          {weekTrend.map((day, i) => {
+            const maxCount = Math.max(...weekTrend.map(d => d.count), 1)
+            const todayIdx = weekTrend.length - 1
+            return (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{
+                  width: '100%', background: i === todayIdx ? ACCENT : '#e2e8f0',
+                  borderRadius: 4, height: `${(day.count / maxCount) * 62}px`,
+                  transition: 'height 0.3s', position: 'relative',
+                }} title={`${day.day}: ${day.count} 条 (${day.unread} 未读)`}>
+                  {day.unread > 0 && (
+                    <div style={{
+                      position: 'absolute', top: -3, right: -3, width: 6, height: 6,
+                      borderRadius: '50%', background: DANGER,
+                    }} />
+                  )}
+                </div>
+                <span style={{ fontSize: 12, color: GRAY }}>{day.day}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -781,6 +820,88 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* [v3.0.6.11-99 Wave10B] 类型环形占比 + 阅读率 */}
+      <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 10 }}>类型占比 / 阅读情况</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ position: 'relative', width: 104, height: 104, flexShrink: 0 }}>
+            <svg viewBox="0 0 100 100" width={104} height={104}>
+              {(() => {
+                const total = Math.max(1, notifications.length)
+                const colors = ['#3b82f6', '#dc2626', '#8b5cf6', '#10b981', '#64748b', '#059669', '#7c3aed']
+                let acc = 0
+                const R = 40
+                const C = 2 * Math.PI * R
+                return typeDistribution.filter(t => t.count > 0).map((t, i) => {
+                  const frac = t.count / total
+                  const dash = frac * C
+                  const offset = -acc * C
+                  acc += frac
+                  return (
+                    <circle
+                      key={t.key}
+                      cx="50" cy="50" r={R}
+                      fill="none"
+                      stroke={colors[i % colors.length]}
+                      strokeWidth="13"
+                      strokeDasharray={`${dash} ${C - dash}`}
+                      strokeDashoffset={offset}
+                      transform="rotate(-90 50 50)"
+                    >
+                      <title>{`${t.label}: ${t.count} 条`}</title>
+                    </circle>
+                  )
+                })
+              })()}
+              <text x="50" y="47" textAnchor="middle" fontSize="14" fontWeight="700" fill={PRIMARY}>
+                {notifications.length}
+              </text>
+              <text x="50" y="60" textAnchor="middle" fontSize="7" fill="#94a3b8">全部通知</text>
+            </svg>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {typeDistribution.filter(t => t.count > 0).slice(0, 6).map((t, i) => {
+              const colors = ['#3b82f6', '#dc2626', '#8b5cf6', '#10b981', '#64748b', '#059669']
+              const pct = notifications.length > 0 ? Math.round((t.count / notifications.length) * 1000) / 10 : 0
+              return (
+                <div key={t.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: colors[i % colors.length], flexShrink: 0 }} />
+                  <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{t.label}</span>
+                  <span style={{ color: GRAY }}>{pct}%</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        {/* 阅读率 */}
+        <div style={{ marginTop: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: GRAY, marginBottom: 4 }}>
+            <span>已读 {todayStats.total - todayStats.unread} / 未读 {todayStats.unread}</span>
+            <span style={{ color: SUCCESS, fontWeight: 600 }}>
+              阅读率 {todayStats.total > 0 ? Math.round(((todayStats.total - todayStats.unread) / todayStats.total) * 100) : 100}%
+            </span>
+          </div>
+          <div style={{ background: 'var(--content-bg)', height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex' }}>
+            <div style={{
+              width: `${todayStats.total > 0 ? ((todayStats.total - todayStats.unread) / todayStats.total) * 100 : 100}%`,
+              height: '100%', background: SUCCESS,
+            }} />
+            <div style={{
+              width: `${todayStats.total > 0 ? (todayStats.unread / todayStats.total) * 100 : 0}%`,
+              height: '100%', background: DANGER,
+            }} />
+          </div>
+          <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 10, color: GRAY }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: SUCCESS }} /> 已读
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: DANGER }} /> 未读
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -1065,6 +1186,9 @@ function mapNotificationType(type: string): SystemNotification['type'] {
   switch (type) {
     case 'REPORT': return 'report_completed'
     case 'CRITICAL': return 'critical_value'
+    // [v3.0.6.11-99 Wave10B] 后端订阅类型 FOLLOWUP / QUALITY → 页面筛选类型
+    case 'FOLLOWUP': return 'followup'
+    case 'QUALITY': return 'quality'
     case 'SYSTEM': return 'system'
     case 'APPOINTMENT': return 'appointment'
     case 'TASK': return 'consultation'
@@ -1196,6 +1320,10 @@ export default function NotificationCenter() {
   const [showSettings, setShowSettings] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
 
+  // [v3.0.6.11-99 Wave10B] 已读/未读筛选 + 分组视图
+  const [readFilter, setReadFilter] = useState<'all' | 'unread' | 'read'>('all')
+  const [groupByRead, setGroupByRead] = useState(false)
+
   const [settings, setSettings] = useState<NotificationSettings>({
     reportCompleted: true,
     criticalValue: true,
@@ -1266,6 +1394,9 @@ export default function NotificationCenter() {
   const filteredNotifications = useMemo(() => {
     return notifications.filter(n => {
       if (activeTab !== 'all' && n.type !== activeTab) return false
+      // [v3.0.6.11-99 Wave10B] 已读/未读筛选
+      if (readFilter === 'unread' && n.status !== 'unread') return false
+      if (readFilter === 'read' && n.status !== 'read') return false
       if (searchText) {
         const search = searchText.toLowerCase()
         if (
@@ -1278,7 +1409,7 @@ export default function NotificationCenter() {
       }
       return true
     })
-  }, [notifications, activeTab, searchText])
+  }, [notifications, activeTab, searchText, readFilter])
 
   // 统计 (优先 API stats: 未读/今日/总数)
   const stats = useMemo(() => {
@@ -1737,7 +1868,49 @@ export default function NotificationCenter() {
           <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
             {/* 统计面板 */}
             <StatsPanel notifications={notifications} apiStats={apiStats} />
-            
+
+            {/* [v3.0.6.11-99 Wave10B] 已读/未读筛选 + 分组视图工具栏 */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap',
+              padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 10,
+              border: '1px solid var(--border-color)',
+            }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: GRAY }}>阅读状态:</span>
+              {([
+                ['all', '全部', notifications.length],
+                ['unread', '未读', notifications.filter(n => n.status === 'unread').length],
+                ['read', '已读', notifications.filter(n => n.status === 'read').length],
+              ] as Array<[typeof readFilter, string, number]>).map(([key, label, count]) => (
+                <button
+                  key={key}
+                  onClick={() => setReadFilter(key)}
+                  style={{
+                    padding: '4px 12px', borderRadius: 999, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                    background: readFilter === key ? (key === 'unread' ? DANGER : key === 'read' ? SUCCESS : ACCENT) : 'var(--content-bg)',
+                    color: readFilter === key ? WHITE : GRAY,
+                    border: `1px solid ${readFilter === key ? 'transparent' : 'var(--border-color)'}`,
+                  }}
+                >
+                  {label} {count}
+                </button>
+              ))}
+              <div style={{ width: 1, height: 20, background: 'var(--border-color)' }} />
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={groupByRead}
+                  onChange={e => setGroupByRead(e.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                按已读/未读分组
+              </label>
+              {groupByRead && (
+                <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
+                  未读 {filteredNotifications.filter(n => n.status === 'unread').length} · 已读 {filteredNotifications.filter(n => n.status === 'read').length}
+                </span>
+              )}
+            </div>
+
             {/* 历史动态 */}
             {!showSettings && <HistoryPanel notifications={notifications} onViewNotification={(n) => { setSelectedNotification(n); setShowDetailModal(true) }} />}
 
@@ -1748,6 +1921,71 @@ export default function NotificationCenter() {
               }}>
                 <Bell size={48} color="#e2e8f0" style={{ marginBottom: 12 }} />
                 <div style={{ fontSize: 14, color: GRAY }}>暂无通知</div>
+              </div>
+            ) : groupByRead ? (
+              /* [v3.0.6.11-99 Wave10B] 已读/未读分组视图 */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {([
+                  ['unread', '未读通知', DANGER],
+                  ['read', '已读通知', SUCCESS],
+                ] as Array<['unread' | 'read', string, string]>).map(([key, label, color]) => {
+                  const items = filteredNotifications.filter(n => n.status === key)
+                  if (items.length === 0) return null
+                  return (
+                    <div key={key}>
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
+                        fontSize: 13, fontWeight: 700, color,
+                      }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+                        {label}
+                        <span style={{
+                          fontSize: 11, fontWeight: 600, padding: '1px 8px', borderRadius: 999,
+                          background: `${color}1a`, color,
+                        }}>
+                          {items.length}
+                        </span>
+                        {key === 'unread' && items.length > 0 && (
+                          <button
+                            onClick={handleMarkAllRead}
+                            style={{
+                              marginLeft: 'auto', fontSize: 11, padding: '3px 10px', cursor: 'pointer',
+                              border: '1px solid var(--border-color)', borderRadius: 6,
+                              background: 'var(--bg-card)', color: ACCENT,
+                              display: 'flex', alignItems: 'center', gap: 4,
+                            }}
+                          >
+                            <CheckCheck size={12} /> 全部已读
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
+                        {items.map(notification => {
+                          const delivery = deliveryStatuses.find(d => d.notificationId === notification.id)
+                          return (
+                            <div key={notification.id}>
+                              <NotificationCard
+                                notification={notification}
+                                isSelected={selectedNotification?.id === notification.id}
+                                onView={() => {
+                                  setSelectedNotification(notification)
+                                  setShowDetailModal(true)
+                                }}
+                                onMarkRead={() => handleMarkRead(notification.id)}
+                                onDelete={() => handleDelete(notification.id)}
+                              />
+                              {showDeliveryTracking && delivery && (
+                                <div style={{ marginTop: 2, padding: '2px 14px 6px', background: 'var(--content-bg)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
+                                  <DeliveryStatusBadge delivery={delivery} />
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>

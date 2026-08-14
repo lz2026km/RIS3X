@@ -79,6 +79,18 @@ export class PatientController {
     return this.service.importMany(items as never)
   }
 
+  // [v3.0.6.11-99 Wave 10D] 患者总览 (总数/今日新增/活跃) — 静态子路由先于 :id 注册
+  @Get('overview')
+  overview() {
+    return this.service.getOverview()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 年龄分布统计
+  @Get('age-distribution')
+  ageDistribution() {
+    return this.service.getAgeDistribution()
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.service.get(id)
@@ -119,5 +131,17 @@ export class PatientController {
   @Get(':id/timeline')
   getTimeline(@Param('id') id: string) {
     return this.service.getTimeline(id)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 患者综合摘要 (检查/报告/随访/费用/危急值)
+  @Get(':id/summary')
+  getSummary(@Param('id') id: string) {
+    return this.service.getSummary(id)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 就诊历史时间线
+  @Get(':id/visit-history')
+  getVisitHistory(@Param('id') id: string) {
+    return this.service.getVisitHistory(id)
   }
 }

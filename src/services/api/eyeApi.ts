@@ -335,10 +335,26 @@ export const eyeApi = {
     api.post<any>(`${EYE_API}/iol/predict/postop`, data),
 
   // ===== [G005 Wave1B] 远程眼科 tele (TeleConsultPage, MSW eyeTeleModule 对齐) =====
+  // [G005 Wave10A] /eye/tele/* 后端真实 (eye-tele 桥接 tele 模块): session CRUD + turn/stream/consult/stats
   getTeleTurn: () => api.get<any>(`${EYE_API}/tele/turn`),
   createTeleSession: (data: any) => api.post<any>(`${EYE_API}/tele/session`, data),
   createTeleStream: (data: any) => api.post<any>(`${EYE_API}/tele/stream`, data),
   createTeleConsult: (data: any) => api.post<any>(`${EYE_API}/tele/consult`, data),
+  listTeleSessions: (params?: Record<string, any>) =>
+    api.get<any>(`${EYE_API}/tele/sessions${buildQuery(params)}`),
+  getTeleSession: (sessionId: string) =>
+    api.get<any>(`${EYE_API}/tele/session/${encodeURIComponent(sessionId)}`),
+  endTeleSession: (sessionId: string) =>
+    api.delete<any>(`${EYE_API}/tele/session/${encodeURIComponent(sessionId)}`),
+  listTeleStreams: (params?: Record<string, any>) =>
+    api.get<any>(`${EYE_API}/tele/streams${buildQuery(params)}`),
+  listTeleConsults: (params?: Record<string, any>) =>
+    api.get<any>(`${EYE_API}/tele/consults${buildQuery(params)}`),
+  getTeleConsult: (consultId: string) =>
+    api.get<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}`),
+  answerTeleConsult: (consultId: string, data: any) =>
+    api.post<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}/answer`, data),
+  getTeleStats: () => api.get<any>(`${EYE_API}/tele/stats`),
 
   // ===== [G005 Wave1B] 像素级图像处理 pixel (RealDicomViewerPage, MSW eyePixelModule 对齐) =====
   getPixelInstance: (instanceId: string) =>

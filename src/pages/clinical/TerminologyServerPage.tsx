@@ -4,8 +4,10 @@ import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
 import { usePagination } from '../../hooks/usePagination';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
-import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2 } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2, Stethoscope } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+// [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索）: radiologyTerminology.ts
+import { searchSigns } from '../../data/radiologyTerminology';
 
 export const TerminologyServerPage: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -18,6 +20,8 @@ export const TerminologyServerPage: React.FC = () => {
   const [error, setError] = useState('');
   const [mappingModal, setMappingModal] = useState(false);
   const [mappingForm] = Form.useForm();
+  // [v3.0.6.11-99 W10C] 本地征象词典检索（离线，不依赖后端）
+  const localSigns = useMemo(() => searchSigns(query).slice(0, 8), [query]);
   // [v3.0.6.11-92] 概念检索结果受控分页
   const { pageData: resultsPage, pagination: resultsPagination } = usePagination(results, 10);
 
@@ -154,9 +158,32 @@ export const TerminologyServerPage: React.FC = () => {
             { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m === 'exact' ? '精确' : m === 'partial' ? '部分' : m}</Tag> },
             { title: '置信度', dataIndex: 'confidence', render: (c: number) => `${Math.round((c ?? 0) * 100)}%` },
           ]}
-       
+        
         />
       </Card>
+
+      {/* [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索） */}
+      {query.trim() && (
+        <Card size="small" title={<Space><Stethoscope size={14} />本地征象词典（离线）</Space>} style={{ marginBottom: 16 }}>
+          {localSigns.length === 0 ? (
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="本地词典无匹配项，可继续检索 SNOMED-CT" />
+          ) : (
+            <Table
+              dataSource={localSigns}
+              rowKey="name"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: '征象', dataIndex: 'name', width: 120, render: (v: string) => <Tag color="purple">{v}</Tag> },
+                { title: '英文', dataIndex: 'english', width: 200 },
+                { title: '定义', dataIndex: 'definition', ellipsis: true },
+                { title: '常见部位', dataIndex: 'commonSites', width: 130 },
+                { title: '意义', dataIndex: 'significance', ellipsis: true },
+              ]}
+            />
+          )}
+        </Card>
+      )}
 
       <Row gutter={16}>
         <Col xs={24} md={14}>

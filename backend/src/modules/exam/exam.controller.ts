@@ -87,6 +87,36 @@ export class ExamController {
     return this.service.exportCsv({ patientId, modality, state, dateFrom, dateTo })
   }
 
+  // [v3.0.6.11-99 Wave 10D] 检查总览 (状态/模态分布/今日量) — 静态子路由先于 :id 注册
+  @Get('overview')
+  overview() {
+    return this.service.getOverview()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 模态维度统计
+  @Get('by-modality')
+  byModality() {
+    return this.service.getByModality()
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 近 30 日检查趋势
+  @Get('daily-trend')
+  dailyTrend(@Query('days') days?: string) {
+    return this.service.getDailyTrend(Number(days ?? 30))
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 检查完整时间线
+  @Get('timeline/:id')
+  timeline(@Param('id') id: string) {
+    return this.service.getTimeline(id)
+  }
+
+  // [v3.0.6.11-99 Wave 10D] 技师备注保存
+  @Post(':id/notes')
+  notes(@Param('id') id: string, @Body(new ZodValidationPipe(z.object({ note: z.string().min(1).max(2000) }))) body: { note: string }) {
+    return this.service.saveNotes(id, body.note)
+  }
+
   // [W4-A] 批量导入 (JSON 数组或 { items }, 无患者则报错列出)
   @Post('import')
   @Roles(...WRITE_ROLES)

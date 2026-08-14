@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar } from 'lucide-react';
 import { followupApi, type FollowUpPlan, type FollowUpStats } from '../services/api/followupApi';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
@@ -61,11 +61,17 @@ const mapPlan = (p: FollowUpPlan): FollowUpPatient => ({
 });
 
 export default function FollowUpPage() {
-  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'overdue'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'overdue' | 'reminded' | 'inprogress' | 'completed' | 'missed' | 'cancelled'>('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<FollowUpPatient | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // [v3.0.6.11-99 Wave10B] 视图切换: list=列表 / calendar=日历 / grouped=按患者分组
+  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'grouped'>('list');
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  // [v3.0.6.11-99 Wave10B] 分组展开状态
+  const [expandedPatients, setExpandedPatients] = useState<Set<string>>(new Set());
 
   // [W4-B] 真实 API 数据 (列表/到期提醒/loading/error)
   const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([]);
@@ -202,9 +208,66 @@ export default function FollowUpPage() {
       item.patientId.includes(searchKeyword);
     const tabMatch = activeTab === 'all' ||
       (activeTab === 'pending' && item.status === '待随访') ||
-      (activeTab === 'overdue' && item.status === '逾期');
+      (activeTab === 'overdue' && item.status === '逾期') ||
+      (activeTab === 'reminded' && item.status === '已提醒') ||
+      (activeTab === 'inprogress' && item.status === '进行中') ||
+      (activeTab === 'completed' && item.status === '已完成') ||
+      (activeTab === 'missed' && item.status === '已失访') ||
+      (activeTab === 'cancelled' && item.status === '已取消');
     return keywordMatch && tabMatch;
   });
+
+  // [v3.0.6.11-99 Wave10B] 患者维度分组 (按 patientId 聚合, 保留全部计划)
+  const groupedByPatient = useMemo(() => {
+    const groups: Array<{ patientId: string; patientName: string; items: FollowUpPatient[] }> = [];
+    const map = new Map<string, FollowUpPatient[]>();
+    filteredList.forEach(p => {
+      const arr = map.get(p.patientId) || [];
+      arr.push(p);
+      map.set(p.patientId, arr);
+    });
+    map.forEach((items, patientId) => {
+      groups.push({
+        patientId,
+        patientName: items[0]?.patientName || patientId,
+        items: items.sort((a, b) => String(a.nextFollowUpDate).localeCompare(String(b.nextFollowUpDate))),
+      });
+    });
+    return groups.sort((a, b) => a.patientName.localeCompare(b.patientName, 'zh-CN'));
+  }, [filteredList]);
+
+  // [v3.0.6.11-99 Wave10B] 日历视图数据: 按日聚合计划 (状态色点)
+  const calendarDays = useMemo(() => {
+    const byDay: Record<string, FollowUpPatient[]> = {};
+    followUpList.forEach(p => {
+      const day = String(p.nextFollowUpDate || p.examDate || '').slice(0, 10);
+      if (!day) return;
+      const arr = byDay[day] || [];
+      arr.push(p);
+      byDay[day] = arr;
+    });
+    return byDay;
+  }, [followUpList]);
+
+  const statusDotColor: Record<string, string> = {
+    '待随访': '#faad14',
+    '已提醒': '#1677ff',
+    '进行中': '#1890ff',
+    '已完成': '#52c41a',
+    '已失访': '#ff4d4f',
+    '已取消': '#8c8c8c',
+    '逾期': '#ff4d4f',
+  };
+
+  // 展开/收起患者分组
+  const togglePatient = (patientId: string) => {
+    setExpandedPatients(prev => {
+      const next = new Set(prev);
+      if (next.has(patientId)) next.delete(patientId);
+      else next.add(patientId);
+      return next;
+    });
+  };
 
   // [W2-4] 患者详情"随访"入口: /follow-up?patientId=xxx 自动定位该患者
   useEffect(() => {
@@ -746,6 +809,136 @@ export default function FollowUpPage() {
         </div>
       </div>
 
+      {/* [v3.0.6.11-99 Wave10B] 随访趋势 / 类别分布 / 到期清单 深化面板 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
+        {/* 近 6 月随访趋势 */}
+        <div style={{ ...statCardStyle }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Calendar size={14} /> 随访月度趋势 (byMonth)
+          </div>
+          {(() => {
+            const byMonth: Array<{ month: string; total: number; completed: number; missed: number }> = (displayStats.byMonth ?? []).length > 0
+              ? displayStats.byMonth.slice(-6)
+              : (() => {
+                  const map = new Map<string, { total: number; completed: number; missed: number }>()
+                  followUpList.forEach(p => {
+                    const m = String(p.nextFollowUpDate || p.examDate || '').slice(0, 7)
+                    if (!m) return
+                    const cur = map.get(m) || { total: 0, completed: 0, missed: 0 }
+                    cur.total += 1
+                    if (p.status === '已完成') cur.completed += 1
+                    if (p.status === '已失访') cur.missed += 1
+                    map.set(m, cur)
+                  })
+                  return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-6).map(([month, v]) => ({ month, ...v }))
+                })()
+            const maxTotal = Math.max(1, ...byMonth.map(b => b.total))
+            return byMonth.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>暂无趋势数据</div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 110 }}>
+                  {byMonth.map(b => (
+                    <div key={b.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                      <span style={{ fontSize: 10, color: '#52c41a', fontWeight: 600 }}>{b.completed}</span>
+                      <div style={{
+                        width: '65%', borderRadius: '3px 3px 0 0',
+                        height: `${(b.total / maxTotal) * 80}px`, minHeight: 5,
+                        background: 'linear-gradient(180deg, #1890ff, #69c0ff)',
+                      }} title={`${b.month}: 共 ${b.total} · 完成 ${b.completed}`} />
+                      <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{b.month.slice(5)}月</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+                  {byMonth.map(b => `${b.month}: ${b.total}条`).join(' · ')}
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+
+        {/* 类别分布 */}
+        <div style={{ ...statCardStyle }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <LayoutTemplate size={14} /> 随访类别分布 (byCategory)
+          </div>
+          {(() => {
+            const cats: Array<{ category: string; count: number }> = (displayStats.byCategory ?? []).length > 0
+              ? displayStats.byCategory
+              : (() => {
+                  const map = new Map<string, number>()
+                  followUpList.forEach(p => {
+                    const cat = p.followUpType || '未分类'
+                    map.set(cat, (map.get(cat) || 0) + 1)
+                  })
+                  return [...map.entries()].map(([category, count]) => ({ category, count }))
+                })()
+            const maxCat = Math.max(1, ...cats.map(c => c.count))
+            const colors = ['#1890ff', '#722ed1', '#52c41a', '#fa8c16', '#eb2f96', '#13c2c2']
+            return cats.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>暂无分类数据</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {cats.slice(0, 6).map((c, i) => (
+                  <div key={c.category}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{c.category}</span>
+                      <span style={{ color: colors[i % colors.length], fontWeight: 700 }}>{c.count}</span>
+                    </div>
+                    <div style={{ height: 7, background: '#f5f5f5', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${(c.count / maxCat) * 100}%`, height: '100%', borderRadius: 4,
+                        background: colors[i % colors.length], transition: 'width 0.3s',
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
+
+        {/* 即将到期清单 */}
+        <div style={{ ...statCardStyle }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <BellRing size={14} /> 即将到期 (7 日内)
+          </div>
+          {dueList.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <CheckCircle size={26} color="#52c41a" />
+              未来 7 天无到期随访
+            </div>
+          ) : (
+            <div style={{ maxHeight: 190, overflowY: 'auto' }}>
+              {dueList.slice(0, 8).map(p => (
+                <div key={p.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0',
+                  borderBottom: '1px solid var(--border-color)', fontSize: 12,
+                }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#fa8c16', flexShrink: 0 }} />
+                  <span style={{ color: 'var(--text-secondary)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.patientName}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{String(p.nextDate || '').slice(5)}</span>
+                  <span style={{ fontSize: 11, color: p.status === 'OVERDUE' ? '#ff4d4f' : '#faad14', fontWeight: 600 }}>
+                    {p.status === 'OVERDUE' ? '已逾期' : '待随访'}
+                  </span>
+                </div>
+              ))}
+              {dueList.length > 8 && (
+                <div style={{ textAlign: 'center', padding: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
+                  另有 {dueList.length - 8} 项…
+                </div>
+              )}
+            </div>
+          )}
+          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+            <Bell size={11} style={{ verticalAlign: 'text-bottom' }} /> 到期提醒由 followupApi.due(7) 实时获取
+          </div>
+        </div>
+      </div>
+
       <div style={searchBarStyle}>
         <input
           type="text"
@@ -787,18 +980,247 @@ export default function FollowUpPage() {
         </div>
       )}
 
+      {/* [v3.0.6.11-99 Wave10B] 状态筛选 Tab: 全部/待随访/逾期/已提醒/进行中/已完成/已失访/已取消 */}
       <div style={tabContainerStyle}>
-        <button style={tabStyle(activeTab === 'all')} onClick={() => setActiveTab('all')}>
-          全部 ({displayStats.total})
-        </button>
-        <button style={tabStyle(activeTab === 'pending')} onClick={() => setActiveTab('pending')}>
-          待随访 ({displayStats.pending})
-        </button>
-        <button style={tabStyle(activeTab === 'overdue')} onClick={() => setActiveTab('overdue')}>
-          逾期 ({displayStats.overdue})
-        </button>
+        {([
+          ['all', '全部', displayStats.total],
+          ['pending', '待随访', displayStats.pending],
+          ['reminded', '已提醒', displayStats.reminded],
+          ['inprogress', '进行中', displayStats.inProgress],
+          ['completed', '已完成', displayStats.completed],
+          ['overdue', '逾期', displayStats.overdue],
+          ['missed', '已失访', displayStats.missed],
+          ['cancelled', '已取消', displayStats.cancelled],
+        ] as Array<[typeof activeTab, string, number]>).map(([key, label, count]) => (
+          <button key={key} style={tabStyle(activeTab === key)} onClick={() => setActiveTab(key)}>
+            {label} ({count})
+          </button>
+        ))}
       </div>
 
+      {/* [v3.0.6.11-99 Wave10B] 视图切换: 列表 / 日历 / 按患者分组 */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+        {([
+          ['list', '列表视图'],
+          ['calendar', '日历视图'],
+          ['grouped', '按患者分组'],
+        ] as Array<['list' | 'calendar' | 'grouped', string]>).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setViewMode(key)}
+            style={{
+              padding: '7px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+              background: viewMode === key ? '#1890ff' : 'var(--bg-card)',
+              color: viewMode === key ? '#fff' : 'var(--text-secondary)',
+              border: `1px solid ${viewMode === key ? '#1890ff' : 'var(--border-color)'}`,
+            }}
+          >
+            {label}
+          </button>
+        ))}
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
+          共 {filteredList.length} 条 · 患者 {groupedByPatient.length} 人
+        </span>
+      </div>
+
+      {/* [v3.0.6.11-99 Wave10B] 日历视图 (计划日期分布) */}
+      {viewMode === 'calendar' && (
+        <div style={{ ...tableStyle, padding: 16, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a' }}>随访计划日历 · {calendarMonth}</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                style={actionButtonStyle}
+                onClick={() => {
+                  const d = new Date(calendarMonth + '-01')
+                  d.setMonth(d.getMonth() - 1)
+                  setCalendarMonth(d.toISOString().slice(0, 7))
+                }}
+              >
+                上月
+              </button>
+              <button
+                style={actionButtonStyle}
+                onClick={() => {
+                  const d = new Date(calendarMonth + '-01')
+                  d.setMonth(d.getMonth() + 1)
+                  setCalendarMonth(d.toISOString().slice(0, 7))
+                }}
+              >
+                下月
+              </button>
+            </div>
+          </div>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6,
+          }}>
+            {['一', '二', '三', '四', '五', '六', '日'].map(w => (
+              <div key={w} style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', padding: '6px 0' }}>
+                {w}
+              </div>
+            ))}
+            {(() => {
+              const [y, m] = calendarMonth.split('-').map(Number)
+              const first = new Date(y, m - 1, 1)
+              const startPad = (first.getDay() + 6) % 7
+              const daysInMonth = new Date(y, m, 0).getDate()
+              const cells: Array<number | null> = [
+                ...Array.from({ length: startPad }, () => null),
+                ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+              ]
+              return cells.map((day, i) => {
+                const key = day ? `${calendarMonth}-${String(day).padStart(2, '0')}` : `pad-${i}`
+                const plans = day ? calendarDays[key] || [] : []
+                const isToday = key === new Date().toISOString().slice(0, 10)
+                return (
+                  <div key={key} style={{
+                    minHeight: 74, borderRadius: 8, padding: 6,
+                    background: isToday ? '#e6f4ff' : day ? 'var(--bg-card)' : 'transparent',
+                    border: `1px solid ${isToday ? '#1890ff' : day ? 'var(--border-color)' : 'transparent'}`,
+                    position: 'relative',
+                  }}>
+                    {day && (
+                      <>
+                        <span style={{
+                          position: 'absolute', top: 4, right: 6, fontSize: 11, fontWeight: 600,
+                          color: isToday ? '#1890ff' : 'var(--text-secondary)',
+                        }}>
+                          {day}
+                        </span>
+                        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          {plans.slice(0, 3).map(p => (
+                            <span
+                              key={p.id}
+                              title={`${p.patientName} · ${p.status} · ${p.notes || ''}`}
+                              onClick={() => { setSelectedPatient(p); setShowModal(true) }}
+                              style={{
+                                fontSize: 10, padding: '1px 4px', borderRadius: 3, cursor: 'pointer',
+                                background: `${statusDotColor[p.status] || '#94a3b8'}22`,
+                                color: statusDotColor[p.status] || '#64748b',
+                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {p.patientName.slice(0, 4)}
+                            </span>
+                          ))}
+                          {plans.length > 3 && (
+                            <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>+{plans.length - 3} 项</span>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )
+              })
+            })()}
+          </div>
+          <div style={{ marginTop: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {Object.entries(statusDotColor).map(([status, color]) => {
+              const count = followUpList.filter(p => p.status === status).length
+              return (
+                <span key={status} style={{ fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--text-secondary)' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+                  {status} ({count})
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-99 Wave10B] 按患者分组视图 */}
+      {viewMode === 'grouped' && (
+        <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {groupedByPatient.length === 0 && (
+            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 13 }}>暂无匹配的随访计划</div>
+          )}
+          {groupedByPatient.map(g => {
+            const expanded = expandedPatients.has(g.patientId)
+            const latest = g.items[0]
+            const completedCount = g.items.filter(i => i.status === '已完成').length
+            return (
+              <div key={g.patientId} style={{ ...tableStyle, overflow: 'hidden' }}>
+                <div
+                  onClick={() => togglePatient(g.patientId)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer',
+                    background: expanded ? '#e6f4ff' : 'var(--bg-card)',
+                    borderBottom: expanded ? '1px solid var(--border-color)' : 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                    background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
+                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 15, fontWeight: 700,
+                  }}>
+                    {g.patientName.slice(0, 1)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      {g.patientName}
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 8, fontWeight: 400 }}>
+                        ID: {g.patientId}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      {g.items.length} 条计划 · 已完成 {completedCount} · 最近随访 {String(latest?.nextFollowUpDate || '').slice(0, 10)}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {(['待随访', '逾期', '已提醒', '进行中'] as string[]).map(s => {
+                      const c = g.items.filter(i => i.status === s).length
+                      if (c === 0) return null
+                      return (
+                        <span key={s} style={{
+                          padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+                          background: `${statusDotColor[s] || '#94a3b8'}1f`,
+                          color: statusDotColor[s] || '#64748b',
+                        }}>
+                          {s} {c}
+                        </span>
+                      )
+                    })}
+                  </div>
+                  <span style={{ color: 'var(--text-secondary)', transition: 'transform 0.2s', transform: expanded ? 'rotate(90deg)' : 'none', fontSize: 12 }}>
+                    ›
+                  </span>
+                </div>
+                {expanded && (
+                  <div style={{ padding: 8 }}>
+                    {g.items.map(item => (
+                      <div key={item.id} style={{
+                        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                        borderBottom: '1px solid var(--border-color)',
+                      }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
+                            {item.notes || item.followUpType || '随访计划'}
+                            {item.examType && <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{item.examType}</span>}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                            检查 {item.examDate} → 随访 {item.nextFollowUpDate}{item.intervalDays ? ` · 间隔 ${item.intervalDays} 天` : ''}
+                          </div>
+                        </div>
+                        <span style={getStatusTagStyle(item.status)}>{item.status}</span>
+                        <button
+                          style={{ ...actionButtonStyle, backgroundColor: '#1890ff' }}
+                          onClick={() => { setSelectedPatient(item); setShowModal(true) }}
+                        >
+                          <Eye size={12} /> 详情
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* [v3.0.6.11-99 Wave10B] 列表视图保持原样 */}
+      {viewMode === 'list' && (
       <div style={tableStyle}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -894,6 +1316,7 @@ export default function FollowUpPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {showModal && selectedPatient && (
         <div style={modalOverlayStyle} onClick={() => setShowModal(false)}>

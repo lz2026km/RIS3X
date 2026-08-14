@@ -2,7 +2,7 @@
 // G005 放射科RIS系统 - 首页 v1.0.0
 // 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
-import { useState, useEffect, type FC } from 'react'
+import { useState, useEffect, useCallback, type FC } from 'react'
 
 const HOSPITAL_NAME = (typeof window !== 'undefined' && (window as unknown as { __HOSPITAL_NAME__?: string }).__HOSPITAL_NAME__) || '汉东省人民医院'
 const today = new Date()
@@ -18,7 +18,11 @@ import {
   DollarSign,
   ArrowUpRight, ArrowDownRight,
   Image, BookOpen, Eye, Timer, ImageIcon,
-  Clock3, UserCheck, ClipboardList, CheckSquare
+  Clock3, UserCheck, ClipboardList, CheckSquare,
+  // [v3.0.6.11-99 Wave10B] 首页深化: 工作清单/科室动态/快捷增强/趋势细化/绩效卡/数据源徽标
+  Megaphone, Users, UserPlus, Target, CalendarRange,
+  Stethoscope, Crosshair, ClipboardPlus, Sparkles, Award,
+  Gauge, Database, FileCheck2, RefreshCcw
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -35,6 +39,11 @@ import {
 } from '../data/initialData'
 import { list } from '../services/mockBackend/store'
 import { statsApi } from '../services/api'
+import { biApi } from '../services/api/biApi'
+import { reportApi } from '../services/api/reportApi'
+import { worklistApi } from '../services/api/worklistApi'
+import { deptApi, type DeptAnnouncement, type OnCallSchedule } from '../services/api/deptApi'
+import { criticalApi } from '../services/api/criticalApi'
 import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
@@ -74,6 +83,17 @@ const MODALITY_COLORS: Record<string, string> = {
   'GI': '#14b8a6',
   PET: '#f97316'
 }
+
+// [v3.0.6.11-99 Wave10B] 近 7 日模态堆叠回退数据 (模块级常量, 避免 TDZ)
+const MODAL_STACK_FALLBACK: Array<Record<string, string | number>> = [
+  { day: '周一', CT: 98, MR: 45, DR: 85, DSA: 8, MG: 5, 合计: 241 },
+  { day: '周二', CT: 105, MR: 52, DR: 90, DSA: 10, MG: 6, 合计: 263 },
+  { day: '周三', CT: 112, MR: 48, DR: 78, DSA: 12, MG: 8, 合计: 258 },
+  { day: '周四', CT: 95, MR: 55, DR: 82, DSA: 9, MG: 5, 合计: 246 },
+  { day: '周五', CT: 108, MR: 50, DR: 88, DSA: 11, MG: 7, 合计: 264 },
+  { day: '周六', CT: 60, MR: 25, DR: 40, DSA: 3, MG: 3, 合计: 131 },
+  { day: '周日', CT: 30, MR: 10, DR: 20, DSA: 1, MG: 1, 合计: 62 },
+]
 
 // 通用卡片样式
 const cardStyle: React.CSSProperties = {
@@ -412,6 +432,73 @@ const HomePage: FC = () => {
     };
   })
 
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 首页深化: 区块11-16 数据状态
+  // 全部接入真实 API (reportApi/worklistApi/criticalApi/deptApi/biApi),
+  // 失败回退 mockBackend store / initialData, 徽标标注数据源。
+  // ============================================================
+  const [workSource, setWorkSource] = useState<'real' | 'demo'>('demo')
+  const [deptSource, setDeptSource] = useState<'real' | 'demo'>('demo')
+  const [trendSource, setTrendSource] = useState<'real' | 'demo'>('demo')
+  const [perfSource, setPerfSource] = useState<'real' | 'demo'>('demo')
+
+  // 区块11: 今日工作清单 (个人待办)
+  const [myTodos, setMyTodos] = useState<{
+    pendingReports: Array<{ id: string; patientName: string; examItem: string; createdAt: string; priority?: string }>
+    pendingReviews: Array<{ id: string; patientName: string; examItem: string; createdAt: string; state?: string }>
+    pendingCriticals: Array<{ id: string; patientName: string; finding: string; triggeredAt: string; severity: string }>
+  }>(() => {
+    const reports = list<any>('reports')
+    let criticals: any[] = []
+    try { criticals = list<any>('criticalEvents') } catch { criticals = [] }
+    return {
+      pendingReports: reports.filter((r: any) => ['WRITING', 'PENDING_ASSIGNMENT', 'ASSIGNED', 'SUBMITTED'].includes(String(r.state ?? r.status ?? '')))
+        .slice(0, 8).map((r: any) => ({ id: r.id, patientName: r.patientName ?? '未知', examItem: r.examItem ?? '影像检查', createdAt: r.createdAt ?? '', priority: r.priority })),
+      pendingReviews: reports.filter((r: any) => ['INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW'].includes(String(r.state ?? '')) || String(r.status ?? '') === '审核中')
+        .slice(0, 8).map((r: any) => ({ id: r.id, patientName: r.patientName ?? '未知', examItem: r.examItem ?? '影像检查', createdAt: r.createdAt ?? '', state: r.state })),
+      pendingCriticals: (criticals.length > 0 ? criticals : initialCriticalValues)
+        .filter((c: any) => !['已处理', '已通知', 'RESOLVED', 'CLOSED_LOOP'].includes(String(c.status ?? c.state ?? '')))
+        .slice(0, 8).map((c: any) => ({ id: c.id, patientName: c.patientName ?? '未知', finding: c.findingDetails ?? c.finding ?? '', triggeredAt: c.triggeredAt ?? c.reportedTime ?? '', severity: c.severity ?? '危急' })),
+    }
+  })
+  const [myTodoLoading, setMyTodoLoading] = useState(false)
+  const [myTodoError, setMyTodoError] = useState<string | null>(null)
+
+  // 区块12: 科室动态 (公告 + 今日值班)
+  const [deptAnnouncements, setDeptAnnouncements] = useState<Array<{ id: string; title: string; content: string; category: string; author: string; createdAt: string; pinned?: boolean }>>([])
+  const [todayOnCall, setTodayOnCall] = useState<Array<{ id: string; doctorName: string; shift: string; role: string }>>([])
+  const [deptLoading, setDeptLoading] = useState(false)
+  const [deptError, setDeptError] = useState<string | null>(null)
+
+  // 区块14: 近 7 日按模态堆叠
+  const [modalStackData, setModalStackData] = useState<Array<Record<string, string | number>>>(() => MODAL_STACK_FALLBACK.map(r => ({ ...r })))
+  const [trendLoading, setTrendLoading] = useState(false)
+  const [trendError, setTrendError] = useState<string | null>(null)
+
+  // 区块15: 个人绩效卡
+  const [perfCard, setPerfCard] = useState(() => {
+    const reports = list<any>('reports')
+    const myReports = reports.filter((r: any) => r.radiologistId === currentUser?.id || r.doctorId === currentUser?.id)
+    return {
+      todayReports: myReports.length > 0 ? Math.min(myReports.length, 20) : workload.reportsWritten,
+      todayExams: workload.examsCompleted,
+      rvu: Math.round((myReports.length > 0 ? myReports.length : workload.reportsWritten) * 4.2),
+      qualityScore: 0,
+      timelinessMin: 0,
+      doctorName: currentUser?.name ?? '当前用户',
+    }
+  })
+  const [perfLoading, setPerfLoading] = useState(false)
+  const [perfError, setPerfError] = useState<string | null>(null)
+
+  // 区块16: 数据源徽标汇总
+  const dataSourceBadges = [
+    { key: 'work', label: '工作清单', real: workSource === 'real' },
+    { key: 'dept', label: '科室动态', real: deptSource === 'real' },
+    { key: 'trend', label: '模态趋势', real: trendSource === 'real' },
+    { key: 'perf', label: '个人绩效', real: perfSource === 'real' },
+  ]
+
   const fetchStats = async () => {
     const res = await statsApi.getDaily()
     if (res.success && res.data) {
@@ -466,6 +553,236 @@ const HomePage: FC = () => {
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块11: 今日工作清单 (个人待办) 数据加载
+  // reportApi.list (待报告/待审核) + criticalApi.list (待处置危急值)
+  // ============================================================
+  const loadMyTodos = useCallback(async () => {
+    setMyTodoLoading(true)
+    let anyReal = false
+    try {
+      const [repRes, cvRes] = await Promise.allSettled([
+        reportApi.list({ pageSize: 100 }),
+        criticalApi.list({ take: 100 }),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+      const rawReports = settled(repRes)
+      const rawCriticals = settled(cvRes)
+      const reports: any[] = Array.isArray(rawReports) ? rawReports
+        : Array.isArray((rawReports as any)?.items) ? (rawReports as any).items : []
+      const criticals: any[] = Array.isArray(rawCriticals) ? rawCriticals : []
+      if (reports.length > 0 || criticals.length > 0) anyReal = true
+
+      const pendingReports = reports
+        .filter((r: any) => ['WRITING', 'PENDING_ASSIGNMENT', 'ASSIGNED', 'SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW'].includes(String(r.state ?? '')))
+        .slice(0, 8)
+      const pendingReviews = reports
+        .filter((r: any) => ['INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW'].includes(String(r.state ?? '')))
+        .slice(0, 8)
+      const pendingCriticals = criticals
+        .filter((c: any) => !['RESOLVED', 'CLOSED_LOOP', 'ACKNOWLEDGED'].includes(String(c.state ?? '')))
+        .slice(0, 8)
+        .map((c: any) => ({
+          id: c.id,
+          patientName: c.patientName ?? '未知',
+          finding: c.finding ?? c.description ?? '',
+          triggeredAt: c.triggeredAt ?? '',
+          severity: c.severity ?? '危急',
+        }))
+
+      setMyTodos(prev => ({
+        pendingReports: pendingReports.length > 0 ? pendingReports.map((r: any) => ({ id: r.id, patientName: r.patientName ?? '未知', examItem: r.examItem ?? r.examName ?? '影像检查', createdAt: r.createdAt ?? '', priority: r.priority })) : prev.pendingReports,
+        pendingReviews: pendingReviews.length > 0 ? pendingReviews.map((r: any) => ({ id: r.id, patientName: r.patientName ?? '未知', examItem: r.examItem ?? r.examName ?? '影像检查', createdAt: r.createdAt ?? '', state: r.state })) : prev.pendingReviews,
+        pendingCriticals: pendingCriticals.length > 0 ? pendingCriticals : prev.pendingCriticals,
+      }))
+      setWorkSource(anyReal ? 'real' : 'demo')
+      if (anyReal) setMyTodoError(null)
+      else if (!myTodoError) setMyTodoError('工作清单接口不可用，回退本地 store 数据')
+    } catch (err) {
+      setMyTodoError(`工作清单加载失败: ${(err as Error)?.message ?? '网络错误'}（回退本地数据）`)
+      setWorkSource('demo')
+    } finally {
+      setMyTodoLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => { void loadMyTodos() }, [loadMyTodos])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块12: 科室动态 (公告 + 今日值班) 数据加载
+  // deptApi.listActiveAnnouncements + deptApi.listSchedules(本月)
+  // ============================================================
+  const loadDeptNews = useCallback(async () => {
+    setDeptLoading(true)
+    let anyReal = false
+    try {
+      const [annRes, schedRes] = await Promise.allSettled([
+        deptApi.listActiveAnnouncements(),
+        deptApi.listSchedules(new Date().toISOString().slice(0, 7)),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+      const ann = settled(annRes)
+      const sched = settled(schedRes)
+      const annList: DeptAnnouncement[] = Array.isArray(ann) ? ann : Array.isArray((ann as any)?.items) ? (ann as any).items : []
+      const schedList: OnCallSchedule[] = Array.isArray(sched) ? sched : Array.isArray((sched as any)?.items) ? (sched as any).items : []
+      if (annList.length > 0 || schedList.length > 0) anyReal = true
+
+      if (annList.length > 0) {
+        setDeptAnnouncements(annList.slice(0, 5).map(a => ({
+          id: a.id, title: a.title, content: a.content, category: a.category,
+          author: a.author, createdAt: a.createdAt, pinned: a.pinned,
+        })))
+      }
+      const todayStr = new Date().toISOString().slice(0, 10)
+      const todaySched = schedList.filter(s => (s.date ?? '').slice(0, 10) === todayStr)
+      if (todaySched.length > 0) {
+        setTodayOnCall(todaySched.map(s => ({ id: s.id, doctorName: s.doctorName, shift: s.shift, role: s.role })))
+      }
+      setDeptSource(anyReal ? 'real' : 'demo')
+      if (anyReal) setDeptError(null)
+      else if (!deptError) setDeptError('科室动态接口不可用，展示演示公告')
+    } catch (err) {
+      setDeptError(`科室动态加载失败: ${(err as Error)?.message ?? '网络错误'}（回退演示数据）`)
+      setDeptSource('demo')
+    } finally {
+      setDeptLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => { void loadDeptNews() }, [loadDeptNews])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块14: 近 7 日检查量趋势 (按模态堆叠)
+  // statsApi.getTrend(7) + statsApi.getByModality → 堆叠柱状
+  // ============================================================
+  const loadModalTrend = useCallback(async () => {
+    setTrendLoading(true)
+    try {
+      const [trendRes, modRes] = await Promise.allSettled([
+        statsApi.getTrend(7),
+        statsApi.getByModality(),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+      const trendRaw: unknown = settled(trendRes)
+      const trend: any[] = Array.isArray(trendRaw) ? trendRaw as any[] : []
+      const byMod: any = settled(modRes) ?? {}
+      if (trend.length > 0) {
+        const keys = Object.keys(byMod ?? {}).length > 0
+          ? Object.keys(byMod).slice(0, 6)
+          : ['CT', 'MR', 'DR', 'DSA', 'MG']
+        const rows = trend.slice(-7).map((d: any) => {
+          const row: Record<string, string | number> = {
+            day: String(d.date ?? '').slice(5) || '—',
+            合计: toNumber(d.examCount),
+          }
+          keys.forEach((k) => {
+            const share = byMod && typeof byMod[k] === 'object' && byMod[k] !== null
+              ? Number((byMod[k] as any)?.total ?? (byMod[k] as any)?.count ?? 0) || 0
+              : Number(byMod?.[k] ?? 0) || 0
+            const total = Object.values(byMod ?? {}).reduce((s: number, v: any) => s + (typeof v === 'number' ? v : Number(v?.total ?? v?.count ?? 0)), 0)
+            row[k] = total > 0 ? Math.round(toNumber(d.examCount) * (share / total)) : 0
+          })
+          return row
+        })
+        if (rows.length > 0) {
+          setModalStackData(rows)
+          setTrendSource('real')
+          setTrendError(null)
+          return
+        }
+      }
+      setModalStackData(MODAL_STACK_FALLBACK.map(r => ({ ...r })))
+      setTrendSource('demo')
+      if (!trendError) setTrendError('检查量趋势接口不可用，展示演示数据')
+    } catch (err) {
+      setTrendError(`趋势加载失败: ${(err as Error)?.message ?? '网络错误'}`)
+      setTrendSource('demo')
+    } finally {
+      setTrendLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => { void loadModalTrend() }, [loadModalTrend])
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块15: 个人绩效卡
+  // biApi.getPhysicianPerformance / getReportTimeliness → RVU 预估
+  // ============================================================
+  const loadPerfCard = useCallback(async () => {
+    setPerfLoading(true)
+    try {
+      const [perfRes, timingRes, wlRes] = await Promise.allSettled([
+        biApi.getPhysicianPerformance(),
+        biApi.getReportTimeliness(),
+        worklistApi.getStats(),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+      const perf = settled(perfRes)
+      const timing = settled(timingRes)
+      const wl = settled(wlRes)
+      const me = currentUser?.name ?? ''
+      const myRow = Array.isArray((perf as any)?.byPhysician)
+        ? (perf as any).byPhysician.find((p: any) => p.doctorName === me || (me && (p.doctorName ?? '').includes(me)))
+        : null
+      if (myRow) {
+        setPerfCard({
+          todayReports: toNumber(myRow.reportCount),
+          todayExams: toNumber((wl as any)?.completedToday ?? 0),
+          rvu: Math.round(toNumber(myRow.rvu)),
+          qualityScore: Math.round(toNumber(myRow.qualityScore ?? 0)),
+          timelinessMin: Math.round(toNumber(myRow.avgTurnaround ?? 0)),
+          doctorName: myRow.doctorName ?? me,
+        })
+        setPerfSource('real')
+        setPerfError(null)
+        return
+      }
+      if (perf) {
+        setPerfCard(prev => ({
+          ...prev,
+          rvu: Math.round(toNumber((perf as any)?.totalRvu ?? 0) / Math.max(1, ((perf as any)?.byPhysician ?? []).length || 1)),
+          qualityScore: Math.round(toNumber((perf as any)?.qualityScore ?? 0)),
+          timelinessMin: Math.round(toNumber((perf as any)?.avgTurnaround ?? 0)),
+        }))
+        setPerfSource('real')
+        setPerfError(null)
+        return
+      }
+      if (timing) {
+        setPerfCard(prev => ({
+          ...prev,
+          timelinessMin: Math.round(toNumber((timing as any)?.medianMinutes ?? 0)),
+        }))
+        setPerfSource('real')
+        setPerfError(null)
+        return
+      }
+      setPerfSource('demo')
+      if (!perfError) setPerfError('个人绩效接口不可用，展示本地估算')
+    } catch (err) {
+      setPerfError(`绩效加载失败: ${(err as Error)?.message ?? '网络错误'}`)
+      setPerfSource('demo')
+    } finally {
+      setPerfLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser])
+
+  useEffect(() => { void loadPerfCard() }, [loadPerfCard])
+
+  // 数值化辅助 (区块14/15 共用)
+  function toNumber(v: unknown): number {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
 
   // 计算统计数据
   const pendingExams = exams.filter((e: Record<string, unknown>) =>
@@ -2263,6 +2580,557 @@ const HomePage: FC = () => {
   )
 
   // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块11：今日工作清单（个人待办）
+  // 待报告 / 待审核 / 待处置危急值 —— reportApi + criticalApi 真实派生
+  // ============================================================
+  const renderMyWorkList = () => {
+    const todoCols = [
+      {
+        key: 'pendingReports',
+        title: '待报告',
+        icon: <ClipboardList size={16} />,
+        color: COLORS.info,
+        bg: COLORS.infoBg,
+        items: myTodos.pendingReports.map((t, i) => ({ id: `pr-${i}`, title: t.patientName, sub: t.examItem, time: (t.createdAt ?? '').slice(11, 16) || '—', badge: t.priority === '紧急' || t.priority === '危重' ? '紧急' : undefined, badgeColor: COLORS.danger })),
+        href: '/write-report',
+      },
+      {
+        key: 'pendingReviews',
+        title: '待审核',
+        icon: <FileCheck2 size={16} />,
+        color: COLORS.purple,
+        bg: COLORS.purpleBg,
+        items: myTodos.pendingReviews.map((t, i) => ({ id: `rv-${i}`, title: t.patientName, sub: t.examItem, time: (t.createdAt ?? '').slice(11, 16) || '—', badge: t.state === 'CO_SIGN_REVIEW' ? '双签' : undefined, badgeColor: COLORS.warning })),
+        href: '/review-center',
+      },
+      {
+        key: 'pendingCriticals',
+        title: '待处置危急值',
+        icon: <ShieldAlert size={16} />,
+        color: COLORS.danger,
+        bg: COLORS.dangerBg,
+        items: myTodos.pendingCriticals.map((t, i) => ({ id: `cv-${i}`, title: t.patientName, sub: t.finding || '危急发现', time: (t.triggeredAt ?? '').slice(11, 16) || '—', badge: t.severity === '危急' ? '危急' : '警告', badgeColor: t.severity === '危急' ? COLORS.danger : COLORS.warning })),
+        href: '/critical-value',
+      },
+    ]
+    return (
+      <div aria-live="polite" style={cardStyle}>
+        <div style={headerStyle}>
+          <span style={cardTitleStyle}>
+            <ListChecks size={18} color={COLORS.primary} />
+            今日工作清单
+            <span style={{
+              ...badgeStyle,
+              background: workSource === 'real' ? COLORS.successBg : COLORS.warningBg,
+              color: workSource === 'real' ? COLORS.success : COLORS.warning,
+              marginLeft: 4,
+            }}>
+              {workSource === 'real' ? 'API 实时' : '本地回退'}
+            </span>
+            {myTodoLoading && (
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+            )}
+          </span>
+          <button
+            onClick={() => void loadMyTodos()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
+              color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
+            }}
+          >
+            <RefreshCcw size={12} /> 刷新
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          {todoCols.map(col => (
+            <div key={col.key} style={{
+              background: 'var(--bg-deep)',
+              borderRadius: 10,
+              border: `1px solid ${COLORS.border}`,
+              padding: 14,
+            }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+                paddingBottom: 10, borderBottom: `1px solid ${COLORS.border}`,
+              }}>
+                <div style={{
+                  width: 30, height: 30, borderRadius: 8, background: col.bg,
+                  color: col.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {col.icon}
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{col.title}</span>
+                <span style={{
+                  marginLeft: 'auto', fontSize: 12, fontWeight: 700,
+                  background: col.color, color: '#fff', borderRadius: 10,
+                  padding: '1px 8px', minWidth: 20, textAlign: 'center',
+                }}>
+                  {col.items.length}
+                </span>
+              </div>
+              <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label={`${col.title}列表`}>
+                {col.items.length === 0 ? (
+                  <div style={{
+                    textAlign: 'center', padding: '24px 0', color: COLORS.success,
+                    fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                  }}>
+                    <CheckCircle size={28} />
+                    暂无{col.title}
+                  </div>
+                ) : col.items.slice(0, 6).map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => navigate(col.href)}
+                    style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      gap: 8, padding: '9px 10px', marginBottom: 6,
+                      background: 'var(--bg-card)', borderRadius: 8,
+                      border: `1px solid ${COLORS.border}`, cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = col.color }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 13, fontWeight: 600, color: COLORS.text,
+                        display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {item.title}
+                        {item.badge && (
+                          <span style={{ ...badgeStyle, background: `${item.badgeColor}22`, color: item.badgeColor, fontSize: 10, padding: '0 6px' }}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{
+                        fontSize: 11, color: COLORS.textMuted, marginTop: 2,
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {item.sub}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>{item.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        {myTodoError && (
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <AlertTriangle size={11} /> {myTodoError}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块12：科室动态（公告 + 今日值班）
+  // deptApi.listActiveAnnouncements + listSchedules(今日)
+  // ============================================================
+  const renderDeptNews = () => {
+    const CATEGORY_LABEL: Record<string, string> = {
+      notice: '通知', meeting: '会议', policy: '制度', urgent: '紧急', other: '其他',
+    }
+    const CATEGORY_COLOR: Record<string, string> = {
+      notice: COLORS.info, meeting: COLORS.purple, policy: COLORS.success, urgent: COLORS.danger, other: COLORS.textMuted,
+    }
+    const SHIFT_LABEL: Record<string, string> = { DAY: '白班', NIGHT: '夜班', WEEKEND: '周末班' }
+    return (
+      <div style={cardStyle}>
+        <div style={headerStyle}>
+          <span style={cardTitleStyle}>
+            <Megaphone size={18} color={COLORS.primary} />
+            科室动态
+            <span style={{
+              ...badgeStyle,
+              background: deptSource === 'real' ? COLORS.successBg : COLORS.warningBg,
+              color: deptSource === 'real' ? COLORS.success : COLORS.warning,
+              marginLeft: 4,
+            }}>
+              {deptSource === 'real' ? 'API 实时' : '本地回退'}
+            </span>
+            {deptLoading && (
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+            )}
+          </span>
+          <span style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Calendar size={12} /> {dateString}
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 20 }}>
+          {/* 左侧: 科室公告 */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Users size={14} color={COLORS.info} /> 科室公告
+            </div>
+            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="科室公告列表">
+              {deptAnnouncements.length === 0 ? (
+                <div style={{
+                  textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}>
+                  <Megaphone size={30} />
+                  暂无进行中的公告
+                </div>
+              ) : deptAnnouncements.slice(0, 5).map(a => (
+                <div key={a.id} style={{
+                  padding: '10px 12px', marginBottom: 8, background: 'var(--bg-deep)',
+                  borderRadius: 8, border: `1px solid ${a.pinned ? `${COLORS.warning}66` : COLORS.border}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{
+                      ...badgeStyle, fontSize: 10, padding: '0 8px',
+                      background: `${CATEGORY_COLOR[a.category] ?? COLORS.textMuted}1a`,
+                      color: CATEGORY_COLOR[a.category] ?? COLORS.textMuted,
+                    }}>
+                      {CATEGORY_LABEL[a.category] ?? a.category}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {a.pinned ? '📌 ' : ''}{a.title}
+                    </span>
+                    <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>
+                      {(a.createdAt ?? '').slice(5, 16).replace('T', ' ')}
+                    </span>
+                  </div>
+                  <div style={{
+                    fontSize: 12, color: COLORS.textMuted, lineHeight: 1.5,
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {a.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 右侧: 今日值班 */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CalendarClock size={14} color={COLORS.warning} /> 今日值班
+            </div>
+            <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="今日值班列表">
+              {todayOnCall.length === 0 ? (
+                <div style={{
+                  textAlign: 'center', padding: '30px 0', color: COLORS.textMuted, fontSize: 12,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}>
+                  <CalendarClock size={30} />
+                  今日无值班安排
+                </div>
+              ) : todayOnCall.map(s => (
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  marginBottom: 8, background: 'var(--bg-deep)', borderRadius: 8,
+                  border: `1px solid ${COLORS.border}`,
+                }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    background: s.shift === 'NIGHT' ? '#312e8133' : COLORS.infoBg,
+                    color: s.shift === 'NIGHT' ? COLORS.purple : COLORS.info,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14,
+                    flexShrink: 0,
+                  }}>
+                    {(s.doctorName ?? '值').slice(0, 1)}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{s.doctorName}</div>
+                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.role || '值班医师'}</div>
+                  </div>
+                  <span style={{
+                    ...badgeStyle, fontSize: 11,
+                    background: s.shift === 'NIGHT' ? COLORS.purpleBg : s.shift === 'WEEKEND' ? COLORS.warningBg : COLORS.successBg,
+                    color: s.shift === 'NIGHT' ? COLORS.purple : s.shift === 'WEEKEND' ? COLORS.warning : COLORS.success,
+                  }}>
+                    {SHIFT_LABEL[s.shift] ?? s.shift}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {deptError && (
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <AlertTriangle size={11} /> {deptError}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块13：快捷操作增强（第二排入口）
+  // 预约 / 登记 / 质控 / 排班 / 随访 / 病灶追踪
+  // ============================================================
+  const renderQuickActionsEnhanced = () => {
+    const moreActions = [
+      { icon: <Calendar size={20} />, label: '预约排期', color: '#3b82f6', bg: '#3b82f622', href: '/appointments' },
+      { icon: <UserPlus size={20} />, label: '检查登记', color: '#8b5cf6', bg: '#8b5cf622', href: '/exams' },
+      { icon: <Target size={20} />, label: '质控看板', color: '#10b981', bg: '#10b98122', href: '/qc' },
+      { icon: <CalendarRange size={20} />, label: '排班管理', color: '#f59e0b', bg: '#f59e0b22', href: '/schedule' },
+      { icon: <Stethoscope size={20} />, label: '随访管理', color: '#ec4899', bg: '#ec489922', href: '/follow-up' },
+      { icon: <Crosshair size={20} />, label: '病灶追踪', color: '#06b6d4', bg: '#06b6d422', href: '/patients' },
+      { icon: <ClipboardPlus size={20} />, label: '报告模板', color: '#6366f1', bg: '#6366f122', href: '/templates' },
+      { icon: <BookOpen size={20} />, label: '典型病例', color: '#a855f7', bg: '#a855f722', href: '/typical-cases' },
+    ]
+    return (
+      <div style={{ ...cardStyle, marginBottom: 24, padding: 16 }}>
+        <div style={headerStyle}>
+          <span style={cardTitleStyle}>
+            <LayoutDashboard size={16} color={COLORS.primary} />
+            更多功能入口
+          </span>
+          <span style={{ fontSize: 12, color: COLORS.textMuted }}>预约 / 登记 / 质控 / 排班 / 随访 / 病灶追踪</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 10 }}>
+          {moreActions.map(a => (
+            <QuickActionButton
+              key={a.label}
+              icon={a.icon}
+              label={a.label}
+              color={a.color}
+              bg={a.bg}
+              onClick={() => navigate(a.href)}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块14：检查量趋势细化（近 7 日按模态堆叠）
+  // statsApi.getTrend(7) + getByModality → 堆叠柱状图
+  // ============================================================
+  const renderModalStackTrend = () => {
+    const keys = Object.keys(modalStackData[0] ?? {}).filter(k => k !== 'day' && k !== '合计')
+    const totalOfDay = (row: Record<string, string | number>) =>
+      keys.reduce((s, k) => s + (Number(row[k]) || 0), 0)
+    const maxTotal = Math.max(...modalStackData.map(r => totalOfDay(r)), 1)
+    return (
+      <div style={{ ...cardStyle, marginBottom: 24 }}>
+        <div style={headerStyle}>
+          <span style={cardTitleStyle}>
+            <BarChart3 size={16} color={COLORS.primary} />
+            近 7 日检查量趋势（按模态）
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              ...badgeStyle,
+              background: trendSource === 'real' ? COLORS.successBg : COLORS.warningBg,
+              color: trendSource === 'real' ? COLORS.success : COLORS.warning,
+            }}>
+              {trendSource === 'real' ? 'API 实时' : '本地回退'}
+            </span>
+            {trendLoading && (
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+            )}
+            <button
+              onClick={() => void loadModalTrend()}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
+                color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
+              }}
+            >
+              <RefreshCcw size={12} /> 刷新
+            </button>
+          </div>
+        </div>
+
+        <ChartContainer height={240} state={modalStackData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+          <BarChart data={modalStackData as unknown as Array<Record<string, unknown>>}>
+            <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
+            <XAxis dataKey="day" tick={{ fontSize: 12, fill: COLORS.textMuted }} axisLine={{ stroke: COLORS.border }} />
+            <YAxis tick={{ fontSize: 12, fill: COLORS.textMuted }} axisLine={{ stroke: COLORS.border }} />
+            <Tooltip
+              contentStyle={{
+                borderRadius: 8, border: `1px solid ${COLORS.border}`,
+                background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: 12,
+              }}
+            />
+            <Legend iconSize={10} iconType="circle" wrapperStyle={{ fontSize: 12, color: 'var(--text-secondary)' }} />
+            {keys.map(k => (
+              <Bar key={k} dataKey={k} name={k} stackId="modal" fill={MODALITY_COLORS[k] ?? '#94a3b8'} radius={[0, 0, 0, 0]} />
+            ))}
+            <Bar dataKey="合计" name="合计" fill="transparent" stroke="var(--color-primary-500)" strokeWidth={2} stackId="none" radius={[0, 0, 0, 0]} />
+          </BarChart>
+        </ChartContainer>
+
+        {/* 每日合计摘要条 */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+          {modalStackData.slice(-7).map(row => (
+            <div key={String(row.day)} style={{
+              flex: 1, minWidth: 90, textAlign: 'center', padding: '8px 4px',
+              background: 'var(--bg-deep)', borderRadius: 8, border: `1px solid ${COLORS.border}`,
+            }}>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{String(row.day)}</div>
+              <div style={{
+                fontSize: 18, fontWeight: 700, color: COLORS.primary,
+                position: 'relative', overflow: 'hidden',
+              }}>
+                {Number(row.合计) || totalOfDay(row as Record<string, string | number>)}
+                <div style={{
+                  position: 'absolute', bottom: -2, left: '20%', right: '20%', height: 3, borderRadius: 2,
+                  background: 'linear-gradient(90deg, var(--color-primary-500), var(--color-success))',
+                  width: `${((Number(row.合计) || totalOfDay(row as Record<string, string | number>)) / maxTotal) * 60}%`,
+                  margin: '0 auto',
+                }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {trendError && (
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <AlertTriangle size={11} /> {trendError}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块15：个人绩效卡（今日完成报告 / RVU 预估）
+  // biApi.getPhysicianPerformance + worklistApi.getStats
+  // ============================================================
+  const renderPerfCard = () => {
+    const perfItems = [
+      {
+        label: '今日完成报告',
+        value: String(perfCard.todayReports),
+        unit: '份',
+        icon: <FileText size={22} />,
+        color: COLORS.purple,
+        bg: COLORS.purpleBg,
+      },
+      {
+        label: 'RVU 预估',
+        value: String(perfCard.rvu),
+        unit: '点',
+        icon: <Sparkles size={22} />,
+        color: COLORS.warning,
+        bg: COLORS.warningBg,
+      },
+      {
+        label: '质控得分',
+        value: perfCard.qualityScore > 0 ? String(perfCard.qualityScore) : '—',
+        unit: '',
+        icon: <Award size={22} />,
+        color: COLORS.success,
+        bg: COLORS.successBg,
+      },
+      {
+        label: '平均 TAT',
+        value: perfCard.timelinessMin > 0 ? String(perfCard.timelinessMin) : '—',
+        unit: '分',
+        icon: <Timer size={22} />,
+        color: COLORS.info,
+        bg: COLORS.infoBg,
+      },
+    ]
+    return (
+      <div style={{ ...cardStyle, marginBottom: 24 }}>
+        <div style={headerStyle}>
+          <span style={cardTitleStyle}>
+            <Gauge size={16} color={COLORS.primary} />
+            个人绩效
+            <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 4 }}>
+              {perfCard.doctorName}
+            </span>
+            <span style={{
+              ...badgeStyle,
+              background: perfSource === 'real' ? COLORS.successBg : COLORS.warningBg,
+              color: perfSource === 'real' ? COLORS.success : COLORS.warning,
+              marginLeft: 4,
+            }}>
+              {perfSource === 'real' ? 'API 实时' : '本地估算'}
+            </span>
+            {perfLoading && (
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+            )}
+          </span>
+          <button
+            onClick={() => void loadPerfCard()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              border: `1px solid ${COLORS.border}`, background: 'var(--bg-card)',
+              color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
+            }}
+          >
+            <RefreshCcw size={12} /> 刷新
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          {perfItems.map(item => (
+            <div key={item.label} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              background: 'var(--bg-deep)', borderRadius: 10,
+              padding: '14px 16px', border: `1px solid ${COLORS.border}`,
+            }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 10, background: item.bg,
+                color: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                {item.icon}
+              </div>
+              <div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.primary, lineHeight: 1.2 }}>
+                  {item.value}
+                  <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 3 }}>{item.unit}</span>
+                </div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{item.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {perfError && (
+          <div style={{ marginTop: 10, fontSize: 11, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <AlertTriangle size={11} /> {perfError}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // [v3.0.6.11-99 Wave10B] 区块16：数据源徽标（真实/演示）
+  // ============================================================
+  const renderDataSourceBadges = () => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16,
+      padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8,
+      border: `1px solid ${COLORS.border}`, flexWrap: 'wrap',
+    }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Database size={13} color={COLORS.info} /> 数据源
+      </span>
+      {dataSourceBadges.map(b => (
+        <span key={b.key} style={{
+          ...badgeStyle,
+          background: b.real ? COLORS.successBg : COLORS.warningBg,
+          color: b.real ? COLORS.success : COLORS.warning,
+          fontSize: 11,
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: b.real ? COLORS.success : COLORS.warning,
+          }} />
+          {b.label}: {b.real ? '真实' : '演示'}
+        </span>
+      ))}
+      <span style={{ fontSize: 11, color: COLORS.textLight, marginLeft: 'auto' }}>
+        statsApi · reportApi · criticalApi · deptApi · biApi · worklistApi
+      </span>
+    </div>
+  )
+
+  // ============================================================
   // 渲染主页面
   // ============================================================
   return (
@@ -2329,6 +3197,24 @@ const HomePage: FC = () => {
 
       {/* 区块10：收入统计 */}
       {renderRevenueStats()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块16：数据源徽标 */}
+      {renderDataSourceBadges()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块11：今日工作清单（个人待办） */}
+      {renderMyWorkList()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块12：科室动态（公告 + 今日值班） */}
+      {renderDeptNews()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块13：快捷操作增强 */}
+      {renderQuickActionsEnhanced()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块14：检查量趋势细化（近7日按模态堆叠） */}
+      {renderModalStackTrend()}
+
+      {/* [v3.0.6.11-99 Wave10B] 区块15：个人绩效卡 */}
+      {renderPerfCard()}
 
       {/* 页脚 */}
       <div style={{

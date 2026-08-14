@@ -33,6 +33,19 @@ export class ClinicalPathwayController {
     return this.service.listPatients()
   }
 
+  // [G005 Wave 10A] 5 条完整路径定义 (步骤/时长/入排标准) — 静态路径必须在 :id 之前
+  @Get('definitions')
+  @ApiOperation({ summary: 'Full pathway definitions (5 pathways, 8-12 steps each)' })
+  listDefinitions() {
+    return this.service.listPathwayDefinitions()
+  }
+
+  @Get('definitions/:id/steps')
+  @ApiOperation({ summary: 'Pathway step definitions by pathway id' })
+  getPathwaySteps(@Param('id') id: string) {
+    return this.service.getPathwaySteps(id)
+  }
+
   @Get(':id/steps')
   @ApiOperation({ summary: 'Pathway steps for a patient' })
   getSteps(@Param('id') id: string) {
