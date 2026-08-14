@@ -92,3 +92,7 @@ w3c-*.mjs
 verify*.js
 
 e2e/screenshots-88/
+
+# Wave debug scripts
+*-check.mjs
+*-debug.mjs
