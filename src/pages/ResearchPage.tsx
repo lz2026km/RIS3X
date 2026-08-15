@@ -13,6 +13,7 @@ import {
   Layers, FileSignature, ClipboardList,
   Target, Sigma
 } from 'lucide-react'
+import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { researchApi, type ResearchProjectDto, type ResearchLabelDto, type CohortDefinitionDto as CohortDefinition, type IRBSubmissionDto as IRBSubmission, type ExportAuditDto as ExportAudit, type DataQualityScoreDto as DataQualityScore } from '../services/api/researchApi'
 
 // ==================== 类型定义 ====================
@@ -95,7 +96,7 @@ const COLORS = {
   danger: '#dc2626',
   dangerLight: 'var(--color-error-bg)',
   bgGray: 'var(--content-bg)',
-  bgWhite: 'var(--bg-card)',
+  bgWhite: THEME_TOKENS.bgCard,
   border: 'var(--border-color)',
   textPrimary: 'var(--text-primary)',
   textSecondary: 'var(--text-secondary)',

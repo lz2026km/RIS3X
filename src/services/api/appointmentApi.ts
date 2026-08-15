@@ -107,6 +107,7 @@ export const appointmentApi = {
     return api.get<AppointmentDto[]>(`/appointments${qs ? '?' + qs : ''}`)
   },
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getById: (id: string) =>
     api.get<AppointmentDto>(`/appointments/${id}`),
 

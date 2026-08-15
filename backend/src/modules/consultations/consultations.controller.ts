@@ -42,6 +42,28 @@ const InviteSchema = z.object({
 
 const CompleteSchema = z.object({ notes: z.string().optional() })
 
+// [G005 Wave 2A] 委员会会诊 (多医生合议)
+const CommitteeCreateSchema = z.object({
+  reportId: z.string().min(1),
+  title: z.string().min(1),
+  members: z
+    .array(z.string().min(1).or(z.object({ memberId: z.string().min(1), name: z.string().optional() })))
+    .min(1),
+  createdBy: z.string().optional(),
+})
+
+const CommitteeVoteSchema = z.object({
+  memberId: z.string().min(1),
+  opinion: z.string().min(1),
+  agree: z.boolean(),
+  suggestion: z.string().optional(),
+})
+
+const CommitteeResolutionSchema = z.object({
+  resolution: z.string().min(1),
+  appendToReport: z.boolean().optional(),
+})
+
 @ApiTags('consultations')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN', 'NURSE')
@@ -65,6 +87,13 @@ export class ConsultationsController {
   @ApiOperation({ summary: '待会诊列表' })
   getPending() {
     return this.service.getPending()
+  }
+
+  // [G005 Wave 2A] 静态子路由须在 @Get(':id') 之前
+  @Get('committee')
+  @ApiOperation({ summary: '委员会会诊列表' })
+  listCommittees() {
+    return this.service.listCommittees()
   }
 
   @Get('stats')
@@ -141,5 +170,31 @@ export class ConsultationsController {
   @ApiOperation({ summary: '会诊详情' })
   getById(@Param('id') id: string) {
     return this.service.getById(id)
+  }
+
+  // ===== [G005 Wave 2A] 委员会会诊 (多医生合议) =====
+
+  @Post('committee')
+  @ApiOperation({ summary: '创建委员会会诊' })
+  createCommittee(@Body(new ZodValidationPipe(CommitteeCreateSchema)) body: z.infer<typeof CommitteeCreateSchema>) {
+    return this.service.createCommittee(body)
+  }
+
+  @Post(':id/committee-vote')
+  @ApiOperation({ summary: '委员投票' })
+  committeeVote(@Param('id') id: string, @Body(new ZodValidationPipe(CommitteeVoteSchema)) body: z.infer<typeof CommitteeVoteSchema>) {
+    return this.service.voteCommittee(id, body)
+  }
+
+  @Post(':id/committee-resolution')
+  @ApiOperation({ summary: '生成委员会决议' })
+  committeeResolution(@Param('id') id: string, @Body(new ZodValidationPipe(CommitteeResolutionSchema)) body: z.infer<typeof CommitteeResolutionSchema>) {
+    return this.service.generateCommitteeResolution(id, body)
+  }
+
+  @Get(':id/committee')
+  @ApiOperation({ summary: '委员会会诊详情(含投票汇总)' })
+  getCommittee(@Param('id') id: string) {
+    return this.service.getCommittee(id)
   }
 }

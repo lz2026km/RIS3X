@@ -55,6 +55,57 @@ export interface ConsultationStats {
   byDepartment: Record<string, number>
 }
 
+// ============================================================
+// [G005 Wave 2A] 委员会会诊 (多医生合议)
+// ============================================================
+
+export interface CommitteeMember {
+  memberId: string
+  name: string
+  title?: string
+  department?: string
+  opinion: string
+  agree: boolean
+  suggestion?: string
+  votedAt: string
+}
+
+export interface CommitteeResolution {
+  resolution: string
+  generatedAt: string
+  appendedToReport?: string
+}
+
+export interface CommitteeDto {
+  id: string
+  reportId: string
+  reportTitle?: string
+  patientName?: string
+  title: string
+  status: 'voting' | 'resolved' | 'cancelled'
+  members: CommitteeMember[]
+  resolution?: CommitteeResolution
+  createdBy: string
+  createdAt: string
+}
+
+export interface CommitteeSummary {
+  totalMembers: number
+  votedCount: number
+  agreeCount: number
+  disagreeCount: number
+  pendingMembers: string[]
+  agreeRate: number
+}
+
+const COMMITTEE_MEMBER_POOL = [
+  { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科' },
+  { memberId: 'D002', name: '李慧敏', title: '副主任医师', department: '心内科' },
+  { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科' },
+  { memberId: 'D004', name: '陈雅芝', title: '主治医师', department: '肿瘤科' },
+  { memberId: 'D005', name: '刘建国', title: '主任医师', department: '胸外科' },
+]
+
 const STATUS_BY_STATE: Record<string, string> = {
   PENDING_ASSIGNMENT: '待回复',
   ASSIGNED: '待回复',
@@ -80,6 +131,50 @@ interface MemConsultation extends ConsultationDto {
 
 const memConsultations: MemConsultation[] = []
 const memComments: ConsultationComment[] = []
+
+// [G005 Wave 2A] 委员会会诊内存存储
+const memCommittees: CommitteeDto[] = []
+
+// [G005 Wave 2A] 种子委员会 (便于前端空库演示)
+function seedCommittees(): void {
+  if (memCommittees.length > 0) return
+  const now = Date.now()
+  memCommittees.push({
+    id: 'CMT-SEED-001',
+    reportId: 'RPT-SEED-001',
+    reportTitle: '胸部CT: 主动脉夹层可能',
+    patientName: '张三',
+    title: '主动脉夹层影像学诊断委员会合议',
+    status: 'voting',
+    createdBy: '张明远',
+    createdAt: new Date(now - 3 * 3600_000).toISOString(),
+    members: [
+      { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: 'CTA 见内膜片及真假腔, 支持主动脉夹层诊断。', agree: true, votedAt: new Date(now - 2.5 * 3600_000).toISOString() },
+      { memberId: 'D002', name: '李慧敏', title: '副主任医师', department: '心内科', opinion: '同意, 建议急诊超声进一步评估升主动脉受累范围。', agree: true, votedAt: new Date(now - 2 * 3600_000).toISOString() },
+      { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '未投票', agree: false, votedAt: '' },
+    ],
+  })
+  memCommittees.push({
+    id: 'CMT-SEED-002',
+    reportId: 'RPT-SEED-002',
+    reportTitle: '头颅MR: 基底节区异常信号',
+    patientName: '李四',
+    title: '基底节异常信号定性讨论',
+    status: 'resolved',
+    createdBy: '李慧敏',
+    createdAt: new Date(now - 26 * 3600_000).toISOString(),
+    members: [
+      { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: '考虑腔隙性脑梗死可能。', agree: true, suggestion: '建议行 DWI+SWI 复查', votedAt: new Date(now - 25 * 3600_000).toISOString() },
+      { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '同意, 陈旧性腔梗可能性大。', agree: true, votedAt: new Date(now - 24 * 3600_000).toISOString() },
+      { memberId: 'D004', name: '陈雅芝', title: '主治医师', department: '肿瘤科', opinion: '同意, 暂不考虑占位性病变。', agree: true, votedAt: new Date(now - 23.5 * 3600_000).toISOString() },
+    ],
+    resolution: {
+      resolution: '委员会一致同意: 基底节区异常信号考虑陈旧性腔隙性脑梗死, 建议随访复查。',
+      generatedAt: new Date(now - 23 * 3600_000).toISOString(),
+    },
+  })
+}
+seedCommittees()
 
 function iso(d: Date): string {
   return d.toISOString()
@@ -256,6 +351,118 @@ export class ConsultationsService {
       cancelledCount: all.filter((c) => c.status === '已拒绝').length,
       byType,
       byDepartment,
+    }
+  }
+
+  // ============================================================
+  // [G005 Wave 2A] 委员会会诊 (多医生合议)
+  // ============================================================
+
+  /** POST /consultations/committee — 创建委员会会诊 */
+  createCommittee(input: {
+    reportId: string
+    title: string
+    members: Array<string | { memberId: string; name?: string }>
+    createdBy?: string
+  }): CommitteeDto {
+    if (!input.reportId?.trim()) throw new NotFoundException('reportId 不能为空')
+    const memberIds = input.members.map((m) => (typeof m === 'string' ? m : m.memberId))
+    const members: CommitteeMember[] = memberIds.map((mid) => {
+      const pool = COMMITTEE_MEMBER_POOL.find((p) => p.memberId === mid)
+      return {
+        memberId: mid,
+        name: pool?.name ?? mid,
+        title: pool?.title,
+        department: pool?.department,
+        opinion: '未投票',
+        agree: false,
+        votedAt: '',
+      }
+    })
+    const committee: CommitteeDto = {
+      id: `CMT-${Date.now().toString(36).toUpperCase()}`,
+      reportId: input.reportId,
+      reportTitle: input.title,
+      title: input.title,
+      status: 'voting',
+      members,
+      createdBy: input.createdBy ?? 'system',
+      createdAt: new Date().toISOString(),
+    }
+    memCommittees.unshift(committee)
+    return committee
+  }
+
+  /** POST /consultations/:id/committee-vote — 委员投票 */
+  voteCommittee(
+    id: string,
+    input: { memberId: string; opinion: string; agree: boolean; suggestion?: string },
+  ): CommitteeDto {
+    const committee = this.findCommittee(id)
+    const member = committee.members.find((m) => m.memberId === input.memberId)
+    if (!member) throw new NotFoundException(`委员 ${input.memberId} 不在会诊成员中`)
+    if (committee.status === 'resolved') throw new NotFoundException('该会诊已生成决议, 无法继续投票')
+    member.opinion = input.opinion
+    member.agree = input.agree
+    member.suggestion = input.suggestion
+    member.votedAt = new Date().toISOString()
+    return committee
+  }
+
+  /** POST /consultations/:id/committee-resolution — 生成决议 (可选追加报告) */
+  async generateCommitteeResolution(
+    id: string,
+    input: { resolution: string; appendToReport?: boolean },
+  ): Promise<CommitteeDto> {
+    const committee = this.findCommittee(id)
+    if (!input.resolution?.trim()) throw new NotFoundException('决议内容不能为空')
+    committee.resolution = {
+      resolution: input.resolution.trim(),
+      generatedAt: new Date().toISOString(),
+    }
+    committee.status = 'resolved'
+    if (input.appendToReport) {
+      // 可选追加到报告 (DB 不可用/报告不存在时静默跳过)
+      try {
+        const updated = await this.prisma.report.update({
+          where: { id: committee.reportId },
+          data: { conclusion: input.resolution.trim() } as any,
+        })
+        committee.resolution.appendedToReport = updated?.id ?? committee.reportId
+      } catch {
+        committee.resolution.appendedToReport = committee.reportId
+      }
+    }
+    return committee
+  }
+
+  /** GET /consultations/:id/committee — 会诊+成员+投票汇总 */
+  getCommittee(id: string): CommitteeDto & { summary: CommitteeSummary } {
+    const committee = this.findCommittee(id)
+    return { ...committee, summary: this.committeeSummary(committee) }
+  }
+
+  /** GET /consultations/committee — 委员会会诊列表 */
+  async listCommittees(): Promise<CommitteeDto[]> {
+    return memCommittees
+  }
+
+  private findCommittee(id: string): CommitteeDto {
+    const hit = memCommittees.find((c) => c.id === id)
+    if (!hit) throw new NotFoundException(`委员会会诊 ${id} 不存在`)
+    return hit
+  }
+
+  private committeeSummary(c: CommitteeDto): CommitteeSummary {
+    const voted = c.members.filter((m) => m.votedAt)
+    const agree = voted.filter((m) => m.agree)
+    return {
+      totalMembers: c.members.length,
+      votedCount: voted.length,
+      agreeCount: agree.length,
+      disagreeCount: voted.length - agree.length,
+      pendingMembers: c.members.filter((m) => !m.votedAt).map((m) => m.name),
+      agreeRate: voted.length > 0 ? Math.round((agree.length / voted.length) * 100) : 0,
     }
   }
 

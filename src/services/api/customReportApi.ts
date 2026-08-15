@@ -21,6 +21,10 @@ export interface CustomReportDef {
   status: CustomReportStatus
   createdAt: string
   updatedAt: string
+  // [v3.0.6.11-100 Wave 4A] 排序/分组设置 (页面向导)
+  sortBy?: string | null
+  sortOrder?: 'asc' | 'desc' | null
+  groupBy?: string | null
 }
 
 export interface CustomReportField {
@@ -60,6 +64,9 @@ export interface CustomReportCreateData {
   dataSource?: string
   schedule?: string | null
   recipients?: string[]
+  sortBy?: string | null
+  sortOrder?: 'asc' | 'desc' | null
+  groupBy?: string | null
 }
 
 export const customReportApi = {

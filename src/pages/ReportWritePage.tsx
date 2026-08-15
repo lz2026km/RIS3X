@@ -7,6 +7,16 @@ import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnch
 import { ReportRichEditor, type ReportRichEditorHandle } from '@components/report/v3/R3.WRITING/ReportRichEditor';
 import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
 import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
+// [v3.0.6.11-100 Wave2C P2] 段落树模板引擎 (按模态/部位匹配 → 段落树预览 → 一键填充)
+import SectionTemplateEngine from '@components/report/v3/R3.WRITING/SectionTemplateEngine';
+// [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发: 书写页「建议随访」卡片 (命中关键词 + 一键创建)
+import FollowupAutoBookPanel from '@components/report/v3/R3.WRITING/FollowupAutoBookPanel';
+// [v3.0.6.11-100 Wave 6A (D-1)] AI 检出一键插入报告: 检出插入面板 (sessionStorage 通道)
+import AiLesionAutoInjector from '@components/report/v3/R3.WRITING/AiLesionAutoInjector';
+import { consumeAiFindingsForReport, type AiInsertItem } from '@pages/dicom/aiFindings';
+// [v3.0.6.11-100 Wave 2B (报告工作站)] MIP 截图联动 + 影像标注双向同步
+import MipScreenshotModal, { type MipScreenshotPayload } from '@components/report/v3/R3.WRITING/MipScreenshotModal';
+import DicomAnnotationEmbed from '@components/report/v3/R3.WRITING/DicomAnnotationEmbed';
 import {
   REPORT_WRITING_CONTEXT_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK, REPORT_TEMPLATES_MOCK, PHRASES_MOCK,
 } from '@data/reportWritingMock';
@@ -23,13 +33,16 @@ import { getCurrentUser } from '@utils/auth';
 import { resolveTemplateVariables, describeTemplateVariables, collectTemplateVariables, variablesTooltipTitle } from '@utils/templateVariables';
 // [v3.0.6.11-99 Wave 2A 报告批注] 书写页批注面板 (右侧抽屉 Tab)
 import ReportAnnotationPanel from '@components/report/ReportAnnotationPanel';
+// [v3.0.6.11-100 Wave 2A] 危急值电话/短信网关卡片 (报告关联危急值时显示)
+import CriticalValueCard from '@components/report/v3/R3.QUALITY/CriticalValueCard';
+import { criticalAlertApi, type CriticalAlert } from '@services/api/criticalAlertApi';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { displayStatus, toEnState } from '@components/report/statusMeta';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse, Checkbox, Radio,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy, MessageSquareText, Ruler, Plus, Trash2, Download } from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy, MessageSquareText, Ruler, Plus, Trash2, Download, Camera, PenLine, ListTree } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Inbox, SearchX } from 'lucide-react'
@@ -49,6 +62,12 @@ function AITab({ reportId, modality, bodyPart, onApplyToEditor }: { reportId: st
         onApplyToEditor(text || result?.findings || '');
         message.success('已应用 AI 草稿到编辑器');
       }}
+      // [v3.0.6.11-100 Wave 3A (G-19)] 结构化字段 → 预填编辑器 (现病史/检查所见/诊断意见)
+      onApplyStructured={(sections) => {
+        const text = (sections ?? []).map((s) => `【${s.heading}】\n${s.content}`).join('\n\n');
+        if (text) onApplyToEditor(text);
+        message.success('已预填结构化字段到编辑器');
+      }}
     />
   );
 }
@@ -58,10 +77,51 @@ function VoiceTab({ reportId, onInsert, onTextChange }: { reportId: string; onIn
 }
 
 // [v3.0.6.11-95 Wave2B P1] 历史报告真实化: dataSource=api 渲染真实数据, mock 标注演示数据 (后端 patientId 筛选 Wave 3B 接入)
-function HistoryTab({ priorReports, onCompare, dataSource = 'mock' }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void; dataSource?: 'api' | 'mock' }) {
-  if (priorReports.length === 0) return <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={dataSource === 'api' ? '该患者暂无历史报告' : '无历史报告'} />;
+// [v3.0.6.11-100 Wave 6B (D-5)] 顶部「既往病史摘要」卡: prior-summary 上次报告日期/常见诊断标签/一键填充基础病史
+function HistoryTab({ priorReports, onCompare, dataSource = 'mock', summary, onFillHistory }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void; dataSource?: 'api' | 'mock'; summary?: import('@services/api/reportApi').ReportPriorSummaryDto | null; onFillHistory?: () => void }) {
+  const summaryBlock = summary ? (
+    <div className="mb-2 p-2 border border-emerald-200 rounded bg-emerald-50/70" data-testid="prior-summary-card">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-semibold text-emerald-700">既往病史摘要</span>
+        <span className="flex items-center gap-1">
+          {summary.source === 'db' ? (
+            <Tag color="green" className="text-[10px]">真实数据</Tag>
+          ) : (
+            <Tag color="orange" className="text-[10px]" title="无真实既往报告,摘要为演示数据">演示数据</Tag>
+          )}
+          <Button size="small" type="primary" className="text-[10px] h-6" onClick={onFillHistory} data-testid="fill-history-btn">
+            一键填充基础病史
+          </Button>
+        </span>
+      </div>
+      <div className="text-[11px] text-slate-600">
+        上次报告日期: {summary.lastReportDate ? new Date(summary.lastReportDate).toLocaleDateString('zh-CN') : '—'}
+        <span className="mx-1 text-slate-300">|</span>既往报告 {summary.count} 份
+      </div>
+      <div className="text-[11px] text-slate-600 mt-1 flex items-center flex-wrap gap-1">
+        常见诊断:
+        {summary.commonDiagnoses.length > 0
+          ? summary.commonDiagnoses.map((d) => (
+              <Tag key={d.keyword} color="cyan" className="text-[10px]">{d.keyword} ×{d.count}</Tag>
+            ))
+          : <span className="text-slate-400">暂无重复诊断关键词</span>}
+      </div>
+      {summary.lastImpression && (
+        <div className="text-[11px] text-slate-500 mt-1 line-clamp-2">最近诊断意见: {summary.lastImpression}</div>
+      )}
+    </div>
+  ) : null;
+  if (priorReports.length === 0) {
+    return (
+      <div className="space-y-2">
+        {summaryBlock}
+        {!summary && <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={dataSource === 'api' ? '该患者暂无历史报告' : '无历史报告'} />}
+      </div>
+    );
+  }
   return (
     <div className="space-y-2">
+      {summaryBlock}
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-slate-500">共 {priorReports.length} 份历史报告</span>
         {dataSource === 'api' ? (
@@ -490,6 +550,22 @@ ${letterhead}
 </div>`;
 }
 
+// [v3.0.6.11-100 Wave 6B (D-2)] MIP/VR 截图图注 HTML 构建 (书写页 Modal 插入 + sessionStorage 自动插入共用)
+function buildMipFigureHtml(payload: MipScreenshotPayload, imgCount: number): string {
+  const safeLabel = String(payload.label ?? 'MIP 重建').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
+  const figNo = imgCount + 1;
+  const sourceInfo = payload.studyUid ? `${payload.studyUid.slice(-8)}` : 'N/A';
+  const dirLabel = payload.direction === 'axial' ? '轴位' : payload.direction === 'sagittal' ? '矢状位' : '冠状位';
+  const thicknessText = payload.kind === 'vr' ? '' : ` · ${dirLabel} ${payload.thickness}mm`;
+  return [
+    '<figure style="margin:10px 0;text-align:center;position:relative;">',
+    `<img src="${payload.imageBase64}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" data-mip-source="${sourceInfo}" data-mip-direction="${payload.direction ?? 'axial'}" />`,
+    `<div style="position:relative;margin-top:4px;"><span style="display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:0 8px;font-size:11px;font-weight:600;">水印: ${safeLabel}${thicknessText} · 源检查 ${sourceInfo} · ${payload.source === 'real' ? '真实DICOM' : '合成'}</span></div>`,
+    `<figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption>`,
+    '</figure>',
+  ].join('');
+}
+
 export default function ReportWritePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -507,8 +583,7 @@ export default function ReportWritePage() {
 
   // [v3.0.6.11-96 Wave5A P2] 关键词高亮双源: 真实 /reports/quality/rules 关键字命中报告文本 → api; 否则 mock 回退 (KWTab 标注演示数据)
   const [kwHighlights, setKwHighlights] = useState<any[]>(KEYWORD_HIGHLIGHTS_MOCK);
-  const [kwSource, setKwSource] = useState<'api' | 'mock'>('mock');
-  useEffect(() => {
+  const [kwSource, setKwSource] = useState<'api' | 'mock'>('mock');  useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
@@ -538,6 +613,32 @@ export default function ReportWritePage() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // [v3.0.6.11-100 Wave 2A] 报告关联危急值 → 顶部展示电话/短信通知卡片
+  //   匹配优先级: patientId/studyId 精确命中 → 演示报告 (rpt-038) 取紧急级 → 列表第一条
+  const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await criticalAlertApi.listAlerts({ status: 'active' });
+        if (cancelled || !res.success || !Array.isArray(res.data)) return;
+        const list = res.data;
+        const pid = context.patientId;
+        const sid = context.studyId ?? context.accessionNumber;
+        const hit =
+          list.find((a) => (pid && (a.patientId === pid || a.studyId === pid)) || (sid && a.studyId === sid)) ??
+          (context.reportId === 'rpt-038' ? list.find((a) => a.severity === 'critical' || a.severity === 'emergency') : undefined) ??
+          list[0] ??
+          null;
+        setCriticalAlert(hit);
+      } catch {
+        /* 后端不可用则不展示卡片 */
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context.reportId, context.patientId]);
 
   // [G005 v3.0.6.11-99 Wave 4B] 测量入报告 (SR 段落): 数据源 = 影像浏览器 sessionStorage 导出 + 手动添加
   type MeasureRow = { type: string; typeLabel: string; label: string; value: number | string; unit: string; location: string };
@@ -761,6 +862,129 @@ export default function ReportWritePage() {
     return () => window.clearInterval(timer);
   }, []);
 
+  // ───────────────────────── D-1: AI 检出一键插入报告 ─────────────────────────
+  // [G005 v3.0.6.11-100 Wave 6A] 挂载时检查 sessionStorage (ris_ai_findings_insert):
+  //   目标报告匹配 → 编辑器稳定后自动插入全部 + 清理缓存 + toast; 不匹配 → 仅展示面板由医生决定
+  const [aiPendingFindings, setAiPendingFindings] = useState<AiInsertItem[]>([]);
+  const aiAutoInsertRef = useRef<AiInsertItem[]>([]);
+
+  useEffect(() => {
+    let consumed: ReturnType<typeof consumeAiFindingsForReport> = null;
+    try { consumed = consumeAiFindingsForReport(); } catch { /* storage 不可用则忽略 */ }
+    if (!consumed || consumed.findings.length === 0) return;
+    setAiPendingFindings(consumed.findings);
+    // 目标报告匹配 (未指定目标 / 与当前 URL reportId 一致) → 自动插入; 否则留给面板手动采纳
+    const targetReportId = searchParams.get('reportId');
+    const matches = !consumed.reportId || !targetReportId || String(consumed.reportId) === targetReportId;
+    if (matches) aiAutoInsertRef.current = consumed.findings;
+    // 兜底: 报告解析流程异常 (无报告可加载) 时 4s 后仍尝试合并 (编辑器初始内容之上)
+    if (matches) {
+      window.setTimeout(() => {
+        const pending = aiAutoInsertRef.current;
+        if (pending.length === 0) return;
+        const cur = contextRef.current?.document ?? { html: '', plainText: '' };
+        const mergedHtml = [cur.html, ...pending.map((f) => f.html)].filter(Boolean).join('\n');
+        const aiText = pending.map((f) => `**AI 检出**：${f.label} ${f.detail ?? ''}（置信度 ${f.confidence}%）`).join('\n');
+        const mergedText = [cur.plainText, aiText].filter(Boolean).join('\n');
+        aiAutoInsertRef.current = [];
+        setAiPendingFindings([]);
+        setContext((c: any) => ({ ...c, document: { ...c.document, html: mergedHtml, plainText: mergedText, wordCount: mergedText.length } }));
+        setEditorSet({ plainText: '', html: mergedHtml, ts: Date.now() });
+        lastSavedRef.current = `${mergedText}|${mergedHtml}`;
+        message.success(`已插入 ${pending.length} 条 AI 检出`);
+      }, 4000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 检出一键插入: 在报告异步加载完成的时机合并 AI 段落
+  //   (异步整篇回填会覆盖 insertHtml 结果, 故合并进 context.document.html + externalSet 整篇渲染;
+  //    合并后 context html 与加载快照不一致 → 延迟补读 (IDB) 的"未被修改"校验自动跳过覆盖)
+  const mergeAiFindingsIntoEditor = useCallback((currentHtml: string) => {
+    const items = aiAutoInsertRef.current;
+    if (items.length === 0) return;
+    const aiHtml = items.map((f) => f.html).join('\n');
+    const mergedHtml = [currentHtml, aiHtml].filter(Boolean).join('\n');
+    const aiText = items.map((f) => `**AI 检出**：${f.label} ${f.detail ?? ''}（置信度 ${f.confidence}%）`).join('\n');
+    const mergedText = [contextRef.current?.document?.plainText ?? '', aiText].filter(Boolean).join('\n');
+    aiAutoInsertRef.current = [];
+    setAiPendingFindings([]);
+    setContext((c: any) => ({ ...c, document: { ...c.document, html: mergedHtml, plainText: mergedText, wordCount: mergedText.length } }));
+    setEditorSet({ plainText: '', html: mergedHtml, ts: Date.now() });
+    lastSavedRef.current = `${mergedText}|${mergedHtml}`;
+    message.success(`已插入 ${items.length} 条 AI 检出`);
+  }, []);
+
+  const handleAiInsertOne = useCallback((f: AiInsertItem) => {
+    editorRef.current?.insertHtml(f.html);
+    setAiPendingFindings((prev) => prev.filter((x) => x.id !== f.id));
+  }, []);
+
+  const handleAiIgnoreOne = useCallback((id: string) => {
+    setAiPendingFindings((prev) => prev.filter((x) => x.id !== id));
+  }, []);
+
+  const handleAiConsumed = useCallback((items: AiInsertItem[]) => {
+    setAiPendingFindings(items);
+    try { sessionStorage.removeItem('ris_ai_findings_insert'); } catch { /* 忽略 */ }
+  }, []);
+
+  // [v3.0.6.11-100 Wave 6B (D-2)] 阅片器「发送 MIP 到报告」→ sessionStorage ris_mip_insert:
+  //   挂载时读取缓存 (DicomViewerPro/VrPage 跳转前写入), 编辑器内容稳定后自动插入图注并清理缓存。
+  //   注: 书写页异步回填 (getById/IDB 延迟补读) 可能冲掉已插入图注 → 内容稳定后校验, 缺失则重插 (上限 3 次 + 30s 超时)
+  const mipPendingRef = useRef<string>('');
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('ris_mip_insert');
+      if (!raw) return;
+      sessionStorage.removeItem('ris_mip_insert');
+      const parsed = JSON.parse(raw);
+      if (parsed?.imageBase64) mipPendingRef.current = JSON.stringify(parsed);
+    } catch { /* 忽略 */ }
+  }, []);
+  useEffect(() => {
+    if (!mipPendingRef.current) return;
+    const payload = JSON.parse(mipPendingRef.current) as MipScreenshotPayload;
+    let lastLen = -1;
+    let stableCount = 0;
+    let attempts = 0;
+    let elapsed = 0;
+    const timer = window.setInterval(() => {
+      elapsed += 600;
+      const ed = document.querySelector('[contenteditable="true"]');
+      const len = ed ? (ed as HTMLElement).innerHTML.length : 0;
+      if (len > 0 && len === lastLen) {
+        stableCount += 1;
+        if (stableCount >= 2) {
+          const html = (ed as HTMLElement).innerHTML;
+          const hasFigure = html.includes('data-mip-source') || html.includes(String(payload.label ?? 'MIP 重建'));
+          if (hasFigure) {
+            window.clearInterval(timer);
+            mipPendingRef.current = '';
+            message.success(`${payload.label ?? 'MIP 截图'}已自动插入报告正文 (来自阅片器)`);
+          } else if (attempts < 3) {
+            attempts += 1;
+            const imgCount = (html.match(/<img\b/gi) ?? []).length;
+            editorRef.current?.insertHtml(buildMipFigureHtml(payload, imgCount));
+            lastLen = -1;
+          } else {
+            window.clearInterval(timer);
+            mipPendingRef.current = '';
+            message.warning('MIP 图注自动插入未完成, 可在报告「关键图像与影像锚定」重新插入');
+          }
+        }
+      } else {
+        stableCount = 0;
+      }
+      if (elapsed >= 30000) {
+        window.clearInterval(timer);
+        mipPendingRef.current = '';
+      }
+      lastLen = len;
+    }, 600);
+    return () => window.clearInterval(timer);
+  }, []);
+
   // [W2-2] 报告模板选择器 (自由文本模板)
   const [templateList, setTemplateList] = useState<any[]>([]);
   const [templateLoading, setTemplateLoading] = useState(true);
@@ -768,6 +992,8 @@ export default function ReportWritePage() {
   // [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 最近使用置顶 + 收藏星标 (localStorage)
   // [v3.0.6.11-98 Wave2B (报告 P1)] 收藏服务端化: POST /templates/:id/favorite + GET /templates/favorites; 失败回退 localStorage
   const [templateLibOpen, setTemplateLibOpen] = useState(false);
+  // [v3.0.6.11-100 Wave2C P2] 段落树模板引擎弹窗 (工具栏「模板生成段落树」)
+  const [sectionEngineOpen, setSectionEngineOpen] = useState(false);
   const [favSource, setFavSource] = useState<'api' | 'fallback'>('api');
   const [favTemplateIds, setFavTemplateIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('report-fav-templates') || '[]') } catch { return [] }
@@ -816,6 +1042,8 @@ export default function ReportWritePage() {
   // [v3.0.6.11-95 Wave2B P1] 历史报告真实化: getById 回填后按 patientId 拉全量本地过滤
   const [priorReports, setPriorReports] = useState<any[]>([]);
   const [priorSource, setPriorSource] = useState<'api' | 'mock'>('mock');
+  // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要 (历史报告→本次报告字段复用): 上次报告日期/常见诊断/一键填充
+  const [priorSummary, setPriorSummary] = useState<import('@services/api/reportApi').ReportPriorSummaryDto | null>(null);
   // [W2-2] 打印 / 导出
   const [exporting, setExporting] = useState(false);
   // [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板接线: getPrintLayouts → 选模板 Modal → preparePrint → 注入 print 容器
@@ -919,6 +1147,8 @@ export default function ReportWritePage() {
         // 回填编辑器 (编辑器挂载早于异步加载, externalSet.html 通道做整篇渲染)
         setEditorSet({ plainText: '', html: loadedHtml, ts: Date.now() });
         lastSavedRef.current = `${plainText}|${loadedHtml}`;
+        // [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 检出自动插入: 首轮加载完成后合并 (延迟补读会因 html 不一致自动跳过)
+        mergeAiFindingsIntoEditor(loadedHtml);
         // [v3.0.6.11-98 Wave 1A P0] mock 模式 IDB 恢复可能晚于首次 getById:
         //   仅在首次读取无 htmlContent 时延迟补读一次, 且编辑器未被用户修改 (html 与加载快照一致) 才回填
         if (!(d.htmlContent && String(d.htmlContent).trim())) {
@@ -936,6 +1166,8 @@ export default function ReportWritePage() {
             setContext((c: any) => ({ ...c, document: { ...c.document, html: html2, plainText: pt2, wordCount: pt2.length } }));
             setEditorSet({ plainText: '', html: html2, ts: Date.now() });
             lastSavedRef.current = `${pt2}|${html2}`;
+            // [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 检出自动插入: IDB 延迟补读为最后一次整篇回填, 合并兜底
+            mergeAiFindingsIntoEditor(html2);
           }, 1500);
         }
         if (d.examId) {
@@ -993,6 +1225,35 @@ export default function ReportWritePage() {
     })();
     return () => { cancelled = true; };
   }, [searchParams]);
+
+  // [v3.0.6.11-100 Wave 6B (D-5)] 既往报告摘要加载: GET /reports/:id/prior-summary
+  //   (历史报告 Tab 顶部卡片; 失败静默, 不阻塞书写)
+  useEffect(() => {
+    if (!reportId) return;
+    let cancelled = false;
+    reportApi.getPriorSummary(reportId).then((res) => {
+      if (cancelled || !res.success || !res.data) return;
+      setPriorSummary(res.data);
+    }).catch(() => { /* 摘要加载失败不阻塞 */ });
+    return () => { cancelled = true; };
+  }, [reportId]);
+
+  // [v3.0.6.11-100 Wave 6B (D-5)] 一键填充基础病史: prior-summary → 「既往史」段落 insertHtml
+  const handleFillHistory = useCallback(() => {
+    if (!priorSummary) {
+      message.info('既往病史摘要尚未加载, 请稍后重试');
+      return;
+    }
+    const esc = (v: unknown): string => String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
+    const date = priorSummary.lastReportDate ? new Date(priorSummary.lastReportDate).toLocaleDateString('zh-CN') : '';
+    const kws = priorSummary.commonDiagnoses.map((d) => d.keyword).join('、');
+    const html = [
+      '<h3>既往病史</h3>',
+      `<p>患者${date ? `于 ${date} ` : ''}行影像检查${priorSummary.count > 0 ? ` (既往共 ${priorSummary.count} 份报告)` : ''}${kws ? `, 曾诊断: ${esc(kws)}` : ''}${priorSummary.lastImpression ? `; 最近一次诊断意见: ${esc(priorSummary.lastImpression)}` : ''}。建议结合既往影像对比评估。</p>`,
+    ].join('\n');
+    editorRef.current?.insertHtml(html);
+    message.success('既往病史摘要已插入报告正文');
+  }, [priorSummary]);
 
   // [W2-2] 加载自由文本模板列表 (templatesApi → mock 兜底)
   // [v3.0.6.11-98 Wave2A P1] 仅加载已批准模板 (草稿/待审批/已驳回不展示)
@@ -1117,6 +1378,30 @@ export default function ReportWritePage() {
     editorRef.current?.insertHtml(html);
     message.success('影像锚点已插入报告正文');
   }, [context.document.html]);
+
+  // [v3.0.6.11-100 Wave 2B (报告工作站)] MIP 截图联动: Modal 生成 → 水印图注插入编辑器
+  const [mipModalOpen, setMipModalOpen] = useState(false);
+
+  // [v3.0.6.11-100 Wave 2B] MIP 截图插入: 复用 insertHtml 通道, 图中带「MIP 重建」水印 + 源检查信息
+  const handleInsertMip = useCallback((payload: MipScreenshotPayload) => {
+    if (!payload?.imageBase64) {
+      message.warning('MIP 图像生成失败, 请重试');
+      return;
+    }
+    const existingImgs = (context.document.html?.match(/<img\b/gi) ?? []).length;
+    editorRef.current?.insertHtml(buildMipFigureHtml(payload, existingImgs));
+    setMipModalOpen(false);
+    message.success('MIP 截图已插入报告正文');
+  }, [context.document.html]);
+
+  // [v3.0.6.11-100 Wave 2B] 影像标注 → 阅片器定位
+  const handleJumpAnnotation = useCallback((studyUid?: string, seriesUid?: string) => {
+    const params = new URLSearchParams();
+    if (studyUid) params.set('studyUid', studyUid);
+    if (seriesUid) params.set('seriesUid', seriesUid);
+    if (context.examId) params.set('examId', context.examId);
+    navigate(`/dicom-viewer-pro?${params.toString()}`);
+  }, [context.examId, navigate]);
 
   // [v3.0.6.11-70] 自动保存: 30 秒定时真实保存(节流: 保存中/无变更跳过)
   useEffect(() => {
@@ -1621,7 +1906,7 @@ export default function ReportWritePage() {
     switch (activeToolsTab) {
       case 'ai': return <AITab reportId={reportId ?? ''} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
       case 'voice': return <VoiceTab reportId={reportId ?? ''} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
-      case 'history': return <HistoryTab priorReports={priorSource === 'api' ? priorReports : context.priorReports} dataSource={priorSource} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
+      case 'history': return <HistoryTab priorReports={priorSource === 'api' ? priorReports : context.priorReports} dataSource={priorSource} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} summary={priorSummary} onFillHistory={handleFillHistory} />;
       case 'similar': return <SimilarTab reportText={context.document.plainText} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'score': return <ScoreTab preScore={preScore} source={preScoreSource} loading={preScoreLoading} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
@@ -1671,6 +1956,16 @@ export default function ReportWritePage() {
               onClick={() => setTemplateLibOpen(true)}
             >
               模板库
+            </Button>
+          </Tooltip>
+          {/* [v3.0.6.11-100 Wave2C P2] 段落树模板引擎: 按当前模态/部位匹配段落模板 → 段落树预览 → 一键填充 */}
+          <Tooltip title="按当前检查模态/部位匹配段落模板, 生成段落树并一键填充编辑器">
+            <Button
+              size="small"
+              icon={<ListTree className="w-3.5 h-3.5" />}
+              onClick={() => setSectionEngineOpen(true)}
+            >
+              模板段落树
             </Button>
           </Tooltip>
           {/* [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360 */}
@@ -1804,6 +2099,14 @@ export default function ReportWritePage() {
               showIcon
               className="no-print"
               message={`该草稿已 ${Math.round(staleHours)} 小时未更新, 请及时完成书写并提交 (Ctrl+Enter)`}
+            />
+          )}
+          {/* [v3.0.6.11-100 Wave 2A] 危急值电话/短信网关卡片 (报告关联危急值时显示) */}
+          {criticalAlert && (
+            <CriticalValueCard
+              alert={criticalAlert}
+              compact
+              onNotified={(updated) => setCriticalAlert((prev) => (prev?.id === updated.id ? { ...prev, status: updated.status } : prev))}
             />
           )}
           <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span><Tag color="orange" className="text-[10px]" title="患者/检查无真实数据时保留本地兜底值并标注来源">示例数据</Tag></Space>}>
@@ -1943,9 +2246,39 @@ export default function ReportWritePage() {
             />
           </Card>
 
-          <Card size="small" className="v3-card no-print" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}>
+          <Card size="small" className="v3-card no-print" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}
+            extra={
+              <Button size="small" type="primary" icon={<Camera className="w-3 h-3" />} onClick={() => setMipModalOpen(true)} data-testid="open-mip-modal">
+                插入 MIP 截图
+              </Button>
+            }>
             <ImageAnchorComponent reportId={reportId ?? ''} onInsertAnchor={handleInsertAnchor} />
           </Card>
+
+          <Card size="small" className="v3-card no-print" title={<Space><PenLine className="w-4 h-4 text-purple-500" /><span>影像标注</span><Tag color="purple">双向同步</Tag></Space>}>
+            <DicomAnnotationEmbed
+              reportId={reportId ?? ''}
+              studyUid={searchParams.get('studyUid') ?? undefined}
+              seriesUid={searchParams.get('seriesUid') ?? undefined}
+              onJumpToViewer={handleJumpAnnotation}
+            />
+          </Card>
+          {/* [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发: 报告内容命中规则关键词时显示「建议随访」卡片 */}
+          <FollowupAutoBookPanel
+            reportText={context.document.plainText}
+            patientId={context.patientId}
+            patientName={context.patientName}
+            reportId={reportId ?? ''}
+            examId={context.examId}
+          />
+          {/* [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 检出一键插入: 影像查看器缓存检出 → 面板 (采纳/忽略/插入全部) */}
+          <AiLesionAutoInjector
+            reportId={reportId ?? ''}
+            items={aiPendingFindings}
+            onInsertHtml={handleAiInsertOne}
+            onIgnore={handleAiIgnoreOne}
+            onConsumed={handleAiConsumed}
+          />
         </Content>
 
         {/* 右侧 Sider（懒加载内容） */}
@@ -1971,6 +2304,14 @@ export default function ReportWritePage() {
           </Sider>
         )}
       </Layout>
+
+      {/* [v3.0.6.11-100 Wave 2B] MIP 截图生成 Modal → 插入报告正文 */}
+      <MipScreenshotModal
+        open={mipModalOpen}
+        defaultStudyUid={searchParams.get('studyUid') ?? undefined}
+        onClose={() => setMipModalOpen(false)}
+        onInsert={handleInsertMip}
+      />
 
       {/* 提交确认 Modal */}
       <Modal
@@ -2135,6 +2476,18 @@ export default function ReportWritePage() {
         onReplace={(id) => { void handleSelectTemplate(String(id)); }}
         onToggleFav={(id) => { void toggleFavTemplate(String(id)); }}
         onPickPhrase={insertPhrase}
+      />
+      {/* [v3.0.6.11-100 Wave2C P2] 段落树模板引擎 Modal: 按模态/部位匹配 → 段落树预览 → 一键填充编辑器 */}
+      <SectionTemplateEngine
+        open={sectionEngineOpen}
+        modality={context.modality}
+        bodyPart={context.bodyPart}
+        context={context}
+        onClose={() => setSectionEngineOpen(false)}
+        onApply={(text) => {
+          setEditorSet({ plainText: text, ts: Date.now() });
+          message.success('段落树已填充编辑器, 请按实际所见修改');
+        }}
       />
       {/* [v3.0.6.11-98 Wave1B P0-3] 上一例复制预览 Modal: 勾选所见/印象 → 插入编辑器 */}
       <Modal
@@ -2507,6 +2860,10 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   const [q, setQ] = useState('');
   // [v3.0.6.11-98 Wave2A P1] 我的模板筛选: 全部 / 仅我创建
   const [scopeTab, setScopeTab] = useState<'all' | 'mine'>('all');
+  // [v3.0.6.11-100 Wave2C P2] 模板类型 Tab: 全部 / 全文模板(FULL) / 段落模板(SECTION) / 短语模板(PHRASE)
+  const [typeTab, setTypeTab] = useState<'all' | 'FULL' | 'SECTION' | 'PHRASE'>('all');
+  // [v3.0.6.11-100 Wave2C P2] 全文模板插入方式: 追加(光标处) / 覆盖(替换全文)
+  const [insertMode, setInsertMode] = useState<'append' | 'replace'>('append');
 
   // [v3.0.6.11-96 Wave3B P1] 分类 Tab: 真实 /templates/categories 优先, 与模板数据派生分类合并 (去重)
   const categories = useMemo(() => {
@@ -2549,6 +2906,8 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   const filteredTemplates = useMemo(() => {
     const kw = q.trim().toLowerCase();
     let list = templates;
+    // [v3.0.6.11-100 Wave2C P2] 模板类型过滤 (FULL/SECTION/PHRASE, 旧数据无字段按 SECTION 处理)
+    if (typeTab !== 'all') list = list.filter((t: any) => (t?.templateType ?? 'SECTION') === typeTab);
     if (catTab !== '全部') list = list.filter((t: any) => String(t?.category ?? '') === catTab);
     if (scopeTab === 'mine') list = list.filter((t: any) => isMine(t));
     if (kw) list = list.filter((t: any) => String(t?.name ?? '').toLowerCase().includes(kw) || String(t?.body ?? '').toLowerCase().includes(kw));
@@ -2559,7 +2918,10 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
       return 2;
     };
     return [...list].sort((a, b) => rank(a) - rank(b) || String(a?.name ?? '').localeCompare(String(b?.name ?? ''), 'zh-CN'));
-  }, [templates, catTab, q, scopeTab, isMine, favIdsSet, recentIdsSet]);
+  }, [templates, catTab, typeTab, q, scopeTab, isMine, favIdsSet, recentIdsSet]);
+
+  // [v3.0.6.11-100 Wave2C P2] 全文模板 (FULL) 独立计数: 分类 Tab 中区别于段落模板展示
+  const fullTemplates = useMemo(() => templates.filter((t: any) => (t?.templateType ?? 'SECTION') === 'FULL'), [templates]);
 
   const filteredPhrases = useMemo(() => {
     const kw = q.trim().toLowerCase();
@@ -2598,12 +2960,21 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
         {loading ? (
           <div style={{ textAlign: 'center', padding: 24 }}><Spin /> 模板加载中…</div>
         ) : (
-          <div className="grid grid-cols-2 gap-3" style={{ minHeight: 380 }}>
+          <div className="grid grid-cols-2 gap-3" style={{ minHeight: 380, maxHeight: 560, overflow: 'hidden' }}>
             {/* 左: 全文模板 (分类 Tab + 最近使用/收藏置顶) */}
-            <div className="flex flex-col gap-2" style={{ maxHeight: 420 }}>
+            <div className="flex flex-col gap-2" style={{ maxHeight: 560, minHeight: 380 }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />全文模板</span>
+                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />全文模板{fullTemplates.length > 0 && <Tag color="purple" className="m-0 text-[10px]">全文 ×{fullTemplates.length}</Tag>}</span>
                 <div className="flex items-center gap-2">
+                  {/* [v3.0.6.11-100 Wave2C P2] 全文模板插入方式: 追加(光标处) / 覆盖(替换全文) */}
+                  <div className="flex rounded border border-slate-200 overflow-hidden" title="全文模板点击后插入方式">
+                    <button type="button"
+                      className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 ${insertMode === 'append' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setInsertMode('append')}>追加</button>
+                    <button type="button"
+                      className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 border-l border-slate-200 ${insertMode === 'replace' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      onClick={() => setInsertMode('replace')}>覆盖</button>
+                  </div>
                   {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
                   <div className="flex rounded border border-slate-200 overflow-hidden">
                     <button type="button"
@@ -2613,8 +2984,14 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                       className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 border-l border-slate-200 ${scopeTab === 'mine' ? 'bg-sky-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                       onClick={() => setScopeTab('mine')}>我的模板</button>
                   </div>
-                  <Tag color="blue" className="text-[10px] m-0">点击插入光标处</Tag>
+                  <Tag color="blue" className="text-[10px] m-0">{typeTab === 'FULL' ? (insertMode === 'replace' ? '点击覆盖全文' : '点击追加光标处') : '点击插入光标处'}</Tag>
                 </div>
+              </div>
+              {/* [v3.0.6.11-100 Wave2C P2] 模板类型 Tab: 全部 / 全文模板 / 段落模板 / 短语模板 */}
+              <div className="flex gap-1 flex-wrap items-center">
+                {([['all', '全部'], ['FULL', '全文模板'], ['SECTION', '段落模板'], ['PHRASE', '短语模板']] as const).map(([key, label]) => (
+                  <Button key={key} size="small" type={typeTab === key ? 'primary' : 'default'} className="text-[11px]" onClick={() => setTypeTab(key)}>{label}</Button>
+                ))}
               </div>
               {/* [v3.0.6.11-98 Wave2A P1] 推荐模板: 按当前检查 模态/部位 自动匹配 (双匹配 > 单匹配) */}
               <div className="rounded border border-purple-200 bg-purple-50/60 p-2 space-y-1">
@@ -2653,13 +3030,21 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                   const isFav = favIdsSet.has(t.id);
                   const isRecent = recentIdsSet.has(t.id);
                   return (
-                    <div key={t.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors" onClick={() => onInsert(t)}>
+                    <div key={t.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
+                      onClick={() => {
+                        // [v3.0.6.11-100 Wave2C P2] 全文模板: 按插入方式 (追加光标处 / 覆盖全文); 其余点击插入光标处
+                        if ((t?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace') onReplace(t.id);
+                        else onInsert(t);
+                      }}>
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
                           {isFav && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
                           {isRecent && !isFav && <Tag color="green" className="m-0 text-[10px]">最近</Tag>}
                           {/* [v3.0.6.11-98 Wave2A P1] 个人模板 Tag */}
                           {isMine(t) && <Tag color="cyan" className="m-0 text-[10px]">个人</Tag>}
+                          {/* [v3.0.6.11-100 Wave2C P2] 全文模板 Tag (区别于段落模板) */}
+                          {(t?.templateType ?? 'SECTION') === 'FULL' && <Tag color="purple" className="m-0 text-[10px]">全文</Tag>}
+                          {(t?.templateType ?? 'SECTION') === 'PHRASE' && <Tag color="magenta" className="m-0 text-[10px]">短语</Tag>}
                           {t.name}
                         </span>
                         <span className="flex items-center gap-1 shrink-0">
@@ -2686,7 +3071,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
               </div>
             </div>
             {/* 右: 短语库 (按分类分组) */}
-            <div className="flex flex-col gap-2" style={{ maxHeight: 420 }}>
+            <div className="flex flex-col gap-2" style={{ maxHeight: 560, minHeight: 380 }}>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><BookMarked className="w-3 h-3" />短语库</span>
                 <Button size="small" type="link" className="text-[11px] p-0 h-auto" onClick={() => onClose()}>返回书写页选择</Button>

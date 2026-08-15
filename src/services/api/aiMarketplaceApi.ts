@@ -51,6 +51,7 @@ export const aiMarketplaceApi = {
 
   removeModel: (id: string) => api.delete(`/ai-marketplace/models/${id}`),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getModelStatus: (id: string) =>
     api.get<ModelStatus>(`/ai-marketplace/models/${id}/status`),
 };

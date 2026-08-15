@@ -79,6 +79,65 @@ const findIdx = (id: unknown): number => {
   return idx
 }
 
+// [v3.0.6.11-100 Wave2C P3] /api/v1/followup-trigger-rules MSW — 报告→随访自动触发规则 (内存 + seed)
+// 书写页「建议随访」卡片: 规则列表 + 触发模式 (auto=自动创建 / hint=仅提示, 默认 hint)
+const TRIGGER_API = `${API_BASE}/followup-trigger-rules`
+
+export interface MockFollowUpTriggerRule {
+  id: string
+  keyword: string
+  label: string
+  description: string
+  templateId: string
+  templateName: string
+  intervals: number[]
+  hint: string
+  active: boolean
+}
+
+const SEED_TRIGGER_RULES: MockFollowUpTriggerRule[] = [
+  { id: 'FTR-001', keyword: '肺结节', label: '肺结节', description: '肺结节检出后按 3/6/12 个月复查 CT 对比大小', templateId: 'tpl-nodule', templateName: '肺结节随访', intervals: [90, 180, 360], hint: '建议 3/6/12 个月复查薄层 CT, 对比结节大小变化', active: true },
+  { id: 'FTR-002', keyword: '磨玻璃', label: '磨玻璃影', description: '磨玻璃影随访: 短期复查评估吸收或进展', templateId: 'tpl-nodule', templateName: '肺结节随访', intervals: [90, 180, 360], hint: '磨玻璃影建议 3/6/12 个月随访复查', active: true },
+  { id: 'FTR-003', keyword: '乳腺', label: '乳腺占位', description: '乳腺占位/结节按 6/12 个月随访影像复查', templateId: 'tpl-breast-ca', templateName: '乳腺癌术后随访', intervals: [90, 180, 360], hint: '建议 6/12 个月乳腺钼靶/超声随访', active: true },
+  { id: 'FTR-004', keyword: '乳腺癌', label: '乳腺癌', description: '乳腺癌术后按 6/12 个月随访评估', templateId: 'tpl-breast-ca', templateName: '乳腺癌术后随访', intervals: [90, 180, 360], hint: '乳腺癌术后建议 6/12 个月随访 (影像 + 肿瘤标志物)', active: true },
+  { id: 'FTR-005', keyword: '骨折', label: '骨折', description: '骨折愈合按 1/3 个月复查 X 线评估愈合', templateId: 'tpl-fracture', templateName: '骨科随访(骨折)', intervals: [30, 90], hint: '骨折建议 1/3 个月复查 X 线评估骨痂形成', active: true },
+  { id: 'FTR-006', keyword: '肝癌', label: '肝癌/肝脏占位', description: '肝癌介入/术后按 3/6 个月随访复查', templateId: 'tpl-onc-ct', templateName: '肿瘤术后复查(CT)', intervals: [90, 180], hint: '肝癌建议 3/6 个月影像随访复查', active: true },
+  { id: 'FTR-007', keyword: '甲状腺结节', label: '甲状腺结节', description: '甲状腺结节按 6/12 个月超声随访', templateId: 'tpl-thyroid-benign', templateName: '甲状腺良性结节随访', intervals: [180, 360], hint: '甲状腺结节建议 6/12 个月超声随访', active: true },
+  { id: 'FTR-008', keyword: '冠脉支架', label: '冠脉支架术后', description: '冠脉支架术后按 1/3/6/12 个月随访', templateId: 'tpl-stent', templateName: '冠脉支架术后随访', intervals: [30, 90, 180, 360], hint: '冠脉支架术后建议 1/3/6/12 个月随访复查', active: true },
+  { id: 'FTR-009', keyword: '椎间盘突出', label: '椎间盘突出', description: '腰椎退变/椎间盘突出按 3/6/12 个月随访', templateId: 'tpl-spine-fusion', templateName: '脊柱融合术后随访', intervals: [90, 180, 360], hint: '腰椎病变建议 3/6/12 个月随访复查', active: true },
+  { id: 'FTR-010', keyword: '动脉瘤', label: '脑动脉瘤', description: '脑动脉瘤按 3/6/12 个月随访评估', templateId: 'tpl-aneurysm', templateName: '脑动脉瘤随访', intervals: [90, 180, 360], hint: '脑动脉瘤建议 3/6/12 个月随访复查', active: true },
+]
+
+const TRIGGER_MODE_KEY = 'followup_auto_trigger_mode'
+// [v3.0.6.11-100 Wave2C P3] 触发模式 (auto=自动创建 / hint=仅提示, 默认 hint): localStorage 持久化, 与服务端配置同步写入
+let triggerMode: 'auto' | 'hint' = (() => {
+  try {
+    return typeof localStorage !== 'undefined' && localStorage.getItem(TRIGGER_MODE_KEY) === 'auto' ? 'auto' : 'hint'
+  } catch {
+    return 'hint'
+  }
+})()
+
+export const followupTriggerRulesHandlers = [
+  http.get(`${TRIGGER_API}`, async () => {
+    await delay(delayMs())
+    return HttpResponse.json({ success: true, data: { items: SEED_TRIGGER_RULES, mode: triggerMode } })
+  }),
+  http.get(`${TRIGGER_API}/mode`, async () => {
+    await delay(delayMs(30, 80))
+    return HttpResponse.json({ success: true, data: { mode: triggerMode } })
+  }),
+  // [v3.0.6.11-100 Wave2C P3] 触发模式配置写入 (POST /followup-trigger-rules/mode { mode }): 同步 localStorage
+  http.post(`${TRIGGER_API}/mode`, async ({ request }) => {
+    await delay(delayMs(30, 80))
+    const body = (await request.json().catch(() => ({}))) as { mode?: string }
+    const next: 'auto' | 'hint' = body.mode === 'auto' ? 'auto' : 'hint'
+    triggerMode = next
+    try { localStorage.setItem(TRIGGER_MODE_KEY, next) } catch { /* 忽略 */ }
+    return HttpResponse.json({ success: true, data: { mode: triggerMode } })
+  }),
+]
+
 export const followupHandlers = [
   // ⚠️ due/stats/from-exam 必须先于 :id
   http.get(`${API}/due`, async ({ request }) => {

@@ -144,6 +144,23 @@ export const followupApi = {
     await invalidateApiCacheByPrefix(LIST_PREFIX)
     return res
   },
+
+  // [v3.0.6.11-100 Wave2C P3] 报告→随访触发规则: GET /followup-trigger-rules (规则列表 + 触发模式)
+  listTriggerRules: () =>
+    api.get<{ items: FollowUpTriggerRuleDto[]; mode: 'auto' | 'hint' }>('/followup-trigger-rules'),
 }
 
 export type FollowUpListResult = ListData<FollowUpPlan>
+
+// [v3.0.6.11-100 Wave2C P3] 报告→随访触发规则 DTO (对齐后端 followup-trigger-rules)
+export interface FollowUpTriggerRuleDto {
+  id: string
+  keyword: string
+  label: string
+  description?: string
+  templateId: string
+  templateName: string
+  intervals: number[]
+  hint?: string
+  active: boolean
+}

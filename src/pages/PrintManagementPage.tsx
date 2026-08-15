@@ -11,6 +11,8 @@ import {
   LineChart, Line, PieChart as RePieChart, Pie, Cell, AreaChart, Area
 } from 'recharts'
 import { ChartContainer } from '../components/charts'
+import { VirtualTable } from '../components/common/VirtualTable'
+import { PageHeader } from '../components/common/PageHeader'
 // [G005 2B] 原生表格 slice 分页 (DICOM 任务队列 / 成本分析)
 import { usePagination } from '../hooks/usePagination'
 
@@ -1675,37 +1677,41 @@ export default function PrintManagementPage() {
 
       {/* 打印记录 */}
       <Card title="打印记录" icon={<FileBarChart size={16} />}>
-        <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: C.bg }}>
-                <th style={{ padding: '8px 6px', textAlign: 'left', color: C.textMid, fontWeight: 500 }}>患者</th>
-                <th style={{ padding: '8px 6px', textAlign: 'left', color: C.textMid, fontWeight: 500 }}>检查</th>
-                <th style={{ padding: '8px 6px', textAlign: 'left', color: C.textMid, fontWeight: 500 }}>时间</th>
-                <th style={{ padding: '8px 6px', textAlign: 'left', color: C.textMid, fontWeight: 500 }}>费用</th>
-              </tr>
-            </thead>
-            <tbody>
-              {printHistory.map(record => (
-                <tr key={record.id} style={{ borderBottom: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '6px' }}>
-                    <div style={{ fontWeight: 500, color: C.textDark }}>{record.patientName}</div>
-                    <div style={{ fontSize: 12, color: C.textLight }}>{record.patientId}</div>
-                  </td>
-                  <td style={{ padding: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {getModalityIcon(record.modality)}
-                      <span>{record.modality}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: C.textLight }}>{record.studyDesc}</div>
-                  </td>
-                  <td style={{ padding: '6px', color: C.textMid }}>{record.printTime.slice(11)}</td>
-                  <td style={{ padding: '6px', color: C.success, fontWeight: 500 }}>¥{record.cost.toFixed(1)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-        </div>
+        <VirtualTable
+          columns={[
+            {
+              title: '患者',
+              dataIndex: 'patientName',
+              key: 'patientName',
+              render: (_: unknown, record) => (
+                <div>
+                  <div style={{ fontWeight: 500, color: C.textDark }}>{record.patientName}</div>
+                  <div style={{ fontSize: 12, color: C.textLight }}>{record.patientId}</div>
+                </div>
+              ),
+            },
+            {
+              title: '检查',
+              dataIndex: 'modality',
+              key: 'modality',
+              render: (_: unknown, record) => (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {getModalityIcon(record.modality)}
+                    <span>{record.modality}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.textLight }}>{record.studyDesc}</div>
+                </div>
+              ),
+            },
+            { title: '时间', dataIndex: 'printTime', key: 'printTime', width: 90, render: (v: string) => <span style={{ color: C.textMid }}>{v.slice(11)}</span> },
+            { title: '费用', dataIndex: 'cost', key: 'cost', width: 90, render: (v: number) => <span style={{ color: C.success, fontWeight: 500 }}>¥{v.toFixed(1)}</span> },
+          ]}
+          dataSource={printHistory}
+          rowKey="id"
+          height={280}
+          pageSize={8}
+        />
       </Card>
     </div>
   )
@@ -3533,15 +3539,14 @@ export default function PrintManagementPage() {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, padding: 16 }}>
       {/* 页面标题 */}
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Printer size={24} color={C.primary} />
-          胶片打印管理
-        </h1>
-        <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 0' }}>
-          管理打印设备、胶片规格、打印队列和统计分析
-        </p>
-      </div>
+      <PageHeader
+        as="h1"
+        size="md"
+        icon={<Printer size={24} color={C.primary} />}
+        title="胶片打印管理"
+        subtitle={<span style={{ fontSize: 13, color: C.textMid }}>管理打印设备、胶片规格、打印队列和统计分析</span>}
+        style={{ marginBottom: 16 }}
+      />
 
       {/* 数据来源标注 ([W2-B] 真实化) */}
       <div style={{

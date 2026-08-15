@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { TableProps } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { EmptyState } from '../components/common/EmptyState'
 import { srDocumentApi, type AiSrFindingPayload } from '../services/api/srReportApi';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -1074,7 +1075,7 @@ export default function AIOrchestrationPage() {
                       loading={orchLoading}
                       pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                       size="small"
-                      locale={{ emptyText: <Empty description="暂无编排流水线" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                      locale={{ emptyText: <EmptyState description="暂无编排流水线" /> }}
                     scroll={{ x: 'max-content' }}
                     />
                   </div>

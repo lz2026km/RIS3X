@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, Res } from '@nestjs/common'
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../common/decorators/roles.decorator'
 import type { Request, Response } from 'express'
@@ -31,6 +31,21 @@ export const UpdateReportSchema = z.object({
   findings: z.string().optional(),
   conclusion: z.string().optional(),
   htmlContent: z.string().optional(),
+})
+
+// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] POST /reports/:id/image-annotations 请求体
+export const SaveImageAnnotationsSchema = z.object({
+  studyUid: z.string().max(512).optional(),
+  seriesUid: z.string().max(512).optional(),
+  instanceUid: z.string().max(512).optional(),
+  annotations: z.array(z.object({
+    id: z.string().min(1).max(128),
+    type: z.enum(['arrow', 'circle', 'ruler', 'box']),
+    x1: z.number(), y1: z.number(), x2: z.number(), y2: z.number(),
+    label: z.string().max(128).optional().default(''),
+    color: z.string().max(32).optional().default('#fbbf24'),
+  })).min(1).max(200),
+  imageBase64: z.string().max(8_000_000).optional(),
 })
 
 @ApiTags('reports')
@@ -138,9 +153,40 @@ export class ReportsController {
     return this.reports.getDailyTrend(Number(days ?? 30))
   }
 
+  // [G005 Wave 8] 报告冷归档策略 (静态子路由先于 :id 注册)
+  @Get('archive-policy')
+  getArchivePolicy() {
+    return this.reports.getArchivePolicy()
+  }
+
+  @Put('archive-policy')
+  updateArchivePolicy(
+    @Body(new ZodValidationPipe(z.object({
+      enabled: z.boolean().optional(),
+      archiveAfterDays: z.number().int().min(1).max(36500).optional(),
+      targetTier: z.enum(['archive', 'cold']).optional(),
+      deleteSourceAfterDays: z.number().int().min(1).max(36500).nullable().optional(),
+    }))) body: { enabled?: boolean; archiveAfterDays?: number; targetTier?: 'archive' | 'cold'; deleteSourceAfterDays?: number | null },
+  ) {
+    return this.reports.updateArchivePolicy(body)
+  }
+
+  // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive
+  @Post(':id/archive')
+  archive(@Param('id') id: string, @Req() req: Request) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.archive(id, actorId)
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.reports.get(id)
+  }
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告关联病灶列表 (from-report 自动创建 → lesion-tracking)
+  @Get(':id/lesions')
+  reportLesions(@Param('id') id: string) {
+    return this.reports.getReportLesions(id)
   }
 
   @Post()
@@ -194,10 +240,33 @@ export class ReportsController {
     return this.reports.auditTrail(id)
   }
 
+  // [v3.0.6.11-100 Wave 2B] 报告关联影像标注 (阅片标注 → 报告双向同步)
+  @Get(':id/image-annotations')
+  imageAnnotations(@Param('id') id: string) {
+    return this.reports.getImageAnnotations(id)
+  }
+
+  // [v3.0.6.11-100 Wave 2B] 保存 (覆盖) 报告关联影像标注
+  @Post(':id/image-annotations')
+  saveImageAnnotations(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(SaveImageAnnotationsSchema)) body: z.infer<typeof SaveImageAnnotationsSchema>,
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.saveImageAnnotations(id, body as any, actorId)
+  }
+
   // [v3.0.6.11-99 Wave 10D] 报告关联: 检查/患者/既往报告/随访/危急值
   @Get(':id/related')
   related(@Param('id') id: string) {
     return this.reports.getRelated(id)
+  }
+
+  // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要 (历史报告→本次报告字段复用)
+  @Get(':id/prior-summary')
+  priorSummary(@Param('id') id: string) {
+    return this.reports.getPriorSummary(id)
   }
 
   // [v3.0.6.11-99 Wave 10D] 应用模板到报告 (合并 ReportTemplate 内容)

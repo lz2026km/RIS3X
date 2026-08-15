@@ -82,6 +82,8 @@ const TemplateCategoryPage = lazy(
 const ReportReviewPage = lazy(() => import("../pages/ReportReviewPage"));
 const ReportRevisionsPage = lazy(() => import("../pages/ReportRevisionsPage"));
 const CollaborationPage = lazy(() => import("../pages/CollaborationPage"));
+// [v3.0.6.11-100 Wave 2A] 委员会会诊室 (多医生合议)
+const CommitteeRoomPage = lazy(() => import("../pages/review/CommitteeRoomPage"));
 const KeywordCheckPage = lazy(() => import("../pages/KeywordCheckPage"));
 const ReportScoreRulePage = lazy(() => import("../pages/ReportScoreRulePage"));
 const ReportDefectLibraryPage = lazy(
@@ -197,6 +199,12 @@ const EnterpriseSearchPage = lazy(
 const MultiSiteDashboardPage = lazy(
   () => import("../pages/MultiSiteDashboardPage"),
 );
+// [G005 Wave 4B] 区域医联体协同中心 (RegionalCollaborationPage)
+const RegionalCollaborationPage = lazy(
+  () => import("../pages/regional/RegionalCollaborationPage"),
+);
+// [G005 Wave 4B] 影像像素实验室 (EyePixelPage)
+const EyePixelPage = lazy(() => import("../pages/eye/pacs/EyePixelPage"));
 const VNADashboardPage = lazy(() => import("../pages/VNADashboardPage"));
 const AdverseEventPage = lazy(() => import("../pages/safety/AdverseEventPage"));
 const CQIPage = lazy(() => import("../pages/safety/CQIPage"));
@@ -234,6 +242,8 @@ const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
 const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
 // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
 const TechSchedulePage = lazy(() => import("../pages/ops/TechSchedulePage"));
+// [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (运营组)
+const TechnicianKpiDashboardPage = lazy(() => import("../pages/tech/TechnicianKpiDashboardPage"));
 // [v3.0.6.11-88] Wave6A 血管分析工作台
 const VesselAnalysisPage = lazy(() => import("../pages/cardiac/VesselAnalysisPage"));
 const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
@@ -288,6 +298,10 @@ const ReviewCenterPage = lazy(() => import("../pages/ReviewCenterPage"));
 const QualityControlPage = lazy(() => import("../pages/QualityControlPage"));
 const NlpCheckPage = lazy(() => import("../pages/report/NlpCheckPage"));
 const AsrPage = lazy(() => import("../pages/report/AsrPage"));
+// [v3.0.6.11-100 Wave 4A] 自定义报表独立完整版 / 语音工作站 / 移动审批
+const CustomReportPage = lazy(() => import("../pages/report/CustomReportPage"));
+const VoiceWorkstationPage = lazy(() => import("../pages/voice/VoiceWorkstationPage"));
+const MobileApprovalPage = lazy(() => import("../pages/mobile/MobileApprovalPage"));
 const SnomedPage = lazy(() => import("../pages/report/SnomedPage"));
 const RuleConfigPanel = lazy(() => import("../pages/cds/RuleConfigPanel"));
 const RdsrPage = lazy(() => import("../pages/dose/RdsrPage"));
@@ -321,6 +335,13 @@ const RadiologistAnnualQCPage = lazy(
 const QcImageAiPage = lazy(() => import("../pages/qc/QcImageAiPage"));
 // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
 const QcPdcaPage = lazy(() => import("../pages/qc/QcPdcaPage"));
+// [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
+const ExamRoomStatusBoard = lazy(
+  () => import("../pages/tech/ExamRoomStatusBoard"),
+);
+const RetakeRateAnalyticsPage = lazy(
+  () => import("../pages/tech/RetakeRateAnalyticsPage"),
+);
 
 const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
 const PacsStudyListPage = lazy(
@@ -782,6 +803,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/user/center": ALL_ROLES, // [v3.0.6.11-79] W1-B 用户中心
+  // [v3.0.6.11-100 Wave 2A] 委员会会诊室 (审核组, 同 review-center 角色)
+  "/committee-room": roleMap["/review-center"] ?? ["主任", "管理员"],
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
   "/patient-unified": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-66]
   "/patients/:id/360": ["医生", "主任", "技师", "护士", "管理员"],
@@ -854,6 +877,10 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/orchestrator": ["管理员", "主任"],
   "/nlp/spellcheck": ["医生", "主任", "管理员"],
   "/asr/transcribe": ["医生", "主任", "管理员"],
+  // [v3.0.6.11-100 Wave 4A] 新页面路由角色映射
+  "/report/custom": ["主任", "管理员"],
+  "/voice/workstation": ["医生", "主任", "管理员"],
+  "/mobile/approval": ["主任", "管理员"],
   "/snomed/encode": ["医生", "主任", "管理员"],
   "/snomed/encoder": ["医生", "主任", "管理员"],
   "/cds/rule-config": ["主任", "管理员"],
@@ -918,6 +945,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ops/kpi-wall": ["主任", "管理员"],
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
   "/ops/tech-schedule": ["主任", "管理员", "技师"],
+  // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
+  "/tech/kpi": ["主任", "管理员", "技师"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -1007,6 +1036,8 @@ export const routes: RouteObject[] = [
   wrapped("/report-review", React.createElement(ReportReviewPage)),
   wrapped("/report-revisions", React.createElement(ReportRevisionsPage)),
   wrapped("/collaboration", React.createElement(CollaborationPage)),
+  // [v3.0.6.11-100 Wave 2A] 委员会会诊室 (多医生合议, 支持 ?reportId= 直达)
+  wrapped("/committee-room", React.createElement(CommitteeRoomPage)),
   wrapped("/keyword-check", React.createElement(KeywordCheckPage)),
   wrapped("/report-score-rule", React.createElement(ReportScoreRulePage)),
   wrapped(
@@ -1068,6 +1099,13 @@ export const routes: RouteObject[] = [
   wrapped("/cloud-storage", React.createElement(CloudStorageDashboardPage)),
   wrapped("/enterprise-search", React.createElement(EnterpriseSearchPage)),
   wrapped("/multi-site", React.createElement(MultiSiteDashboardPage)),
+  // [G005 Wave 4B] 区域医联体协同中心
+  wrapped(
+    "/regional/collaboration",
+    React.createElement(RegionalCollaborationPage),
+  ),
+  // [G005 Wave 4B] 影像像素实验室
+  wrapped("/eye/pixel-lab", React.createElement(EyePixelPage)),
   wrapped("/vna-dashboard", React.createElement(VNADashboardPage)),
   wrapped("/safety/adverse-events", React.createElement(AdverseEventPage)),
   wrapped("/safety/cqi", React.createElement(CQIPage)),
@@ -1101,6 +1139,8 @@ export const routes: RouteObject[] = [
   wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
   wrapped("/ops/tech-schedule", React.createElement(TechSchedulePage)),
+  // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
+  wrapped("/tech/kpi", React.createElement(TechnicianKpiDashboardPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1330,6 +1370,9 @@ export const routes: RouteObject[] = [
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
   wrapped("/qc/pdca", React.createElement(QcPdcaPage)),
+  // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
+  wrapped("/tech/room-status", React.createElement(ExamRoomStatusBoard)),
+  wrapped("/tech/retake-analytics", React.createElement(RetakeRateAnalyticsPage)),
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/triage/worklist", React.createElement(TriagePage)),
@@ -1435,6 +1478,10 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/stow-rs", React.createElement(StowRsPage)),
   wrapped("/dicom/sr-report", React.createElement(SrReportPage)),
   wrapped("/critical-alert", React.createElement(CriticalAlertPage)),
+  // [v3.0.6.11-100 Wave 4A] 自定义报表 / 语音工作站 / 移动审批
+  wrapped("/report/custom", React.createElement(CustomReportPage)),
+  wrapped("/voice/workstation", React.createElement(VoiceWorkstationPage)),
+  wrapped("/mobile/approval", React.createElement(MobileApprovalPage)),
   // [v3.0.6.11-79] W2-A 危急值接收端门户
   wrapped("/critical-value-receiver", React.createElement(ReceiverPortalPage)),
   wrapped("/auto-collection", React.createElement(AutoCollectionPage)),

@@ -341,6 +341,11 @@ const COLLECTIONS = [
   'exportApprovals',
   // [W1-5] 收费项目 (financeHandlers 使用)
   'chargeItems',
+  // [G005 Wave 2A] 危急值电话/短信网关记录 (CriticalValueCard / AutoCallSmsLog)
+  'callLogs',
+  'smsLogs',
+  // [G005 Wave 2A] 委员会会诊 (多医生合议, CommitteeRoomPage)
+  'committee_consultations',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 

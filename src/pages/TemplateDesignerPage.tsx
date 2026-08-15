@@ -7,6 +7,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
+import { StatCard } from "../components/common/StatCard";
+import { AppText } from "../components/common/AppText";
 import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity, ArrowUp, ArrowDown, Braces, Layers } from 'lucide-react';
 import type { LucideIcon } from "lucide-react";
 import {
@@ -299,6 +301,8 @@ export default function TemplateDesignerPage() {
     minAge: 0,
     maxAge: 120,
     gender: "all" as "all" | "male" | "female",
+    // [v3.0.6.11-100 Wave2C P2] 模板类型: 全文/段落/短语 (保存时写入, 模板库分类展示)
+    templateType: "SECTION" as "FULL" | "SECTION" | "PHRASE",
   });
 
   const [sections, setSections] = useState<
@@ -410,6 +414,7 @@ export default function TemplateDesignerPage() {
     .join("\n");
 
   // 保存可视化模板: 有 id → PATCH structure; 无 id → 先 create 再写入 structure
+  // [v3.0.6.11-100 Wave2C P2] 保存时写入 templateType (全文/段落/短语), 模板库分类 Tab 区分展示
   const saveVisualTemplate = async () => {
     const content = visualContent;
     const targetId = visualApiId ?? id ?? null;
@@ -417,8 +422,9 @@ export default function TemplateDesignerPage() {
       if (targetId) {
         const res = await templatesApi.saveStructure(targetId, visualBlocks, content);
         if (res.success) {
+          await templatesApi.update(targetId, { templateType: meta.templateType }).catch(() => { /* 类型字段更新失败不阻塞 */ });
           setVisualApiId(targetId);
-          message.success(`可视化模板已保存 (${targetId})`);
+          message.success(`可视化模板已保存 (${targetId}, ${meta.templateType})`);
         } else {
           message.error(res.error?.message || "保存失败");
         }
@@ -428,13 +434,14 @@ export default function TemplateDesignerPage() {
           category: meta.modality || "CT",
           modality: meta.modality,
           bodyPart: meta.bodyPart || "通用",
+          templateType: meta.templateType,
           body: content || "待编辑",
           structure: visualBlocks,
           createdById: "u-current",
         });
         if (res.success && res.data?.id) {
           setVisualApiId(res.data.id);
-          message.success(`已创建模板 ${res.data.id}, 段落结构已保存`);
+          message.success(`已创建模板 ${res.data.id}, 段落结构已保存 (${meta.templateType})`);
         } else {
           message.error(res.error?.message || "创建失败");
         }
@@ -939,6 +946,18 @@ export default function TemplateDesignerPage() {
               style={{ ...inputStyle, width: 100 }}
             />
           </MetaField>
+          {/* [v3.0.6.11-100 Wave2C P2] 模板类型: 全文/段落/短语 (保存时写入, 模板库分类 Tab 展示) */}
+          <MetaField label="模板类型">
+            <select
+              value={meta.templateType}
+              onChange={(e) => setMeta({ ...meta, templateType: e.target.value as typeof meta.templateType })}
+              style={selectStyle}
+            >
+              <option value="FULL">全文模板</option>
+              <option value="SECTION">段落模板</option>
+              <option value="PHRASE">短语模板</option>
+            </select>
+          </MetaField>
           <MetaField label="范围">
             <select
               value={meta.scope}
@@ -1104,9 +1123,9 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                             >
                               {meta.label}
                             </div>
-                            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                            <AppText size="xs" color="secondary" as="div">
                               {meta.description}
-                            </div>
+                            </AppText>
                           </div>
                         </div>
                       );
@@ -1186,9 +1205,9 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                       >
                         {section.name}
                       </span>
-                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                      <AppText size="xs" color="secondary" as="span">
                         ({section.fields.length} 字段)
-                      </span>
+                      </AppText>
                     </div>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button
@@ -1640,9 +1659,9 @@ e.currentTarget.style.background = "var(--bg-card)";
                               fontSize: 12,
                             }}
                           >
-                            <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>
+                            <AppText size="xs" color="secondary" as="span">
                               如果
-                            </span>
+                            </AppText>
                             <select
                               value={rule.fieldId}
                               onChange={(e) =>
@@ -1813,55 +1832,21 @@ e.currentTarget.style.background = "var(--bg-card)";
                       marginBottom: 12,
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "#155e75",
-                        fontWeight: 600,
-                      }}
-                    >
-                      合规度
-                    </div>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <div
-                        style={{
-                          flex: 1,
-                          height: 8,
-                          background: "#e2e8f0",
-                          borderRadius: 4,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: `${complianceScore}%`,
-                            height: 8,
-                            background:
-                              complianceScore > 80
-                                ? "#16a34a"
-                                : complianceScore > 50
-                                  ? "#f59e0b"
-                                  : "#dc2626",
-                            borderRadius: 4,
-                          }}
-                        />
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 800,
-                          color:
-                            complianceScore > 80
-                              ? "#16a34a"
-                              : complianceScore > 50
-                                ? "#d97706"
-                                : "#dc2626",
-                        }}
-                      >
-                        {complianceScore}%
-                      </span>
-                    </div>
+                    <StatCard
+                      title="合规度"
+                      value={complianceScore}
+                      suffix="%"
+                      color={
+                        complianceScore > 80
+                          ? "success"
+                          : complianceScore > 50
+                            ? "warning"
+                            : "error"
+                      }
+                      variant="compact"
+                      size="sm"
+                      style={{ marginBottom: 12, padding: "8px 10px" }}
+                    />
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <label
@@ -2202,9 +2187,9 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   children,
 }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-    <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 600 }}>
+    <AppText size="xs" color="secondary" as="span" style={{ fontWeight: 600 }}>
       {label}:
-    </span>
+    </AppText>
     {children}
   </div>
 );
@@ -2744,20 +2729,20 @@ const VisualDesignerBody: React.FC<{
             flexWrap: "wrap",
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <AppText size="xs" weight={700} as="span" style={{ color: "#1e40af" }}>
             段落块画布 ({blocks.length})
-          </span>
-          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+          </AppText>
+          <AppText size="xs" color="secondary" as="span">
             点击变量/字段 → 插入到选中块之后
-          </span>
-          <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-secondary)" }}>
+          </AppText>
+          <AppText size="xs" color="secondary" as="span" style={{ marginLeft: "auto" }}>
             {varCount} 个变量占位符
-          </span>
+          </AppText>
         </div>
         {loading && (
-          <div style={{ padding: 20, fontSize: 12, color: "var(--text-secondary)" }}>
+          <AppText size="xs" color="secondary" as="div" style={{ padding: 20 }}>
             正在加载已保存的结构化内容...
-          </div>
+          </AppText>
         )}
         {blocks.map((block, idx) => {
           const selected = selectedIdx === idx;

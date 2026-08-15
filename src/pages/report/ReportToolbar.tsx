@@ -1,5 +1,5 @@
 
-import { List, LayoutGrid, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle, ShieldCheck, PenLine, Send } from 'lucide-react';
+import { List, LayoutGrid, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle, ShieldCheck, PenLine, Send, Archive } from 'lucide-react';
 import type { RadiologyReport } from "../../types";
 import { PRIMARY, GRAY, ACCENT, DANGER, SUCCESS, WHITE } from "./reportUtils";
 import { normalizeReportStatus } from "../../components/report/statusMeta";
@@ -418,6 +418,33 @@ export default function ReportToolbar({
               }}
             >
               <Send size={12} /> 批量提交审核
+            </button>
+            {/* [G005 Wave 8] 报告冷归档: 批量归档 (选中已发布报告 → ARCHIVED + 归档任务) */}
+            <button
+              onClick={() =>
+                setBulkActionModal({
+                  show: true,
+                  action: "archive",
+                  count: selectedIds.size,
+                  loading: false,
+                })
+              }
+              style={{
+                padding: "5px 12px",
+                borderRadius: 6,
+                border: "1px solid #e2e8f0",
+                background: WHITE,
+                color: "#57534e",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+              data-testid="bulk-archive-btn"
+            >
+              <Archive size={12} /> 批量归档
             </button>
             <button
               onClick={() =>

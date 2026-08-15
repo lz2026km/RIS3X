@@ -63,7 +63,11 @@ export const criticalApi = {
   getById: (id: string) =>
     api.get<CriticalValueDto>(`/criticals/${id}`),
 
-  create: (data: { examId?: string; description: string; severity?: string; method?: string }) =>
+  // [G005 Wave 8] 报告→危急值反向引用: 按报告查询关联危急值 (级别/状态/时间)
+  forReport: (reportId: string) =>
+    api.get<{ reportId: string; items: CriticalValueDto[]; total: number }>(`/criticals/for-report/${encodeURIComponent(reportId)}`),
+
+  create: (data: { examId?: string; description: string; severity?: string; method?: string; reportId?: string }) =>
     api.post<CriticalValueDto>('/criticals', data),
 
   update: (id: string, data: { description?: string; severity?: string; state?: string; notifiedTo?: string; ackedBy?: string; resolvedBy?: string; closedBy?: string }) =>

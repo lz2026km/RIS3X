@@ -3,13 +3,20 @@
 // [G005 v3.0.6.11-85 Wave 4B]
 //   - G-12: AI 二次检出叠加阅片 (AI 结果开关 → aiDiagnosisApi.listResults → 视口检出标记 + Popover)
 //   - G-17: Auto-hanging 落地 (挂片协议下拉/自动挂片 → 多视口布局 + 序列分配)
+// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)]
+//   - 标注完成 → 「发送到报告」: 当前视口标注 (DicomMeasurement) 转换 → reportApi.saveImageAnnotations
+//   - 目标报告: ?reportId= 优先, 否则 ?examId= (报告书写页通过 studyUid/examId 直达)
 import DicomViewerProComponent from '../../components/dicom/DicomViewerPro'
 import ViewerSelector from '../../components/common/ViewerSelector'
 import { dicomWebApi, type DicomWebStudy, type DicomWebSeries } from '../../services/api/dicomApi'
+import { reportApi, type ReportImageAnnotationItem } from '../../services/api/reportApi'
+import type { DicomMeasurement } from '../../components/dicom/tools'
+// [v3.0.6.11-100 Wave 6B (D-2)] 阅片器「发送 MIP 到报告」: 复用书写页 MipScreenshotModal → sessionStorage → 跳转自动插入
+import MipScreenshotModal, { type MipScreenshotPayload } from '../../components/report/v3/R3.WRITING/MipScreenshotModal'
 import {
   Select, Space, Tag, Button, Spin, Alert, Empty, Row, Col, Typography, Segmented, message,
 } from 'antd'
-import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X, PenLine, Crosshair } from 'lucide-react'
+import { MonitorPlay, RefreshCw, Layers, User, CalendarDays, Brain, Wand2, LayoutGrid, X, PenLine, Crosshair, SendToBack, ScanLine } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Inbox } from 'lucide-react'
@@ -19,7 +26,7 @@ import {
   type HangingProtocolPreset,
 } from '../../constants/hangingProtocols'
 import AiFindingsOverlay from '../../components/dicom/AiFindingsOverlay'
-import { loadAiFindings, type AiFinding } from './aiFindings'
+import { loadAiFindings, saveAiFindingsForReport, type AiFinding } from './aiFindings'
 
 const { Text } = Typography
 
@@ -72,6 +79,11 @@ const DicomViewerProPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const presetStudyUid = searchParams.get('studyUid') ?? undefined
   const presetExamId = searchParams.get('examId') ?? undefined
+  // [v3.0.6.11-100 Wave 2B] 「发送到报告」目标: ?reportId= 优先, 否则 ?examId=
+  const presetReportId = searchParams.get('reportId') ?? undefined
+  // [v3.0.6.11-100 Wave 2B] 视口标注集合 (经 onMeasurementCreate 从查看器组件收集)
+  const [viewportAnnotations, setViewportAnnotations] = useState<DicomMeasurement[]>([])
+  const [sendingAnnotations, setSendingAnnotations] = useState(false)
   const [studies, setStudies] = useState<DicomWebStudy[]>([])
   const [seriesList, setSeriesList] = useState<DicomWebSeries[]>([])
   const [studyUid, setStudyUid] = useState<string>()
@@ -157,6 +169,87 @@ const DicomViewerProPage: React.FC = () => {
 
   const viewerHeight = typeof window !== 'undefined' ? window.innerHeight - 210 : 600
 
+  // ───────────────── [v3.0.6.11-100 Wave 2B] 标注 → 报告 双向同步 ─────────────────
+  // DicomMeasurement → 报告标注项 (arrow/circle/ruler/box)
+  const toReportAnnotation = (m: DicomMeasurement, idx: number): ReportImageAnnotationItem | null => {
+    const p0 = m.points[0]
+    const p1 = m.points[1]
+    if (!p0) return null
+    const x1 = p0.x
+    const y1 = p0.y
+    const x2 = p1?.x ?? p0.x
+    const y2 = p1?.y ?? p0.y
+    let type: ReportImageAnnotationItem['type'] = 'arrow'
+    if (m.type === 'length' || m.type === 'angle' || m.type === 'cobb' || m.type === 'angle-cobb') type = 'ruler'
+    else if (m.type === 'ellipse') type = 'circle'
+    else if (m.type === 'rectangle') type = 'box'
+    return {
+      id: m.id || `ann-${Date.now()}-${idx}`,
+      type,
+      x1: Math.round(x1), y1: Math.round(y1), x2: Math.round(x2), y2: Math.round(y2),
+      label: m.label || m.type,
+      color: '#fbbf24',
+    }
+  }
+
+  // 标注完成 → 「发送到报告」: 当前标注 → reportApi.saveImageAnnotations → 报告详情可查看
+  const handleSendAnnotations = useCallback(async () => {
+    const targetReportId = presetReportId || presetExamId
+    if (!targetReportId) {
+      message.warning('未指定目标报告: 请携带 ?reportId= 或从报告书写页影像入口进入')
+      return
+    }
+    if (viewportAnnotations.length === 0) {
+      message.info('当前暂无标注 — 使用箭头/长度/椭圆等工具在图像上标注后发送')
+      return
+    }
+    setSendingAnnotations(true)
+    try {
+      const items = viewportAnnotations
+        .map((m, i) => toReportAnnotation(m, i))
+        .filter((a): a is ReportImageAnnotationItem => a !== null)
+      const res = await reportApi.saveImageAnnotations(targetReportId, {
+        studyUid: studyUid ?? '',
+        seriesUid: seriesUid ?? '',
+        instanceUid: seriesUid ?? '',
+        annotations: items,
+      })
+      if (res.success) {
+        message.success(`已发送 ${items.length} 条影像标注到报告 (可在报告「影像标注」查看)`)
+      } else {
+        message.error(res.error?.message ?? '标注发送失败')
+      }
+    } catch {
+      message.error('标注发送失败:网络异常')
+    } finally {
+      setSendingAnnotations(false)
+    }
+  }, [presetReportId, presetExamId, viewportAnnotations, studyUid, seriesUid])
+
+  // ───────────── [v3.0.6.11-100 Wave 6B (D-2)] 发送 MIP 到报告 (阅片器直发) ─────────────
+  // 复用书写页 MipScreenshotModal: 生成 MIP → sessionStorage ris_mip_insert 缓存 →
+  // 跳转报告书写页 (reportId 优先, 否则 examId/studyUid) → 书写页挂载自动插入图注
+  const [mipModalOpen, setMipModalOpen] = useState(false)
+  const handleMipToReport = useCallback((payload: MipScreenshotPayload) => {
+    if (!payload?.imageBase64) {
+      message.warning('MIP 图像生成失败, 请重试')
+      return
+    }
+    try {
+      sessionStorage.setItem('ris_mip_insert', JSON.stringify(payload))
+    } catch {
+      message.error('MIP 缓存写入失败, 请稍后重试')
+      return
+    }
+    setMipModalOpen(false)
+    message.success('MIP 已生成并缓存, 正在跳转报告书写页自动插入')
+    const params = new URLSearchParams()
+    if (presetReportId) params.set('reportId', presetReportId)
+    if (presetExamId || selectedStudy?.patientID) params.set('examId', encodeURIComponent(presetExamId ?? selectedStudy?.patientID ?? ''))
+    if (studyUid) params.set('studyUid', studyUid)
+    navigate(`/reports/v3-write?${params.toString()}`)
+  }, [navigate, presetReportId, presetExamId, selectedStudy, studyUid])
+
   // ───────────────────────── G-12: AI 二次检出叠加 ─────────────────────────
   // [G005 v3.0.6.11-86 Wave 4B (D)] CAD 页「去阅片叠加」入口 → ?ai=1 自动开启叠加
   const aiPresetOn = searchParams.get('ai') === '1'
@@ -193,6 +286,33 @@ const DicomViewerProPage: React.FC = () => {
       })
     return () => { cancelled = true }
   }, [aiEnabled, selectedStudy, currentModality])
+
+  // ───────────────────────── D-1: AI 检出 → 一键插入报告 ─────────────────────────
+  // [G005 v3.0.6.11-100 Wave 6A] 检出缓存 sessionStorage → 跳转报告书写页自动插入
+  const navigateToReportWithAi = useCallback((findings: AiFinding[]) => {
+    try {
+      saveAiFindingsForReport(findings, presetReportId)
+    } catch {
+      message.warning('浏览器存储不可用, 无法缓存 AI 检出')
+      return
+    }
+    message.success(`已缓存 ${findings.length} 条 AI 检出, 跳转报告书写页自动插入`)
+    const q = new URLSearchParams()
+    if (presetReportId) q.set('reportId', presetReportId)
+    navigate(`/reports/v3-write${q.toString() ? `?${q.toString()}` : ''}`)
+  }, [presetReportId, navigate])
+
+  const handleInsertAiToReport = useCallback((f: AiFinding) => {
+    navigateToReportWithAi([f])
+  }, [navigateToReportWithAi])
+
+  const handleInsertAllAiToReport = useCallback(() => {
+    if (aiFindings.length === 0) {
+      message.info('暂无 AI 检出可插入')
+      return
+    }
+    navigateToReportWithAi(aiFindings)
+  }, [aiFindings, navigateToReportWithAi])
 
   // ───────────────────────── G-17: Auto-hanging 挂片 ─────────────────────────
   const [hanging, setHanging] = useState<HangingState | null>(null)
@@ -354,6 +474,28 @@ const DicomViewerProPage: React.FC = () => {
               >
                 写报告
               </Button>
+              {/* [v3.0.6.11-100 Wave 2B] 标注完成 → 发送到报告 */}
+              <Button
+                size="small"
+                icon={<SendToBack size={12} />}
+                onClick={() => void handleSendAnnotations()}
+                loading={sendingAnnotations}
+                data-testid="viewer-send-annotations"
+                title={viewportAnnotations.length > 0 ? `发送 ${viewportAnnotations.length} 条标注到报告` : '发送标注到报告'}
+              >
+                发送到报告{viewportAnnotations.length > 0 ? ` (${viewportAnnotations.length})` : ''}
+              </Button>
+              {/* [v3.0.6.11-100 Wave 6B (D-2)] 当前检查/序列 → 生成 MIP 截图 → 报告书写页自动插入 */}
+              <Button
+                size="small"
+                type={mipModalOpen ? 'primary' : 'default'}
+                icon={<ScanLine size={12} />}
+                onClick={() => setMipModalOpen(true)}
+                data-testid="viewer-send-mip"
+                title="从当前检查/序列生成 MIP 截图并发送到报告 (自动插入图注)"
+              >
+                发送 MIP 到报告
+              </Button>
               {/* [v3.0.6.11-99 Wave 4A] 阅片→病灶追踪: 携带患者 ID 跳转工作台 */}
               <Button
                 size="small"
@@ -423,6 +565,7 @@ const DicomViewerProPage: React.FC = () => {
                         modality={currentModality}
                         sample={cell.sample}
                         elementId="hp-main-viewport"
+                        onMeasurementCreate={(m) => setViewportAnnotations((prev) => [...prev, m])}
                       />
                     ) : (
                       <div
@@ -462,6 +605,7 @@ const DicomViewerProPage: React.FC = () => {
                   showThumbnails
                   modality={currentModality}
                   key={`${studyUid}-${seriesUid ?? 'all'}`}
+                  onMeasurementCreate={(m) => setViewportAnnotations((prev) => [...prev, m])}
                 />
               )}
 
@@ -472,6 +616,8 @@ const DicomViewerProPage: React.FC = () => {
                   loading={aiLoading}
                   selected={aiSelected}
                   onSelect={setAiSelected}
+                  onInsertReport={handleInsertAiToReport}
+                  onInsertAllReport={handleInsertAllAiToReport}
                 />
               )}
 
@@ -518,6 +664,14 @@ const DicomViewerProPage: React.FC = () => {
           层厚 {selectedSeries.sliceThickness ?? '-'}mm · 帧数 {frameCount}
         </div>
       )}
+
+      {/* [v3.0.6.11-100 Wave 6B (D-2)] MIP 生成 Modal: 当前检查默认选中 → 插入时缓存 sessionStorage 跳转书写页 */}
+      <MipScreenshotModal
+        open={mipModalOpen}
+        defaultStudyUid={studyUid}
+        onClose={() => setMipModalOpen(false)}
+        onInsert={handleMipToReport}
+      />
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Card, Slider, Tag, Select, Spin, Alert, Segmented, Button, message } from 'antd'
-import { Layers, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Maximize, Crosshair, ScanLine, GitCompareArrows } from 'lucide-react'
-import { dbtApi, type DbtStudyDto, type DbtSliceDto, type DbtCompareResultDto, type DbtReconstructResultDto } from '../../services/api/dbtApi'
+import { Card, Slider, Tag, Select, Spin, Alert, Segmented, Button, message, Modal, InputNumber, Checkbox, Divider } from 'antd'
+import { Layers, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Maximize, Crosshair, ScanLine, GitCompareArrows, Sparkles, FileText } from 'lucide-react'
+import { dbtApi, type DbtStudyDto, type DbtSliceDto, type DbtCompareResultDto, type DbtReconstructResultDto, type DbtBiradsScoreResultDto, type DbtBiradsScoreDto, type DbtBiradsCalcificationDto, type DbtBiradsMassDto } from '../../services/api/dbtApi'
 
 const BLUE = '#3b82f6'
 const GREEN = '#22c55e'
@@ -280,6 +280,18 @@ const DbtPage: React.FC = () => {
   const [comparePixels, setComparePixels] = useState<{ current: Int16Array | null; prior: Int16Array | null }>({ current: null, prior: null })
   const animRef = useRef<number>(0)
 
+  // [G-21 Wave3C] BI-RADS 自动评分 (微钙化检测结果 → 特征确认 → 评分)
+  const [biradsOpen, setBiradsOpen] = useState(false)
+  const [biradsLoading, setBiradsLoading] = useState(false)
+  const [biradsResult, setBiradsResult] = useState<DbtBiradsScoreResultDto | null>(null)
+  const [biradsCalcCount, setBiradsCalcCount] = useState(0)
+  const [biradsDistribution, setBiradsDistribution] = useState('clustered')
+  const [biradsMorphology, setBiradsMorphology] = useState<string>('punctate')
+  const [biradsHasMass, setBiradsHasMass] = useState(false)
+  const [biradsMassSize, setBiradsMassSize] = useState<number>(15)
+  const [biradsMassShape, setBiradsMassShape] = useState('oval')
+  const [biradsMassMargin, setBiradsMassMargin] = useState('circumscribed')
+
   const selectedStudy = studies.find((s) => s.id === selectedStudyId)
   const selectedSeries = selectedStudy?.series.find((s) => s.seriesInstanceUid === selectedSeriesUid)
   const currentPixelForSlice = slices[currentSlice]?.pixelData
@@ -444,6 +456,60 @@ const DbtPage: React.FC = () => {
 
   const currentMarkers = markersBySlice[currentSlice] ?? []
 
+  // [G-21 Wave3C] 打开评分弹窗: 自动带入当前层自动检出微钙化数量
+  const openBirads = () => {
+    if (!selectedStudyId) {
+      message.warning('请先选择 DBT 检查')
+      return
+    }
+    const auto = currentMarkers.filter((m) => m.auto).length
+    setBiradsCalcCount(auto || 5)
+    setBiradsResult(null)
+    setBiradsOpen(true)
+  }
+
+  const runBiradsScore = async () => {
+    if (!selectedStudyId) return
+    setBiradsLoading(true)
+    try {
+      const dto: DbtBiradsScoreDto = {
+        calcifications: biradsCalcCount > 0
+          ? [{ count: biradsCalcCount, distribution: biradsDistribution as DbtBiradsCalcificationDto['distribution'], morphology: (biradsMorphology || undefined) as DbtBiradsCalcificationDto['morphology'] }]
+          : [],
+        ...(biradsHasMass ? { mass: { size: biradsMassSize, shape: biradsMassShape as DbtBiradsMassDto['shape'], margin: biradsMassMargin as DbtBiradsMassDto['margin'] } } : {}),
+      }
+      const res = await dbtApi.scoreBirads(selectedStudyId, dto)
+      if (res.success && res.data) {
+        setBiradsResult(res.data)
+      } else {
+        message.error(res.error?.message ?? 'BI-RADS 评分失败')
+      }
+    } catch {
+      message.error('BI-RADS 评分失败')
+    } finally {
+      setBiradsLoading(false)
+    }
+  }
+
+  // [G-21 Wave3C] 评分结果 → 报告段落 (复用 insertHtml 通道: report-insert-html 事件)
+  const insertBiradsToReport = () => {
+    if (!biradsResult) return
+    const esc = (v: unknown): string =>
+      String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch)
+    const basisHtml = (biradsResult.basis ?? [])
+      .map((b) => `<li>${esc(b)}</li>`)
+      .join('')
+    const html = [
+      '<h3>DBT 微钙化 BI-RADS 自动评分</h3>',
+      `<p><strong>${esc(biradsResult.categoryLabel)}</strong> (ACR BI-RADS 规则自动判定)</p>`,
+      `<p>恶性可能: ${esc(biradsResult.malignancyRisk)} · 建议: ${esc(biradsResult.recommendation)}</p>`,
+      basisHtml ? `<ul>${basisHtml}</ul>` : '',
+    ].join('\n')
+    window.dispatchEvent(new CustomEvent('report-insert-html', { detail: { html } }))
+    try { window.localStorage.setItem('ris_rads_pending_insert', html) } catch { /* 忽略 */ }
+    message.success('BI-RADS 评分段落已发送至报告编辑器')
+  }
+
   const viewportCanvas = (view: 'single' | 'reconstruct') => {
     const isRecon = view === 'reconstruct'
     const px = isRecon ? reconstructPixels : currentPixelForSlice
@@ -518,6 +584,8 @@ const DbtPage: React.FC = () => {
               <div style={{ flex: 1 }} />
               <Button size="small" icon={<GitCompareArrows size={14} />} loading={compareLoading} onClick={runCompare}>双图对比</Button>
               <Button size="small" icon={<ScanLine size={14} />} loading={reconstructing} onClick={() => runReconstruct('mip')}>断层重建 MIP</Button>
+              {/* [G-21 Wave3C] 微钙化检测 → BI-RADS 自动评分 */}
+              <Button size="small" type="primary" icon={<Sparkles size={14} />} onClick={openBirads}>BI-RADS 自动评分</Button>
             </div>
           </Card>
 
@@ -657,6 +725,94 @@ const DbtPage: React.FC = () => {
           )}
         </>
       )}
+
+      {/* [G-21 Wave3C] BI-RADS 自动评分弹窗: 特征确认 → 评分结果卡 → 可插入报告 */}
+      <Modal
+        title={<span><Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} />DBT 微钙化 BI-RADS 自动评分{selectedStudy ? ` · ${selectedStudy.patientName} (${selectedStudy.studyDescription})` : ''}</span>}
+        open={biradsOpen}
+        onCancel={() => setBiradsOpen(false)}
+        footer={null}
+        width={680}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Card size="small" title="特征确认 (微钙化检测结果 + 补充特征)">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+              <div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>微钙化数量 (当前层自动检出 {currentMarkers.filter(m => m.auto).length} 处)</div>
+                <InputNumber min={0} max={500} value={biradsCalcCount} onChange={(v) => setBiradsCalcCount(v ?? 0)} style={{ width: '100%' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>分布</div>
+                <Select value={biradsDistribution} onChange={setBiradsDistribution} style={{ width: '100%' }} options={[
+                  { value: 'clustered', label: '簇状' }, { value: 'linear', label: '线样' }, { value: 'segmental', label: '段样' },
+                  { value: 'regional', label: '区域' }, { value: 'diffuse', label: '弥漫' },
+                ]} />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>钙化形态</div>
+                <Select value={biradsMorphology} onChange={setBiradsMorphology} style={{ width: '100%' }} options={[
+                  { value: 'punctate', label: '点状 (典型良性)' }, { value: 'round', label: '圆形 (典型良性)' },
+                  { value: 'coarse', label: '粗大 (典型良性)' }, { value: 'popcorn', label: '爆米花样 (典型良性)' },
+                  { value: 'amorphous', label: '无定形 (可疑)' }, { value: 'coarse_heterogeneous', label: '粗糙不均质 (可疑)' },
+                  { value: 'fine_pleomorphic', label: '细小多形性 (高度可疑)' }, { value: 'fine_linear', label: '细小线样 (高度可疑)' },
+                ]} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Checkbox checked={biradsHasMass} onChange={(e) => setBiradsHasMass(e.target.checked)}>合并肿块特征</Checkbox>
+              </div>
+              {biradsHasMass && (
+                <>
+                  <div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>肿块大小 (mm)</div>
+                    <InputNumber min={1} max={200} value={biradsMassSize} onChange={(v) => setBiradsMassSize(v ?? 15)} style={{ width: '100%' }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>肿块形态</div>
+                    <Select value={biradsMassShape} onChange={setBiradsMassShape} style={{ width: '100%' }} options={[
+                      { value: 'round', label: '圆形' }, { value: 'oval', label: '卵圆形' }, { value: 'irregular', label: '不规则' },
+                    ]} />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>边缘</div>
+                    <Select value={biradsMassMargin} onChange={setBiradsMassMargin} style={{ width: '100%' }} options={[
+                      { value: 'circumscribed', label: '清晰' }, { value: 'microlobulated', label: '微分叶' },
+                      { value: 'indistinct', label: '模糊' }, { value: 'spiculated', label: '毛刺' },
+                    ]} />
+                  </div>
+                </>
+              )}
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <Button type="primary" icon={<Sparkles size={14} />} loading={biradsLoading} onClick={runBiradsScore}>开始评分</Button>
+            </div>
+          </Card>
+
+          {biradsResult && (
+            <Card
+              size="small"
+              title={<span>评分结果 · <Tag color={biradsResult.category === '5' ? 'red' : biradsResult.category.startsWith('4') ? 'volcano' : biradsResult.category === '3' ? 'gold' : biradsResult.category === '0' ? 'default' : 'green'}>{biradsResult.categoryLabel}</Tag></span>}
+              extra={<Button size="small" icon={<FileText size={12} />} onClick={insertBiradsToReport}>插入报告</Button>}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                <div style={{ padding: 10, background: '#f0fdf4', borderRadius: 8 }}>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>分类</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: biradsResult.category === '5' ? '#dc2626' : biradsResult.category.startsWith('4') ? '#ea580c' : biradsResult.category === '3' ? '#ca8a04' : '#16a34a' }}>{biradsResult.categoryLabel}</div>
+                </div>
+                <div style={{ padding: 10, background: '#fffbeb', borderRadius: 8 }}>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>恶性可能</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#b45309' }}>{biradsResult.malignancyRisk}</div>
+                </div>
+              </div>
+              <Alert type={biradsResult.category === '5' || biradsResult.category.startsWith('4') ? 'warning' : biradsResult.category === '3' ? 'info' : 'success'} showIcon message={<b>建议</b>} description={biradsResult.recommendation} style={{ marginBottom: 10 }} />
+              <Divider style={{ margin: '8px 0' }} />
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>评分依据 ({biradsResult.basis.length})</div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#334155' }}>
+                {biradsResult.basis.map((b, i) => <li key={i} style={{ marginBottom: 3 }}>{b}</li>)}
+              </ul>
+            </Card>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

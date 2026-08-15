@@ -42,6 +42,7 @@ export const aiTriageApi = {
   score: (input: AiTriageInput) =>
     api.post<AiTriageResult>('/triage/score', input),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   batchScore: (inputs: AiTriageInput[]) =>
     api.post<AiTriageResult[]>('/triage/batch-score', { items: inputs }),
 

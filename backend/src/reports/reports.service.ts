@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common'
 import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
@@ -6,7 +6,80 @@ import { createNoopGateway, NotificationsGateway } from '../notifications/notifi
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import { SystemConfigService } from '../system-storage/system-config.service'
 import { batchExportStore, createBatchExportTaskId } from '../queue/batch-export.store'
+// [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发: 规则匹配 + FollowUpService 创建计划
+import { matchFollowUpTriggerRules } from '../modules/followup/followup-trigger-rules'
+import { FollowUpService } from '../modules/followup/followup.service'
+// [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪联动: GET /reports/:id/lesions 经 LesionTrackingService 查询
+import { LesionTrackingService } from '../modules/lesion-tracking/lesion-tracking.service'
+// [G005 Wave 8] 报告→危急值反向引用: 内存链接表 (criticals 模块导出, 与 batchExportStore 同风格直引)
+import { criticalReportLinks } from '../criticals/criticals.service'
 import type { Prisma, ReportState, Report } from '@prisma/client'
+
+// [v3.0.6.11-100 Wave 2B (报告-MIP/3D + 影像标注)] 报告关联影像标注
+export type ReportImageAnnotationType = 'arrow' | 'circle' | 'ruler' | 'box'
+
+export interface ReportImageAnnotationItem {
+  id: string
+  type: ReportImageAnnotationType
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  label: string
+  color: string
+}
+
+export interface SaveReportImageAnnotationsDto {
+  studyUid?: string
+  seriesUid?: string
+  instanceUid?: string
+  annotations: ReportImageAnnotationItem[]
+  imageBase64?: string
+}
+
+export interface ReportImageAnnotationsRecord {
+  reportId: string
+  studyUid: string
+  seriesUid: string
+  instanceUid: string
+  annotations: ReportImageAnnotationItem[]
+  imageBase64: string
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+}
+
+// [G005 Wave 8] 报告冷归档策略 (内存 + seed, 与 VNA lifecycle-policies 同风格)
+export interface ReportArchivePolicy {
+  enabled: boolean
+  archiveAfterDays: number
+  targetTier: 'archive' | 'cold'
+  deleteSourceAfterDays: number | null
+  updatedAt: string
+}
+
+export interface ReportArchivePolicyView extends ReportArchivePolicy {
+  archivedCount: number
+  pendingCount: number
+}
+
+export interface ReportArchiveTask {
+  id: string
+  reportId: string
+  status: 'archived' | 'pending'
+  targetTier: string
+  archivedAt: string
+  policyEnabled: boolean
+}
+
+const iso = (offsetMin: number) => new Date(Date.now() - offsetMin * 60_000).toISOString()
+
+// [v3.0.6.11-100 Wave 6B (D-5)] 既往报告摘要: 常见诊断关键词库 (跨报告出现 ≥2 次聚合)
+const PRIOR_SUMMARY_DIAG_KEYWORDS = [
+  '结节', '磨玻璃影', '斑片影', '纤维化', '钙化', '占位', '囊肿', '气胸', '胸腔积液',
+  '肺炎', '结核', '肿瘤', '淋巴结', '狭窄', '闭塞', '脑梗死', '出血', '水肿', '增生',
+  '动脉瘤', '结石', '肝硬化', '骨质疏松', '骨折', '囊肿',
+]
 
 export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
   PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'],
@@ -83,13 +156,77 @@ export class ReportsService {
   private readonly gateway: NotificationsGateway
   private readonly logger = new Logger(ReportsService.name)
 
+  // [G005 Wave 8] 报告冷归档: 策略 (内存 + seed) + 归档任务记录
+  private readonly archivePolicy: ReportArchivePolicy = {
+    enabled: true,
+    archiveAfterDays: 365,
+    targetTier: 'archive',
+    deleteSourceAfterDays: 90,
+    updatedAt: new Date().toISOString(),
+  }
+  private readonly archiveTasks: ReportArchiveTask[] = [
+    { id: 'RAT-000001', reportId: 'RPT-000001', status: 'archived', targetTier: 'archive', archivedAt: iso(60 * 24 * 30), policyEnabled: true },
+    { id: 'RAT-000002', reportId: 'RPT-000024', status: 'archived', targetTier: 'archive', archivedAt: iso(60 * 24 * 90), policyEnabled: true },
+    { id: 'RAT-000003', reportId: 'RPT-000085', status: 'pending', targetTier: 'archive', archivedAt: '', policyEnabled: true },
+  ]
+  private archiveTaskSeq = 100
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly queue: QueueService,
     private readonly systemConfig: SystemConfigService,
     gateway?: NotificationsGateway,
+    // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发 (ReportsModule 导入 FollowUpModule), 可空 → 无依赖不阻塞
+    private readonly followUp?: FollowUpService,
+    // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪 (ReportsModule 导入 LesionTrackingModule), 可空 → 返回空列表不阻塞
+    @Optional() private readonly lesionTracking?: LesionTrackingService,
   ) {
     this.gateway = gateway ?? createNoopGateway()
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发 (SUBMITTED 后置钩子)
+  // 根据 impression/findings/conclusion 关键词匹配 followup-trigger-rules:
+  //   mode=auto → 调 followup.service 自动创建随访计划 + auditLog 审计
+  //   mode=hint (默认) → 不自动创建, 前端书写页「建议随访」卡片提示 (仅提示)
+  // ══════════════════════════════════════════════════════════════════════
+  private async maybeTriggerFollowUp(report: Report, actorId: string): Promise<void> {
+    if (!this.followUp) return
+    try {
+      const mode = (await this.systemConfig.getString('followup_auto_trigger_mode', 'hint')).toLowerCase()
+      if (mode !== 'auto') return // 仅提示模式: 不自动创建 (前端 FollowupAutoBookPanel 展示建议)
+      const text = [report.impression ?? '', report.conclusion ?? '', report.findings ?? ''].join('\n')
+      const matches = matchFollowUpTriggerRules(text)
+      if (matches.length === 0) return
+      const patientName = (report as unknown as { patient?: { name?: string } }).patient?.name ?? ''
+      const res = await this.followUp.createFollowUpFromReport({
+        reportId: report.id,
+        patientId: report.patientId,
+        patientName,
+        examId: report.examId ?? undefined,
+        planDate: new Date().toISOString().slice(0, 10),
+        matches,
+      })
+      this.logger.log(`[FollowUpTrigger] report ${report.id} matched ${res.matched.join(',')}, created ${res.created} plans (mode=auto)`)
+      try {
+        await this.prisma.auditLog.create({
+          data: {
+            tenantId: currentTenantId(),
+            userId: actorId,
+            action: 'FOLLOWUP_TRIGGER',
+            resource: 'report',
+            resourceId: report.id,
+            detail: { matched: res.matched, created: res.created, mode } as Prisma.InputJsonValue,
+            success: true,
+          },
+        })
+      } catch (err) {
+        this.logger.warn(`[FollowUpTrigger] audit write failed: ${(err as Error).message}`)
+      }
+    } catch (err) {
+      // 自动触发失败不阻塞状态流转 (仅告警)
+      this.logger.warn(`[FollowUpTrigger] auto trigger failed for report ${report.id}: ${(err as Error).message}`)
+    }
   }
 
   async list(params: { skip?: number; take?: number; states?: ReportState[]; modality?: string; priority?: string; patientId?: string; doctorId?: string; keyword?: string }) {
@@ -141,6 +278,15 @@ export class ReportsService {
     })
     if (!r) throw new NotFoundException(`Report ${id} not found`)
     return toReportDto(r as any)
+  }
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告关联病灶列表 (GET /reports/:id/lesions)
+  // 按 reportId 查 from-report 自动创建的病灶记录
+  async getReportLesions(id: string) {
+    const r = await this.prisma.report.findUnique({ where: { id } })
+    if (!r) throw new NotFoundException(`Report ${id} not found`)
+    if (!this.lesionTracking) return { reportId: id, items: [] }
+    return this.lesionTracking.listByReport(id)
   }
 
   async create(dto: { patientId: string; examId?: string; radiologistId?: string; findings: string; conclusion: string; htmlContent?: string }) {
@@ -262,7 +408,11 @@ export class ReportsService {
   }
 
   async transition(id: string, to: ReportState, actorId: string, reason?: string) {
-    const report = await this.prisma.report.findUnique({ where: { id } })
+    // [v3.0.6.11-100 Wave2C P3] include patient → 随访触发取患者姓名
+    const report = await this.prisma.report.findUnique({
+      where: { id },
+      include: { patient: { select: { name: true } } },
+    })
     if (!report) throw new NotFoundException(`Report ${id} not found`)
     const allowed = REPORT_TRANSITIONS[report.state] ?? []
     if (!allowed.includes(to)) {
@@ -306,9 +456,13 @@ export class ReportsService {
         data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: currentTenantId() },
       })
       return toReportDto(r)
-    }).then((dto) => {
+    }).then(async (dto) => {
       // W4-2: 报告状态变化 → 工作列表实时刷新; 签署/发布额外推送 notify
       this.gateway.emitWorklistRefresh()
+      // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发: SUBMITTED 后置钩子 (auto 模式自动创建, 失败不阻塞)
+      if (to === 'SUBMITTED') {
+        await this.maybeTriggerFollowUp(report, actorId)
+      }
       if (to === 'SIGNED' || to === 'PUBLISHED') {
         this.gateway.push('*', {
           event: 'notify',
@@ -360,6 +514,121 @@ export class ReportsService {
       }
     }
     return { succeeded, failed }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // [G005 Wave 8] 报告冷归档策略 + 归档执行
+  // ══════════════════════════════════════════════════════════════════════
+
+  /** GET /reports/archive-policy — 归档策略视图 (内存 seed: 启用/归档天数/目标层级/删除源副本天数 + 任务统计) */
+  getArchivePolicy(): ReportArchivePolicyView {
+    return {
+      ...this.archivePolicy,
+      archivedCount: this.archiveTasks.filter((t) => t.status === 'archived').length,
+      pendingCount: this.archiveTasks.filter((t) => t.status === 'pending').length,
+    }
+  }
+
+  /** PUT /reports/archive-policy — 更新归档策略 (内存持久, 校验字段合法性) */
+  updateArchivePolicy(dto: Partial<ReportArchivePolicy>): ReportArchivePolicyView {
+    if (dto.enabled !== undefined && typeof dto.enabled !== 'boolean') {
+      throw new BadRequestException('enabled 必须是布尔值')
+    }
+    if (dto.archiveAfterDays !== undefined) {
+      const days = Number(dto.archiveAfterDays)
+      if (!Number.isInteger(days) || days < 1 || days > 36500) {
+        throw new BadRequestException('archiveAfterDays 必须是 1-36500 的整数')
+      }
+      this.archivePolicy.archiveAfterDays = days
+    }
+    if (dto.targetTier !== undefined) {
+      if (!['archive', 'cold'].includes(dto.targetTier)) {
+        throw new BadRequestException('targetTier 仅支持 archive|cold')
+      }
+      this.archivePolicy.targetTier = dto.targetTier
+    }
+    if (dto.deleteSourceAfterDays !== undefined) {
+      if (dto.deleteSourceAfterDays !== null) {
+        const days = Number(dto.deleteSourceAfterDays)
+        if (!Number.isInteger(days) || days < 1 || days > 36500) {
+          throw new BadRequestException('deleteSourceAfterDays 必须是 1-36500 的整数或 null')
+        }
+      }
+      this.archivePolicy.deleteSourceAfterDays = dto.deleteSourceAfterDays as number | null
+    }
+    if (dto.enabled !== undefined) this.archivePolicy.enabled = dto.enabled
+    this.archivePolicy.updatedAt = new Date().toISOString()
+    this.logger.log(`[ReportArchive] policy updated: ${JSON.stringify(this.archivePolicy)}`)
+    return this.getArchivePolicy()
+  }
+
+  /**
+   * POST /reports/:id/archive — 冷归档单份报告。
+   * 前置: 报告须为 PUBLISHED (REPORT_TRANSITIONS.PUBLISHED 含 ARCHIVED); 已归档幂等返回。
+   * 落地: state→ARCHIVED + reportRevision + 归档任务记录 (内存) + auditLog。
+   */
+  async archive(id: string, actorId = 'unknown'): Promise<{ id: string; state: string; archivedAt: string; task: ReportArchiveTask; alreadyArchived?: boolean }> {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    if (report.state === 'ARCHIVED') {
+      return { id, state: 'ARCHIVED', archivedAt: report.updatedAt?.toISOString() ?? new Date().toISOString(), alreadyArchived: true, task: this.archiveTasks.find((t) => t.reportId === id) ?? this.makeArchiveTask(id) }
+    }
+    const allowed = REPORT_TRANSITIONS[report.state] ?? []
+    if (!allowed.includes('ARCHIVED')) {
+      throw new BadRequestException(`INVALID_TRANSITION: ${report.state} → ARCHIVED 不允许 (仅已发布报告可归档)`)
+    }
+    const archivedAt = new Date()
+    const task = this.makeArchiveTask(id, archivedAt.toISOString())
+    await this.prisma.$transaction(async (tx) => {
+      await tx.report.update({ where: { id }, data: { state: 'ARCHIVED' } })
+      await tx.reportRevision.create({
+        data: { reportId: id, actorId, fromState: report.state, toState: 'ARCHIVED', reason: '冷归档', tenantId: currentTenantId() },
+      })
+    })
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          tenantId: currentTenantId(),
+          userId: actorId,
+          action: 'REPORT_ARCHIVED',
+          resource: 'report',
+          resourceId: id,
+          detail: { targetTier: this.archivePolicy.targetTier, archiveAfterDays: this.archivePolicy.archiveAfterDays } as Prisma.InputJsonValue,
+          success: true,
+        },
+      })
+    } catch { /* DB 不可用时跳过审计 */ }
+    this.gateway.emitWorklistRefresh()
+    this.logger.log(`[ReportArchive] report ${id} archived (${this.archivePolicy.targetTier})`)
+    return { id, state: 'ARCHIVED', archivedAt: archivedAt.toISOString(), task }
+  }
+
+  /** 批量归档 (逐条校验, 单条失败不阻断) — 供批量工具栏使用 */
+  async archiveMany(ids: string[], actorId = 'unknown'): Promise<{ succeeded: Array<{ id: string }>; failed: Array<{ id: string; message: string }> }> {
+    const succeeded: Array<{ id: string }> = []
+    const failed: Array<{ id: string; message: string }> = []
+    for (const id of ids) {
+      try {
+        await this.archive(id, actorId)
+        succeeded.push({ id })
+      } catch (e: any) {
+        failed.push({ id, message: e?.message ?? '归档失败' })
+      }
+    }
+    return { succeeded, failed }
+  }
+
+  private makeArchiveTask(reportId: string, archivedAt = ''): ReportArchiveTask {
+    const task: ReportArchiveTask = {
+      id: `RAT-${String(++this.archiveTaskSeq).padStart(6, '0')}`,
+      reportId,
+      status: 'archived',
+      targetTier: this.archivePolicy.targetTier,
+      archivedAt,
+      policyEnabled: this.archivePolicy.enabled,
+    }
+    this.archiveTasks.unshift(task)
+    return task
   }
 
   async diff(id: string) {
@@ -634,6 +903,66 @@ export class ReportsService {
   }
 
   /**
+   * GET /reports/:id/prior-summary — 同患者既往报告摘要 (D-5 历史报告→本次报告字段复用)。
+   * 数据源: 同患者其他报告 (排除自身, createdAt desc); 无既往记录 seed 回退 (source: 'seed')。
+   * 返回: { count, lastReportDate, lastFindings, lastImpression, commonDiagnoses[], source }
+   *   commonDiagnoses: 诊断关键词在 ≥2 份既往报告的结论/所见中出现 → 按频次降序。
+   */
+  async getPriorSummary(id: string) {
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+      select: { id: true, patientId: true },
+    })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const prior = await this.prisma.report.findMany({
+      where: { patientId: report.patientId, id: { not: id }, tenantId: currentTenantId() },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { id: true, findings: true, impression: true, conclusion: true, createdAt: true },
+    })
+    if (prior.length === 0) {
+      return {
+        reportId: report.id,
+        patientId: report.patientId,
+        count: 3,
+        lastReportDate: iso(60 * 24 * 30),
+        lastFindings: '双肺纹理稍增多,右肺下叶可见条索状高密度影。',
+        lastImpression: '右肺下叶陈旧性病灶,建议定期随访。',
+        commonDiagnoses: [
+          { keyword: '结节', count: 2 },
+          { keyword: '钙化', count: 2 },
+        ],
+        source: 'seed',
+      }
+    }
+    const last = prior[0]!
+    const freq = new Map<string, number>()
+    for (const r of prior) {
+      const text = `${r.conclusion ?? ''} ${r.impression ?? ''} ${r.findings ?? ''}`
+      const found = new Set<string>()
+      for (const kw of PRIOR_SUMMARY_DIAG_KEYWORDS) {
+        if (text.includes(kw)) found.add(kw)
+      }
+      for (const kw of found) freq.set(kw, (freq.get(kw) ?? 0) + 1)
+    }
+    const commonDiagnoses = [...freq.entries()]
+      .filter(([, n]) => n >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([keyword, count]) => ({ keyword, count }))
+    return {
+      reportId: report.id,
+      patientId: report.patientId,
+      count: prior.length,
+      lastReportDate: last.createdAt?.toISOString() ?? null,
+      lastFindings: last.findings ?? '',
+      lastImpression: last.conclusion || last.impression || '',
+      commonDiagnoses,
+      source: 'db',
+    }
+  }
+
+  /**
    * GET /reports/:id/related — 报告关联信息: 检查 / 患者 / 既往报告 / 随访计划 / 危急值。
    * 数据源: report → exam/patient + 同患者其他报告 + followUpPlan (reportId/patientId) + criticalValue (patientId/examId)。
    */
@@ -668,6 +997,20 @@ export class ReportsService {
         take: 5,
       }),
     ])
+    // [G005 Wave 8] 报告→危急值反向引用: 合并内存链接 (报告→危急值转入时记录), 去重 + 标记 linkedByReport
+    const dbCriticalIds = new Set(criticalValues.map((c) => c.id))
+    const linkedCritical: Record<string, unknown>[] = []
+    for (const rec of criticalReportLinks.get(id) ?? []) {
+      if (dbCriticalIds.has(rec.id)) continue
+      linkedCritical.push({
+        id: rec.id,
+        description: rec.description,
+        severity: rec.severity,
+        state: rec.state,
+        createdAt: rec.createdAt,
+        linkedByReport: true,
+      })
+    }
     return {
       reportId: report.id,
       patient: report.patient,
@@ -680,13 +1023,17 @@ export class ReportsService {
         status: p.status,
         note: p.note,
       })),
-      criticalValues: criticalValues.map((c) => ({
-        id: c.id,
-        description: c.description,
-        severity: c.severity,
-        state: c.state,
-        createdAt: c.createdAt?.toISOString?.() ?? '',
-      })),
+      criticalValues: [
+        ...criticalValues.map((c) => ({
+          id: c.id,
+          description: c.description,
+          severity: c.severity,
+          state: c.state,
+          createdAt: c.createdAt?.toISOString?.() ?? '',
+          linkedByReport: false,
+        })),
+        ...linkedCritical,
+      ],
     }
   }
 
@@ -719,5 +1066,99 @@ export class ReportsService {
       ...toReportDto(r),
       templateApplied: { templateId, name: template.name, mode },
     }
+  }
+
+  // ============ [v3.0.6.11-100 Wave 2B] 报告-影像标注双向同步 ============
+
+  /**
+   * 报告关联影像标注 (内存存储, 与 report-annotation 模块同风格):
+   *  - POST /reports/:id/image-annotations 保存/覆盖该报告标注 JSON
+   *  - GET  /reports/:id/image-annotations 读取 (无记录返回空列表形状)
+   */
+  private imageAnnotations = new Map<string, ReportImageAnnotationsRecord>([
+    [
+      'RPT-000001',
+      {
+        reportId: 'RPT-000001',
+        studyUid: '1.2.840.10008.5.1.4.1.1.2.1.1',
+        seriesUid: '1.2.840.10008.5.1.4.1.1.2.1.1.1',
+        instanceUid: '1.2.840.10008.5.1.4.1.1.2.1.1.1.1',
+        annotations: [
+          { id: 'img-ann-001', type: 'arrow', x1: 120, y1: 140, x2: 165, y2: 120, label: '右肺上叶结节', color: '#ff4d4f' },
+          { id: 'img-ann-002', type: 'ruler', x1: 210, y1: 230, x2: 280, y2: 230, label: '长径 12.5mm', color: '#fbbf24' },
+          { id: 'img-ann-003', type: 'circle', x1: 300, y1: 180, x2: 360, y2: 240, label: '磨玻璃影 ROI', color: '#22c55e' },
+        ],
+        imageBase64: '',
+        createdAt: iso(60 * 5),
+        updatedAt: iso(60 * 5),
+        createdBy: '张海涛',
+      },
+    ],
+  ])
+
+  /** 校验单个标注项 (类型 + 有限坐标), 非法抛 BadRequest */
+  private validateImageAnnotationItem(item: unknown, index: number): ReportImageAnnotationItem {
+    const raw = (item ?? {}) as Record<string, unknown>
+    const id = String(raw.id ?? '').trim()
+    const type = String(raw.type ?? '') as ReportImageAnnotationType
+    const label = String(raw.label ?? '').trim().slice(0, 128)
+    const color = String(raw.color ?? '#fbbf24').trim() || '#fbbf24'
+    if (!id) throw new BadRequestException(`annotations[${index}].id 必填`)
+    if (!['arrow', 'circle', 'ruler', 'box'].includes(type)) {
+      throw new BadRequestException(`annotations[${index}].type 仅支持 arrow|circle|ruler|box`)
+    }
+    const nums = [Number(raw.x1), Number(raw.y1), Number(raw.x2), Number(raw.y2)]
+    if (nums.some((n) => !Number.isFinite(n))) {
+      throw new BadRequestException(`annotations[${index}] 坐标必须是数字`)
+    }
+    return { id, type, x1: nums[0]!, y1: nums[1]!, x2: nums[2]!, y2: nums[3]!, label, color }
+  }
+
+  /**
+   * POST /reports/:id/image-annotations — 保存 (覆盖) 报告关联影像标注。
+   * body: { studyUid?, seriesUid?, instanceUid?, annotations: [...], imageBase64? }
+   */
+  async saveImageAnnotations(id: string, dto: SaveReportImageAnnotationsDto, actorId = 'unknown') {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const rawList = Array.isArray(dto.annotations) ? dto.annotations : []
+    if (rawList.length === 0) throw new BadRequestException('annotations 至少 1 条')
+    if (rawList.length > 200) throw new BadRequestException('annotations 最多 200 条')
+    const annotations = rawList.map((a, i) => this.validateImageAnnotationItem(a, i))
+    const now = new Date().toISOString()
+    const record: ReportImageAnnotationsRecord = {
+      reportId: id,
+      studyUid: String(dto.studyUid ?? '').trim(),
+      seriesUid: String(dto.seriesUid ?? '').trim(),
+      instanceUid: String(dto.instanceUid ?? '').trim(),
+      annotations,
+      imageBase64: String(dto.imageBase64 ?? '').trim().slice(0, 8_000_000),
+      createdAt: this.imageAnnotations.get(id)?.createdAt ?? now,
+      updatedAt: now,
+      createdBy: actorId,
+    }
+    this.imageAnnotations.set(id, record)
+    return { ...record }
+  }
+
+  /**
+   * GET /reports/:id/image-annotations — 读取报告关联影像标注 (无记录返回空列表形状)。
+   */
+  async getImageAnnotations(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const record = this.imageAnnotations.get(id)
+    if (!record) {
+      return {
+        reportId: id,
+        studyUid: '',
+        seriesUid: '',
+        instanceUid: '',
+        annotations: [] as ReportImageAnnotationItem[],
+        imageBase64: '',
+        updatedAt: null,
+      }
+    }
+    return { ...record }
   }
 }

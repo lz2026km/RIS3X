@@ -4,8 +4,9 @@ import {
 } from '../../services/api/criticalAlertApi'
 import {
   Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message,
-  Modal, Input, Select, Alert, Spin, Badge, Empty, Progress,
+  Modal, Input, Select, Alert, Spin, Badge, Progress,
 } from 'antd'
+import { EmptyState } from '../../components/common/EmptyState'
 import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -200,7 +201,7 @@ const CriticalAlertPage: React.FC = () => {
       >
         <Spin spinning={loading}>
           {alerts.length === 0 && !loading ? (
-            <Empty description="暂无告警" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <EmptyState description="暂无告警" />
           ) : (
             <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
           )}

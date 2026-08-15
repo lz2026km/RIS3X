@@ -102,4 +102,51 @@ export const dualReadHandlers = [
       },
     });
   }),
+
+  // [G-21 Wave3C] 双阅完成 → 自动创建/关联报告, 双阅结论写入 impression
+  http.post(`${API}/:id/complete`, async ({ params }) => {
+    await delay(delayMs(80, 200));
+    const found = assignments.find((a) => a.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Assignment ${params.id} not found` } }, { status: 404 });
+    if (!['both_done', 'arbitrated'].includes(found.status)) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '双阅尚未完成 (需双方阅片完成或已仲裁) 才能生成报告' } }, { status: 400 });
+    }
+    const conclusion = found.arbitrationReport?.trim()
+      ?? `阅片医师一(${found.reader1Name}): ${found.report1 ?? ''}\n阅片医师二(${found.reader2Name}): ${found.report2 ?? ''}`.trim()
+      ?? '双阅完成, 未见明确阳性征象。';
+    const updated = { ...found, status: 'completed', updatedAt: new Date().toISOString() };
+    assignments = assignments.map((a) => (a.id === updated.id ? updated : a));
+    const link = {
+      reportId: `rep-mock-${String(params.id).slice(-6)}`,
+      examId: found.studyId,
+      state: 'DRAFT',
+      impression: `【双阅结论】\n${conclusion}`,
+      created: true,
+    };
+    return HttpResponse.json({ success: true, data: { assignment: updated, report: link, created: true } });
+  }),
+
+  // [G-21 Wave3C] 关联报告信息查询
+  http.get(`${API}/:id/report-link`, async ({ params }) => {
+    await delay(delayMs(40, 120));
+    const found = assignments.find((a) => a.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Assignment ${params.id} not found` } }, { status: 404 });
+    if (found.status !== 'completed') return HttpResponse.json({ success: true, data: { linked: false } });
+    const conclusion = found.arbitrationReport?.trim()
+      ?? [found.report1, found.report2].filter(Boolean).join('\n')
+      ?? '双阅完成, 未见明确阳性征象。';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        linked: true,
+        report: {
+          reportId: `rep-mock-${String(params.id).slice(-6)}`,
+          examId: found.studyId,
+          state: 'DRAFT',
+          impression: `【双阅结论】\n${conclusion}`,
+          created: true,
+        },
+      },
+    });
+  }),
 ];

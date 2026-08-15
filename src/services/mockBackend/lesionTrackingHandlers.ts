@@ -1,6 +1,8 @@
 // [v3.0.6.11-99 Wave 4A] /api/v1/lesion-tracking MSW handlers — 病灶追踪:
 // 登记/测量序列/趋势/跨期对比 (RECIST-like)/统计/随访联动 (与 backend lesion-tracking.controller 对齐)
+// [v3.0.6.11-100 Wave 6A (D-4)] + 报告→病灶追踪自动建 (POST /lesion-tracking/from-report) + 报告关联病灶 (GET /reports/:id/lesions)
 import { http, HttpResponse, delay } from 'msw'
+import { get, list } from './store'
 
 // 动态 API_BASE (与 handlers.ts 一致): vitest 用 localhost:5173, 浏览器用当前 origin
 const API_BASE = typeof process !== 'undefined' && process.env.VITEST
@@ -14,6 +16,7 @@ const API = `${API_BASE}/lesion-tracking`
 export type MockLesionStatus = '稳定' | '增大' | '缩小' | '消失' | '新发'
 export type MockLesionType = '肺结节' | '肝占位' | '淋巴结' | '其他'
 export type MockResponseClass = 'CR' | 'PR' | 'SD' | 'PD' | 'NE'
+export type MockLesionSource = 'manual' | 'ai' | 'from-report'
 
 export interface MockLesionMeasurement {
   id: string
@@ -35,6 +38,8 @@ export interface MockTrackedLesion {
   createdAt: string
   currentStatus: MockLesionStatus
   followupId?: string
+  source?: MockLesionSource
+  reportId?: string
   measurements: MockLesionMeasurement[]
 }
 
@@ -131,6 +136,53 @@ const notFound = (id: string) =>
 
 const findIdx = (id: unknown): number => LESIONS.findIndex((l) => l.id === id)
 
+// ── [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶关键词提取 (与 backend extractLesionKeywords 同种子规则) ──
+const MOCK_KEYWORD_RULES: Array<{ keyword: string; type: MockLesionType; name: string; defaultSite: string }> = [
+  { keyword: '肺结节', type: '肺结节', name: '肺结节', defaultSite: '胸部' },
+  { keyword: '磨玻璃', type: '肺结节', name: '磨玻璃影', defaultSite: '胸部' },
+  { keyword: '肝占位', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '肝脏占位', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '肝转移', type: '肝占位', name: '肝转移灶', defaultSite: '肝脏' },
+  { keyword: '肝癌', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '淋巴结', type: '淋巴结', name: '淋巴结', defaultSite: '纵隔' },
+  { keyword: '甲状腺结节', type: '其他', name: '甲状腺结节', defaultSite: '甲状腺' },
+  { keyword: '乳腺结节', type: '其他', name: '乳腺结节', defaultSite: '乳腺' },
+  { keyword: '囊肿', type: '其他', name: '囊肿', defaultSite: '—' },
+  { keyword: '占位', type: '其他', name: '占位', defaultSite: '—' },
+]
+
+const MOCK_SITE_PHRASES = [
+  '右肺上叶', '右肺中叶', '右肺下叶', '左肺上叶', '左肺舌叶', '左肺下叶',
+  '肝右叶', '肝左叶', '肝门区', '肝尾状叶', '肝内',
+  '右乳', '左乳', '甲状腺左叶', '甲状腺右叶', '甲状腺峡部',
+  '纵隔', '颈部', '腋窝', '腹膜后', '盆腔', '腹股沟',
+]
+
+function mockExtractKeywords(text: string): Array<{ keyword: string; type: MockLesionType; name: string; site: string; sizeMm?: number }> {
+  if (!text || text.trim().length === 0) return []
+  const seen = new Set<string>()
+  const matches: Array<{ keyword: string; type: MockLesionType; name: string; site: string; sizeMm?: number }> = []
+  for (const rule of MOCK_KEYWORD_RULES) {
+    if (!text.includes(rule.keyword) || seen.has(rule.keyword)) continue
+    seen.add(rule.keyword)
+    const idx = text.indexOf(rule.keyword)
+    const win = text.slice(Math.max(0, idx - 60), Math.min(text.length, idx + rule.keyword.length + 120))
+    const sizeMatch = /直径\s*(\d+(?:\.\d+)?)\s*mm|(?:约|大小约)\s*(\d+(?:\.\d+)?)\s*mm|(\d+(?:\.\d+)?)\s*mm/i.exec(win)
+    const sizeMm = sizeMatch ? Number(sizeMatch[1] ?? sizeMatch[2] ?? sizeMatch[3]) : undefined
+    const site = MOCK_SITE_PHRASES.find((p) => win.includes(p)) ?? rule.defaultSite
+    const order = matches.filter((m) => m.type === rule.type).length + 1
+    matches.push({ keyword: rule.keyword, type: rule.type, name: `${rule.name} #${order}`, site, sizeMm: Number.isFinite(sizeMm ?? NaN) ? sizeMm : undefined })
+  }
+  return matches
+}
+
+function findMockReport(reportId: string): any {
+  const rp = (list<any>('reports') || []).find((r: any) =>
+    String(r?.reportId ?? r?.id ?? '') === String(reportId) || String(r?.examId ?? '') === String(reportId))
+  if (rp) return rp
+  return get<any>('exams', reportId)
+}
+
 export const lesionTrackingHandlers = [
   // ⚠️ stats 必须先于 lesions/:id
   http.get(`${API}/stats`, async ({ request }) => {
@@ -179,12 +231,70 @@ export const lesionTrackingHandlers = [
       modality: body.modality ?? 'CT',
       createdAt: now,
       currentStatus: '新发',
+      source: body.source ?? 'manual',
+      reportId: body.reportId ?? undefined,
       measurements: [
         { id: newId('m'), studyId: body.studyId ?? '', date: now, sizeMm: Math.max(0, body.initialSizeMm ?? 0) },
       ],
     }
     LESIONS = [lesion, ...LESIONS]
     return HttpResponse.json({ success: true, data: withStatus(lesion) }, { status: 201 })
+  }),
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建
+  http.post(`${API}/from-report`, async ({ request }) => {
+    await delay(delayMs())
+    const body = (await request.json()) as { reportId?: string; keyword?: string }
+    if (!body?.reportId?.trim()) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'reportId 必填' } }, { status: 400 })
+    }
+    const report = findMockReport(body.reportId.trim())
+    if (!report) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `Report ${body.reportId} not found` } }, { status: 404 })
+    }
+    const text = [report.impression ?? '', report.conclusion ?? '', report.findings ?? '', report.diagnosis ?? ''].join('\n')
+    let matches = mockExtractKeywords(text)
+    if (body.keyword?.trim()) {
+      const kw = body.keyword.trim()
+      matches = matches.filter((m) => m.keyword === kw || m.name === kw)
+    }
+    const created: MockTrackedLesion[] = []
+    let skipped = 0
+    for (const match of matches) {
+      if (LESIONS.some((l) => l.reportId === body.reportId && l.name === match.name)) {
+        skipped += 1
+        continue
+      }
+      const id = newId('LT')
+      const now = ISO_DAY(0)
+      const lesion: MockTrackedLesion = {
+        id,
+        lesionId: id,
+        patientId: report.patientId ?? '',
+        name: match.name,
+        site: match.site,
+        type: match.type,
+        modality: report.modality ?? report.examItem?.split(' ')[0] ?? 'CT',
+        createdAt: now,
+        currentStatus: '新发',
+        source: 'from-report',
+        reportId: body.reportId.trim(),
+        measurements: [{ id: newId('m'), studyId: report.examId ?? report.id ?? '', date: now, sizeMm: match.sizeMm ?? 0 }],
+      }
+      LESIONS = [lesion, ...LESIONS]
+      created.push(withStatus(lesion))
+    }
+    return HttpResponse.json({
+      success: true,
+      data: { reportId: body.reportId.trim(), patientId: report.patientId ?? '', matched: matches, created, skipped },
+    }, { status: 201 })
+  }),
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告关联病灶列表 (GET /reports/:id/lesions)
+  http.get(`${API_BASE}/reports/:id/lesions`, async ({ params }) => {
+    await delay(delayMs())
+    const items = LESIONS.filter((l) => l.reportId === String(params.id)).map(withStatus)
+    return HttpResponse.json({ success: true, data: { reportId: params.id, items } })
   }),
 
   http.get(`${API}/lesions/:id`, async ({ params }) => {

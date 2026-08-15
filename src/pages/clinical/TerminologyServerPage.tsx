@@ -4,6 +4,7 @@ import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
 import { usePagination } from '../../hooks/usePagination';
 import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
+import { EmptyState } from '../../components/common/EmptyState';
 import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 // [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索）: radiologyTerminology.ts
@@ -149,7 +150,7 @@ export const TerminologyServerPage: React.FC = () => {
           rowKey="conceptId"
           pagination={resultsPagination}
           size="small"
-          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入关键词检索 SNOMED-CT 概念" /> }}
+          locale={{ emptyText: <EmptyState description="输入关键词检索 SNOMED-CT 概念" /> }}
           columns={[
             { title: '概念 ID', dataIndex: 'conceptId', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
             { title: '首选术语 (PT)', dataIndex: 'pt', width: 220 },

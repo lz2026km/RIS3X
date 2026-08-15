@@ -130,6 +130,7 @@ export const aiOrchestratorApi = {
     return { ...res, data: unwrapList<AiOrchestrationModel>(res) };
   },
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getModel: async (id: string) => {
     const res = await api.get<unknown>(`/ai-platform/models/${id}`);
     return { ...res, data: unwrap<AiOrchestrationModel[]>(res)[0] };

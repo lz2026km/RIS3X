@@ -6,9 +6,13 @@ import type {
   CopyObjectResult,
   LifecyclePolicyDto,
   LifecyclePolicyInput,
+  ReplicationStatusDto,
+  ReplicationTaskDto,
+  SignedUrlDto,
   StorageAlertsConfig,
   StorageBucketDto,
   StorageConfigDto,
+  StorageMonitoringDto,
   StorageObjectDto,
   StorageStatsDto,
 } from '../api/storageConfigApi';
@@ -132,6 +136,10 @@ let lifecyclePolicies: LifecyclePolicyDto[] = [
   },
 ];
 let lifecycleSeq = 3;
+
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务内存队列 (与 backend 对齐: 入队即排空, 状态记录)
+let replicationTasks: ReplicationTaskDto[] = [];
+let replicationSeq = 0;
 
 function toBase64Utf8(text: string): string {
   const bytes = new TextEncoder().encode(text);
@@ -554,5 +562,171 @@ export const storageHandlers = [
       source: 'simulated',
     };
     return HttpResponse.json({ success: true, data: result });
+  }),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL (本地模拟, source=simulated)
+  http.get(`${API_BASE}/system/storage/buckets/:name/objects/:key/signed-url`, async ({ params, request }) => {
+    await delay(250);
+    const name = String(params.name);
+    const key = String(params.key);
+    const rec = buckets.find((b) => b.name === name);
+    const obj = rec?.objects.find((o) => o.key === key);
+    if (!rec || !obj) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Object ${name}/${key} not found` } },
+        { status: 404 },
+      );
+    }
+    const raw = new URL(request.url).searchParams.get('expiresInSec');
+    const parsed = Number(raw);
+    const expiresInSec = Number.isFinite(parsed) && parsed > 0 ? Math.min(604800, Math.floor(parsed)) : 3600;
+    const expiresAt = new Date(Date.now() + expiresInSec * 1000);
+    const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const dateStamp = amzDate.slice(0, 8);
+    const scope = `${dateStamp}/us-east-1/s3/aws4_request`;
+    const signature = Array.from({ length: 64 }, () => '0123456789abcdef'.charAt(Math.floor(Math.random() * 16))).join('');
+    const url = `https://s3.us-east-1.amazonaws.com/${name}/${encodeURIComponent(key)}?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=${encodeURIComponent(`G005SIMACCESS/${scope}`)}&X-Amz-Date=${amzDate}&X-Amz-Expires=${expiresInSec}&X-Amz-SignedHeaders=host&X-Amz-Signature=${signature}`;
+    const result: SignedUrlDto = { bucket: name, key, url, expiresInSec, expiresAt: expiresAt.toISOString(), source: 'simulated' };
+    return HttpResponse.json({ success: true, data: result });
+  }),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务 (内存队列 + 状态)
+  http.post(`${API_BASE}/system/storage/buckets/:name/replicate`, async ({ params, request }) => {
+    await delay(300);
+    const name = String(params.name);
+    const src = buckets.find((b) => b.name === name);
+    if (!src) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${name} not found` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json()) as { targetBucket: string; region: string };
+    const target = (body.targetBucket ?? '').trim();
+    const region = (body.region ?? '').trim();
+    if (!target || !region) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'targetBucket / region 必填' } },
+        { status: 400 },
+      );
+    }
+    if (target === src.name) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: '目标桶不能与源桶相同' } },
+        { status: 400 },
+      );
+    }
+    const dst = buckets.find((b) => b.name === target);
+    if (!dst) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `Bucket ${target} not found` } },
+        { status: 404 },
+      );
+    }
+    const snapshot = src.objects.map((o) => ({ ...o }));
+    const bytesTotal = snapshot.reduce((s, o) => s + o.size, 0);
+    replicationSeq += 1;
+    const task: ReplicationTaskDto = {
+      id: `rep-${String(replicationSeq).padStart(3, '0')}`,
+      sourceBucket: src.name,
+      targetBucket: dst.name,
+      region,
+      status: 'running',
+      progress: 50,
+      objectsTotal: snapshot.length,
+      objectsCopied: 0,
+      bytesTotal,
+      bytesCopied: 0,
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      source: 'simulated',
+    };
+    replicationTasks.push(task);
+    for (const obj of snapshot) {
+      const existing = dst.objects.find((o) => o.key === obj.key);
+      if (existing) {
+        existing.size = obj.size;
+        existing.modified = obj.modified;
+      } else {
+        dst.objects.push({ ...obj });
+      }
+    }
+    task.objectsCopied = snapshot.length;
+    task.bytesCopied = bytesTotal;
+    task.status = 'completed';
+    task.progress = 100;
+    task.finishedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: { ...task } });
+  }),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 复制任务队列状态
+  http.get(`${API_BASE}/system/storage/replication-status`, async () => {
+    await delay(100);
+    const sorted = [...replicationTasks].sort((a, b) => b.id.localeCompare(a.id));
+    const count = (s: string) => sorted.filter((t) => t.status === s).length;
+    const result: ReplicationStatusDto = {
+      tasks: sorted,
+      pending: count('queued'),
+      running: count('running'),
+      completed: count('completed'),
+      failed: count('failed'),
+      queueDepth: sorted.filter((t) => t.status === 'queued' || t.status === 'running').length,
+      lastUpdatedAt: new Date().toISOString(),
+    };
+    return HttpResponse.json({ success: true, data: result });
+  }),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 存储监控指标 (桶派生 + seed 回退)
+  http.get(`${API_BASE}/system/storage/monitoring`, async () => {
+    await delay(150);
+    const totalUsedBytes = buckets.reduce((s, b) => s + b.usedBytes, 0);
+    const objectsTotal = buckets.reduce((s, b) => s + b.objectCount, 0);
+    const derived = totalUsedBytes > 0;
+    const totalCapacityBytes = derived ? Math.ceil(totalUsedBytes / 0.72) : 6_500_000_000;
+    const usedPercent = Number(((totalUsedBytes / totalCapacityBytes) * 100).toFixed(1));
+    const growthRatePct30d = 4.2;
+    const perDayFactor = Math.pow(1 + growthRatePct30d / 100, 1 / 30);
+    const history: Array<{ date: string; usedBytes: number; capacityBytes: number }> = [];
+    for (let i = 29; i >= 0; i -= 1) {
+      const d = new Date(Date.now() - i * 86400000);
+      history.push({
+        date: d.toISOString().slice(0, 10),
+        usedBytes: i === 0 ? totalUsedBytes : Math.round(totalUsedBytes / Math.pow(perDayFactor, i)),
+        capacityBytes: totalCapacityBytes,
+      });
+    }
+    const sortedBuckets = [...buckets].sort((a, b) => b.usedBytes - a.usedBytes);
+    const monitor: StorageMonitoringDto = {
+      totalCapacityBytes,
+      totalUsedBytes,
+      usedPercent,
+      growthRatePct30d,
+      objectsTotal,
+      buckets: sortedBuckets.map((b) => ({
+        name: b.name,
+        provider: b.provider,
+        region: b.region,
+        objectCount: b.objectCount,
+        usedBytes: b.usedBytes,
+        percentOfTotal: totalUsedBytes > 0 ? Number(((b.usedBytes / totalUsedBytes) * 100).toFixed(1)) : 0,
+      })),
+      ioCounts: {
+        readPerMin: Math.round(Math.max(0.1, (derived ? objectsTotal / 24 : 42800) * 0.18) * 100) / 100,
+        writePerMin: Math.round(Math.max(0.1, (derived ? objectsTotal / 24 : 42800) * 0.06) * 100) / 100,
+        putPerMin: Math.round(Math.max(0.1, derived ? objectsTotal / 1440 : 12.4) * 100) / 100,
+        deletePerMin: Math.round(Math.max(0.1, derived ? objectsTotal / 14400 : 3.1) * 100) / 100,
+        derived,
+      },
+      replication: {
+        pending: replicationTasks.filter((t) => t.status === 'queued').length,
+        running: replicationTasks.filter((t) => t.status === 'running').length,
+        completed: replicationTasks.filter((t) => t.status === 'completed').length,
+        failed: replicationTasks.filter((t) => t.status === 'failed').length,
+        pendingBytes: replicationTasks.filter((t) => t.status === 'queued' || t.status === 'running').reduce((s, t) => s + t.bytesTotal, 0),
+      },
+      history,
+      source: derived ? 'derived' : 'seed',
+    };
+    return HttpResponse.json({ success: true, data: monitor });
   }),
 ];

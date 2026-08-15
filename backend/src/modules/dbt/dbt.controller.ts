@@ -24,6 +24,25 @@ const CompareSchema = z.object({
   priorStudyId: z.string().min(1),
 })
 
+// [G-21 Wave3C] DBT 微钙化检测 → BI-RADS 自动评分
+const CalcificationSchema = z.object({
+  count: z.number().int().min(0),
+  distribution: z.enum(['clustered', 'linear', 'segmental', 'regional', 'diffuse']),
+  morphology: z.enum([
+    'round', 'punctate', 'popcorn', 'egg_shell', 'coarse', 'large_rod', 'vascular',
+    'amorphous', 'coarse_heterogeneous', 'fine_pleomorphic', 'fine_linear',
+  ]).optional(),
+})
+
+const BiradsScoreSchema = z.object({
+  calcifications: z.array(CalcificationSchema).optional(),
+  mass: z.object({
+    size: z.number().positive(),
+    shape: z.enum(['round', 'oval', 'irregular']),
+    margin: z.enum(['circumscribed', 'microlobulated', 'indistinct', 'spiculated']),
+  }).optional(),
+})
+
 @ApiTags('dbt')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -56,5 +75,22 @@ export class DbtController {
   @ApiOperation({ summary: 'Compare current vs prior DBT study (side-by-side metadata)' })
   compare(@Body(new ZodValidationPipe(CompareSchema)) body: z.infer<typeof CompareSchema>) {
     return this.service.compare(body)
+  }
+
+  // [G-21 Wave3C] 微钙化特征 → BI-RADS 自动评分 (按 ACR BI-RADS 规则确定性判定)
+  @Post(':id/birads-score')
+  @ApiOperation({ summary: 'Auto BI-RADS score from DBT calcification/mass features (ACR rules)' })
+  scoreBirads(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(BiradsScoreSchema)) body: z.infer<typeof BiradsScoreSchema>,
+  ) {
+    return this.service.scoreBirads(id, body)
+  }
+
+  // [G-21 Wave3C] 已有 BI-RADS 评分查询
+  @Get(':id/birads-score')
+  @ApiOperation({ summary: 'Get stored BI-RADS score for DBT study' })
+  getBiradsScore(@Param('id') id: string) {
+    return this.service.getBiradsScore(id)
   }
 }

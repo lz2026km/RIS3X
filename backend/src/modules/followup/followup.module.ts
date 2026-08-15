@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { FollowUpController, FollowUpTemplateController } from './followup.controller'
+import { FollowUpController, FollowUpTemplateController, FollowUpTriggerRulesController } from './followup.controller'
 import { FollowUpService } from './followup.service'
 
 @Module({
-  controllers: [FollowUpController, FollowUpTemplateController],
+  controllers: [FollowUpController, FollowUpTemplateController, FollowUpTriggerRulesController],
   providers: [FollowUpService],
   exports: [FollowUpService],
 })

@@ -39,6 +39,10 @@ export interface CustomReportDef {
   status: ReportStatus
   createdAt: string
   updatedAt: string
+  // [v3.0.6.11-100 Wave 4A] 排序/分组设置 (页面向导)
+  sortBy?: string | null
+  sortOrder?: 'asc' | 'desc' | null
+  groupBy?: string | null
 }
 
 export interface CreateCustomReportDto {
@@ -50,6 +54,9 @@ export interface CreateCustomReportDto {
   dataSource?: string
   schedule?: string | null
   recipients?: string[]
+  sortBy?: string | null
+  sortOrder?: 'asc' | 'desc' | null
+  groupBy?: string | null
 }
 
 export interface ReportRunResult {
@@ -355,6 +362,9 @@ export class CustomReportService {
       recipients: Array.isArray(dto.recipients) ? [...dto.recipients] : [],
       lastRunAt: null,
       status: 'idle',
+      sortBy: dto.sortBy ?? null,
+      sortOrder: dto.sortOrder ?? null,
+      groupBy: dto.groupBy ?? null,
       createdAt: now,
       updatedAt: now,
     }
@@ -382,6 +392,9 @@ export class CustomReportService {
     if (dto.dataSource != null && dto.dataSource.trim()) def.dataSource = dto.dataSource.trim()
     if (dto.schedule !== undefined) def.schedule = dto.schedule
     if (dto.recipients != null) def.recipients = [...dto.recipients]
+    if (dto.sortBy !== undefined) def.sortBy = dto.sortBy
+    if (dto.sortOrder !== undefined) def.sortOrder = dto.sortOrder
+    if (dto.groupBy !== undefined) def.groupBy = dto.groupBy
     def.updatedAt = new Date().toISOString()
     return def
   }
@@ -402,6 +415,7 @@ export class CustomReportService {
     const runId = `run-${Date.now()}`
     try {
       const { rows, source } = await this.collectRows(def)
+      this.applySort(def, rows)
       const columns = this.buildColumns(def, rows)
       const summary = this.buildSummary(def, rows)
       const result: ReportRunResult = {
@@ -556,6 +570,22 @@ export class CustomReportService {
   private buildColumns(def: CustomReportDef, rows: Record<string, unknown>[]): Array<{ key: string; name: string }> {
     const keys = rows.length > 0 ? Object.keys(rows[0]!) : ['周期', ...def.fields.map((f) => this.catalogField(f)?.name ?? f)]
     return keys.map((k) => ({ key: k, name: k === '周期' ? '周期' : k }))
+  }
+
+  // [v3.0.6.11-100 Wave 4A] 按 sortBy 字段排序 (数值优先, 否则字典序; 仅当设置了 sortBy)
+  private applySort(def: CustomReportDef, rows: Record<string, unknown>[]): void {
+    const sortField = def.sortBy ? this.catalogField(def.sortBy) : undefined
+    if (!sortField || rows.length < 2) return
+    const key = sortField.name
+    const dir = def.sortOrder === 'desc' ? -1 : 1
+    rows.sort((a, b) => {
+      const va = a[key]
+      const vb = b[key]
+      const na = typeof va === 'number' ? va : Number(va)
+      const nb = typeof vb === 'number' ? vb : Number(vb)
+      if (Number.isFinite(na) && Number.isFinite(nb)) return (na - nb) * dir
+      return String(va ?? '').localeCompare(String(vb ?? ''), 'zh-CN') * dir
+    })
   }
 
   private buildSummary(def: CustomReportDef, rows: Record<string, unknown>[]): Record<string, unknown> {

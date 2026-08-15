@@ -129,3 +129,24 @@ export class FollowUpTemplateController {
     return this.svc.applyTemplate(id, body)
   }
 }
+
+// [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发规则: GET /followup-trigger-rules
+// 规则列表 (内存 + seed) + 触发模式 (auto=自动创建 / hint=仅提示), 供书写页「建议随访」卡片展示
+@ApiTags('followup-trigger-rules')
+@ApiBearerAuth()
+@Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
+@Controller('followup-trigger-rules')
+export class FollowUpTriggerRulesController {
+  constructor(private readonly svc: FollowUpService) {}
+
+  @Get()
+  list() {
+    return this.svc.triggerRulesInfo()
+  }
+
+  // [v3.0.6.11-100 Wave2C P3] 触发模式配置: GET /followup-trigger-rules/mode (读写 followup_auto_trigger_mode)
+  @Get('mode')
+  async getMode() {
+    return { mode: await this.svc.getTriggerMode() }
+  }
+}

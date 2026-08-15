@@ -192,6 +192,7 @@ export const aiPlatformApi = {
     return { ...res, data: unwrapList<AiPlatformModel>(res) };
   },
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getModel: async (id: string) => {
     const res = await api.get<unknown>(`/ai-platform/models/${id}`);
     return { ...res, data: unwrapOne<AiPlatformModel>(res) };
@@ -229,6 +230,7 @@ export const aiPlatformApi = {
   },
 
   // [W1-B] 后端无 /ai-platform/inference;推理 = POST /ai-platform/jobs (CreateAiJobSchema: modelId/examId/trigger)
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   inference: async (data: AiPlatformInferenceDto) => {
     const res = await api.post<unknown>("/ai-platform/jobs", {
       modelId: data.modelId,
@@ -241,6 +243,7 @@ export const aiPlatformApi = {
     return { ...res, data: unwrapOne<AiPlatformTask>(res) };
   },
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   listTasks: async (params?: { modelId?: string; status?: string }) => {
     const query = new URLSearchParams();
     if (params?.modelId) query.set("modelId", params.modelId);
@@ -250,6 +253,7 @@ export const aiPlatformApi = {
     return { ...res, data: unwrapList<AiPlatformTask>(res) };
   },
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getTask: async (id: string) => {
     const res = await api.get<unknown>(`/ai-platform/jobs/${id}`);
     return { ...res, data: unwrapOne<AiPlatformTask>(res) };
@@ -295,18 +299,21 @@ export const aiPlatformApi = {
   listQcResults: () =>
     api.get<{ data: AiPlatformQcResult[] }>("/ai-platform/qc"),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getQcResult: (id: string) =>
     api.get<{ data: AiPlatformQcResult[] }>(`/ai-platform/qc/${id}`),
 
   // ==================== [W1-D] AI 平台 7 端点补全 ====================
 
   // [G005 Wave1A P0] 工作流集成列表 (后端 GET /ai-platform/workflow/integrations)
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   listWorkflowIntegrations: async () => {
     const res = await api.get<unknown>("/ai-platform/workflow/integrations");
     return { ...res, data: unwrapList<AiPlatformRecord>(res) };
   },
 
   // [G005 Wave1A P0] 新建工作流集成 (后端 POST /ai-platform/workflow/integrations)
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   createWorkflowIntegration: async (data: CreateWorkflowIntegrationDto) => {
     const res = await api.post<unknown>("/ai-platform/workflow/integrations", data);
     await invalidateApiCache("/ai-platform/workflow/integrations");
@@ -314,6 +321,7 @@ export const aiPlatformApi = {
   },
 
   // [G005 Wave1A P0] 触发工作流事件 (后端 POST /ai-platform/workflow/trigger → 匹配触发器建任务)
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   triggerWorkflowEvent: async (data: TriggerWorkflowEventDto) => {
     const res = await api.post<unknown>("/ai-platform/workflow/trigger", data);
     await invalidateApiCache("/ai-platform/jobs");
@@ -359,6 +367,7 @@ export const aiPlatformApi = {
   },
 
   // 模型市场 (后端: auditLog resource=ai-marketplace)
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   listMarketplace: async () => {
     const res = await api.get<unknown>("/ai-platform/marketplace");
     return { ...res, data: unwrapList<AiPlatformRecord>(res) };

@@ -17,7 +17,12 @@ export interface DualReadAssignment {
   report1?: string;
   report2?: string;
   status:
-    "pending" | "reader1_done" | "reader2_done" | "both_done" | "arbitrated";
+    | "pending"
+    | "reader1_done"
+    | "reader2_done"
+    | "both_done"
+    | "arbitrated"
+    | "completed";
   discrepancyScore?: number;
   arbitrationReport?: string;
   arbitratorId?: string;
@@ -52,6 +57,26 @@ export interface DualReadStats {
   avgDiscrepancy: number;
 }
 
+// [G-21 Wave3C] 双阅 → 报告自动关联
+export interface DualReadReportLink {
+  reportId: string;
+  examId: string | null;
+  state: string;
+  impression: string;
+  created: boolean;
+}
+
+export interface DualReadCompleteResult {
+  assignment: DualReadAssignment;
+  report: DualReadReportLink | null;
+  created: boolean;
+}
+
+export interface DualReadReportLinkQuery {
+  linked: boolean;
+  report?: DualReadReportLink;
+}
+
 export const dualReadApi = {
   listAssignments: () => api.get<DualReadAssignment[]>("/dual-read/list"),
 
@@ -69,4 +94,12 @@ export const dualReadApi = {
     api.post<DualReadAssignment>(`/dual-read/${id}/reader`, data),
 
   getDiscrepancyStats: () => api.get<DualReadStats>("/dual-read/discrepancy"),
+
+  // [G-21 Wave3C] 双阅完成 → 自动创建/关联报告, 双阅结论写入报告 impression
+  complete: (id: string) =>
+    api.post<DualReadCompleteResult>(`/dual-read/${id}/complete`),
+
+  // [G-21 Wave3C] 关联报告信息查询
+  getReportLink: (id: string) =>
+    api.get<DualReadReportLinkQuery>(`/dual-read/${id}/report-link`),
 };

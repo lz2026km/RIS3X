@@ -7,6 +7,7 @@ import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { message } from 'antd'
+import { VirtualTable } from '../components/common/VirtualTable'
 
 // ============ 类型定义 ============
 interface TermEntry {
@@ -690,46 +691,70 @@ export default function TermLibraryPage() {
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
-        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-          <thead>
-            <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>提取术语</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>频率</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>来源</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>建议分类</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>状态</th>
-              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12 }}>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {extractedTerms.map(et => (
-              <tr key={et.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{et.term}</span></td>
-                <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 700, color: '#059669' }}>{et.frequency}</span></td>
-                <td style={{ padding: '9px 12px' }}><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{et.source}</span></td>
-                <td style={{ padding: '9px 12px' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{et.suggestedCategory}</span></td>
-                <td style={{ padding: '9px 12px' }}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700,
-                    background: et.status === 'approved' ? 'var(--color-success-bg)' : et.status === 'rejected' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
-                    color: et.status === 'approved' ? '#16a34a' : et.status === 'rejected' ? '#dc2626' : '#d97706',
-                  }}>
-                    {et.status === 'approved' ? '已采纳' : et.status === 'rejected' ? '已拒绝' : '待审核'}
-                  </span>
-                </td>
-                <td style={{ padding: '9px 12px' }}>
+        <VirtualTable
+          columns={[
+            {
+              title: '提取术语',
+              dataIndex: 'term',
+              key: 'term',
+              render: (v: string) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{v}</span>,
+            },
+            {
+              title: '频率',
+              dataIndex: 'frequency',
+              key: 'frequency',
+              width: 80,
+              render: (v: number) => <span style={{ fontWeight: 700, color: '#059669' }}>{v}</span>,
+            },
+            {
+              title: '来源',
+              dataIndex: 'source',
+              key: 'source',
+              render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{v}</span>,
+            },
+            {
+              title: '建议分类',
+              dataIndex: 'suggestedCategory',
+              key: 'suggestedCategory',
+              render: (v: string) => <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#8b5cf622', color: '#6d28d9' }}>{v}</span>,
+            },
+            {
+              title: '状态',
+              dataIndex: 'status',
+              key: 'status',
+              width: 90,
+              render: (v: string) => (
+                <span style={{
+                  padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700,
+                  background: v === 'approved' ? 'var(--color-success-bg)' : v === 'rejected' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)',
+                  color: v === 'approved' ? '#16a34a' : v === 'rejected' ? '#dc2626' : '#d97706',
+                }}>
+                  {v === 'approved' ? '已采纳' : v === 'rejected' ? '已拒绝' : '待审核'}
+                </span>
+              ),
+            },
+            {
+              title: '操作',
+              key: 'action',
+              width: 120,
+              render: (_: unknown, et) => (
+                <div style={{ display: 'flex', gap: 4 }}>
                   {et.status === 'pending' && (
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <>
                       <button onClick={() => handleApproveExtraction(et.id)} style={{ padding: '3px 8px', background: 'var(--color-success-bg)', color: '#16a34a', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>采纳</button>
                       <button onClick={() => handleRejectExtraction(et.id)} style={{ padding: '3px 8px', background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>拒绝</button>
-                    </div>
+                    </>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
-        </div>
+                </div>
+              ),
+            },
+          ]}
+          dataSource={extractedTerms}
+          rowKey="id"
+          height={420}
+          pageSize={15}
+        />
+      </div>
       </div>
     </div>
   )

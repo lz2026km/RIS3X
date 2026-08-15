@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 import type { z } from 'zod'
 import type { ApplyTemplateSchema, CreateFollowUpPlanSchema, FromExamFollowUpSchema, UpdateFollowUpPlanSchema } from './followup.schema'
+// [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发规则 (内存 + seed)
+import { listFollowUpTriggerRules, type FollowUpTriggerMatch, type FollowUpTriggerMode } from './followup-trigger-rules'
+import type { SystemConfigService } from '../../system-storage/system-config.service'
 
 type CreateDto = z.infer<typeof CreateFollowUpPlanSchema>
 type UpdateDto = z.infer<typeof UpdateFollowUpPlanSchema>
@@ -38,7 +41,13 @@ function parseItems(value: unknown): string[] {
 
 @Injectable()
 export class FollowUpService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(FollowUpService.name)
+
+  constructor(
+    private readonly prisma: PrismaService,
+    // [v3.0.6.11-100 Wave2C P3] 触发模式配置 (auto=自动创建 / hint=仅提示, 默认 hint) — SystemStorageModule 为 @Global
+    @Optional() private readonly systemConfig?: SystemConfigService,
+  ) {}
 
   /** [W4-B] 非终态且 nextDate 早于今天的计划自动归为 OVERDUE */
   private deriveStatus(plan: { status: string; nextDate: Date }): string {
@@ -546,5 +555,81 @@ export class FollowUpService {
       orderBy: { nextDate: 'asc' },
     })
     return { items: items.map((p) => this.toDto(p as any)), total: items.length, days: daysNum }
+  }
+
+  // ============ [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发 ============
+
+  /** GET /followup-trigger-rules — 规则列表 + 触发模式 (auto=自动创建 / hint=仅提示) */
+  async triggerRulesInfo(): Promise<{ items: ReturnType<typeof listFollowUpTriggerRules>; mode: FollowUpTriggerMode }> {
+    const mode: FollowUpTriggerMode = (await this.getTriggerMode()) === 'auto' ? 'auto' : 'hint'
+    return { items: listFollowUpTriggerRules(), mode }
+  }
+
+  /** 触发模式: 读 admin 配置 followup_auto_trigger_mode (默认 hint 仅提示) */
+  async getTriggerMode(): Promise<FollowUpTriggerMode> {
+    if (!this.systemConfig?.getString) return 'hint'
+    try {
+      const v = await this.systemConfig.getString('followup_auto_trigger_mode', 'hint')
+      return v === 'auto' ? 'auto' : 'hint'
+    } catch {
+      return 'hint'
+    }
+  }
+
+  /**
+   * 报告提交 (SUBMITTED) 后置钩子: 按关键词匹配规则创建随访计划
+   * - 规则模板存在 (followUpTemplate) → generateFromTemplate 按 intervals 批量生成
+   * - 模板缺失 (演示规则) → 按 intervals 逐条直接创建, 不抛错
+   * 返回 { created, items, matched } 供 reports.service 写审计
+   */
+  async createFollowUpFromReport(input: {
+    reportId: string
+    patientId: string
+    patientName: string
+    examId?: string
+    planDate: string
+    matches: FollowUpTriggerMatch[]
+  }): Promise<{ created: number; items: any[]; matched: string[] }> {
+    const created: any[] = []
+    const matched: string[] = []
+    const base = toDate(input.planDate)
+    for (const m of input.matches) {
+      const rule = m.rule
+      matched.push(rule.keyword)
+      try {
+        const res = await this.generateFromTemplate({
+          templateId: rule.templateId,
+          patientId: input.patientId,
+          patientName: input.patientName,
+          planDate: base.toISOString(),
+          reportId: input.reportId,
+          examId: input.examId,
+          note: `报告→随访自动触发: ${rule.label} (命中「${rule.keyword}」)`,
+        })
+        created.push(...res.items)
+      } catch (err) {
+        this.logger.warn(`[FollowUp] trigger rule ${rule.id} 模板 ${rule.templateId} 不可用, 回退直接创建: ${(err as Error).message}`)
+        for (const days of rule.intervals) {
+          const plan = await this.prisma.followUpPlan.create({
+            data: {
+              tenantId: currentTenantId(),
+              patientId: input.patientId,
+              patientName: input.patientName,
+              reportId: input.reportId,
+              examId: input.examId ?? null,
+              templateId: rule.templateId,
+              planDate: base,
+              intervalDays: days,
+              nextDate: addDays(base, days),
+              status: 'PENDING',
+              note: `报告→随访自动触发: ${rule.label} 第${days}天复查`,
+              reminderEnabled: true,
+            },
+          })
+          created.push(this.toDto(plan as any))
+        }
+      }
+    }
+    return { created: created.length, items: created, matched }
   }
 }

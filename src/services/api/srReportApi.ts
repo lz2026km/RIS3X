@@ -249,6 +249,19 @@ export const srDocumentApi = {
     return res
   },
 
+  // [G005 Wave 8] DICOM SR 测量值 → 报告回填 (解析 SR 测量项 → 摘要段落, 前端预览后 insertHtml)
+  toReport: async (srId: string, reportId: string) => {
+    const res = await api.post<{
+      srId: string
+      reportId: string
+      templateId: string
+      paragraph: string
+      measurements: Array<{ name: string; value: string; unit: string; source: string }>
+    }>(`${SR_PATH}/to-report`, { srId, reportId })
+    await invalidateApiCache(`${SR_PATH}/${srId}`)
+    return res
+  },
+
   downloadDocument: async (id: string): Promise<{ blob: Blob; filename: string } | null> => {
     const url = `${API_BASE}${SR_PATH}/${id}/download`
     const token = getToken()

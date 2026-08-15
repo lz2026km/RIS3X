@@ -256,6 +256,32 @@ export const regionalHandlers = [
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: SEED_ACCESS_RECORDS });
   }),
+  // [G005 Wave 4B] 跨院调阅记录写入 + 会诊参与 (RegionalCollaborationPage, 与后端 regional.service 同形状)
+  http.post(`${API}/imaging/access-records`, async ({ request }) => {
+    await delay(delayMs());
+    const body = await request.json() as Record<string, unknown>;
+    const item = {
+      id: 'ARC-' + Date.now(),
+      patientName: body.patientName ?? '',
+      patientId: body.patientId ?? '',
+      studyType: body.studyType ?? '',
+      hospital: body.hospital ?? '',
+      accessor: body.accessor ?? '当前用户',
+      purpose: body.purpose ?? '跨院调阅',
+      accessTime: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    };
+    SEED_ACCESS_RECORDS.unshift(item as never);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.post(`${API}/imaging/consultations/:id/accept`, async ({ params }) => {
+    await delay(delayMs());
+    const item = SEED_CONSULTATIONS.find((c: any) => c.id === params.id);
+    if (item) {
+      item.status = item.status === 'completed' ? item.status : 'in-progress';
+      item.expert = item.expert ?? '王建华 主任医师';
+    }
+    return HttpResponse.json({ success: true, data: item ?? null });
+  }),
   http.get(`${API}/imaging/institutions`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: SEED_INSTITUTIONS });

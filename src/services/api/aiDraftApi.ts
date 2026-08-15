@@ -76,13 +76,84 @@ export interface AiReportDraft {
   updatedAt: string
 }
 
+// ==================== v3.0.6.11-100 Wave 3A (G-19) LLM + RAG 深化 ====================
+
+export type LlmProviderId = 'mock' | 'deepseek' | 'hunyuan'
+
+export interface LlmProviderInfo {
+  id: LlmProviderId
+  name: string
+  model: string
+  kind: 'template' | 'llm'
+  available: boolean
+  apiKeyConfigured: boolean
+  description: string
+}
+
+export interface AiDraftRagSource {
+  reportId: string
+  date: string
+  snippet: string
+}
+
+export interface AiDraftMatchedTerm {
+  term: string
+  code: string
+}
+
+export interface AiDraftRagContext {
+  reportId: string
+  patientId: string
+  modality: string
+  bodyPart: string
+  clinicalInfo: string
+  matchedTerms: AiDraftMatchedTerm[]
+  priorReports: AiDraftRagSource[]
+}
+
+export interface AiDraftGenerateAdvancedDto {
+  reportId: string
+  provider?: LlmProviderId
+  includeRag?: boolean
+}
+
+export interface AiDraftAdvancedResult {
+  id: string
+  reportId: string
+  draftText: string
+  sections: AiReportDraftSection[]
+  provider: LlmProviderId
+  modelVersion: string
+  confidenceScore: number
+  sources: AiDraftRagSource[]
+  ragUsed: boolean
+  fallbackToMock: boolean
+  status: 'PENDING' | 'ACCEPTED' | 'MODIFIED'
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AiDraftStructuredResult {
+  reportId: string
+  provider: LlmProviderId
+  modelVersion: string
+  confidenceScore: number
+  sections: AiReportDraftSection[]
+  draftText: string
+  status: 'PENDING' | 'ACCEPTED' | 'MODIFIED'
+  createdAt: string
+}
+
 export const aiDraftApi = {
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   generate: (dto: AiDraftGenerateDto) =>
     api.post<AiDraftResult>('/ai-draft/generate', dto),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   rewrite: (dto: AiDraftRewriteDto) =>
     api.post<AiDraftRewriteResult>('/ai-draft/rewrite', dto),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   continue: (dto: AiDraftContinueDto) =>
     api.post<AiDraftParagraph>('/ai-draft/continue', dto),
 
@@ -98,4 +169,17 @@ export const aiDraftApi = {
 
   getReportDraft: (reportId: string) =>
     api.get<AiReportDraft>(`/ai/report-draft/${reportId}`),
+
+  // ==================== v3.0.6.11-100 Wave 3A (G-19) LLM + RAG 深化 ====================
+  listProviders: () =>
+    api.get<LlmProviderInfo[]>('/ai-draft/providers'),
+
+  getRagContext: (reportId: string) =>
+    api.get<AiDraftRagContext>(`/ai-draft/rag-context?reportId=${encodeURIComponent(reportId)}`),
+
+  generateAdvanced: (dto: AiDraftGenerateAdvancedDto) =>
+    api.post<AiDraftAdvancedResult>('/ai-draft/generate-advanced', dto),
+
+  generateStructured: (reportId: string) =>
+    api.post<AiDraftStructuredResult>('/ai-draft/generate-structured', { reportId }),
 }

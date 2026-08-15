@@ -29,6 +29,7 @@ import { initSentry, captureError } from "@/observability/sentry";
 import { reportWebVitals, performanceMarks } from "@/observability/webVitals";
 import { injectCSP, injectSecurityMetaTags } from "@/security/csp";
 import { useScreenReaderAnnouncer } from "@/a11y/SkipLink";
+import { THEME_TOKENS } from "./common/ThemeTokens";
 
 export type ThemeMode = "light" | "dark" | "high-contrast";
 export const THEME_STORAGE_KEY = "g005-ris-theme";
@@ -204,7 +205,7 @@ function ErrorFallback({
       </h1>
       <pre
         style={{
-          background: "#fff",
+          background: THEME_TOKENS.bgCard,
           padding: 16,
           borderRadius: 8,
           maxWidth: 800,

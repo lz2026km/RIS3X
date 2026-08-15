@@ -1,31 +1,44 @@
 /**
- * G005 放射RIS系统 v3.0.6.8-23c - StatCard
- * Stage 2 - Agent A6: 卡片样式统一
+ * G005 放射RIS系统 v3.0.6.11-100 Wave 5A - StatCard
+ * UI 组件化: 统一 KPI 卡片视觉
  *
- * 收敛原 4 种卡片样式:
- *   - radius:  8 / 10 / 12
- *   - shadow:  0 1px 3px / 0 1px 4px / 0 8px 24px hover
- *   - border:  1px solid #e2e8f0 / 1px solid #d1d5db / none
+ * 统一规范:
+ *   - bg-card + radius 12 + shadow-sm
+ *   - 图标圆底 + 大数值 (26/700) + tabular-nums
+ *   - color 支持语义预设: primary/success/warning/error/info (或自定义色值)
  *
- * 配套 KPI 网格列数统一为:
- *   gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))'
+ * 兼容旧 props: sub / trend.isUp / variant / size / iconBg / onClick
  */
 import type { ReactNode, CSSProperties, MouseEvent } from "react";
 
 export type StatCardVariant = "default" | "compact" | "elevated" | "ghost";
+export type StatCardColor = "primary" | "success" | "warning" | "error" | "info";
+
+export interface StatCardTrend {
+  value: number | string;
+  direction?: "up" | "down";
+  /** 兼容旧字段 */
+  isUp?: boolean;
+}
 
 export interface StatCardProps {
   title: ReactNode;
   value: ReactNode;
+  /** 数值后缀 (如 % / 例 / 次) */
+  suffix?: ReactNode;
+  /** 加载中 (骨架占位) */
+  loading?: boolean;
   icon?: ReactNode;
-  /** 主色 (用于 icon 背景) */
-  color?: string;
+  /** 语义色预设 (primary/success/warning/error/info) 或自定义色值 */
+  color?: StatCardColor | string;
   /** icon 背景色 (默认 `${color}18`) */
   iconBg?: string;
   /** 副标题 (小字) */
   sub?: ReactNode;
-  /** 趋势 { value, isUp? } */
-  trend?: { value: number; isUp?: boolean };
+  /** 趋势 { value, direction: up|down } */
+  trend?: StatCardTrend;
+  /** 边框 (默认有) */
+  bordered?: boolean;
   /** 变体 */
   variant?: StatCardVariant;
   /** 点击 */
@@ -40,18 +53,30 @@ export interface StatCardProps {
 
 const SIZE_MAP: Record<NonNullable<StatCardProps["size"]>, { padding: string; valueFont: number; iconBox: number }> = {
   sm: { padding: "12px 16px", valueFont: 20, iconBox: 36 },
-  md: { padding: "14px 18px", valueFont: 24, iconBox: 40 },
+  md: { padding: "14px 18px", valueFont: 26, iconBox: 40 },
   lg: { padding: "20px", valueFont: 30, iconBox: 52 },
+};
+
+/** 语义色 → CSS 变量 (与 design-system.css 对齐) */
+const COLOR_PRESET: Record<StatCardColor, { fg: string; bg: string }> = {
+  primary: { fg: "var(--color-primary-700, #1d4ed8)", bg: "var(--color-primary-50, #eff6ff)" },
+  success: { fg: "var(--color-success-600, #16a34a)", bg: "var(--color-success-50, #f0fdf4)" },
+  warning: { fg: "var(--color-warning-600, #d97706)", bg: "var(--color-warning-50, #fffbeb)" },
+  error: { fg: "var(--color-error-600, #dc2626)", bg: "var(--color-error-50, #fef2f2)" },
+  info: { fg: "var(--color-info-600, #0891b2)", bg: "var(--color-info-50, #ecfeff)" },
 };
 
 export function StatCard({
   title,
   value,
+  suffix,
+  loading,
   icon,
-  color = "#3b82f6",
+  color = "primary",
   iconBg,
   sub,
   trend,
+  bordered = true,
   variant = "default",
   onClick,
   size = "md",
@@ -61,6 +86,15 @@ export function StatCard({
   ariaLabel,
 }: StatCardProps) {
   const sizeCfg = SIZE_MAP[size];
+  const preset = (COLOR_PRESET as Record<string, { fg: string; bg: string } | undefined>)[color];
+  const fgColor = preset ? preset.fg : color;
+  const fallbackBg = preset ? preset.bg : `${color}1A`;
+
+  const isUp = trend?.direction !== "down" && trend?.isUp !== false;
+  const trendColor =
+    trend && (trend.direction === "down" || trend.isUp === false)
+      ? "var(--color-error-600, #dc2626)"
+      : "var(--color-success-600, #059669)";
 
   const baseStyle: CSSProperties = {
     background: "var(--bg-card)",
@@ -73,15 +107,15 @@ export function StatCard({
 
   const variantStyle: CSSProperties = {
     default: {
-      border: "1px solid var(--color-gray-200, #e2e8f0)",
+      border: bordered ? "1px solid var(--color-gray-200, #e2e8f0)" : "none",
       boxShadow: "var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))",
     },
     compact: {
-      border: "1px solid var(--color-gray-200, #e2e8f0)",
+      border: bordered ? "1px solid var(--color-gray-200, #e2e8f0)" : "none",
       boxShadow: "none",
     },
     elevated: {
-      border: "1px solid var(--color-gray-200, #e2e8f0)",
+      border: bordered ? "1px solid var(--color-gray-200, #e2e8f0)" : "none",
       boxShadow: "var(--shadow-md, 0 4px 8px rgba(0,0,0,0.08))",
     },
     ghost: {
@@ -122,25 +156,46 @@ export function StatCard({
           <div
             style={{
               fontSize: 12,
-              color: "var(--color-gray-500, #64748b)",
+              color: "var(--text-secondary, #475569)",
               marginBottom: 4,
               fontWeight: 500,
             }}
           >
             {title}
           </div>
-          <div
-            style={{
-              fontSize: sizeCfg.valueFont,
-              fontWeight: 800,
-              color: "var(--color-primary-900, #1e40af)",
-              lineHeight: 1.2,
-              letterSpacing: "-0.01em",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {value}
-          </div>
+          {loading ? (
+            <div
+              data-testid={`${testId ?? "stat"}-loading`}
+              style={{
+                height: sizeCfg.valueFont,
+                borderRadius: 6,
+                background: "var(--skeleton-bg, #e2e8f0)",
+                animation: "pulse 1.5s ease-in-out infinite",
+                maxWidth: 120,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                fontSize: sizeCfg.valueFont,
+                fontWeight: 700,
+                color: fgColor,
+                lineHeight: 1.2,
+                letterSpacing: "-0.01em",
+                fontVariantNumeric: "tabular-nums",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {value}
+              {suffix !== undefined && (
+                <span style={{ fontSize: 13, fontWeight: 600, marginLeft: 2, color: "var(--text-secondary)" }}>
+                  {suffix}
+                </span>
+              )}
+            </div>
+          )}
           {sub && (
             <div
               style={{
@@ -161,13 +216,11 @@ export function StatCard({
                 marginTop: 4,
                 fontSize: 12,
                 fontWeight: 600,
-                color: trend.isUp === false
-                  ? "var(--color-error-600, #dc2626)"
-                  : "var(--color-success-600, #059669)",
+                color: trendColor,
               }}
             >
-              <span>{trend.isUp === false ? "↓" : "↑"}</span>
-              <span>{Math.abs(trend.value)}%</span>
+              <span>{isUp ? "↑" : "↓"}</span>
+              <span>{Math.abs(Number(trend.value))}{typeof trend.value === "number" ? "%" : ""}</span>
             </div>
           )}
         </div>
@@ -176,12 +229,12 @@ export function StatCard({
             style={{
               width: sizeCfg.iconBox,
               height: sizeCfg.iconBox,
-              borderRadius: 10,
-              background: iconBg ?? `${color}1A`,
+              borderRadius: "50%",
+              background: iconBg ?? fallbackBg,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color,
+              color: fgColor,
               flexShrink: 0,
             }}
           >
@@ -195,8 +248,6 @@ export function StatCard({
 
 /**
  * KPI 网格容器 (auto-fit 自适应列数)
- * 原: 6 列 / 8 列 / 4 列 硬编码
- * 现: repeat(auto-fit, minmax(220px, 1fr)) 自适应
  */
 export function StatCardGrid({
   children,

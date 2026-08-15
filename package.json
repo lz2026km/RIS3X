@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-99",
-  "description": "G005 Radiology RIS v3.0.6.11-99 - Core Bug Fix",
+  "version": "3.0.6.11-100",
+  "description": "G005 Radiology RIS v3.0.6.11-100 - Core Bug Fix",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

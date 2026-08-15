@@ -7,6 +7,8 @@ import { useState, useMemo, useEffect } from "react";
 import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../services/api/datareportApi";
 import { insuranceApi } from "../services/api/insuranceApi";
 import { PageHeader } from "../components/common/PageHeader";
+import { StatCard } from "../components/common/StatCard";
+import { AppText } from "../components/common/AppText";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { VOUCHER_DATA } from '../data/initialData';
@@ -3230,10 +3232,10 @@ const PendingAuditCard: React.FC<{
       {audit.restriction}
     </div>
 
-    <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>
+    <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 12 }}>
       <Stethoscope size={14} style={{ marginRight: 6 }} />
       {audit.reason}
-    </div>
+    </AppText>
 
     <div style={styles.cardActions}>
       <PermissionGate permission="audit.approve">
@@ -3873,42 +3875,31 @@ export default function InsuranceAuditPage() {
 
       {/* KPI 卡片 */}
       <div style={styles.kpiRow}>
-        <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "var(--color-info-bg)" }}>
-            <ClipboardList size={22} color="#1e40af" />
-          </div>
-          <div>
-            <div style={styles.kpiValue}>{statsData.totalPending}</div>
-            <div style={styles.kpiLabel}>{t("pendingCount")}</div>
-          </div>
-        </div>
-        <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "var(--color-success-bg)" }}>
-            <CheckCircle size={22} color="#16a34a" />
-          </div>
-          <div>
-            <div style={styles.kpiValue}>{statsData.passRate}%</div>
-            <div style={styles.kpiLabel}>{t("passRate")}</div>
-          </div>
-        </div>
-        <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "var(--color-warning-bg)" }}>
-            <Activity size={22} color="#d97706" />
-          </div>
-          <div>
-            <div style={styles.kpiValue}>{statsData.todayProcessed}</div>
-            <div style={styles.kpiLabel}>{t("todayProcessed")}</div>
-          </div>
-        </div>
-        <div style={styles.kpiCard}>
-          <div style={{ ...styles.kpiIcon, background: "#8b5cf622" }}>
-            <Clock size={22} color="#9333ea" />
-          </div>
-          <div>
-            <div style={styles.kpiValue}>{statsData.avgReviewTime}</div>
-            <div style={styles.kpiLabel}>平均审核时间</div>
-          </div>
-        </div>
+        <StatCard
+          title={t("pendingCount")}
+          value={statsData.totalPending}
+          icon={<ClipboardList size={22} />}
+          color="info"
+        />
+        <StatCard
+          title={t("passRate")}
+          value={statsData.passRate}
+          suffix="%"
+          icon={<CheckCircle size={22} />}
+          color="success"
+        />
+        <StatCard
+          title={t("todayProcessed")}
+          value={statsData.todayProcessed}
+          icon={<Activity size={22} />}
+          color="warning"
+        />
+        <StatCard
+          title="平均审核时间"
+          value={statsData.avgReviewTime}
+          icon={<Clock size={22} />}
+          color="primary"
+        />
       </div>
 
       {/* ============================================================ */}
@@ -3920,74 +3911,39 @@ export default function InsuranceAuditPage() {
             <DollarSign size={20} style={{ color: "#16a34a" }} />
             医保基金监控
           </h3>
-          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+          <AppText size="xs" color="secondary" as="span">
             数据更新于 2026-05-27 12:00
-          </span>
+          </AppText>
         </div>
 
         {/* 基金监控KPI */}
         <div style={styles.fundKpiRow}>
-          <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "var(--color-success-bg)" }}>
-              <Percent size={22} color="#16a34a" />
-            </div>
-            <div>
-              <div style={styles.fundKpiValue}>{fundMonitorKPI.usageRate}%</div>
-              <div style={styles.fundKpiLabel}>本月基金使用率</div>
-            </div>
-          </div>
-          <div style={styles.fundKpiCard}>
-            <div
-              style={{
-                ...styles.fundKpiIcon,
-                background:
-                  fundMonitorKPI.balanceWarning === "正常"
-                    ? "#dcfce7"
-                    : fundMonitorKPI.balanceWarning === "警告"
-                      ? "#fef3c7"
-                      : "#fee2e2",
-              }}
-            >
-              <AlertTriangle
-                size={22}
-                color={
-                  fundMonitorKPI.balanceWarning === "正常"
-                    ? "#16a34a"
-                    : fundMonitorKPI.balanceWarning === "警告"
-                      ? "#d97706"
-                      : "#dc2626"
-                }
-              />
-            </div>
-            <div>
-              <div style={styles.fundKpiValue}>
-                {fundMonitorKPI.balanceWarning}
-              </div>
-              <div style={styles.fundKpiLabel}>基金余额预警</div>
-            </div>
-          </div>
-          <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "var(--color-error-bg)" }}>
-              <AlertOctagon size={22} color="#dc2626" />
-            </div>
-            <div>
-              <div style={styles.fundKpiValue}>
-                {fundMonitorKPI.violationCount}
-              </div>
-              <div style={styles.fundKpiLabel}>本月违规使用次数</div>
-            </div>
-          </div>
-          <div style={styles.fundKpiCard}>
-            <div style={{ ...styles.fundKpiIcon, background: "var(--color-info-bg)" }}>
-              <TrendingUp size={22} color="#1e40af" />
-            </div>
-            <div>
-              <div style={styles.fundKpiValue}>
-                {fundMonitorKPI.passRateTrend}%
-              </div>
-              <div style={styles.fundKpiLabel}>审核通过率</div>
-            </div>
-          </div>
+          <StatCard
+            title="本月基金使用率"
+            value={fundMonitorKPI.usageRate}
+            suffix="%"
+            icon={<Percent size={22} />}
+            color="success"
+          />
+          <StatCard
+            title="基金余额预警"
+            value={fundMonitorKPI.balanceWarning}
+            icon={<AlertTriangle size={22} />}
+            color={fundMonitorKPI.balanceWarning === "正常" ? "success" : fundMonitorKPI.balanceWarning === "警告" ? "warning" : "error"}
+          />
+          <StatCard
+            title="本月违规使用次数"
+            value={fundMonitorKPI.violationCount}
+            icon={<AlertOctagon size={22} />}
+            color="error"
+          />
+          <StatCard
+            title="审核通过率"
+            value={fundMonitorKPI.passRateTrend}
+            suffix="%"
+            icon={<TrendingUp size={22} />}
+            color="info"
+          />
         </div>
 
         {/* 图表区域：基金趋势 + 科室分布 */}
@@ -4101,9 +4057,9 @@ export default function InsuranceAuditPage() {
                         flexShrink: 0,
                       }}
                     />
-                    <div style={{ flex: 1, fontSize: 12, color: "var(--text-secondary)" }}>
+                    <AppText size="xs" color="secondary" as="div" style={{ flex: 1 }}>
                       {dept.name}
-                    </div>
+                    </AppText>
                     <div
                       style={{
                         fontSize: 12,
@@ -4594,30 +4550,30 @@ export default function InsuranceAuditPage() {
               <div style={styles.statTitle}>{t("stats.monthlyTotal")}</div>
               <div style={styles.statValue}>326</div>
               <TrendingUp size={16} color="#16a34a" style={{ marginTop: 8 }} />
-              <span style={{ fontSize: 12, color: "#16a34a", marginLeft: 4 }}>
+              <AppText size="xs" color="success" as="span" style={{ marginLeft: 4 }}>
                 +12%
-              </span>
+              </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>CT增强审核</div>
               <div style={styles.statValue}>158</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
                 占比 48.5%
-              </div>
+              </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>MRI增强审核</div>
               <div style={styles.statValue}>98</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
                 占比 30.1%
-              </div>
+              </AppText>
             </div>
             <div style={styles.statCard}>
               <div style={styles.statTitle}>DSA抗凝审核</div>
               <div style={styles.statValue}>70</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
                 占比 21.5%
-              </div>
+              </AppText>
             </div>
           </div>
 
@@ -4631,11 +4587,9 @@ export default function InsuranceAuditPage() {
             </div>
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div
-                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
-                >
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
                   通过率
-                </div>
+                </AppText>
                 <div
                   style={{
                     background: "var(--content-bg)",
@@ -4663,11 +4617,9 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div
-                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
-                >
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
                   拒绝率
-                </div>
+                </AppText>
                 <div
                   style={{
                     background: "var(--content-bg)",
@@ -4695,11 +4647,9 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div
-                  style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}
-                >
+                <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
                   补充资料率
-                </div>
+                </AppText>
                 <div
                   style={{
                     background: "var(--content-bg)",
@@ -4749,12 +4699,12 @@ export default function InsuranceAuditPage() {
                   key={i}
                   style={{ display: "flex", alignItems: "center", gap: 12 }}
                 >
-                  <div style={{ width: 24, fontSize: 13, color: "var(--text-secondary)" }}>
+                  <AppText size="sm" color="secondary" as="div" style={{ width: 24 }}>
                     {i + 1}
-                  </div>
-                  <div style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)" }}>
+                  </AppText>
+                  <AppText size="sm" color="secondary" as="div" style={{ flex: 1 }}>
                     {item.name}
-                  </div>
+                  </AppText>
                   <div
                     style={{
                       width: 100,
@@ -5413,7 +5363,7 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -5667,7 +5617,7 @@ export default function InsuranceAuditPage() {
                         borderRadius: 4,
                       }}
                     >
-                      <span style={{ fontSize: 12, color: GRAY }}>{label}</span>
+                      <AppText size="xs" color="secondary" as="span">{label}</AppText>
                       <span
                         style={{
                           fontSize: 12,
@@ -5758,7 +5708,7 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -5876,9 +5826,9 @@ export default function InsuranceAuditPage() {
                         <span style={{ fontWeight: 700, color: PRIMARY }}>
                           {p.patientName}
                         </span>
-                        <span style={{ fontSize: 12, color: GRAY }}>
+                        <AppText size="xs" color="secondary" as="span">
                           {p.patientId}
-                        </span>
+                        </AppText>
                       </div>
                       <div
                         style={{
@@ -5956,23 +5906,21 @@ export default function InsuranceAuditPage() {
                         marginBottom: 8,
                       }}
                     >
-                      <div style={{ fontSize: 12, color: GRAY }}>
+                      <AppText size="xs" color="secondary" as="div">
                         检查:{" "}
                         <span style={{ color: "var(--text-secondary)" }}>{p.examItem}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: GRAY }}>
+                      </AppText>
+                      <AppText size="xs" color="secondary" as="div">
                         请求日期:{" "}
                         <span style={{ color: "var(--text-secondary)" }}>
                           {p.requestedDate}
                         </span>
-                      </div>
+                      </AppText>
                     </div>
                     <div>
-                      <div
-                        style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}
-                      >
+                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 6 }}>
                         所需材料 ({p.docsCompleted}/{p.docs.length})
-                      </div>
+                      </AppText>
                       <div
                         style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
                       >
@@ -6093,7 +6041,7 @@ export default function InsuranceAuditPage() {
                   >
                     {card.value}
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -6290,12 +6238,12 @@ export default function InsuranceAuditPage() {
                   >
                     {m.drg}
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY }}>
+                  <AppText size="xs" color="secondary" as="div">
                     ICD: {m.icdStart}-{m.icdEnd}
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                  </AppText>
+                  <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
                     {m.category}
-                  </div>
+                  </AppText>
                 </div>
               ))}
             </div>
@@ -6424,9 +6372,9 @@ export default function InsuranceAuditPage() {
                 <ShieldCheck size={14} style={{ marginRight: 6 }} />
                 {rule.insuranceRequirement}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              <AppText size="xs" color="secondary" as="div">
                 {rule.description}
-              </div>
+              </AppText>
             </div>
           ))}
 

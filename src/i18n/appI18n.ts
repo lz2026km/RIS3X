@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-99 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-100 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-99 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-100 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -104,6 +104,7 @@ export const translations: Translations = {
     "nav.phraseBank": "短语库",
     "nav.regionalCoordination": "区域协同",
     "nav.regionalImaging": "区域影像协同",
+    "nav.regionalCollaboration": "区域协同中心", // [G005 Wave 4B]
     "nav.regionalReport": "区域报告",
     "nav.departmentSchedule": "科室排班",
     "nav.departmentManage": "科室管理",
@@ -130,6 +131,9 @@ export const translations: Translations = {
     "nav.dataReport": "数据上报",
     "nav.nationalReport": "国家数据上报",
     "nav.dataReportCenter": "数据上报中心",
+    "nav.customReport": "自定义报表",
+    "nav.voiceWorkstation": "语音工作站",
+    "nav.mobileApproval": "移动审批",
     "nav.insuranceAudit": "医保审核",
     "nav.eyeSpecialty": "眼科专科",
     "nav.eyeWorkspace": "眼科工作台",
@@ -165,6 +169,7 @@ export const translations: Translations = {
     "nav.eyeTele": "远程会诊",
     "nav.eyeCaseLibrary": "教学病例库",
     "nav.eyeOptometryLoop": "视光闭环",
+    "nav.eyePixelLab": "像素实验室", // [G005 Wave 4B]
 
     "nav.dentalSpecialty": "牙科专科",
     "nav.dentalWorkspace": "牙科工作台",
@@ -189,7 +194,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-99]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-100]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -318,10 +323,15 @@ export const translations: Translations = {
     "nav.deviceOps": "设备运维",
     "nav.hrOperations": "人事运营",
     "nav.opsDashboard": "运营看板",
-    // [v3.0.6.11-99] Wave6A 科室 KPI 墙屏
+    // [v3.0.6.11-100] Wave6A 科室 KPI 墙屏
     "nav.kpiWall": "科室 KPI 大屏",
-    // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班
+    // [v3.0.6.11-100 Wave 6B (tech-schedule)] 技师排班
     "nav.techSchedule": "技师排班",
+    // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
+    "nav.roomStatusBoard": "检查间看板",
+    "nav.retakeAnalytics": "重拍分析",
+    // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
+    "nav.techKpi": "技师 KPI 看板",
     "nav.vesselAnalysis": "血管分析工作台",
     "nav.cdsManagement": "CDS管理",
     "nav.cdsStatistics": "CDS统计",
@@ -368,6 +378,8 @@ export const translations: Translations = {
     "nav.multiSiteDashboard": "多站点看板",
     "nav.vnaDashboard": "VNA看板",
     "nav.reviewCenter": "综合审核中心",
+    // [v3.0.6.11-100 Wave 2A] 审核组: 委员会会诊
+    "nav.committeeRoom": "委员会会诊室",
     "nav.qualityControlV3": "质控管理",
     "nav.workflowV3": "工作流 V3",
     "nav.workflowDesigner": "工作流设计器",
@@ -390,7 +402,7 @@ export const translations: Translations = {
     "nav.qcDashboard": "质控总看板",
     "nav.qcImage": "影像质控",
     "nav.qcImageAi": "影像 AI 自动质控",
-    // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-100] PDCA 质控闭环
     "nav.qcPdca": "PDCA 质控闭环",
     "nav.qcRadiologistAnnual": "医生年度档案",
     "nav.cosign": "双签工作流",
@@ -2067,7 +2079,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-99 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-100 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2153,6 +2165,7 @@ export const translations: Translations = {
     "nav.phraseBank": "Phrase Bank",
     "nav.regionalCoordination": "Regional Coordination",
     "nav.regionalImaging": "Regional Imaging",
+    "nav.regionalCollaboration": "Regional Collaboration", // [G005 Wave 4B]
     "nav.regionalReport": "Regional Report",
     "nav.departmentSchedule": "Department Schedule",
     "nav.departmentManage": "Department Management",
@@ -2179,6 +2192,9 @@ export const translations: Translations = {
     "nav.dataReport": "Data Report",
     "nav.nationalReport": "National Report",
     "nav.dataReportCenter": "Data Report Center",
+    "nav.customReport": "Custom Report",
+    "nav.voiceWorkstation": "Voice Workstation",
+    "nav.mobileApproval": "Mobile Approval",
     "nav.insuranceAudit": "Insurance Audit",
     "nav.eyeSpecialty": "Ophthalmology",
     "nav.eyeWorkspace": "Eye Workspace",
@@ -2214,6 +2230,7 @@ export const translations: Translations = {
     "nav.eyeTele": "Tele-Consult",
     "nav.eyeCaseLibrary": "Case Library",
     "nav.eyeOptometryLoop": "Optometry Loop",
+    "nav.eyePixelLab": "Pixel Lab", // [G005 Wave 4B]
 
     "nav.dentalSpecialty": "Dental",
     "nav.dentalWorkspace": "Workspace",
@@ -2238,7 +2255,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-99]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-100]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -2367,10 +2384,15 @@ export const translations: Translations = {
     "nav.deviceOps": "Device Operations",
     "nav.hrOperations": "HR Operations",
     "nav.opsDashboard": "Operations Dashboard",
-    // [v3.0.6.11-99] Wave6A Department KPI wall + Vessel analysis
+    // [v3.0.6.11-100] Wave6A Department KPI wall + Vessel analysis
     "nav.kpiWall": "Department KPI Wall",
-    // [v3.0.6.11-99 Wave 6B (tech-schedule)] Tech scheduling
+    // [v3.0.6.11-100 Wave 6B (tech-schedule)] Tech scheduling
     "nav.techSchedule": "Tech Scheduling",
+    // [v3.0.6.11-100 Wave 1B] Tech workstation: room status board + retake analytics
+    "nav.roomStatusBoard": "Exam Room Status Board",
+    "nav.retakeAnalytics": "Retake Analytics",
+    // [v3.0.6.11-100 Wave 1A] Technician KPI dashboard
+    "nav.techKpi": "Technician KPI Dashboard",
     "nav.vesselAnalysis": "Vessel Analysis Workbench",
     "nav.cdsManagement": "CDS Management",
     "nav.cdsStatistics": "CDS Statistics",
@@ -2417,6 +2439,8 @@ export const translations: Translations = {
     "nav.financialReports": "Financial Reports",
     "nav.vnaDashboard": "VNA Dashboard",
     "nav.reviewCenter": "Review Center",
+    // [v3.0.6.11-100 Wave 2A] 审核组: 委员会会诊
+    "nav.committeeRoom": "Committee Room",
     "nav.qualityControlV3": "Quality Control",
     "nav.workflowV3": "Workflow V3",
     "nav.workflowDesigner": "Workflow Designer",
@@ -2440,7 +2464,7 @@ export const translations: Translations = {
     "nav.qcDashboard": "QC Dashboard",
     "nav.qcImage": "Image QC",
     "nav.qcImageAi": "AI Image QC",
-    // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
+    // [G005 Wave 3A v3.0.6.11-100] PDCA 质控闭环
     "nav.qcPdca": "PDCA QC Loop",
     "nav.qcRadiologistAnnual": "Radiologist Annual QC",
     "nav.cosign": "CoSign Workflow",

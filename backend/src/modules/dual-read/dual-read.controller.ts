@@ -73,4 +73,16 @@ export class DualReadController {
   list() {
     return this.service.list()
   }
+
+  // [G-21 Wave3C] 双阅完成 → 自动创建/关联报告, 双阅结论写入报告 impression
+  @Post(':id/complete')
+  complete(@Param('id') id: string) {
+    return this.service.complete(id)
+  }
+
+  // [G-21 Wave3C] 关联报告信息查询
+  @Get(':id/report-link')
+  reportLink(@Param('id') id: string) {
+    return this.service.reportLink(id)
+  }
 }

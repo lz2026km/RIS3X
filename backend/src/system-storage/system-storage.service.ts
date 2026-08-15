@@ -5,6 +5,7 @@
  */
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import * as crypto from 'node:crypto'
 import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { LocalStorageDriver } from '../common/storage/local-storage.driver'
@@ -109,6 +110,87 @@ export interface CopyObjectResultDto {
   modified: string
   copied: true
   source: StorageSource
+}
+
+// ═══════════ [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL + 跨区复制 + 监控 ═══════════
+
+export interface SignedUrlDto {
+  bucket: string
+  key: string
+  url: string
+  expiresInSec: number
+  expiresAt: string
+  /** 数据源标注: aws-sigv4-native (真实 SigV4 预签名) / simulated (本地模拟 URL) */
+  source: 'aws-sigv4-native' | 'simulated'
+}
+
+export type ReplicationStatus = 'queued' | 'running' | 'completed' | 'failed'
+
+export interface ReplicationTaskDto {
+  id: string
+  sourceBucket: string
+  targetBucket: string
+  region: string
+  status: ReplicationStatus
+  progress: number
+  objectsTotal: number
+  objectsCopied: number
+  bytesTotal: number
+  bytesCopied: number
+  createdAt: string
+  startedAt?: string
+  finishedAt?: string
+  error?: string
+  source: 'simulated' | 'aws-sigv4-native'
+}
+
+export interface ReplicationStatusDto {
+  tasks: ReplicationTaskDto[]
+  pending: number
+  running: number
+  completed: number
+  failed: number
+  queueDepth: number
+  lastUpdatedAt: string
+}
+
+export interface BucketUsageMetricDto {
+  name: string
+  provider: 'local' | 's3' | 'minio'
+  region: string
+  objectCount: number
+  usedBytes: number
+  percentOfTotal: number
+}
+
+export interface IoCountsDto {
+  readPerMin: number
+  writePerMin: number
+  putPerMin: number
+  deletePerMin: number
+  /** true = 从桶/对象统计派生, false = seed 示例值 */
+  derived: boolean
+}
+
+export interface StorageMonitoringDto {
+  totalCapacityBytes: number
+  totalUsedBytes: number
+  usedPercent: number
+  growthRatePct30d: number
+  objectsTotal: number
+  buckets: BucketUsageMetricDto[]
+  ioCounts: IoCountsDto
+  replication: {
+    pending: number
+    running: number
+    completed: number
+    failed: number
+    pendingBytes: number
+  }
+  /** 30 天容量趋势 (seed 派生, 末位替换为当前真实值) */
+  history: Array<{ date: string; usedBytes: number; capacityBytes: number }>
+  /** 数据源标注: derived (从 buckets/对象派生) / seed (seed 回退) */
+  source: 'derived' | 'seed'
 }
 
 interface LifecyclePolicyRecord extends LifecyclePolicyDto {}
@@ -222,6 +304,9 @@ export class SystemStorageService {
   // [G005 v3.0.6.11-99 Wave 7A (G-28)] 对象生命周期策略 (内存 + seed)
   private readonly lifecyclePolicies: Map<string, LifecyclePolicyRecord>
   private lifecycleSeq = 0
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务内存队列
+  private readonly replicationTasks: Map<string, ReplicationTaskDto>
+  private replicationSeq = 0
 
   constructor(
     private readonly prisma: PrismaService,
@@ -273,6 +358,7 @@ export class SystemStorageService {
         ]
       }),
     )
+    this.replicationTasks = new Map()
   }
 
   private nextLifecycleId(): string {
@@ -635,6 +721,197 @@ export class SystemStorageService {
       modified: copy.modified,
       copied: true,
       source: 'simulated',
+    }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL ═══════════
+
+  /**
+   * GET /system/storage/buckets/:name/objects/:key/signed-url
+   * 生成带过期时间的下载签名 URL。
+   * - 有效 S3 配置 (STORAGE_DRIVER=s3 + 保存配置): 真实 SigV4 预签名 (source=aws-sigv4-native)
+   * - 其余场景: 本地模拟生成同构 URL 字符串 (source=simulated), 不发起网络请求
+   */
+  async generateSignedUrl(name: string, key: string, expiresInSec = 3600): Promise<SignedUrlDto> {
+    const rec = this.getBucketOrThrow(name)
+    const obj = rec.objects.find((o) => o.key === key)
+    if (!obj) throw new NotFoundException(`Object ${name}/${key} not found`)
+    const expires = Number.isFinite(expiresInSec) && expiresInSec > 0 ? Math.min(604_800, Math.floor(expiresInSec)) : 3600
+    const expiresAt = new Date(Date.now() + expires * 1000)
+    const effective = await this.resolveEffective()
+    if (effective?.driver === 's3' && effective.endpoint && effective.accessKey && effective.secretKey) {
+      const driver = new S3StorageDriver(buildS3DriverOptions(effective, 10_000))
+      const url = driver.presign(key, expires)
+      return { bucket: name, key, url, expiresInSec: expires, expiresAt: expiresAt.toISOString(), source: 'aws-sigv4-native' }
+    }
+    // 本地模拟: AWS 预签名 URL 同构字符串 (accessKey 缺省用固定模拟凭证)
+    const simKey = effective?.accessKey ?? 'G005SIMACCESS'
+    const simRegion = effective?.region ?? rec.region ?? 'us-east-1'
+    const simEndpoint = effective?.endpoint ?? `https://s3.${simRegion}.amazonaws.com`
+    const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '')
+    const dateStamp = amzDate.slice(0, 8)
+    const scope = `${dateStamp}/${simRegion}/s3/aws4_request`
+    const signature = crypto
+      .createHmac('sha256', `G005-SIM-SECRET-${rec.tenantId}`)
+      .update(`${name}/${key}|${expires}|${amzDate}`)
+      .digest('hex')
+      .slice(0, 64)
+    const qs = [
+      `X-Amz-Algorithm=AWS4-HMAC-SHA256`,
+      `X-Amz-Credential=${encodeURIComponent(`${simKey}/${scope}`)}`,
+      `X-Amz-Date=${amzDate}`,
+      `X-Amz-Expires=${expires}`,
+      `X-Amz-SignedHeaders=host`,
+      `X-Amz-Signature=${signature}`,
+    ].join('&')
+    const url = `${simEndpoint.replace(/\/+$/, '')}/${name}/${encodeURIComponent(key)}?${qs}`
+    return { bucket: name, key, url, expiresInSec: expires, expiresAt: expiresAt.toISOString(), source: 'simulated' }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制 (内存队列 + 状态) ═══════════
+
+  private nextReplicationId(): string {
+    this.replicationSeq += 1
+    return `rep-${String(this.replicationSeq).padStart(3, '0')}`
+  }
+
+  /**
+   * POST /system/storage/buckets/:name/replicate
+   * 将桶内全部对象复制到目标桶并标注目标区域 (跨区复制任务)。
+   * 内存队列: 入队后立即排空 (模拟快速处理), 任务记录保留 queued→running→completed 状态轨迹。
+   */
+  replicateBucket(name: string, dto: { targetBucket: string; region: string }): ReplicationTaskDto {
+    const target = dto.targetBucket?.trim()
+    const region = dto.region?.trim()
+    if (!target) throw new BadRequestException('targetBucket 必填')
+    if (!region) throw new BadRequestException('region 必填')
+    const src = this.getBucketOrThrow(name)
+    if (target === src.name) {
+      throw new BadRequestException('目标桶不能与源桶相同')
+    }
+    const dst = this.getBucketOrThrow(target)
+    const snapshot = src.objects.map((o) => ({ ...o }))
+    const bytesTotal = snapshot.reduce((s, o) => s + o.size, 0)
+    const now = new Date().toISOString()
+    const task: ReplicationTaskDto = {
+      id: this.nextReplicationId(),
+      sourceBucket: src.name,
+      targetBucket: dst.name,
+      region,
+      status: 'queued',
+      progress: 0,
+      objectsTotal: snapshot.length,
+      objectsCopied: 0,
+      bytesTotal,
+      bytesCopied: 0,
+      createdAt: now,
+      source: 'simulated',
+    }
+    this.replicationTasks.set(task.id, task)
+    this.logger.log(`Replication queued: ${task.id} (${src.name} → ${dst.name} @ ${region})`)
+    // 排空队列 (模拟跨区复制完成)
+    task.status = 'running'
+    task.progress = 50
+    task.startedAt = new Date().toISOString()
+    for (const obj of snapshot) {
+      const existing = dst.objects.find((o) => o.key === obj.key)
+      if (existing) {
+        existing.size = obj.size
+        existing.modified = obj.modified
+      } else {
+        dst.objects.push({ ...obj })
+      }
+    }
+    task.objectsCopied = snapshot.length
+    task.bytesCopied = bytesTotal
+    task.status = 'completed'
+    task.progress = 100
+    task.finishedAt = new Date().toISOString()
+    this.logger.log(`Replication completed: ${task.id} (${snapshot.length} 对象, ${bytesTotal} bytes)`)
+    return { ...task }
+  }
+
+  /** GET /system/storage/replication-status — 复制任务队列状态 */
+  getReplicationStatus(): ReplicationStatusDto {
+    const tasks = [...this.replicationTasks.values()]
+      .sort((a, b) => b.id.localeCompare(a.id))
+      .map((t) => ({ ...t }))
+    const count = (s: ReplicationStatus) => tasks.filter((t) => t.status === s).length
+    return {
+      tasks,
+      pending: count('queued'),
+      running: count('running'),
+      completed: count('completed'),
+      failed: count('failed'),
+      queueDepth: tasks.filter((t) => t.status === 'queued' || t.status === 'running').length,
+      lastUpdatedAt: new Date().toISOString(),
+    }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-100 Wave 3B (G-28)] 存储监控指标 ═══════════
+
+  /**
+   * GET /system/storage/monitoring — 存储监控大屏数据
+   * 从 buckets/对象派生 (source=derived), 容量/增长率为 seed 回退 (source=seed)。
+   */
+  getMonitoring(): StorageMonitoringDto {
+    const tenantId = this.currentTenant()
+    const tenantBuckets = [...this.buckets.values()].filter((rec) => rec.tenantId === tenantId)
+    const totalUsedBytes = tenantBuckets.reduce((s, b) => s + this.toBucketDto(b).usedBytes, 0)
+    const objectsTotal = tenantBuckets.reduce((s, b) => s + b.objects.length, 0)
+    const capacitySeed = Number(this.config.get<string>('STORAGE_CAPACITY_BYTES', '0'))
+    const growthSeed = Number(this.config.get<string>('STORAGE_GROWTH_PCT_30D', '4.2'))
+    const derived = totalUsedBytes > 0
+    const totalCapacityBytes = capacitySeed > 0 ? capacitySeed : derived ? Math.ceil(totalUsedBytes / 0.72) : 6_500_000_000
+    const usedPercent = totalCapacityBytes > 0 ? Number(((totalUsedBytes / totalCapacityBytes) * 100).toFixed(1)) : 0
+    const buckets: BucketUsageMetricDto[] = tenantBuckets
+      .map((rec) => {
+        const dto = this.toBucketDto(rec)
+        return {
+          name: dto.name,
+          provider: dto.provider,
+          region: dto.region,
+          objectCount: dto.objectCount,
+          usedBytes: dto.usedBytes,
+          percentOfTotal: totalUsedBytes > 0 ? Number(((dto.usedBytes / totalUsedBytes) * 100).toFixed(1)) : 0,
+        }
+      })
+      .sort((a, b) => b.usedBytes - a.usedBytes)
+    // 30 天趋势: 按 30 天均增率从当前已用反推 (末位为当前真实值)
+    const history: Array<{ date: string; usedBytes: number; capacityBytes: number }> = []
+    const growthRatePct30d = Number.isFinite(growthSeed) && growthSeed > 0 ? growthSeed : 4.2
+    const perDayFactor = Math.pow(1 + growthRatePct30d / 100, 1 / 30)
+    for (let i = 29; i >= 0; i -= 1) {
+      const d = new Date(Date.now() - i * 86_400_000)
+      const usedBytes = i === 0 ? totalUsedBytes : Math.round(totalUsedBytes / Math.pow(perDayFactor, i))
+      history.push({ date: d.toISOString().slice(0, 10), usedBytes, capacityBytes: totalCapacityBytes })
+    }
+    const ioBase = derived ? objectsTotal / 24 : 42_800
+    const ioCounts: IoCountsDto = {
+      readPerMin: Math.round(ioBase * 0.18 * 100) / 100,
+      writePerMin: Math.round(ioBase * 0.06 * 100) / 100,
+      putPerMin: Math.round(Math.max(0.1, derived ? objectsTotal / 1440 : 12.4) * 100) / 100,
+      deletePerMin: Math.round(Math.max(0.1, derived ? objectsTotal / 14400 : 3.1) * 100) / 100,
+      derived,
+    }
+    const tasks = [...this.replicationTasks.values()]
+    return {
+      totalCapacityBytes,
+      totalUsedBytes,
+      usedPercent,
+      growthRatePct30d: Number(growthRatePct30d.toFixed(1)),
+      objectsTotal,
+      buckets,
+      ioCounts,
+      replication: {
+        pending: tasks.filter((t) => t.status === 'queued').length,
+        running: tasks.filter((t) => t.status === 'running').length,
+        completed: tasks.filter((t) => t.status === 'completed').length,
+        failed: tasks.filter((t) => t.status === 'failed').length,
+        pendingBytes: tasks.filter((t) => t.status === 'queued' || t.status === 'running').reduce((s, t) => s + t.bytesTotal, 0),
+      },
+      history,
+      source: derived ? 'derived' : 'seed',
     }
   }
 

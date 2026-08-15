@@ -3,6 +3,7 @@
  * 输入临床描述 → 生成报告草稿(所见/结论) → 复制到报告; 历史记录; loading/error
  */
 import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '../services/api/aiDraftApi'
+import { EmptyState } from '../components/common/EmptyState'
 import {
   Card, Form, Input, Select, Segmented, Button, Space, Typography, Tag, Spin,
   Alert, message, List, Empty, Progress, Divider, Row, Col, Statistic, Tooltip,
@@ -197,7 +198,7 @@ const AIAssistPage: React.FC = () => {
             {loadingHistory ? (
               <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /></div>
             ) : history.length === 0 ? (
-              <Empty description="暂无历史记录" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <EmptyState description="暂无历史记录" />
             ) : (
               <List
                 size="small"

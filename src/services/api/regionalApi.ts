@@ -271,6 +271,14 @@ export const regionalApi = {
   listAccessRecords: () =>
     api.get<AccessRecordDto[]>('/regional/imaging/access-records'),
 
+  // [G005 Wave 4B] 跨院调阅记录写入 (RegionalCollaborationPage, 后端 POST /regional/imaging/access-records)
+  createAccessRecord: (data: Partial<AccessRecordDto>) =>
+    api.post<AccessRecordDto>('/regional/imaging/access-records', data),
+
+  // [G005 Wave 4B] 参与远程会诊 (后端 POST /regional/imaging/consultations/:id/accept)
+  acceptConsultationRequest: (id: string) =>
+    api.post<ConsultationRequestDto>(`/regional/imaging/consultations/${encodeURIComponent(id)}/accept`),
+
   listInstitutions: () =>
     api.get<InstitutionDto[]>('/regional/imaging/institutions'),
 

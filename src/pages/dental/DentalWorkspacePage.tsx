@@ -1,8 +1,9 @@
 // [v3.0.6.11-54] Phase 2: 口腔工作台 (今日预约/检查概览 + 快捷入口)
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Row, Col, Card, Statistic, Alert, Spin, Button, Space, Tag, Empty, Typography,
+  Row, Col, Card, Statistic, Alert, Spin, Button, Space, Tag, Typography,
 } from 'antd';
+import { EmptyState } from '../../components/common/EmptyState';
 import {
   Calendar, ScanLine, Activity, ArrowRight, RefreshCw, Stethoscope, Microscope, Layers,
 } from 'lucide-react';
@@ -104,7 +105,7 @@ export const DentalWorkspacePage: React.FC = () => {
             <Card size="small" title={<Space><Calendar size={14} />今日预约</Space>}
               extra={<a onClick={() => navigate('/dental/schedule')} style={{ fontSize: 12 }}>排班管理 <ArrowRight size={12} /></a>}>
               {appointments.length === 0 ? (
-                <Empty description="暂无待处理预约" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <EmptyState description="暂无待处理预约" />
               ) : (
                 <div>
                   {appointments.map((a) => (
@@ -124,7 +125,7 @@ export const DentalWorkspacePage: React.FC = () => {
             <Card size="small" title={<Space><ScanLine size={14} />最近检查</Space>}
               extra={<a onClick={() => navigate('/dental/studies')} style={{ fontSize: 12 }}>全部 <ArrowRight size={12} /></a>}>
               {recentStudies.length === 0 ? (
-                <Empty description="暂无检查记录" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <EmptyState description="暂无检查记录" />
               ) : (
                 <div>
                   {recentStudies.map((s) => (

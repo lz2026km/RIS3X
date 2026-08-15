@@ -21,6 +21,8 @@ import { initialModalityDevices, initialExamRooms } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
 import { deviceApi, deviceMgmtApi } from '../services/api'
 import { ChartContainer } from '../components/charts'
+import { VirtualTable } from '../components/common/VirtualTable'
+import { PageHeader } from '../components/common/PageHeader'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
 import type { DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
 import {
@@ -1603,27 +1605,20 @@ export default function DevicePage() {
           ))}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {['设备名称', '故障次数', '停机时长', '损失金额', 'MTBF', '故障描述'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {DOWNTIME_DATA.map((item, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : 'var(--bg-primary)' }}>
-                  <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{item.deviceName}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.faultCount >= 3 ? C.danger : C.textMid }}>{item.faultCount}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.downtimeHours > 24 ? C.danger : C.textMid }}>{item.downtimeHours}h</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.warning }}>¥{item.lossAmount.toLocaleString()}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{item.mtbf}天</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{item.description}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <VirtualTable
+            columns={[
+              { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
+              { title: '故障次数', dataIndex: 'faultCount', key: 'faultCount', width: 100, render: (v: number) => <span style={{ color: v >= 3 ? C.danger : C.textMid }}>{v}</span> },
+              { title: '停机时长', dataIndex: 'downtimeHours', key: 'downtimeHours', width: 110, render: (v: number) => <span style={{ color: v > 24 ? C.danger : C.textMid }}>{v}h</span> },
+              { title: '损失金额', dataIndex: 'lossAmount', key: 'lossAmount', width: 120, render: (v: number) => <span style={{ fontWeight: 700, color: C.warning }}>¥{v.toLocaleString()}</span> },
+              { title: 'MTBF', dataIndex: 'mtbf', key: 'mtbf', width: 90, render: (v: number) => <span style={{ color: C.textMid }}>{v}天</span> },
+              { title: '故障描述', dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+            ]}
+            dataSource={DOWNTIME_DATA}
+            rowKey={(item) => `${item.deviceName}-${item.faultCount}`}
+            height={320}
+            pageSize={10}
+          />
         </div>
       </div>
 
@@ -1903,59 +1898,59 @@ export default function DevicePage() {
       )}
       {/* 页面标题 */}
       <div style={{ padding: '20px 0 16px', borderBottom: `2px solid ${C.border}`, marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Monitor size={22} /> 影像设备管理
-              {/* [G005 Wave2A P1] 部分演示数据标注 */}
-              <span style={{
-                fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
-                background: 'var(--color-warning-bg)', color: '#92400e', marginLeft: 4
-              }}>
+        <PageHeader
+          as="h1"
+          size="md"
+          icon={<Monitor size={22} style={{ color: C.primary }} />}
+          title={
+            <>
+              影像设备管理
+              <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#92400e', marginLeft: 4 }}>
                 部分演示数据
               </span>
-            </h1>
-            <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>
-              设备总数 {stats.total} 台 · 使用中 {stats.inUse} 台 · 空闲 {stats.idle} 台 · 维护 {stats.maint} 台
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{
-              padding: '7px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
-              background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-            }} onClick={async (evt) => {
-              const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-              btn.disabled = true;
-              const orig = btn.innerHTML;
-              btn.innerHTML = '⏳ 导出中...';
-              await new Promise(r => setTimeout(r, 1500));
-              localStorage.setItem('g005_device_export', JSON.stringify({ timestamp: new Date().toISOString(), deviceCount: 8 }));
-              btn.innerHTML = '✅ 导出成功';
-              btn.style.color = C.success;
-              setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.color = ''; }, 2000);
-            }}>
-              <Download size={13} /> 导出报表
-            </button>
-            <button
-              onClick={() => setShowDeviceModal(true)}
-              style={{
-                padding: '7px 14px', borderRadius: 8, border: 'none',
-                background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-              }}
-            >
-              <Plus size={13} /> 新增设备
-            </button>
-            <button
-              onClick={() => { setActiveTab(3); setShowMaintForm(true) }}
-              style={{
-                padding: '7px 14px', borderRadius: 8, border: 'none',
-                background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-              }}
-            >
-              <Plus size={13} /> 添加维保
-            </button>
-          </div>
-        </div>
+            </>
+          }
+          subtitle={`设备总数 ${stats.total} 台 · 使用中 ${stats.inUse} 台 · 空闲 ${stats.idle} 台 · 维护 ${stats.maint} 台`}
+          actions={
+            <>
+              <button style={{
+                padding: '7px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
+                background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+              }} onClick={async (evt) => {
+                const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
+                btn.disabled = true;
+                const orig = btn.innerHTML;
+                btn.innerHTML = '⏳ 导出中...';
+                await new Promise(r => setTimeout(r, 1500));
+                localStorage.setItem('g005_device_export', JSON.stringify({ timestamp: new Date().toISOString(), deviceCount: 8 }));
+                btn.innerHTML = '✅ 导出成功';
+                btn.style.color = C.success;
+                setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.color = ''; }, 2000);
+              }}>
+                <Download size={13} /> 导出报表
+              </button>
+              <button
+                onClick={() => setShowDeviceModal(true)}
+                style={{
+                  padding: '7px 14px', borderRadius: 8, border: 'none',
+                  background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                }}
+              >
+                <Plus size={13} /> 新增设备
+              </button>
+              <button
+                onClick={() => { setActiveTab(3); setShowMaintForm(true) }}
+                style={{
+                  padding: '7px 14px', borderRadius: 8, border: 'none',
+                  background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                }}
+              >
+                <Plus size={13} /> 添加维保
+              </button>
+            </>
+          }
+          style={{ marginBottom: 0 }}
+        />
       </div>
 
       {/* 标签页切换 */}

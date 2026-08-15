@@ -353,6 +353,44 @@ export class S3StorageDriver implements StorageDriver {
     }
   }
 
+  /**
+   * [G005 v3.0.6.11-100 Wave 3B (G-28)] 预签名 URL (Presigned GET URL, AWS SDK GetObjectCommand presign 等价):
+   * 使用 SigV4 查询参数签名 (X-Amz-Algorithm / X-Amz-Credential / X-Amz-Date /
+   * X-Amz-Expires / X-Amz-SignedHeaders / X-Amz-Signature), 不发起网络请求, 纯本地计算。
+   * payload hash 固定为 UNSIGNED-PAYLOAD (GET 无 body, 与 AWS SDK presign 行为一致)。
+   */
+  presign(key: string, expiresInSec = 3600): string {
+    const url = this.buildUrl(this.bucket, key)
+    const parsed = new URL(url)
+    const now = new Date()
+    const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
+    const dateStamp = amzDate.slice(0, 8)
+    const scope = `${dateStamp}/${this.region}/s3/aws4_request`
+
+    const query: Record<string, string> = {
+      'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+      'X-Amz-Credential': `${this.accessKey}/${scope}`,
+      'X-Amz-Date': amzDate,
+      'X-Amz-Expires': String(expiresInSec),
+      'X-Amz-SignedHeaders': 'host',
+    }
+    const canonicalQuery = Object.entries(query)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+      .join('&')
+    const canonicalUri = uriEncode(parsed.pathname) || '/'
+    const canonicalRequest = ['GET', canonicalUri, canonicalQuery, `host:${parsed.host}\n`, 'host', 'UNSIGNED-PAYLOAD'].join('\n')
+    const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, sha256Hex(canonicalRequest)].join('\n')
+
+    const kDate = hmac(Buffer.from(`AWS4${this.secretKey}`, 'utf8'), dateStamp)
+    const kRegion = hmac(kDate, this.region)
+    const kService = hmac(kRegion, 's3')
+    const kSigning = hmac(kService, 'aws4_request')
+    const signature = crypto.createHmac('sha256', kSigning).update(stringToSign, 'utf8').digest('hex')
+
+    return `${parsed.origin}${parsed.pathname}?${canonicalQuery}&X-Amz-Signature=${signature}`
+  }
+
   async testConnection(): Promise<StorageTestResult> {
     const started = Date.now()
     try {

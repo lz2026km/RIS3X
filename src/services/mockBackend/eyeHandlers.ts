@@ -2713,6 +2713,39 @@ const eyePixelRenderModule = [
     return HttpResponse.json({ success: true, data: map });
   }),
 
+  // [G005 Wave 4B] 全部 colormap 目录 (EyePixelPage /eye/pixel/colormaps, 后端同形状: id/name/type/range/lut 256)
+  http.get(`${API_BASE}/pixel/colormaps`, async () => {
+    await delay(30);
+    const defs = [
+      { id: 'fundus', name: '眼底彩照', type: 'GRAY', channels: 3, range: [0, 255], description: '眼底彩照原色映射 (RGB 3 通道)' },
+      { id: 'oct', name: 'OCT 灰度', type: 'GRAY', channels: 1, range: [0, 255], description: 'OCT B-scan 灰度线性映射' },
+      { id: 'octa', name: 'OCT-A 血管', type: 'JET', channels: 3, range: [0, 255], description: 'OCT-A 血流信号 JET 伪彩' },
+      { id: 'ffa', name: 'FFA 荧光', type: 'GRAY_INVERT', channels: 1, range: [0, 255], description: '荧光素眼底血管造影负片映射' },
+      { id: 'visualfield', name: '视野', type: 'RAINBOW', channels: 3, range: [0, 255], description: '视野敏感度 RAINBOW 伪彩' },
+      { id: 'topography', name: '角膜地形', type: 'SPECTRUM', channels: 3, range: [30, 80], description: '角膜地形图 SPECTRUM 光谱映射' },
+      { id: 'icg', name: 'ICG 荧光', type: 'PET', channels: 3, range: [0, 255], description: '吲哚菁绿造影 PET 热伪彩' },
+      { id: 'biometry', name: '生物测量', type: 'BONE', channels: 3, range: [0, 255], description: '眼生物测量 BONE 骨密度伪彩' },
+    ];
+    const lut = (mode: 'linear' | 'hot' | 'jet' | 'rainbow' | 'pet' | 'bone') => Array.from({ length: 256 }, (_, i) => {
+      const c = i / 255;
+      let r = 0; let g = 0; let b = 0;
+      if (mode === 'linear') { r = c * 255; g = c * 255; b = c * 255; }
+      else if (mode === 'hot') { r = Math.min(1, c * 1.5) * 255; g = Math.min(1, Math.max(0, (c - 0.333) * 1.5)) * 255; b = Math.min(1, Math.max(0, (c - 0.667) * 3)) * 255; }
+      else if (mode === 'jet') { r = Math.max(0, Math.min(1, 1.5 - Math.abs(4 * c - 3))) * 255; g = Math.max(0, Math.min(1, 1.5 - Math.abs(4 * c - 2))) * 255; b = Math.max(0, Math.min(1, 1.5 - Math.abs(4 * c - 1))) * 255; }
+      else if (mode === 'rainbow') { const hue = (1 - c) * 270; const k = (hue / 60) % 6; const x = 1 - Math.abs((k % 2) - 1); const rgb = k < 1 ? [1, x, 0] : k < 2 ? [x, 1, 0] : k < 3 ? [0, 1, x] : k < 4 ? [0, x, 1] : k < 5 ? [x, 0, 1] : [1, 0, x]; r = (rgb[0] ?? 0) * 255; g = (rgb[1] ?? 0) * 255; b = (rgb[2] ?? 0) * 255; }
+      else if (mode === 'pet') { r = Math.min(1, c * 1.4) * 255; g = Math.max(0, Math.min(1, (c - 0.25) * 1.6)) * 255; b = Math.max(0, Math.min(1, (c - 0.6) * 2.5)) * 255; }
+      else { r = Math.min(1, c * 0.9 + 0.1) * 255; g = Math.min(1, c * 1.05) * 255; b = Math.max(0, Math.min(1, c * 1.2 - 0.2)) * 255; }
+      return [Math.round(r), Math.round(g), Math.round(b)];
+    });
+    const modeByType: Record<string, 'linear' | 'hot' | 'jet' | 'rainbow' | 'pet' | 'bone'> = {
+      fundus: 'linear', oct: 'linear', octa: 'jet', ffa: 'linear', visualfield: 'rainbow', topography: 'rainbow', icg: 'pet', biometry: 'bone',
+    };
+    return HttpResponse.json({
+      success: true,
+      data: defs.map((d) => ({ ...d, lut: lut(modeByType[d.id] ?? 'linear') })),
+    });
+  }),
+
   // 4) 多平面重建 (MPR)
   http.post(`${API_BASE}/pixel/mpr`, async ({ request }) => {
     await delay(200);

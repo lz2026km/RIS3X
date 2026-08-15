@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Slider, Tag, Spin } from 'antd'
-import { Box, RotateCcw } from 'lucide-react'
+import { Slider, Tag, Spin, message } from 'antd'
+import { Box, RotateCcw, SendToBack } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { volumeApi } from '../../services/api/volumeApi'
 import { setupRealVolume, decodeRgbaBase64, drawImageDataCentered } from './volumeReal'
 
@@ -47,6 +48,7 @@ function generateVolumeSlice(z: number, size: number, preset: PresetType): Image
 }
 
 const VrPage: React.FC = () => {
+  const navigate = useNavigate()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [mode, setMode] = useState<'loading' | 'real' | 'synthetic'>('loading')
   const [jobId, setJobId] = useState<string | null>(null)
@@ -174,6 +176,41 @@ const VrPage: React.FC = () => {
     setPreset(p)
   }, [])
 
+  // [v3.0.6.11-100 Wave 6B (D-2)] 3D/VR 联动: 画布截帧 → sessionStorage ris_mip_insert (与 MIP 同通道)
+  //   → 跳转报告书写页自动插入图注 (图注标「VR 体绘制」)
+  const handleSendToReport = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas || mode === 'loading') {
+      message.warning('3D 画面尚未渲染, 请稍候再试')
+      return
+    }
+    let dataUrl = ''
+    try {
+      dataUrl = canvas.toDataURL('image/png')
+    } catch { /* 画布不可用 */ }
+    if (!dataUrl || dataUrl === 'data:,') {
+      message.error('3D 截帧失败, 请重试')
+      return
+    }
+    try {
+      sessionStorage.setItem('ris_mip_insert', JSON.stringify({
+        imageBase64: dataUrl,
+        label: 'VR 体绘制',
+        studyUid: '',
+        seriesUid: jobId ?? '',
+        direction: 'axial',
+        thickness: 0,
+        source: mode === 'real' ? 'real' : 'synthetic',
+        kind: 'vr',
+      }))
+    } catch {
+      message.error('截图缓存写入失败, 请重试')
+      return
+    }
+    message.success('VR 3D 截图已缓存, 正在跳转报告书写页自动插入')
+    navigate('/reports/v3-write')
+  }, [canvasRef, mode, jobId, navigate])
+
   const btnStyle: React.CSSProperties = {
     background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
@@ -209,6 +246,14 @@ const VrPage: React.FC = () => {
         <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceZ}</span>
         <button style={btnStyle} onClick={() => { setRotation({ x: 0, y: 0, z: 0 }); setOpacity(0.8); setPreset('default'); setSliceZ(64) }}>
           <RotateCcw size={12} /> 重置
+        </button>
+        {/* [v3.0.6.11-100 Wave 6B (D-2)] 3D → 报告: 画布截帧同通道发送 (报告书写页自动插入图注) */}
+        <button
+          style={{ ...btnStyle, color: '#7dd3fc', borderColor: '#0e7490', marginLeft: 8 }}
+          onClick={handleSendToReport}
+          data-testid="vr-send-to-report"
+        >
+          <SendToBack size={12} /> 发送到报告
         </button>
       </div>
       <div

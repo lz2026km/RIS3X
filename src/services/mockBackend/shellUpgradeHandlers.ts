@@ -1,6 +1,7 @@
 // [v3.0.6.11-54] Phase 2 壳页面真实化 - 缺失端点 MSW mock
 // 覆盖: dicom-web (QIDO) / critical-alert / dicom sr-report / nuclear-stats
 import { http, HttpResponse, delay } from 'msw';
+import { list, create } from './store';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }
@@ -264,6 +265,63 @@ const criticalAlertHandlers = [
     };
     criticalAlerts = [item, ...criticalAlerts];
     return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+
+  // [G005 Wave 2A] 电话/短信网关 (后端 critical-alert.controller Wave 2A 已实现)
+  // 模拟通话/短信记录, 与后端状态机对齐 (9 结尾失败 / 8 结尾短信失败)
+  http.post(`${API_BASE}/critical-alert/alerts/:id/auto-call`, async ({ params, request }) => {
+    await delay(delayMs());
+    const item = criticalAlerts.find((a) => a.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json().catch(() => ({}))) as { phone?: string };
+    const phone = body.phone || '13800000000';
+    const failed = phone.endsWith('9');
+    const call = {
+      id: `CL-${Date.now().toString(36).toUpperCase()}`,
+      alertId: params.id,
+      phone,
+      status: failed ? 'failed' : 'connected',
+      startedAt: new Date().toISOString(),
+      durationSec: failed ? 0 : 30 + Math.floor(Math.random() * 150),
+      recordingUrl: failed ? undefined : `/recordings/${params.id}-${Date.now()}.wav`,
+    };
+    try { create('callLogs', call); } catch { /* noop */ }
+    return HttpResponse.json({ success: true, data: call }, { status: 201 });
+  }),
+
+  http.post(`${API_BASE}/critical-alert/alerts/:id/auto-sms`, async ({ params, request }) => {
+    await delay(delayMs());
+    const item = criticalAlerts.find((a) => a.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json().catch(() => ({}))) as { phone?: string; content?: string };
+    const phone = body.phone || '13800000000';
+    const sms = {
+      id: `SM-${Date.now().toString(36).toUpperCase()}`,
+      alertId: params.id,
+      phone,
+      status: phone.endsWith('8') ? 'failed' : 'sent',
+      content: body.content || `【危急值通知】${item.patientName}: ${item.title}, 请及时查看处理。`,
+      sentAt: new Date().toISOString(),
+    };
+    try { create('smsLogs', sms); } catch { /* noop */ }
+    return HttpResponse.json({ success: true, data: sms }, { status: 201 });
+  }),
+
+  http.get(`${API_BASE}/critical-alert/alerts/:id/communication-log`, async ({ params }) => {
+    await delay(delayMs());
+    const calls: any[] = [];
+    const sms: any[] = [];
+    try {
+      calls.push(...(list<any>('callLogs') ?? []).filter((c: any) => c.alertId === params.id));
+    } catch { /* noop */ }
+    try {
+      sms.push(...(list<any>('smsLogs') ?? []).filter((s: any) => s.alertId === params.id));
+    } catch { /* noop */ }
+    const entries = [
+      ...calls.map((c) => ({ id: c.id, alertId: c.alertId, channel: 'phone', phone: c.phone, status: c.status, at: c.startedAt, durationSec: c.durationSec, recordingUrl: c.recordingUrl })),
+      ...sms.map((s) => ({ id: s.id, alertId: s.alertId, channel: 'sms', phone: s.phone, status: s.status, at: s.sentAt, content: s.content })),
+    ].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    return HttpResponse.json({ success: true, data: entries });
   }),
 ];
 

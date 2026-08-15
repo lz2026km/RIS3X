@@ -375,6 +375,22 @@ export const criticalExtHandlers = [
       todayRate: `${todayCount > 0 ? 90 : 0}%`,
     } });
   }),
+  // [G005 Wave 8] 报告→危急值反向引用: GET /criticals/for-report/:reportId (按报告查关联危急值)
+  //   数据源: criticalEvents 中 reportId 字段 (POST /criticals create 时透传) + 种子兜底
+  http.get(`${API}/for-report/:reportId`, async ({ params }) => {
+    await delay(delayMs());
+    const reportId = params.reportId as string;
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    const linked = items.filter((i) => String(i.reportId ?? '') === reportId);
+    if (linked.length === 0 && (reportId === 'RPT-000001' || reportId === 'RPT-2026001')) {
+      return HttpResponse.json({ success: true, data: { reportId, total: 1, items: [
+        { id: 'CV-RPT-001', examId: 'EX-001', patientId: 'RAD-P003', patientName: '李明', description: '胸部CT危急值: 主动脉夹层可能', finding: '胸部CT危急值: 主动脉夹层可能', severity: 'CRITICAL', state: 'FOUND', status: 'active', triggeredAt: new Date(Date.now() - 45 * 60_000).toISOString(), createdAt: new Date(Date.now() - 45 * 60_000).toISOString(), reportId },
+      ] } });
+    }
+    return HttpResponse.json({ success: true, data: { reportId, items: linked, total: linked.length } });
+  }),
+
   http.get(`${API}/:id`, async ({ params }) => {
     await delay(delayMs());
     let items: any[] = [];

@@ -6,7 +6,7 @@
  *   - 底部摘要栏: 检出总数 + AI 建议
  */
 import { useMemo } from 'react'
-import { Brain, X } from 'lucide-react'
+import { Brain, FileText, X } from 'lucide-react'
 import type { AiFinding } from '../../pages/dicom/aiFindings'
 
 const COLOR_BY_CONFIDENCE = (c: number): string => (c >= 0.7 ? '#ef4444' : c >= 0.4 ? '#f59e0b' : '#22c55e')
@@ -16,13 +16,16 @@ export interface AiFindingsOverlayProps {
   loading?: boolean
   selected: AiFinding | null
   onSelect: (f: AiFinding | null) => void
+  // [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 标注一键插入报告: 每条检出 + 全部检出 → 报告书写页
+  onInsertReport?: (f: AiFinding) => void
+  onInsertAllReport?: () => void
 }
 
 function confidenceLabel(f: AiFinding): string {
   return `${Math.round(f.confidence * 100)}%`
 }
 
-function AiMarkerPopover({ finding, onClose }: { finding: AiFinding; onClose: () => void }) {
+function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFinding; onClose: () => void; onInsertReport?: (f: AiFinding) => void }) {
   return (
     <div
       data-testid="ai-marker-popover"
@@ -74,6 +77,32 @@ function AiMarkerPopover({ finding, onClose }: { finding: AiFinding; onClose: ()
           <span style={{ color: '#4ade80', fontWeight: 700 }}>建议: </span>{finding.suggestion}
         </div>
       )}
+      {/* [G005 v3.0.6.11-100 Wave 6A (D-1)] 检出 → 一键插入报告 */}
+      {onInsertReport && (
+        <div style={{ borderTop: '1px solid #334155', marginTop: 10, paddingTop: 10 }}>
+          <button
+            data-testid={`ai-insert-report-${finding.id}`}
+            onClick={(e) => { e.stopPropagation(); onInsertReport(finding) }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              padding: '7px 0',
+              borderRadius: 6,
+              border: 'none',
+              background: '#1d4ed8',
+              color: '#fff',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <FileText size={12} /> 插入报告
+          </button>
+        </div>
+      )}
       <button
         onClick={(e) => { e.stopPropagation(); onClose() }}
         style={{
@@ -96,7 +125,7 @@ function AiMarkerPopover({ finding, onClose }: { finding: AiFinding; onClose: ()
   )
 }
 
-export function AiFindingsOverlay({ findings, loading = false, selected, onSelect }: AiFindingsOverlayProps) {
+export function AiFindingsOverlay({ findings, loading = false, selected, onSelect, onInsertReport, onInsertAllReport }: AiFindingsOverlayProps) {
   const summary = useMemo(() => {
     if (findings.length === 0) return null
     const models = Array.from(new Set(findings.map((f) => f.modelLabel)))
@@ -166,7 +195,7 @@ export function AiFindingsOverlay({ findings, loading = false, selected, onSelec
             )}
             {active && (
               <div style={{ position: 'absolute', left: 0, ...(flipUp ? { bottom: '100%', top: 'auto' } : { top: '100%', bottom: 'auto' }) }}>
-                <AiMarkerPopover finding={f} onClose={() => onSelect(null)} />
+                <AiMarkerPopover finding={f} onClose={() => onSelect(null)} onInsertReport={onInsertReport} />
               </div>
             )}
           </div>
@@ -199,6 +228,30 @@ export function AiFindingsOverlay({ findings, loading = false, selected, onSelec
           {summary.suggestion && (
             <div style={{ marginTop: 4, color: '#cbd5e1', lineHeight: 1.6 }}>
               <span style={{ color: '#4ade80', fontWeight: 700 }}>建议: </span>{summary.suggestion}
+            </div>
+          )}
+          {/* [G005 v3.0.6.11-100 Wave 6A (D-1)] 全部检出 → 一键插入报告 */}
+          {onInsertAllReport && findings.length > 0 && (
+            <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+              <button
+                data-testid="ai-insert-report-all"
+                onClick={(e) => { e.stopPropagation(); onInsertAllReport() }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: '#1d4ed8',
+                  color: '#fff',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                <FileText size={11} /> 全部插入报告 ({findings.length})
+              </button>
             </div>
           )}
         </div>

@@ -122,6 +122,22 @@ export interface SrDocumentDto {
   updatedAt: string
 }
 
+// [G005 Wave 8] DICOM SR → 报告回填: 测量摘要项
+export interface SrMeasurementItem {
+  name: string
+  value: string
+  unit: string
+  source: 'measurement-group' | 'num-item' | 'text-parse' | 'fallback'
+}
+
+export interface SrToReportResult {
+  srId: string
+  reportId: string
+  templateId: string
+  paragraph: string
+  measurements: SrMeasurementItem[]
+}
+
 interface SrRow {
   id: string
   reportId: string
@@ -270,6 +286,103 @@ export class DicomSrService {
       orderBy: { updatedAt: 'desc' },
     })
     return row ? this.toDto(row) : null
+  }
+
+  /**
+   * [G005 Wave 8] POST /dicom-sr/to-report — DICOM SR 测量值回填到报告。
+   * 解析 SR 内容树 (TID1500 测量组 code 125007 / TID2000 NUM 项 / 文本数值+单位),
+   * 生成测量摘要段落文本供前端插入书写页编辑器。
+   * 返回 { paragraph, measurements[] } — 不落库, 由前端预览后经 insertHtml 通道写入。
+   */
+  async toReport(dto: { srId: string; reportId: string }): Promise<SrToReportResult> {
+    const doc = await this.findById(dto.srId)
+    if (!doc) throw new NotFoundException(`SR document ${dto.srId} not found`)
+    const report = await this.prisma.report.findUnique({ where: { id: dto.reportId } })
+    if (!report) throw new NotFoundException(`Report ${dto.reportId} not found`)
+    const measurements = this.extractMeasurements(doc)
+    this.logger.log(`SR ${dto.srId} → report ${dto.reportId}: ${measurements.length} measurements extracted`)
+    return {
+      srId: doc.id,
+      reportId: dto.reportId,
+      templateId: doc.templateId,
+      paragraph: this.buildMeasurementParagraph(doc, measurements),
+      measurements,
+    }
+  }
+
+  /** 解析 SR 内容树中的测量项 (TID1500 测量组 code 125007 / NUM 项 / 文本数值+单位) */
+  private extractMeasurements(doc: SrDocumentDto): SrMeasurementItem[] {
+    const out: SrMeasurementItem[] = []
+    const tree = doc.content
+    if (!tree?.sections?.length) return out
+    const walk = (item: SrContentItem, sectionTitle: string): void => {
+      const meaning = item.conceptName?.meaning ?? ''
+      const label = meaning || sectionTitle || '测量项'
+      if (item.valueType === 'NUM' && item.value !== undefined && item.value !== '') {
+        const m = item.value.match(/^(-?\d+(?:\.\d+)?)\s*(mm²|cm²|mm2|cm2|mL|ml|HU|mm|cm|µm|um|°|%)?/i)
+        out.push({
+          name: label,
+          value: m ? m[1]! : String(item.value),
+          unit: m?.[2] ?? '',
+          source: 'num-item',
+        })
+      } else if (item.valueType === 'TEXT' && item.value) {
+        const textRegex = /(-?\d+(?:\.\d+)?)\s*(mm|cm|mL|ml|HU|°|mm²|cm²|mL\/s|mm\/s)\b/gi
+        const textMatches = Array.from(item.value.matchAll(textRegex))
+        for (const m of textMatches) {
+          out.push({
+            name: meaning === 'Finding' || meaning === 'Text' ? sectionTitle || '测量项' : meaning || sectionTitle || '测量项',
+            value: m[1]!,
+            unit: m[2]!,
+            source: 'text-parse',
+          })
+        }
+      }
+      item.children?.forEach((c) => walk(c, sectionTitle))
+    }
+    for (const section of tree.sections) {
+      const isMeasurementGroup =
+        section.conceptName?.code === '125007' || /测量|measurement/i.test(section.title ?? '')
+      if (isMeasurementGroup) {
+        for (const item of section.items ?? []) {
+          if (item.valueType === 'NUM' && item.value) {
+            const m = item.value.match(/^(-?\d+(?:\.\d+)?)\s*(mm²|cm²|mm2|cm2|mL|ml|HU|mm|cm|µm|um|°|%)?/i)
+            out.push({
+              name: item.conceptName?.meaning ?? section.title,
+              value: m ? m[1]! : String(item.value),
+              unit: m?.[2] ?? '',
+              source: 'measurement-group',
+            })
+          } else {
+            walk(item, section.title)
+          }
+        }
+      } else {
+        for (const item of section.items ?? []) walk(item, section.title)
+      }
+    }
+    // 去重 (同名称同值同单位)
+    const seen = new Set<string>()
+    return out.filter((m) => {
+      const key = `${m.name}|${m.value}|${m.unit}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }
+
+  /** 生成测量摘要段落文本 (前端预览 + insertHtml 插入) */
+  private buildMeasurementParagraph(doc: SrDocumentDto, measurements: SrMeasurementItem[]): string {
+    const header = `【DICOM SR 测量摘要】(${doc.templateId ?? doc.tid ?? 'SR'} · ${doc.id})`
+    if (measurements.length === 0) {
+      return `${header}\nSR 文档未包含结构化测量项 (TID 1500 测量组 / TID 2000 NUM 项), 可在书写页手动补充。`
+    }
+    const lines = measurements.map((m) => {
+      const unit = m.unit ? ` ${m.unit}` : ''
+      const tag = m.source === 'fallback' ? '' : ''
+      return `- ${m.name}: ${m.value}${unit}${tag}`
+    })
+    return [header, ...lines].join('\n')
   }
 
   /**

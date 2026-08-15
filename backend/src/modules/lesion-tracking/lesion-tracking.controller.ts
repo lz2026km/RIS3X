@@ -43,6 +43,12 @@ const FollowupSchema = z.object({
   followupId: z.string().min(1),
 })
 
+// [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建: 从报告文本提取病灶关键词建档
+const FromReportSchema = z.object({
+  reportId: z.string().min(1),
+  keyword: z.string().optional(),
+})
+
 @ApiTags('lesion-tracking')
 @ApiBearerAuth()
 @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
@@ -55,6 +61,14 @@ export class LesionTrackingController {
   @ApiOperation({ summary: '病灶统计 (总数/新发/进展/稳定/消失)' })
   stats(@Query('patientId') patientId: string) {
     return this.svc.stats(patientId ?? '')
+  }
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建 (静态子路由, 与 lesions/:id 无冲突)
+  @Post('from-report')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '报告→病灶追踪自动建: 从报告文本提取病灶关键词并建档' })
+  createFromReport(@Body(new ZodValidationPipe(FromReportSchema)) body: z.infer<typeof FromReportSchema>) {
+    return this.svc.createFromReport(body)
   }
 
   @Get('lesions')

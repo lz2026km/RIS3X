@@ -3,12 +3,14 @@
  * R3.WRITING 组 C:智能辅助(部分)
  * 30 升级点:AI 草稿生成 / 多模态输入 / 风格 / 历史参考 / 续写 / 合并 / 警告
  * Expanded: confidence scoring, tabs (draft/ddx/risk/preread), model selector, multi-draft comparison
+ * [v3.0.6.11-100 Wave 3A (G-19)] 深化: LLM 多模型 (mock/deepseek/hunyuan) + RAG 增强 + 信心分 + 来源列表 + 结构化字段生成
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs, Modal } from 'antd';
-import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, CheckCircle2, Copy, Edit3, Zap, Activity, Eye, Cpu, ListOrdered } from 'lucide-react';
+import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, CheckCircle2, Copy, Edit3, Zap, Activity, Eye, Cpu, ListOrdered, Database, LayoutList, ChevronDown, ChevronRight } from 'lucide-react';
 import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
 import { generateAiDraft } from '@services/writing/writingService';
+import { aiDraftApi, type LlmProviderId, type LlmProviderInfo, type AiDraftRagSource, type AiDraftRagContext, type AiDraftStructuredResult } from '@services/api/aiDraftApi';
 import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -18,6 +20,7 @@ interface Props {
   bodyPart: string;
   onAccept?: (result: AiDraftResult) => void;
   onRefine?: (result: AiDraftResult, feedback: string) => void;
+  onApplyStructured?: (sections: { heading: string; content: string }[]) => void;
   disabled?: boolean;
 }
 
@@ -34,6 +37,15 @@ const MODEL_OPTIONS = [
   { value: '胸片AI', label: '胸片AI (M004)', modelId: 'model-M004' },
   { value: '脑卒中AI', label: '脑卒中AI (M005)', modelId: 'model-M005' },
 ];
+
+// [v3.0.6.11-100 Wave 3A (G-19)] 默认 LLM 提供方 (接口不可用时兜底)
+const FALLBACK_PROVIDERS: LlmProviderInfo[] = [
+  { id: 'mock', name: '确定性模板引擎', model: 'mock-nlg-1.0', kind: 'template', available: true, apiKeyConfigured: false, description: '本地模板 NLG, 确定性生成' },
+  { id: 'deepseek', name: 'DeepSeek', model: 'deepseek-chat', kind: 'llm', available: false, apiKeyConfigured: false, description: '需 DEEPSEEK_API_KEY' },
+  { id: 'hunyuan', name: '腾讯混元', model: 'hunyuan-turbo', kind: 'llm', available: false, apiKeyConfigured: false, description: '需 HUNYUAN_API_KEY' },
+];
+
+const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: '确定性模板', deepseek: 'DeepSeek', hunyuan: '腾讯混元' };
 
 const MOCK_DDX = [
   { diagnosis: '周围型肺癌', probability: 0.72, details: '右肺上叶尖段结节，伴短毛刺征及胸膜牵拉' },
@@ -85,18 +97,28 @@ function generateDraftVersions(base: AiDraftResult): AiDraftResult[] {
 }
 
 export const AIDraftPanel: React.FC<Props> = ({
-  reportId, clinicalInfo, modality, bodyPart, onAccept, disabled = false,
+  reportId, clinicalInfo, modality, bodyPart, onAccept, onApplyStructured, disabled = false,
 }) => {
   const [stage, setStage] = useState<AiDraftStage>('idle');
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<AiDraftResult | null>(null);
   const [includeImages, setIncludeImages] = useState(true);
   const [includePrior, setIncludePrior] = useState(true);
+  // [v3.0.6.11-100 Wave 3A (G-19)] RAG 增强开关
+  const [includeRag, setIncludeRag] = useState(true);
   const [style, setStyle] = useState<'concise' | 'detailed' | 'structured'>('structured');
   const [showRefine, setShowRefine] = useState(false);
   const [refineText, setRefineText] = useState('');
   const [activeTab, setActiveTab] = useState('draft');
   const [selectedModel, setSelectedModel] = useState('肺结节AI');
+  // [v3.0.6.11-100 Wave 3A (G-19)] LLM 提供方 (从 /ai-draft/providers 加载)
+  const [providers, setProviders] = useState<LlmProviderInfo[]>(FALLBACK_PROVIDERS);
+  const [selectedProvider, setSelectedProvider] = useState<LlmProviderId>('mock');
+  const [ragContext, setRagContext] = useState<AiDraftRagContext | null>(null);
+  const [ragSources, setRagSources] = useState<AiDraftRagSource[]>([]);
+  const [expandedSource, setExpandedSource] = useState<string | null>(null);
+  const [structuredLoading, setStructuredLoading] = useState(false);
+  const [structuredResult, setStructuredResult] = useState<AiDraftStructuredResult | null>(null);
   const [sentenceConfidence, setSentenceConfidence] = useState<{ findings: { text: string; confidence: number }[]; impression: { text: string; confidence: number }[] } | null>(null);
   const [draftVersions, setDraftVersions] = useState<AiDraftResult[]>([]);
   const [sentenceActions, setSentenceActions] = useState<Record<string, 'accepted' | 'rejected' | null>>({});
@@ -106,6 +128,21 @@ export const AIDraftPanel: React.FC<Props> = ({
   // [v3.0.6.11-98 Wave3B P1] 对比原片: 当前检查无影像数据透出 → 对比面板 + 标注 (影像数据待 DICOM 通道)
   const [compareOpen, setCompareOpen] = useState(false);
 
+  // [v3.0.6.11-100 Wave 3A (G-19)] 加载可用模型列表 (失败回退默认列表)
+  useEffect(() => {
+    let cancelled = false;
+    aiDraftApi.listProviders().then((res) => {
+      if (cancelled || !res.success) return;
+      const list = Array.isArray(res.data) ? res.data : FALLBACK_PROVIDERS;
+      setProviders(list);
+      const mock = list.find((p) => p.id === 'mock') ?? list[0];
+      if (mock) setSelectedProvider(mock.id);
+    }).catch(() => { /* 回退默认列表 */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // [v3.0.6.11-100 Wave 3A (G-19)] 生成: 优先 /ai-draft/generate-advanced (LLM 多模型 + RAG),
+  //   失败回退本地模板生成 (generateAiDraft)
   const handleGenerate = useCallback(async () => {
     if (disabled || !clinicalInfo.trim()) {
       message.warning('请先填写临床信息');
@@ -122,7 +159,34 @@ export const AIDraftPanel: React.FC<Props> = ({
       includeImages, style, language: 'zh-CN',
     };
     try {
-      const dr = await generateAiDraft(req);
+      let dr: AiDraftResult;
+      try {
+        const advanced = await aiDraftApi.generateAdvanced({ reportId, provider: selectedProvider, includeRag });
+        if (advanced.success && advanced.data) {
+          const a = advanced.data;
+          const sections = Array.isArray(a.sections) ? a.sections : [];
+          const pick = (keys: string[]) => sections.find((s) => keys.some((k) => (s?.heading ?? '').includes(k)))?.content ?? '';
+          setRagSources(a.sources ?? []);
+          dr = {
+            id: a.id ?? `draft-${Date.now()}`,
+            findings: pick(['影像所见', '所见']) || a.draftText,
+            impression: pick(['影像诊断', '诊断意见', '意见']) || pick(['印象']),
+            recommendation: pick(['建议']),
+            confidence: a.confidenceScore ?? 0.9,
+            modelVersion: `${a.provider} (${a.modelVersion})`,
+            basedOnReports: (a.sources ?? []).map((s) => s.reportId),
+            tokens: { input: (a.sources?.length ?? 0) * 300, output: 600, cost: 0.01 },
+            warnings: a.fallbackToMock ? ['所选模型未配置 API Key, 已回退确定性模板生成'] : [],
+            generatedAt: new Date(a.createdAt ?? Date.now()).toISOString(),
+            styles: [style],
+          } as AiDraftResult;
+        } else {
+          throw new Error('advanced 生成失败');
+        }
+      } catch {
+        dr = await generateAiDraft(req);
+        setRagSources([]);
+      }
       setProgress(100);
       setStage('ready');
       setResult(dr);
@@ -138,13 +202,52 @@ export const AIDraftPanel: React.FC<Props> = ({
       setStage('error');
       message.error('AI 草稿生成失败');
     }
-  }, [reportId, clinicalInfo, modality, bodyPart, includeImages, includePrior, style, disabled]);
+  }, [reportId, clinicalInfo, modality, bodyPart, includeImages, includePrior, includeRag, style, selectedProvider, disabled]);
 
   const handleAccept = useCallback(() => {
     if (!result) return;
     onAccept?.(result);
     message.success('已应用 AI 草稿到编辑器');
   }, [result, onAccept]);
+
+  // [v3.0.6.11-100 Wave 3A (G-19)] 加载 RAG 上下文 (既往报告摘要 + 匹配术语)
+  const handleLoadRagContext = useCallback(async () => {
+    if (!reportId) return;
+    try {
+      const res = await aiDraftApi.getRagContext(reportId);
+      if (res.success && res.data) {
+        setRagContext(res.data);
+        message.success(`已加载 RAG 上下文 · 既往报告 ${res.data.priorReports.length} 份 · 术语 ${res.data.matchedTerms.length} 条`);
+      } else {
+        message.warning('未找到 RAG 上下文 (无既往报告或报告不存在)');
+      }
+    } catch {
+      message.warning('RAG 上下文加载失败');
+    }
+  }, [reportId]);
+
+  // [v3.0.6.11-100 Wave 3A (G-19)] 生成结构化字段 → 预填编辑器对应段落
+  const handleGenerateStructured = useCallback(async () => {
+    if (!reportId) {
+      message.warning('缺少报告 ID');
+      return;
+    }
+    setStructuredLoading(true);
+    try {
+      const res = await aiDraftApi.generateStructured(reportId);
+      if (res.success && res.data) {
+        setStructuredResult(res.data);
+        onApplyStructured?.(res.data.sections ?? []);
+        message.success(`结构化字段已生成并预填 · 信心分 ${Math.round((res.data.confidenceScore ?? 0.9) * 100)}%`);
+      } else {
+        message.warning('结构化字段生成失败: ' + (res.error?.message ?? '未知错误'));
+      }
+    } catch {
+      message.error('结构化字段生成失败:网络异常');
+    } finally {
+      setStructuredLoading(false);
+    }
+  }, [reportId, onApplyStructured]);
 
   const handleRefine = useCallback(async () => {
     if (!result || !refineText.trim()) {
@@ -382,6 +485,21 @@ export const AIDraftPanel: React.FC<Props> = ({
                 <Col span={8}><Statistic title="费用" value={result.tokens.cost} prefix={<Activity className="w-3 h-3" />} precision={3} suffix="¥" /></Col>
               </Row>
 
+              {/* [v3.0.6.11-100 Wave 3A (G-19)] 生成信心分 + 提供方 + RAG 标注 */}
+              <div className="flex items-center gap-2 p-2 bg-purple-50/60 rounded">
+                <span className="text-xs text-slate-600 shrink-0">生成信心分</span>
+                <Progress
+                  percent={Math.round((result.confidence ?? 0.9) * 100)}
+                  size="small"
+                  style={{ flex: 1, marginBottom: 0 }}
+                  strokeColor={(result.confidence ?? 0.9) > 0.9 ? '#10b981' : (result.confidence ?? 0.9) > 0.8 ? '#f59e0b' : '#dc2626'}
+                />
+                <Tag color="purple">{(result.confidence ?? 0.9) * 100 > 90 ? '高' : (result.confidence ?? 0.9) * 100 > 80 ? '中' : '低'} {(Math.round((result.confidence ?? 0.9) * 100))}%</Tag>
+                <Tag color="blue">{result.modelVersion}</Tag>
+                {ragSources.length > 0 && <Tag color="cyan" icon={<Database className="w-3 h-3" />}>RAG {ragSources.length} 来源</Tag>}
+                {Array.isArray(result.warnings) && result.warnings.length > 0 && <Tag color="orange">{result.warnings[0]}</Tag>}
+              </div>
+
               <Card size="small" title={<span className="text-sm font-semibold">影像所见</span>} extra={<Button size="small" type="text" icon={<Copy className="w-3 h-3" />} onClick={() => copyToClipboard(result.findings)}>复制</Button>}>
                 {sentenceConfidence ? renderSentences(sentenceConfidence.findings, 'findings') : (
                   <div className="text-sm whitespace-pre-wrap text-slate-700 max-h-48 overflow-y-auto">{result.findings}</div>
@@ -397,6 +515,39 @@ export const AIDraftPanel: React.FC<Props> = ({
               <Card size="small" title={<span className="text-sm font-semibold">建议</span>}>
                 <div className="text-sm text-slate-700">{result.recommendation}</div>
               </Card>
+
+              {/* [v3.0.6.11-100 Wave 3A (G-19)] RAG 来源列表 (点击展开摘要片段) */}
+              {ragSources.length > 0 && (
+                <Card size="small" title={<span className="text-sm font-semibold flex items-center gap-1"><Database className="w-3 h-3 text-cyan-600" />RAG 参考来源 ({ragSources.length})</span>}>
+                  <div className="space-y-1">
+                    {ragSources.map((s) => (
+                      <div key={s.reportId} className="border border-slate-100 rounded p-1.5">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => setExpandedSource(expandedSource === s.reportId ? null : s.reportId)}
+                        >
+                          {expandedSource === s.reportId ? <ChevronDown className="w-3 h-3 text-slate-400" /> : <ChevronRight className="w-3 h-3 text-slate-400" />}
+                          <Tag color="cyan">{s.reportId}</Tag>
+                          <span className="text-xs text-slate-400">{s.date}</span>
+                          <span className="text-[10px] text-slate-400 ml-auto">点击{expandedSource === s.reportId ? '收起' : '展开'}片段</span>
+                        </div>
+                        {expandedSource === s.reportId && (
+                          <div className="mt-1 pl-5 text-xs text-slate-600 whitespace-pre-wrap bg-slate-50 rounded p-2">
+                            {s.snippet}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* [v3.0.6.11-100 Wave 3A (G-19)] RAG 匹配术语 */}
+              {ragContext && ragContext.matchedTerms.length > 0 && (
+                <div className="text-xs text-slate-400">
+                  匹配术语: {ragContext.matchedTerms.map((t) => <Tag key={t.code} color="geekblue" className="text-[10px]">{t.term} · {t.code.replace('SNOMED-CT:', '')}</Tag>)}
+                </div>
+              )}
 
               {showRefine ? (
                 <div className="space-y-2 p-2 bg-blue-50 rounded">
@@ -483,18 +634,73 @@ export const AIDraftPanel: React.FC<Props> = ({
       }
     >
       <div className="mb-3">
-        <Space>
-          <span className="text-xs text-slate-600">AI模型:</span>
-          <Select
-            size="small"
-            value={selectedModel}
-            onChange={(val) => {
-              setSelectedModel(val);
-              message.info(`已切换至 ${val}`);
-            }}
-            style={{ width: 160 }}
-            options={MODEL_OPTIONS.map(m => ({ value: m.value, label: m.label }))}
-          />
+        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Space>
+            <span className="text-xs text-slate-600">AI模型:</span>
+            <Select
+              size="small"
+              value={selectedModel}
+              onChange={(val) => {
+                setSelectedModel(val);
+                message.info(`已切换至 ${val}`);
+              }}
+              style={{ width: 160 }}
+              options={MODEL_OPTIONS.map(m => ({ value: m.value, label: m.label }))}
+            />
+            {/* [v3.0.6.11-100 Wave 3A (G-19)] LLM 提供方 (mock/deepseek/hunyuan, 从 /ai-draft/providers 加载) */}
+            <span className="text-xs text-slate-600">LLM提供方:</span>
+            <Select
+              size="small"
+              value={selectedProvider}
+              onChange={(val) => {
+                setSelectedProvider(val);
+                message.info(`已切换 LLM 提供方: ${PROVIDER_LABEL[val]}`);
+              }}
+              style={{ width: 150 }}
+              options={providers.map((p) => ({
+                value: p.id,
+                label: `${p.name}${p.available ? '' : ' (未配置)'}`,
+                disabled: !p.available && p.id !== selectedProvider,
+              }))}
+            />
+          </Space>
+          {providers.find((p) => p.id === selectedProvider)?.description && (
+            <div className="text-[10px] text-slate-400">
+              {providers.find((p) => p.id === selectedProvider)?.description}
+            </div>
+          )}
+          {!result && (
+            <Space>
+              <Button
+                size="small"
+                icon={<Database className="w-3 h-3" />}
+                onClick={handleLoadRagContext}
+              >
+                {ragContext ? `RAG 上下文 (${ragContext.priorReports.length} 报告 / ${ragContext.matchedTerms.length} 术语)` : '加载 RAG 上下文'}
+              </Button>
+              <Button
+                size="small"
+                type="dashed"
+                icon={<LayoutList className="w-3 h-3" />}
+                onClick={handleGenerateStructured}
+                loading={structuredLoading}
+              >
+                生成结构化字段
+              </Button>
+            </Space>
+          )}
+          {structuredResult && (
+            <Alert
+              type="success"
+              showIcon
+              style={{ fontSize: 11 }}
+              message={
+                <span>
+                  结构化字段已生成: {structuredResult.sections.map((s) => s.heading).join(' / ')} · 信心分 {Math.round((structuredResult.confidenceScore ?? 0.9) * 100)}% · 已预填编辑器对应段落
+                </span>
+              }
+            />
+          )}
         </Space>
       </div>
 
@@ -518,6 +724,15 @@ export const AIDraftPanel: React.FC<Props> = ({
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-600">引用历史报告</span>
               <Switch size="small" checked={includePrior} onChange={setIncludePrior} />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-600">
+                RAG 增强
+                <Tooltip title="生成时检索该患者既往报告相似段落作为上下文, 输出 confidenceScore + 来源列表">
+                  <AlertCircle className="w-3 h-3 text-slate-400 ml-1 inline-block" />
+                </Tooltip>
+              </span>
+              <Switch size="small" checked={includeRag} onChange={setIncludeRag} />
             </div>
             <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded">
               <div>📋 <span className="font-medium">临床信息:</span> {clinicalInfo}</div>

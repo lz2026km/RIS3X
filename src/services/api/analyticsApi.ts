@@ -86,6 +86,7 @@ export const olapApi = {
   query: (dto: OlapQueryDto) =>
     api.post<any>('/olap/query', dto),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getMetadata: () =>
     api.get<OlapMetadataDto>('/olap/metadata'),
 }

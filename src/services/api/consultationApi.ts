@@ -51,6 +51,67 @@ export interface ConsultationStatsDto {
   byDepartment: Record<string, number>
 }
 
+// [G005 Wave 2A] 委员会会诊 (多医生合议)
+export interface CommitteeMemberDto {
+  memberId: string
+  name: string
+  title?: string
+  department?: string
+  opinion: string
+  agree: boolean
+  suggestion?: string
+  votedAt: string
+}
+
+export interface CommitteeResolutionDto {
+  resolution: string
+  generatedAt: string
+  appendedToReport?: string
+}
+
+export interface CommitteeDto {
+  id: string
+  reportId: string
+  reportTitle?: string
+  patientName?: string
+  title: string
+  status: 'voting' | 'resolved' | 'cancelled'
+  members: CommitteeMemberDto[]
+  resolution?: CommitteeResolutionDto
+  createdBy: string
+  createdAt: string
+}
+
+export interface CommitteeSummaryDto {
+  totalMembers: number
+  votedCount: number
+  agreeCount: number
+  disagreeCount: number
+  pendingMembers: string[]
+  agreeRate: number
+}
+
+export type CommitteeDetailDto = CommitteeDto & { summary: CommitteeSummaryDto }
+
+export interface CreateCommitteeDto {
+  reportId: string
+  title: string
+  members: Array<string | { memberId: string; name?: string }>
+  createdBy?: string
+}
+
+export interface CommitteeVoteDto {
+  memberId: string
+  opinion: string
+  agree: boolean
+  suggestion?: string
+}
+
+export interface CommitteeResolutionInputDto {
+  resolution: string
+  appendToReport?: boolean
+}
+
 export const consultationApi = {
   // [Wave1B] 后端已实现 (consultations.controller) — 页面在用 (ConsultationPage/QCPage)
   list: (params?: { status?: string; priority?: string }) =>
@@ -113,4 +174,20 @@ export const consultationApi = {
   // [v3.0.6.11-88] 后端已实现: POST /consultations/:id/start
   start: (id: string) =>
     api.post<ConsultationDto>(`/consultations/${id}/start`),
+
+  // [G005 Wave 2A] 委员会会诊 (多医生合议) — 后端 consultations.controller Wave 2A 已实现
+  listCommittees: () =>
+    api.get<CommitteeDto[]>('/consultations/committee'),
+
+  createCommittee: (dto: CreateCommitteeDto) =>
+    api.post<CommitteeDto>('/consultations/committee', dto),
+
+  committeeVote: (id: string, dto: CommitteeVoteDto) =>
+    api.post<CommitteeDto>(`/consultations/${id}/committee-vote`, dto),
+
+  committeeResolution: (id: string, dto: CommitteeResolutionInputDto) =>
+    api.post<CommitteeDto>(`/consultations/${id}/committee-resolution`, dto),
+
+  getCommittee: (id: string) =>
+    api.get<CommitteeDetailDto>(`/consultations/${id}/committee`),
 }

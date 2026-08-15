@@ -5,6 +5,7 @@ import { PrismaService } from '../src/prisma/prisma.service'
 import { QueueService } from '../src/queue/queue.service'
 import { createNoopGateway, NotificationsGateway } from '../src/notifications/notifications.gateway'
 import { SystemConfigService } from '../src/system-storage/system-config.service'
+import { FollowUpService } from '../src/modules/followup/followup.service'
 
 const mockSystemConfig = {
   getNumber: jest.fn().mockResolvedValue(20),
@@ -62,6 +63,7 @@ describe('ReportsService', () => {
         { provide: QueueService, useValue: mockQueue },
         { provide: NotificationsGateway, useValue: createNoopGateway() },
         { provide: SystemConfigService, useValue: mockSystemConfig },
+        { provide: FollowUpService, useValue: {} },
       ],
     }).compile()
     svc = module.get(ReportsService)

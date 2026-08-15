@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { floatInRange, hashString } from '../../common/utils/deterministic-hash'
 
@@ -14,7 +14,7 @@ export interface DualReadAssignment {
   reader2Name: string
   report1?: string
   report2?: string
-  status: 'pending' | 'reader1_done' | 'reader2_done' | 'both_done' | 'arbitrated'
+  status: 'pending' | 'reader1_done' | 'reader2_done' | 'both_done' | 'arbitrated' | 'completed'
   discrepancyScore?: number
   arbitrationReport?: string
   arbitratorId?: string
@@ -43,6 +43,35 @@ export interface DualReadRow {
   arbitratorId: string | null
   arbitratorName: string | null
   createdAt: Date
+}
+
+// [G-21 Wave3C] 双阅 → 报告自动关联
+export interface DualReadReportLink {
+  reportId: string
+  examId: string | null
+  state: string
+  impression: string
+  created: boolean
+}
+
+export interface DualReadCompleteResult {
+  assignment: DualReadAssignment
+  report: DualReadReportLink | null
+  created: boolean
+}
+
+interface MemoryReportLink extends DualReadReportLink {}
+
+const memoryReportLinks = new Map<string, MemoryReportLink>()
+
+/** 双阅结论文本: 仲裁报告优先, 否则合并两位阅片医师结论 */
+export function dualReadConclusion(a: Pick<DualReadAssignment, 'arbitrationReport' | 'report1' | 'report2' | 'reader1Name' | 'reader2Name'>): string {
+  if (a.arbitrationReport && a.arbitrationReport.trim()) return a.arbitrationReport.trim()
+  const parts: string[] = []
+  if (a.report1?.trim()) parts.push(`阅片医师一(${a.reader1Name}): ${a.report1.trim()}`)
+  if (a.report2?.trim()) parts.push(`阅片医师二(${a.reader2Name}): ${a.report2.trim()}`)
+  if (parts.length === 0) return '双阅完成, 未见明确阳性征象。'
+  return parts.join('\n')
 }
 
 const doctors = [
@@ -252,6 +281,128 @@ export class DualReadService {
       return rows.map((r) => toDto(r, false))
     } catch {
       return memoryAssignments.map((a) => ({ ...a }))
+    }
+  }
+
+  // [G-21 Wave3C] 双阅完成 → 报告自动关联:
+  //  - 已仲裁或双方完成 → 生成双阅结论文本 (仲裁报告优先)
+  //  - 该检查已有报告 → 关联并写入 impression; 无报告 → 自动创建
+  //  - DB 不可用 → 内存回退 (reportId 用确定性 ID 生成, simulated 语义沿用)
+  async complete(id: string): Promise<DualReadCompleteResult> {
+    let row: DualReadRow | null = null
+    let assignment: DualReadAssignment | undefined
+    try {
+      row = await this.prisma.dualReadAssignment.findUnique({ where: { id } })
+      if (row) assignment = toDto(row, false)
+    } catch {
+      assignment = undefined
+    }
+    if (!assignment) {
+      const mem = memoryAssignments.find((x) => x.id === id)
+      if (mem) assignment = { ...mem }
+    }
+    if (!assignment) throw new NotFoundException('Assignment not found')
+    if (!['both_done', 'arbitrated'].includes(assignment.status)) {
+      throw new BadRequestException('双阅尚未完成 (需双方阅片完成或已仲裁) 才能生成报告')
+    }
+    const conclusion = dualReadConclusion(assignment)
+    let created = false
+
+    try {
+      const exam = assignment.studyId
+        ? await this.prisma.exam.findFirst({ where: { accessionNumber: assignment.studyId }, select: { id: true } })
+        : null
+      let report: { id: string; examId: string | null; state: string; impression: string } | null = null
+      if (row?.reportId) {
+        const found = await this.prisma.report.findUnique({ where: { id: row.reportId } })
+        if (found) report = { id: found.id, examId: found.examId, state: found.state, impression: found.impression }
+      }
+      if (!report) {
+        const where: Record<string, unknown> = {
+          state: { in: ['PENDING_ASSIGNMENT', 'ASSIGNED', 'WRITING'] },
+        }
+        if (exam) {
+          where.OR = [{ examId: exam.id }, { patientId: assignment.patientId }]
+        } else {
+          where.patientId = assignment.patientId
+        }
+        const found = await this.prisma.report.findFirst({ where, orderBy: { createdAt: 'desc' } })
+        if (found) report = { id: found.id, examId: found.examId, state: found.state, impression: found.impression }
+      }
+      const impression = `【双阅结论】\n${conclusion}`
+      if (!report) {
+        const createdReport = await this.prisma.report.create({
+          data: {
+            tenantId: 'default',
+            patientId: assignment.patientId,
+            examId: exam?.id ?? null,
+            state: 'PENDING_ASSIGNMENT',
+            findings: '',
+            impression,
+          },
+        })
+        report = { id: createdReport.id, examId: createdReport.examId, state: createdReport.state, impression: createdReport.impression }
+        created = true
+      } else {
+        await this.prisma.report.update({ where: { id: report.id }, data: { impression } })
+        created = false
+      }
+      const updatedRow = await this.prisma.dualReadAssignment.update({
+        where: { id },
+        data: { status: 'completed', reportId: report.id },
+      })
+      const link: DualReadReportLink = { reportId: report.id, examId: report.examId, state: report.state, impression: report.impression, created }
+      memoryReportLinks.set(id, link)
+      return { assignment: { ...toDto(updatedRow, false) }, report: link, created }
+    } catch {
+      const mem = memoryAssignments.find((x) => x.id === id)
+      if (!mem) throw new NotFoundException('Assignment not found')
+      mem.status = 'completed'
+      const existing = memoryReportLinks.get(id)
+      const link: DualReadReportLink = existing
+        ? { ...existing }
+        : {
+            reportId: `rep-mem-${hashString(`${id}:${conclusion}`).toString(16).slice(0, 10)}`,
+            examId: mem.studyId,
+            state: 'DRAFT',
+            impression: `【双阅结论】\n${conclusion}`,
+            created: true,
+          }
+      memoryReportLinks.set(id, link)
+      return { assignment: { ...mem }, report: link, created: link.created }
+    }
+  }
+
+  /** [G-21 Wave3C] 关联报告信息查询 (未关联返回 { linked: false }) */
+  async reportLink(id: string): Promise<{ linked: boolean; report?: DualReadReportLink }> {
+    try {
+      const row = await this.prisma.dualReadAssignment.findUnique({ where: { id } })
+      if (!row) throw new NotFoundException('Assignment not found')
+      let report: { id: string; examId: string | null; state: string; impression: string } | null = null
+      if (row.reportId) {
+        const found = await this.prisma.report.findUnique({ where: { id: row.reportId } })
+        if (found) report = { id: found.id, examId: found.examId, state: found.state, impression: found.impression }
+      }
+      if (!report && row.studyId) {
+        const found = await this.prisma.report.findFirst({
+          where: { exam: { accessionNumber: row.studyId } },
+          orderBy: { createdAt: 'desc' },
+        })
+        if (found) report = { id: found.id, examId: found.examId, state: found.state, impression: found.impression }
+      }
+      if (!report) {
+        const found = await this.prisma.report.findFirst({
+          where: { patientId: row.patientId, state: { in: ['PENDING_ASSIGNMENT', 'ASSIGNED', 'WRITING'] } },
+          orderBy: { createdAt: 'desc' },
+        })
+        if (found) report = { id: found.id, examId: found.examId, state: found.state, impression: found.impression }
+      }
+      if (!report) return { linked: false }
+      return { linked: true, report: { reportId: report.id, examId: report.examId, state: report.state, impression: report.impression, created: false } }
+    } catch {
+      const mem = memoryReportLinks.get(id)
+      if (!mem) return { linked: false }
+      return { linked: true, report: { ...mem } }
     }
   }
 }

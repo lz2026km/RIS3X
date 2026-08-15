@@ -19,6 +19,7 @@ import {
   type TrackedLesion,
   type LesionMeasurement,
   type LesionType,
+  type LesionSource,
   type ResponseClass,
   type LesionCompareResult,
   type LesionTrendResult,
@@ -27,6 +28,19 @@ import {
 import type { PatientDto } from '../../types/dto'
 
 const { Text } = Typography
+
+// [v3.0.6.11-100 Wave 6A (D-4)] 病灶来源展示
+const SOURCE_LABEL: Record<LesionSource, string> = {
+  manual: '手动登记',
+  ai: 'AI 检出',
+  'from-report': '报告提取',
+}
+
+const SOURCE_COLOR: Record<LesionSource, string> = {
+  manual: 'blue',
+  ai: 'purple',
+  'from-report': 'cyan',
+}
 
 const STATUS_COLORS: Record<string, string> = {
   稳定: 'blue',
@@ -315,6 +329,19 @@ const LesionTrackingPage: React.FC = () => {
       },
     },
     { title: '测量次数', key: 'count', width: 90, render: (_: unknown, r) => `${r.measurements?.length ?? 0} 次` },
+    {
+      // [v3.0.6.11-100 Wave 6A (D-4)] 来源列: manual/ai/from-report (报告→病灶追踪自动建)
+      title: '来源', key: 'source', width: 100,
+      render: (_: unknown, r) => {
+        const s = r.source ?? 'manual'
+        return (
+          <Space size={4} wrap>
+            <Tag color={SOURCE_COLOR[s]} data-testid={`lt-source-${s}`}>{SOURCE_LABEL[s]}</Tag>
+            {r.reportId && <span style={{ fontSize: 11, color: '#64748b' }}>{r.reportId}</span>}
+          </Space>
+        )
+      },
+    },
     {
       title: '操作', key: 'actions', width: 210,
       render: (_: unknown, r) => (

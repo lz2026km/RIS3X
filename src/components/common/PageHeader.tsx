@@ -11,6 +11,8 @@
 import type { ReactNode, CSSProperties } from "react";
 
 export type PageHeaderVariant = "banner" | "flex" | "inline" | "minimal";
+export type PageHeaderSize = "md" | "lg";
+export type PageHeaderAlign = "left" | "center" | "right";
 
 export interface PageHeaderProps {
   title: ReactNode;
@@ -18,6 +20,10 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   icon?: ReactNode;
   variant?: PageHeaderVariant;
+  /** 标题尺寸 (md: 20/700 默认, lg: 24/700) */
+  size?: PageHeaderSize;
+  /** 对齐方式 (flex 变体生效) */
+  align?: PageHeaderAlign;
   /** 自定义背景 (banner 变体生效) */
   bannerBg?: string;
   /** 自定义前景色 (banner 变体生效) */
@@ -32,12 +38,20 @@ export interface PageHeaderProps {
   ariaLabel?: string;
 }
 
+/** 标题字号映射 (统一 700 字重) */
+const HEADING_FONT: Record<PageHeaderSize, number> = {
+  md: 20,
+  lg: 24,
+};
+
 export function PageHeader({
   title,
   subtitle,
   actions,
   icon,
   variant = "flex",
+  size = "md",
+  align = "left",
   bannerBg,
   bannerColor = "#ffffff",
   style,
@@ -45,6 +59,9 @@ export function PageHeader({
   as: As = "h1",
   ariaLabel,
 }: PageHeaderProps) {
+  const headingFont = HEADING_FONT[size];
+  const justifyAlign: CSSProperties["justifyContent"] =
+    align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
   if (variant === "banner") {
     const bg = bannerBg ?? "linear-gradient(135deg, #1e40af, #2563eb)";
     return (
@@ -80,7 +97,7 @@ export function PageHeader({
           </div>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <As style={{ margin: 0, fontSize: 20, fontWeight: 700, color: bannerColor }}>
+          <As style={{ margin: 0, fontSize: headingFont, fontWeight: 700, color: bannerColor }}>
             {title}
           </As>
           {subtitle && (
@@ -120,8 +137,8 @@ export function PageHeader({
         <As
           style={{
             margin: 0,
-            fontSize: 16,
-            fontWeight: 600,
+            fontSize: headingFont,
+            fontWeight: 700,
             color: "var(--color-gray-900, #0f172a)",
           }}
         >
@@ -164,13 +181,13 @@ export function PageHeader({
         ...style,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, justifyContent: justifyAlign }}>
         {icon}
         <div style={{ minWidth: 0 }}>
           <As
             style={{
               margin: 0,
-              fontSize: 20,
+              fontSize: headingFont,
               fontWeight: 700,
               color: "var(--color-primary-900, #1e40af)",
               letterSpacing: "-0.01em",

@@ -79,4 +79,34 @@ export const deviceApi = {
 
   updateStatus: (id: string, status: string) =>
     api.patch<DeviceDto>(`/devices/${id}`, { state: status }),
+
+  // [v3.0.6.11-100 Wave 1B] 设备维护提醒: 到期列表 (剩余小时数)
+  getMaintenanceDue: (cycleHours = 2000) =>
+    api.get<{
+      items: Array<{
+        deviceId: string
+        code: string
+        name: string
+        modality: string
+        location?: string | null
+        state: string
+        usedHours: number
+        remainingHours: number
+        cycleHours: number
+        status: 'overdue' | 'warning' | 'ok' | 'maintenance'
+        lastMaintenance: string | null
+        logs: Array<{ type: string; hoursUsed: number; note: string; at: string }>
+      }>
+      total: number
+      cycleHours: number
+      updatedAt: string
+    }>(`/devices/maintenance-due?cycleHours=${cycleHours}`),
+
+  // [v3.0.6.11-100 Wave 1B] 记录维护 (preventive/corrective)
+  logMaintenance: async (id: string, data: { type: 'preventive' | 'corrective'; hoursUsed?: number; note?: string }) => {
+    const res = await api.post<DeviceDto>(`/devices/${id}/maintenance-log`, data)
+    await invalidateApiCache(`/devices/${id}`)
+    await invalidateApiCacheByPrefix('/devices')
+    return res
+  },
 }

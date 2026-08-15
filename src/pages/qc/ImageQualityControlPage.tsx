@@ -4,9 +4,9 @@
  */
 import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
 import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
-import { worklistApi } from '../../services/api/worklistApi'
+import { RETAKE_REASON_OPTIONS, worklistApi } from '../../services/api/worklistApi'
 import {
-  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty, type TableProps,
+  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty, Modal, type TableProps,
 } from 'antd'
 import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw, XCircle } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -62,15 +62,28 @@ export default function ImageQualityControlPage() {
   }
 
   // [v3.0.6.11-95 Wave 1A P1] 驳回后重拍登记: QC_REJECT → IN_PROGRESS (后端 retakeCount +1, 备注"重拍第 N 次")
+  // [v3.0.6.11-100 Wave 1B] + 重拍原因下拉 (retakeReason 传递, 重拍率统计原因维度)
+  const [retakeTarget, setRetakeTarget] = useState<QcImageAiResult | null>(null)
+  const [retakeReason, setRetakeReason] = useState<string | undefined>(undefined)
+  const [retakeConfirmOpen, setRetakeConfirmOpen] = useState(false)
+
+  const openRetakeModal = (r: QcImageAiResult) => {
+    setRetakeTarget(r)
+    setRetakeReason(undefined)
+    setRetakeConfirmOpen(true)
+  }
+
   const handleRetake = async (r: QcImageAiResult) => {
     const key = `${r.id}:retake`
     if (qcBusy) return
     setQcBusy(key)
     try {
-      const res = await worklistApi.updateState(r.studyId, 'IN_PROGRESS', '重拍登记')
+      const res = await worklistApi.updateState(r.studyId, 'IN_PROGRESS', '重拍登记', { retakeReason })
       if (res.success) {
         message.success(`检查 ${r.studyId} 已登记重拍, 状态回到检查中`)
         setResults(prev => prev.map(x => (x.id === r.id ? { ...x, status: 'pending' } : x)))
+        setRetakeConfirmOpen(false)
+        setRetakeTarget(null)
         void load()
       } else {
         message.error(res.error?.message ?? '重拍登记失败')
@@ -162,7 +175,7 @@ export default function ImageQualityControlPage() {
           <Button size="small" danger ghost icon={<XCircle size={12} />} loading={qcBusy === `${r.id}:reject`} onClick={() => void handleQc(r, 'QC_REJECT')}>驳回</Button>
           {/* [v3.0.6.11-95 Wave 1A P1] 驳回后提供重拍登记: QC_REJECT → IN_PROGRESS */}
           {r.status === 'rejected' && (
-            <Button size="small" danger icon={<RefreshCw size={12} />} loading={qcBusy === `${r.id}:retake`} onClick={() => void handleRetake(r)}>重拍登记</Button>
+            <Button size="small" danger icon={<RefreshCw size={12} />} loading={qcBusy === `${r.id}:retake`} onClick={() => openRetakeModal(r)}>重拍登记</Button>
           )}
         </Space>
       ),
@@ -282,6 +295,29 @@ export default function ImageQualityControlPage() {
           </tbody>
         </table>
       </Card>
+
+      {/* [v3.0.6.11-100 Wave 1B] 重拍登记确认 Modal: 原因下拉 (retakeReason) */}
+      <Modal
+        title={`重拍登记 - ${retakeTarget?.patientName ?? ''} (${retakeTarget?.studyId ?? ''})`}
+        open={retakeConfirmOpen}
+        onCancel={() => setRetakeConfirmOpen(false)}
+        onOk={() => retakeTarget && void handleRetake(retakeTarget)}
+        okText={qcBusy ? '登记中...' : '确认重拍登记'}
+        okButtonProps={{ loading: qcBusy === `${retakeTarget?.id}:retake`, danger: true }}
+        cancelText="取消"
+      >
+        <div style={{ marginBottom: 12, fontSize: 13, color: '#475569' }}>
+          检查将退回「检查中」状态并累计重拍次数 (QC_REJECT → IN_PROGRESS)
+        </div>
+        <div style={{ marginBottom: 6, fontSize: 12, color: '#64748b' }}>重拍原因 (用于重拍率统计分析)</div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="请选择重拍原因"
+          options={RETAKE_REASON_OPTIONS}
+          value={retakeReason}
+          onChange={setRetakeReason}
+        />
+      </Modal>
     </div>
   )
 }

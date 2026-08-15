@@ -2,8 +2,10 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { setupServer } from "msw/node";
 import { reportDraftHandlers } from "../reportDraftHandlers";
+import { aiDraftAdvancedHandlers } from "../aiDraftAdvancedHandlers";
+import { create } from "../store";
 
-const server = setupServer(...reportDraftHandlers);
+const server = setupServer(...reportDraftHandlers, ...aiDraftAdvancedHandlers);
 
 const BASE = "http://localhost:5173/api/v1";
 
@@ -90,5 +92,99 @@ describe("reportDraftHandlers - 环境式 AI 报告草稿端点", () => {
     const id = created.body.data.id as string;
     const { status } = await postJson(`/ai/report-draft/${id}/modify`, { draftText: "  " });
     expect(status).toBe(400);
+  });
+});
+
+describe("aiDraftAdvancedHandlers - G-19 AI 草稿深化端点", () => {
+  beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+  afterAll(() => server.close());
+
+  const seedReport = () => {
+    try {
+      create<any>("reports", {
+        id: "rpt-adv-1", reportId: "rpt-adv-1", examId: "exam-adv-1",
+        patientId: "P-ADV-1", modality: "CT", bodyPart: "胸部",
+        findings: "右肺上叶见磨玻璃结节影",
+        impression: "右肺上叶磨玻璃结节, 建议随访",
+        createdAt: "2026-07-01T00:00:00.000Z",
+      });
+      create<any>("reports", {
+        id: "rpt-adv-0", reportId: "rpt-adv-0", examId: "exam-adv-0",
+        patientId: "P-ADV-1", modality: "CT", bodyPart: "胸部",
+        findings: "右肺上叶见磨玻璃结节影, 边界清晰, 与上次无明显变化",
+        impression: "右肺上叶磨玻璃结节",
+        createdAt: "2026-06-01T00:00:00.000Z",
+      });
+    } catch { /* 集合已存在时忽略 */ }
+  };
+
+  it("GET /ai-draft/providers 返回 3 个模型且 mock 可用", async () => {
+    const { status, body } = await getJson("/ai-draft/providers");
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    const ids = body.data.map((p: { id: string }) => p.id);
+    expect(ids).toEqual(["mock", "deepseek", "hunyuan"]);
+    expect(body.data.find((p: { id: string }) => p.id === "mock").available).toBe(true);
+  });
+
+  it("GET /ai-draft/rag-context 无匹配报告返回 404", async () => {
+    const { status } = await getJson("/ai-draft/rag-context?reportId=ghost-000");
+    expect(status).toBe(404);
+  });
+
+  it("GET /ai-draft/rag-context 返回既往报告摘要 + 匹配术语", async () => {
+    seedReport();
+    const { status, body } = await getJson("/ai-draft/rag-context?reportId=rpt-adv-1");
+    expect(status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body.data.patientId).toBe("P-ADV-1");
+    expect(body.data.bodyPart).toBe("胸部");
+    expect(body.data.priorReports.length).toBeGreaterThanOrEqual(1);
+    expect(body.data.priorReports[0].reportId).toBe("rpt-adv-0");
+    expect(body.data.matchedTerms.map((t: { term: string }) => t.term)).toContain("肺");
+  });
+
+  it("POST /ai-draft/generate-advanced 生成草稿 + confidenceScore + RAG sources", async () => {
+    seedReport();
+    const { status, body } = await postJson("/ai-draft/generate-advanced", {
+      reportId: "rpt-adv-1", provider: "mock", includeRag: true,
+    });
+    expect(status).toBe(201);
+    expect(body.success).toBe(true);
+    expect(body.data.confidenceScore).toBe(0.93);
+    expect(body.data.ragUsed).toBe(true);
+    expect(body.data.sources.length).toBeGreaterThanOrEqual(1);
+    expect(body.data.draftText).toContain("【影像所见】");
+    expect(body.data.draftText).toContain("与既往报告");
+  });
+
+  it("POST /ai-draft/generate-advanced 无 RAG 时 confidenceScore=0.9 且 sources 为空", async () => {
+    seedReport();
+    const { status, body } = await postJson("/ai-draft/generate-advanced", {
+      reportId: "rpt-adv-1", provider: "mock", includeRag: false,
+    });
+    expect(status).toBe(201);
+    expect(body.data.confidenceScore).toBe(0.9);
+    expect(body.data.sources).toEqual([]);
+  });
+
+  it("POST /ai-draft/generate-advanced 缺 reportId 返回 400", async () => {
+    const { status } = await postJson("/ai-draft/generate-advanced", { provider: "mock" });
+    expect(status).toBe(400);
+  });
+
+  it("POST /ai-draft/generate-structured 生成 现病史/检查所见/诊断意见", async () => {
+    seedReport();
+    const { status, body } = await postJson("/ai-draft/generate-structured", { reportId: "rpt-adv-1" });
+    expect(status).toBe(201);
+    expect(body.success).toBe(true);
+    expect(body.data.sections.map((s: { heading: string }) => s.heading)).toEqual(["现病史", "检查所见", "诊断意见"]);
+    expect(body.data.confidenceScore).toBe(0.88);
+    expect(body.data.sections[1].content).toContain("磨玻璃");
+  });
+
+  it("POST /ai-draft/generate-structured 报告不存在返回 404", async () => {
+    const { status } = await postJson("/ai-draft/generate-structured", { reportId: "ghost-000" });
+    expect(status).toBe(404);
   });
 });

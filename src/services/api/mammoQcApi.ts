@@ -63,6 +63,49 @@ export interface MammoQcStats {
   byTechnologist: { technologist: string; count: number; avgScore: number }[]
 }
 
+// [G-21 Wave3C] 乳腺质控规则 (投照质量/剂量/随访建议)
+export interface BreastQcRule {
+  id: string
+  category: '投照质量' | '剂量' | '随访建议'
+  name: string
+  description: string
+  level: 'required' | 'advisory'
+  metric?: 'coverage' | 'nippleTangential' | 'compression' | 'agd'
+  views?: Array<'CC' | 'MLO'>
+  thresholdMin?: number
+  thresholdMax?: number
+  warnMin?: number
+  warnMax?: number
+}
+
+export interface BreastQcImageInput {
+  view: string
+  coverage?: number
+  nippleTangential?: boolean
+  compression?: number
+  agd?: number
+}
+
+export interface BreastQcRuleHit {
+  ruleId: string
+  name: string
+  category: string
+  level: 'required' | 'advisory'
+  status: '通过' | '告警' | '不合格'
+  basis: string
+}
+
+export interface BreastQcEvaluateResult {
+  overall: '通过' | '告警' | '不合格'
+  passed: number
+  warned: number
+  failed: number
+  score: number
+  hits: BreastQcRuleHit[]
+  images: Array<{ view: string; status: '通过' | '告警' | '不合格'; hits: BreastQcRuleHit[] }>
+  evaluatedAt: string
+}
+
 export const mammoQcApi = {
   getOverview: () => api.get<MammoQcEnvelope<MammoQcOverview>>('/mammo-qc/overview'),
 
@@ -77,4 +120,10 @@ export const mammoQcApi = {
 
   // [G005 Wave1A W9] 质控统计 (后端 GET /mammo-qc/stats)
   getStats: () => api.get<MammoQcEnvelope<MammoQcStats>>('/mammo-qc/stats'),
+
+  // [G-21 Wave3C] 乳腺质控规则列表 (15 条 seed) + 影像质量参数评估
+  getBreastRules: () => api.get<BreastQcRule[]>('/mammo-qc/breast-rules'),
+
+  evaluateBreast: (images: BreastQcImageInput[]) =>
+    api.post<BreastQcEvaluateResult>('/mammo-qc/breast-evaluate', { images }),
 }

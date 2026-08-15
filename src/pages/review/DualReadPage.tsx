@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, Statistic, message, Select, Divider, Alert } from 'antd'
-import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw } from 'lucide-react'
-import { dualReadApi, type DualReadAssignment } from '../../services/api/dualReadApi'
+import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, Statistic, message, Select, Divider, Alert, Tooltip } from 'antd'
+import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw, FileText, ExternalLink } from 'lucide-react'
+import { dualReadApi, type DualReadAssignment, type DualReadReportLink } from '../../services/api/dualReadApi'
 import { useAuth } from '../../hooks/useAuth'
 import { usePagination } from '../../hooks/usePagination'
+import { useNavigate } from 'react-router-dom'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -14,10 +15,21 @@ const statusMap: Record<string, { color: string; label: string }> = {
   reader2_done: { color: 'processing', label: '医师二完成' },
   both_done: { color: 'warning', label: '双方完成' },
   arbitrated: { color: 'success', label: '已仲裁' },
+  completed: { color: 'success', label: '已完成(报告已生成)' },
+}
+
+/** [G-21 Wave3C] 双阅结论文本 (仲裁报告优先, 否则合并双方) */
+function conclusionOf(a: DualReadAssignment): string {
+  if (a.arbitrationReport?.trim()) return a.arbitrationReport.trim()
+  const parts: string[] = []
+  if (a.report1?.trim()) parts.push(`读一(${a.reader1Name}): ${a.report1.trim()}`)
+  if (a.report2?.trim()) parts.push(`读二(${a.reader2Name}): ${a.report2.trim()}`)
+  return parts.join('\n')
 }
 
 const DualReadPage: React.FC = () => {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [assignments, setAssignments] = useState<DualReadAssignment[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -30,6 +42,10 @@ const DualReadPage: React.FC = () => {
   const [submitTarget, setSubmitTarget] = useState<{ assignment: DualReadAssignment; readerNumber: 1 | 2 } | null>(null)
   const [submitReport, setSubmitReport] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
+  // [G-21 Wave3C] 关联报告链接 (id → link)
+  const [reportLinks, setReportLinks] = useState<Record<string, DualReadReportLink | null>>({})
+  const [conclusionOpen, setConclusionOpen] = useState(false)
+  const [conclusionTarget, setConclusionTarget] = useState<DualReadAssignment | null>(null)
   // [v3.0.6.11-95] W4-B P2: 受控分页 (双阅分配表)
   const assignPagination = usePagination(assignments, 10)
 
@@ -50,9 +66,55 @@ const DualReadPage: React.FC = () => {
     }
   }, [])
 
+  // [G-21 Wave3C] 行内展示关联报告链接
+  const loadReportLinks = useCallback(async (list: DualReadAssignment[]) => {
+    const links: Record<string, DualReadReportLink | null> = {}
+    await Promise.all(
+      list.map(async (a) => {
+        try {
+          const res = await dualReadApi.getReportLink(a.id)
+          links[a.id] = res.success && res.data?.linked && res.data.report ? res.data.report : null
+        } catch {
+          links[a.id] = null
+        }
+      }),
+    )
+    setReportLinks(links)
+  }, [])
+
   useEffect(() => {
     void loadData()
   }, [loadData])
+
+  useEffect(() => {
+    if (assignments.length > 0) void loadReportLinks(assignments)
+  }, [assignments, loadReportLinks])
+
+  // [G-21 Wave3C] 双阅完成 → 自动生成/关联报告 → 跳转报告书写
+  const handleComplete = async (assignment: DualReadAssignment) => {
+    setActionLoading(true)
+    try {
+      const res = await dualReadApi.complete(assignment.id)
+      if (res.success && res.data) {
+        const updated = res.data.assignment
+        setAssignments(prev => prev.map(a => a.id === assignment.id ? updated : a))
+        const link = res.data.report
+        if (link) setReportLinks(prev => ({ ...prev, [assignment.id]: link }))
+        message.success(res.data.created ? `报告已自动创建 (${link?.reportId})` : '已关联已有报告并写入双阅结论')
+        if (link?.examId) {
+          navigate(`/reports/v3-write?examId=${encodeURIComponent(link.examId)}`)
+        } else if (link?.reportId) {
+          navigate(`/reports/v3-write?examId=${encodeURIComponent(link.reportId)}`)
+        }
+      } else {
+        message.error(res.error?.message ?? '双阅完成失败')
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? '双阅完成失败')
+    } finally {
+      setActionLoading(false)
+    }
+  }
 
   const handleArbitrate = async () => {
     if (!selectedAssignment || !arbitrateReport.trim()) {
@@ -150,17 +212,44 @@ const DualReadPage: React.FC = () => {
     { title: '医师二', dataIndex: 'reader2Name', key: 'reader2Name' },
     { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.label || s}</Tag> },
     { title: '不一致率', dataIndex: 'discrepancyScore', key: 'discrepancyScore', render: (v: number) => v != null ? `${(v * 100).toFixed(0)}%` : '-' },
+    // [G-21 Wave3C] 双阅结论展示 (仲裁报告优先, 可点击查看全文)
+    {
+      title: '双阅结论',
+      key: 'conclusion',
+      render: (_: unknown, r: DualReadAssignment) => {
+        const text = conclusionOf(r)
+        if (!text) return <Text type="secondary">未提交</Text>
+        return (
+          <Tooltip title={text}>
+            <Button size="small" type="link" icon={<FileText size={12} />} onClick={() => { setConclusionTarget(r); setConclusionOpen(true) }}>
+              {text.length > 18 ? `${text.slice(0, 18)}...` : text}
+            </Button>
+          </Tooltip>
+        )
+      },
+    },
     {
       title: '操作',
       key: 'action',
-      render: (_: unknown, r: DualReadAssignment) => (
-        <Space>
-          {r.status !== 'arbitrated' && !r.report1 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 1)}>读一提交</Button>}
-          {r.status !== 'arbitrated' && !r.report2 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 2)}>读二提交</Button>}
-          {r.status === 'both_done' && <Button size="small" type="primary" icon={<CheckCircle size={14} />} onClick={() => { setSelectedAssignment(r); setArbitrateOpen(true) }}>仲裁</Button>}
-          {r.status === 'arbitrated' && <Text type="secondary">已仲裁: {r.arbitratorName}</Text>}
-        </Space>
-      ),
+      render: (_: unknown, r: DualReadAssignment) => {
+        const link = reportLinks[r.id]
+        return (
+          <Space>
+            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report1 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 1)}>读一提交</Button>}
+            {r.status !== 'arbitrated' && r.status !== 'completed' && !r.report2 && <Button size="small" icon={<PenLine size={14} />} onClick={() => openSubmit(r, 2)}>读二提交</Button>}
+            {r.status === 'both_done' && <Button size="small" type="primary" icon={<CheckCircle size={14} />} onClick={() => { setSelectedAssignment(r); setArbitrateOpen(true) }}>仲裁</Button>}
+            {(r.status === 'both_done' || r.status === 'arbitrated') && (
+              <Button size="small" type="primary" icon={<FileText size={14} />} loading={actionLoading} onClick={() => void handleComplete(r)}>完成并生成报告</Button>
+            )}
+            {r.status === 'arbitrated' && !r.arbitrationReport && <Text type="secondary">已仲裁: {r.arbitratorName}</Text>}
+            {link && (
+              <Button size="small" icon={<ExternalLink size={14} />} onClick={() => navigate(link.examId ? `/reports/v3-write?examId=${encodeURIComponent(link.examId)}` : `/reports/v3-write?examId=${encodeURIComponent(link.reportId)}`)}>
+                关联报告
+              </Button>
+            )}
+          </Space>
+        )
+      },
     },
   ]
 
@@ -209,6 +298,24 @@ const DualReadPage: React.FC = () => {
           <Input placeholder="患者ID" value={newAssign.patientId} onChange={e => setNewAssign(prev => ({ ...prev, patientId: e.target.value }))} />
           <Select value={newAssign.modality} onChange={v => setNewAssign(prev => ({ ...prev, modality: v }))} options={[{ value: 'CT', label: 'CT' }, { value: 'MR', label: 'MR' }, { value: 'DX', label: 'DX' }]} />
         </Space>
+      </Modal>
+      {/* [G-21 Wave3C] 双阅结论全文 */}
+      <Modal
+        title={`双阅结论 - ${conclusionTarget?.studyId ?? ''} ${conclusionTarget?.patientName ?? ''}`}
+        open={conclusionOpen}
+        onCancel={() => { setConclusionOpen(false); setConclusionTarget(null) }}
+        footer={null}
+        width={640}
+      >
+        {conclusionTarget && (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Card size="small" title={`读一: ${conclusionTarget.reader1Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report1 || '暂无'}</Text></Card>
+            <Card size="small" title={`读二: ${conclusionTarget.reader2Name}`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.report2 || '暂无'}</Text></Card>
+            {conclusionTarget.arbitrationReport && <Card size="small" title={`仲裁 (${conclusionTarget.arbitratorName})`}><Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionTarget.arbitrationReport}</Text></Card>}
+            <Divider style={{ margin: '4px 0' }} />
+            <Alert type="info" showIcon message="双阅结论 (写入报告 impression)" description={<Text style={{ whiteSpace: 'pre-wrap' }}>{conclusionOf(conclusionTarget)}</Text>} />
+          </Space>
+        )}
       </Modal>
     </div>
   )

@@ -139,4 +139,114 @@ export const mammoQcHandlers = [
       },
     });
   }),
+
+  // [G-21 Wave3C] 乳腺质控规则列表 (15 条 seed, 与后端 mammo-qc.service 对齐)
+  http.get(`${API}/breast-rules`, async () => {
+    await delay(delayMs());
+    const rules = [
+      { id: 'BR-001', category: '投照质量', name: 'CC 位乳腺覆盖', description: 'CC 位应包括全部乳腺实质, 胸大肌显示或达乳头水平, 覆盖 ≥ 90%', level: 'required', metric: 'coverage', views: ['CC'], thresholdMin: 90, warnMin: 85 },
+      { id: 'BR-002', category: '投照质量', name: 'MLO 位乳腺覆盖', description: 'MLO 位应包括乳房下角、胸大肌上缘, 覆盖 ≥ 95%', level: 'required', metric: 'coverage', views: ['MLO'], thresholdMin: 95, warnMin: 90 },
+      { id: 'BR-003', category: '投照质量', name: '乳头切线位', description: '乳头应呈切线位显示, 不可被遮挡或下垂', level: 'required', metric: 'nippleTangential', views: ['CC', 'MLO'] },
+      { id: 'BR-004', category: '投照质量', name: 'CC 位压迫厚度', description: 'CC 位压迫厚度 ≤ 55mm 为佳, > 60mm 提示压迫不足', level: 'advisory', metric: 'compression', views: ['CC'], thresholdMax: 55, warnMax: 60 },
+      { id: 'BR-005', category: '投照质量', name: 'MLO 位压迫厚度', description: 'MLO 位压迫厚度 ≤ 65mm 为佳, > 70mm 提示压迫不足', level: 'advisory', metric: 'compression', views: ['MLO'], thresholdMax: 65, warnMax: 70 },
+      { id: 'BR-006', category: '投照质量', name: '双侧对称性', description: '左右乳投照角度与压迫应对称, 便于对比阅片', level: 'advisory' },
+      { id: 'BR-007', category: '投照质量', name: '图像清晰度/无运动伪影', description: '无运动模糊, 乳腺轮廓与皮肤线清晰可辨', level: 'required' },
+      { id: 'BR-008', category: '剂量', name: 'AGD 剂量限值 (WS 674-2020)', description: '平均腺体剂量 ≤ 3.0 mGy (法规限值, 超标为不合格)', level: 'required', metric: 'agd', thresholdMax: 3.0, warnMax: 3.0 },
+      { id: 'BR-009', category: '剂量', name: 'AGD 优化目标 (ACR)', description: '平均腺体剂量 ≤ 2.4 mGy (ACR 基准, 超限提示曝光优化)', level: 'advisory', metric: 'agd', thresholdMax: 2.4, warnMax: 3.0 },
+      { id: 'BR-010', category: '剂量', name: 'CC 位 AGD 限值', description: 'CC 位平均腺体剂量 ≤ 2.6 mGy', level: 'advisory', metric: 'agd', views: ['CC'], thresholdMax: 2.6, warnMax: 3.0 },
+      { id: 'BR-011', category: '剂量', name: 'MLO 位 AGD 限值', description: 'MLO 位平均腺体剂量 ≤ 3.0 mGy', level: 'advisory', metric: 'agd', views: ['MLO'], thresholdMax: 3.0, warnMax: 3.0 },
+      { id: 'BR-012', category: '随访建议', name: 'BI-RADS 3 类随访', description: 'BI-RADS 3 类 (可能良性) 建议 6 个月短期随访', level: 'advisory' },
+      { id: 'BR-013', category: '随访建议', name: 'BI-RADS 4+ 处理', description: 'BI-RADS 4 类及以上建议活检/专科会诊', level: 'required' },
+      { id: 'BR-014', category: '随访建议', name: '年度筛查', description: '40 岁以上女性建议每年 1 次乳腺 X 线筛查', level: 'advisory' },
+      { id: 'BR-015', category: '随访建议', name: '高密度乳腺补充成像', description: '致密型乳腺建议补充超声或断层合成检查', level: 'advisory' },
+    ];
+    return HttpResponse.json({ success: true, data: rules });
+  }),
+
+  // [G-21 Wave3C] 影像质量参数 → 规则命中评估 (通过/告警/不合格 + 依据)
+  http.post(`${API}/breast-evaluate`, async ({ request }) => {
+    await delay(delayMs(80, 200));
+    const body = await request.json().catch(() => ({})) as { images?: Array<Record<string, unknown>> };
+    const images = Array.isArray(body.images) ? body.images : [];
+    if (images.length === 0) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '至少需要一张乳腺影像参数进行评估' } }, { status: 400 });
+    }
+    const hits: Array<{ ruleId: string; name: string; category: string; level: string; status: '通过' | '告警' | '不合格'; basis: string }> = [];
+    const evaluated = images.map((raw) => {
+      const img = raw as { view: string; coverage?: number; nippleTangential?: boolean; compression?: number; agd?: number };
+      const viewUpper = String(img.view ?? '').toUpperCase();
+      const isCC = viewUpper.includes('CC');
+      const isMLO = viewUpper.includes('MLO');
+      const imgHits: typeof hits = [];
+      const push = (ruleId: string, name: string, category: string, status: '通过' | '告警' | '不合格', basis: string) =>
+        imgHits.push({ ruleId, name, category, level: ruleId === 'BR-001' || ruleId === 'BR-002' || ruleId === 'BR-003' || ruleId === 'BR-007' || ruleId === 'BR-008' || ruleId === 'BR-013' ? 'required' : 'advisory', status, basis });
+      if (img.coverage !== undefined && img.coverage !== null) {
+        if (isCC) {
+          const v = Number(img.coverage);
+          if (v >= 90) push('BR-001', 'CC 位乳腺覆盖', '投照质量', '通过', `${img.view}: 覆盖 ${v}% ≥ 90% (合格)`);
+          else if (v >= 85) push('BR-001', 'CC 位乳腺覆盖', '投照质量', '告警', `${img.view}: 覆盖 ${v}% 低于目标 90%, 建议重新投照评估`);
+          else push('BR-001', 'CC 位乳腺覆盖', '投照质量', '不合格', `${img.view}: 覆盖 ${v}% < 85%, 乳腺实质覆盖不足 (不合格)`);
+        }
+        if (isMLO) {
+          const v = Number(img.coverage);
+          if (v >= 95) push('BR-002', 'MLO 位乳腺覆盖', '投照质量', '通过', `${img.view}: 覆盖 ${v}% ≥ 95% (合格)`);
+          else if (v >= 90) push('BR-002', 'MLO 位乳腺覆盖', '投照质量', '告警', `${img.view}: 覆盖 ${v}% 低于目标 95%, 建议重新投照评估`);
+          else push('BR-002', 'MLO 位乳腺覆盖', '投照质量', '不合格', `${img.view}: 覆盖 ${v}% < 90%, 乳腺实质覆盖不足 (不合格)`);
+        }
+      }
+      if (img.nippleTangential === false) push('BR-003', '乳头切线位', '投照质量', '不合格', `${img.view}: 乳头未呈切线位, 乳头轮廓遮挡或下垂 (不合格)`);
+      else if (img.nippleTangential === true) push('BR-003', '乳头切线位', '投照质量', '通过', `${img.view}: 乳头呈切线位 (合格)`);
+      if (img.compression !== undefined && img.compression !== null) {
+        const v = Number(img.compression);
+        const max = isMLO ? 65 : 55;
+        const warn = isMLO ? 70 : 60;
+        const ruleId = isMLO ? 'BR-005' : 'BR-004';
+        const name = isMLO ? 'MLO 位压迫厚度' : 'CC 位压迫厚度';
+        if (v <= max) push(ruleId, name, '投照质量', '通过', `${img.view}: 压迫厚度 ${v}mm ≤ ${max}mm (合格)`);
+        else if (v <= warn) push(ruleId, name, '投照质量', '告警', `${img.view}: 压迫厚度 ${v}mm 超目标 ${max}mm, 提示压迫可能不足 (告警)`);
+        else push(ruleId, name, '投照质量', '不合格', `${img.view}: 压迫厚度 ${v}mm > ${warn}mm, 压迫严重不足 (不合格)`);
+      }
+      if (img.agd !== undefined && img.agd !== null) {
+        const v = Number(img.agd);
+        if (v <= 2.4) {
+          push('BR-008', 'AGD 剂量限值 (WS 674-2020)', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 3.0 mGy (合格)`);
+          push('BR-009', 'AGD 优化目标 (ACR)', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 2.4 mGy (合格)`);
+          if (isCC) push('BR-010', 'CC 位 AGD 限值', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 2.6 mGy (合格)`);
+          if (isMLO) push('BR-011', 'MLO 位 AGD 限值', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 3.0 mGy (合格)`);
+        } else if (v <= 2.6 && !isMLO) {
+          push('BR-008', 'AGD 剂量限值 (WS 674-2020)', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 3.0 mGy (合格)`);
+          push('BR-009', 'AGD 优化目标 (ACR)', '剂量', '告警', `${img.view}: AGD ${v.toFixed(2)} mGy 超目标 2.4 mGy, 建议优化曝光参数 (告警)`);
+          push('BR-010', 'CC 位 AGD 限值', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 2.6 mGy (合格)`);
+        } else if (v <= 3.0) {
+          push('BR-008', 'AGD 剂量限值 (WS 674-2020)', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 3.0 mGy (合格)`);
+          push('BR-009', 'AGD 优化目标 (ACR)', '剂量', '告警', `${img.view}: AGD ${v.toFixed(2)} mGy 超目标 2.4 mGy, 建议优化曝光参数 (告警)`);
+          if (isCC) push('BR-010', 'CC 位 AGD 限值', '剂量', '告警', `${img.view}: AGD ${v.toFixed(2)} mGy 超目标 2.6 mGy, 建议优化曝光参数 (告警)`);
+          if (isMLO) push('BR-011', 'MLO 位 AGD 限值', '剂量', '通过', `${img.view}: AGD ${v.toFixed(2)} mGy ≤ 3.0 mGy (合格)`);
+        } else {
+          push('BR-008', 'AGD 剂量限值 (WS 674-2020)', '剂量', '不合格', `${img.view}: AGD ${v.toFixed(2)} mGy > 3.0 mGy 法规限值 (不合格)`);
+          push('BR-009', 'AGD 优化目标 (ACR)', '剂量', '告警', `${img.view}: AGD ${v.toFixed(2)} mGy 超目标 2.4 mGy, 建议优化曝光参数 (告警)`);
+        }
+      }
+      if (imgHits.length === 0) {
+        imgHits.push({ ruleId: 'BR-000', name: '影像参数完整性', category: '投照质量', level: 'advisory', status: '告警', basis: `${img.view}: 未提供覆盖/乳头切线位/压迫/AGD 参数, 无法完整评估` });
+      }
+      const failed = imgHits.some((h) => h.status === '不合格');
+      const warned = !failed && imgHits.some((h) => h.status === '告警');
+      return { view: img.view, status: failed ? '不合格' : warned ? '告警' : '通过', hits: imgHits };
+    });
+    for (const img of evaluated) hits.push(...img.hits);
+    const passed = hits.filter((h) => h.status === '通过').length;
+    const warned = hits.filter((h) => h.status === '告警').length;
+    const failed = hits.filter((h) => h.status === '不合格').length;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        overall: failed > 0 ? '不合格' : warned > 0 ? '告警' : '通过',
+        passed, warned, failed,
+        score: hits.length > 0 ? Math.round((passed / hits.length) * 1000) / 10 : 0,
+        hits, images: evaluated,
+        evaluatedAt: new Date().toISOString(),
+      },
+    });
+  }),
 ];

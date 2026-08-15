@@ -7,6 +7,7 @@
 import React, { useEffect, useState, type ReactNode } from "react";
 import { Result, Button, Typography, Space, Alert } from "antd";
 import { RotateCw, Bug } from "lucide-react";
+import { THEME_TOKENS } from "../common/ThemeTokens";
 import { loadAll, getBootError, reloadModule, listModules } from "@/config/clinicalConfig/bootstrap";
 
 const { Paragraph, Text } = Typography;
@@ -60,7 +61,7 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
             重试
           </Button>,
         ]}
-        style={{ maxWidth: 720, background: "#fff", padding: 24, borderRadius: 8 }}
+        style={{ maxWidth: 720, background: THEME_TOKENS.bgCard, padding: 24, borderRadius: 8 }}
       >
         <Alert
           type="error"

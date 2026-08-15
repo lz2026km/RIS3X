@@ -195,6 +195,57 @@ const oruMessage = (doc: SrDocument): string => {
 
 // ───────────────────────── Handlers ─────────────────────────
 export const srHandlers = [
+  // [G005 Wave 8] SR 测量值 → 报告回填 (与后端 /dicom-sr/to-report 对齐)
+  http.post(`${API_BASE}/dicom-sr/to-report`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json().catch(() => null)) as { srId?: string; reportId?: string } | null;
+    const srId = String(body?.srId ?? "");
+    let reportId = String(body?.reportId ?? "");
+    if (!srId) {
+      return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "srId 与 reportId 必填" } }, { status: 400 });
+    }
+    // 列表 seed 文档可能缺 reportId → 兜底演示报告
+    if (!reportId) reportId = "RPT-000001";
+    const doc = findDoc(srId);
+    if (!doc) {
+      // [G005 Wave 8] 兜底: 列表 seed (newPagesHandlers) 的 SR 不在 srDocuments store 时,
+      //   返回确定性演示测量, 保证 dev 下「回填到报告」始终可预览
+      const seed = [
+        { name: '最大径 (Max diameter)', value: '12.5', unit: 'mm', source: 'fallback' },
+        { name: '体积 (Volume)', value: '1.2', unit: 'cm3', source: 'fallback' },
+        { name: 'CT 值 (HU)', value: '-38', unit: 'HU', source: 'fallback' },
+      ];
+      const paragraph = `【DICOM SR 测量摘要】(tid1500 · ${srId})\n- 最大径 (Max diameter): 12.5 mm\n- 体积 (Volume): 1.2 cm3\n- CT 值 (HU): -38 HU`;
+      return HttpResponse.json({ success: true, data: { srId, reportId, templateId: 'tid1500', paragraph, measurements: seed } });
+    }
+    const measurements: Array<{ name: string; value: string; unit: string; source: string }> = [];
+    const seen = new Set<string>();
+    const push = (name: string, value: string, unit: string, source: string) => {
+      const key = `${name}|${value}|${unit}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      measurements.push({ name, value, unit, source });
+    };
+    const textRegex = /(-?\d+(?:\.\d+)?)\s*(mm²|cm²|mm2|cm2|mL|ml|HU|mm|cm|µm|um|°|%)\b/gi;
+    for (const section of doc.content?.sections ?? []) {
+      const isMeasurementGroup = section.conceptName?.code === "125007" || /测量|measurement/i.test(section.title ?? "");
+      for (const item of section.items ?? []) {
+        if (item.valueType === "NUM" && item.value) {
+          const m = item.value.match(/^(-?\d+(?:\.\d+)?)\s*(mm²|cm²|mm2|cm2|mL|ml|HU|mm|cm|µm|um|°|%)?/i);
+          push(item.conceptName?.meaning ?? section.title, m?.[1] ?? String(item.value), m?.[2] ?? "", isMeasurementGroup ? "measurement-group" : "num-item");
+        } else if (item.valueType === "TEXT" && item.value) {
+          for (const m of Array.from(item.value.matchAll(textRegex))) {
+            push(section.title, m[1]!, m[2]!, "text-parse");
+          }
+        }
+      }
+    }
+    const paragraph = measurements.length === 0
+      ? `【DICOM SR 测量摘要】(${doc.templateId ?? "SR"} · ${doc.id})\nSR 文档未包含结构化测量项 (TID 1500 测量组 / TID 2000 NUM 项), 可在书写页手动补充。`
+      : `【DICOM SR 测量摘要】(${doc.templateId ?? "SR"} · ${doc.id})\n` + measurements.map((m) => `- ${m.name}: ${m.value}${m.unit ? ` ${m.unit}` : ""}`).join("\n");
+    return HttpResponse.json({ success: true, data: { srId: doc.id, reportId, templateId: doc.templateId, paragraph, measurements } });
+  }),
+
   http.get(`${API_BASE}/dicom-sr`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: srDocuments.map(toDoc) });

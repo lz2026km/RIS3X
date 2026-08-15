@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
   ShieldCheck, Zap, CheckCircle, Download, FileCheck2, Edit3, MessageSquareText,
+  Users, Archive,
 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline } from '../../components/report'
@@ -10,11 +11,13 @@ import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
 import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable } from './reportUtils'
 import { reportApi } from '../../services/api'
+import { criticalApi, type CriticalValueDto } from '../../services/api/criticalApi'
 import type { AuditTrailEvent } from '../../components/report/StatusTimeline'
 import { getCurrentUser } from '../../utils/auth'
 import ReportAnnotationPanel from '../../components/report/ReportAnnotationPanel'
 // [v3.0.6.11-99 Wave7B] 离线报告包: 检测本地离线副本
 import { offlineStorage } from '../../services/pwa/offlineStorage'
+import { useNavigate } from 'react-router-dom'
 
 const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
@@ -80,18 +83,28 @@ export interface ReportDetailDrawerProps {
   onOpen360?: (r: RadiologyReport) => void
   // [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照 / 展示「离线副本」标注
   onOfflineSave?: (r: RadiologyReport) => void
+  // [v3.0.6.11-100 Wave 2A] 发起委员会会诊 → /committee-room?reportId=
+  onCommittee?: (r: RadiologyReport) => void
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建 → POST /lesion-tracking/from-report
+  onCreateLesionTracking?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave }: ReportDetailDrawerProps) {
-  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations'>('content')
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave, onCommittee, onCreateLesionTracking }: ReportDetailDrawerProps) {
+  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations' | 'critical'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
+  const navigate = useNavigate()
   // [v3.0.6.11-95 Wave2B P1] 状态时间线真实化: reportApi.auditTrail 数据驱动
   const [timelineTrail, setTimelineTrail] = useState<AuditTrailEvent[] | null>(null)
   const [timelineLoading, setTimelineLoading] = useState(false)
   // [v3.0.6.11-99 Wave7B] 离线副本检测: 打开详情时查询 IndexedDB 是否有本地快照
   const [offlineSaved, setOfflineSaved] = useState(false)
+  // [G005 Wave 8] 报告→危急值反向引用: 关联危急值列表 (级别/状态/时间)
+  const [linkedCritical, setLinkedCritical] = useState<CriticalValueDto[]>([])
+  const [criticalLoading, setCriticalLoading] = useState(false)
+  // [G005 Wave 8] 报告冷归档策略 (轻量展示)
+  const [archivePolicy, setArchivePolicy] = useState<{ enabled?: boolean; archiveAfterDays?: number; targetTier?: string; deleteSourceAfterDays?: number | null; archivedCount?: number } | null>(null)
 
   useEffect(() => {
     if (report) { setTab('content'); setShowHistory(false); setTimelineTrail(null); setTimelineLoading(false) }
@@ -124,6 +137,37 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         if (!cancelled) setTimelineLoading(false)
       }
     })()
+    return () => { cancelled = true }
+  }, [report, tab])
+
+  // [G005 Wave 8] 危急值 Tab: 按报告反查关联危急值 (后端 /criticals/for-report/:reportId)
+  useEffect(() => {
+    if (!report || tab !== 'critical') return
+    let cancelled = false
+    setCriticalLoading(true)
+    void (async () => {
+      try {
+        const res = await criticalApi.forReport(report.id)
+        if (cancelled) return
+        const d = res.data as unknown
+        const items = Array.isArray(d) ? d : (d as { items?: CriticalValueDto[] } | null)?.items
+        setLinkedCritical(Array.isArray(items) ? items : [])
+      } catch {
+        if (!cancelled) setLinkedCritical([])
+      } finally {
+        if (!cancelled) setCriticalLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [report, tab])
+
+  // [G005 Wave 8] 时间线 Tab 轻量展示归档策略 (失败静默)
+  useEffect(() => {
+    if (!report || tab !== 'timeline') return
+    let cancelled = false
+    void reportApi.getArchivePolicy().then(res => {
+      if (!cancelled && res.success && res.data) setArchivePolicy(res.data as never)
+    }).catch(() => { if (!cancelled) setArchivePolicy(null) })
     return () => { cancelled = true }
   }, [report, tab])
 
@@ -203,6 +247,8 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             { key: 'history', label: '历史版本', icon: <History size={13} /> },
             { key: 'print', label: '打印预览', icon: <Printer size={13} /> },
             { key: 'annotations', label: '批注', icon: <MessageSquareText size={13} /> },
+            // [G005 Wave 8] 报告→危急值反向引用: 关联危急值区块
+            { key: 'critical', label: '危急值', icon: <Zap size={13} /> },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key as any)}
               style={{
@@ -231,6 +277,23 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                   系统支持 14 态状态机：待分配 → 已分配 → 书写中 → 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → 签发中 → 已签发 → 已发布 → 修订中 → 已修订 / 已撤回 / 已驳回 / 已归档。
                 </div>
               </div>
+              {/* [G005 Wave 8] 报告冷归档策略 (轻量展示) */}
+              {archivePolicy && (
+                <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <Archive size={14} style={{ color: GRAY }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>冷归档策略</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>
+                    已发布 {archivePolicy.archiveAfterDays ?? '-'} 天后自动归档至 <strong>{archivePolicy.targetTier ?? '-'}</strong> 层级
+                    {archivePolicy.enabled === false ? ' · 当前已停用' : ' · 已启用'}
+                    {typeof archivePolicy.deleteSourceAfterDays === 'number' ? ` · 归档 ${archivePolicy.deleteSourceAfterDays} 天后删除源副本` : ''}
+                  </span>
+                  {toEnState(report.status) === 'PUBLISHED' && (
+                    <span style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontWeight: 600 }}>
+                      可归档 (发布态)
+                    </span>
+                  )}
+                </div>
+              )}
               {timelineLoading ? (
                 <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 12 }}>审计轨迹加载中…</div>
               ) : (
@@ -341,6 +404,58 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </div>
           )}
 
+          {tab === 'critical' && (
+            <div>
+              {/* [G005 Wave 8] 报告→危急值反向引用: 关联危急值列表 (级别/状态/时间 + 点击跳转 /critical-value) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <Zap size={15} style={{ color: DANGER }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>关联危急值</span>
+                <span style={{ fontSize: 12, color: GRAY }}>按报告反向引用 ({linkedCritical.length} 条)</span>
+              </div>
+              {criticalLoading ? (
+                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>危急值关联加载中…</div>
+              ) : linkedCritical.length === 0 ? (
+                <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
+                  <Zap size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
+                  <div>该报告暂无关联危急值记录</div>
+                  <div style={{ fontSize: 11, marginTop: 4 }}>在报告操作中「转危急值」后, 此处将展示关联记录并支持跳转闭环跟踪。</div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {linkedCritical.map((cv) => (
+                    <button
+                      key={cv.id}
+                      onClick={() => navigate('/critical-value')}
+                      style={{
+                        textAlign: 'left', cursor: 'pointer', padding: '10px 14px', borderRadius: 8,
+                        background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)',
+                        display: 'flex', alignItems: 'center', gap: 10, transition: 'opacity 0.15s',
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.85' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
+                    >
+                      <Zap size={15} style={{ color: DANGER, flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {cv.description || cv.finding || '(未填写描述)'}
+                        </div>
+                        <div style={{ fontSize: 11, color: GRAY, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                          <span>级别: <strong style={{ color: DANGER }}>{cv.severity ?? '-'}</strong></span>
+                          <span>状态: {cv.state ?? cv.status ?? '-'}</span>
+                          <span>{cv.triggeredAt ? new Date(cv.triggeredAt).toLocaleString('zh-CN') : cv.createdAt ? new Date(cv.createdAt).toLocaleString('zh-CN') : ''}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 11, color: '#dc2626', flexShrink: 0 }}>查看 →</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div style={{ marginTop: 14, fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
+                点击记录跳转危急值中心, 可查看闭环流转 (电话/短信通知、确认、解决)。
+              </div>
+            </div>
+          )}
+
           {tab === 'print' && (
             <div style={{ textAlign: 'center', padding: 40 }}>
               <Printer size={48} style={{ color: '#cbd5e1', marginBottom: 16 }} />
@@ -425,6 +540,12 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               <Activity size={13} /> 创建随访
             </button>
           )}
+          {/* [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建: 从报告文本提取病灶关键词建档 */}
+          {onCreateLesionTracking && (
+            <button onClick={() => onCreateLesionTracking(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: 'rgba(124,58,237,0.12)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }} data-testid="detail-create-lesion-tracking">
+              <Activity size={13} /> 创建病灶追踪
+            </button>
+          )}
           {/* [v3.0.6.11-92 Wave1B P0] 报告特殊态按钮 (按状态启用, 对齐 backend REPORT_TRANSITIONS) */}
           {onSupplement && CAN_SUPPLEMENT.includes(toEnState(report.status)) && (
             <button onClick={() => onSupplement(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -444,6 +565,12 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           {onEscalate && CAN_ESCALATE.includes(toEnState(report.status)) && (
             <button onClick={() => onEscalate(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #dc2626', background: 'var(--color-error-bg)', color: 'var(--color-error)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
               <Zap size={13} /> 升级
+            </button>
+          )}
+          {/* [v3.0.6.11-100 Wave 2A] 发起委员会会诊 (多医生合议) → /committee-room?reportId= */}
+          {onCommittee && (
+            <button onClick={() => onCommittee(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: 'rgba(124,58,237,0.12)', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }} data-testid="detail-committee">
+              <Users size={13} /> 发起委员会会诊
             </button>
           )}
           <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>

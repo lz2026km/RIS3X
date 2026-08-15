@@ -53,7 +53,23 @@ const CreateAlertSchema = z.object({
   modality: z.string().optional(),
   title: z.string().optional(),
   description: z.string().optional(),
+  // [G005 Wave 8] 报告→危急值反向引用
+  reportId: z.string().optional(),
 })
+
+// [G005 Wave 2A] 电话/短信网关
+const AutoCallSchema = z
+  .object({
+    phone: z.string().min(5).max(32).optional(),
+  })
+  .optional()
+
+const AutoSmsSchema = z
+  .object({
+    phone: z.string().min(5).max(32).optional(),
+    content: z.string().min(1).max(500).optional(),
+  })
+  .optional()
 
 function parseListQuery(query: Record<string, unknown>): z.infer<typeof ListQuerySchema> {
   const parsed = ListQuerySchema.safeParse(query)
@@ -87,6 +103,12 @@ export class CriticalAlertController {
     return this.service.getAlert(id)
   }
 
+  // [G005 Wave 8] 按报告查询关联危急值告警 (反向引用)
+  @Get('for-report/:reportId')
+  forReport(@Param('reportId') reportId: string) {
+    return this.service.forReport(reportId)
+  }
+
   @Post()
   create(@Body(new ZodValidationPipe(CreateAlertSchema)) body: z.infer<typeof CreateAlertSchema>) {
     return this.service.create(body)
@@ -114,5 +136,27 @@ export class CriticalAlertController {
     @Body(new ZodValidationPipe(EscalateSchema)) body?: z.infer<typeof EscalateSchema>,
   ) {
     return this.service.escalate(id, body?.assignee)
+  }
+
+  // ===== [G005 Wave 2A] 电话/短信网关 =====
+  @Post('alerts/:id/auto-call')
+  autoCall(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(AutoCallSchema)) body?: z.infer<typeof AutoCallSchema>,
+  ) {
+    return this.service.autoCall(id, body ?? {})
+  }
+
+  @Post('alerts/:id/auto-sms')
+  autoSms(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(AutoSmsSchema)) body?: z.infer<typeof AutoSmsSchema>,
+  ) {
+    return this.service.autoSms(id, body ?? {})
+  }
+
+  @Get('alerts/:id/communication-log')
+  communicationLog(@Param('id') id: string) {
+    return this.service.communicationLog(id)
   }
 }

@@ -7,6 +7,7 @@ import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../serv
 import {
   Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, Statistic, message,
 } from 'antd'
+import { EmptyState } from '../../components/common/EmptyState'
 import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw, DatabaseZap } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -257,7 +258,7 @@ const CrossModalSearchPage: React.FC = () => {
       {loading ? (
         <Spin size="large" style={{ display: 'block', margin: '60px auto' }} />
       ) : !searched ? (
-        <Empty description="输入检索条件开始搜索" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ marginTop: 48 }} />
+        <EmptyState description="输入检索条件开始搜索" style={{ marginTop: 48 }} />
       ) : results.length === 0 ? (
         <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="未找到匹配结果" style={{ marginTop: 48 }} />
       ) : (

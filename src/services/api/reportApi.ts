@@ -26,6 +26,52 @@ async function transition(id: string, to: ReportState, reason?: string) {
 // [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
 export type ListPayload<T> = T[] | { items: T[]; total: number }
 
+// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 标注项 (与后端 SaveImageAnnotationsSchema 对齐)
+export type ReportImageAnnotationType = 'arrow' | 'circle' | 'ruler' | 'box'
+
+export interface ReportImageAnnotationItem {
+  id: string
+  type: ReportImageAnnotationType
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  label: string
+  color: string
+}
+
+export interface SaveReportImageAnnotationsPayload {
+  studyUid?: string
+  seriesUid?: string
+  instanceUid?: string
+  annotations: ReportImageAnnotationItem[]
+  imageBase64?: string
+}
+
+export interface ReportImageAnnotationsDto {
+  reportId: string
+  studyUid: string
+  seriesUid: string
+  instanceUid: string
+  annotations: ReportImageAnnotationItem[]
+  imageBase64: string
+  createdAt?: string
+  updatedAt: string | null
+  createdBy?: string
+}
+
+// [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要 (历史报告→本次报告字段复用)
+export interface ReportPriorSummaryDto {
+  reportId: string
+  patientId: string
+  count: number
+  lastReportDate: string | null
+  lastFindings: string
+  lastImpression: string
+  commonDiagnoses: Array<{ keyword: string; count: number }>
+  source: 'db' | 'seed'
+}
+
 export const reportApi = {
   list: (params?: ReportQueryParams) =>
     api.get<ListPayload<ReportDto>>(`/reports?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -159,4 +205,53 @@ export const reportApi = {
       createdAt: string
       updatedAt: string
     }>(`/reports/batch-export/${taskId}?t=${Date.now()}`),
+
+  // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)]
+  //   阅片器标注 → POST /reports/:id/image-annotations (覆盖保存, 报告侧可查看)
+  saveImageAnnotations: async (id: string, payload: SaveReportImageAnnotationsPayload) => {
+    const res = await api.post<ReportImageAnnotationsDto>(`/reports/${id}/image-annotations`, payload)
+    await invalidateApiCache(`/reports/${id}/image-annotations`)
+    return res
+  },
+
+  // 报告关联影像标注列表: GET /reports/:id/image-annotations
+  getImageAnnotations: (id: string) =>
+    api.get<ReportImageAnnotationsDto>(`/reports/${id}/image-annotations`),
+
+  // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要: GET /reports/:id/prior-summary
+  getPriorSummary: (id: string) =>
+    api.get<ReportPriorSummaryDto>(`/reports/${id}/prior-summary`),
+
+  // [G005 Wave 8] 报告冷归档策略: GET/PUT /reports/archive-policy + POST /reports/:id/archive
+  getArchivePolicy: () =>
+    api.get<{
+      enabled: boolean
+      archiveAfterDays: number
+      targetTier: 'archive' | 'cold'
+      deleteSourceAfterDays: number | null
+      updatedAt: string
+      archivedCount: number
+      pendingCount: number
+    }>('/reports/archive-policy'),
+
+  updateArchivePolicy: async (data: { enabled?: boolean; archiveAfterDays?: number; targetTier?: 'archive' | 'cold'; deleteSourceAfterDays?: number | null }) => {
+    const res = await api.put<{
+      enabled: boolean
+      archiveAfterDays: number
+      targetTier: 'archive' | 'cold'
+      deleteSourceAfterDays: number | null
+      updatedAt: string
+      archivedCount: number
+      pendingCount: number
+    }>('/reports/archive-policy', data)
+    await invalidateApiCache('/reports/archive-policy')
+    return res
+  },
+
+  archiveReport: async (id: string) => {
+    const res = await api.post<{ id: string; state: string; archivedAt: string; alreadyArchived?: boolean; task: { id: string; reportId: string; status: string; targetTier: string; archivedAt: string } }>(`/reports/${id}/archive`, {})
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 }

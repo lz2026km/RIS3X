@@ -35,3 +35,14 @@ export { ExportButton } from "./ExportButton";
 export type { ExportButtonProps, ExportFormat } from "./ExportButton";
 export { BackButton } from "./BackButton";
 export type { BackButtonProps, BackButtonVariant, BackButtonSize } from "./BackButton";
+// [v3.0.6.11-100 Wave 5A] UI 组件化新增
+export { AppText } from "./AppText";
+export type { AppTextProps, AppTextSize, AppTextWeight, AppTextColor } from "./AppText";
+export { THEME_TOKENS, useThemeColors } from "./ThemeTokens";
+export type { ThemeTokens } from "./ThemeTokens";
+export { VirtualTable } from "./VirtualTable";
+export type { VirtualTableProps } from "./VirtualTable";
+export { EmptyState } from "./EmptyState";
+export type { EmptyStateProps } from "./EmptyState";
+export type { StatCardColor, StatCardTrend } from "./StatCard";
+export type { PageHeaderSize, PageHeaderAlign } from "./PageHeader";

@@ -118,6 +118,84 @@ export interface CopyObjectResult {
   source: 'simulated' | 'aws-sigv4-native'
 }
 
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL
+export interface SignedUrlDto {
+  bucket: string
+  key: string
+  url: string
+  expiresInSec: number
+  expiresAt: string
+  source: 'aws-sigv4-native' | 'simulated'
+}
+
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务
+export type ReplicationStatus = 'queued' | 'running' | 'completed' | 'failed'
+
+export interface ReplicationTaskDto {
+  id: string
+  sourceBucket: string
+  targetBucket: string
+  region: string
+  status: ReplicationStatus
+  progress: number
+  objectsTotal: number
+  objectsCopied: number
+  bytesTotal: number
+  bytesCopied: number
+  createdAt: string
+  startedAt?: string
+  finishedAt?: string
+  error?: string
+  source: 'simulated' | 'aws-sigv4-native'
+}
+
+export interface ReplicationStatusDto {
+  tasks: ReplicationTaskDto[]
+  pending: number
+  running: number
+  completed: number
+  failed: number
+  queueDepth: number
+  lastUpdatedAt: string
+}
+
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 存储监控指标
+export interface BucketUsageMetricDto {
+  name: string
+  provider: BucketProvider
+  region: string
+  objectCount: number
+  usedBytes: number
+  percentOfTotal: number
+}
+
+export interface IoCountsDto {
+  readPerMin: number
+  writePerMin: number
+  putPerMin: number
+  deletePerMin: number
+  derived: boolean
+}
+
+export interface StorageMonitoringDto {
+  totalCapacityBytes: number
+  totalUsedBytes: number
+  usedPercent: number
+  growthRatePct30d: number
+  objectsTotal: number
+  buckets: BucketUsageMetricDto[]
+  ioCounts: IoCountsDto
+  replication: {
+    pending: number
+    running: number
+    completed: number
+    failed: number
+    pendingBytes: number
+  }
+  history: Array<{ date: string; usedBytes: number; capacityBytes: number }>
+  source: 'derived' | 'seed'
+}
+
 export const storageConfigApi = {
   get: () => api.get<StorageConfigResponse>('/system/storage-config'),
 
@@ -196,6 +274,28 @@ export const storageConfigApi = {
     }
     return res;
   },
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL (带时间戳防 GET 缓存复用过期 URL)
+  signedUrl: (name: string, key: string, expiresInSec?: number) =>
+    api.get<SignedUrlDto>(
+      `/system/storage/buckets/${encodeURIComponent(name)}/objects/${encodeURIComponent(key)}/signed-url${expiresInSec !== undefined ? `?expiresInSec=${expiresInSec}` : ''}&_t=${Date.now()}`,
+    ),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务
+  replicateBucket: async (name: string, body: { targetBucket: string; region: string }) => {
+    const res = await api.post<ReplicationTaskDto>(`/system/storage/buckets/${encodeURIComponent(name)}/replicate`, body);
+    if (res.success) {
+      await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(name)}/objects`);
+      await invalidateApiCache(`/system/storage/buckets/${encodeURIComponent(body.targetBucket)}/objects`);
+    }
+    return res;
+  },
+
+  // 带时间戳防 GET 缓存: 复制队列状态需实时
+  replicationStatus: () => api.get<ReplicationStatusDto>(`/system/storage/replication-status?_t=${Date.now()}`),
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 存储监控指标
+  getMonitoring: () => api.get<StorageMonitoringDto>('/system/storage/monitoring'),
 }
 
 export default storageConfigApi

@@ -35,6 +35,8 @@ import { PageContainer } from '../components/common/PageContainer'
 import { PageHeader } from '../components/common/PageHeader'
 import { StickyActionBar } from '../components/common/StickyActionBar'
 import { ExportButton } from '../components/common/ExportButton'
+import { THEME_TOKENS } from '../components/common/ThemeTokens'
+import { VirtualTable } from '../components/common/VirtualTable'
 
 // [v3.0.6.8-28] 派生工具 - 把 7-30 天 KPI 转成图表格式
 const DAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -52,7 +54,7 @@ const C = {
   primary: '#1e40af',
   primaryLight: '#2563eb',
   primaryDark: '#172554',
-  white: '#ffffff',
+  white: THEME_TOKENS.bgCard,
   background: 'var(--bg-card)',
   text: '#1e293b',
   textMuted: '#64748b',
@@ -1249,41 +1251,40 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备列表</div>
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: C.background }}>
-                  {tableHeaders.map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {deviceEfficiencyData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
-                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.name.split('-')[0]}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.exams}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgTime}min</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                        <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ width: `${d.utilization}%`, height: '100%', background: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger, borderRadius: 3 }} />
-                        </div>
-                        <span style={{ fontWeight: 700, color: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger }}>{d.utilization}%</span>
+            <VirtualTable
+              columns={[
+                { title: '设备名称', dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{v}</span> },
+                { title: '类型', dataIndex: 'name', key: 'type', render: (v: string) => <span style={{ fontSize: 12 }}>{v.split('-')[0]}</span> },
+                { title: '检查量', dataIndex: 'exams', key: 'exams', width: 90, render: (v: number) => <span style={{ fontSize: 12, fontWeight: 700, color: C.info }}>{v}</span> },
+                { title: '平均时长', dataIndex: 'avgTime', key: 'avgTime', width: 100, render: (v: number) => <span style={{ fontSize: 12 }}>{v}min</span> },
+                {
+                  title: '设备利用率', dataIndex: 'utilization', key: 'utilization', width: 160,
+                  render: (v: number) => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                      <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${v}%`, height: '100%', background: v >= 80 ? C.success : v >= 60 ? C.warning : C.danger, borderRadius: 3 }} />
                       </div>
-                    </td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                        background: d.status === '正常' ? C.successBg : C.warningBg,
-                        color: d.status === '正常' ? C.success : C.warning
-                      }}>{d.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+                      <span style={{ fontWeight: 700, color: v >= 80 ? C.success : v >= 60 ? C.warning : C.danger }}>{v}%</span>
+                    </div>
+                  ),
+                },
+                { title: '故障次数', dataIndex: 'faults', key: 'faults', width: 90, render: (v: number) => <span style={{ fontSize: 12, color: v > 0 ? C.danger : C.success }}>{v}</span> },
+                {
+                  title: '维保状态', dataIndex: 'status', key: 'status', width: 100,
+                  render: (v: string) => (
+                    <span style={{
+                      padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
+                      background: v === '正常' ? C.successBg : C.warningBg,
+                      color: v === '正常' ? C.success : C.warning
+                    }}>{v}</span>
+                  ),
+                },
+              ]}
+              dataSource={deviceEfficiencyData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter))}
+              rowKey="name"
+              height={400}
+              pageSize={10}
+            />
           </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>

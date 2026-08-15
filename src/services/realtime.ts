@@ -14,6 +14,7 @@ export type RealtimeEvent =
   | 'notify'
   | 'worklist-refresh'
   | 'ops-update'
+  | 'room-status-refresh'
   | 'yjs:sync'
   | 'yjs:join'
   | 'yjs:leave'
@@ -113,6 +114,7 @@ class SocketRealtimeClient implements RealtimeClient {
     s.on('notify', (payload) => this.dispatch('notify', payload as RealtimePayload))
     s.on('worklist-refresh', (payload) => this.dispatch('worklist-refresh', payload as RealtimePayload))
     s.on('ops-update', (payload) => this.dispatch('ops-update', payload as RealtimePayload))
+    s.on('room-status-refresh', (payload) => this.dispatch('room-status-refresh', payload as RealtimePayload))
     s.on('yjs:sync', (payload) => this.dispatch('yjs:sync', payload as RealtimePayload))
     s.on('yjs:join', (payload) => this.dispatch('yjs:join', payload as RealtimePayload))
     s.on('yjs:leave', (payload) => this.dispatch('yjs:leave', payload as RealtimePayload))

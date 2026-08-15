@@ -1,9 +1,9 @@
 // Neuro Specialty Page — 神经影像分析 · 脑卒中 · 脑肿瘤 · 癫痫
 // [v3.0.6.11-99] Wave1A 17: 接真实后端 /neuro/* (Exam 派生 + seed 回退, MSW 仅 dev 兜底)
 import { useState, useMemo, useEffect } from 'react';
-import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X } from 'lucide-react';
+import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X, Database } from 'lucide-react';
 import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
-import { Card } from 'antd';
+import { Card, Tag } from 'antd';
 
 // ─── Constants ───
 const STROKE_COLORS: Record<string, string> = {
@@ -68,6 +68,8 @@ const NeuroSpecialtyPage = () => {
   const [strokeWindows, setStrokeWindows] = useState<{ window: string; count: number; color: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // [v3.0.6.11-100 Wave 5B] 数据源徽标: real=真实接口 / fallback=演示回退
+  const [usingFallback, setUsingFallback] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [detailStudy, setDetailStudy] = useState<NeuroStudy | null>(null);
 
@@ -91,6 +93,7 @@ const NeuroSpecialtyPage = () => {
     void (async () => {
       setLoading(true);
       setError(null);
+      setUsingFallback(false);
       try {
         const [studiesRes, statsRes, gradesRes, windowsRes] = await Promise.all([
           neuroSpecialtyApi.listStudies(q ? { search: q } : undefined),
@@ -100,7 +103,7 @@ const NeuroSpecialtyPage = () => {
         ]);
         if (cancelled) return;
         if (studiesRes.success && Array.isArray(studiesRes.data)) setStudies(studiesRes.data);
-        else setError('神经病例加载失败');
+        else { setError('神经病例加载失败'); setUsingFallback(true); }
         if (statsRes.success && statsRes.data) setStats(statsRes.data);
         if (gradesRes.success && gradesRes.data) {
           setTumorGrades(gradesRes.data.grades ?? []);
@@ -108,7 +111,7 @@ const NeuroSpecialtyPage = () => {
         }
         if (windowsRes.success && Array.isArray(windowsRes.data)) setStrokeWindows(windowsRes.data);
       } catch {
-        if (!cancelled) setError('神经专科数据加载失败，请稍后重试');
+        if (!cancelled) { setError('神经专科数据加载失败，请稍后重试'); setUsingFallback(true); }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -157,6 +160,10 @@ const NeuroSpecialtyPage = () => {
             <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: '#1e40af' }}>
               数据来源: /neuro/* API（后端真实 · Exam 派生 + seed 回退）
             </span>
+            {/* [v3.0.6.11-100 Wave 5B] 数据源徽标 (真实接口/演示回退) */}
+            {usingFallback
+              ? <Tag color="orange" icon={<Database size={12} />}>演示回退</Tag>
+              : <Tag color="green" icon={<Database size={12} />}>真实接口</Tag>}
             {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: '#dc2626' }}>{error}</span>}
           </div>
         </div>

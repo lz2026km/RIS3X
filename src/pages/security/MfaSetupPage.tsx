@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { THEME_TOKENS } from "../../components/common/ThemeTokens";
 import {
   Card,
   Button,
@@ -255,7 +256,7 @@ export default function MfaSetupPage() {
                   style={{
                     display: "inline-block",
                     padding: "12px 24px",
-                    background: "#fff",
+                    background: THEME_TOKENS.bgCard,
                     borderRadius: 8,
                     border: "1px solid #e2e8f0",
                     marginBottom: 12,

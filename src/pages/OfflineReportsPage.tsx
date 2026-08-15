@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { message, Popconfirm } from 'antd'
 import { FileText, Trash2, ArrowLeft, WifiOff, CheckCircle, RefreshCw } from 'lucide-react'
+import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { offlineStorage, type OfflineReport } from '../services/pwa/offlineStorage'
 
 const PRIMARY = '#1e40af'
@@ -86,7 +87,7 @@ export default function OfflineReportsPage() {
               </button>
             </Popconfirm>
           )}
-          <button onClick={() => navigate('/reports')} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: '#fff', color: PRIMARY, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <button onClick={() => navigate('/reports')} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: THEME_TOKENS.bgCard, color: PRIMARY, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
             <ArrowLeft size={13} /> 返回报告列表
           </button>
         </div>

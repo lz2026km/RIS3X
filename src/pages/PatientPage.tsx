@@ -6,6 +6,8 @@ import { Card } from 'antd'
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
+import { StatCard as CommonStatCard } from "../components/common/StatCard";
+import { AppText } from "../components/common/AppText";
 import { ErrorBanner } from "../components/feedback";
 import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
@@ -34,7 +36,7 @@ import type {
 } from "./patient";
 import { getPatientExams, findDuplicatePatients, searchPMIPatients, usePinyinSearch } from './patient';
 
-// ==================== 子组件：统计卡片 ====================
+// ==================== 子组件：统计卡片 (统一公共 StatCard) ====================
 interface StatCardProps {
   label: string;
   value: number | string;
@@ -45,41 +47,14 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, color, bgColor }: StatCardProps) {
   return (
-    <Card bordered={false}
-      style={{
-        background: "var(--bg-card)",
-        borderRadius: 12,
-        padding: "16px 20px",
-        border: "1px solid var(--border-color)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-        display: "flex",
-        alignItems: "center",
-        gap: 16,
-      }}
-     styles={{ body: { padding: 0 } }}>
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
-          background: bgColor,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color,
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1 }}>
-          {value}
-        </div>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-          {label}
-        </div>
-      </div>
-    </Card>
+    <CommonStatCard
+      title={label}
+      value={value}
+      icon={icon}
+      color={color}
+      iconBg={bgColor}
+      size="lg"
+    />
   );
 }
 
@@ -223,12 +198,12 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
                   background: d.color,
                 }}
               />
-              <div style={{ flex: 1, fontSize: 12, color: "var(--text-secondary)" }}>
+              <AppText size="xs" color="secondary" as="div" style={{ flex: 1 }}>
                 {d.label}
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+              </AppText>
+              <AppText size="xs" weight={700} as="div" style={{ color: "#1e40af" }}>
                 {d.value}
-              </div>
+              </AppText>
               <div
                 style={{
                   fontSize: 12,
@@ -290,9 +265,9 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               gap: 4,
             }}
           >
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <AppText size="xs" weight={700} as="div" style={{ color: "#1e40af" }}>
               {d.value}
-            </div>
+            </AppText>
             <div
               style={{
                 width: "100%",
@@ -302,11 +277,9 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
                 minHeight: 4,
               }}
             />
-            <div
-              style={{ fontSize: 12, color: "var(--text-secondary)", textAlign: "center" }}
-            >
+            <AppText size="xs" color="secondary" as="div" style={{ textAlign: "center" }}>
               {d.label}
-            </div>
+            </AppText>
           </div>
         ))}
       </div>
@@ -1255,7 +1228,7 @@ export default function PatientPage() {
                   >
                     {result.confidence}%
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>匹配度</div>
+                  <AppText size="xs" color="secondary" as="div">匹配度</AppText>
                 </div>
               </div>
               <div
@@ -1273,11 +1246,9 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <div
-                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
-                  >
+                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
                     主索引ID
-                  </div>
+                  </AppText>
                   <div
                     style={{
                       fontSize: 12,
@@ -1296,11 +1267,9 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <div
-                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
-                  >
+                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
                     医保类型
-                  </div>
+                  </AppText>
                   <div
                     style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
                   >
@@ -1314,11 +1283,9 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <div
-                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
-                  >
+                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
                     累计检查
-                  </div>
+                  </AppText>
                   <div
                     style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
                   >
@@ -1332,11 +1299,9 @@ export default function PatientPage() {
                     borderRadius: 6,
                   }}
                 >
-                  <div
-                    style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
-                  >
+                  <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 2 }}>
                     阳性率
-                  </div>
+                  </AppText>
                   <div
                     style={{
                       fontSize: 12,
@@ -1384,15 +1349,9 @@ export default function PatientPage() {
                     style={{ display: "flex", alignItems: "center", gap: 6 }}
                   >
                     <Link size={12} color="#f59e0b" />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "#f59e0b",
-                      }}
-                    >
+                    <AppText size="xs" weight={600} color="warning" as="span">
                       有归并记录
-                    </span>
+                    </AppText>
                   </div>
                 )}
               </div>
@@ -1415,15 +1374,9 @@ export default function PatientPage() {
                     }}
                   >
                     <History size={14} color="#f59e0b" />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#92400e",
-                      }}
-                    >
+                    <AppText size="xs" weight={700} as="span" style={{ color: "#92400e" }}>
                       患者归并历史
-                    </span>
+                    </AppText>
                   </div>
                   {result.mergeHistory.map((m, i) => (
                     <div
@@ -1494,9 +1447,9 @@ export default function PatientPage() {
             <div style={{ fontSize: 18, fontWeight: 700, color: "#1e40af" }}>
               {result.name}
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+            <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>
               {result.gender} · {result.age}岁 · {result.patientType}
-            </div>
+            </AppText>
             <div
               style={{
                 fontSize: 12,
@@ -1525,7 +1478,7 @@ export default function PatientPage() {
             >
               {result.confidence}%
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>匹配置信度</div>
+            <AppText size="xs" color="secondary" as="div">匹配置信度</AppText>
           </div>
           <button
             onClick={handleClosePMIPanel}
@@ -1563,13 +1516,11 @@ export default function PatientPage() {
             }}
           >
             <CreditCard size={14} color="var(--text-secondary)" />
-            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>身份证</span>
+            <AppText size="xs" color="secondary" as="span">身份证</AppText>
           </div>
-          <div
-            style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "monospace" }}
-          >
+          <AppText size="xs" color="secondary" as="div" style={{ fontFamily: "monospace" }}>
             {result.idCard}
-          </div>
+          </AppText>
         </div>
         <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
@@ -1581,9 +1532,9 @@ export default function PatientPage() {
             }}
           >
             <Phone size={14} color="var(--text-secondary)" />
-            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>手机号</span>
+            <AppText size="xs" color="secondary" as="span">手机号</AppText>
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{result.phone}</div>
+          <AppText size="xs" color="secondary" as="div">{result.phone}</AppText>
         </div>
         <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
@@ -1595,7 +1546,7 @@ export default function PatientPage() {
             }}
           >
             <Shield size={14} color="var(--text-secondary)" />
-            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>医保类型</span>
+            <AppText size="xs" color="secondary" as="span">医保类型</AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.insuranceType}
@@ -1611,7 +1562,7 @@ export default function PatientPage() {
             }}
           >
             <User size={14} color="var(--text-secondary)" />
-            <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>就诊类型</span>
+            <AppText size="xs" color="secondary" as="span">就诊类型</AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.patientType}
@@ -1637,7 +1588,7 @@ export default function PatientPage() {
           <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>累计检查次数</div>
+          <AppText size="xs" color="secondary" as="div">累计检查次数</AppText>
         </div>
         <div
           style={{
@@ -1657,7 +1608,7 @@ export default function PatientPage() {
           >
             {result.examStats.positiveRate}%
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>阳性率</div>
+          <AppText size="xs" color="secondary" as="div">阳性率</AppText>
         </div>
         <div
           style={{
@@ -1671,7 +1622,7 @@ export default function PatientPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.lastExamDate}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>最近检查日期</div>
+          <AppText size="xs" color="secondary" as="div">最近检查日期</AppText>
         </div>
       </div>
       {result.hasMergeHistory && (
@@ -1737,7 +1688,7 @@ export default function PatientPage() {
                   {m.reason}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              <AppText size="xs" color="secondary" as="div">
                 {m.mergedFromId && (
                   <span>
                     由{" "}
@@ -1756,7 +1707,7 @@ export default function PatientPage() {
                     </span>
                   </span>
                 )}
-              </div>
+              </AppText>
             </div>
           ))}
         </div>

@@ -33,6 +33,9 @@ import {
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
 } from '../data/_generators'
+import { AppText } from '../components/common/AppText'
+import { VirtualTable } from '../components/common/VirtualTable'
+import { PageHeader } from '../components/common/PageHeader'
 
 const PRIMARY = '#1e40af'
 
@@ -797,14 +800,14 @@ export default function QCPage() {
       {loading && <LoadingBanner message="正在从 API 加载质控数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ShieldCheck size={18} color='#fff' />
-          </div>{t('qc.title')}<span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>质控中心</span>
-        </h1>
-        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>{t('qc.subtitle')}</p>
-      </div>
+      <PageHeader
+        as="h1"
+        size="md"
+        icon={<div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={18} color='#fff' /></div>}
+        title={<>{t('qc.title')}<AppText size="xs" color="secondary" style={{ fontWeight: 400, marginLeft: 8 }}>质控中心</AppText></>}
+        subtitle={<AppText size="sm" color="secondary" as="p" style={{ margin: 0 }}>{t('qc.subtitle')}</AppText>}
+        style={{ marginBottom: 20 }}
+      />
 
       {/* Tab Navigation */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '6px', marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -848,13 +851,9 @@ export default function QCPage() {
             display: 'flex', alignItems: 'center', gap: 12,
           }}>
             <div style={{ fontSize: 18 }}>🚀</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#047857' }}>
-                v1.0.4 质量评分 + AI 增强子系统就绪
-              </div>
-              <div style={{ fontSize: 12, color: '#065f46', marginTop: 2 }}>
-                5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿
-              </div>
+              <div style={{ flex: 1 }}>
+              <AppText size="xs" weight={700} color="success" as="div">v1.0.4 质量评分 + AI 增强子系统就绪</AppText>
+              <AppText size="xs" color="success" as="div" style={{ marginTop: 2 }}>5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿</AppText>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>关键字扫描</button>
@@ -873,7 +872,7 @@ export default function QCPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -882,7 +881,7 @@ export default function QCPage() {
           {/* 评分系统三维矩阵 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>评分与绩效关联</span>
+              <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>评分与绩效关联</AppText>
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
               {SCORE_MATRIX.map(item => (
@@ -893,7 +892,7 @@ export default function QCPage() {
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 700, color: item.color }}>{item.dimension}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: GRAY, lineHeight: 1.5 }}>{item.indicators}</div>
+                  <AppText size="xs" color="secondary" as="div" style={{ lineHeight: 1.5 }}>{item.indicators}</AppText>
                 </div>
               ))}
             </div>
@@ -902,8 +901,8 @@ export default function QCPage() {
                 <BarChart3 size={14} color={WHITE} />
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>评分计算公式</div>
-                <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>总分 = 格式分×0.3 + 准确分×0.5 + 时效分×0.2</div>
+                <AppText size="sm" weight={700} as="div" style={{ color: PRIMARY }}>评分计算公式</AppText>
+                <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>总分 = 格式分×0.3 + 准确分×0.5 + 时效分×0.2</AppText>
               </div>
             </div>
           </div>
@@ -911,7 +910,7 @@ export default function QCPage() {
           {/* 医生评分排行榜 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>本月统计</span>
+              <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>本月统计</AppText>
             </h3>
             {/* 排行榜统计卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
@@ -925,7 +924,7 @@ export default function QCPage() {
                 <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px', textAlign: 'center' }}>
                   <div style={{ color: card.color, marginBottom: 6 }}>{card.icon}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: card.color, marginTop: 2 }}>{card.label}</div>
+                  <AppText size="xs" as="div" style={{ color: card.color, marginTop: 2 }}>{card.label}</AppText>
                 </div>
               ))}
             </div>
@@ -957,11 +956,11 @@ export default function QCPage() {
                             <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
                           </div>
                         ) : (
-                          <span style={{ fontWeight: 700, fontSize: 13, color: GRAY }}>{doctor.rank}</span>
+                          <AppText size="sm" weight={700} color="secondary" as="span">{doctor.rank}</AppText>
                         )}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{doctor.name}</span>
+                        <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{doctor.name}</AppText>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{ fontWeight: 800, fontSize: 15, color: gradeColor }}>{doctor.totalScore}</span>
@@ -970,7 +969,7 @@ export default function QCPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.accuracyScore)}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.timelinessScore)}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ fontSize: 12, color: GRAY }}>{doctor.reportCount}份</span>
+                        <AppText size="xs" color="secondary" as="span">{doctor.reportCount}份</AppText>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? 'var(--color-success-bg)' : doctor.totalScore >= 80 ? 'var(--color-warning-bg)' : doctor.totalScore >= 70 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: gradeColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
@@ -989,15 +988,15 @@ export default function QCPage() {
             {/* 问题类型统计 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />质控问题分布<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>本月统计</span>
+                <AlertTriangle size={16} color={WARNING} />质控问题分布<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>本月统计</AppText>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
                 {qcIssueDistribution.map(item => (
                   <div key={item.issueType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.issueType}</span>
-                    <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
-                    <span style={{ fontSize: 12, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
+                    <AppText size="xs" as="span" style={{ flex: 1 }}>{item.issueType}</AppText>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                    <AppText size="xs" color="secondary" as="span" style={{ minWidth: 32 }}>{item.percentage}%</AppText>
                     <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                       {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
                     </span>
@@ -1047,7 +1046,7 @@ export default function QCPage() {
               </div>
               <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: GRAY }}>综合加权平均分</span>
+                  <AppText size="xs" color="secondary" as="span">综合加权平均分</AppText>
                   <span style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}分</span>
                 </div>
               </div>
@@ -1162,7 +1161,7 @@ export default function QCPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -1334,7 +1333,7 @@ export default function QCPage() {
                         <div style={{ width: item.pct, height: '100%', background: WARNING, borderRadius: 3 }} />
                       </div>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, minWidth: 40, textAlign: 'right' }}>{item.count}例</span>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY, minWidth: 40, textAlign: 'right' }}>{item.count}例</AppText>
                   </div>
                 ))}
               </div>
@@ -1385,7 +1384,7 @@ export default function QCPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -1429,8 +1428,8 @@ export default function QCPage() {
                   <div key={item.defectType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                     <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.defectType}</span>
-                    <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
-                    <span style={{ fontSize: 12, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                    <AppText size="xs" color="secondary" as="span" style={{ minWidth: 32 }}>{item.percentage}%</AppText>
                     <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                       {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
                     </span>
@@ -1531,7 +1530,7 @@ export default function QCPage() {
                   <div key={item.issue} style={{ display: 'flex', alignItems: 'center', gap: 10, background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: item.severity === '高' ? DANGER : WARNING, flexShrink: 0 }} />
                     <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.issue}</span>
-                    <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
                     <span style={{ padding: '1px 6px', background: item.severity === '高' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: item.severity === '高' ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                       {item.severity === '高' ? '严重' : '中等'}
                     </span>
@@ -1581,7 +1580,7 @@ export default function QCPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
+                  <AppText size="xs" color="secondary">{card.label}</AppText>
                 </div>
               </div>
             ))}
@@ -1856,7 +1855,7 @@ export default function QCPage() {
                       <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 8, height: 8, borderRadius: 2, background: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, flexShrink: 0 }} />
                         <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.reason}</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{item.count}例</span>
+                        <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
                         <span style={{ fontSize: 12, color: GRAY, minWidth: 36 }}>{item.percentage}%</span>
                         <span style={{ fontSize: 12, padding: '1px 6px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>{item.trend}</span>
                       </div>
@@ -1994,7 +1993,7 @@ export default function QCPage() {
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
                         <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>{item.min}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: item.color, lineHeight: 1.5 }}>{item.desc}</div>
+                      <AppText size="xs" as="div" style={{ color: item.color, lineHeight: 1.5 }}>{item.desc}</AppText>
                     </div>
                   ))}
                 </div>
@@ -2016,7 +2015,7 @@ export default function QCPage() {
                         <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
                         <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>{item.min}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: item.color, lineHeight: 1.5 }}>{item.desc}</div>
+                      <AppText size="xs" as="div" style={{ color: item.color, lineHeight: 1.5 }}>{item.desc}</AppText>
                     </div>
                   ))}
                 </div>
@@ -2205,7 +2204,7 @@ export default function QCPage() {
                       { label: '超时报告', value: reportSummaryData.quarterly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
-                        <div style={{ fontSize: 12, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
+                        <AppText size="xs" weight={600} as="div" style={{ color: card.color, marginBottom: 6 }}>{card.label}</AppText>
                         <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                       </div>
                     ))}
@@ -2216,7 +2215,7 @@ export default function QCPage() {
                       {reportSummaryData.quarterly.trends.map(item => (
                         <div key={item.metric} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 12, color: GRAY }}>{item.metric}:</span>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{item.value}</span>
+                          <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{item.value}</AppText>
                           <span style={{ fontSize: 12, color: item.trend === 'up' ? SUCCESS : item.trend === 'down' ? DANGER : GRAY }}>
                             {item.trend === 'up' ? <TrendingUp size={14} /> : item.trend === 'down' ? <TrendingDown size={14} /> : <Minus size={14} />}
                             {item.change}
@@ -2242,7 +2241,7 @@ export default function QCPage() {
                       { label: '超时报告', value: reportSummaryData.yearly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
-                        <div style={{ fontSize: 12, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
+                        <AppText size="xs" weight={600} as="div" style={{ color: card.color, marginBottom: 6 }}>{card.label}</AppText>
                         <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                       </div>
                     ))}
@@ -2293,41 +2292,40 @@ export default function QCPage() {
                   >
                     <Plus size={14} />{t('qc.newRecord')}</button>
                 </div>
-                <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                      {['记录ID', '机构', '问题类型', '问题描述', '严重程度', '状态', '上报日期', '整改期限', '操作'].map(h => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {issueTrackingData.map((item, idx) => (
-                      <tr key={item.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)' }}>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{item.id}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{item.institution}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', background: item.issueType.includes('危急值') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: item.issueType.includes('危急值') ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{item.issueType}</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)', maxWidth: 200 }}>{item.description}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', background: item.severity === '高' ? 'var(--color-error-bg)' : item.severity === '中' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: item.severity === '高' ? DANGER : item.severity === '中' ? WARNING : GRAY, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{item.severity}</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', background: item.status === '已整改' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: item.status === '已整改' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{item.status}</span>
-                        </td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{item.reportedDate}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{item.dueDate}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
-                            style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                          >{t('qc.detail')}</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table></div>
+                <VirtualTable
+                  columns={[
+                    { title: '记录ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    { title: '机构', dataIndex: 'institution', key: 'institution', render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{v}</span> },
+                    {
+                      title: '问题类型', dataIndex: 'issueType', key: 'issueType',
+                      render: (v: string) => <span style={{ padding: '2px 8px', background: v.includes('危急值') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v.includes('危急值') ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                    },
+                    { title: '问题描述', dataIndex: 'description', key: 'description', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+                    {
+                      title: '严重程度', dataIndex: 'severity', key: 'severity', width: 90,
+                      render: (v: string) => <span style={{ padding: '2px 8px', background: v === '高' ? 'var(--color-error-bg)' : v === '中' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: v === '高' ? DANGER : v === '中' ? WARNING : GRAY, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                    },
+                    {
+                      title: '状态', dataIndex: 'status', key: 'status', width: 90,
+                      render: (v: string) => <span style={{ padding: '2px 8px', background: v === '已整改' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: v === '已整改' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                    },
+                    { title: '上报日期', dataIndex: 'reportedDate', key: 'reportedDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    { title: '整改期限', dataIndex: 'dueDate', key: 'dueDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    {
+                      title: '操作', key: 'action', width: 90,
+                      render: (_: unknown, item) => (
+                        <button
+                          onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
+                          style={{ padding: '3px 8px', background: 'var(--color-info-bg)', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                        >{t('qc.detail')}</button>
+                      ),
+                    },
+                  ]}
+                  dataSource={issueTrackingData}
+                  rowKey="id"
+                  height={380}
+                  pageSize={10}
+                />
               </div>
 
               {/* 整改统计 */}
@@ -2442,7 +2440,7 @@ export default function QCPage() {
                       { label: '一致率', value: `${(kappaData.agreedCases / kappaData.totalCases * 100).toFixed(1)}%`, color: WARNING },
                     ].map(item => (
                       <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6 }}>
-                        <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
+                        <AppText size="xs" color="secondary">{item.label}</AppText>
                         <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.value}</span>
                       </div>
                     ))}
@@ -2466,7 +2464,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
@@ -2568,7 +2566,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
@@ -2684,7 +2682,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
               </div>
             ))}
           </div>
@@ -2820,7 +2818,7 @@ export default function QCPage() {
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Target size={18} color={card.color} />
                     </div>
-                    <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}{card.suffix}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                    <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}{card.suffix}</div><AppText size="xs" color="secondary">{card.label}</AppText></div>
                   </div>
                 ))}
               </div>
@@ -3094,13 +3092,13 @@ export default function QCPage() {
               <>
                 <div style={{ width: 48, height: 48, border: '4px solid var(--border-color)', borderTopColor: ACCENT, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
                 <div style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>{progressModal.title}</div>
-                <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
+                <AppText size="sm" color="secondary" as="div">{progressModal.message}</AppText>
               </>
             ) : (
               <>
                 <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
                 <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}完成</div>
-                <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
+                <AppText size="sm" color="secondary" as="div">{progressModal.message}</AppText>
               </>
             )}
           </div>
@@ -3158,8 +3156,8 @@ export default function QCPage() {
                 { label: '及时性', value: `${peerReviewDetail.timeliness} 分` },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6 }}>
-                  <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{item.value}</span>
+                  <AppText size="xs" color="secondary">{item.label}</AppText>
+                  <AppText size="sm" weight={700} as="span" style={{ color: PRIMARY }}>{item.value}</AppText>
                 </div>
               ))}
             </div>

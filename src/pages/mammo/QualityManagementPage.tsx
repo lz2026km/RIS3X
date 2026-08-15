@@ -1,10 +1,11 @@
 // 6.7 Quality Management (20 pts)
 // 数据源: mammoQcApi (/mammo-qc/overview + /mammo-qc/records, [Wave1B] 后端已实现, MSW 仅 mock 兜底)
 // [G005 Wave1A W9] 新增: /mammo-qc/tests|standards|stats 区块
+// [G-21 Wave3C] 新增: 乳腺质控评估区块 (breast-evaluate) + 乳腺质控规则列表 (breast-rules)
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText, ClipboardList, BookOpen, PieChart } from 'lucide-react'
-import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats } from '../../services/api/mammoQcApi'
-import { Card, Tabs } from 'antd'
+import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText, ClipboardList, BookOpen, PieChart, AlertTriangle, Scale } from 'lucide-react'
+import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats, type BreastQcRule, type BreastQcImageInput, type BreastQcEvaluateResult } from '../../services/api/mammoQcApi'
+import { Card, Tabs, message } from 'antd'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
@@ -52,6 +53,17 @@ const QualityManagementPage = () => {
   const [standards, setStandards] = useState<MammoQcStandard[]>([])
   const [qcStats, setQcStats] = useState<MammoQcStats | null>(null)
   const [extLoading, setExtLoading] = useState(true)
+  // [G-21 Wave3C] 乳腺质控规则 + 影像质量评估
+  const [breastRules, setBreastRules] = useState<BreastQcRule[]>([])
+  const [ruleLoading, setRuleLoading] = useState(true)
+  const [evaluateImages, setEvaluateImages] = useState<BreastQcImageInput[]>([
+    { view: 'LCC', coverage: 92, nippleTangential: true, compression: 52, agd: 2.2 },
+    { view: 'RCC', coverage: 91, nippleTangential: true, compression: 54, agd: 2.3 },
+    { view: 'LMLO', coverage: 96, nippleTangential: true, compression: 62, agd: 2.4 },
+    { view: 'RMLO', coverage: 95, nippleTangential: true, compression: 64, agd: 2.5 },
+  ])
+  const [evaluateResult, setEvaluateResult] = useState<BreastQcEvaluateResult | null>(null)
+  const [evaluating, setEvaluating] = useState(false)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -82,8 +94,46 @@ const QualityManagementPage = () => {
     setExtLoading(false)
   }, [])
 
+  // [G-21 Wave3C] 乳腺质控规则列表 (后端 GET /mammo-qc/breast-rules)
+  const fetchBreastRules = useCallback(async () => {
+    setRuleLoading(true)
+    try {
+      const res = await mammoQcApi.getBreastRules()
+      if (res.success && Array.isArray(res.data)) setBreastRules(res.data)
+    } catch { /* 保持空 */ }
+    setRuleLoading(false)
+  }, [])
+
+  // [G-21 Wave3C] 影像质量参数 → 规则命中评估
+  const handleEvaluate = async () => {
+    setEvaluating(true)
+    try {
+      const res = await mammoQcApi.evaluateBreast(evaluateImages)
+      if (res.success && res.data) {
+        setEvaluateResult(res.data)
+      } else {
+        message.error(res.error?.message ?? '质控评估失败')
+      }
+    } catch {
+      message.error('质控评估失败')
+    } finally {
+      setEvaluating(false)
+    }
+  }
+
+  const patchImage = (index: number, patch: Partial<BreastQcImageInput>) => {
+    setEvaluateImages(prev => prev.map((img, i) => i === index ? { ...img, ...patch } : img))
+  }
+
+  const evalStatusStyle: Record<string, { bg: string; text: string }> = {
+    '通过': { bg: '#22c55e22', text: '#16a34a' },
+    '告警': { bg: '#f59e0b22', text: '#ca8a04' },
+    '不合格': { bg: '#ef444422', text: '#dc2626' },
+  }
+
   useEffect(() => { fetchAll() }, [fetchAll])
   useEffect(() => { fetchExt() }, [fetchExt])
+  useEffect(() => { fetchBreastRules() }, [fetchBreastRules])
 
   const handleExportReport = () => {
     const header = '患者,模态,技师,日期,评分,结果,问题'
@@ -192,6 +242,90 @@ const QualityManagementPage = () => {
                 </tr>
               ))}
               {!loading && filtered.length === 0 && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>暂无匹配记录</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* [G-21 Wave3C] 乳腺质控评估: 影像质量参数表单 → 规则命中评估 */}
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <div style={s.sectionTitle}><Scale size={16} color='#be185d' />乳腺质控评估 (投照质量 / 剂量)</div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={s.table}>
+            <thead><tr>
+              <th style={s.th}>体位</th>
+              <th style={s.th}>覆盖 (%)</th>
+              <th style={s.th}>乳头切线位</th>
+              <th style={s.th}>压迫厚度 (mm)</th>
+              <th style={s.th}>AGD (mGy)</th>
+            </tr></thead>
+            <tbody>
+              {evaluateImages.map((img, i) => (
+                <tr key={img.view}>
+                  <td style={{ ...s.td, fontWeight: 600 }}>{img.view}</td>
+                  <td style={s.td}><input type="number" min={0} max={100} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.coverage ?? ''} onChange={e => patchImage(i, { coverage: Number(e.target.value) })} /></td>
+                  <td style={s.td}><input type="checkbox" checked={img.nippleTangential ?? false} onChange={e => patchImage(i, { nippleTangential: e.target.checked })} /></td>
+                  <td style={s.td}><input type="number" min={0} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.compression ?? ''} onChange={e => patchImage(i, { compression: Number(e.target.value) })} /></td>
+                  <td style={s.td}><input type="number" min={0} step={0.1} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.agd ?? ''} onChange={e => patchImage(i, { agd: Number(e.target.value) })} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button style={s.btnPrimary} onClick={handleEvaluate} disabled={evaluating}><AlertTriangle size={14} /> {evaluating ? '评估中...' : '开始质控评估'}</button>
+          {evaluateResult && (
+            <span style={{ ...s.bad, background: evalStatusStyle[evaluateResult.overall]?.bg, color: evalStatusStyle[evaluateResult.overall]?.text, fontSize: 14, padding: '6px 14px' }}>
+              整体结果: {evaluateResult.overall} · 通过 {evaluateResult.passed} / 告警 {evaluateResult.warned} / 不合格 {evaluateResult.failed} · 评分 {evaluateResult.score}
+            </span>
+          )}
+        </div>
+        {evaluateResult && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>规则命中明细 ({evaluateResult.hits.length})</div>
+            <div style={s.scrollBox}>
+              <table style={s.table}>
+                <thead><tr>
+                  <th style={s.th}>影像</th><th style={s.th}>规则</th><th style={s.th}>类别</th><th style={s.th}>级别</th><th style={s.th}>结果</th><th style={s.th}>依据</th>
+                </tr></thead>
+                <tbody>
+                  {evaluateResult.images.map(img => img.hits.map(h => (
+                    <tr key={`${img.view}-${h.ruleId}`}>
+                      <td style={{ ...s.td, fontWeight: 600 }}>{img.view}</td>
+                      <td style={s.td}>{h.ruleId} {h.name}</td>
+                      <td style={s.td}>{h.category}</td>
+                      <td style={s.td}>{h.level === 'required' ? '必查' : '建议'}</td>
+                      <td style={s.td}><StatusBadge status={h.status} /></td>
+                      <td style={{ ...s.td, color: 'var(--text-secondary)' }}>{h.basis}</td>
+                    </tr>
+                  ))).flat()}
+                  {evaluateResult.hits.length === 0 && <tr><td colSpan={6} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>未命中规则</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* [G-21 Wave3C] 乳腺质控规则库 (15 条 seed) */}
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <div style={s.sectionTitle}><BookOpen size={16} color='#0d9488' />乳腺质控规则库 ({breastRules.length})</div>
+        <div style={s.scrollBox}>
+          <table style={s.table}>
+            <thead><tr>
+              <th style={s.th}>规则</th><th style={s.th}>类别</th><th style={s.th}>级别</th><th style={s.th}>要求/说明</th>
+            </tr></thead>
+            <tbody>
+              {ruleLoading && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</td></tr>}
+              {!ruleLoading && breastRules.map(r => (
+                <tr key={r.id}>
+                  <td style={{ ...s.td, fontWeight: 600, whiteSpace: 'nowrap' }}>{r.id} {r.name}</td>
+                  <td style={s.td}><span style={{ padding: '2px 8px', borderRadius: 10, background: r.category === '剂量' ? '#fef3c7' : r.category === '投照质量' ? '#dbeafe' : '#dcfce7', color: r.category === '剂量' ? '#b45309' : r.category === '投照质量' ? '#1d4ed8' : '#15803d', fontSize: 11, fontWeight: 600 }}>{r.category}</span></td>
+                  <td style={s.td}>{r.level === 'required' ? <span style={{ color: '#dc2626', fontWeight: 600 }}>必查</span> : <span style={{ color: '#64748b' }}>建议</span>}</td>
+                  <td style={{ ...s.td, color: 'var(--text-secondary)' }}>{r.description}</td>
+                </tr>
+              ))}
+              {!ruleLoading && breastRules.length === 0 && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>暂无规则 (后端 /mammo-qc/breast-rules 不可用)</td></tr>}
             </tbody>
           </table>
         </div>

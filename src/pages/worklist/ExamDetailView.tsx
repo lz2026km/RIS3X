@@ -36,6 +36,10 @@ import { examApi } from "../../services/api/examApi";
 import { worklistApi } from "../../services/api/worklistApi";
 import { message } from "antd";
 import type { ExamDto } from "../../types/dto";
+// [v3.0.6.11-100 Wave 1B] 设备维护提醒横幅 (设备信息存在时展示)
+import DeviceMaintenanceBanner from "../../components/tech/DeviceMaintenanceBanner";
+// [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 + 交接班
+import TechnicianAssignmentEditor from "../../components/worklist/TechnicianAssignmentEditor";
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
 
@@ -157,6 +161,27 @@ export function ExamDetailView({
   //   无数据时展示「暂无操作记录」空态 (替代 -96 伪造时间线)
   const [opsLog, setOpsLog] = useState<Array<{ time: string; event: string; operator: string }>>([])
   const [opsLoading, setOpsLoading] = useState(false)
+
+  // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师 (worklistApi.getById → primaryTechnician/backupTechnician)
+  const [techAssignment, setTechAssignment] = useState<{
+    primary?: { id: string; fullName: string } | null
+    backup?: { id: string; fullName: string } | null
+  }>({ primary: null, backup: null })
+  const [techEditorOpen, setTechEditorOpen] = useState(false)
+  const [techEditorMode, setTechEditorMode] = useState<"assign" | "handover">("assign")
+
+  useEffect(() => {
+    if (!exam) return
+    let cancelled = false
+    worklistApi.getById(exam.id)
+      .then((res) => {
+        if (cancelled) return
+        const d = res.data
+        setTechAssignment({ primary: d?.primaryTechnician ?? null, backup: d?.backupTechnician ?? null })
+      })
+      .catch(() => { if (!cancelled) setTechAssignment({ primary: null, backup: null }) })
+    return () => { cancelled = true }
+  }, [exam?.id])
 
   // [G005 Wave1A W9] 状态流转: worklistApi checkin/start/complete/cancel (后端 POST /worklist/:id/*)
   // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
@@ -442,6 +467,13 @@ export function ExamDetailView({
         </div>
       </div>
 
+      {/* [v3.0.6.11-100 Wave 1B] 设备维护提醒 (设备信息存在时) */}
+      {exam.deviceId && (
+        <div style={{ padding: "12px 20px 0", background: "var(--content-bg)" }}>
+          <DeviceMaintenanceBanner deviceId={exam.deviceId} deviceName={device?.name} />
+        </div>
+      )}
+
       <div
         style={{
           padding: "12px 20px",
@@ -586,6 +618,87 @@ export function ExamDetailView({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师 + 交接班 */}
+            <div style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#1e40af",
+                  marginBottom: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <UserCog size={14} />
+                技师协作
+              </div>
+              <div
+                style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
+                data-testid="tech-collab-section"
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>主技师:</span>
+                    {techAssignment.primary ? (
+                      <span
+                        style={{
+                          padding: "2px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+                          background: "#2563eb22", color: "#2563eb",
+                        }}
+                        data-testid="tech-primary-tag"
+                      >
+                        {techAssignment.primary.fullName}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>未分配</span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>备技师:</span>
+                    {techAssignment.backup ? (
+                      <span
+                        style={{
+                          padding: "2px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+                          background: "#7c3aed22", color: "#7c3aed",
+                        }}
+                        data-testid="tech-backup-tag"
+                      >
+                        {techAssignment.backup.fullName}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>未分配</span>
+                    )}
+                  </div>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => { setTechEditorMode("assign"); setTechEditorOpen(true) }}
+                      style={{
+                        padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+                        fontSize: 12, fontWeight: 600, background: "#2563eb", color: "#fff",
+                        display: "flex", alignItems: "center", gap: 4,
+                      }}
+                      data-testid="tech-assign-btn"
+                    >
+                      <UserCog size={12} /> 分配技师
+                    </button>
+                    <button
+                      onClick={() => { setTechEditorMode("handover"); setTechEditorOpen(true) }}
+                      style={{
+                        padding: "4px 12px", borderRadius: 6, border: "1px solid #d97706", cursor: "pointer",
+                        fontSize: 12, fontWeight: 600, background: "#f59e0b18", color: "#d97706",
+                        display: "flex", alignItems: "center", gap: 4,
+                      }}
+                      data-testid="tech-handover-btn"
+                    >
+                      <ArrowLeftRight size={12} /> 交接班
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1264,6 +1377,26 @@ export function ExamDetailView({
           创建随访计划
         </button>
       </div>
+
+      {/* [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 / 交接班 */}
+      <TechnicianAssignmentEditor
+        examId={exam.id}
+        open={techEditorOpen}
+        mode={techEditorMode}
+        currentPrimary={techAssignment.primary ? { id: techAssignment.primary.id, fullName: techAssignment.primary.fullName } : null}
+        currentBackup={techAssignment.backup ? { id: techAssignment.backup.id, fullName: techAssignment.backup.fullName } : null}
+        onClose={() => setTechEditorOpen(false)}
+        onSaved={() => {
+          // 保存后刷新主备技师信息
+          worklistApi.getById(exam.id)
+            .then((res) => {
+              const d = res.data
+              setTechAssignment({ primary: d?.primaryTechnician ?? null, backup: d?.backupTechnician ?? null })
+            })
+            .catch(() => undefined)
+          onStatusChanged?.()
+        }}
+      />
     </div>
   );
 }

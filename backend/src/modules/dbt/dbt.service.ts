@@ -82,6 +82,141 @@ export interface DbtCompareResult {
   lateralityMap: Array<{ laterality: 'L' | 'R'; currentSeries?: string; priorSeries?: string }>
 }
 
+// [G-21 Wave3C] DBT 微钙化检测 → BI-RADS 自动评分
+export type BiradsCalcificationDistribution =
+  | 'clustered' | 'linear' | 'segmental' | 'regional' | 'diffuse'
+export type BiradsCalcificationMorphology =
+  | 'round' | 'punctate' | 'popcorn' | 'egg_shell' | 'coarse' | 'large_rod' | 'vascular'
+  | 'amorphous' | 'coarse_heterogeneous' | 'fine_pleomorphic' | 'fine_linear'
+export type BiradsMassShape = 'round' | 'oval' | 'irregular'
+export type BiradsMassMargin = 'circumscribed' | 'microlobulated' | 'indistinct' | 'spiculated'
+
+export interface BiradsCalcificationInput {
+  count: number
+  distribution: BiradsCalcificationDistribution
+  morphology?: BiradsCalcificationMorphology
+}
+
+export interface BiradsMassInput {
+  size: number
+  shape: BiradsMassShape
+  margin: BiradsMassMargin
+}
+
+export interface BiradsScoreInput {
+  calcifications?: BiradsCalcificationInput[]
+  mass?: BiradsMassInput
+}
+
+export type BiradsCategory = '0' | '1' | '2' | '3' | '4A' | '4B' | '4C' | '5'
+
+export interface BiradsScoreResult {
+  studyId: string
+  category: BiradsCategory
+  categoryLabel: string
+  malignancyRisk: string
+  recommendation: string
+  basis: string[]
+  features: {
+    calcifications: Array<{ count: number; distribution: string; morphology?: string }>
+    mass?: { size: number; shape: string; margin: string }
+  }
+  scoredAt: string
+}
+
+const CALC_MORPHOLOGY_LABEL: Record<string, string> = {
+  round: '圆形钙化(典型良性)', punctate: '点状钙化(典型良性)', popcorn: '爆米花样钙化(典型良性)',
+  egg_shell: '蛋壳样钙化(典型良性)', coarse: '粗大钙化(典型良性)', large_rod: '大杆状钙化(典型良性)',
+  vascular: '血管样钙化(典型良性)', amorphous: '无定形钙化(可疑)', coarse_heterogeneous: '粗糙不均质钙化(可疑)',
+  fine_pleomorphic: '细小多形性钙化(高度可疑)', fine_linear: '细小线样/分支状钙化(高度可疑)',
+}
+
+const CALC_DISTRIBUTION_LABEL: Record<string, string> = {
+  clustered: '簇状分布', linear: '线样分布(可疑)', segmental: '段样分布(可疑)',
+  regional: '区域分布', diffuse: '弥漫分布',
+}
+
+const BENIGN_MORPHOLOGIES = new Set([
+  'round', 'punctate', 'popcorn', 'egg_shell', 'coarse', 'large_rod', 'vascular',
+])
+
+/** 确定性评分记录 (内存, 重启后由前端重新提交) */
+const biradsScoreStore = new Map<string, BiradsScoreResult>()
+
+type CalcTier = { rank: number; category: BiradsCategory; basis: string[] }
+
+function calcTier(input: BiradsCalcificationInput): CalcTier {
+  const d = input.distribution
+  const m = input.morphology
+  const distLabel = CALC_DISTRIBUTION_LABEL[d] ?? d
+  const morphLabel = m ? (CALC_MORPHOLOGY_LABEL[m] ?? m) : '形态未标注'
+  const basis: string[] = []
+  const prefix = `${input.count} 枚${distLabel}微钙化`
+
+  if (input.count <= 0) {
+    basis.push('未检出微钙化')
+    return { rank: 1, category: '1', basis }
+  }
+  if (m === 'fine_linear' || m === 'fine_pleomorphic') {
+    basis.push(`${prefix}${morphLabel} → BI-RADS 4C 类 (细小线样/多形性, 高度可疑)`)
+    return { rank: 6, category: '4C', basis }
+  }
+  if (m === 'amorphous' || m === 'coarse_heterogeneous') {
+    basis.push(`${prefix}${morphLabel} → BI-RADS 4B 类 (可疑形态学特征)`)
+    return { rank: 5, category: '4B', basis }
+  }
+  if (d === 'linear' || d === 'segmental') {
+    basis.push(`${prefix}${morphLabel} → BI-RADS 4A 类 (可疑分布, 形态良性)`)
+    return { rank: 4, category: '4A', basis }
+  }
+  if (m && BENIGN_MORPHOLOGIES.has(m)) {
+    basis.push(`${prefix}${morphLabel} → BI-RADS 2 类 (典型良性)`)
+    return { rank: 2, category: '2', basis }
+  }
+  basis.push(`${prefix} → BI-RADS 2 类 (无恶性特征)`)
+  return { rank: 2, category: '2', basis }
+}
+
+type MassTier = { rank: number; category: BiradsCategory; basis: string[] }
+
+function massTier(input: BiradsMassInput): MassTier {
+  const basis: string[] = []
+  const desc = `${input.size}mm ${input.shape === 'round' ? '圆形' : input.shape === 'oval' ? '卵圆形' : '不规则形'}肿块, 边缘${input.margin === 'circumscribed' ? '清晰' : input.margin === 'microlobulated' ? '微分叶' : input.margin === 'indistinct' ? '模糊' : '毛刺'}`
+  if (input.margin === 'spiculated') {
+    basis.push(`${desc} → BI-RADS 5 类 (毛刺状边缘, 高度怀疑恶性)`)
+    return { rank: 7, category: '5', basis }
+  }
+  if (input.shape === 'irregular') {
+    basis.push(`${desc} → BI-RADS 4C 类 (不规则形态, 高度可疑)`)
+    return { rank: 6, category: '4C', basis }
+  }
+  if (input.margin === 'microlobulated' || input.margin === 'indistinct') {
+    basis.push(`${desc} → BI-RADS 4B 类 (可疑边缘特征)`)
+    return { rank: 5, category: '4B', basis }
+  }
+  if (input.shape === 'round' || input.shape === 'oval') {
+    if (input.size >= 25) {
+      basis.push(`${desc} → BI-RADS 3 类 (圆形/卵圆形且边缘清晰, 但体积较大, 建议短期随访)`)
+      return { rank: 3, category: '3', basis }
+    }
+    basis.push(`${desc} → BI-RADS 2 类 (典型良性)`)
+    return { rank: 2, category: '2', basis }
+  }
+  basis.push(`${desc} → BI-RADS 3 类 (可能良性, 建议随访)`)
+  return { rank: 3, category: '3', basis }
+}
+
+const CATEGORY_INFO: Record<BiradsCategory, { label: string; risk: string; recommendation: string }> = {
+  '0': { label: 'BI-RADS 0 类', risk: '无法评估', recommendation: '需补充影像评估(如放大摄影、断层或超声)' },
+  '1': { label: 'BI-RADS 1 类', risk: '阴性(恶性可能 0%)', recommendation: '常规筛查随访' },
+  '2': { label: 'BI-RADS 2 类', risk: '良性发现(恶性可能 0%)', recommendation: '常规筛查随访' },
+  '3': { label: 'BI-RADS 3 类', risk: '可能良性(恶性可能 0-2%)', recommendation: '建议 6 个月短期随访' },
+  '4A': { label: 'BI-RADS 4A 类', risk: '低度可疑(恶性可能 2-10%)', recommendation: '建议穿刺活检' },
+  '4B': { label: 'BI-RADS 4B 类', risk: '中度可疑(恶性可能 10-50%)', recommendation: '建议穿刺活检' },
+  '4C': { label: 'BI-RADS 4C 类', risk: '高度可疑(恶性可能 50-95%)', recommendation: '建议穿刺活检或手术切除' },
+  '5': { label: 'BI-RADS 5 类', risk: '高度怀疑恶性(恶性可能 >95%)', recommendation: '建议活检并临床干预' },
+}
+
 interface BuiltinSeriesRef {
   key: string
   laterality: 'L' | 'R'
@@ -506,6 +641,71 @@ export class DbtService {
       priorSeries: prior.series.find((ps) => ps.laterality === cs.laterality)?.seriesInstanceUid,
     }))
     return { current, prior, lateralityMap }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // [G-21 Wave3C] 微钙化检测 → BI-RADS 自动评分 (按 ACR BI-RADS 规则确定性判定)
+  // ────────────────────────────────────────────────────────────────────────────
+
+  async scoreBirads(studyId: string, input: BiradsScoreInput): Promise<BiradsScoreResult> {
+    this.findStudy(studyId) // 校验检查存在
+    const calcifications = input.calcifications ?? []
+    const hasCalc = calcifications.some((c) => c.count > 0)
+    const hasMass = !!input.mass
+    const basis: string[] = []
+
+    if (!hasCalc && !hasMass) {
+      basis.push('本次检查未提供微钙化/肿块特征, 需补充影像评估')
+      const result: BiradsScoreResult = {
+        studyId,
+        category: '0',
+        categoryLabel: CATEGORY_INFO['0'].label,
+        malignancyRisk: CATEGORY_INFO['0'].risk,
+        recommendation: CATEGORY_INFO['0'].recommendation,
+        basis,
+        features: { calcifications: calcifications.map((c) => ({ count: c.count, distribution: c.distribution, morphology: c.morphology })) },
+        scoredAt: new Date().toISOString(),
+      }
+      biradsScoreStore.set(studyId, result)
+      return result
+    }
+
+    let worst: { rank: number; category: BiradsCategory } | null = null
+    for (const c of calcifications) {
+      const { rank, category, basis: b } = calcTier(c)
+      if (!worst || rank > worst.rank) worst = { rank, category }
+      basis.push(...b)
+    }
+    if (hasMass) {
+      const { rank, category, basis: b } = massTier(input.mass!)
+      if (!worst || rank > worst.rank) worst = { rank, category }
+      basis.push(...b)
+    }
+    const category: BiradsCategory = worst ? worst.category : '1'
+
+    const info = CATEGORY_INFO[category]
+    const result: BiradsScoreResult = {
+      studyId,
+      category,
+      categoryLabel: info.label,
+      malignancyRisk: info.risk,
+      recommendation: info.recommendation,
+      basis,
+      features: {
+        calcifications: calcifications.map((c) => ({ count: c.count, distribution: c.distribution, morphology: c.morphology })),
+        ...(hasMass ? { mass: { size: input.mass!.size, shape: input.mass!.shape, margin: input.mass!.margin } } : {}),
+      },
+      scoredAt: new Date().toISOString(),
+    }
+    biradsScoreStore.set(studyId, result)
+    return result
+  }
+
+  /** [G-21 Wave3C] 已有 BI-RADS 评分查询 */
+  getBiradsScore(studyId: string): { scored: boolean; score?: BiradsScoreResult } {
+    const score = biradsScoreStore.get(studyId)
+    if (!score) return { scored: false }
+    return { scored: true, score: { ...score, features: { ...score.features, calcifications: score.features.calcifications.map((c) => ({ ...c })) } } }
   }
 
   // ────────────────────────────────────────────────────────────────────────────

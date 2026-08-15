@@ -35,6 +35,21 @@ export interface ClinicalReceiptDto {
   comment?: string
 }
 
+// [G005 Wave 8] 报告→危急值反向引用: 内存链接表 reportId → 创建时的危急值记录
+//   (CriticalValue 表无 reportId 列, 与 critical-alert extras 同风格内存兼容)
+export interface ReportCriticalLinkRecord {
+  id: string
+  description: string
+  severity: string
+  state: string
+  createdAt: string
+  examId?: string | null
+  patientId?: string | null
+  method?: string | null
+}
+
+export const criticalReportLinks = new Map<string, ReportCriticalLinkRecord[]>()
+
 const SEVERITY_TO_CATEGORY: Record<string, 'LIFE_THREATENING' | 'URGENT' | 'IMPORTANT'> = {
   CRITICAL: 'LIFE_THREATENING',
   URGENT: 'URGENT',
@@ -89,7 +104,65 @@ export class CriticalsService {
     return c
   }
 
-  async create(dto: { examId?: string; description: string; severity: string; method: string }) {
+  /**
+   * [G005 Wave 8] GET /criticals/for-report/:reportId — 按报告查询关联危急值 (反向引用)。
+   * 数据源: 内存链接表 criticalReportLinks (报告→危急值转入时写入) + DB criticalValue (examId 匹配), 去重合并。
+   */
+  async forReport(reportId: string) {
+    let examId: string | null = null
+    try {
+      const report = await this.prisma.report.findUnique({ where: { id: reportId } })
+      if (!report) throw new NotFoundException(`Report ${reportId} not found`)
+      examId = report.examId
+    } catch {
+      // DB 不可用 → 仅内存链接
+    }
+    const dbItems: any[] = []
+    if (examId) {
+      try {
+        dbItems.push(
+          ...(await this.prisma.criticalValue.findMany({
+            where: { examId, tenantId: currentTenantId() },
+            orderBy: { createdAt: 'desc' },
+            take: 50,
+          })),
+        )
+      } catch { /* DB 不可用 */ }
+    }
+    const linked = criticalReportLinks.get(reportId) ?? []
+    const seen = new Set<string>(dbItems.map((c) => c.id))
+    for (const rec of linked) {
+      if (seen.has(rec.id)) continue
+      seen.add(rec.id)
+      dbItems.push({
+        id: rec.id,
+        examId: rec.examId,
+        patientId: rec.patientId,
+        description: rec.description,
+        severity: rec.severity,
+        state: rec.state,
+        method: rec.method,
+        createdAt: new Date(rec.createdAt),
+      })
+    }
+    return {
+      reportId,
+      items: dbItems.map((c) => ({
+        id: c.id,
+        examId: c.examId ?? undefined,
+        patientId: c.patientId ?? undefined,
+        description: c.description,
+        severity: String(c.severity),
+        state: String(c.state),
+        method: c.method ? String(c.method) : undefined,
+        createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : '',
+        linkedByReport: true,
+      })),
+      total: dbItems.length,
+    }
+  }
+
+  async create(dto: { examId?: string; description: string; severity: string; method: string; reportId?: string }) {
     let patientId: string | undefined
     if (dto.examId) {
       const exam = await this.prisma.exam.findUnique({ where: { id: dto.examId } })
@@ -107,6 +180,22 @@ export class CriticalsService {
         tenantId: currentTenantId(),
       },
     }).then((created) => {
+      // [G005 Wave 8] 报告→危急值反向引用: 记录 reportId → criticalValue 内存链接
+      if (dto.reportId) {
+        const rec: ReportCriticalLinkRecord = {
+          id: created.id,
+          description: created.description,
+          severity: String(created.severity),
+          state: String(created.state),
+          createdAt: created.createdAt.toISOString(),
+          examId: created.examId,
+          patientId: created.patientId,
+          method: String(created.method ?? dto.method ?? ''),
+        }
+        const list = criticalReportLinks.get(dto.reportId) ?? []
+        list.unshift(rec)
+        criticalReportLinks.set(dto.reportId, list)
+      }
       // W4-2: 实时推送 - 危急值创建即时提示 + 工作列表刷新
       this.gateway.push('*', {
         event: 'notify',

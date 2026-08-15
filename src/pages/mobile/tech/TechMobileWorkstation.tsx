@@ -212,17 +212,29 @@ export default function TechMobileWorkstation() {
     return true
   })
 
-  // [Wave2A] 开始检查 → POST /worklist/:id/start (MSW 支撑, 后端 worklist 待对齐)
+  // [Wave2A] 开始检查 → worklistApi.start (与桌面 Worklist 同源, 失效 /worklist 缓存)
+  // [v3.0.6.11-100 Wave 5B] 失败回退 examApi.start (同端点兼容), 回退成功标注消息
   const [operatingId, setOperatingId] = useState<string | null>(null)
   const handleStartExam = useCallback(async (id: string) => {
     setOperatingId(id)
+    let fellBack = false
     try {
-      const res = await examApi.start(id)
-      if (res.success) {
+      let res: { success: boolean; error?: { message?: string } } | null = null
+      try {
+        res = await worklistApi.start(id)
+      } catch {
+        res = null
+      }
+      if (!res || !res.success) {
+        const fb = await examApi.start(id).catch(() => null)
+        fellBack = !!fb && fb.success
+        res = (fb ?? res) as typeof res
+      }
+      if (res && res.success) {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'in-progress' as const } : item))
-        message.success(`已开始检查: ${id}`)
+        message.success(fellBack ? `已开始检查 (examApi 兼容回退): ${id}` : `已开始检查: ${id}`)
       } else {
-        message.error(res.error?.message ?? '开始检查失败')
+        message.error(res?.error?.message ?? '开始检查失败')
       }
     } catch {
       message.error('开始检查失败: 网络错误')
@@ -231,15 +243,27 @@ export default function TechMobileWorkstation() {
     }
   }, [])
 
+  // [v3.0.6.11-100 Wave 5B] 完成检查 → worklistApi.complete (与桌面同源); 失败回退 examApi.complete 并标注
   const handleCompleteExam = useCallback(async (id: string) => {
     setOperatingId(id)
+    let fellBack = false
     try {
-      const res = await examApi.complete(id)
-      if (res.success) {
+      let res: { success: boolean; error?: { message?: string } } | null = null
+      try {
+        res = await worklistApi.complete(id)
+      } catch {
+        res = null
+      }
+      if (!res || !res.success) {
+        const fb = await examApi.complete(id).catch(() => null)
+        fellBack = !!fb && fb.success
+        res = (fb ?? res) as typeof res
+      }
+      if (res && res.success) {
         setExams(prev => prev.map(item => item.id === id ? { ...item, status: 'completed' as const } : item))
-        message.success(`检查完成: ${id}`)
+        message.success(fellBack ? `检查完成 (examApi 兼容回退): ${id}` : `检查完成: ${id}`)
       } else {
-        message.error(res.error?.message ?? '完成检查失败')
+        message.error(res?.error?.message ?? '完成检查失败')
       }
     } catch {
       message.error('完成检查失败: 网络错误')

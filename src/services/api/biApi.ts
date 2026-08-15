@@ -159,14 +159,17 @@ export const biApi = {
   // ── Wave 5B-A 大屏模板库 (后端返回 { source, data } 信封) ──
   getWallTemplates: () => api.get<BiEnvelope<WallTemplateDto[]>>('/bi/wall-templates'),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getWallTemplate: (id: string) => api.get<WallTemplateDto>(`/bi/wall-templates/${id}`),
 
   createWallTemplate: (data: { name: string; layout: WallLayout; config?: Record<string, unknown>; active?: boolean }) =>
     api.post<WallTemplateDto>('/bi/wall-templates', data),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   updateWallTemplate: (id: string, data: Partial<{ name: string; layout: WallLayout; config: Record<string, unknown>; active: boolean }>) =>
     api.patch<WallTemplateDto>(`/bi/wall-templates/${id}`, data),
 
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   deleteWallTemplate: (id: string) =>
     api.delete<{ id: string; deleted: boolean }>(`/bi/wall-templates/${id}`),
 }

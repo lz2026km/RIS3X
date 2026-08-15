@@ -67,6 +67,7 @@ export function createNoopGateway(): NotificationsGateway {
     broadcastAll: () => undefined,
     emitToUser: () => undefined,
     emitWorklistRefresh: () => undefined,
+    emitRoomStatusRefresh: () => undefined,
     emitOpsUpdate: () => undefined,
     subscribe: () => () => undefined,
     joinYjsRoom: () => undefined,
@@ -256,6 +257,15 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
       this.server?.to(GLOBAL_ROOM).emit('worklist-refresh', payload)
       this.logger.log(`worklist-refresh broadcast to global room`)
     }
+  }
+
+  /**
+   * [v3.0.6.11-100 Wave 1B] 检查间实时状态看板推送: 工作列表变化 → 房间看板客户端重新拉取
+   */
+  emitRoomStatusRefresh(): void {
+    const payload = { type: 'room-status-refresh', timestamp: Date.now() }
+    this.server?.to(GLOBAL_ROOM).emit('room-status-refresh', payload)
+    this.logger.log('room-status-refresh broadcast to global room')
   }
 
   // ──────────── [G005 Wave3A G-23] BI ops-update 推送 ────────────

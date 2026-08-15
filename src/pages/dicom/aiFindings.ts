@@ -171,6 +171,65 @@ function normalizeForModel(model: AiDiagnosisModelKey, r: any): AiFinding[] {
 /**
  * 鎸夊綋鍓?study 鎷夊彇鍊欓€夋ā鍨嬬殑妫€鍑虹粨鏋滃苟褰掍竴鍖? * @param study 褰撳墠閫変腑妫€鏌?(studyInstanceUID / patientName 鐢ㄤ簬鍖归厤)
  * @param modality 褰撳墠妯℃€? */
+/**
+ * [G005 v3.0.6.11-100 Wave 6A (D-1)] AI 标注一键插入报告:
+ *  - sessionStorage 通道: ris_ai_findings_insert (查看器写入 → 报告书写页读取)
+ *  - 段落 HTML: **AI 检出**：{类型} {位置/尺寸}（置信度 {p}） → <p><strong>AI 检出</strong>...</p>
+ */
+export const AI_FINDINGS_INSERT_KEY = 'ris_ai_findings_insert'
+
+export interface AiInsertItem {
+  id: string
+  label: string
+  detail: string
+  risk: string
+  confidence: number
+  modelLabel?: string
+  html: string
+}
+
+const escHtmlText = (v: unknown): string =>
+  String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch)
+
+/** 生成 AI 检出报告段落 HTML (格式: **AI 检出**：{类型} {位置} {尺寸}（置信度 {p}）) */
+export function buildAiFindingHtml(f: Pick<AiFinding, 'label' | 'detail' | 'confidence' | 'sliceLocation'>): string {
+  const pct = Math.round((f.confidence ?? 0) * 100)
+  const parts = [
+    f.label,
+    f.detail && f.detail !== '-' ? f.detail : '',
+    f.sliceLocation != null ? `层面 ${f.sliceLocation}` : '',
+  ].filter(Boolean)
+  return `<p><strong>AI 检出</strong>：${escHtmlText(parts.join(' '))}（置信度 ${pct}%）</p>`
+}
+
+/** 把检出缓存到 sessionStorage (报告书写页挂载时自动读取插入) */
+export function saveAiFindingsForReport(findings: AiFinding[], reportId?: string): void {
+  const items: AiInsertItem[] = findings.map((f) => ({
+    id: f.id,
+    label: f.label,
+    detail: f.detail,
+    risk: f.risk,
+    confidence: Math.round((f.confidence ?? 0) * 100),
+    modelLabel: f.modelLabel,
+    html: buildAiFindingHtml(f),
+  }))
+  window.sessionStorage.setItem(AI_FINDINGS_INSERT_KEY, JSON.stringify({ reportId: reportId ?? '', findings: items }))
+}
+
+/** 读取并清理 sessionStorage 中的 AI 检出待插入数据 */
+export function consumeAiFindingsForReport(): { reportId?: string; findings: AiInsertItem[] } | null {
+  try {
+    const raw = window.sessionStorage.getItem(AI_FINDINGS_INSERT_KEY)
+    if (!raw) return null
+    window.sessionStorage.removeItem(AI_FINDINGS_INSERT_KEY)
+    const parsed = JSON.parse(raw) as { reportId?: string; findings?: AiInsertItem[] }
+    const findings = Array.isArray(parsed?.findings) ? parsed.findings : []
+    return { reportId: parsed?.reportId ? String(parsed.reportId) : undefined, findings }
+  } catch {
+    return null
+  }
+}
+
 export async function loadAiFindings(study: DicomWebStudy | undefined, modality: string): Promise<AiFinding[]> {
   const models = MODALITY_AI_MODELS[modality?.toUpperCase() ?? ''] ?? []
   const findings: AiFinding[] = []

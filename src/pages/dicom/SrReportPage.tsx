@@ -2,6 +2,7 @@ import { usePagination } from "../../hooks/usePagination";
 import { reportApi } from "../../services/api";
 import { srDocumentApi } from "../../services/api/srReportApi";
 import { SrConceptName, SrContentItem, SrDocument, SrSection } from '../../services/api/srReportApi'
+import { EmptyState } from '../../components/common/EmptyState'
 import {
   Card,
   Table,
@@ -32,9 +33,10 @@ import {
   Send,
   Database,
   ChevronRight,
+  ClipboardPen,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Inbox } from 'lucide-react'
 
 const { Text, Paragraph } = Typography;
@@ -55,6 +57,7 @@ const valueTypeTag: Record<string, string> = {
 
 const SrReportPage: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState<SrDocument[]>([]);
   const { pageData: docPageData, pagination: docPagination } = usePagination(documents, 10);
   const [loading, setLoading] = useState(true);
@@ -64,6 +67,16 @@ const SrReportPage: React.FC = () => {
   const [generateOpen, setGenerateOpen] = useState(false);
   const [pushingId, setPushingId] = useState("");
   const [finalizingId, setFinalizingId] = useState("");
+  // [G005 Wave 8] SR → 报告回填: 测量摘要预览
+  const [backfillOpen, setBackfillOpen] = useState(false);
+  const [backfillLoading, setBackfillLoading] = useState(false);
+  const [backfillData, setBackfillData] = useState<{
+    srId: string;
+    reportId: string;
+    templateId: string;
+    paragraph: string;
+    measurements: Array<{ name: string; value: string; unit: string; source: string }>;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -173,6 +186,46 @@ const SrReportPage: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url);
     message.success(`已下载 DICOM SR ${result.filename}`);
+  };
+
+  // ───────────────────────── [G005 Wave 8] SR → 报告回填 ─────────────────────────
+
+  // 1) 调 /dicom-sr/to-report 解析 SR 测量值 → 预览摘要段落
+  const openBackfillPreview = async (doc: SrDocument) => {
+    setBackfillLoading(true);
+    setBackfillData(null);
+    setBackfillOpen(true);
+    try {
+      const res = await srDocumentApi.toReport(doc.id, doc.reportId);
+      if (res.success) {
+        setBackfillData(res.data);
+      } else {
+        message.error(res.error?.message ?? "SR 测量解析失败");
+        setBackfillOpen(false);
+      }
+    } catch {
+      message.error("SR 测量解析失败: 网络错误");
+      setBackfillOpen(false);
+    } finally {
+      setBackfillLoading(false);
+    }
+  };
+
+  // 2) 确认回填: 复用 report-insert-html 通道 (ReportWritePage 监听) → 跳转书写页
+  const confirmBackfill = () => {
+    if (!backfillData) return;
+    const esc = (v: unknown): string =>
+      String(v ?? "").replace(/[<>&"']/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[ch] ?? ch);
+    const html = [
+      "<h3>DICOM SR 测量摘要</h3>",
+      `<p>来源: SR ${esc(backfillData.srId)} (${esc(backfillData.templateId)})</p>`,
+      `<div>${backfillData.paragraph.split("\n").map((line) => `<p style="margin:2px 0">${esc(line)}</p>`).join("")}</div>`,
+    ].join("\n");
+    window.dispatchEvent(new CustomEvent("report-insert-html", { detail: { html } }));
+    try { window.localStorage.setItem("ris_sr_backfill_pending", html) } catch { /* 忽略 */ }
+    message.success("SR 测量摘要已发送至报告编辑器");
+    setBackfillOpen(false);
+    navigate(`/reports/v3-write?reportId=${encodeURIComponent(backfillData.reportId)}`);
   };
 
   // ───────────────────────── 列表 ─────────────────────────
@@ -301,7 +354,7 @@ const SrReportPage: React.FC = () => {
       {s.items.length > 0 ? (
         s.items.map((i) => renderItem(i, 0))
       ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="无内容" />
+        <EmptyState description="无内容" />
       )}
     </Card>
   );
@@ -406,6 +459,13 @@ const SrReportPage: React.FC = () => {
                   定稿
                 </Button>
               )}
+              {/* [G005 Wave 8] SR 测量值回填到报告 */}
+              <Button
+                icon={<ClipboardPen size={14} />}
+                onClick={() => void openBackfillPreview(detail!)}
+              >
+                回填到报告
+              </Button>
               <Button
                 type="primary"
                 icon={<Send size={14} />}
@@ -554,6 +614,56 @@ const SrReportPage: React.FC = () => {
               >
                 {detail.rawContent}
               </Paragraph>
+            </>
+          )}
+        </Spin>
+      </Modal>
+
+      {/* ─────────── [G005 Wave 8] SR 测量摘要回填预览 ─────────── */}
+      <Modal
+        title="SR 测量摘要回填到报告"
+        open={backfillOpen}
+        onCancel={() => setBackfillOpen(false)}
+        footer={
+          <Space>
+            <Button onClick={() => setBackfillOpen(false)}>取消</Button>
+            <Button
+              type="primary"
+              icon={<ClipboardPen size={14} />}
+              disabled={!backfillData}
+              onClick={confirmBackfill}
+            >
+              插入并跳转书写页
+            </Button>
+          </Space>
+        }
+        width={680}
+      >
+        <Spin spinning={backfillLoading}>
+          {backfillData && (
+            <>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10 }}>
+                已解析 {backfillData.measurements.length} 个测量项 (SR {backfillData.srId} · {backfillData.templateId})，确认后经 insertHtml 通道插入报告编辑器并跳转书写页。
+              </div>
+              {backfillData.measurements.length > 0 && (
+                <Table
+                  size="small"
+                  rowKey={(m, i) => `${m.name}-${m.value}-${i}`}
+                  dataSource={backfillData.measurements}
+                  columns={[
+                    { title: "测量项", dataIndex: "name" },
+                    { title: "数值", dataIndex: "value", width: 90 },
+                    { title: "单位", dataIndex: "unit", width: 90 },
+                    { title: "来源", dataIndex: "source", width: 130, render: (v: string) => <Tag color={v === "measurement-group" ? "cyan" : v === "num-item" ? "blue" : "default"}>{v}</Tag> },
+                  ]}
+                  pagination={false}
+                  style={{ marginBottom: 12 }}
+                  scroll={{ x: "max-content" }}
+                />
+              )}
+              <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
+                {backfillData.paragraph}
+              </div>
             </>
           )}
         </Spin>

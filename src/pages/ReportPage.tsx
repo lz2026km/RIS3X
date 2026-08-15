@@ -23,6 +23,8 @@ import { exportApprovalApi } from "../services/api/analyticsApi";
 import { criticalApi } from "../services/api/criticalApi";
 // [v3.0.6.11-99 Wave7B] 离线报告包 (IndexedDB)
 import { offlineStorage } from "../services/pwa/offlineStorage";
+// [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建
+import { lesionTrackingApi } from "../services/api/lesionTrackingApi";
 import { useReportStore } from "../store";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { useRBAC } from "../hooks/useRBAC";
@@ -337,11 +339,11 @@ export default function ReportPage() {
   // [W2-3] 分发管理: 跳转推送中心并携带 reportId
   const handleDeliver = (r: RadiologyReport) => { navigate(`/report-delivery?reportId=${r.id}`); };
 
-  // [W2-3] 危急值一键转入
+  // [W2-3] 危急值一键转入 ([G005 Wave 8] 携带 reportId → 报告详情反查关联危急值)
   const handleCriticalSubmit = async (r: RadiologyReport, severity: string, description: string, method: string) => {
     setCriticalModal(m => ({ ...m, submitting: true }));
     try {
-      const res = await criticalApi.create({ examId: r.examId, severity, description, method });
+      const res = await criticalApi.create({ examId: r.examId, severity, description, method, reportId: r.id });
       if (res.success) {
         setAllReports(prev => prev.map(x => (x.id === r.id ? { ...x, criticalFinding: true, criticalFindingDetails: description } : x)));
         setCriticalModal({ report: null, submitting: false });
@@ -421,6 +423,32 @@ export default function ReportPage() {
     if (r.patientId) q.set('patientId', r.patientId)
     q.set('reportId', r.id)
     navigate(`/follow-up?${q.toString()}`);
+  };
+
+  // [v3.0.6.11-100 Wave 2A] 报告→委员会会诊室 (多医生合议): 携带 reportId 直达
+  const handleCommittee = (r: RadiologyReport) => {
+    navigate(`/committee-room?reportId=${encodeURIComponent(r.id)}`);
+  };
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建: 从报告文本提取病灶关键词建档 → 跳转病灶追踪工作台
+  const handleCreateLesionTracking = async (r: RadiologyReport) => {
+    try {
+      const res = await lesionTrackingApi.createFromReport(r.id);
+      if (res.success && res.data) {
+        const created = Array.isArray(res.data.created) ? res.data.created : [];
+        if (created.length > 0) {
+          showToast(`已从报告提取并创建 ${created.length} 个病灶追踪记录`, 'success');
+          const pid = created[0]?.patientId ?? r.patientId;
+          navigate(`/dicom/lesion-tracking?patientId=${encodeURIComponent(pid ?? '')}`);
+        } else {
+          showToast('报告中未检出可追踪病灶关键词 (肺结节/肝占位/淋巴结等)', 'info');
+        }
+      } else {
+        showToast(res.error?.message ?? '病灶创建失败', 'error');
+      }
+    } catch {
+      showToast('病灶创建失败: 网络异常', 'error');
+    }
   };
 
   // [v3.0.6.11-99 Wave7B] 离线报告包: 保存报告 HTML 快照 → IndexedDB (断网可离线浏览)
@@ -584,7 +612,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setDetailReport(null); void runRealExport([r], "导出PDF"); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => { setDetailReport(null); setCriticalModal({ report: r, submitting: false }); }} onCompare={r => { setDetailReport(null); void handleCompare(r); }} onCreateFollowUp={r => { setDetailReport(null); handleCreateFollowUp(r); }} onCreateLesionTracking={r => { setDetailReport(null); void handleCreateLesionTracking(r); }} onSupplement={r => void handleReportSpecial(r, 'supplement')} onRectify={r => void handleReportSpecial(r, 'rectify')} onRedistribute={r => void handleReportSpecial(r, 'redistribute')} onEscalate={r => void handleReportSpecial(r, 'escalate')} onWrite={r => { setDetailReport(null); handleWriteReport(r); }} onOpen360={r => { setDetailReport(null); handleOpen360(r); }} onOfflineSave={handleOfflineSave} onCommittee={r => { setDetailReport(null); handleCommittee(r); }} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 
@@ -687,6 +715,24 @@ export default function ReportPage() {
         setSelectedIds(new Set());
         setBulkActionModal(b => ({ ...b, show: false, loading: false }));
         showToast(`批量签署完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
+        return; } else if (action === 'archive') { // [G005 Wave 8] 报告冷归档: 批量归档 (仅 PUBLISHED → ARCHIVED + 归档任务)
+        const ids = Array.from(selectedIds).filter(id => {
+          const r = allReports.find(x => x.id === id);
+          return r && toEnState(r.status) === 'PUBLISHED';
+        });
+        let done = 0; let failed = 0;
+        for (const id of ids) {
+          try {
+            const res = await reportApi.archiveReport(id);
+            if (res.success) done++; else failed++;
+          } catch { failed++; }
+        }
+        if (done > 0) {
+          setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已归档' } : r));
+        }
+        setSelectedIds(new Set());
+        setBulkActionModal(b => ({ ...b, show: false, loading: false }));
+        showToast(`批量归档完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'warning' : 'success');
         return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );

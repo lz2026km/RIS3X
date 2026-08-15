@@ -45,12 +45,24 @@ const EncapsulatePdfSchema = z
   })
   .refine((d) => d.reportId || d.studyId, { message: 'reportId 或 studyId 必填' })
 
+// [G005 Wave 8] DICOM SR → 报告回填: 解析 SR 测量值生成摘要段落
+const ToReportSchema = z.object({
+  srId: z.string().min(1),
+  reportId: z.string().min(1),
+})
+
 @ApiTags('dicom-sr')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('dicom-sr')
 export class DicomSrController {
   constructor(private readonly service: DicomSrService) {}
+
+  // [G005 Wave 8] DICOM SR 测量值 → 报告回填 (返回 { paragraph, measurements[] }, 前端 insertHtml)
+  @Post('to-report')
+  toReport(@Body(new ZodValidationPipe(ToReportSchema)) body: z.infer<typeof ToReportSchema>) {
+    return this.service.toReport(body)
+  }
 
   @Post('templates')
   getTemplates() {

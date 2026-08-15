@@ -6,6 +6,8 @@ import type { ListData } from './client'
 export type LesionStatus = '稳定' | '增大' | '缩小' | '消失' | '新发'
 export type LesionType = '肺结节' | '肝占位' | '淋巴结' | '其他'
 export type ResponseClass = 'CR' | 'PR' | 'SD' | 'PD' | 'NE'
+// [v3.0.6.11-100 Wave 6A (D-4)] 病灶来源: manual 手动登记 / ai AI 检出 / from-report 报告提取
+export type LesionSource = 'manual' | 'ai' | 'from-report'
 
 export interface LesionMeasurement {
   id: string
@@ -27,6 +29,8 @@ export interface TrackedLesion {
   createdAt: string
   currentStatus: LesionStatus
   followupId?: string
+  source?: LesionSource
+  reportId?: string
   measurements: LesionMeasurement[]
 }
 
@@ -43,6 +47,17 @@ export interface CreateLesionDto {
   initialSizeMm?: number
   modality?: string
   studyId?: string
+  source?: LesionSource
+  reportId?: string
+}
+
+// [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建响应
+export interface FromReportResult {
+  reportId: string
+  patientId: string
+  matched: Array<{ keyword: string; name: string; type: LesionType; site: string; sizeMm?: number }>
+  created: TrackedLesion[]
+  skipped: number
 }
 
 export interface CreateMeasurementDto {
@@ -142,6 +157,17 @@ export const lesionTrackingApi = {
     await invalidateApiCacheByPrefix(LIST_PREFIX)
     return res
   },
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建: 从报告 impression/findings 提取病灶关键词建档
+  createFromReport: async (reportId: string, keyword?: string) => {
+    const res = await api.post<FromReportResult>(`${LIST_PREFIX}/from-report`, { reportId, keyword })
+    await invalidateApiCacheByPrefix(LIST_PREFIX)
+    return res
+  },
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告关联病灶列表 (GET /reports/:id/lesions, 按 reportId 查 from-report 创建)
+  listByReport: (reportId: string) =>
+    api.get<{ reportId: string; items: TrackedLesion[] }>(`/reports/${encodeURIComponent(reportId)}/lesions`),
 }
 
 export type LesionListResult = ListData<TrackedLesion>

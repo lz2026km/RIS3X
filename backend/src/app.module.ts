@@ -150,6 +150,8 @@ import { TechScheduleModule } from "./modules/tech-schedule/tech-schedule.module
 // [G005 Wave 10A] 眼科远程会诊桥接 + 眼科像素级图像处理 (MSW 真实化)
 import { EyeTeleModule } from "./modules/eye-tele/eye-tele.module";
 import { EyePixelModule } from "./modules/eye-pixel/eye-pixel.module";
+// [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval): 待办/通过/驳回/委派/历史
+import { MobileApprovalModule } from "./modules/mobile-approval/mobile-approval.module";
 
 @Module({
   imports: [
@@ -314,6 +316,8 @@ import { EyePixelModule } from "./modules/eye-pixel/eye-pixel.module";
     // [G005 Wave 10A] 眼科远程会诊桥接 + 眼科像素级图像处理
     EyeTeleModule,
     EyePixelModule,
+    // [v3.0.6.11-100 Wave 4A] 移动审批
+    MobileApprovalModule,
   ],
   controllers: [HealthController],
   providers: [

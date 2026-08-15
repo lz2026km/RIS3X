@@ -2,7 +2,7 @@
  * G005 RIS v3.0.6.11-60 - System Storage Config Controller
  * GET/PUT /system/storage-config, POST /system/storage-config/test
  */
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -122,6 +122,12 @@ const CopyObjectSchema = z.object({
   targetBucket: z.string().trim().min(1).max(63),
 })
 
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务
+const ReplicateBucketSchema = z.object({
+  targetBucket: z.string().trim().min(1).max(63),
+  region: z.string().trim().min(1).max(63),
+})
+
 @ApiTags('system')
 @ApiBearerAuth()
 @Roles('ADMIN')
@@ -229,6 +235,40 @@ export class SystemStorageController {
     @Body(new ZodValidationPipe(CopyObjectSchema)) body: z.infer<typeof CopyObjectSchema>,
   ) {
     return this.service.copyObject(name, body)
+  }
+
+  // ═══════════ [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL + 跨区复制 + 监控 ═══════════
+
+  /** GET /system/storage/buckets/:name/objects/:key/signed-url?expiresInSec=300 — CDN 签名下载 URL */
+  @Get('storage/buckets/:name/objects/:key/signed-url')
+  signedUrl(
+    @Param('name') name: string,
+    @Param('key') key: string,
+    @Query('expiresInSec') expiresInSec?: string,
+  ) {
+    const expires = expiresInSec !== undefined ? Number(expiresInSec) : 3600
+    return this.service.generateSignedUrl(name, key, Number.isFinite(expires) ? expires : 3600)
+  }
+
+  /** POST /system/storage/buckets/:name/replicate — 跨区复制任务 (内存队列 + 状态) */
+  @Post('storage/buckets/:name/replicate')
+  replicateBucket(
+    @Param('name') name: string,
+    @Body(new ZodValidationPipe(ReplicateBucketSchema)) body: z.infer<typeof ReplicateBucketSchema>,
+  ) {
+    return this.service.replicateBucket(name, body)
+  }
+
+  /** GET /system/storage/replication-status — 复制任务队列状态 */
+  @Get('storage/replication-status')
+  replicationStatus() {
+    return this.service.getReplicationStatus()
+  }
+
+  /** GET /system/storage/monitoring — 存储监控指标 (容量/增长率/IO/复制队列, 桶派生 + seed 回退) */
+  @Get('storage/monitoring')
+  monitoring() {
+    return this.service.getMonitoring()
   }
 
   @Get('admin/configs')

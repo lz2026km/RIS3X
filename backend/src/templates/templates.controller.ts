@@ -10,6 +10,8 @@ const CreateSchema = z.object({
   category: z.string().min(1),
   modality: z.string().min(1).optional(),
   bodyPart: z.string().min(1),
+  // [v3.0.6.11-100 Wave2C P2] 模板类型: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板
+  templateType: z.enum(['FULL', 'SECTION', 'PHRASE']).optional(),
   body: z.string().min(1),
   parentId: z.string().optional(),
   radsCategory: z.string().optional(),
@@ -22,6 +24,7 @@ const UpdateSchema = z.object({
   category: z.string().min(1).optional(),
   modality: z.string().min(1).optional(),
   bodyPart: z.string().min(1).optional(),
+  templateType: z.enum(['FULL', 'SECTION', 'PHRASE']).optional(),
   body: z.string().min(1).optional(),
   tags: z.array(z.string()).optional(),
 })
@@ -135,11 +138,14 @@ export class TemplatesController {
     @Query('status') status?: string,
     @Query('personal') personal?: string,
     @Query('userId') userId?: string,
+    // [v3.0.6.11-100 Wave2C P2] 模板类型过滤 (FULL/SECTION/PHRASE, 模板库分类 Tab 使用)
+    @Query('templateType') templateType?: string,
   ) {
     const approved = new Set(['draft', 'pending', 'approved', 'rejected'])
     const statusFilter = status && approved.has(status) ? status : undefined
     const userIdFilter = personal === 'true' && userId ? userId : undefined
-    return this.service.list({ category, bodyPart, keyword, status: statusFilter, userId: userIdFilter })
+    const typeFilter = templateType === 'FULL' || templateType === 'SECTION' || templateType === 'PHRASE' ? templateType : undefined
+    return this.service.list({ category, bodyPart, keyword, status: statusFilter, userId: userIdFilter, templateType: typeFilter })
   }
 
   // [v3.0.6.11-98 Wave2A P1] 审批列表 (待审批) — 静态路径必须先于 @Get(':id') 注册

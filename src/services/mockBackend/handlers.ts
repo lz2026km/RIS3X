@@ -102,10 +102,14 @@ import { aiWave2BHandlers } from './aiWave2BHandlers';
 import { findingLibraryHandlers } from './findingLibraryHandlers';
 // [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注 (列表/创建/回复/解决/重开/统计)
 import { reportAnnotationHandlers } from './reportAnnotationHandlers';
+// [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注 (GET/POST /reports/:id/image-annotations)
+import { imageAnnotationHandlers } from './imageAnnotationHandlers';
 import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
 import { reportDraftHandlers } from './reportDraftHandlers';
+// [v3.0.6.11-100 Wave 3A (G-19)] AI 草稿深化 (LLM providers / RAG 上下文 / 高级生成 / 结构化字段)
+import { aiDraftAdvancedHandlers } from './aiDraftAdvancedHandlers';
 import { volumeHandlers } from './volumeHandlers';
 import { cardiacHandlers } from './cardiacHandlers';
 // [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
@@ -117,6 +121,8 @@ import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
 // [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report): 定义 CRUD + 运行/结果/历史/定时/导出 + fields-catalog
 import { customReportHandlers } from './customReportHandlers';
+// [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval): 待办/通过/驳回/委派/历史/统计
+import { mobileApprovalHandlers } from './mobileApprovalHandlers';
 import { oeeHandlers } from './oeeHandlers';
 import { occupancyHandlers } from './occupancyHandlers';// [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
 import { shellUpgradeHandlers } from './shellUpgradeHandlers';
@@ -157,7 +163,7 @@ import { treatmentPlanHandlers } from './treatmentPlanHandlers';
 // [v3.0.6.11-75 W3-1] 远程阅片 (remoteReadingApi: /remote-reading/*)
 import { remoteReadingHandlers } from './remoteReadingHandlers';
 // [W4-B] 随访计划 (followupApi: /followups/*)
-import { followupHandlers } from './followupHandlers';// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
+import { followupHandlers, followupTriggerRulesHandlers } from './followupHandlers';// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
 import { crossModalHandlers } from './crossModalHandlers';
 // [v3.0.6.11-99 Wave3B] 随访模板库 (followupTemplatesApi: /followup-templates/*)
 import { followupTemplateHandlers } from './followupTemplateHandlers';
@@ -310,6 +316,26 @@ const batchExportTasks = new Map<string, {
   ids: string[]
   createdAt: number
 }>();
+
+// [G005 Wave 8] 报告冷归档: 策略 (内存 + seed) + 归档任务记录 (对齐后端 ReportsService)
+const archivePolicyStore: {
+  enabled: boolean
+  archiveAfterDays: number
+  targetTier: 'archive' | 'cold'
+  deleteSourceAfterDays: number | null
+  updatedAt: string
+} = {
+  enabled: true,
+  archiveAfterDays: 365,
+  targetTier: 'archive',
+  deleteSourceAfterDays: 90,
+  updatedAt: new Date().toISOString(),
+};
+const archiveTasks: Array<{ id: string; reportId: string; status: 'archived' | 'pending'; targetTier: string; archivedAt: string; policyEnabled: boolean }> = [
+  { id: 'RAT-000001', reportId: 'RPT-000001', status: 'archived', targetTier: 'archive', archivedAt: new Date(Date.now() - 30 * 86400_000).toISOString(), policyEnabled: true },
+  { id: 'RAT-000002', reportId: 'RPT-000024', status: 'archived', targetTier: 'archive', archivedAt: new Date(Date.now() - 90 * 86400_000).toISOString(), policyEnabled: true },
+];
+let archiveTaskSeq = 100;
 
 export const reportHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
@@ -528,6 +554,32 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, totalDefect, totalCritical } });
   }),
 
+  // [G005 Wave 8] 报告冷归档策略 (静态子路由必须在 :id 之前; 内存 + seed, 对齐后端 ReportsService)
+  http.get(`${API_BASE}/reports/archive-policy`, async () => {
+    await delay(60);
+    return HttpResponse.json({ success: true, data: { ...archivePolicyStore, archivedCount: archiveTasks.filter((t) => t.status === 'archived').length, pendingCount: archiveTasks.filter((t) => t.status === 'pending').length } });
+  }),
+
+  http.put(`${API_BASE}/reports/archive-policy`, async ({ request }) => {
+    await delay(60);
+    const body = (await request.json().catch(() => ({}))) as { enabled?: boolean; archiveAfterDays?: number; targetTier?: string; deleteSourceAfterDays?: number | null };
+    if (body.enabled !== undefined && typeof body.enabled !== 'boolean') {
+      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'enabled 必须是布尔值' } }, { status: 400 });
+    }
+    if (body.targetTier !== undefined && !['archive', 'cold'].includes(String(body.targetTier))) {
+      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'targetTier 仅支持 archive|cold' } }, { status: 400 });
+    }
+    if (body.archiveAfterDays !== undefined && (!Number.isInteger(Number(body.archiveAfterDays)) || Number(body.archiveAfterDays) < 1 || Number(body.archiveAfterDays) > 36500)) {
+      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'archiveAfterDays 必须是 1-36500 的整数' } }, { status: 400 });
+    }
+    if (body.enabled !== undefined) archivePolicyStore.enabled = body.enabled;
+    if (body.archiveAfterDays !== undefined) archivePolicyStore.archiveAfterDays = Number(body.archiveAfterDays);
+    if (body.targetTier !== undefined) archivePolicyStore.targetTier = body.targetTier as 'archive' | 'cold';
+    if (body.deleteSourceAfterDays !== undefined) archivePolicyStore.deleteSourceAfterDays = body.deleteSourceAfterDays === null ? null : Number(body.deleteSourceAfterDays);
+    archivePolicyStore.updatedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: { ...archivePolicyStore, archivedCount: archiveTasks.filter((t) => t.status === 'archived').length, pendingCount: archiveTasks.filter((t) => t.status === 'pending').length } });
+  }),
+
   // 详情
   http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(50);
@@ -552,6 +604,83 @@ export const reportHandlers = [
     } catch { /* 集合未就绪时保持原样 */ }
     const q = findOne<any>('qualityScores', (x: any) => x.reportId === params.id);
     return HttpResponse.json({ success: true, data: toReportDto(enriched, q) });
+  }),
+
+  // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要: 从 exams/reports 集合按 patientId 派生,
+  //   常见诊断 = 关键词在 ≥2 份既往报告中出现; 无既往记录 seed 回退 (source: 'seed')
+  http.get(`${API_BASE}/reports/:id/prior-summary`, async ({ params }) => {
+    await delay(60);
+    const report = get<any>('exams', params.id as string);
+    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const patientId = String(report.patientId ?? '');
+    const all = list<any>('exams');
+    const reportBodyIndex = new Map<string, any>();
+    try {
+      list<any>('reports').forEach((rp: any) => {
+        if (rp?.examId) reportBodyIndex.set(String(rp.examId), rp);
+        if (rp?.reportId) reportBodyIndex.set(String(rp.reportId), rp);
+      });
+    } catch { /* 集合未就绪时跳过合并 */ }
+    const prior = all
+      .filter((r: any) => String(r.patientId ?? '') === patientId && String(r.reportId ?? r.id ?? '') !== String(params.id))
+      .map((r: any) => {
+        const rp = reportBodyIndex.get(String(r.reportId ?? r.id ?? '')) ?? reportBodyIndex.get(String(r.examId ?? ''));
+        return {
+          id: r.id,
+          createdAt: r.createdTime ?? r.reportAt ?? r.examAt ?? '',
+          findings: rp?.findings ?? r.findings ?? '',
+          impression: rp?.impression ?? rp?.diagnosis ?? r.impression ?? '',
+          conclusion: rp?.conclusion ?? r.conclusion ?? '',
+        };
+      })
+      .sort((a: any, b: any) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    if (prior.length === 0) {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          reportId: params.id,
+          patientId,
+          count: 3,
+          lastReportDate: new Date(Date.now() - 30 * 86400000).toISOString(),
+          lastFindings: '双肺纹理稍增多,右肺下叶可见条索状高密度影。',
+          lastImpression: '右肺下叶陈旧性病灶,建议定期随访。',
+          commonDiagnoses: [
+            { keyword: '结节', count: 2 },
+            { keyword: '钙化', count: 2 },
+          ],
+          source: 'seed',
+        },
+      });
+    }
+    const DIAG_KEYWORDS = ['结节', '磨玻璃影', '斑片影', '纤维化', '钙化', '占位', '囊肿', '气胸', '胸腔积液', '肺炎', '结核', '肿瘤', '淋巴结', '狭窄', '闭塞', '脑梗死', '出血', '水肿', '增生', '动脉瘤', '结石', '肝硬化', '骨质疏松', '骨折'];
+    const freq = new Map<string, number>();
+    for (const r of prior) {
+      const text = `${r.conclusion ?? ''} ${r.impression ?? ''} ${r.findings ?? ''}`;
+      const found = new Set<string>();
+      for (const kw of DIAG_KEYWORDS) {
+        if (text.includes(kw)) found.add(kw);
+      }
+      for (const kw of found) freq.set(kw, (freq.get(kw) ?? 0) + 1);
+    }
+    const commonDiagnoses = [...freq.entries()]
+      .filter(([, n]) => n >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([keyword, count]) => ({ keyword, count }));
+    const last = prior[0] ?? null;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        reportId: params.id,
+        patientId,
+        count: prior.length,
+        lastReportDate: last?.createdAt || null,
+        lastFindings: last?.findings ?? '',
+        lastImpression: last?.conclusion || last?.impression || '',
+        commonDiagnoses,
+        source: 'db',
+      },
+    });
   }),
 
   // 差分 (新旧版本对比)
@@ -665,6 +794,32 @@ export const reportHandlers = [
 
   // 修订
   
+
+  // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive (PUBLISHED → ARCHIVED + 归档任务记录)
+  http.post(`${API_BASE}/reports/:id/archive`, async ({ params }) => {
+    await delay(120);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const fromState = String(before.state ?? '').toUpperCase() || String(before.status ?? '').toUpperCase();
+    if (fromState === 'ARCHIVED') {
+      const task = archiveTasks.find((t) => t.reportId === id) ?? { id: `RAT-${String(++archiveTaskSeq).padStart(6, '0')}`, reportId: id, status: 'archived' as const, targetTier: archivePolicyStore.targetTier, archivedAt: new Date().toISOString(), policyEnabled: archivePolicyStore.enabled };
+      if (!archiveTasks.some((t) => t.reportId === id)) archiveTasks.unshift(task);
+      return HttpResponse.json({ success: true, data: { id, state: 'ARCHIVED', archivedAt: task.archivedAt, alreadyArchived: true, task } });
+    }
+    if (fromState !== 'PUBLISHED') {
+      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `INVALID_TRANSITION: ${fromState} → ARCHIVED 不允许 (仅已发布报告可归档)` } }, { status: 400 });
+    }
+    const archivedAt = new Date().toISOString();
+    const task = { id: `RAT-${String(++archiveTaskSeq).padStart(6, '0')}`, reportId: id, status: 'archived' as const, targetTier: archivePolicyStore.targetTier, archivedAt, policyEnabled: archivePolicyStore.enabled };
+    archiveTasks.unshift(task);
+    const updated = update<any>('exams', id, { status: 'published', state: 'ARCHIVED' });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'published');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'archive', entityType: 'reports', entityId: id, fromState: before.status, toState: 'ARCHIVED', metadata: { targetTier: task.targetTier } });
+    }
+    return HttpResponse.json({ success: true, data: { id, state: 'ARCHIVED', archivedAt, task } });
+  }),
 
   // [v3.0.6.11-70] P0 状态机: 通用状态流转 (SUBMITTED/INITIAL_REVIEW/FINAL_REVIEW/REVIEWED/REJECTED/SIGNED/PUBLISHED...)
   //   与 reportApi.transition 对应: POST /reports/:id/transition  { to, actorId, reason? }
@@ -1360,15 +1515,218 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, completedToday, avgDurationMin, byTechnician } });
   }),
 
+  // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (必须在 :id 之前; 对齐后端 seedTechnicianDashboard)
+  http.get(`${API_BASE}/worklist/technician-dashboard`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const seed = (id: string, name: string, completedCount: number, avgDurationMin: number, retakeCount: number, avgWaitTime: number, deviceUtilization: number, onTimeRate: number) => ({
+      id, name, completedCount, avgDurationMin, retakeCount,
+      retakeRate: completedCount > 0 ? Number(((retakeCount / completedCount) * 100).toFixed(1)) : 0,
+      avgWaitTime, deviceUtilization, onTimeRate,
+    });
+    const technicians = [
+      seed('tech-seed-1', '王技师', 12, 24, 1, 12, 92, 87.5),
+      seed('tech-seed-2', '李技师', 8, 21, 0, 15, 88, 75),
+      seed('tech-seed-3', '张技师', 6, 30, 2, 20, 80, 66.7),
+    ];
+    const totalCompleted = technicians.reduce((a: number, t: { completedCount: number }) => a + t.completedCount, 0);
+    const totalRetake = technicians.reduce((a: number, t: { retakeCount: number }) => a + t.retakeCount, 0);
+    const from = url.searchParams.get('from') ?? undefined;
+    const to = url.searchParams.get('to') ?? undefined;
+    const days = 7;
+    const trend = Array.from({ length: days }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (days - 1 - i));
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return { date: key, completed: 3 + ((i * 5) % 9) };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        from, to,
+        technicians,
+        totals: {
+          completedCount: totalCompleted,
+          avgDurationMin: 24,
+          retakeRate: Number(((totalRetake / totalCompleted) * 100).toFixed(1)),
+          avgWaitTime: 15,
+          deviceUtilization: 88,
+          onTimeRate: 79,
+        },
+        trend,
+      },
+    });
+  }),
+
+  // [v3.0.6.11-100 Wave 1B] 检查间实时状态看板 (房间级, 由 exam+device 派生, 对齐后端 getRoomStatus)
+  http.get(`${API_BASE}/worklist/room-status`, async () => {
+    await delay(60);
+    const exams = list<any>('exams') || [];
+    const devices = list<any>('devices') || [];
+    const roomByDevice = new Map((devices as any[]).map((d) => [d.id, d.room ?? d.location ?? '未分配']));
+    const roomMap = new Map<string, { roomId: string; name: string; modality: string; queue: any[]; lastActivityAt: number }>();
+    for (const d of devices as any[]) {
+      const key = String(d.room ?? d.location ?? '未分配');
+      if (!roomMap.has(`room-${key}`)) roomMap.set(`room-${key}`, { roomId: `room-${key}`, name: key, modality: d.modality, queue: [], lastActivityAt: 0 });
+    }
+    const emptyRoom = (room: string, modality: string): { roomId: string; name: string; modality: string; queue: any[]; lastActivityAt: number } =>
+      ({ roomId: `room-${room}`, name: room, modality, queue: [], lastActivityAt: 0 });
+    const norm = (s: unknown): string => {
+      const v = String(s ?? '');
+      if (v === '检查中') return 'IN_PROGRESS';
+      if (v === '已报到' || v === '已登记' || v === '待检查') return 'ARRIVED';
+      if (v === '已暂停') return 'PAUSED';
+      if (v === '已完成') return 'COMPLETED';
+      if (v === '已取消') return 'CANCELLED';
+      return v;
+    };
+    const now = Date.now();
+    for (const e of exams as any[]) {
+      const status = norm(e.status ?? e.state);
+      if (['COMPLETED', 'CANCELLED'].includes(status)) continue;
+      const room = String(e.room ?? roomByDevice.get(e.deviceId) ?? '未分配');
+      const entry = roomMap.get(`room-${room}`) ?? emptyRoom(room, e.modality);
+      entry.queue.push({ ...e, status });
+      roomMap.set(entry.roomId, entry);
+      const ts = new Date(e.startAt ?? e.checkinAt ?? e.createdAt ?? 0).getTime();
+      if (ts > entry.lastActivityAt) entry.lastActivityAt = ts;
+    }
+    const rooms = [...roomMap.values()].map((entry) => {
+      const active = entry.queue.find((e) => e.status === 'IN_PROGRESS' || e.status === 'PAUSED');
+      const inProgress = entry.queue.filter((e) => e.status === 'IN_PROGRESS');
+      const paused = entry.queue.filter((e) => e.status === 'PAUSED');
+      const arrived = entry.queue
+        .filter((e) => e.status === 'ARRIVED')
+        .sort((a, b) => new Date(a.startAt ?? a.checkinAt ?? a.createdAt ?? 0).getTime() - new Date(b.startAt ?? b.checkinAt ?? b.createdAt ?? 0).getTime());
+      const firstArrived = arrived[0];
+      const overdue = !!firstArrived && new Date(firstArrived.startAt ?? firstArrived.checkinAt ?? firstArrived.createdAt ?? 0).getTime() < now - 30 * 60000;
+      const status = inProgress.length > 0 ? 'in_use' : paused.length > 0 ? 'paused' : overdue ? 'overdue' : arrived.length > 0 || entry.queue.length > 0 ? 'waiting' : 'idle';
+      const current = active ?? inProgress[0] ?? paused[0] ?? arrived[0] ?? null;
+      return {
+        roomId: entry.roomId,
+        name: entry.name,
+        modality: entry.modality,
+        currentExam: current ? { id: current.id, patientName: current.patientName ?? '未知患者', state: current.status, startedAt: current.startAt ?? current.checkinAt ?? null } : null,
+        queueLength: entry.queue.length,
+        status,
+        idleSince: entry.lastActivityAt > 0 ? new Date(entry.lastActivityAt).toISOString() : null,
+      };
+    });
+    const order: Record<string, number> = { in_use: 0, overdue: 1, paused: 2, waiting: 3, idle: 4 };
+    rooms.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+    return HttpResponse.json({ success: true, data: { rooms, updatedAt: new Date().toISOString() } });
+  }),
+
+  // [v3.0.6.11-100 Wave 1B] 重拍率统计 + 原因分类 (对齐后端 getRetakeStats)
+  http.get(`${API_BASE}/worklist/retake-stats`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const dimension = url.searchParams.get('dimension') ?? 'reason';
+    const exams = list<any>('exams') || [];
+    const today = new Date();
+    const retakes = (exams as any[]).filter((e) => Number(e.retakeCount ?? 0) > 0);
+    const totalCompleted = Math.max(19, (exams as any[]).length);
+    const totalRetakes = Math.max(3, retakes.reduce((a: number, e: any) => a + Number(e.retakeCount ?? 0), 0) + 3);
+    const base: Array<{ key: string; label: string; completed: number; retakes: number }> =
+      dimension === 'tech'
+        ? [
+            { key: 'tech-seed-1', label: '王技师', completed: 9, retakes: 1 },
+            { key: 'tech-seed-2', label: '李技师', completed: 6, retakes: 0 },
+            { key: 'tech-seed-3', label: '张技师', completed: 4, retakes: 2 },
+          ]
+        : dimension === 'modality'
+          ? [
+              { key: 'CT', label: 'CT', completed: 20, retakes: 2 },
+              { key: 'MR', label: 'MR', completed: 15, retakes: 3 },
+              { key: 'DR', label: 'DR', completed: 12, retakes: 1 },
+              { key: 'US', label: 'US', completed: 10, retakes: 0 },
+            ]
+          : [
+              { key: 'motion_artifact', label: '运动伪影', completed: 18, retakes: 4 },
+              { key: 'positioning', label: '摆位不当', completed: 14, retakes: 2 },
+              { key: 'wrong_protocol', label: '扫描协议错误', completed: 10, retakes: 1 },
+              { key: 'contrast_issue', label: '对比剂问题', completed: 8, retakes: 1 },
+              { key: 'equipment', label: '设备故障', completed: 6, retakes: 1 },
+              { key: 'other', label: '其他', completed: 5, retakes: 0 },
+            ];
+    // 有真实重拍数据 (retakeReason) 时叠加
+    const realByReason = new Map<string, number>();
+    for (const e of retakes) {
+      const r = String(e.retakeReason ?? '');
+      if (r) realByReason.set(r, (realByReason.get(r) ?? 0) + Number(e.retakeCount ?? 1));
+    }
+    const breakdown = base.map((b) => ({
+      ...b,
+      retakes: b.retakes + (realByReason.get(b.key) ?? 0),
+      rate: Number(((b.retakes / b.completed) * 100).toFixed(1)),
+    })).sort((a, b) => b.retakes - a.retakes);
+    const trend = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today.getTime() - (6 - i) * 86400000);
+      const completed = 8 + ((i * 5) % 7);
+      const retakes = i % 3 === 0 ? 2 : i % 5 === 0 ? 1 : 0;
+      return { date: d.toISOString().slice(0, 10), completed, retakes, rate: Number(((retakes / completed) * 100).toFixed(1)) };
+    });
+    const from = new Date(today.getTime() - 29 * 86400000).toISOString();
+    return HttpResponse.json({
+      success: true,
+      data: {
+        from,
+        to: today.toISOString(),
+        dimension,
+        summary: { totalCompleted, totalRetakes, retakeRate: Number(((totalRetakes / totalCompleted) * 100).toFixed(1)), examRetakeCount: retakes.length + 5 },
+        trend,
+        breakdown,
+      },
+    });
+  }),
+
   // 医生的工作列表
   
 
   // 详情
   http.get(`${API_BASE}/worklist/:id`, async ({ params }) => {
     await delay(50);
-    const exam = get<any>('exams', params.id as string);
+    const id = params.id as string;
+    let exam = get<any>('exams', id);
+    // [v3.0.6.11-100 Wave 1A] TMP001 演示检查兜底 (与 /exams/:id 一致; /exam/TMP001 详情页会调 /worklist/:id)
+    if (!exam && id === 'TMP001') {
+      const demo = {
+        id: 'TMP001',
+        reportId: 'TMP001',
+        patientId: 'TMP001',
+        patientName: '演示患者',
+        patientAge: 45,
+        patientGender: '男',
+        modality: 'CT',
+        examItem: '胸部CT平扫',
+        examItemCode: 'CT-CHEST',
+        bodyPart: '胸部',
+        deviceId: 'DEV-CT-01',
+        deviceModel: 'GE Revolution CT',
+        status: 'submitted',
+        priority: '普通',
+        examAt: '2026-07-02T09:30:00Z',
+      } as any;
+      create<any>('exams', demo);
+      exam = demo;
+    }
     if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: toExamDto(exam) });
+    // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师姓名解析 (对齐后端 getById)
+    const resolveTech = (techId?: string | null) => {
+      if (!techId) return null;
+      const u = get<any>('doctors', techId);
+      return { id: techId, fullName: u?.name ?? u?.fullName ?? '未知技师' };
+    };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...toExamDto(exam),
+        primaryTechnicianId: exam.primaryTechnicianId ?? null,
+        backupTechnicianId: exam.backupTechnicianId ?? null,
+        primaryTechnician: resolveTech(exam.primaryTechnicianId),
+        backupTechnician: resolveTech(exam.backupTechnicianId),
+      },
+    });
   }),
 
   // 队列深度 (按设备/模态)
@@ -1448,6 +1806,35 @@ export const worklistHandlers = [
     const updated = update<any>('exams', id, patch);
     if (updated) auditUpdate('worklist', before, updated);
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
+
+  // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 (对齐后端 POST /worklist/:id/assign-technicians)
+  http.post(`${API_BASE}/worklist/:id/assign-technicians`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { primaryId?: string; backupId?: string };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    if (!body?.primaryId && !body?.backupId) return HttpResponse.json({ success: false, message: 'primaryId or backupId is required' }, { status: 400 });
+    const patch: Record<string, unknown> = {};
+    if (body.primaryId) patch.primaryTechnicianId = body.primaryId;
+    if (body.backupId) patch.backupTechnicianId = body.backupId;
+    const updated = update<any>('exams', id, patch);
+    if (updated) auditUpdate('worklist', before, updated);
+    return HttpResponse.json({ success: true, data: { ...(updated ? toExamDto(updated) : {}), primaryTechnicianId: patch.primaryTechnicianId ?? null, backupTechnicianId: patch.backupTechnicianId ?? null } });
+  }),
+
+  // [v3.0.6.11-100 Wave 1A] 多技师协作: 交接班 (对齐后端 POST /worklist/:id/handover)
+  http.post(`${API_BASE}/worklist/:id/handover`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { fromId?: string; toId?: string; note?: string };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    if (!body?.fromId || !body?.toId) return HttpResponse.json({ success: false, message: 'fromId and toId are required' }, { status: 400 });
+    const updated = update<any>('exams', id, { primaryTechnicianId: body.toId });
+    if (updated) auditUpdate('worklist', before, updated);
+    return HttpResponse.json({ success: true, data: { ok: true, examId: id, fromId: body.fromId, toId: body.toId, note: body.note ?? null, primaryTechnicianId: body.toId } });
   }),
 
   // 状态更新
@@ -1545,10 +1932,11 @@ export const worklistHandlers = [
 
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写: PATCH /worklist/:id/state { state: IMAGE_READY|QC_REJECT|QC_PASS, note? }
   // [v3.0.6.11-95 Wave 1A P1] + IN_PROGRESS 重拍登记 (QC_REJECT → IN_PROGRESS, retakeCount+1, 备注"重拍第 N 次") + rating/qcNote 落库
+  // [v3.0.6.11-100 Wave 1B] + retakeReason 重拍原因 (重拍率统计原因维度)
   http.patch(`${API_BASE}/worklist/:id/state`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
-    const body = (await request.json()) as { state?: string; note?: string; rating?: string; techNote?: string; qcNote?: string };
+    const body = (await request.json()) as { state?: string; note?: string; rating?: string; techNote?: string; qcNote?: string; retakeReason?: string };
     const state = String(body.state ?? '').toUpperCase();
     if (!['IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'IN_PROGRESS'].includes(state)) {
       return HttpResponse.json({ success: false, message: `Invalid qc state: ${body.state}` }, { status: 400 });
@@ -1569,9 +1957,13 @@ export const worklistHandlers = [
     else if (body.note) patch.qcNotes = body.note;
     if (state === 'IN_PROGRESS') {
       const retakeCount = Number(before.retakeCount ?? 0) + 1;
-      const appendNote = `重拍登记 第 ${retakeCount} 次${body.note ? `: ${body.note}` : ''}`;
+      const appendNote = `重拍登记 第 ${retakeCount} 次${body.note ? `: ${body.note}` : ''}${body.retakeReason ? ` [${body.retakeReason}]` : ''}`;
       patch.retakeCount = retakeCount;
       patch.qcNotes = [String(before.qcNotes ?? ''), appendNote].filter(Boolean).join('\n');
+      if (body.retakeReason) {
+        patch.retakeReason = body.retakeReason;
+        patch.retakeReasons = [...(Array.isArray(before.retakeReasons) ? before.retakeReasons : []), body.retakeReason];
+      }
     }
     const updated = update<any>('exams', id, patch);
     if (updated) {
@@ -1863,6 +2255,69 @@ export const deviceHandlers = [
 
   // 排程/维护计划
   
+
+  // [v3.0.6.11-100 Wave 1B] 设备维护到期列表 (剩余小时数, 周期默认 2000h) - 必须在 :id 之前注册
+  http.get(`${API_BASE}/devices/maintenance-due`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const cycle = Number(url.searchParams.get('cycleHours') ?? 2000) || 2000;
+    const all = list<any>('devices') || [];
+    // 兜底 seed: 技师工作站 initialModalityDevices 使用 DEV-*-01 风格 id (store 主数据为 DEV-*-001)
+    const existingIds = new Set((all as any[]).map((d) => d.id));
+    const SEED_MAINTENANCE: Array<Record<string, unknown>> = [
+      { id: 'DEV-CT-01', code: 'CT-001', name: 'CT-1（GE Revolution CT）', modality: 'CT', room: 'CT室1', maintenanceHours: 2050 },
+      { id: 'DEV-MR-01', code: 'MR-002', name: 'MR-1（西门子MAGNETOM Vida）', modality: 'MR', room: 'MR室1', maintenanceHours: 1870 },
+      { id: 'DEV-DR-01', code: 'DR-003', name: 'DR-1（飞利浦DigitalDiagnost）', modality: 'DR', room: 'DR室1', maintenanceHours: 470 },
+      { id: 'DEV-US-01', code: 'US-004', name: '超声-1（GE Voluson E10）', modality: 'US', room: '超声室', maintenanceHours: 260 },
+    ];
+    for (const seed of SEED_MAINTENANCE) {
+      if (!existingIds.has(String(seed.id))) (all as any[]).push(seed);
+    }
+    const items = (all as any[]).map((d) => {
+      const usedHours = Math.round((Number(d.maintenanceHours ?? 0) || ((Number(d.monthlyScans ?? 0) * 26) % 2000)) * 10) / 10;
+      const remaining = Math.max(0, Math.round((cycle - usedHours) * 10) / 10);
+      const ratio = cycle > 0 ? remaining / cycle : 0;
+      const status = String(d.status) === '维护中' || d.state === 'MAINTENANCE' ? 'maintenance'
+        : remaining <= 0 ? 'overdue'
+        : ratio <= 0.25 ? 'warning'
+        : 'ok';
+      return {
+        deviceId: d.id,
+        code: d.code ?? d.id,
+        name: d.name ?? d.model ?? d.id,
+        modality: d.modality,
+        location: d.room ?? d.location ?? null,
+        state: d.state ?? 'IDLE',
+        usedHours,
+        remainingHours: remaining,
+        cycleHours: cycle,
+        status,
+        lastMaintenance: d.lastMaintenanceAt ?? null,
+        lastMaintenanceAt: d.lastMaintenanceAt ?? null,
+        logs: Array.isArray(d.maintenanceLogs) ? d.maintenanceLogs : [],
+      };
+    });
+    const order: Record<string, number> = { overdue: 0, warning: 1, maintenance: 2, ok: 3 };
+    items.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+    return HttpResponse.json({ success: true, data: { items, total: items.length, cycleHours: cycle, updatedAt: new Date().toISOString() } });
+  }),
+
+  // [v3.0.6.11-100 Wave 1B] 记录维护 (preventive/corrective)
+  http.post(`${API_BASE}/devices/:id/maintenance-log`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { type?: string; hoursUsed?: number; note?: string };
+    const before = get<any>('devices', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Device not found' } }, { status: 404 });
+    const entry = { type: body.type ?? 'preventive', hoursUsed: Number(body.hoursUsed ?? 0), note: body.note ?? '', at: new Date().toISOString() };
+    const updated = update<any>('devices', id, {
+      lastMaintenanceAt: entry.at,
+      maintenanceHours: 0,
+      maintenanceLogs: [...(Array.isArray(before.maintenanceLogs) ? before.maintenanceLogs : []), entry],
+    });
+    if (updated) auditUpdate('devices', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
+  }),
 
   // 维护历史
   
@@ -2699,6 +3154,106 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: { total: 8, pendingCount: 3, repliedCount: 2, completedCount: 2, cancelledCount: 1, byType: { MDT: 2, '疑难病例': 3, '远程会诊': 2, '二次意见': 1 }, byDepartment: { '放射科': 5, '神经内科': 2, '心内科': 1 } } });
   }),
 
+  // [G005 Wave 2A] 委员会会诊 (多医生合议) — 静态子路由须在 :id 之前
+  http.get(`${API_BASE}/consultations/committee`, async () => {
+    await delay(80);
+    const items = list<any>('committee_consultations');
+    if (items.length === 0) {
+      const now = Date.now();
+      const seed = [
+        {
+          id: 'CMT-SEED-001', reportId: 'RPT-SEED-001', reportTitle: '胸部CT: 主动脉夹层可能', patientName: '张三',
+          title: '主动脉夹层影像学诊断委员会合议', status: 'voting', createdBy: '张明远', createdAt: new Date(now - 3 * 3600_000).toISOString(),
+          members: [
+            { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: 'CTA 见内膜片及真假腔, 支持主动脉夹层诊断。', agree: true, votedAt: new Date(now - 2.5 * 3600_000).toISOString() },
+            { memberId: 'D002', name: '李慧敏', title: '副主任医师', department: '心内科', opinion: '同意, 建议急诊超声进一步评估升主动脉受累范围。', agree: true, votedAt: new Date(now - 2 * 3600_000).toISOString() },
+            { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '未投票', agree: false, votedAt: '' },
+          ],
+        },
+        {
+          id: 'CMT-SEED-002', reportId: 'RPT-SEED-002', reportTitle: '头颅MR: 基底节区异常信号', patientName: '李四',
+          title: '基底节异常信号定性讨论', status: 'resolved', createdBy: '李慧敏', createdAt: new Date(now - 26 * 3600_000).toISOString(),
+          members: [
+            { memberId: 'D001', name: '张明远', title: '主任医师', department: '放射科', opinion: '考虑腔隙性脑梗死可能。', agree: true, suggestion: '建议行 DWI+SWI 复查', votedAt: new Date(now - 25 * 3600_000).toISOString() },
+            { memberId: 'D003', name: '王海涛', title: '主任医师', department: '神经外科', opinion: '同意, 陈旧性腔梗可能性大。', agree: true, votedAt: new Date(now - 24 * 3600_000).toISOString() },
+          ],
+          resolution: { resolution: '委员会一致同意: 基底节区异常信号考虑陈旧性腔隙性脑梗死, 建议随访复查。', generatedAt: new Date(now - 23 * 3600_000).toISOString() },
+        },
+      ];
+      seed.forEach((c) => { try { create('committee_consultations', c); } catch { /* noop */ } });
+      return HttpResponse.json({ success: true, data: seed, meta: { total: seed.length } });
+    }
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
+
+  http.post(`${API_BASE}/consultations/committee`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const members = (body.members ?? []).map((m: any) => {
+      const memberId = typeof m === 'string' ? m : m.memberId;
+      const pool: Record<string, { name: string; title?: string; department?: string }> = {
+        D001: { name: '张明远', title: '主任医师', department: '放射科' },
+        D002: { name: '李慧敏', title: '副主任医师', department: '心内科' },
+        D003: { name: '王海涛', title: '主任医师', department: '神经外科' },
+        D004: { name: '陈雅芝', title: '主治医师', department: '肿瘤科' },
+        D005: { name: '刘建国', title: '主任医师', department: '胸外科' },
+      };
+      return { memberId, name: pool[memberId]?.name ?? memberId, title: pool[memberId]?.title, department: pool[memberId]?.department, opinion: '未投票', agree: false, votedAt: '' };
+    });
+    const created = {
+      id: `CMT-${Date.now().toString(36).toUpperCase()}`,
+      reportId: body.reportId, reportTitle: body.title, title: body.title,
+      status: 'voting', members, createdBy: body.createdBy ?? '当前用户', createdAt: new Date().toISOString(),
+    };
+    try { create('committee_consultations', created); } catch { /* noop */ }
+    return HttpResponse.json({ success: true, data: created }, { status: 201 });
+  }),
+
+  http.post(`${API_BASE}/consultations/:id/committee-vote`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const member = found.members.find((m: any) => m.memberId === body.memberId);
+    if (!member) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '委员不在成员中' } }, { status: 404 });
+    if (found.status === 'resolved') return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: '已生成决议, 无法继续投票' } }, { status: 409 });
+    member.opinion = body.opinion;
+    member.agree = body.agree;
+    member.suggestion = body.suggestion;
+    member.votedAt = new Date().toISOString();
+    update('committee_consultations', found.id, found);
+    return HttpResponse.json({ success: true, data: found });
+  }),
+
+  http.post(`${API_BASE}/consultations/:id/committee-resolution`, async ({ params, request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    found.resolution = { resolution: String(body.resolution ?? ''), generatedAt: new Date().toISOString() };
+    found.status = 'resolved';
+    if (body.appendToReport) found.resolution.appendedToReport = found.reportId;
+    update('committee_consultations', found.id, found);
+    return HttpResponse.json({ success: true, data: found });
+  }),
+
+  http.get(`${API_BASE}/consultations/:id/committee`, async ({ params }) => {
+    await delay(80);
+    const found = findOne<any>('committee_consultations', (c: any) => c.id === params.id);
+    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const voted = found.members.filter((m: any) => m.votedAt);
+    const agree = voted.filter((m: any) => m.agree);
+    const summary = {
+      totalMembers: found.members.length,
+      votedCount: voted.length,
+      agreeCount: agree.length,
+      disagreeCount: voted.length - agree.length,
+      pendingMembers: found.members.filter((m: any) => !m.votedAt).map((m: any) => m.name),
+      agreeRate: voted.length > 0 ? Math.round((agree.length / voted.length) * 100) : 0,
+    };
+    return HttpResponse.json({ success: true, data: { ...found, summary } });
+  }),
+
   // 详情
   http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
     await delay(50);
@@ -3161,12 +3716,17 @@ function getTemplateStore(): any[] {
   if (!templateStore) {
     templateStore = [
       // [v3.0.6.11-98 Wave2A P1] status 对齐审批流: approved/draft/pending/rejected (原 published→approved)
-      { id: 'TPL-001', name: 'CT Chest Routine', category: '结构化', modality: 'CT', bodyPart: '胸部', body: '影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。', version: 3, usage: 147, status: 'approved', shared: true, tags: ['chest', 'routine'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-06-30T09:00:00.000Z', createdAt: '2026-05-01T08:00:00.000Z', updatedAt: '2026-06-30T10:00:00.000Z' },
-      { id: 'TPL-002', name: 'CBCT Dental Implant', category: '结构化', modality: 'CBCT', bodyPart: '下颌骨', body: '影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。', version: 2, usage: 89, status: 'approved', shared: true, tags: ['dental', 'implant'], createdById: 'u-doc1', approvedBy: 'u-admin', approvedAt: '2026-06-26T09:00:00.000Z', createdAt: '2026-05-10T08:00:00.000Z', updatedAt: '2026-06-25T10:00:00.000Z' },
-      { id: 'TPL-003', name: 'OCT Macula', category: '自由文本', modality: 'OCT', bodyPart: '视网膜', body: '黄斑中心凹结构未见明显异常，各层连续。', version: 1, usage: 234, status: 'approved', shared: true, tags: ['eye', 'oct'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-06-02T09:00:00.000Z', createdAt: '2026-05-20T08:00:00.000Z', updatedAt: '2026-06-01T10:00:00.000Z' },
-      { id: 'TPL-004', name: 'MRI Brain Tumor Follow-up', category: '结构化', modality: 'MRI', bodyPart: '脑部', body: '影像所见：原病灶较前片缩小。\n诊断意见：疗效评价 PR。', version: 1, usage: 56, status: 'draft', shared: false, tags: ['brain', 'tumor'], createdById: 'u-doc3', createdAt: '2026-06-10T08:00:00.000Z', updatedAt: '2026-06-12T10:00:00.000Z' },
-      { id: 'TPL-005', name: '腹部超声常规', category: '自由文本', modality: 'US', bodyPart: '腹部', body: '影像所见：肝胆胰脾肾未见明显异常。\n诊断意见：腹部超声未见明显异常。', version: 1, usage: 0, status: 'pending', shared: false, tags: ['abdomen', 'us'], createdById: 'u-doc3', createdAt: '2026-07-01T08:00:00.000Z', updatedAt: '2026-07-01T08:00:00.000Z' },
-      { id: 'TPL-006', name: '头颅MR平扫', category: '结构化', modality: 'MRI', bodyPart: '头颅', body: '影像所见：脑实质内未见异常信号灶。\n诊断意见：头颅MRI平扫未见明显异常。', version: 1, usage: 0, status: 'rejected', shared: false, tags: ['brain'], createdById: 'u-doc1', rejectReason: '缺少脑室系统描述, 请补充', createdAt: '2026-07-02T08:00:00.000Z', updatedAt: '2026-07-03T08:00:00.000Z' },
+      // [v3.0.6.11-100 Wave2C P2] templateType: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板 (缺省 SECTION)
+      { id: 'TPL-001', name: 'CT Chest Routine', category: '结构化', modality: 'CT', bodyPart: '胸部', templateType: 'SECTION', body: '影像所见：双肺纹理清晰，未见实变及肿块影。\n诊断意见：胸部 CT 未见明显异常。', version: 3, usage: 147, status: 'approved', shared: true, tags: ['chest', 'routine'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-06-30T09:00:00.000Z', createdAt: '2026-05-01T08:00:00.000Z', updatedAt: '2026-06-30T10:00:00.000Z' },
+      { id: 'TPL-002', name: 'CBCT Dental Implant', category: '结构化', modality: 'CBCT', bodyPart: '下颌骨', templateType: 'SECTION', body: '影像所见：36 位缺牙区骨高度 12.5mm，骨密度 850HU，下牙槽神经管距离牙槽嵴 15.2mm。\n诊断意见：骨量满足种植条件。', version: 2, usage: 89, status: 'approved', shared: true, tags: ['dental', 'implant'], createdById: 'u-doc1', approvedBy: 'u-admin', approvedAt: '2026-06-26T09:00:00.000Z', createdAt: '2026-05-10T08:00:00.000Z', updatedAt: '2026-06-25T10:00:00.000Z' },
+      { id: 'TPL-003', name: 'OCT Macula', category: '自由文本', modality: 'OCT', bodyPart: '视网膜', templateType: 'SECTION', body: '黄斑中心凹结构未见明显异常，各层连续。', version: 1, usage: 234, status: 'approved', shared: true, tags: ['eye', 'oct'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-06-02T09:00:00.000Z', createdAt: '2026-05-20T08:00:00.000Z', updatedAt: '2026-06-01T10:00:00.000Z' },
+      { id: 'TPL-004', name: 'MRI Brain Tumor Follow-up', category: '结构化', modality: 'MRI', bodyPart: '脑部', templateType: 'SECTION', body: '影像所见：原病灶较前片缩小。\n诊断意见：疗效评价 PR。', version: 1, usage: 56, status: 'draft', shared: false, tags: ['brain', 'tumor'], createdById: 'u-doc3', createdAt: '2026-06-10T08:00:00.000Z', updatedAt: '2026-06-12T10:00:00.000Z' },
+      { id: 'TPL-005', name: '腹部超声常规', category: '自由文本', modality: 'US', bodyPart: '腹部', templateType: 'SECTION', body: '影像所见：肝胆胰脾肾未见明显异常。\n诊断意见：腹部超声未见明显异常。', version: 1, usage: 0, status: 'pending', shared: false, tags: ['abdomen', 'us'], createdById: 'u-doc3', createdAt: '2026-07-01T08:00:00.000Z', updatedAt: '2026-07-01T08:00:00.000Z' },
+      { id: 'TPL-006', name: '头颅MR平扫', category: '结构化', modality: 'MRI', bodyPart: '头颅', templateType: 'SECTION', body: '影像所见：脑实质内未见异常信号灶。\n诊断意见：头颅MRI平扫未见明显异常。', version: 1, usage: 0, status: 'rejected', shared: false, tags: ['brain'], createdById: 'u-doc1', rejectReason: '缺少脑室系统描述, 请补充', createdAt: '2026-07-02T08:00:00.000Z', updatedAt: '2026-07-03T08:00:00.000Z' },
+      // [v3.0.6.11-100 Wave2C P2] 全文模板 (FULL): 整篇插入 (覆盖或追加), 模板库分类 Tab「全文模板」区展示
+      { id: 'TPL-101', name: '胸部CT全文模板', category: 'CT', modality: 'CT', bodyPart: '胸部', templateType: 'FULL', body: '影像所见：双肺纹理清晰，双侧肺野透亮度正常，未见实变、肿块及结节影。纵隔及双肺门未见明显肿大淋巴结。心影大小形态正常，主动脉壁未见钙化。\n诊断意见：胸部CT平扫未见明显异常。\n建议：如临床需要，可定期体检复查。', version: 1, usage: 88, status: 'approved', shared: true, tags: ['chest', 'full'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-07-01T09:00:00.000Z', createdAt: '2026-06-20T08:00:00.000Z', updatedAt: '2026-07-01T10:00:00.000Z' },
+      { id: 'TPL-102', name: '腹部CT增强全文模板', category: 'CT', modality: 'CT', bodyPart: '腹部', templateType: 'FULL', body: '影像所见：肝脏形态大小正常，肝实质密度均匀，未见明显占位性病变。胆囊未见明显异常。胰腺形态密度正常，胰管未见扩张。脾脏大小正常。双肾形态大小正常，未见结石及积水。腹腔未见游离积液。\n诊断意见：腹部CT增强未见明显异常。\n建议：定期随访复查。', version: 1, usage: 42, status: 'approved', shared: true, tags: ['abdomen', 'full'], createdById: 'u-admin', approvedBy: 'u-admin', approvedAt: '2026-07-05T09:00:00.000Z', createdAt: '2026-06-25T08:00:00.000Z', updatedAt: '2026-07-05T10:00:00.000Z' },
+      { id: 'TPL-103', name: '肺结节CT随访全文模板', category: 'CT', modality: 'CT', bodyPart: '胸部', templateType: 'FULL', body: '影像所见：与 {{priorDate}} 前片对比，右肺上叶磨玻璃结节影大小无明显变化（约 {{size}}），边界清晰，未见分叶及毛刺征。双侧肺门及纵隔未见明显肿大淋巴结。\n诊断意见：右肺上叶磨玻璃结节影，较前无明显变化，考虑良性可能。\n建议：建议 {{interval}} 后复查胸部薄层CT，动态观察结节变化。', version: 1, usage: 36, status: 'approved', shared: true, tags: ['nodule', 'full', 'followup'], createdById: 'u-doc2', approvedBy: 'u-admin', approvedAt: '2026-07-08T09:00:00.000Z', createdAt: '2026-06-28T08:00:00.000Z', updatedAt: '2026-07-08T10:00:00.000Z' },
     ];
   }
   return templateStore;
@@ -3279,6 +3839,8 @@ export const templateHandlers = [
     const status = url.searchParams.get('status');
     const personal = url.searchParams.get('personal');
     const userId = url.searchParams.get('userId');
+    // [v3.0.6.11-100 Wave2C P2] 模板类型过滤 (FULL/SECTION/PHRASE, 模板库分类 Tab 使用)
+    const templateType = url.searchParams.get('templateType');
     let data = [...getTemplateStore()];
     if (category) data = data.filter((t) => t.category === category);
     if (bodyPart) data = data.filter((t) => String(t.bodyPart ?? '').includes(bodyPart));
@@ -3287,6 +3849,7 @@ export const templateHandlers = [
     if (status) data = data.filter((t) => t.status === status);
     // [v3.0.6.11-98 Wave2A P1] 我的模板 (个人模板库): personal=true 按 createdById 过滤
     if (personal === 'true' && userId) data = data.filter((t) => String(t.createdById ?? '') === userId);
+    if (templateType) data = data.filter((t) => (t.templateType ?? 'SECTION') === templateType);
     data.sort((a, b) => (b.usage ?? 0) - (a.usage ?? 0));
     return HttpResponse.json({ success: true, data, meta: { total: data.length } });
   }),
@@ -3369,6 +3932,8 @@ export const templateHandlers = [
       category: body.category || '自由文本',
       modality: body.modality || 'CT',
       bodyPart: body.bodyPart || '',
+      // [v3.0.6.11-100 Wave2C P2] 模板类型 (FULL/SECTION/PHRASE, 缺省 SECTION)
+      templateType: ['FULL', 'SECTION', 'PHRASE'].includes(body.templateType) ? body.templateType : 'SECTION',
       body: body.body || '',
       structure: Array.isArray(body.structure) ? body.structure : undefined,
       tags: body.tags || [],
@@ -4727,6 +5292,7 @@ export const handlers = [
   //      /api/v1/ai-diagnosis/* 请求落空到 vite proxy → 后端 → 500/401。
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
+  ...aiDraftAdvancedHandlers, // [v3.0.6.11-100 Wave 3A (G-19)] AI 草稿深化 (/ai-draft/providers|rag-context|generate-advanced|generate-structured)
   ...hl7Handlers, // [v3.0.6.11-75 W3-1] 注册 HL7 端点 (hl7Api: oru/orm/dft/batch/archive/mllp)
   ...imageAiHandlers, // [v3.0.6.11-75 W3-1] 注册影像 AI 质控端点 (qcImageAiApi: score/score-v2/results/stats)
   // [v3.0.6.11-62] 3D 分割与定量必须在 volumeHandlers 之前注册:
@@ -4740,6 +5306,7 @@ export const handlers = [
   ...voiceWorkstationHandlers, // [Wave 6A v3.0.6.11-99] 语音工作站 (词库/会话/转写校正/纠正反馈/统计)
   ...olapHandlers,
   ...customReportHandlers, // [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report)
+  ...mobileApprovalHandlers, // [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval)
   ...oeeHandlers, // [W3-B] OEE 看板 (list/detail/trend/stats) — 此前未注册导致 /oee/* 500
   ...biHandlers, // [v3.0.6.11-60] BI 仪表板 (kpi/timeliness/rvu/oee/sla/trend)
   // [Phase 2] 壳页面真实化 - 新端点 (kiosk/fusion/4d/screening/search)
@@ -4777,6 +5344,8 @@ export const handlers = [
   ...filesHandlers,
   // [W4-B] 随访计划
   ...followupHandlers,
+  // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发规则 (GET /followup-trigger-rules)
+  ...followupTriggerRulesHandlers,
   // [v3.0.6.11-99 Wave3B] 随访模板库
   ...followupTemplateHandlers,
   // [v3.0.6.11-99 Wave 4A] 病灶追踪
@@ -4790,6 +5359,8 @@ export const handlers = [
   ...findingLibraryHandlers,
   // [v3.0.6.11-99 Wave 2A (报告批注)] 报告协作批注
   ...reportAnnotationHandlers,
+  // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注
+  ...imageAnnotationHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

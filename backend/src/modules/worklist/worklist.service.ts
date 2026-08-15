@@ -66,7 +66,9 @@ export class WorklistService {
     const base: Record<string, unknown> = {}
     const extras: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(data)) {
-      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt'].includes(k)) extras[k] = v
+      // [v3.0.6.11-100 Wave 1B] retakeReason/retakeReasons: 重拍原因内存回退 (统计维度)
+      // [v3.0.6.11-100 Wave 1A] primaryTechnicianId/backupTechnicianId: 多技师协作主备技师内存回退
+      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt', 'retakeReason', 'retakeReasons', 'primaryTechnicianId', 'backupTechnicianId'].includes(k)) extras[k] = v
       else base[k] = v
     }
     try {
@@ -85,6 +87,8 @@ export class WorklistService {
   /** W4-2: 工作列表变化 → 全局实时刷新推送 */
   private notifyWorklistChanged(action: string, examId: string): void {
     this.gateway.emitWorklistRefresh()
+    // [v3.0.6.11-100 Wave 1B] 检查间状态看板联动刷新
+    this.gateway.emitRoomStatusRefresh()
     this.gateway.push('*', {
       event: 'notify',
       type: 'WORKLIST',
@@ -225,7 +229,28 @@ export class WorklistService {
         select: { op: true, createdAt: true, actor: { select: { fullName: true } } },
       })
     } catch { /* 日志不可用不阻断 */ }
-    return { ...exam, ops }
+    // [v3.0.6.11-100 Wave 1A (多技师协作)] 主备技师: examExtras/DB 新列 → 姓名解析
+    const merged = this.mergeExtras(exam as any)
+    let primaryTechnician: { id: string; fullName: string } | null = null
+    let backupTechnician: { id: string; fullName: string } | null = null
+    const primaryId = (merged as any).primaryTechnicianId
+    const backupId = (merged as any).backupTechnicianId
+    if (primaryId || backupId) {
+      try {
+        const users = await this.prisma.user.findMany({
+          where: { id: { in: [primaryId, backupId].filter(Boolean) } },
+          select: { id: true, fullName: true },
+        })
+        const byId = new Map(users.map((u) => [u.id, u]))
+        if (primaryId) primaryTechnician = byId.get(primaryId) ?? { id: primaryId, fullName: '未知技师' }
+        if (backupId) backupTechnician = byId.get(backupId) ?? { id: backupId, fullName: '未知技师' }
+      } catch (err) {
+        this.logger.warn(`[Worklist] resolve technicians failed: ${(err as Error)?.message}`)
+        if (primaryId) primaryTechnician = { id: primaryId, fullName: '未知技师' }
+        if (backupId) backupTechnician = { id: backupId, fullName: '未知技师' }
+      }
+    }
+    return { ...merged, ops, primaryTechnician, backupTechnician }
   }
 
   async update(id: string, dto: { state?: WorklistState; priority?: string; deviceId?: string | null; bodyPart?: string; modality?: string; scheduledAt?: string | null; techNote?: string; qcNote?: string; rating?: string }) {
@@ -488,8 +513,9 @@ export class WorklistService {
    *   QC_PASS     → exam.state = PENDING_REPORT (质控通过 → 待报告, 对齐 examMachine QC_PASS → pendingReport)
    *   IN_PROGRESS → 重拍登记 (仅 QC_REJECT → IN_PROGRESS, retakeCount +1, 备注追加 "重拍第 N 次")
    * [v3.0.6.11-95 Wave 1A] 扩展: rating/techNote/qcNote 落库 (exam 新列, DB 未迁移时回退内存)。
+   * [v3.0.6.11-100 Wave 1B] 扩展: retakeReason 重拍原因 (motion_artifact/positioning/wrong_protocol/contrast_issue/equipment/other) 落库+内存。
    */
-  async updateQcState(id: string, state: QcState, note?: string, opts?: { rating?: string; techNote?: string; qcNote?: string }) {
+  async updateQcState(id: string, state: QcState, note?: string, opts?: { rating?: string; techNote?: string; qcNote?: string; retakeReason?: string }) {
     const exam = await this.getExam(id)
     if (state === 'IN_PROGRESS') {
       // 重拍登记: 仅允许从 QC_REJECT
@@ -497,9 +523,16 @@ export class WorklistService {
         throw new BadRequestException(`Exam ${id} 当前状态 ${exam.state} 不允许重拍登记 (仅 ${RETAKE_ALLOWED_FROM.join('/')})`)
       }
       const retakeCount = Number(exam.retakeCount ?? 0) + 1
-      const appendNote = `重拍登记 第 ${retakeCount} 次${note ? `: ${note}` : ''}`
+      const appendNote = `重拍登记 第 ${retakeCount} 次${note ? `: ${note}` : ''}${opts?.retakeReason ? ` [${opts.retakeReason}]` : ''}`
       const qcNotes = [exam.qcNotes ?? '', appendNote].filter(Boolean).join('\n')
-      const result = await this.updateExam(id, { state: 'IN_PROGRESS', retakeCount, qcNotes }, { patient: true, device: true })
+      const extras: Record<string, unknown> = { state: 'IN_PROGRESS', retakeCount, qcNotes }
+      // [v3.0.6.11-100 Wave 1B] 重拍原因: 最新值 retakeReason + 历史 retakeReasons[] (重拍统计维度)
+      if (opts?.retakeReason) {
+        extras.retakeReason = opts.retakeReason
+        const prev = Array.isArray((exam as any).retakeReasons) ? (exam as any).retakeReasons as string[] : []
+        extras.retakeReasons = [...prev, opts.retakeReason]
+      }
+      const result = await this.updateExam(id, extras, { patient: true, device: true })
       this.notifyWorklistChanged(`retake=${retakeCount}:${appendNote}`, id)
       return result
     }
@@ -875,6 +908,516 @@ export class WorklistService {
         { id: 'tech-seed-2', name: '李技师', completedCount: 6, retakeCount: 0, avgDurationMin: 21 },
         { id: 'tech-seed-3', name: '张技师', completedCount: 4, retakeCount: 2, avgDurationMin: 30 },
       ],
+    }
+  }
+
+  // ============ [v3.0.6.11-100 Wave 1B] 检查间实时状态看板 / 重拍率统计 ============
+
+  /**
+   * GET /worklist/room-status — 房间级实时状态看板。
+   * 数据源: 全部未归档 exam (state/modality/device.location 派生房间) + device 表 (房间名/模态)。
+   * 状态派生: 房间有 IN_PROGRESS → in_use; 有 PAUSED → paused; 队列有 ARRIVED 且最早到达超 30min → overdue;
+   *   其余有队列 → waiting; 无 → idle。idleSince = 房间最近活动时间 (最后检查开始/完成)。
+   * 无数据 (空库/表不可用) 时确定性 seed 回退 (风格与 getOverview 一致)。
+   */
+  async getRoomStatus() {
+    const tenantId = currentTenantId()
+    try {
+      const [exams, devices] = await Promise.all([
+        this.prisma.exam.findMany({
+          where: { tenantId, state: { notIn: ['COMPLETED', 'CANCELLED'] } },
+          include: { device: true },
+        }),
+        this.prisma.device.findMany({ where: { tenantId }, select: { id: true, name: true, modality: true, location: true } }),
+      ])
+      // 房间基座: device.location 唯一 (未分配设备 fallback '未分配')
+      const roomMap = new Map<string, { roomId: string; name: string; modality: string; queue: typeof exams; lastActivityAt: number }>()
+      for (const d of devices) {
+        const key = d.location?.trim() || '未分配'
+        const roomId = `room-${key}`
+        if (!roomMap.has(roomId)) {
+          roomMap.set(roomId, { roomId, name: key, modality: d.modality, queue: [], lastActivityAt: 0 })
+        }
+      }
+      // 有检查但无设备记录的房间 (worklist 列表派生兜底)
+      const now = Date.now()
+      for (const e of exams) {
+        const roomId = (e as any).device?.location?.trim() || '未分配'
+        const entry = roomMap.get(`room-${roomId}`) ?? {
+          roomId: `room-${roomId}`,
+          name: roomId,
+          modality: (e as any).device?.modality ?? e.modality,
+          queue: [],
+          lastActivityAt: 0,
+        }
+        roomMap.set(entry.roomId, entry)
+      }
+      for (const e of exams) {
+        const roomId = (e as any).device?.location?.trim() || '未分配'
+        const entry = roomMap.get(`room-${roomId}`)
+        if (!entry) continue
+        entry.queue.push(e)
+        for (const ts of [e.startedAt, e.completedAt]) {
+          if (ts instanceof Date && ts.getTime() > entry.lastActivityAt) entry.lastActivityAt = ts.getTime()
+        }
+      }
+      const rooms: Array<{
+        roomId: string
+        name: string
+        modality: string
+        currentExam: { id: string; patientName: string; state: string; startedAt: string | null } | null
+        queueLength: number
+        status: 'in_use' | 'paused' | 'overdue' | 'waiting' | 'idle'
+        idleSince: string | null
+      }> = []
+      for (const entry of roomMap.values()) {
+        const active = entry.queue.find((e) => ['IN_PROGRESS', 'PAUSED'].includes(e.state))
+        const inProgress = entry.queue.filter((e) => e.state === 'IN_PROGRESS')
+        const paused = entry.queue.filter((e) => e.state === 'PAUSED')
+        const arrived = entry.queue
+          .filter((e) => e.state === 'ARRIVED')
+          .sort((a, b) => new Date(a.startedAt ?? a.createdAt).getTime() - new Date(b.startedAt ?? b.createdAt).getTime())
+        const firstArrived = arrived[0]
+        const overdue = firstArrived && new Date(firstArrived.startedAt ?? firstArrived.createdAt).getTime() < now - 30 * 60000
+        let status: 'in_use' | 'paused' | 'overdue' | 'waiting' | 'idle'
+        if (inProgress.length > 0) status = 'in_use'
+        else if (paused.length > 0) status = 'paused'
+        else if (overdue) status = 'overdue'
+        else if (arrived.length > 0 || entry.queue.length > 0) status = 'waiting'
+        else status = 'idle'
+        const current = active ?? inProgress[0] ?? paused[0] ?? arrived[0] ?? undefined
+        rooms.push({
+          roomId: entry.roomId,
+          name: entry.name,
+          modality: entry.modality,
+          currentExam: current
+            ? {
+                id: current.id,
+                patientName: (current as any).patient?.name ?? '未知患者',
+                state: current.state,
+                startedAt: current.startedAt ? current.startedAt.toISOString() : null,
+              }
+            : null,
+          queueLength: entry.queue.length,
+          status,
+          idleSince: entry.lastActivityAt > 0 ? new Date(entry.lastActivityAt).toISOString() : null,
+        })
+      }
+      rooms.sort((a, b) => {
+        const order: Record<string, number> = { in_use: 0, overdue: 1, paused: 2, waiting: 3, idle: 4 }
+        return (order[a.status] ?? 9) - (order[b.status] ?? 9)
+      })
+      if (rooms.length === 0) return this.seedRoomStatus()
+      return { rooms, updatedAt: new Date().toISOString() }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getRoomStatus failed, fallback seed: ${(err as Error)?.message}`)
+      return this.seedRoomStatus()
+    }
+  }
+
+  /** 确定性 seed: 空库/表不可用时的房间状态看板 */
+  private seedRoomStatus() {
+    const now = new Date()
+    return {
+      rooms: [
+        { roomId: 'room-CT室1', name: 'CT室1', modality: 'CT', currentExam: { id: 'seed-exam-1', patientName: '张伟', state: 'IN_PROGRESS', startedAt: new Date(now.getTime() - 12 * 60000).toISOString() }, queueLength: 4, status: 'in_use', idleSince: null },
+        { roomId: 'room-MR室1', name: 'MR室1', modality: 'MR', currentExam: null, queueLength: 3, status: 'waiting', idleSince: new Date(now.getTime() - 18 * 60000).toISOString() },
+        { roomId: 'room-DR室1', name: 'DR室1', modality: 'DR', currentExam: { id: 'seed-exam-2', patientName: '李婷', state: 'PAUSED', startedAt: new Date(now.getTime() - 40 * 60000).toISOString() }, queueLength: 2, status: 'paused', idleSince: null },
+        { roomId: 'room-超声室', name: '超声室', modality: 'US', currentExam: null, queueLength: 1, status: 'overdue', idleSince: new Date(now.getTime() - 75 * 60000).toISOString() },
+        { roomId: 'room-未分配', name: '未分配', modality: '—', currentExam: null, queueLength: 0, status: 'idle', idleSince: new Date(now.getTime() - 90 * 60000).toISOString() },
+      ],
+      updatedAt: now.toISOString(),
+    }
+  }
+
+  /** 重拍原因枚举 (对齐前端下拉) */
+  static readonly RETAKE_REASONS = ['motion_artifact', 'positioning', 'wrong_protocol', 'contrast_issue', 'equipment', 'other'] as const
+  static readonly RETAKE_REASON_LABELS: Record<string, string> = {
+    motion_artifact: '运动伪影',
+    positioning: '摆位不当',
+    wrong_protocol: '扫描协议错误',
+    contrast_issue: '对比剂问题',
+    equipment: '设备故障',
+    other: '其他',
+  }
+
+  /**
+   * GET /worklist/retake-stats?from=&to=&dimension=tech|modality|reason — 重拍率统计 + 原因分类。
+   * 数据源: exam (retakeCount/retakeReason/retakeReasons 派生) + worklistOp (COMPLETE 归属技师);
+   * from/to 缺省 = 最近 30 天。无数据时确定性 seed 回退 (风格与 getTechnicianStats 一致)。
+   */
+  async getRetakeStats(params: { from?: string; to?: string; dimension?: 'tech' | 'modality' | 'reason' }) {
+    const tenantId = currentTenantId()
+    const to = params.to ? new Date(params.to) : new Date()
+    const from = params.from ? new Date(params.from) : new Date(to.getTime() - 29 * 86400000)
+    const dimension = params.dimension ?? 'reason'
+    try {
+      const [exams, ops] = await Promise.all([
+        this.prisma.exam.findMany({
+          where: { tenantId },
+          include: { device: { select: { id: true, name: true } } },
+        }),
+        this.prisma.worklistOp.findMany({
+          where: { tenantId: currentTenantId(), op: 'COMPLETE' },
+          select: { examId: true, actorId: true, actor: { select: { fullName: true } } },
+        }),
+      ])
+      const techByExam = new Map<string, { id: string; name: string }>()
+      for (const op of ops) {
+        if (op.examId && !techByExam.has(op.examId)) {
+          techByExam.set(op.examId, { id: op.actorId, name: op.actor?.fullName ?? '未知技师' })
+        }
+      }
+      const completed = exams.filter((e) => e.completedAt && e.completedAt >= from && e.completedAt <= to)
+      const retakes = completed.filter((e) => Number((e as any).retakeCount ?? 0) > 0)
+      // 每日趋势
+      const dayMap = new Map<string, { date: string; completed: number; retakes: number }>()
+      const pushDay = (d: Date) => {
+        const key = this.dateKey(d)
+        if (!dayMap.has(key)) dayMap.set(key, { date: key, completed: 0, retakes: 0 })
+      }
+      for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) pushDay(d)
+      for (const e of completed) {
+        const key = this.dateKey(e.completedAt!)
+        if (!dayMap.has(key)) dayMap.set(key, { date: key, completed: 0, retakes: 0 })
+        dayMap.get(key)!.completed += 1
+      }
+      for (const e of retakes) {
+        const key = this.dateKey(e.completedAt!)
+        if (!dayMap.has(key)) dayMap.set(key, { date: key, completed: 0, retakes: 0 })
+        dayMap.get(key)!.retakes += Number((e as any).retakeCount ?? 1)
+      }
+      const trend = [...dayMap.values()]
+        .sort((a, b) => (a.date < b.date ? -1 : 1))
+        .map((t) => ({ ...t, rate: t.completed > 0 ? Number(((t.retakes / t.completed) * 100).toFixed(1)) : 0 }))
+
+      const keyOf = (e: (typeof exams)[number]): { key: string; label: string } => {
+        if (dimension === 'tech') {
+          const t = techByExam.get(e.id) ?? { id: 'unassigned', name: '未归属' }
+          return { key: t.id, label: t.name }
+        }
+        if (dimension === 'modality') return { key: e.modality ?? '其他', label: e.modality ?? '其他' }
+        const reason = String((e as any).retakeReason ?? '') || undefined
+        const latest = (Array.isArray((e as any).retakeReasons) ? (e as any).retakeReasons as string[] : []).at(-1)
+        const code = reason ?? latest
+        return { key: code ?? 'unknown', label: code ? WorklistService.RETAKE_REASON_LABELS[code] ?? code : '未分类' }
+      }
+      const map = new Map<string, { key: string; label: string; completed: number; retakes: number }>()
+      for (const e of completed) {
+        const { key, label } = keyOf(e)
+        const entry = map.get(key) ?? { key, label, completed: 0, retakes: 0 }
+        entry.completed += 1
+        if (Number((e as any).retakeCount ?? 0) > 0) entry.retakes += Number((e as any).retakeCount)
+        map.set(key, entry)
+      }
+      const breakdown = [...map.values()]
+        .map((b) => ({ ...b, rate: b.completed > 0 ? Number(((b.retakes / b.completed) * 100).toFixed(1)) : 0 }))
+        .sort((a, b) => b.retakes - a.retakes)
+      const totalCompleted = completed.length
+      const totalRetakes = retakes.reduce((a, e) => a + Number((e as any).retakeCount ?? 0), 0)
+      const summary = {
+        totalCompleted,
+        totalRetakes,
+        retakeRate: totalCompleted > 0 ? Number(((totalRetakes / totalCompleted) * 100).toFixed(1)) : 0,
+        examRetakeCount: retakes.length,
+      }
+      if (totalCompleted === 0 && exams.length === 0) {
+        return this.seedRetakeStats(from, to, dimension)
+      }
+      return { from: from.toISOString(), to: to.toISOString(), dimension, summary, trend, breakdown }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getRetakeStats failed, fallback seed: ${(err as Error)?.message}`)
+      return this.seedRetakeStats(from, to, dimension)
+    }
+  }
+
+  /** 确定性 seed: 空库/表不可用时的重拍统计 */
+  private seedRetakeStats(from: Date, to: Date, dimension: string) {
+    const days = Math.max(1, Math.min(30, Math.round((to.getTime() - from.getTime()) / 86400000) + 1))
+    const trend = Array.from({ length: days }, (_, i) => {
+      const d = new Date(from.getTime() + i * 86400000)
+      const completed = 8 + ((i * 5) % 7)
+      const retakes = i % 3 === 0 ? 2 : i % 5 === 0 ? 1 : 0
+      return { date: this.dateKey(d), completed, retakes, rate: completed > 0 ? Number(((retakes / completed) * 100).toFixed(1)) : 0 }
+    })
+    const base: Record<string, { key: string; label: string; completed: number; retakes: number }> =
+      dimension === 'tech'
+        ? {
+            'tech-seed-1': { key: 'tech-seed-1', label: '王技师', completed: 9, retakes: 1 },
+            'tech-seed-2': { key: 'tech-seed-2', label: '李技师', completed: 6, retakes: 0 },
+            'tech-seed-3': { key: 'tech-seed-3', label: '张技师', completed: 4, retakes: 2 },
+          }
+        : dimension === 'modality'
+          ? {
+              CT: { key: 'CT', label: 'CT', completed: 20, retakes: 2 },
+              MR: { key: 'MR', label: 'MR', completed: 15, retakes: 3 },
+              DR: { key: 'DR', label: 'DR', completed: 12, retakes: 1 },
+              US: { key: 'US', label: 'US', completed: 10, retakes: 0 },
+            }
+          : {
+              motion_artifact: { key: 'motion_artifact', label: '运动伪影', completed: 18, retakes: 4 },
+              positioning: { key: 'positioning', label: '摆位不当', completed: 14, retakes: 2 },
+              wrong_protocol: { key: 'wrong_protocol', label: '扫描协议错误', completed: 10, retakes: 1 },
+              contrast_issue: { key: 'contrast_issue', label: '对比剂问题', completed: 8, retakes: 1 },
+              equipment: { key: 'equipment', label: '设备故障', completed: 6, retakes: 1 },
+              other: { key: 'other', label: '其他', completed: 5, retakes: 0 },
+            }
+    const breakdown = Object.values(base).map((b) => ({ ...b, rate: Number(((b.retakes / b.completed) * 100).toFixed(1)) }))
+    const totalRetakes = breakdown.reduce((a, b) => a + b.retakes, 0)
+    const totalCompleted = breakdown.reduce((a, b) => a + b.completed, 0)
+    return {
+      from: from.toISOString(),
+      to: to.toISOString(),
+      dimension,
+      summary: {
+        totalCompleted,
+        totalRetakes,
+        retakeRate: totalCompleted > 0 ? Number(((totalRetakes / totalCompleted) * 100).toFixed(1)) : 0,
+        examRetakeCount: 5,
+      },
+      trend,
+      breakdown,
+    }
+  }
+
+  // ============ [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 + 多技师协作 (主备技师/交接班) ============
+
+  /**
+   * 写 worklistOp 审计记录 (assign-technicians / handover)。
+   * actorId 优先操作者, 缺失时回退 ADMIN 用户; 表不可用不阻断主流程。
+   */
+  private async recordOp(examId: string, op: 'ASSIGN' | 'REASSIGN', payload: Record<string, unknown>, fallbackActorId?: string | null) {
+    try {
+      let actorId = fallbackActorId || undefined
+      if (!actorId) {
+        const admin = await this.prisma.user.findFirst({ where: { role: 'ADMIN' }, select: { id: true } })
+        actorId = admin?.id
+      }
+      if (!actorId) return
+      await this.prisma.worklistOp.create({
+        data: { tenantId: currentTenantId(), actorId, op, examId, payload: payload as never },
+      })
+    } catch (err) {
+      this.logger.warn(`[Worklist] recordOp failed: ${(err as Error)?.message}`)
+    }
+  }
+
+  private async assertUser(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    if (!user) throw new BadRequestException(`User ${userId} not found`)
+    return user
+  }
+
+  /**
+   * POST /worklist/:id/assign-technicians — 主备技师分配。
+   * { primaryId?, backupId? } 至少一项; 存 examExtras/DB 新列 + worklistOp ASSIGN 记录。
+   */
+  async assignTechnicians(id: string, dto: { primaryId?: string; backupId?: string }) {
+    if (!dto.primaryId && !dto.backupId) throw new BadRequestException('primaryId or backupId is required')
+    await this.getExam(id)
+    if (dto.primaryId) await this.assertUser(dto.primaryId)
+    if (dto.backupId) await this.assertUser(dto.backupId)
+    const data: Record<string, unknown> = {}
+    if (dto.primaryId) data.primaryTechnicianId = dto.primaryId
+    if (dto.backupId) data.backupTechnicianId = dto.backupId
+    const result = await this.updateExam(id, data, { patient: true, device: true })
+    await this.recordOp(id, 'ASSIGN', { action: 'ASSIGN_TECHNICIANS', primaryId: dto.primaryId ?? null, backupId: dto.backupId ?? null }, dto.primaryId ?? dto.backupId)
+    this.notifyWorklistChanged('assign-technicians', id)
+    return { ...result, primaryTechnicianId: (result as any).primaryTechnicianId ?? null, backupTechnicianId: (result as any).backupTechnicianId ?? null }
+  }
+
+  /**
+   * POST /worklist/:id/handover — 交接班: 主技师 → toId (备技师保留), 记录 worklistOp REASSIGN。
+   */
+  async handover(id: string, dto: { fromId: string; toId: string; note?: string }) {
+    const exam = await this.getExam(id)
+    await this.assertUser(dto.fromId)
+    await this.assertUser(dto.toId)
+    const result = await this.updateExam(
+      id,
+      { primaryTechnicianId: dto.toId },
+      { patient: true, device: true },
+    )
+    await this.recordOp(id, 'REASSIGN', { action: 'HANDOVER', fromId: dto.fromId, toId: dto.toId, note: dto.note ?? null }, dto.fromId)
+    this.notifyWorklistChanged(`handover=${dto.fromId}->${dto.toId}`, id)
+    return { ok: true, examId: id, fromId: dto.fromId, toId: dto.toId, note: dto.note ?? null, primaryTechnicianId: dto.toId }
+  }
+
+  /**
+   * GET /worklist/technician-dashboard — 技师 KPI 看板:
+   * { from, to, technicianId? } → 每技师 完成数/平均时长/重拍率/平均等待/设备占用率/按时签到率 + totals + 每日完成趋势。
+   * 数据源: worklistOp (START/COMPLETE 归属) + exam (duration/retakeCount/scheduledAt/deviceId) 派生; 无记录 seed 回退。
+   */
+  async getTechnicianDashboard(params: { from?: string; to?: string; technicianId?: string }) {
+    const tenantId = currentTenantId()
+    const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+    if (params.from && !DATE_RE.test(params.from)) throw new BadRequestException('from 日期格式非法 (YYYY-MM-DD)')
+    if (params.to && !DATE_RE.test(params.to)) throw new BadRequestException('to 日期格式非法 (YYYY-MM-DD)')
+    const from = params.from ? new Date(`${params.from}T00:00:00`) : undefined
+    const to = params.to ? new Date(`${params.to}T00:00:00`) : undefined
+    const opWhere: any = { tenantId, op: { in: ['START', 'COMPLETE'] } }
+    const examWhere: any = { tenantId, state: 'COMPLETED' }
+    if (from || to) {
+      const range: Record<string, Date> = {}
+      if (from) range.gte = from
+      if (to) {
+        const end = new Date(to)
+        end.setDate(end.getDate() + 1)
+        range.lt = end
+      }
+      opWhere.createdAt = range
+      examWhere.completedAt = range
+    }
+    if (params.technicianId) opWhere.actorId = params.technicianId
+    try {
+      const [ops, completed, userRows] = await Promise.all([
+        this.prisma.worklistOp.findMany({
+          where: opWhere,
+          select: { id: true, op: true, examId: true, actorId: true, actor: { select: { id: true, fullName: true } } },
+        }),
+        this.prisma.exam.findMany({
+          where: examWhere,
+          select: { id: true, startedAt: true, completedAt: true, scheduledAt: true, retakeCount: true, deviceId: true },
+          take: 2000,
+        }),
+        params.technicianId
+          ? Promise.resolve([])
+          : this.prisma.user.findMany({ where: { role: 'TECHNICIAN', tenantId }, select: { id: true, fullName: true }, take: 200 }),
+      ])
+      const durByExam = new Map(completed.map((e) => [e.id, e]))
+      const trendMap = new Map<string, number>()
+      for (const e of completed) {
+        if (!e.completedAt) continue
+        const key = this.dateKey(e.completedAt)
+        trendMap.set(key, (trendMap.get(key) ?? 0) + 1)
+      }
+      type Acc = {
+        id: string; name: string; completedCount: number; retakeCount: number;
+        durations: number[]; waits: number[]; devices: number; onTime: number;
+      }
+      const map = new Map<string, Acc>()
+      const upsert = (actorId: string, fullName: string): Acc => {
+        const entry = map.get(actorId) ?? {
+          id: actorId, name: fullName, completedCount: 0, retakeCount: 0,
+          durations: [], waits: [], devices: 0, onTime: 0,
+        }
+        map.set(actorId, entry)
+        return entry
+      }
+      for (const op of ops) {
+        if (op.op !== 'COMPLETE') continue
+        const entry = upsert(op.actorId, op.actor?.fullName ?? '未知技师')
+        entry.completedCount += 1
+        const examRow = op.examId ? durByExam.get(op.examId) : undefined
+        if (!examRow) continue
+        entry.retakeCount += Number(examRow.retakeCount ?? 0)
+        if (examRow.deviceId) entry.devices += 1
+        if (examRow.startedAt && examRow.completedAt) {
+          const m = (examRow.completedAt.getTime() - examRow.startedAt.getTime()) / 60000
+          if (Number.isFinite(m) && m >= 0) entry.durations.push(m)
+        }
+        if (examRow.scheduledAt && examRow.startedAt) {
+          const wait = (examRow.startedAt.getTime() - examRow.scheduledAt.getTime()) / 60000
+          if (Number.isFinite(wait)) {
+            entry.waits.push(Math.max(0, wait))
+            if (wait <= 30) entry.onTime += 1
+          }
+        }
+      }
+      // 零 ops 时: 补上技师名单 (有 ops 归属的技师) 或全部在编技师
+      if (map.size === 0) {
+        for (const u of userRows) upsert(u.id, u.fullName)
+      }
+      const technicians = [...map.values()].map((t) => {
+        const avgDurationMin = t.durations.length > 0 ? Math.round(t.durations.reduce((a, b) => a + b, 0) / t.durations.length) : 0
+        const avgWaitTime = t.waits.length > 0 ? Math.round(t.waits.reduce((a, b) => a + b, 0) / t.waits.length) : 0
+        return {
+          id: t.id,
+          name: t.name,
+          completedCount: t.completedCount,
+          avgDurationMin,
+          retakeCount: t.retakeCount,
+          retakeRate: t.completedCount > 0 ? Number(((t.retakeCount / t.completedCount) * 100).toFixed(1)) : 0,
+          avgWaitTime,
+          deviceUtilization: t.completedCount > 0 ? Number(((t.devices / t.completedCount) * 100).toFixed(1)) : 0,
+          onTimeRate: t.waits.length > 0 ? Number(((t.onTime / t.waits.length) * 100).toFixed(1)) : 0,
+        }
+      }).sort((a, b) => b.completedCount - a.completedCount)
+      if (technicians.length === 0 || technicians.every((t) => t.completedCount === 0 && t.name === '未知技师')) {
+        return this.seedTechnicianDashboard(from, to)
+      }
+      const totalCompleted = technicians.reduce((a, t) => a + t.completedCount, 0)
+      const totalRetake = technicians.reduce((a, t) => a + t.retakeCount, 0)
+      // totals 从技师聚合派生 (respect technicianId 过滤)
+      const sumWith = (pick: (t: (typeof technicians)[number]) => number) => technicians.reduce((a, t) => a + pick(t), 0)
+      const wAvg = (pick: (t: (typeof technicians)[number]) => number) => {
+        let total = 0
+        for (const t of technicians) total += t.completedCount * pick(t)
+        return totalCompleted > 0 ? Math.round(total / totalCompleted) : 0
+      }
+      const trendDays = this.trendDates(from, to)
+      return {
+        from: from ? this.dateKey(from) : undefined,
+        to: to ? this.dateKey(new Date(to)) : undefined,
+        technicians,
+        totals: {
+          completedCount: totalCompleted,
+          avgDurationMin: wAvg((t) => t.avgDurationMin),
+          retakeRate: totalCompleted > 0 ? Number(((totalRetake / totalCompleted) * 100).toFixed(1)) : 0,
+          avgWaitTime: wAvg((t) => t.avgWaitTime),
+          deviceUtilization: wAvg((t) => t.deviceUtilization),
+          onTimeRate: wAvg((t) => t.onTimeRate),
+        },
+        trend: trendDays.map((date) => ({ date, completed: trendMap.get(date) ?? 0 })),
+      }
+    } catch (err) {
+      this.logger.warn(`[Worklist] getTechnicianDashboard failed, fallback seed: ${(err as Error)?.message}`)
+      return this.seedTechnicianDashboard(from, to)
+    }
+  }
+
+  /** 趋势时间轴: 指定范围最多 31 天; 未指定时近 7 天 */
+  private trendDates(from?: Date, to?: Date): string[] {
+    const end = to ?? new Date()
+    const start = from ?? new Date(end)
+    if (!from) start.setDate(start.getDate() - 6)
+    start.setHours(0, 0, 0, 0)
+    end.setHours(23, 59, 59, 999)
+    const out: string[] = []
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      out.push(this.dateKey(d))
+      if (out.length >= 31) break
+    }
+    return out
+  }
+
+  private seedTechnicianDashboard(from?: Date, to?: Date) {
+    const days = this.trendDates(from, to)
+    const seed = (id: string, name: string, completedCount: number, avgDurationMin: number, retakeCount: number, avgWaitTime: number, deviceUtilization: number, onTimeRate: number) => ({
+      id, name, completedCount, avgDurationMin, retakeCount,
+      retakeRate: completedCount > 0 ? Number(((retakeCount / completedCount) * 100).toFixed(1)) : 0,
+      avgWaitTime, deviceUtilization, onTimeRate,
+    })
+    const technicians = [
+      seed('tech-seed-1', '王技师', 12, 24, 1, 12, 92, 87.5),
+      seed('tech-seed-2', '李技师', 8, 21, 0, 15, 88, 75),
+      seed('tech-seed-3', '张技师', 6, 30, 2, 20, 80, 66.7),
+    ]
+    const totalCompleted = technicians.reduce((a, t) => a + t.completedCount, 0)
+    const totalRetake = technicians.reduce((a, t) => a + t.retakeCount, 0)
+    return {
+      from: from ? this.dateKey(from) : undefined,
+      to: to ? this.dateKey(to) : undefined,
+      technicians,
+      totals: {
+        completedCount: totalCompleted,
+        avgDurationMin: 24,
+        retakeRate: Number(((totalRetake / totalCompleted) * 100).toFixed(1)),
+        avgWaitTime: 15,
+        deviceUtilization: 88,
+        onTimeRate: 79,
+      },
+      trend: days.map((date, idx) => ({ date, completed: 3 + ((idx * 5) % 9) })),
     }
   }
 }

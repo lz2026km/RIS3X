@@ -1,5 +1,7 @@
 ﻿import { Card, message } from 'antd'
 import { PageHeader } from "../components/common/PageHeader";
+import { StatCard } from "../components/common/StatCard";
+import { AppText } from "../components/common/AppText";
 // G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
 import { useState, useMemo, useEffect } from "react";
@@ -1106,92 +1108,43 @@ const borderGray = "var(--border-color)";
             marginBottom: 16,
           }}
         >
-          {[
-            {
-              label: "今日预约",
-              value: todayStats.total,
-              icon: CalendarClock,
-              color: "#1e40af",
-              bg: lightBlue,
-            },
-            {
-              label: "待确认",
-              value: todayStats.pending,
-              icon: Clock,
-              color: "#ca8a04",
-              bg: "#f59e0b22",
-            },
-            {
-              label: "已确认",
-              value: todayStats.confirmed,
-              icon: CheckCircle,
-              color: "#059669",
-              bg: "#22c55e22",
-            },
-            {
-              label: "违约",
-              value: todayStats.noShow,
-              icon: XCircle,
-              color: "#ef4444", bg: "#ef444422",
-            },
-            {
-              label: "平均等待",
-              value: todayStats.avgWaitTime,
-              icon: Clock,
-              color: "#7c3aed",
-              bg: "#8b5cf622",
-            },
-            {
-              label: "使用率",
-              value: `${todayStats.utilizationRate}%`,
-              icon: BarChart3,
-              color: "#0891b2",
-              bg: "#06b6d422",
-            },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              style={{
-                background: whiteBg,
-                borderRadius: 10,
-                padding: "14px 16px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                border: `1px solid ${borderGray}`,
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 10,
-                  background: stat.bg,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <stat.icon size={20} style={{ color: stat.color }} />
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 800,
-                    color: stat.color,
-                    lineHeight: 1,
-                  }}
-                >
-                  {stat.value}
-                </div>
-                <div style={{ fontSize: 12, color: textGray, marginTop: 3 }}>
-                  {stat.label}
-                </div>
-              </div>
-            </div>
-          ))}
+          <StatCard
+            title="今日预约"
+            value={todayStats.total}
+            icon={<CalendarClock size={20} />}
+            color="primary"
+          />
+          <StatCard
+            title="待确认"
+            value={todayStats.pending}
+            icon={<Clock size={20} />}
+            color="warning"
+          />
+          <StatCard
+            title="已确认"
+            value={todayStats.confirmed}
+            icon={<CheckCircle size={20} />}
+            color="success"
+          />
+          <StatCard
+            title="违约"
+            value={todayStats.noShow}
+            icon={<XCircle size={20} />}
+            color="error"
+          />
+          <StatCard
+            title="平均等待"
+            value={todayStats.avgWaitTime}
+            icon={<Clock size={20} />}
+            color="info"
+          />
+          <StatCard
+            title="使用率"
+            value={todayStats.utilizationRate}
+            suffix="%"
+            icon={<BarChart3 size={20} />}
+            color="info"
+          />
         </div>
 
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
@@ -1521,9 +1474,9 @@ const borderGray = "var(--border-color)";
                             >
                               {rule.deviceName.split("（")[0]}
                             </span>
-                            <span style={{ fontSize: 12, color: textGray }}>
+                            <AppText size="xs" color="secondary" as="span">
                               {device?.modality || ""}
-                            </span>
+                            </AppText>
                           </div>
                           <label
                             style={{
@@ -1547,14 +1500,9 @@ const borderGray = "var(--border-color)";
                               }}
                               style={{ cursor: "pointer" }}
                             />
-                            <span
-                              style={{
-                                fontSize: 12,
-                                color: rule.enabled ? "#059669" : "#94a3b8",
-                              }}
-                            >
+                            <AppText size="xs" as="span" style={{ color: rule.enabled ? "#059669" : "#94a3b8" }}>
                               {rule.enabled ? "启用" : "停用"}
-                            </span>
+                            </AppText>
                           </label>
                         </div>
                         <div
@@ -1886,9 +1834,9 @@ const borderGray = "var(--border-color)";
                     >
                       点击上传Excel文件
                     </div>
-                    <div style={{ fontSize: 12, color: textGray }}>
+                    <AppText size="xs" color="secondary" as="div">
                       支持 .csv / .json 格式（.xlsx 请先另存为 CSV），每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话
-                    </div>
+                    </AppText>
                     <button
                       style={{
                         marginTop: 12,
@@ -1988,9 +1936,7 @@ const borderGray = "var(--border-color)";
                     >
                       导入说明
                     </div>
-                    <div
-                      style={{ fontSize: 12, color: textGray, lineHeight: 1.8 }}
-                    >
+                    <AppText size="xs" color="secondary" as="div" style={{ lineHeight: 1.8 }}>
                       1. 请先下载模板文件，按格式填写预约信息
                       <br />
                       2. 姓名、设备、日期、时段为必填项
@@ -2000,7 +1946,7 @@ const borderGray = "var(--border-color)";
                       4. 导入前请确保设备在该时段有可用名额
                       <br />
                       5. 重复预约将自动跳过并记录在错误日志中
-                    </div>
+                    </AppText>
                   </div>
                   <div
                     style={{
@@ -2174,18 +2120,12 @@ const borderGray = "var(--border-color)";
                               : "普通"}
                         </span>
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                      <AppText size="xs" color="secondary" as="div">
                         {w.examItemName} · {w.modality}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "var(--text-secondary)",
-                          marginBottom: 4,
-                        }}
-                      >
+                      </AppText>
+                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 4 }}>
                         期望: {w.preferredDate} {w.preferredTime}
-                      </div>
+                      </AppText>
                       <div style={{ display: "flex", gap: 4 }}>
                         <button
                           onClick={() => void handleWaitlistNotify(w)}
@@ -2345,16 +2285,9 @@ const borderGray = "var(--border-color)";
                   })}
                   {/* 快捷操作 */}
                   <div style={{ marginTop: 16 }}>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: primaryBlue,
-                        marginBottom: 8,
-                      }}
-                    >
+                    <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
                       快捷操作
-                    </div>
+                    </AppText>
                     <div
                       style={{
                         display: "grid",
@@ -2629,9 +2562,9 @@ const borderGray = "var(--border-color)";
                         border: `1px solid ${borderGray}`,
                       }}
                     >
-                      <div style={{ fontSize: 12, color: textGray }}>
+                      <AppText size="xs" color="secondary" as="div">
                         {label}
-                      </div>
+                      </AppText>
                       <div
                         style={{
                           fontWeight: 700,
@@ -2649,19 +2582,9 @@ const borderGray = "var(--border-color)";
               {/* 临床诊断 */}
               {selectedAppointment.clinicalDiagnosis && (
                 <div style={{ marginBottom: 14 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: primaryBlue,
-                      marginBottom: 6,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
+                  <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
                     <AlertCircle size={13} /> 临床诊断
-                  </div>
+                  </AppText>
                   <div
                     style={{
                       background: "var(--color-warning-bg)",
@@ -2921,22 +2844,13 @@ const borderGray = "var(--border-color)";
                 </div>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: primaryBlue,
-                    marginBottom: 8,
-                  }}
-                >
+                <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 8 }}>
                   取消原因 *
-                </div>
+                </AppText>
                 {cancelReasonError && (
-                  <div
-                    style={{ color: "#dc2626", fontSize: 12, marginBottom: 8 }}
-                  >
+                  <AppText size="xs" color="error" as="div" style={{ marginBottom: 8 }}>
                     {cancelReasonError}
-                  </div>
+                  </AppText>
                 )}
                 <div
                   style={{ display: "flex", flexDirection: "column", gap: 6 }}
@@ -3081,30 +2995,20 @@ const borderGray = "var(--border-color)";
                       >
                         {c.patientName}
                       </div>
-                      <div style={{ fontSize: 12, color: "#7f1d1d" }}>
+                      <AppText size="xs" as="div" style={{ color: "#7f1d1d" }}>
                         {c.examItemName} · {c.examDate} {c.examTime}
-                      </div>
-                      <div style={{ fontSize: 12, color: "#7f1d1d" }}>
+                      </AppText>
+                      <AppText size="xs" as="div" style={{ color: "#7f1d1d" }}>
                         设备: {c.deviceName?.split("（")[0]} | 状态:{" "}
                         {STATUS_CONFIG[c.status]?.label}
-                      </div>
+                      </AppText>
                     </div>
                   ))}
                 </div>
               </div>
-              <div
-                style={{
-                  padding: "10px 12px",
-                  background: "var(--color-warning-bg)",
-                  borderRadius: 6,
-                  border: "1px solid var(--color-warning-border)",
-                  fontSize: 12,
-                  color: "#92400e",
-                  marginBottom: 14,
-                }}
-              >
+              <AppText size="xs" color="warning" as="div" style={{ padding: "10px 12px", background: "var(--color-warning-bg)", borderRadius: 6, border: "1px solid var(--color-warning-border)", marginBottom: 14 }}>
                 检测到该时段存在冲突预约。建议选择其他时段或设备。
-              </div>
+              </AppText>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
                   onClick={() => {

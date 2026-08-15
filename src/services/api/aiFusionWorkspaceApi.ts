@@ -27,6 +27,7 @@ export interface FusionWorkspaceData {
 }
 
 export const aiFusionWorkspaceApi = {
+  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getWorkspaceData: (modality?: string) =>
     api.get<FusionWorkspaceData>(`/ai/fusion-workspace${modality ? `?modality=${modality}` : ''}`),
 

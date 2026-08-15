@@ -17,6 +17,8 @@ export interface LesionMeasurement {
   notes?: string
 }
 
+export type LesionSource = 'manual' | 'ai' | 'from-report'
+
 export interface TrackedLesion {
   id: string
   lesionId: string
@@ -28,6 +30,10 @@ export interface TrackedLesion {
   createdAt: string
   currentStatus: LesionStatus
   followupId?: string
+  /** [v3.0.6.11-100 Wave 6A (D-4)] 病灶来源: manual 手动登记 / ai AI 检出 / from-report 报告提取 */
+  source?: LesionSource
+  /** [v3.0.6.11-100 Wave 6A (D-4)] 来源报告 ID (from-report 创建时写入, 供 GET /reports/:id/lesions 关联查询) */
+  reportId?: string
   measurements: LesionMeasurement[]
 }
 
@@ -112,6 +118,137 @@ const ISO_DAY = (offsetDays: number): string => {
 }
 
 const newId = (prefix: string): string => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+
+// ────────────────────────────────────────────────────────────────────────────
+// [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪: 关键词提取规则
+// 从报告 impression/findings/conclusion 文本提取可追踪病灶关键词 (肺结节/肝占位/淋巴结等)
+// ────────────────────────────────────────────────────────────────────────────
+export interface LesionKeywordMatch {
+  /** 命中的关键词 (报告原文中出现的词) */
+  keyword: string
+  /** 病灶类型 (对齐 LesionType) */
+  type: LesionType
+  /** 病灶名称 (类型派生, 含序号) */
+  name: string
+  /** 部位 (从文本匹配解剖学短语, 未命中用类型默认值) */
+  site: string
+  /** 初始尺寸 mm (从文本 "直径 Xmm / 约 Xmm / Xmm" 提取) */
+  sizeMm?: number
+}
+
+export const LESION_KEYWORD_RULES: Array<{ keyword: string; type: LesionType; name: string; defaultSite: string }> = [
+  { keyword: '肺结节', type: '肺结节', name: '肺结节', defaultSite: '胸部' },
+  { keyword: '磨玻璃', type: '肺结节', name: '磨玻璃影', defaultSite: '胸部' },
+  { keyword: '肝占位', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '肝脏占位', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '肝转移', type: '肝占位', name: '肝转移灶', defaultSite: '肝脏' },
+  { keyword: '肝癌', type: '肝占位', name: '肝占位', defaultSite: '肝脏' },
+  { keyword: '淋巴结', type: '淋巴结', name: '淋巴结', defaultSite: '纵隔' },
+  { keyword: '甲状腺结节', type: '其他', name: '甲状腺结节', defaultSite: '甲状腺' },
+  { keyword: '乳腺结节', type: '其他', name: '乳腺结节', defaultSite: '乳腺' },
+  { keyword: '囊肿', type: '其他', name: '囊肿', defaultSite: '—' },
+  { keyword: '占位', type: '其他', name: '占位', defaultSite: '—' },
+]
+
+/** 解剖学部位短语 (按优先级匹配报告原文, 首中即用) */
+const SITE_PHRASES = [
+  '右肺上叶', '右肺中叶', '右肺下叶', '左肺上叶', '左肺舌叶', '左肺下叶',
+  '肝右叶', '肝左叶', '肝门区', '肝尾状叶', '肝内',
+  '右乳', '左乳', '甲状腺左叶', '甲状腺右叶', '甲状腺峡部',
+  '纵隔', '颈部', '腋窝', '腹膜后', '盆腔', '腹股沟',
+]
+
+const SIZE_PATTERNS = [
+  /直径\s*(\d+(?:\.\d+)?)\s*mm/i,
+  /(?:约|大小约|大小)\s*(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)\s*mm/i,
+  /(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)\s*mm/i,
+  /约\s*(\d+(?:\.\d+)?)\s*mm/i,
+  /(\d+(?:\.\d+)?)\s*mm/i,
+]
+
+export function extractSizeMm(text: string): number | undefined {
+  for (const re of SIZE_PATTERNS) {
+    const m = re.exec(text)
+    if (m) {
+      const v = Number(m[1])
+      if (Number.isFinite(v) && v > 0) return v
+    }
+  }
+  return undefined
+}
+
+/** 取距关键词最近的尺寸数值 (mm), 优先紧邻关键词的尺寸描述 */
+function extractSizeMmNear(text: string, kwIdx: number): number | undefined {
+  let best: { v: number; dist: number } | null = null
+  for (const re of SIZE_PATTERNS) {
+    const g = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`)
+    let m: RegExpExecArray | null
+    while ((m = g.exec(text)) !== null) {
+      const v = Number(m[1])
+      if (Number.isFinite(v) && v > 0) {
+        const dist = Math.abs(m.index - kwIdx)
+        if (!best || dist < best.dist) best = { v, dist }
+      }
+      if (g.lastIndex === m.index) g.lastIndex += 1
+    }
+  }
+  return best?.v
+}
+
+export function extractSite(text: string): string | undefined {
+  return SITE_PHRASES.find((p) => text.includes(p))
+}
+
+/** 取距离关键词最近的部位短语 (优先关键词之前) */
+function extractSiteNear(text: string, keyword: string): string | undefined {
+  const kwIdx = text.indexOf(keyword)
+  if (kwIdx < 0) return extractSite(text)
+  let bestBefore: { phrase: string; idx: number } | null = null
+  let bestAfter: { phrase: string; idx: number } | null = null
+  for (const phrase of SITE_PHRASES) {
+    let from = 0
+    while (true) {
+      const i = text.indexOf(phrase, from)
+      if (i < 0) break
+      if (i + phrase.length <= kwIdx) {
+        if (!bestBefore || i > bestBefore.idx) bestBefore = { phrase, idx: i }
+      } else if (!bestAfter || i < bestAfter.idx) {
+        bestAfter = { phrase, idx: i }
+      }
+      from = i + phrase.length
+    }
+  }
+  return bestBefore?.phrase ?? bestAfter?.phrase ?? extractSite(text)
+}
+
+/**
+ * 从报告文本提取病灶关键词 → 去重 → 派生 (类型/部位/尺寸)
+ * 部位/尺寸从关键词前后窗口文本提取 (避免跨句串扰); 同一关键词重复出现只保留一次
+ */
+export function extractLesionKeywords(text: string): LesionKeywordMatch[] {
+  if (!text || text.trim().length === 0) return []
+  const seen = new Set<string>()
+  const matches: LesionKeywordMatch[] = []
+  for (const rule of LESION_KEYWORD_RULES) {
+    if (!text.includes(rule.keyword)) continue
+    if (seen.has(rule.keyword)) continue
+    seen.add(rule.keyword)
+    const idx = text.indexOf(rule.keyword)
+    const winStart = Math.max(0, idx - 60)
+    const window = text.slice(winStart, Math.min(text.length, idx + rule.keyword.length + 120))
+    const sizeMm = extractSizeMmNear(window, idx - winStart)
+    const site = extractSiteNear(window, rule.keyword) ?? rule.defaultSite
+    const order = matches.filter((m) => m.type === rule.type).length + 1
+    matches.push({
+      keyword: rule.keyword,
+      type: rule.type,
+      name: `${rule.name} #${order}`,
+      site,
+      sizeMm,
+    })
+  }
+  return matches
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // 确定性 seed (与 MSW lesionTrackingHandlers 对齐; 日期相对今天, 避免陈旧)
@@ -284,6 +421,9 @@ export class LesionTrackingService {
     initialSizeMm?: number
     modality?: string
     studyId?: string
+    // [v3.0.6.11-100 Wave 6A (D-4)] 来源标注 (manual/ai/from-report) + 来源报告
+    source?: LesionSource
+    reportId?: string
   }): Promise<TrackedLesion> {
     const id = newId('LT')
     const now = ISO_DAY(0)
@@ -297,6 +437,8 @@ export class LesionTrackingService {
       modality: dto.modality ?? 'CT',
       createdAt: now,
       currentStatus: '新发',
+      source: dto.source ?? 'manual',
+      reportId: dto.reportId ?? undefined,
       measurements: [
         {
           id: newId('m'),
@@ -307,7 +449,7 @@ export class LesionTrackingService {
       ],
     }
     this.lesions.set(id, lesion)
-    this.logger.log(`lesion created: ${id} (${dto.name}, ${dto.patientId})`)
+    this.logger.log(`lesion created: ${id} (${dto.name}, ${dto.patientId}, source=${lesion.source})`)
     return this.toDto(lesion)
   }
 
@@ -329,6 +471,79 @@ export class LesionTrackingService {
     const existed = this.lesions.delete(id)
     if (!existed) throw new NotFoundException(`病灶 ${id} 不存在`)
     return { id, deleted: true }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告→病灶追踪自动建
+  // POST /lesion-tracking/from-report { reportId, keyword? }
+  //   → 从报告 impression/findings/conclusion 提取病灶关键词 (肺结节/肝占位/淋巴结 等规则)
+  //   → 自动创建病灶记录 (名称=关键词+部位派生 + 初始尺寸从文本提取或占位)
+  // ────────────────────────────────────────────────────────────────────────────
+  async createFromReport(dto: {
+    reportId: string
+    keyword?: string
+  }): Promise<{
+    reportId: string
+    patientId: string
+    matched: LesionKeywordMatch[]
+    created: TrackedLesion[]
+    skipped: number
+  }> {
+    if (!dto.reportId?.trim()) throw new BadRequestException('reportId 必填')
+    let report: { id: string; patientId: string; findings?: string | null; impression?: string | null; conclusion?: string | null; examId?: string | null; exam?: { modality?: string | null } | null } | null = null
+    try {
+      report = await this.prisma.report.findUnique({
+        where: { id: dto.reportId.trim() },
+        include: { exam: { select: { modality: true } } },
+      })
+    } catch (e) {
+      this.logger.warn(`createFromReport: report ${dto.reportId} lookup failed: ${(e as Error).message}`)
+    }
+    if (!report) throw new NotFoundException(`Report ${dto.reportId} not found`)
+
+    const text = [report.impression ?? '', report.conclusion ?? '', report.findings ?? ''].join('\n')
+    let matches = extractLesionKeywords(text)
+    if (dto.keyword?.trim()) {
+      const kw = dto.keyword.trim()
+      matches = matches.filter((m) => m.keyword === kw || m.name === kw)
+    }
+
+    const created: TrackedLesion[] = []
+    let skipped = 0
+    for (const match of matches) {
+      // 同一报告同一名称去重 (幂等: 重复调用不重复建档)
+      const exists = [...this.lesions.values()].some(
+        (l) => l.reportId === report!.id && l.name === match.name,
+      )
+      if (exists) {
+        skipped += 1
+        continue
+      }
+      const lesion = await this.create({
+        patientId: report.patientId,
+        name: match.name,
+        site: match.site,
+        type: match.type,
+        initialSizeMm: match.sizeMm,
+        modality: report.exam?.modality ?? 'CT',
+        studyId: report.examId ?? report.id,
+        source: 'from-report',
+        reportId: report.id,
+      })
+      created.push(lesion)
+    }
+    this.logger.log(`from-report ${dto.reportId}: matched=${matches.length} created=${created.length} skipped=${skipped}`)
+    return { reportId: report.id, patientId: report.patientId, matched: matches, created, skipped }
+  }
+
+  // [v3.0.6.11-100 Wave 6A (D-4)] 报告关联病灶列表 (GET /reports/:id/lesions)
+  // 按 reportId 查 from-report 自动创建的病灶
+  async listByReport(reportId: string): Promise<{ reportId: string; items: TrackedLesion[] }> {
+    const items = [...this.lesions.values()]
+      .filter((l) => l.reportId === reportId)
+      .map((l) => this.toDto(l))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    return { reportId, items }
   }
 
   // ────────────────────────────────────────────────────────────────────────────

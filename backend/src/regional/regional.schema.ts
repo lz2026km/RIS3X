@@ -25,3 +25,13 @@ export const CreateConsultationRequestSchema = z.object({
   priority: z.enum(['normal', 'urgent', 'critical']).optional(),
   createDate: z.string().optional(),
 })
+
+/** [G005 Wave 4B] 跨院调阅记录 (RegionalCollaborationPage) */
+export const CreateAccessRecordSchema = z.object({
+  patientName: z.string().min(1),
+  patientId: z.string().min(1),
+  studyType: z.string().min(1),
+  hospital: z.string().min(1),
+  purpose: z.string().optional(),
+  accessor: z.string().optional(),
+})

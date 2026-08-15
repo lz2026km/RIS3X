@@ -12,8 +12,12 @@ import {
   Cloud, Database, Archive, HardDrive, Layers, Activity, Clock, TrendingUp, AlertCircle,
   CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw, BellRing,
   FolderPlus, Boxes, UploadCloud, Download, Eye, Trash2, FileJson, FileText, File as FileIcon, Inbox,
-  Copy as CopyIcon, CalendarClock, ShieldCheck,
+  Copy as CopyIcon, CalendarClock, ShieldCheck, Link2, Globe2, Gauge, ClipboardCopy,
 } from "lucide-react";
+import {
+  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip as ChartTooltip, BarChart, Bar,
+} from "recharts";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
 import {
@@ -28,6 +32,10 @@ import {
   type LifecyclePolicyDto,
   type LifecyclePolicyInput,
   type LifecycleTransitionTier,
+  type SignedUrlDto,
+  type ReplicationTaskDto,
+  type ReplicationStatusDto,
+  type StorageMonitoringDto,
 } from "../services/api/storageConfigApi";
 
 const { Text } = Typography;
@@ -89,6 +97,26 @@ function formatBytes(bytes: number | undefined): string {
   return `${v.toFixed(2)} ${units[i]}`;
 }
 
+/** 图表坐标轴短格式 */
+function formatBytesShort(bytes: number | undefined): string {
+  if (bytes === undefined || !Number.isFinite(bytes)) return "—";
+  if (bytes >= 1 << 30) return `${(bytes / (1 << 30)).toFixed(1)}G`;
+  if (bytes >= 1 << 20) return `${(bytes / (1 << 20)).toFixed(1)}M`;
+  if (bytes >= 1 << 10) return `${(bytes / (1 << 10)).toFixed(1)}K`;
+  return `${bytes}B`;
+}
+
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 桶用量条形图配色
+const BAR_PALETTE = ["#0ea5e9", "#06b6d4", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
+
+// [G005 v3.0.6.11-100 Wave 3B (G-28)] 复制任务状态徽标
+const REP_STATUS_META: Record<string, { label: string; color: string }> = {
+  queued: { label: "排队中", color: "orange" },
+  running: { label: "复制中", color: "blue" },
+  completed: { label: "已完成", color: "green" },
+  failed: { label: "失败", color: "red" },
+};
+
 // ─────────────────────────── 监控大盘 (原有) ───────────────────────────
 
 function StorageMonitorTab() {
@@ -104,6 +132,25 @@ function StorageMonitorTab() {
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [alertsSaving, setAlertsSaving] = useState(false);
   const [alertsForm] = Form.useForm<StorageAlertsConfig>();
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 存储监控大屏数据
+  const [monitor, setMonitor] = useState<StorageMonitoringDto | null>(null);
+  const [monitorLoading, setMonitorLoading] = useState(true);
+  const [repStatus, setRepStatus] = useState<ReplicationStatusDto | null>(null);
+  const [repLoading, setRepLoading] = useState(false);
+
+  const loadMonitor = async () => {
+    setMonitorLoading(true);
+    const res = await storageConfigApi.getMonitoring();
+    if (res.success && res.data) setMonitor(res.data);
+    setMonitorLoading(false);
+  };
+
+  const loadRepStatus = async () => {
+    setRepLoading(true);
+    const res = await storageConfigApi.replicationStatus();
+    if (res.success && res.data) setRepStatus(res.data);
+    setRepLoading(false);
+  };
   // [v3.0.6.11-92] 24h 读写从真实存储统计派生(30 天日均近似), 无真实数据则标注示例值
   const [storageStats, setStorageStats] = useState<StorageStatsDto | null>(null);
   useEffect(() => {
@@ -129,6 +176,15 @@ function StorageMonitorTab() {
   };
 
   useEffect(() => { void loadAlertsConfig(); }, []);
+
+  useEffect(() => { void loadMonitor(); void loadRepStatus(); }, []);
+
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 监控大屏实时刷新: 复制队列 5s / 监控指标 15s 轮询
+  useEffect(() => {
+    const repTimer = setInterval(() => void loadRepStatus(), 5_000);
+    const monTimer = setInterval(() => void loadMonitor(), 15_000);
+    return () => { clearInterval(repTimer); clearInterval(monTimer); };
+  }, []);
 
   const saveAlertsConfig = async () => {
     try {
@@ -172,6 +228,168 @@ function StorageMonitorTab() {
           </Form.Item>
         </Form>
       </Card>
+
+      {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] 监控大屏: 容量环形图 + 增长率趋势线 + 桶用量条形 + IO 计数 + 复制队列 */}
+      <Card
+        size="small"
+        style={{ marginBottom: 16 }}
+        loading={monitorLoading}
+        title={
+          <Space>
+            <Gauge size={16} />存储监控大屏
+            <Text type="secondary" style={{ fontSize: 12 }}>容量环形图 · 30 天增长率趋势 · 各桶用量 · IO 计数 · 复制队列 (桶派生 + seed 回退)</Text>
+          </Space>
+        }
+        extra={
+          <Space>
+            <Tooltip title={monitor?.source === "derived" ? "指标由桶/对象统计实时派生" : "无桶数据, 展示 seed 回退示例值"}>
+              <Tag color={monitor?.source === "derived" ? "blue" : "orange"} icon={<Database size={12} />}>
+                数据源: {monitor?.source === "derived" ? "桶统计派生" : "seed 回退"}
+              </Tag>
+            </Tooltip>
+            <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void loadMonitor(); void loadRepStatus(); }}>
+              刷新
+            </Button>
+          </Space>
+        }
+      >
+        <Row gutter={12}>
+          <Col span={7}>
+            <div style={{ textAlign: "center" }}>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: "已用", value: monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3 },
+                      { name: "可用", value: Math.max(0, (monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4) - (monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3)) },
+                    ]}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={54}
+                    outerRadius={84}
+                    paddingAngle={2}
+                    strokeWidth={0}
+                  >
+                    <Cell fill={capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#0ea5e9"} />
+                    <Cell fill="#e2e8f0" />
+                  </Pie>
+                  <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div style={{ marginTop: -6 }}>
+                <Text strong style={{ fontSize: 15 }}>容量使用率 {capacityLevel === "critical" ? "严重超限" : capacityLevel === "warn" ? "容量预警" : "正常"} · {monitor?.usedPercent ?? usedPct.toFixed(1)}%</Text>
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    已用 {formatBytes(monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3)} / 总 {formatBytes(monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4)}
+                  </Text>
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={17}>
+            <ResponsiveContainer width="100%" height={230}>
+              <LineChart data={monitor?.history ?? []} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
+                <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} labelFormatter={(l) => `日期 ${l}`} />
+                <Line type="monotone" dataKey="usedBytes" name="已用容量" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+            <div style={{ textAlign: "center", marginTop: 4 }}>
+              <Tag color="geekblue" icon={<TrendingUp size={12} />}>30 天增长率 {monitor?.growthRatePct30d ?? "—"}% (按日均外推)</Tag>
+            </div>
+          </Col>
+        </Row>
+      </Card>
+
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={12}>
+          <Card size="small" title={<Space><Boxes size={15} />各桶用量 (TB/GB)</Space>} style={{ height: "100%" }}>
+            <ResponsiveContainer width="100%" height={230}>
+              <BarChart data={(monitor?.buckets ?? []).map((b) => ({ name: b.name, usedBytes: b.usedBytes, pct: b.percentOfTotal }))} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
+                <ChartTooltip formatter={(v: unknown, n: unknown) => [`${formatBytes(Number(v))}`, n === "pct" ? "占比" : "已用容量"]} />
+                <Bar dataKey="usedBytes" name="已用容量" radius={[4, 4, 0, 0]}>
+                  {(monitor?.buckets ?? []).map((b, i) => <Cell key={b.name} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            {(monitor?.buckets ?? []).map((b) => (
+              <Text type="secondary" key={b.name} style={{ fontSize: 11, marginRight: 12 }}>
+                {b.name}: {b.percentOfTotal}%
+              </Text>
+            ))}
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Row gutter={12} style={{ marginBottom: 12 }}>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="读取 IO/分" value={monitor?.ioCounts.readPerMin ?? 0} precision={1} valueStyle={{ color: "#0891b2", fontSize: 18 }} prefix={<Eye size={13} />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="写入 IO/分" value={monitor?.ioCounts.writePerMin ?? 0} precision={1} valueStyle={{ color: "#10b981", fontSize: 18 }} prefix={<UploadCloud size={13} />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="上传 PUT/分" value={monitor?.ioCounts.putPerMin ?? 0} precision={1} valueStyle={{ color: "#8b5cf6", fontSize: 18 }} prefix={<Cloud size={13} />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="删除/分" value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} valueStyle={{ color: "#dc2626", fontSize: 18 }} prefix={<Trash2 size={13} />} />
+              </Card>
+            </Col>
+          </Row>
+          <Card
+            size="small"
+            loading={repLoading}
+            title={
+              <Space>
+                <Repeat size={14} />复制队列状态
+                {monitor && (
+                  <Text type="secondary" style={{ fontSize: 11 }}>
+                    队列深度 {monitor.replication.pending + monitor.replication.running} · 待复制 {formatBytes(monitor.replication.pendingBytes)}
+                  </Text>
+                )}
+              </Space>
+            }
+            extra={
+              <Space size={4}>
+                <Tag color="orange">排队 {repStatus?.pending ?? 0}</Tag>
+                <Tag color="blue">复制中 {repStatus?.running ?? 0}</Tag>
+                <Tag color="green">完成 {repStatus?.completed ?? 0}</Tag>
+                <Tag color="red">失败 {repStatus?.failed ?? 0}</Tag>
+              </Space>
+            }
+          >
+            {repStatus && repStatus.tasks.length > 0 ? (
+              <Table
+                size="small"
+                rowKey="id"
+                dataSource={repStatus.tasks.slice(0, 4)}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+                columns={[
+                  { title: "任务", dataIndex: "id", key: "id", width: 90, render: (id: string) => <Text code>{id}</Text> },
+                  { title: "源 → 目标", key: "route", width: 210, render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket} @ ${t.region}` },
+                  { title: "对象", key: "objs", width: 80, render: (_: unknown, t: ReplicationTaskDto) => `${t.objectsCopied}/${t.objectsTotal}` },
+                  { title: "进度", dataIndex: "progress", key: "progress", width: 110, render: (p: number, t: ReplicationTaskDto) => <Progress percent={p} size="small" status={t.status === "completed" ? "success" : "active"} /> },
+                  { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const meta = REP_STATUS_META[s] ?? { label: s, color: "default" }; return <Tag color={meta.color}>{meta.label}</Tag>; } },
+                ]}
+              />
+            ) : (
+              <Alert type="info" showIcon icon={<Globe2 size={14} />} message="暂无跨区复制任务 — 在「桶管理」页签对桶执行「复制到区域」后在此追踪状态。" />
+            )}
+          </Card>
+        </Col>
+      </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title="总对象数" value={totalObjects} styles={{ content: { color: "#0ea5e9" } }} /></Card></Col>
@@ -590,6 +808,9 @@ function BucketObjectsModal({
   const [copyKey, setCopyKey] = useState<string | null>(null);
   const [copyTarget, setCopyTarget] = useState<string | undefined>(undefined);
   const [copying, setCopying] = useState(false);
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL
+  const [signedUrlInfo, setSignedUrlInfo] = useState<SignedUrlDto | null>(null);
+  const [signingKey, setSigningKey] = useState<string | null>(null);
 
   const load = async (name: string) => {
     setLoading(true);
@@ -658,6 +879,28 @@ function BucketObjectsModal({
     setCopyKey(obj.key);
     setCopyTarget(undefined);
     setCopyVisible(true);
+  };
+
+  const getSignedUrl = async (obj: StorageObjectDto) => {
+    if (!bucket) return;
+    setSigningKey(obj.key);
+    const res = await storageConfigApi.signedUrl(bucket.name, obj.key, 3600);
+    if (res.success && res.data) {
+      setSignedUrlInfo(res.data);
+    } else {
+      message.error(res.error?.message ?? "签名 URL 生成失败");
+    }
+    setSigningKey(null);
+  };
+
+  const copySignedUrl = async () => {
+    if (!signedUrlInfo) return;
+    try {
+      await navigator.clipboard.writeText(signedUrlInfo.url);
+      message.success("签名 URL 已复制到剪贴板");
+    } catch {
+      message.error("复制失败, 请手动选择复制");
+    }
   };
 
   const doCopy = async () => {
@@ -782,12 +1025,17 @@ function BucketObjectsModal({
           {
             title: "操作",
             key: "action",
-            width: 220,
+            width: 300,
             render: (_: unknown, obj: StorageObjectDto) => (
               <Space size={4}>
                 <Button size="small" icon={<Download size={13} />} onClick={() => void download(obj)}>
                   下载
                 </Button>
+                <Tooltip title="生成带过期时间的 CDN 签名下载 URL">
+                  <Button size="small" icon={<Link2 size={13} />} loading={signingKey === obj.key} onClick={() => void getSignedUrl(obj)}>
+                    签名 URL
+                  </Button>
+                </Tooltip>
                 <Button size="small" icon={<CopyIcon size={13} />} disabled={copyTargets.length === 0} onClick={() => openCopy(obj)}>
                   复制到…
                 </Button>
@@ -831,6 +1079,40 @@ function BucketObjectsModal({
           <Alert type="info" showIcon style={{ marginTop: 8 }} message={`${copyKey} 将复制到 ${copyTarget}, 同名覆盖 (source=simulated)`} />
         )}
       </Modal>
+
+      {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL 弹窗 */}
+      <Modal
+        title={<Space><Link2 size={16} color="#0ea5e9" />CDN 签名下载 URL</Space>}
+        open={!!signedUrlInfo}
+        onCancel={() => setSignedUrlInfo(null)}
+        footer={[
+          <Button key="copy" type="primary" icon={<ClipboardCopy size={14} />} onClick={() => void copySignedUrl()}>复制 URL</Button>,
+          <Button key="close" onClick={() => setSignedUrlInfo(null)}>关闭</Button>,
+        ]}
+        width={640}
+        destroyOnHidden
+      >
+        {signedUrlInfo && (
+          <>
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 12 }}
+              message={`对象: ${signedUrlInfo.bucket}/${signedUrlInfo.key}`}
+              description={
+                <Space size={6} wrap>
+                  <Tag color={signedUrlInfo.source === "aws-sigv4-native" ? "geekblue" : "gold"}>
+                    {signedUrlInfo.source === "aws-sigv4-native" ? "SigV4 原生预签名" : "本地模拟 (source=simulated)"}
+                  </Tag>
+                  <Tag color="purple">有效期 {signedUrlInfo.expiresInSec} 秒</Tag>
+                  <Tag color="orange">过期时间 {new Date(signedUrlInfo.expiresAt).toLocaleString("zh-CN")}</Tag>
+                </Space>
+              }
+            />
+            <Input.TextArea value={signedUrlInfo.url} readOnly autoSize={{ minRows: 3, maxRows: 6 }} style={{ fontSize: 12, wordBreak: "break-all" }} />
+          </>
+        )}
+      </Modal>
     </Modal>
   );
 }
@@ -844,6 +1126,15 @@ function StorageBucketsTab() {
   const [objectsVisible, setObjectsVisible] = useState(false);
   const [selectedBucket, setSelectedBucket] = useState<StorageBucketDto | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务 (Modal + 状态追踪)
+  const [replicateVisible, setReplicateVisible] = useState(false);
+  const [replicateSrc, setReplicateSrc] = useState<StorageBucketDto | null>(null);
+  const [replicateTarget, setReplicateTarget] = useState<string | undefined>(undefined);
+  const [replicateRegion, setReplicateRegion] = useState<string>("us-east-1");
+  const [replicating, setReplicating] = useState(false);
+  const [repTask, setRepTask] = useState<ReplicationTaskDto | null>(null);
+  const [repTasks, setRepTasks] = useState<ReplicationTaskDto[]>([]);
+  const [repPolling, setRepPolling] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -898,6 +1189,43 @@ function StorageBucketsTab() {
     setObjectsVisible(true);
   };
 
+  // [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制: Modal 提交 + 状态追踪轮询
+  const openReplicate = (bucket: StorageBucketDto) => {
+    setReplicateSrc(bucket);
+    setReplicateTarget(undefined);
+    setReplicateRegion("us-east-1");
+    setRepTask(null);
+    setReplicateVisible(true);
+  };
+
+  const pollRepStatus = async () => {
+    setRepPolling(true);
+    const res = await storageConfigApi.replicationStatus();
+    if (res.success && res.data) setRepTasks(res.data.tasks);
+    setRepPolling(false);
+  };
+
+  const doReplicate = async () => {
+    if (!replicateSrc || !replicateTarget) return;
+    setReplicating(true);
+    setRepTask(null);
+    const res = await storageConfigApi.replicateBucket(replicateSrc.name, {
+      targetBucket: replicateTarget,
+      region: replicateRegion.trim() || "us-east-1",
+    });
+    if (res.success && res.data) {
+      message.success(`复制任务 ${res.data.id} 已创建: ${res.data.sourceBucket} → ${res.data.targetBucket} @ ${res.data.region}`);
+      setRepTask(res.data);
+      await pollRepStatus();
+      void load();
+    } else {
+      message.error(res.error?.message ?? "跨区复制任务创建失败");
+    }
+    setReplicating(false);
+  };
+
+  const repTargets = (buckets ?? []).filter((b) => b.name !== replicateSrc?.name);
+
   return (
     <>
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -919,7 +1247,7 @@ function StorageBucketsTab() {
       </Row>
 
       <Card
-        title={<Space><Boxes size={16} />云存储桶 <Text type="secondary" style={{ fontSize: 12 }}>S3 / MinIO / 本地 — 桶 CRUD + 对象列表 + 模拟上传下载</Text></Space>}
+        title={<Space><Boxes size={16} />云存储桶 <Text type="secondary" style={{ fontSize: 12 }}>S3 / MinIO / 本地 — 桶 CRUD + 对象列表 + 模拟上传下载</Text><Tag color="gold" icon={<Database size={12} />}>数据源: 内存模拟 (source=simulated)</Tag></Space>}
         extra={
           <Space>
             <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
@@ -1001,6 +1329,9 @@ function StorageBucketsTab() {
                   <Tooltip title="对象列表">
                     <Button size="small" icon={<Eye size={13} />} onClick={() => openObjects(r)}>对象</Button>
                   </Tooltip>
+                  <Tooltip title="整桶跨区复制 (内存队列任务)">
+                    <Button size="small" icon={<Globe2 size={13} />} disabled={r.objectCount === 0} onClick={() => openReplicate(r)}>复制到区域</Button>
+                  </Tooltip>
                   <Popconfirm
                     title={`确认删除桶 ${r.name}?`}
                     description="删除后桶内对象一并移除 (内存态)"
@@ -1051,6 +1382,86 @@ function StorageBucketsTab() {
             <Input placeholder="us-east-1 / cn-north-1" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务 Modal + 状态追踪 */}
+      <Modal
+        title={<Space><Globe2 size={16} color="#0ea5e9" />跨区复制 — {replicateSrc?.name}</Space>}
+        open={replicateVisible}
+        onCancel={() => setReplicateVisible(false)}
+        onOk={() => void doReplicate()}
+        confirmLoading={replicating}
+        okText="创建复制任务"
+        cancelText="取消"
+        destroyOnHidden
+      >
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 12 }}
+          message={`将把 ${replicateSrc?.name} 内全部 ${replicateSrc?.objectCount ?? 0} 个对象 (${formatBytes(replicateSrc?.usedBytes)}) 复制到目标桶, 目标区域为 {region}`}
+        />
+        <div style={{ marginBottom: 12 }}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>目标桶</Text>
+          <Select
+            style={{ width: "100%" }}
+            placeholder="选择目标桶 (不可与源桶相同)"
+            value={replicateTarget}
+            onChange={setReplicateTarget}
+            options={repTargets.map((b) => ({ value: b.name, label: `${b.name} (${PROVIDER_LABELS[b.provider]?.label ?? b.provider} / ${b.region})` }))}
+          />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>目标区域</Text>
+          <Select
+            style={{ width: "100%" }}
+            value={replicateRegion}
+            onChange={setReplicateRegion}
+            options={[
+              { value: "us-east-1", label: "us-east-1 (弗吉尼亚北部)" },
+              { value: "us-west-2", label: "us-west-2 (俄勒冈)" },
+              { value: "eu-west-1", label: "eu-west-1 (爱尔兰)" },
+              { value: "ap-southeast-1", label: "ap-southeast-1 (新加坡)" },
+              { value: "cn-north-1", label: "cn-north-1 (北京)" },
+            ]}
+          />
+        </div>
+        {repTask && (
+          <Alert
+            type={repTask.status === "completed" ? "success" : repTask.status === "failed" ? "error" : "info"}
+            showIcon
+            message={
+              <Space wrap>
+                <Text code>{repTask.id}</Text>
+                <Tag color={REP_STATUS_META[repTask.status]?.color}>{REP_STATUS_META[repTask.status]?.label ?? repTask.status}</Tag>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {repTask.objectsCopied}/{repTask.objectsTotal} 对象 · {formatBytes(repTask.bytesCopied)} · @ {repTask.region}
+                </Text>
+              </Space>
+            }
+            description={repTask.status === "completed" ? "跨区复制已完成, 目标桶对象数已更新。" : "任务已入队, 可在监控大盘「复制队列状态」查看最新进度。"}
+          />
+        )}
+        {repTasks.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Space style={{ marginBottom: 6 }}>
+              <Text strong style={{ fontSize: 13 }}>最近复制任务</Text>
+              {repPolling && <Tag color="blue">刷新中…</Tag>}
+            </Space>
+            <Table
+              size="small"
+              rowKey="id"
+              dataSource={repTasks.slice(0, 4)}
+              pagination={false}
+              columns={[
+                { title: "任务", dataIndex: "id", key: "id", width: 100, render: (id: string) => <Text code>{id}</Text> },
+                { title: "源 → 目标", key: "route", render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket}` },
+                { title: "区域", dataIndex: "region", key: "region", width: 110 },
+                { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const meta = REP_STATUS_META[s] ?? { label: s, color: "default" }; return <Tag color={meta.color}>{meta.label}</Tag>; } },
+              ]}
+            />
+          </div>
+        )}
       </Modal>
 
       <BucketObjectsModal bucket={selectedBucket} buckets={buckets} visible={objectsVisible} onClose={() => setObjectsVisible(false)} onChanged={() => void load()} />

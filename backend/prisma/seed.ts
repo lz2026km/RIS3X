@@ -44,8 +44,21 @@ async function main(): Promise<void> {
     { code: 'MR-002', name: 'GE Signa HDxt 3.0T', modality: 'MR', manufacturer: 'GE', location: 'MR 室 2', state: DeviceState.IDLE },
     { code: 'DR-003', name: 'Philips DigitalDiagnost', modality: 'DR', manufacturer: 'Philips', location: 'DR 室 3', state: DeviceState.MAINTENANCE },
   ]
-  for (const d of devices) {
-    await prisma.device.upsert({ where: { code: d.code }, update: {}, create: { ...d, tenantId: 'default' } })
+  // [v3.0.6.11-100 Wave 1B] 维护字段 (maintenanceHours/lastMaintenanceAt): DB 新列存在时一并写入, 未迁移则回退基础字段
+  const deviceMaintenanceSeed = [
+    { maintenanceHours: 1500, lastMaintenanceAt: new Date(Date.now() - 180 * 86400000) },
+    { maintenanceHours: 260, lastMaintenanceAt: new Date(Date.now() - 12 * 86400000) },
+    { maintenanceHours: 0, lastMaintenanceAt: new Date(Date.now() - 2 * 86400000) },
+  ]
+  for (let i = 0; i < devices.length; i++) {
+    const d = devices[i]!
+    const withMaint = { ...d, ...(deviceMaintenanceSeed[i] ?? {}) }
+    try {
+      await prisma.device.upsert({ where: { code: d.code }, update: {}, create: { ...withMaint, tenantId: 'default' } })
+    } catch {
+      // DB 未迁移维护列 → 基础字段写入 (维护信息由 service 内存回退承载)
+      await prisma.device.upsert({ where: { code: d.code }, update: {}, create: { ...d, tenantId: 'default' } })
+    }
   }
   console.log(`[seed] ${devices.length} devices upserted`)
 

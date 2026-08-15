@@ -3,7 +3,7 @@ import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RegionalService } from './regional.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema } from './regional.schema'
+import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema, CreateAccessRecordSchema } from './regional.schema'
 
 @ApiTags('regional')
 @ApiBearerAuth()
@@ -34,6 +34,13 @@ export class RegionalController {
 
   @Get('imaging/access-records')
   listAccessRecords() { return this.svc.listAccessRecords() }
+
+  // [G005 Wave 4B] 跨院调阅记录 + 会诊参与 (RegionalCollaborationPage)
+  @Post('imaging/access-records')
+  createAccessRecord(@Body(new ZodValidationPipe(CreateAccessRecordSchema)) body: Record<string, unknown>) { return this.svc.createAccessRecord(body) }
+
+  @Post('imaging/consultations/:id/accept')
+  acceptConsultationRequest(@Param('id') id: string) { return this.svc.acceptConsultationRequest(id) }
 
   @Get('imaging/institutions')
   listInstitutions() { return this.svc.listInstitutions() }

@@ -5,6 +5,9 @@ import { api } from './client'
 // [v3.0.6.11-98 Wave2A P1] 模板审批流 (status/approvedBy/approvedAt/rejectReason) + 个人模板库 (personal/userId)
 export type TemplateApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
+// [v3.0.6.11-100 Wave2C P2] 模板类型: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板 (默认 SECTION)
+export type TemplateType = 'FULL' | 'SECTION' | 'PHRASE'
+
 export interface TemplateDto {
   id: string
   name: string
@@ -14,6 +17,8 @@ export interface TemplateDto {
   // [v3.0.6.11-99 Wave2B P1] 结构化段落块 (模板设计器可视化保存, 可选)
   structure?: TemplateStructure
   modality?: string
+  // [v3.0.6.11-100 Wave2C P2] 模板类型 (模板库分类展示/段落树生成引擎区分)
+  templateType?: TemplateType
   shared?: boolean
   parentId?: string
   radsCategory?: string
@@ -34,6 +39,7 @@ export interface TemplateListParams {
   status?: TemplateApprovalStatus
   personal?: boolean
   userId?: string
+  templateType?: TemplateType
 }
 
 // [v3.0.6.11-96 Wave3B P1] 模板分类 (GET/POST/PATCH/DELETE /templates/categories, 后端内存+seed)

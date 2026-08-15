@@ -46,6 +46,8 @@ const CreateCriticalSchema = z.object({
   description: z.string().min(1),
   severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).default('HIGH'),
   method: z.enum(['PHONE', 'SMS', 'SYSTEM', 'EMAIL', 'WECHAT']).default('SYSTEM'),
+  // [G005 Wave 8] 报告→危急值反向引用: 来源报告 ID (报告详情「危急值」区块按此反查)
+  reportId: z.string().optional(),
 })
 
 const UpdateCriticalSchema = z.object({
@@ -118,6 +120,12 @@ export class CriticalsController {
   @Get('by-department')
   getByDepartment() {
     return this.service.getByDepartment()
+  }
+
+  // [G005 Wave 8] 按报告查询关联危急值 (反向引用) — 静态子路由先于 :id 注册
+  @Get('for-report/:reportId')
+  forReport(@Param('reportId') reportId: string) {
+    return this.service.forReport(reportId)
   }
 
   @Get(':id')

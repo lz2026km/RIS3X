@@ -8,9 +8,9 @@ import CardiacAiPage from './CardiacAiPage'
 import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPoint } from '../../services/api/aiDiagnosisApi'
 import { cadApi } from '../../services/api/cadApi'
 import { CadResult } from '../../services/api/cadApi'
-import {
-  Card, Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress,
-  Input, Table, Empty,
+import { EmptyState } from '../../components/common/EmptyState'
+import { Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress, Card,
+  Input, Table,
 } from 'antd'
 import {
   Cpu,
@@ -178,7 +178,7 @@ const AccuracyPanel: React.FC = () => {
 
         <Card size="small" title="准确率 30 天趋势">
           {trend.length === 0 && !loading ? (
-            <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <EmptyState description="暂无趋势数据" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={trend} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -425,7 +425,7 @@ const CadDetectPanel: React.FC = () => {
 
         <h4 style={{ margin: '8px 0 12px', fontSize: 14, fontWeight: 600 }}>本会话检测记录</h4>
         {history.length === 0 && !detecting ? (
-          <Empty description="尚未执行检测" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <EmptyState description="尚未执行检测" />
         ) : (
           <Table scroll={{ x: 'max-content' }}
             rowKey="instanceId"
@@ -461,7 +461,7 @@ const CadDetectPanel: React.FC = () => {
               <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false}/>
             </>
           ) : (
-            <Empty description="点击上方记录的“查看详情”加载真实结果" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            <EmptyState description="点击上方记录的“查看详情”加载真实结果" />
           )}
         </Spin>
       </Card>

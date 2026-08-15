@@ -361,8 +361,34 @@ export class RegionalService {
     return { success: true, data: item }
   }
 
+  /** [G005 Wave 4B] POST /regional/imaging/consultations/:id/accept — 参与远程会诊 */
+  async acceptConsultationRequest(id: string) {
+    const item = SEED_CONSULTATION_REQUESTS.find((c) => c.id === id)
+    if (item) {
+      item.status = item.status === 'completed' ? item.status : 'in-progress'
+      item.expert = item.expert ?? '王建华 主任医师'
+    }
+    return { success: true, data: item ?? null }
+  }
+
   async listAccessRecords() {
     return { success: true, data: SEED_ACCESS_RECORDS }
+  }
+
+  /** [G005 Wave 4B] POST /regional/imaging/access-records — 记录跨院调阅 */
+  async createAccessRecord(body: Partial<AccessRecord>) {
+    const item: AccessRecord = {
+      id: `ARC-${Date.now()}`,
+      patientName: body.patientName ?? '',
+      patientId: body.patientId ?? '',
+      studyType: body.studyType ?? '',
+      hospital: body.hospital ?? '',
+      accessor: body.accessor ?? '当前用户',
+      purpose: body.purpose ?? '跨院调阅',
+      accessTime: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    }
+    SEED_ACCESS_RECORDS.unshift(item)
+    return { success: true, data: item }
   }
 
   async listInstitutions() {

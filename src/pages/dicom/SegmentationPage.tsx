@@ -5,6 +5,7 @@ import { decodeInt16Base64, applyWWL } from './volumeReal'
 import {
   Card, Row, Col, Select, InputNumber, Button, Tag, Statistic, Spin, message, Table, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal,
 } from 'antd'
+import { EmptyState } from '../../components/common/EmptyState'
 import { Box, Activity, History, Scan, PenLine, Trash2 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
@@ -379,7 +380,7 @@ const SegmentationPage: React.FC = () => {
           <Card size="small" title={<Space><History size={14} /><span>分割历史</span></Space>} styles={{ body: { padding: 8 } }}>
             <Spin spinning={historyLoading}>
               {history.length === 0 ? (
-                <Empty description="暂无分割记录" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <EmptyState description="暂无分割记录" />
               ) : (
                 history.map((h) => (
                   <div key={h.id} style={{ padding: '6px 4px', borderBottom: '1px solid #f0f0f0', fontSize: 12 }}>
@@ -407,7 +408,7 @@ const SegmentationPage: React.FC = () => {
           >
             <Spin spinning={manualLoading}>
               {manualList.length === 0 ? (
-                <Empty description="暂无手动标注" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <EmptyState description="暂无手动标注" />
               ) : (
                 manualList.map((m) => (
                   <div key={m.id} style={{ padding: '6px 4px', borderBottom: '1px solid #f0f0f0', fontSize: 12 }}>
@@ -521,7 +522,7 @@ const SegmentationPage: React.FC = () => {
                 <Col span={10}>
                   <Card size="small" title="HU 直方图 (分割掩码内)" extra={<Tag>{quantify?.binCount ?? '-'} 桶</Tag>} styles={{ body: { height: 380 } }}>
                     {histogramData.length === 0 ? (
-                      <Empty description="无分割结果" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                      <EmptyState description="无分割结果" />
                     ) : (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={histogramData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

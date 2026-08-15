@@ -16,6 +16,7 @@ import {
 import { statsApi } from '../services/api/statsApi'
 import { deviceApi } from '../services/api/deviceApi'
 import { ChartContainer } from '../components/charts'
+import { PageHeader } from '../components/common/PageHeader'
 
 // ============================================================
 // [W2-B] 共享数据 Hook: statsApi.getDaily/getTrend/getByModality + deviceApi.list
@@ -1818,39 +1819,23 @@ export default function GreenITPage() {
     }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{
-          fontSize: 20,
-          fontWeight: 700,
-          color: C.text,
-          margin: 0,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}>
-          <div style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: `${C.primary}15`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: C.primary,
-          }}>
-            <Leaf size={20} />
-          </div>
-          绿色IT · 无纸化环保统计
-        </h1>
-        <p style={{ fontSize: 13, color: C.textMuted, margin: '8px 0 0 0' }}>
-          统计日期：{new Date().getFullYear()}年{new Date().getMonth() + 1}月 · 数据每日更新
-        </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-          <Tag color={source === 'api' ? 'green' : 'orange'}>
-            {source === 'api' ? '核心统计: 统计/设备接口真实数据' : '演示数据(接口失败回退)'}
-          </Tag>
-          <span style={{ fontSize: 12, color: C.textLight }}>无纸化率/纸张/碳/能耗均为基于检查与报告统计的估算值</span>
-          {loading && <Spin size="small" />}
-        </div>
+        <PageHeader
+          as="h1"
+          title={<span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 36, height: 36, borderRadius: 10, background: `${C.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primary }}><Leaf size={20} /></div>绿色IT · 无纸化环保统计</span>}
+          subtitle={
+            <>
+              <span style={{ fontSize: 13, color: C.textMuted }}>统计日期：{new Date().getFullYear()}年{new Date().getMonth() + 1}月 · 数据每日更新</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                <Tag color={source === 'api' ? 'green' : 'orange'}>
+                  {source === 'api' ? '核心统计: 统计/设备接口真实数据' : '演示数据(接口失败回退)'}
+                </Tag>
+                <span style={{ fontSize: 12, color: C.textLight }}>无纸化率/纸张/碳/能耗均为基于检查与报告统计的估算值</span>
+                {loading && <Spin size="small" />}
+              </div>
+            </>
+          }
+          style={{ marginBottom: 0 }}
+        />
       </div>
 
       {/* 顶部统计卡片 */}

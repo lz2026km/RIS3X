@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Shield, FileText, CheckCircle, XCircle, AlertTriangle, Download } from 'lucide-react'
 import { complianceApi } from '../services/api/complianceApi'
 import type { ComplianceReportDto, ComplianceDocDto } from '../services/api/complianceApi'
+import { THEME_TOKENS } from '../components/common/ThemeTokens'
 
 const COLORS = {
   primary: '#1e40af',
@@ -14,7 +15,7 @@ const COLORS = {
   textDark: '#1e293b',
   textMid: '#475569',
   textLight: '#94a3b8',
-  white: '#fff',
+  white: THEME_TOKENS.bgCard,
 }
 
 export default function CompliancePage() {

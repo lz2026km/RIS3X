@@ -57,6 +57,47 @@ export interface CriticalAlertStats {
   severityDistribution: { severity: string; count: number }[]
 }
 
+// [G005 Wave 2A] 电话/短信网关
+export interface CallLog {
+  id: string
+  alertId: string
+  phone: string
+  status: 'initiated' | 'connected' | 'failed'
+  startedAt: string
+  durationSec: number
+  recordingUrl?: string
+}
+
+export interface SmsLog {
+  id: string
+  alertId: string
+  phone: string
+  status: 'sent' | 'failed'
+  content: string
+  sentAt: string
+}
+
+export interface CommunicationEntry {
+  id: string
+  alertId: string
+  channel: 'phone' | 'sms'
+  phone: string
+  status: string
+  at: string
+  durationSec?: number
+  recordingUrl?: string
+  content?: string
+}
+
+export interface AutoCallDto {
+  phone?: string
+}
+
+export interface AutoSmsDto {
+  phone?: string
+  content?: string
+}
+
 export const criticalAlertApi = {
   create: async (dto: CreateCriticalAlertDto) => {
     const res = await api.post<CriticalAlert>('/critical-alert', dto)
@@ -90,4 +131,14 @@ export const criticalAlertApi = {
 
   getStats: () =>
     api.get<CriticalAlertStats>('/critical-alert/stats'),
+
+  // [G005 Wave 2A] 电话/短信网关 (后端 critical-alert.controller 已实现)
+  autoCall: (id: string, dto?: AutoCallDto) =>
+    api.post<CallLog>(`/critical-alert/alerts/${id}/auto-call`, dto ?? {}),
+
+  autoSms: (id: string, dto?: AutoSmsDto) =>
+    api.post<SmsLog>(`/critical-alert/alerts/${id}/auto-sms`, dto ?? {}),
+
+  getCommunicationLog: (id: string) =>
+    api.get<CommunicationEntry[]>(`/critical-alert/alerts/${id}/communication-log`),
 }

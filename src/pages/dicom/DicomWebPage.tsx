@@ -6,8 +6,9 @@ import WadoRsViewer from '../../components/dicom/WadoRsViewer'
 import { dicomWebApi, type DicomWebCapabilities, type DicomWebStudy } from '../../services/api/dicomApi'
 import { UploadOutlined, SearchOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons'
 import {
-  Card, Input, Select, Upload, Button, message, Typography, Space, Divider, Table, Tag, Alert, Spin, Empty, Modal,
+  Card, Input, Select, Upload, Button, message, Typography, Space, Divider, Table, Tag, Alert, Spin, Modal,
 } from 'antd'
+import { EmptyState } from '../../components/common/EmptyState'
 import { RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -161,7 +162,7 @@ export default function DicomWebPage() {
         {searchLoading ? (
           <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
         ) : studies.length === 0 ? (
-          <Empty description="无检索结果(输入条件自动检索或全部列出)" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <EmptyState description="无检索结果(输入条件自动检索或全部列出)" />
         ) : (
           <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
         )}

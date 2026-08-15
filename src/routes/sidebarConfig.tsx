@@ -77,6 +77,8 @@ import {
 import type { ReactNode } from "react";
 import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid, Stethoscope, Smile, Anchor, AlignCenter, Scissors, Baby } from 'lucide-react';
 import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
+// [v3.0.6.11-100 Wave 4A] 语音工作站图标
+import { Headphones } from 'lucide-react';
 import { ScanEye, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
 import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, BadgeCheck, Flame, Building2, Share2, Library, HardDrive, QrCode, Ruler, CalendarCheck, AlertTriangle } from 'lucide-react';
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge, Images } from 'lucide-react';
@@ -427,6 +429,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <ClipboardCheck size={18} />,
         labelKey: "nav.reviewCenter",
         roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.11-100 Wave 2A] 审核组: 委员会会诊 (多医生合议)
+      {
+        path: "/committee-room",
+        icon: <UsersRound size={18} />,
+        labelKey: "nav.committeeRoom",
+        roles: ["主任", "管理员", "医生"],
       },
       {
         path: "/quality-control",
@@ -1200,6 +1209,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.mobilePush",
         roles: ["护士", "医生", "管理员",],
       },
+      // [v3.0.6.11-100 Wave 4A] 移动审批 (待办/通过/驳回/委派/历史)
+      {
+        path: "/mobile/approval",
+        icon: <Smartphone size={18} />,
+        labelKey: "nav.mobileApproval",
+        roles: ["主任", "管理员"],
+      },
     ],
   },
   {
@@ -1340,6 +1356,27 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     labelKey: "nav.techSchedule",
     roles: ["主任", "管理员", "技师"],
   },
+  // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板
+  {
+    path: "/tech/room-status",
+    icon: <Monitor size={18} />,
+    labelKey: "nav.roomStatusBoard",
+    roles: ["技师", "主任", "管理员"],
+  },
+  // [v3.0.6.11-100 Wave 1B] 技师工作站: 重拍分析
+  {
+    path: "/tech/retake-analytics",
+    icon: <RefreshCw size={18} />,
+    labelKey: "nav.retakeAnalytics",
+    roles: ["技师", "主任", "管理员"],
+  },
+  // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
+  {
+    path: "/tech/kpi",
+    icon: <Gauge size={18} />,
+    labelKey: "nav.techKpi",
+    roles: ["主任", "管理员", "技师"],
+  },
       {
         path: "/operations/occupancy",
         icon: <Monitor size={18} />,
@@ -1428,6 +1465,20 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Database size={18} />,
         labelKey: "nav.dataReportCenter",
         roles: ["管理员"],
+      },
+      // [v3.0.6.11-100 Wave 4A] 自定义报表 (独立完整版, /report/custom)
+      {
+        path: "/report/custom",
+        icon: <FileSpreadsheet size={18} />,
+        labelKey: "nav.customReport",
+        roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.11-100 Wave 4A] 语音工作站 (独立完整版, /voice/workstation)
+      {
+        path: "/voice/workstation",
+        icon: <Headphones size={18} />,
+        labelKey: "nav.voiceWorkstation",
+        roles: ["医生", "主任", "管理员"],
       },
       {
         path: "/insurance-audit",
@@ -1643,6 +1694,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/eye/optometry-loop",
         icon: <RefreshCw size={18} />,
         labelKey: "nav.eyeOptometryLoop",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      // [G005 Wave 4B] 影像像素实验室 (EyePixelPage)
+      {
+        path: "/eye/pixel-lab",
+        icon: <Grid3X3 size={18} />,
+        labelKey: "nav.eyePixelLab",
         roles: ["医生", "技师", "主任", "管理员",],
       },
     ],
@@ -1901,6 +1959,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Map size={18} />,
         labelKey: "nav.regionalImaging",
         roles: ["管理员"],
+      },
+      // [G005 Wave 4B] 区域医联体协同中心 (RegionalCollaborationPage)
+      {
+        path: "/regional/collaboration",
+        icon: <Network size={18} />,
+        labelKey: "nav.regionalCollaboration",
+        roles: ["管理员", "主任"],
       },
       {
         path: "/integration/mllp-monitor",

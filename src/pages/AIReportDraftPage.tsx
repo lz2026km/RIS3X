@@ -1,6 +1,8 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.4 - AI 一键自动初稿
 // Phase R4：基于临床病史自动生成报告初稿
+// [v3.0.6.11-100 Wave 3A (G-19)] 深化: LLM 多模型选择 (mock/deepseek/hunyuan)
+//   + RAG 增强开关 + 生成信心分 + RAG 来源展示
 // ============================================================
 
 import { useState, useRef, useEffect } from 'react';
@@ -10,7 +12,7 @@ import {
   Sparkles, Wand2, Brain, FileText,
   Save, RefreshCw, Loader2, CheckCircle2,
   Lightbulb, Layers, Stethoscope,
-  Beaker, ArrowRight,
+  Beaker, ArrowRight, Database, Cpu,
 } from 'lucide-react';
 import {
   AI_DRAFT_TEMPLATES,
@@ -23,6 +25,8 @@ import { patientApi } from '../services/api/patientApi';
 import { examApi } from '../services/api/examApi';
 import { reportApi } from '../services/api/reportApi';
 import { getCurrentUser } from '../utils/auth';
+// [v3.0.6.11-100 Wave 3A (G-19)] 高级生成 (LLM 多模型 + RAG)
+import { aiDraftApi, type LlmProviderId, type LlmProviderInfo, type AiDraftRagSource } from '../services/api/aiDraftApi';
 
 interface AiExamOption {
   examId: string;
@@ -54,6 +58,16 @@ export default function AIReportDraftPage() {
   // 临床病史输入
   const [clinicalHistory, setClinicalHistory] = useState<string>('');
 
+  // [v3.0.6.11-100 Wave 3A (G-19)] LLM 多模型选择 + RAG 开关
+  const [providers, setProviders] = useState<LlmProviderInfo[]>([]);
+  const [aiProvider, setAiProvider] = useState<LlmProviderId>('mock');
+  const [includeRag, setIncludeRag] = useState(true);
+  const [ragSources, setRagSources] = useState<AiDraftRagSource[]>([]);
+  const [advancedConfidence, setAdvancedConfidence] = useState<number | null>(null);
+  const [advancedFallback, setAdvancedFallback] = useState(false);
+
+  const PROVIDER_LABEL: Record<LlmProviderId, string> = { mock: '确定性模板', deepseek: 'DeepSeek', hunyuan: '腾讯混元' };
+
   // 生成状态
   const [generating, setGenerating] = useState(false);
   const [genProgress, setGenProgress] = useState(0);
@@ -68,6 +82,19 @@ export default function AIReportDraftPage() {
   const selectedTemplate = AI_DRAFT_TEMPLATES.find(t => t.id === selectedTemplateId);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // [v3.0.6.11-100 Wave 3A (G-19)] 加载可用 LLM 提供方
+  useEffect(() => {
+    let cancelled = false;
+    aiDraftApi.listProviders().then((res) => {
+      if (cancelled || !res.success) return;
+      const list = Array.isArray(res.data) ? res.data : [];
+      setProviders(list);
+      const mock = list.find((p) => p.id === 'mock');
+      if (mock) setAiProvider(mock.id);
+    }).catch(() => { /* 忽略 */ });
+    return () => { cancelled = true; };
+  }, []);
 
   // [v3.0.6.11-95 Wave3B P1] 真实化: 加载有检查记录的患者 (失败回退演示样本 + 标注)
   useEffect(() => {
@@ -182,41 +209,77 @@ export default function AIReportDraftPage() {
     }, 500);
 
     try {
-      const res = await v3WritingApi.aiDraft({
-        templateId: selectedTemplate?.id ?? 'default',
-        patientId: currentExam?.patientId ?? selectedExamId,
-        findings: clinicalHistory,
-        modality: currentExam?.modality ?? 'CT',
-        bodyPart: currentExam?.bodyPart ?? '胸部',
-        clinicalHistory,
-      });
+      // [v3.0.6.11-100 Wave 3A (G-19)] 优先高级生成 (LLM 多模型 + RAG): /ai-draft/generate-advanced
+      let draft: AIDraftTemplate | null = null;
+      try {
+        const advanced = await aiDraftApi.generateAdvanced({
+          reportId: currentExam?.examId ?? selectedExamId,
+          provider: aiProvider,
+          includeRag,
+        });
+        if (advanced.success && advanced.data) {
+          const a = advanced.data;
+          const sections = Array.isArray(a.sections) ? a.sections : [];
+          const pick = (keys: string[]) => sections.find((s) => keys.some((k) => (s?.heading ?? '').includes(k)))?.content ?? '';
+          const findings = pick(['影像所见', '所见']) || a.draftText;
+          const impression = pick(['影像诊断', '诊断意见', '意见']) || pick(['印象']);
+          const diagnosis = pick(['影像诊断', '诊断意见']);
+          setRagSources(a.sources ?? []);
+          setAdvancedConfidence(a.confidenceScore ?? 0.9);
+          setAdvancedFallback(a.fallbackToMock ?? false);
+          draft = {
+            id: a.id ?? `draft-${Date.now()}`,
+            scenario: `LLM 生成 (${PROVIDER_LABEL[a.provider] ?? a.provider})`,
+            modality: currentExam?.modality ?? 'CT',
+            bodyPart: currentExam?.bodyPart ?? '胸部',
+            confidence: a.confidenceScore ?? 0.9,
+            clinicalHistory,
+            generatedFindings: findings,
+            generatedDiagnosis: diagnosis,
+            generatedImpression: impression,
+            sources: (a.sources ?? []).map((s) => `既往报告 ${s.reportId}`),
+          };
+        }
+      } catch { draft = null; }
+
+      if (!draft) {
+        setRagSources([]);
+        setAdvancedConfidence(null);
+        const res = await v3WritingApi.aiDraft({
+          templateId: selectedTemplate?.id ?? 'default',
+          patientId: currentExam?.patientId ?? selectedExamId,
+          findings: clinicalHistory,
+          modality: currentExam?.modality ?? 'CT',
+          bodyPart: currentExam?.bodyPart ?? '胸部',
+          clinicalHistory,
+        });
+        if (res.success && res.data) {
+          draft = {
+            id: res.data.id ?? `draft-${Date.now()}`,
+            scenario: selectedTemplate?.scenario ?? '智能生成',
+            modality: currentExam?.modality ?? 'CT',
+            bodyPart: currentExam?.bodyPart ?? '胸部',
+            confidence: res.data.confidence ?? 0.85,
+            clinicalHistory,
+            generatedFindings: res.data.findings ?? '',
+            generatedDiagnosis: res.data.diagnosis ?? '',
+            generatedImpression: res.data.impression ?? '',
+            sources: res.data.sources ?? ['AI Model v2.3'],
+          };
+        } else {
+          throw new Error(res.error?.message || 'AI 生成失败');
+        }
+      }
 
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = null;
       setGenProgress(100);
       setGenStage('生成完成！');
-
-      if (res.success && res.data) {
-        const draft: AIDraftTemplate = {
-          id: res.data.id ?? `draft-${Date.now()}`,
-          scenario: selectedTemplate?.scenario ?? '智能生成',
-          modality: currentExam?.modality ?? 'CT',
-          bodyPart: currentExam?.bodyPart ?? '胸部',
-          confidence: res.data.confidence ?? 0.85,
-          clinicalHistory,
-          generatedFindings: res.data.findings ?? '',
-          generatedDiagnosis: res.data.diagnosis ?? '',
-          generatedImpression: res.data.impression ?? '',
-          sources: res.data.sources ?? ['AI Model v2.3'],
-        };
-        setGeneratedDraft(draft);
-        setEditedFindings(draft.generatedFindings);
-        setEditedDiagnosis(draft.generatedDiagnosis);
-        setEditedImpression(draft.generatedImpression);
-        setSelectedTemplateId(draft.id);
-      } else {
-        throw new Error(res.error?.message || 'AI 生成失败');
-      }
+      setGeneratedDraft(draft);
+      setEditedFindings(draft.generatedFindings);
+      setEditedDiagnosis(draft.generatedDiagnosis);
+      setEditedImpression(draft.generatedImpression);
+      setSelectedTemplateId(draft.id);
     } catch (e: any) {
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -350,8 +413,8 @@ export default function AIReportDraftPage() {
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>AI 模型</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>v2.3</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>LLM 模型</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{PROVIDER_LABEL[aiProvider]}</div>
           </div>
         </div>
       </div>
@@ -413,6 +476,49 @@ export default function AIReportDraftPage() {
               }}
             />
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{clinicalHistory.length} 字</div>
+          </div>
+
+          {/* [v3.0.6.11-100 Wave 3A (G-19)] LLM 模型选择 + RAG 增强 */}
+          <div style={{
+            background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Cpu size={13} /> LLM 模型与 RAG
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>LLM 提供方</div>
+                <select
+                  value={aiProvider}
+                  onChange={e => setAiProvider(e.target.value as LlmProviderId)}
+                  style={{ width: '100%', padding: '6px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}
+                >
+                  {(providers.length > 0 ? providers : [
+                    { id: 'mock' as LlmProviderId, name: '确定性模板引擎', available: true },
+                    { id: 'deepseek' as LlmProviderId, name: 'DeepSeek (未配置)', available: false },
+                    { id: 'hunyuan' as LlmProviderId, name: '腾讯混元 (未配置)', available: false },
+                  ]).map((p: any) => (
+                    <option key={p.id} value={p.id} disabled={!p.available && p.id !== aiProvider}>
+                      {p.name}{p.available ? '' : ' (未配置 API Key)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>RAG 增强（检索既往报告作为上下文）</span>
+                <input
+                  type="checkbox"
+                  checked={includeRag}
+                  onChange={e => setIncludeRag(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: '#7c3aed' }}
+                />
+              </div>
+              {advancedFallback && (
+                <div style={{ fontSize: 11, color: '#d97706', background: 'rgba(245,158,11,0.1)', padding: '4px 8px', borderRadius: 4 }}>
+                  所选模型未配置 API Key，已回退确定性模板生成
+                </div>
+              )}
+            </div>
           </div>
 
           {/* AI 场景模板 */}
@@ -516,22 +622,67 @@ export default function AIReportDraftPage() {
                       AI 场景：{generatedDraft.scenario}
                     </div>
                     <div style={{ fontSize: 12, color: '#6b21a8', marginTop: 2 }}>
-                      置信度 <strong>{(generatedDraft.confidence * 100).toFixed(0)}%</strong> · 参考 {generatedDraft.sources.length} 个来源
+                      {/* [v3.0.6.11-100 Wave 3A (G-19)] 信心分优先展示高级生成结果 */}
+                      置信度 <strong>{((advancedConfidence ?? generatedDraft.confidence) * 100).toFixed(0)}%</strong> · 参考 {generatedDraft.sources.length} 个来源
+                      {advancedConfidence !== null && ragSources.length > 0 && (
+                        <span> · <Database size={10} style={{ display: 'inline', verticalAlign: -1 }} /> RAG {ragSources.length} 份既往报告</span>
+                      )}
                       {' · '}
                       <span style={{ fontWeight: 700, color: draftSource === 'api' ? '#059669' : '#d97706' }}>
-                        {draftSource === 'api' ? '真实 AI 生成' : '离线模板回退'}
+                        {draftSource === 'api' ? (advancedConfidence !== null ? `真实 AI 生成 (${PROVIDER_LABEL[aiProvider]})` : '真实 AI 生成') : '离线模板回退'}
+                      </span>
+                    </div>
+                    {/* [v3.0.6.11-100 Wave 3A (G-19)] 信心分进度条 */}
+                    <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ flex: 1, height: 6, background: '#e9d5ff', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{
+                          width: `${(advancedConfidence ?? generatedDraft.confidence) * 100}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #7c3aed, #a855f7)',
+                          transition: 'width 0.3s',
+                        }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 700 }}>
+                        {((advancedConfidence ?? generatedDraft.confidence) * 100).toFixed(0)}%
                       </span>
                     </div>
                   </div>
-                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-                    {generatedDraft.sources.map((s, i) => (
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {generatedDraft.sources.slice(0, 4).map((s, i) => (
                       <span key={i} style={{
                         fontSize: 12, padding: '1px 5px', borderRadius: 3,
                         background: 'var(--bg-card)', color: '#5b21b6', fontWeight: 600,
                       }}>{s}</span>
                     ))}
+                    {ragSources.length > 0 && (
+                      <span style={{
+                        fontSize: 12, padding: '1px 5px', borderRadius: 3,
+                        background: 'rgba(6,182,212,0.12)', color: '#0891b2', fontWeight: 600,
+                        display: 'flex', alignItems: 'center', gap: 3,
+                      }}>
+                        <Database size={10} /> {ragSources.length} 份既往报告
+                      </span>
+                    )}
                   </div>
                 </div>
+
+                {/* [v3.0.6.11-100 Wave 3A (G-19)] RAG 来源列表 */}
+                {ragSources.length > 0 && (
+                  <div style={{ marginTop: 8, padding: 8, background: 'rgba(6,182,212,0.06)', borderRadius: 6, fontSize: 11 }}>
+                    <div style={{ fontWeight: 700, color: '#0e7490', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Database size={11} /> RAG 检索来源（既往报告摘要）
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      {ragSources.map((s) => (
+                        <div key={s.reportId} style={{ color: 'var(--text-secondary)' }}>
+                          <strong style={{ color: '#0e7490' }}>{s.reportId}</strong>
+                          <span style={{ margin: '0 4px', color: '#94a3b8' }}>{s.date}</span>
+                          <span>{s.snippet}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 可编辑的所见 */}

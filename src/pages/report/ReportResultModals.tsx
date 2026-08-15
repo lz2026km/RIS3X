@@ -116,8 +116,9 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
   const isPublish = action === 'publish'
   const isReview = action === 'review'
   const isSign = action === 'sign'
-  const TITLE = isDelete ? '批量删除' : isPublish ? '批量发布' : isReview ? '批量审核' : isSign ? '批量签署' : '批量操作'
-  const VERB = isDelete ? '删除' : isPublish ? '发布' : isReview ? '审核' : isSign ? '签署' : '执行'
+  const isArchive = action === 'archive'
+  const TITLE = isDelete ? '批量删除' : isPublish ? '批量发布' : isReview ? '批量审核' : isSign ? '批量签署' : isArchive ? '批量归档' : '批量操作'
+  const VERB = isDelete ? '删除' : isPublish ? '发布' : isReview ? '审核' : isSign ? '签署' : isArchive ? '归档' : '执行'
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
       onClick={onClose}>
@@ -156,6 +157,13 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
           <div style={{ background: '#f5f3ff', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #ddd6fe' }}>
             <div style={{ fontSize: 12, color: '#6d28d9', fontWeight: 600, marginBottom: 4 }}>确认签署</div>
             <div style={{ fontSize: 12, color: '#4c1d95' }}>将选中报告中状态为"已审核"的报告批量电子签署(→ 已签发)。</div>
+          </div>
+        )}
+        {/* [G005 Wave 8] 报告冷归档: 批量归档确认 */}
+        {isArchive && (
+          <div style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #cbd5e1' }}>
+            <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>确认冷归档</div>
+            <div style={{ fontSize: 12, color: '#334155' }}>将选中报告中状态为"已发布"的报告归档至长期存储层 (ARCHIVED + 归档任务记录), 非发布态自动跳过。</div>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

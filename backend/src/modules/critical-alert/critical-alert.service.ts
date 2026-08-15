@@ -26,6 +26,8 @@ export interface CriticalAlertItem {
   assignee?: string
   createdAt: string
   resolvedAt?: string
+  // [G005 Wave 8] 报告→危急值反向引用: 来源报告 ID (报告详情「危急值」区块反查)
+  reportId?: string
 }
 
 export interface CriticalAlertStats {
@@ -43,6 +45,39 @@ export interface AlertQueryParams {
   alertType?: string
   page?: number
   pageSize?: number
+}
+
+// [G005 Wave 2A] 电话网关: 模拟电话呼叫记录 (内存 + auditLog)
+export interface CallLog {
+  id: string
+  alertId: string
+  phone: string
+  status: 'initiated' | 'connected' | 'failed'
+  startedAt: string
+  durationSec: number
+  recordingUrl?: string
+}
+
+// [G005 Wave 2A] 短信网关: 模拟短信发送记录
+export interface SmsLog {
+  id: string
+  alertId: string
+  phone: string
+  status: 'sent' | 'failed'
+  content: string
+  sentAt: string
+}
+
+export interface CommunicationEntry {
+  id: string
+  alertId: string
+  channel: 'phone' | 'sms'
+  phone: string
+  status: string
+  at: string
+  durationSec?: number
+  recordingUrl?: string
+  content?: string
 }
 
 const SEVERITY_MAP: Record<string, AlertSeverity> = {
@@ -83,12 +118,109 @@ const SEED_ALERTS: CriticalAlertItem[] = [
   { id: 'CA-006', patientId: 'RAD-P009', patientName: '吴强', studyId: 'S20260801006', modality: 'CT', alertType: 'technical_issue', severity: 'info', title: '扫描协议偏离', description: '增强扫描时相偏早, 图像质量受影响, 已标记。', status: 'resolved', resolvedAt: new Date(Date.now() - 20 * 3600_000).toISOString(), createdAt: new Date(Date.now() - 26 * 3600_000).toISOString() },
 ]
 
+// [G005 Wave 2A] 电话/短信网关内存记录 (seed: CA-001/CA-002 已有历史通话)
+const SEED_CALL_LOGS: CallLog[] = [
+  { id: 'CL-001', alertId: 'CA-001', phone: '13800000001', status: 'connected', startedAt: new Date(Date.now() - 35 * 60_000).toISOString(), durationSec: 96, recordingUrl: '/recordings/CA-001-20260815-0930.wav' },
+  { id: 'CL-002', alertId: 'CA-002', phone: '13800000002', status: 'connected', startedAt: new Date(Date.now() - 110 * 60_000).toISOString(), durationSec: 132, recordingUrl: '/recordings/CA-002-20260815-0855.wav' },
+  { id: 'CL-003', alertId: 'CA-005', phone: '13800000003', status: 'failed', startedAt: new Date(Date.now() - 12 * 60_000).toISOString(), durationSec: 0 },
+]
+
+const SEED_SMS_LOGS: SmsLog[] = [
+  { id: 'SM-001', alertId: 'CA-001', phone: '13800000001', status: 'sent', content: '【危急值通知】患者李明: 胸部CT提示主动脉夹层可能, 请立即查看。', sentAt: new Date(Date.now() - 38 * 60_000).toISOString() },
+  { id: 'SM-002', alertId: 'CA-004', phone: '13800000004', status: 'sent', content: '【危急值通知】患者周婷: 腹部CT提示肝破裂出血, 请立即会诊处理。', sentAt: new Date(Date.now() - 9 * 3600_000).toISOString() },
+]
+
 @Injectable()
 export class CriticalAlertService {
-  /** 内存扩展信息: alertId → assignee 等 (升级操作写入) */
-  private readonly extras = new Map<string, { assignee?: string }>()
+  /** 内存扩展信息: alertId → assignee / reportId 等 (升级/报告转入等操作写入) */
+  private readonly extras = new Map<string, { assignee?: string; reportId?: string }>()
+
+  /** [G005 Wave 2A] 电话/短信网关内存记录 */
+  private readonly callLogs: CallLog[] = [...SEED_CALL_LOGS]
+  private readonly smsLogs: SmsLog[] = [...SEED_SMS_LOGS]
 
   constructor(private readonly prisma: PrismaService) {}
+
+  // ================= 电话/短信网关 (Wave 2A) =================
+
+  /** POST /critical-alert/alerts/:id/auto-call — 模拟电话呼叫 */
+  async autoCall(id: string, dto: { phone?: string } = {}): Promise<CallLog> {
+    const alert = await this.getAlert(id)
+    const phone = dto.phone?.trim() || '13800000000'
+    // 模拟呼叫: 大部分接通, 小部分失败
+    const failed = phone.endsWith('9')
+    const connected = !failed
+    const log: CallLog = {
+      id: `CL-${Date.now().toString(36).toUpperCase()}`,
+      alertId: id,
+      phone,
+      status: failed ? 'failed' : 'connected',
+      startedAt: new Date().toISOString(),
+      durationSec: failed ? 0 : 30 + Math.floor(Math.random() * 180),
+      recordingUrl: connected ? `/recordings/${id}-${Date.now()}.wav` : undefined,
+    }
+    this.callLogs.unshift(log)
+    await this.recordAudit('AUTO_CALL', id, { phone, status: log.status, alertTitle: alert.title })
+    return log
+  }
+
+  /** POST /critical-alert/alerts/:id/auto-sms — 模拟短信发送 */
+  async autoSms(id: string, dto: { phone?: string; content?: string } = {}): Promise<SmsLog> {
+    const alert = await this.getAlert(id)
+    const phone = dto.phone?.trim() || '13800000000'
+    const failed = phone.endsWith('8')
+    const log: SmsLog = {
+      id: `SM-${Date.now().toString(36).toUpperCase()}`,
+      alertId: id,
+      phone,
+      status: failed ? 'failed' : 'sent',
+      content: dto.content?.trim() || `【危急值通知】${alert.patientName}: ${alert.title}, 请及时查看处理。`,
+      sentAt: new Date().toISOString(),
+    }
+    this.smsLogs.unshift(log)
+    await this.recordAudit('AUTO_SMS', id, { phone, status: log.status, alertTitle: alert.title })
+    return log
+  }
+
+  /** GET /critical-alert/alerts/:id/communication-log — 电话+短信合并记录 */
+  async communicationLog(id: string): Promise<CommunicationEntry[]> {
+    await this.ensureExists(id)
+    const calls: CommunicationEntry[] = this.callLogs
+      .filter((c) => c.alertId === id)
+      .map((c) => ({
+        id: c.id,
+        alertId: c.alertId,
+        channel: 'phone',
+        phone: c.phone,
+        status: c.status,
+        at: c.startedAt,
+        durationSec: c.durationSec,
+        recordingUrl: c.recordingUrl,
+      }))
+    const sms: CommunicationEntry[] = this.smsLogs
+      .filter((s) => s.alertId === id)
+      .map((s) => ({
+        id: s.id,
+        alertId: s.alertId,
+        channel: 'sms',
+        phone: s.phone,
+        status: s.status,
+        at: s.sentAt,
+        content: s.content,
+      }))
+    return [...calls, ...sms].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+  }
+
+  /** auditLog 记录 (DB 不可用时静默跳过) */
+  private async recordAudit(action: string, resourceId: string, detail: unknown): Promise<void> {
+    try {
+      await this.prisma.auditLog.create({
+        data: { action, resource: 'critical-alert', resourceId, detail: detail as any, tenantId: currentTenantId() },
+      })
+    } catch {
+      /* DB 不可用 → 仅内存记录 */
+    }
+  }
 
   // ================= 派生 =================
 
@@ -128,6 +260,8 @@ export class CriticalAlertService {
       assignee: extra?.assignee,
       createdAt: cv.createdAt ? new Date(cv.createdAt).toISOString() : new Date().toISOString(),
       resolvedAt: cv.resolvedAt ? new Date(cv.resolvedAt).toISOString() : undefined,
+      // [G005 Wave 8] 报告→危急值反向引用 (内存 extras)
+      reportId: extra?.reportId ?? (cv as any).reportId,
     }
     return item
   }
@@ -256,6 +390,8 @@ export class CriticalAlertService {
     modality?: string
     title?: string
     description?: string
+    // [G005 Wave 8] 报告→危急值反向引用
+    reportId?: string
   }): Promise<CriticalAlertItem> {
     const severity = LEVEL_TO_SEVERITY[dto.level ?? ''] ?? 'URGENT'
     const description = dto.description ?? dto.title ?? '危急值告警'
@@ -305,12 +441,41 @@ export class CriticalAlertService {
           description,
           status: 'active',
           createdAt: new Date().toISOString(),
+          reportId: dto.reportId,
         }
         SEED_ALERTS.unshift(item)
+        if (dto.reportId) this.extras.set(item.id, { reportId: dto.reportId })
         return item
       }
     }
+    // [G005 Wave 8] 记录 reportId 内存链接 (DB 路径同样写入 extras, 供 forReport 反查)
+    if (dto.reportId) {
+      const prev = this.extras.get(id)
+      this.extras.set(id, { ...(prev ?? {}), reportId: dto.reportId })
+    }
     return this.getAlert(id)
+  }
+
+  /**
+   * [G005 Wave 8] GET /critical-alert/for-report/:reportId — 按报告查询关联危急值告警 (反向引用)。
+   * 匹配: 内存 extras reportId 精确链接 + 报告 examId 对应检查派生 (DB 不可用时仅内存链接)。
+   */
+  async forReport(reportId: string): Promise<CriticalAlertItem[]> {
+    let examId: string | null = null
+    let patientId: string | null = null
+    try {
+      const report = await this.prisma.report.findUnique({ where: { id: reportId } })
+      if (report) {
+        examId = report.examId ?? null
+        patientId = report.patientId ?? null
+      }
+    } catch { /* DB 不可用 */ }
+    const alerts = await this.deriveAlerts()
+    return alerts.filter((a) => {
+      if (this.extras.get(a.id)?.reportId === reportId) return true
+      if (examId && (a.studyId === examId || a.studyId === reportId)) return true
+      return false
+    })
   }
 
   async stats(): Promise<CriticalAlertStats> {

@@ -17,6 +17,10 @@ const CreateSchema = z.object({
   dataSource: z.string().optional(),
   schedule: z.string().nullable().optional(),
   recipients: z.array(z.string()).optional(),
+  // [v3.0.6.11-100 Wave 4A] 排序/分组设置
+  sortBy: z.string().nullable().optional(),
+  sortOrder: z.enum(['asc', 'desc']).nullable().optional(),
+  groupBy: z.string().nullable().optional(),
 })
 
 const UpdateSchema = CreateSchema.partial()

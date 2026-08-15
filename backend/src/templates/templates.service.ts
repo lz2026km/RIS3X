@@ -9,6 +9,8 @@ export interface CreateTemplateDto {
   // [v3.0.6.11-98 Wave2A P1] 模态 (CT/MR/DR/...), 用于模板库自动匹配推荐
   modality?: string
   bodyPart: string
+  // [v3.0.6.11-100 Wave2C P2] 模板类型: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板 (默认 SECTION)
+  templateType?: 'FULL' | 'SECTION' | 'PHRASE'
   body: string
   // [v3.0.6.11-99 Wave2B P1] 结构化段落块数组 (模板设计器可视化保存), 兼容纯文本 body
   structure?: TemplateStructureBlock[]
@@ -31,6 +33,15 @@ export type TemplateStructure = TemplateStructureBlock[]
 
 // [v3.0.6.11-98 Wave2A P1] 模板审批状态
 export type TemplateApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected'
+
+// [v3.0.6.11-100 Wave2C P2] 模板类型: FULL=全文模板 / SECTION=段落模板 / PHRASE=短语模板
+export type TemplateType = 'FULL' | 'SECTION' | 'PHRASE'
+
+// [v3.0.6.11-100 Wave2C P2] 内存兼容: 归一化模板类型 (旧数据无字段时回退 SECTION)
+function normalizeTemplateType(v: unknown): TemplateType {
+  if (v === 'FULL' || v === 'SECTION' || v === 'PHRASE') return v
+  return 'SECTION'
+}
 
 // [G005 Wave1B P1] 智能片段 (templates/snippets) — 模板派生 + 进程内存
 export interface SnippetDto {
@@ -170,7 +181,7 @@ export class TemplatesService {
     return this.deletedSeedIds.has(id)
   }
 
-  async list(filter?: { category?: string; bodyPart?: string; keyword?: string; status?: string; userId?: string }) {
+  async list(filter?: { category?: string; bodyPart?: string; keyword?: string; status?: string; userId?: string; templateType?: TemplateType }) {
     const where: any = {}
     if (filter?.category) where.category = filter.category
     if (filter?.bodyPart) where.bodyPart = filter.bodyPart
@@ -178,13 +189,17 @@ export class TemplatesService {
     if (filter?.status) where.status = filter.status
     // [v3.0.6.11-98 Wave2A P1] 医生个人模板库: personal=true 按 createdById 过滤
     if (filter?.userId) where.createdById = filter.userId
+    // [v3.0.6.11-100 Wave2C P2] 模板类型过滤 (FULL/SECTION/PHRASE)
+    if (filter?.templateType) where.templateType = filter.templateType
     if (filter?.keyword) {
       where.OR = [
         { name: { contains: filter.keyword, mode: 'insensitive' } },
         { body: { contains: filter.keyword, mode: 'insensitive' } },
       ]
     }
+    // [v3.0.6.11-100 Wave2C P2] 内存兼容: 旧数据无 templateType 字段时回退 SECTION
     return this.prisma.reportTemplate.findMany({ where, orderBy: { updatedAt: 'desc' }, take: 100 })
+      .then((rows) => rows.map((r) => ({ ...r, templateType: normalizeTemplateType((r as any).templateType) })))
   }
 
   async get(id: string) {
@@ -196,27 +211,30 @@ export class TemplatesService {
   async create(dto: CreateTemplateDto) {
     // [v3.0.6.11-98 Wave2A P1] 新模板默认 draft, 提交审批后进入 pending
     // [v3.0.6.11-99 Wave2B P1] structure 可选, 兼容纯文本 body 模板
-    return this.prisma.reportTemplate.create({
-      data: {
-        ...dto,
-        structure: dto.structure ? (dto.structure as unknown as Prisma.InputJsonValue) : undefined,
-        status: 'draft',
-        tenantId: getCurrentTenantId(),
-      },
-    })
+    // [v3.0.6.11-100 Wave2C P2] templateType 可选, 默认 SECTION (段落模板)
+    const data: any = {
+      ...dto,
+      templateType: normalizeTemplateType(dto.templateType),
+      structure: dto.structure ? (dto.structure as unknown as Prisma.InputJsonValue) : undefined,
+      status: 'draft',
+      tenantId: getCurrentTenantId(),
+    }
+    return this.prisma.reportTemplate.create({ data }).then((t) => ({ ...t, templateType: (t as any).templateType ?? 'SECTION' }))
   }
 
-  async update(id: string, dto: { name?: string; category?: string; modality?: string; bodyPart?: string; body?: string; tags?: string[]; structure?: TemplateStructure }) {
+  async update(id: string, dto: { name?: string; category?: string; modality?: string; bodyPart?: string; body?: string; tags?: string[]; structure?: TemplateStructure; templateType?: TemplateType }) {
     const existing = await this.prisma.reportTemplate.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`Template ${id} not found`)
+    const data: any = {
+      ...dto,
+      structure: dto.structure ? (dto.structure as unknown as Prisma.InputJsonValue) : undefined,
+      version: { increment: 1 },
+    }
+    if (dto.templateType !== undefined) data.templateType = normalizeTemplateType(dto.templateType)
     return this.prisma.reportTemplate.update({
       where: { id },
-      data: {
-        ...dto,
-        structure: dto.structure ? (dto.structure as unknown as Prisma.InputJsonValue) : undefined,
-        version: { increment: 1 },
-      },
-    })
+      data,
+    }).then((t) => ({ ...t, templateType: (t as any).templateType ?? 'SECTION' }))
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -280,6 +298,8 @@ export class TemplatesService {
         category: original.category,
         modality: original.modality,
         bodyPart: original.bodyPart,
+        // [v3.0.6.11-100 Wave2C P2] 克隆保留模板类型
+        templateType: normalizeTemplateType((original as any).templateType) as any,
         body: original.body,
         // [v3.0.6.11-99 Wave2B P1] 克隆保留结构化段落块
         structure: Array.isArray(original.structure) ? (original.structure as unknown as Prisma.InputJsonValue) : undefined,
