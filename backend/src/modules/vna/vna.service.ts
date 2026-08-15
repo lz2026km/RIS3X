@@ -106,6 +106,90 @@ export interface CreateLifecyclePolicyInput {
   description?: string
 }
 
+// ===== [W10E-3] 扩展端点 DTO (归档总览 / 存储趋势 / 分层统计 / 完整性校验 / 重复分析) =====
+
+export interface VnaOverviewDto {
+  totalObjects: number
+  totalSizeBytes: number
+  dicomCount: number
+  nonDicomCount: number
+  wormLockedCount: number
+  studyCount: number
+  byTier: Array<{ tier: VnaLifecycleTier; count: number; sizeBytes: number; percent: number }>
+  last30dNewObjects: number
+  growthRate: number
+  storageSource: 'database' | 'memory'
+  seeded: boolean
+}
+
+export interface VnaStorageTrendPoint {
+  date: string
+  label: string
+  newObjects: number
+  addedBytes: number
+  totalSizeBytes: number
+  seeded: boolean
+}
+
+export interface VnaTierStatDto {
+  tier: VnaLifecycleTier
+  tierZh: string
+  count: number
+  sizeBytes: number
+  percent: number
+  documents: number
+  images: number
+}
+
+export interface VnaVerificationDto {
+  object: VnaObjectDto
+  verifiedAt: string
+  checksum: string
+  sizeBytes: number
+  expectedSizeBytes: number
+  sizeMatch: boolean
+  status: 'integrity-ok' | 'size-mismatch' | 'content-missing'
+}
+
+export interface DuplicateGroupDto {
+  name: string
+  size: number
+  count: number
+  wastedBytes: number
+  objectIds: string[]
+  createdAt: string
+}
+
+export interface DuplicateAnalysisDto {
+  totalDuplicates: number
+  wastedBytes: number
+  groups: DuplicateGroupDto[]
+  seeded: boolean
+}
+
+function vnaHash(input: string): number {
+  let h = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/** 确定性伪随机: 同一 seedInput 永远得到同一结果 (趋势/统计回退可复现) */
+function vnaSeededRand(min: number, max: number, seedInput: string): number {
+  let a = vnaHash(seedInput) >>> 0
+  a = (a + 0x6d2b79f5) | 0
+  let t = Math.imul(a ^ (a >>> 15), 1 | a)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  const r = ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  return Math.round((r * (max - min) + min) * 10) / 10
+}
+
+function vnaLocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 interface LifecyclePolicyRow {
   id: string
   tier: VnaLifecycleTier
@@ -158,7 +242,7 @@ interface VnaObjectRow {
 
 interface VnaRepo {
   vnaObject: {
-    findMany(args: { where?: Record<string, unknown>; orderBy?: Record<string, string>; take?: number }): Promise<VnaObjectRow[]>
+    findMany(args: { where?: Record<string, unknown>; orderBy?: Record<string, string>; take?: number; select?: Record<string, boolean> }): Promise<VnaObjectRow[]>
     findFirst(args: { where?: Record<string, unknown> }): Promise<VnaObjectRow | null>
     findUnique(args: { where: { id: string } }): Promise<VnaObjectRow | null>
     create(args: { data: Record<string, unknown> }): Promise<VnaObjectRow>
@@ -204,6 +288,8 @@ export class VnaService {
   private readonly lifecycleEvents: LifecycleEventRow[] = []
   private readonly objectTiers = new Map<string, VnaLifecycleTier>()
   private lifecycleSeq = 100
+  // [W10E-3] 完整性校验记录 (内存, 最近校验结果)
+  private readonly verificationRecords = new Map<string, VnaVerificationDto>()
 
   constructor(
     private readonly prisma: PrismaService,
@@ -721,6 +807,243 @@ export class VnaService {
       reason: row.reason,
       createdAt: row.createdAt.toISOString(),
       storageSource: 'memory',
+    }
+  }
+
+  // ================= [W10E-3] 扩展: 归档总览 / 存储趋势 / 分层统计 / 完整性校验 / 重复分析 =================
+
+  async getOverview(): Promise<VnaOverviewDto> {
+    const stats = await this.getStats()
+    const objects = await this.listObjects()
+    const byTier = new Map<VnaLifecycleTier, { count: number; sizeBytes: number }>()
+    for (const o of objects) {
+      const tier = this.getObjectTier(o.id)
+      const e = byTier.get(tier) ?? { count: 0, sizeBytes: 0 }
+      e.count += 1
+      e.sizeBytes += o.size
+      byTier.set(tier, e)
+    }
+    const cutoff = new Date(Date.now() - 30 * 86400000)
+    const last30dNewObjects = objects.filter((o) => new Date(o.createdAt) >= cutoff).length
+    const tiers = (['hot', 'warm', 'cold'] as VnaLifecycleTier[]).map((tier) => {
+      const e = byTier.get(tier) ?? { count: 0, sizeBytes: 0 }
+      return {
+        tier,
+        count: e.count,
+        sizeBytes: e.sizeBytes,
+        percent: stats.totalObjects > 0 ? Math.round((e.count / stats.totalObjects) * 100) : 0,
+      }
+    })
+    return {
+      totalObjects: stats.totalObjects,
+      totalSizeBytes: stats.totalSizeBytes,
+      dicomCount: stats.dicomCount,
+      nonDicomCount: stats.nonDicomCount,
+      wormLockedCount: stats.wormLockedCount,
+      studyCount: stats.studyCount,
+      byTier: tiers,
+      last30dNewObjects,
+      growthRate: stats.totalObjects > 0 ? Math.round((last30dNewObjects / stats.totalObjects) * 1000) / 10 : 0,
+      storageSource: stats.storageSource,
+      seeded: stats.storageSource === 'memory' && objects.length === 0,
+    }
+  }
+
+  async getStorageTrend(days = 30): Promise<VnaStorageTrendPoint[]> {
+    const count = Math.max(1, Math.min(Math.round(days) || 30, 60))
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    start.setDate(start.getDate() - (count - 1))
+    let rows: Array<{ createdAt: Date; size: number }> = []
+    try {
+      rows = (await this.repo.vnaObject.findMany({
+        where: { tenantId: currentTenantId() },
+        select: { createdAt: true, size: true } as never,
+        orderBy: { createdAt: 'asc' },
+        take: 100000,
+      })) as Array<{ createdAt: Date; size: number }>
+    } catch (err) {
+      this.logger.warn(`[VNA] getStorageTrend DB failed, fallback to memory: ${(err as Error).message}`)
+      rows = this.memoryList()
+        .filter((r) => r.tenantId === currentTenantId())
+        .map((r) => ({ createdAt: r.createdAt, size: r.size }))
+    }
+    if (rows.length > 0) {
+      const startKey = vnaLocalDateStr(start)
+      const base = rows.filter((r) => vnaLocalDateStr(new Date(r.createdAt)) < startKey).reduce((a, r) => a + r.size, 0)
+      const byDay = new Map<string, { newObjects: number; addedBytes: number }>()
+      for (const r of rows) {
+        const key = vnaLocalDateStr(new Date(r.createdAt))
+        if (key >= startKey) {
+          const e = byDay.get(key) ?? { newObjects: 0, addedBytes: 0 }
+          e.newObjects += 1
+          e.addedBytes += r.size
+          byDay.set(key, e)
+        }
+      }
+      let cumulative = base
+      return Array.from({ length: count }, (_, i) => {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+        const key = vnaLocalDateStr(d)
+        const e = byDay.get(key) ?? { newObjects: 0, addedBytes: 0 }
+        cumulative += e.addedBytes
+        return {
+          date: key,
+          label: key.slice(5),
+          newObjects: e.newObjects,
+          addedBytes: e.addedBytes,
+          totalSizeBytes: cumulative,
+          seeded: false,
+        }
+      })
+    }
+    // 空库: 确定性增长曲线 (seed 固定, 可复现)
+    const seed = `vna-storage-trend:${vnaLocalDateStr(start)}`
+    let cumulative = Math.round(vnaSeededRand(1.2e12, 1.8e12, `${seed}:base`))
+    return Array.from({ length: count }, (_, i) => {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+      const key = vnaLocalDateStr(d)
+      const newObjects = Math.round(vnaSeededRand(3, 18, `${seed}:count:${key}`))
+      const addedBytes = Math.round(vnaSeededRand(8e8, 2.5e9, `${seed}:bytes:${key}`))
+      cumulative += addedBytes
+      return {
+        date: key,
+        label: key.slice(5),
+        newObjects,
+        addedBytes,
+        totalSizeBytes: cumulative,
+        seeded: true,
+      }
+    })
+  }
+
+  async getByTier(): Promise<VnaTierStatDto[]> {
+    const objects = await this.listObjects()
+    const byTier = new Map<VnaLifecycleTier, { count: number; sizeBytes: number; documents: number; images: number }>()
+    for (const o of objects) {
+      const tier = this.getObjectTier(o.id)
+      const e = byTier.get(tier) ?? { count: 0, sizeBytes: 0, documents: 0, images: 0 }
+      e.count += 1
+      e.sizeBytes += o.size
+      if (o.objectType === 'image') e.images += 1
+      else e.documents += 1
+      byTier.set(tier, e)
+    }
+    const total = objects.length
+    const definitions: Array<{ tier: VnaLifecycleTier; tierZh: string }> = [
+      { tier: 'hot', tierZh: '热层' },
+      { tier: 'warm', tierZh: '温层' },
+      { tier: 'cold', tierZh: '冷层' },
+    ]
+    return definitions.map((d) => {
+      const e = byTier.get(d.tier) ?? { count: 0, sizeBytes: 0, documents: 0, images: 0 }
+      return {
+        tier: d.tier,
+        tierZh: d.tierZh,
+        count: e.count,
+        sizeBytes: e.sizeBytes,
+        percent: total > 0 ? Math.round((e.count / total) * 100) : 0,
+        documents: e.documents,
+        images: e.images,
+      }
+    })
+  }
+
+  async verifyObject(id: string): Promise<VnaVerificationDto> {
+    const obj = await this.getObject(id)
+    const verifiedAt = new Date().toISOString()
+    try {
+      const { buffer } = await this.getObjectContent(id)
+      const checksum = crypto.createHash('sha256').update(buffer).digest('hex').slice(0, 16)
+      const sizeMatch = buffer.length === obj.size
+      const record: VnaVerificationDto = {
+        object: obj,
+        verifiedAt,
+        checksum,
+        sizeBytes: buffer.length,
+        expectedSizeBytes: obj.size,
+        sizeMatch,
+        status: sizeMatch ? 'integrity-ok' : 'size-mismatch',
+      }
+      this.verificationRecords.set(id, record)
+      this.logger.log(`[VNA] object ${id} verified: ${record.status} (${buffer.length}/${obj.size} bytes)`)
+      return record
+    } catch (err) {
+      this.logger.warn(`[VNA] object ${id} content missing: ${(err as Error).message}`)
+      const record: VnaVerificationDto = {
+        object: obj,
+        verifiedAt,
+        checksum: '',
+        sizeBytes: 0,
+        expectedSizeBytes: obj.size,
+        sizeMatch: false,
+        status: 'content-missing',
+      }
+      this.verificationRecords.set(id, record)
+      return record
+    }
+  }
+
+  async getDuplicateAnalysis(): Promise<DuplicateAnalysisDto> {
+    const tenantId = currentTenantId()
+    try {
+      const rows = await this.repo.vnaObject.findMany({
+        where: { tenantId },
+        orderBy: { createdAt: 'asc' },
+        take: 10000,
+      })
+      if (rows.length > 0) {
+        return this.duplicatesFrom(
+          rows.map((r) => ({ id: r.id, name: r.name, size: r.size, createdAt: r.createdAt })),
+          false,
+        )
+      }
+    } catch (err) {
+      this.logger.warn(`[VNA] getDuplicateAnalysis DB failed, fallback to memory: ${(err as Error).message}`)
+    }
+    const mem = this.memoryList().filter((r) => r.tenantId === tenantId)
+    if (mem.length > 0) {
+      return this.duplicatesFrom(
+        mem.map((r) => ({ id: r.id, name: r.name, size: r.size, createdAt: r.createdAt })),
+        false,
+      )
+    }
+    return this.seedDuplicateAnalysis()
+  }
+
+  private duplicatesFrom(rows: Array<{ id: string; name: string; size: number; createdAt: Date }>, seeded: boolean): DuplicateAnalysisDto {
+    const groups = new Map<string, DuplicateGroupDto>()
+    for (const r of rows) {
+      const key = `${r.name}|${r.size}`
+      const g = groups.get(key) ?? { name: r.name, size: r.size, count: 0, wastedBytes: 0, objectIds: [], createdAt: new Date(r.createdAt).toISOString() }
+      g.count += 1
+      g.objectIds.push(r.id)
+      g.wastedBytes = g.size * (g.count - 1)
+      groups.set(key, g)
+    }
+    const dups = Array.from(groups.values())
+      .filter((g) => g.count > 1)
+      .sort((a, b) => b.wastedBytes - a.wastedBytes)
+    return {
+      totalDuplicates: dups.length,
+      wastedBytes: dups.reduce((a, g) => a + g.wastedBytes, 0),
+      groups: dups,
+      seeded,
+    }
+  }
+
+  private seedDuplicateAnalysis(): DuplicateAnalysisDto {
+    const base = Date.UTC(2026, 7, 15)
+    const groups: DuplicateGroupDto[] = [
+      { name: '增强扫描知情同意书.pdf', size: 245760, count: 4, wastedBytes: 245760 * 3, objectIds: ['vna-seed-dup-1', 'vna-seed-dup-2', 'vna-seed-dup-3', 'vna-seed-dup-4'], createdAt: new Date(base - 120 * 86400000).toISOString() },
+      { name: 'CT 平扫影像打包.zip', size: 5242880, count: 2, wastedBytes: 5242880, objectIds: ['vna-seed-dup-5', 'vna-seed-dup-6'], createdAt: new Date(base - 60 * 86400000).toISOString() },
+      { name: 'MRI 检查申请单.pdf', size: 102400, count: 3, wastedBytes: 102400 * 2, objectIds: ['vna-seed-dup-7', 'vna-seed-dup-8', 'vna-seed-dup-9'], createdAt: new Date(base - 30 * 86400000).toISOString() },
+    ]
+    return {
+      totalDuplicates: groups.length,
+      wastedBytes: groups.reduce((a, g) => a + g.wastedBytes, 0),
+      groups: [...groups].sort((a, b) => b.wastedBytes - a.wastedBytes),
+      seeded: true,
     }
   }
 }

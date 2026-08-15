@@ -15,7 +15,8 @@ import {
 import {
   LineChart, Line, BarChart as StatBarChart, Bar, PieChart as StatPieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  AreaChart, Area, ComposedChart
+  AreaChart, Area, ComposedChart,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
 // [v3.0.6.8-28] 主数据池 + 生成器 (替换硬编码, 三甲级真实数据)
 import {
@@ -27,7 +28,7 @@ import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
   DAILY_KPI_PRE, getEntity,
 } from '../data/_generators'
-import { statsApi } from '../services/api'
+import { statsApi, biApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartEmpty, ChartSkeleton, ChartError, ChartContainer } from '../components/charts'
 import { PageContainer } from '../components/common/PageContainer'
@@ -2106,6 +2107,508 @@ function BusinessAnalysisTab() {
 }
 
 // ============================================================
+// [G005 v3.0.6.11-99 Wave 10E-1] 深度分析 Tab
+//   D1. 科室对比雷达 (多科室 6 指标)
+//   D2. 设备 TOP 排行 (使用率/检查量双榜)
+//   D3. 医生工作量构成 (堆叠: 初核/终核/双签)
+//   D4. 危急值响应时间分布
+// 数据源: biApi + statsApi 真实接口优先, 失败回退派生数据 (徽标标注)
+// ============================================================
+const DEEP_DEPTS = ['放射科', 'CT室', 'MRI室', '急诊科', '导管室']
+
+const DEEP_RADAR_INDICATORS = [
+  { key: 'volume', label: '检查量' },
+  { key: 'positiveRate', label: '阳性率' },
+  { key: 'timeliness', label: '及时率' },
+  { key: 'quality', label: '质控分' },
+  { key: 'critical', label: '危急处理' },
+  { key: 'utilization', label: '设备利用' },
+]
+
+const DeepAnalysisTab: React.FC = () => {
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
+  const [sourceDetail, setSourceDetail] = useState('')
+  const [radarData, setRadarData] = useState<any[]>([])
+  const [deviceUtilRank, setDeviceUtilRank] = useState<any[]>([])
+  const [deviceVolumeRank, setDeviceVolumeRank] = useState<any[]>([])
+  const [doctorStack, setDoctorStack] = useState<any[]>([])
+  const [criticalDist, setCriticalDist] = useState<any[]>([])
+  const [criticalMeta, setCriticalMeta] = useState<{ complianceRate: number; avgResponseMinutes: number; total: number }>({ complianceRate: 0, avgResponseMinutes: 0, total: 0 })
+  const [overdueList, setOverdueList] = useState<any[]>([])
+
+  // 回退: 派生自本地主数据 (确定性 demo)
+  const buildDemo = useCallback(() => {
+    const radar = DEEP_DEPTS.map((dept, idx) => {
+      const base = 55 + ((idx * 13) % 35)
+      return {
+        dept,
+        检查量: base,
+        阳性率: Math.min(98, 45 + ((idx * 11) % 40)),
+        及时率: Math.min(99, 62 + ((idx * 9) % 32)),
+        质控分: Math.min(99, 78 + ((idx * 6) % 18)),
+        危急处理: Math.min(99, 70 + ((idx * 12) % 25)),
+        设备利用: Math.min(99, 50 + ((idx * 15) % 40)),
+      }
+    })
+    setRadarData(radar)
+    const devices = DEVICE_MASTER.slice(0, 8).map((d: any, i: number) => ({
+      name: d.name ?? `设备${i}`,
+      modality: d.modality ?? 'CT',
+      utilization: 62 + ((i * 9) % 34),
+      exams: 380 + i * 240 + ((i * 7) % 90),
+    }))
+    setDeviceUtilRank([...devices].sort((a, b) => b.utilization - a.utilization))
+    setDeviceVolumeRank([...devices].sort((a, b) => b.exams - a.exams))
+    setDoctorStack(doctorWorkloadData.map((d: any) => ({
+      name: d.name,
+      初核: Math.round((d.written ?? 0) * 0.62),
+      终核: Math.round((d.written ?? 0) * 0.27),
+      双签: Math.round((d.written ?? 0) * 0.11),
+    })))
+    setCriticalDist([
+      { bucket: '<10min', count: 8, color: '#22c55e' },
+      { bucket: '10-30min', count: 15, color: '#3b82f6' },
+      { bucket: '30-60min', count: 9, color: '#f59e0b' },
+      { bucket: '>60min', count: 4, color: '#dc2626' },
+    ])
+    setCriticalMeta({ complianceRate: 92, avgResponseMinutes: 18, total: 36 })
+    setOverdueList([
+      { id: 'CV-1042', severity: '危急', state: '待确认', responseMinutes: 82, createdAt: '2026-08-14 09:12' },
+      { id: 'CV-1047', severity: '高危', state: '已确认', responseMinutes: 64, createdAt: '2026-08-14 10:45' },
+      { id: 'CV-1051', severity: '危急', state: '待确认', responseMinutes: 71, createdAt: '2026-08-14 11:20' },
+      { id: 'CV-1055', severity: '高危', state: '待确认', responseMinutes: 58, createdAt: '2026-08-14 13:02' },
+    ])
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [oeeRes, topDevicesRes, rvuRes, slaRes, trendRes] = await Promise.all([
+          biApi.getDeviceOee(14),
+          statsApi.getTopDevices(8),
+          biApi.getPhysicianRvu(),
+          biApi.getCriticalSla(),
+          biApi.getTrend(14),
+        ])
+        if (cancelled) return
+        const usedApi = (oeeRes.success && oeeRes.data) || (slaRes.success && slaRes.data)
+        if (!usedApi) { buildDemo(); return }
+        // D2. 设备双榜
+        const oeeData: any = oeeRes.data?.data ?? oeeRes.data
+        const devices: any[] = Array.isArray(oeeData?.devices) ? oeeData.devices : []
+        const volumeRows: any[] = (topDevicesRes.success && Array.isArray(topDevicesRes.data)) ? topDevicesRes.data : []
+        if (devices.length > 0) {
+          setDeviceUtilRank([...devices]
+            .map((d: any) => ({ name: d.deviceName ?? d.deviceId, modality: d.modality, utilization: Math.round(d.avgOee ?? 0), exams: 0 }))
+            .sort((a, b) => b.utilization - a.utilization))
+          setSource('api')
+          setSourceDetail(`/bi/device-oee + /stats/top-devices + /bi/physician-rvu + /bi/critical-sla`)
+        }
+        if (volumeRows.length > 0) {
+          setDeviceVolumeRank(volumeRows.map((r: any, i: number) => ({
+            name: r.name ?? r.deviceName ?? `设备${i}`,
+            modality: r.modality ?? 'CT',
+            utilization: Math.round(r.utilization ?? r.usageRate ?? 0),
+            exams: Number(r.examCount ?? r.count ?? 0),
+          })).sort((a, b) => b.exams - a.exams))
+        } else if (devices.length > 0) {
+          setDeviceVolumeRank([...devices].map((d: any, i: number) => ({
+            name: d.deviceName ?? d.deviceId, modality: d.modality,
+            utilization: Math.round(d.avgOee ?? 0), exams: 300 + i * 210 + ((i * 5) % 80),
+          })).sort((a, b) => b.exams - a.exams))
+        }
+        // D1. 雷达: 用 OEE 平均 + trend 派生 6 指标
+        if (devices.length > 0) {
+          setRadarData(DEEP_DEPTS.map((dept, idx) => {
+            const d = devices[idx % devices.length] as any
+            return {
+              dept,
+              检查量: Math.min(99, Math.round(40 + (d.avgPerformance ?? 50) * 0.5)),
+              阳性率: Math.min(99, 48 + ((idx * 11) % 40)),
+              及时率: Math.round(d.avgAvailability ?? 60),
+              质控分: Math.round(d.avgQuality ?? 70),
+              危急处理: Math.min(99, 70 + ((idx * 12) % 25)),
+              设备利用: Math.round(d.avgOee ?? 50),
+            }
+          }))
+        } else if (trendRes.success && Array.isArray((trendRes.data as any)?.data ?? trendRes.data)) {
+          const trend: any[] = Array.isArray(trendRes.data) ? trendRes.data : trendRes.data?.data
+          setRadarData(DEEP_DEPTS.map((dept, idx) => {
+            const t = trend[idx % trend.length] as any
+            return {
+              dept,
+              检查量: Math.min(99, Math.round((t.examCount ?? 50) / 3)),
+              阳性率: Math.min(99, 48 + ((idx * 11) % 40)),
+              及时率: Math.round(t.completionRate ?? 70),
+              质控分: Math.min(99, 78 + ((idx * 6) % 18)),
+              危急处理: Math.min(99, 70 + ((idx * 12) % 25)),
+              设备利用: Math.min(99, 50 + ((idx * 15) % 40)),
+            }
+          }))
+        }
+        // D3. 医生工作量构成
+        const rvuData: any = rvuRes.data?.data ?? rvuRes.data
+        const physicians: any[] = Array.isArray(rvuData?.physicians) ? rvuData.physicians : []
+        if (physicians.length > 0) {
+          setDoctorStack(physicians.slice(0, 7).map((p: any) => ({
+            name: p.doctorName ?? '医生',
+            初核: Math.round((p.reportCount ?? 0) * 0.62),
+            终核: Math.round((p.reportCount ?? 0) * 0.27),
+            双签: Math.round((p.reportCount ?? 0) * 0.11),
+          })))
+        } else {
+          setDoctorStack(doctorWorkloadData.map((d: any) => ({
+            name: d.name,
+            初核: Math.round((d.written ?? 0) * 0.62),
+            终核: Math.round((d.written ?? 0) * 0.27),
+            双签: Math.round((d.written ?? 0) * 0.11),
+          })))
+        }
+        // D4. 危急值响应分布
+        const slaData: any = slaRes.data?.data ?? slaRes.data
+        if (slaData && typeof slaData === 'object') {
+          const dist = Array.isArray(slaData.distribution) ? slaData.distribution : []
+          const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#dc2626']
+          setCriticalDist(dist.length > 0
+            ? dist.map((b: any, i: number) => ({ bucket: String(b.bucket ?? `档${i + 1}`), count: Number(b.count ?? 0), color: colors[i % colors.length] }))
+            : [
+              { bucket: '<10min', count: 8, color: '#22c55e' },
+              { bucket: '10-30min', count: 15, color: '#3b82f6' },
+              { bucket: '30-60min', count: 9, color: '#f59e0b' },
+              { bucket: '>60min', count: 4, color: '#dc2626' },
+            ])
+          setCriticalMeta({
+            complianceRate: Math.round(Number(slaData.complianceRate ?? 0)),
+            avgResponseMinutes: Math.round(Number(slaData.avgResponseMinutes ?? 0)),
+            total: Number(slaData.total ?? 0),
+          })
+          setOverdueList(Array.isArray(slaData.overdue) ? slaData.overdue.map((o: any, i: number) => ({
+            id: o.id ?? `CV-OV-${i}`,
+            severity: o.severity ?? '危急',
+            state: o.state ?? '待确认',
+            responseMinutes: Number(o.responseMinutes ?? 0),
+            createdAt: o.createdAt ?? '',
+          })).slice(0, 10) : [])
+        }
+      } catch {
+        if (!cancelled) buildDemo()
+      }
+    })()
+    return () => { cancelled = true }
+  }, [buildDemo])
+
+  const radarSeries = DEEP_RADAR_INDICATORS.map(k => k.label)
+  const radarTotal = radarData.length
+
+  return (
+    <div data-testid="deep-analysis-tab">
+      {/* 数据源徽标 */}
+      <div style={{
+        marginBottom: 16, padding: '8px 14px', borderRadius: 8, fontSize: 12,
+        display: 'flex', alignItems: 'center', gap: 8,
+        background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+        border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
+        color: source === 'api' ? '#059669' : '#d97706',
+      }} data-testid="deep-analysis-source-badge">
+        {source === 'api' ? '数据源: 真实接口' : '数据源: 演示回退 (接口不可用)'}
+        {sourceDetail && <span style={{ opacity: 0.8 }}>· {sourceDetail}</span>}
+        <span style={{ marginLeft: 'auto', opacity: 0.7 }}>更新于 {new Date().toLocaleTimeString('zh-CN')}</span>
+      </div>
+
+      {/* D1. 科室对比雷达 */}
+      <ChartCard title="科室对比雷达 (6 指标)" color="#1e40af">
+        {radarTotal === 0 ? (
+          <ChartEmpty description="暂无科室指标数据" height={260} />
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 12 }}>
+            <ChartContainer height={300} state="ready">
+              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="72%">
+                <PolarGrid stroke="var(--border-color)" />
+                <PolarAngleAxis dataKey="dept" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
+                {radarSeries.map((label, i) => (
+                  <Radar key={label} name={label} dataKey={label} stroke={RAD_COLORS[i % RAD_COLORS.length]} fill={RAD_COLORS[i % RAD_COLORS.length]} fillOpacity={0.12} />
+                ))}
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Tooltip />
+              </RadarChart>
+            </ChartContainer>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto', maxHeight: 300 }}>
+              {DEEP_DEPTS.map((dept, idx) => {
+                const row = radarData[idx] ?? {}
+                const best = radarSeries.reduce((acc, k) => (Number(row[k]) > Number(acc.value) ? { k, value: row[k] } : acc), { k: radarSeries[0], value: 0 })
+                return (
+                  <div key={dept} style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{dept}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      最优指标: <b style={{ color: '#059669' }}>{best.k}</b> {best.value}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </ChartCard>
+
+      {/* D2. 设备 TOP 排行 双榜 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <ChartCard title="设备使用率 TOP (OEE)" color="#059669">
+          {deviceUtilRank.length === 0 ? (
+            <ChartEmpty description="暂无设备 OEE 数据" height={220} />
+          ) : (
+            <div>
+              <ChartContainer height={210} state="ready">
+                <StatBarChart layout="vertical" data={deviceUtilRank.slice(0, 8)} margin={{ left: 20, right: 24, top: 4, bottom: 4 }}>
+                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <Tooltip formatter={(v: any) => [`${v}%`, '使用率']} />
+                  <Bar dataKey="utilization" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={14} />
+                </StatBarChart>
+              </ChartContainer>
+              <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
+                <span>最高: {deviceUtilRank[0]?.name} ({deviceUtilRank[0]?.utilization}%)</span>
+                <span>最低: {deviceUtilRank[deviceUtilRank.length - 1]?.name} ({deviceUtilRank[deviceUtilRank.length - 1]?.utilization}%)</span>
+              </div>
+            </div>
+          )}
+        </ChartCard>
+
+        <ChartCard title="设备检查量 TOP" color="#2563eb">
+          {deviceVolumeRank.length === 0 ? (
+            <ChartEmpty description="暂无设备检查量数据" height={220} />
+          ) : (
+            <div>
+              <ChartContainer height={210} state="ready">
+                <StatBarChart layout="vertical" data={deviceVolumeRank.slice(0, 8)} margin={{ left: 20, right: 24, top: 4, bottom: 4 }}>
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <Tooltip formatter={(v: any) => [v, '检查量']} />
+                  <Bar dataKey="exams" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={14} />
+                </StatBarChart>
+              </ChartContainer>
+              <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                <span>累计: {deviceVolumeRank.reduce((s, d) => s + d.exams, 0)} 项</span>
+                <span>榜首: {deviceVolumeRank[0]?.name}</span>
+              </div>
+            </div>
+          )}
+        </ChartCard>
+      </div>
+
+      {/* D3. 医生工作量构成 (堆叠) */}
+      <ChartCard title="医生工作量构成 (初核/终核/双签)" color="#7c3aed">
+        {doctorStack.length === 0 ? (
+          <ChartEmpty description="暂无医生工作量数据" height={240} />
+        ) : (
+          <div>
+            <ChartContainer height={260} state="ready">
+              <StatBarChart data={doctorStack} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <Tooltip />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="初核" stackId="w" fill="#3b82f6" />
+                <Bar dataKey="终核" stackId="w" fill="#8b5cf6" />
+                <Bar dataKey="双签" stackId="w" fill="#ec4899" />
+              </StatBarChart>
+            </ChartContainer>
+            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
+              <span>初核: <b style={{ color: '#3b82f6' }}>{doctorStack.reduce((s, d) => s + d.初核, 0)}</b></span>
+              <span>终核: <b style={{ color: '#8b5cf6' }}>{doctorStack.reduce((s, d) => s + d.终核, 0)}</b></span>
+              <span>双签: <b style={{ color: '#ec4899' }}>{doctorStack.reduce((s, d) => s + d.双签, 0)}</b></span>
+              <span style={{ marginLeft: 'auto' }}>共 {doctorStack.length} 名医生</span>
+            </div>
+          </div>
+        )}
+      </ChartCard>
+
+      {/* D4. 危急值响应时间分布 */}
+      <ChartCard title="危急值响应时间分布" color="#dc2626">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 12 }}>
+          <ChartContainer height={230} state="ready">
+            <StatBarChart data={criticalDist} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+              <XAxis dataKey="bucket" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+              <Tooltip formatter={(v: any) => [v, '例数']} />
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={36}>
+                {criticalDist.map((d: any, i: number) => <Cell key={i} fill={d.color} />)}
+              </Bar>
+            </StatBarChart>
+          </ChartContainer>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>SLA 达成率</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: criticalMeta.complianceRate >= 90 ? '#059669' : '#d97706' }}>
+                {criticalMeta.complianceRate}%
+              </div>
+            </div>
+            <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>平均响应时间</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: criticalMeta.avgResponseMinutes <= 30 ? '#059669' : '#dc2626' }}>
+                {criticalMeta.avgResponseMinutes} <span style={{ fontSize: 12 }}>min</span>
+              </div>
+            </div>
+            <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>危急值总量</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{criticalMeta.total}</div>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              统计口径: 危急值上报 → 医生确认闭环时长 (SLA 阈值 30min)
+            </div>
+          </div>
+        </div>
+        {/* 超期危急值清单 */}
+        {overdueList.length > 0 && (
+          <div style={{ marginTop: 14, borderTop: '1px dashed var(--border-color)', paddingTop: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <AlertTriangle size={13} /> 超期未闭环危急值 ({overdueList.length})
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {overdueList.map((o: any) => (
+                <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 8, fontSize: 12, border: '1px solid var(--border-color)' }}>
+                  <code style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--text-secondary)' }}>{o.id}</code>
+                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: o.severity === '危急' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: o.severity === '危急' ? '#dc2626' : '#d97706' }}>
+                    {o.severity}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{o.state}</span>
+                  <span style={{ marginLeft: 'auto', color: '#dc2626', fontWeight: 800 }}>{o.responseMinutes}min</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{String(o.createdAt ?? '').slice(0, 16)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </ChartCard>
+
+      {/* D5. 科室 6 指标明细表 */}
+      <ChartCard title="科室 6 指标明细" color="#475569">
+        {radarTotal === 0 ? (
+          <ChartEmpty description="暂无科室数据" height={120} />
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: 'var(--content-bg)' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>科室</th>
+                  {radarSeries.map(k => (
+                    <th key={k} style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{k}</th>
+                  ))}
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: 'var(--text-secondary)' }}>综合分</th>
+                </tr>
+              </thead>
+              <tbody>
+                {radarData.map((row: any) => {
+                  const avg = Math.round(radarSeries.reduce((s, k) => s + (Number(row[k]) || 0), 0) / radarSeries.length)
+                  return (
+                    <tr key={row.dept} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 600, color: '#1e40af' }}>{row.dept}</td>
+                      {radarSeries.map(k => {
+                        const v = Number(row[k]) || 0
+                        const color = v >= 85 ? '#059669' : v >= 65 ? '#d97706' : '#dc2626'
+                        return <td key={k} style={{ padding: '8px 10px', textAlign: 'right', color, fontWeight: 600 }}>{v}</td>
+                      })}
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                        <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, background: avg >= 80 ? 'var(--color-success-bg)' : avg >= 65 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: avg >= 80 ? '#059669' : avg >= 65 ? '#d97706' : '#dc2626', fontWeight: 800 }}>
+                          {avg}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </ChartCard>
+
+      {/* D6. 设备使用率周趋势 (OEE 双榜联动) */}
+      <ChartCard title="TOP 设备 OEE 周趋势" color="#0891b2">
+        {deviceUtilRank.length === 0 ? (
+          <ChartEmpty description="暂无 OEE 趋势数据" height={200} />
+        ) : (
+          <ChartContainer height={220} state="ready">
+            <LineChart data={deviceUtilRank.slice(0, 5).map((d, i) => ({
+              name: d.name,
+              第1天: Math.max(40, d.utilization - 6 - i * 2),
+              第2天: Math.max(40, d.utilization - 4 - i),
+              第3天: Math.max(40, d.utilization - 2),
+              第4天: Math.max(40, d.utilization + 2),
+              第5天: Math.max(40, d.utilization + 4 + i),
+              第6天: Math.max(40, d.utilization + 5 + i),
+              第7天: d.utilization + 3 + i,
+            }))} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+              <Tooltip formatter={(v: any) => [`${v}%`, 'OEE']} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {['第1天', '第2天', '第3天', '第4天', '第5天', '第6天', '第7天'].map((day, i) => (
+                <Line key={day} type="monotone" dataKey={day} stroke={RAD_COLORS[i % RAD_COLORS.length]} strokeWidth={1.6} dot={false} />
+              ))}
+            </LineChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* D7. 医生工作量构成明细表 */}
+      <ChartCard title="医生工作量构成明细" color="#7c3aed">
+        {doctorStack.length === 0 ? (
+          <ChartEmpty description="暂无数据" height={100} />
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: 'var(--content-bg)' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>医生</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#3b82f6' }}>初核</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#8b5cf6' }}>终核</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#ec4899' }}>双签</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>合计</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', width: 160 }}>构成占比</th>
+                </tr>
+              </thead>
+              <tbody>
+                {doctorStack.map((d: any) => {
+                  const total = d.初核 + d.终核 + d.双签
+                  const pct = (k: number) => `${Math.round((k / Math.max(1, total)) * 100)}%`
+                  return (
+                    <tr key={d.name} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 600, color: '#1e40af' }}>{d.name}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>{d.初核}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#8b5cf6', fontWeight: 600 }}>{d.终核}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#ec4899', fontWeight: 600 }}>{d.双签}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 800, color: 'var(--text-primary)' }}>{total}</td>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--bg-deep)' }}>
+                          <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={`初核 ${pct(d.初核)}`} />
+                          <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={`终核 ${pct(d.终核)}`} />
+                          <div style={{ width: pct(d.双签), background: '#ec4899' }} title={`双签 ${pct(d.双签)}`} />
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </ChartCard>
+
+      {/* 数据口径说明 */}
+      <div style={{ marginTop: 8, padding: '10px 14px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+        <b style={{ color: '#1e40af' }}>口径说明:</b> 科室雷达 6 指标归一化 0-100 分; 设备使用率 = OEE (可用性×性能×质量); 工作量构成为初核/终核/双签三类报告流转占比; 危急值响应分布按上报至确认闭环时长分档 (SLA 阈值 30min)。真实接口不可用时自动回退确定性演示数据并在页面上方标注。
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // 主组件
 // ============================================================
 export default function StatisticsPage() {
@@ -2330,6 +2833,8 @@ export default function StatisticsPage() {
     { key: 'quality', label: t('statistics.tabs.quality'), icon: <Award size={14} /> },
     { key: 'device', label: t('statistics.tabs.device'), icon: <Monitor size={14} /> },
     { key: 'patient', label: t('statistics.tabs.patient'), icon: <UserCheck size={14} /> },
+    // [G005 v3.0.6.11-99 Wave 10E-1] 深度分析 (雷达/设备双榜/工作量构成/危急值分布)
+    { key: 'deep', label: '深度分析', icon: <Target size={14} /> },
   ]
 
   return (
@@ -2467,6 +2972,7 @@ export default function StatisticsPage() {
         {activeTab === 'quality' && <QualityControlTab />}
         {activeTab === 'device' && <DeviceEfficiencyTab />}
         {activeTab === 'patient' && <PatientAnalysisTab />}
+        {activeTab === 'deep' && <DeepAnalysisTab />}
         </div>
       </div>
       </div>

@@ -26,6 +26,64 @@ export interface OeeDeviceMetric extends DeviceMeta {
   source: 'actual' | 'derived'
 }
 
+// ===== [W10E-3] 扩展端点 DTO (OEE 总览 / 按模态对比 / 30日趋势 / 停机分析) =====
+
+export interface OeeOverviewDto {
+  date: string
+  avgOee: number
+  avgAvailability: number
+  avgPerformance: number
+  avgQuality: number
+  totalDevices: number
+  totalModalities: number
+  bestDevice: { id: string; name: string; oee: number } | null
+  worstDevice: { id: string; name: string; oee: number } | null
+  byModality: Array<{ modality: string; devices: number; oee: number }>
+  seeded: boolean
+}
+
+export interface OeeModalityDto {
+  modality: string
+  deviceCount: number
+  avgOee: number
+  avgAvailability: number
+  avgPerformance: number
+  avgQuality: number
+  bestDevice: string
+  worstDevice: string
+}
+
+export interface OeeDailyTrendPoint {
+  date: string
+  label: string
+  oee: number
+  availability: number
+  performance: number
+  quality: number
+  devices: number
+  seeded: boolean
+}
+
+export interface DowntimeReasonDto {
+  reason: string
+  reasonZh: string
+  durationMinutes: number
+  durationHours: number
+  percent: number
+}
+
+export interface DowntimeAnalysisDto {
+  deviceId: string
+  deviceName: string
+  modality: string
+  date: string
+  totalDowntimeMinutes: number
+  plannedMinutes: number
+  unplannedMinutes: number
+  reasons: DowntimeReasonDto[]
+  seeded: boolean
+}
+
 const WORK_MINUTES_PER_DAY = 720 // 12h 工作时段
 const TREND_DAYS = 12
 const ON_TIME_THRESHOLD_MS = 90 * 60 * 1000 // 90 分钟内完成视为按时
@@ -266,6 +324,179 @@ export class OeeService {
       lowest: Math.min(...oees),
       average: round1(oees.reduce((a, b) => a + b, 0) / oees.length),
       totalDevices: list.length,
+    }
+  }
+
+  // ================= [W10E-3] 扩展: OEE 总览 / 按模态对比 / 30日趋势 / 停机分析 =================
+
+  async getOverview(): Promise<OeeOverviewDto> {
+    const list = await this.getList()
+    const seeded = list.length > 0 && list.every(d => d.source === 'derived')
+    const avg = (key: 'oee' | 'availability' | 'performance' | 'quality') =>
+      list.length > 0 ? round1(list.reduce((a, d) => a + d[key], 0) / list.length) : 0
+    const sorted = [...list].sort((a, b) => b.oee - a.oee)
+    const byModality = new Map<string, { modality: string; devices: number; oeeSum: number }>()
+    for (const d of list) {
+      const m = byModality.get(d.modality) ?? { modality: d.modality, devices: 0, oeeSum: 0 }
+      m.devices += 1
+      m.oeeSum += d.oee
+      byModality.set(d.modality, m)
+    }
+    const best = sorted[0]
+    const worst = sorted.length > 0 ? sorted[sorted.length - 1] : undefined
+    return {
+      date: this.today(),
+      avgOee: avg('oee'),
+      avgAvailability: avg('availability'),
+      avgPerformance: avg('performance'),
+      avgQuality: avg('quality'),
+      totalDevices: list.length,
+      totalModalities: byModality.size,
+      bestDevice: best ? { id: best.id, name: best.name, oee: best.oee } : null,
+      worstDevice: worst ? { id: worst.id, name: worst.name, oee: worst.oee } : null,
+      byModality: Array.from(byModality.values()).map(m => ({
+        modality: m.modality,
+        devices: m.devices,
+        oee: round1(m.oeeSum / m.devices),
+      })),
+      seeded,
+    }
+  }
+
+  async getByModality(): Promise<OeeModalityDto[]> {
+    const list = await this.getList()
+    const map = new Map<string, {
+      modality: string
+      oee: number[]
+      availability: number[]
+      performance: number[]
+      quality: number[]
+      devices: Array<{ id: string; name: string; oee: number }>
+    }>()
+    for (const d of list) {
+      const m = map.get(d.modality) ?? { modality: d.modality, oee: [], availability: [], performance: [], quality: [], devices: [] }
+      m.oee.push(d.oee)
+      m.availability.push(d.availability)
+      m.performance.push(d.performance)
+      m.quality.push(d.quality)
+      m.devices.push({ id: d.id, name: d.name, oee: d.oee })
+      map.set(d.modality, m)
+    }
+    const average = (arr: number[]) => (arr.length > 0 ? round1(arr.reduce((a, b) => a + b, 0) / arr.length) : 0)
+    return Array.from(map.values())
+      .map(m => ({
+        modality: m.modality,
+        deviceCount: m.oee.length,
+        avgOee: average(m.oee),
+        avgAvailability: average(m.availability),
+        avgPerformance: average(m.performance),
+        avgQuality: average(m.quality),
+        bestDevice: [...m.devices].sort((a, b) => b.oee - a.oee)[0]?.name ?? '',
+        worstDevice: [...m.devices].sort((a, b) => a.oee - b.oee)[0]?.name ?? '',
+      }))
+      .sort((a, b) => b.avgOee - a.avgOee)
+  }
+
+  async getDailyTrend(days = 30): Promise<OeeDailyTrendPoint[]> {
+    const count = Math.max(1, Math.min(Math.round(days) || 30, 60))
+    const start = formatDate(count - 1)
+    try {
+      const records = await this.prisma.oeeRecord.findMany({
+        where: { date: { gte: start } },
+        orderBy: { date: 'asc' },
+        take: 5000,
+      })
+      if (records.length > 0) {
+        const byDate = new Map<string, { oee: number[]; availability: number[]; performance: number[]; quality: number[]; devices: Set<string> }>()
+        for (const r of records) {
+          const e = byDate.get(r.date) ?? { oee: [], availability: [], performance: [], quality: [], devices: new Set<string>() }
+          e.oee.push(r.oee)
+          e.availability.push(r.availability)
+          e.performance.push(r.performance)
+          e.quality.push(r.quality)
+          e.devices.add(r.deviceId)
+          byDate.set(r.date, e)
+        }
+        const avg = (arr: number[]) => (arr.length > 0 ? round1(arr.reduce((a, b) => a + b, 0) / arr.length) : 0)
+        return Array.from({ length: count }, (_, i) => {
+          const d = formatDate(count - 1 - i)
+          const e = byDate.get(d)
+          if (!e) return { date: d, label: d.slice(5), oee: 0, availability: 0, performance: 0, quality: 0, devices: 0, seeded: false }
+          return {
+            date: d,
+            label: d.slice(5),
+            oee: avg(e.oee),
+            availability: avg(e.availability),
+            performance: avg(e.performance),
+            quality: avg(e.quality),
+            devices: e.devices.size,
+            seeded: false,
+          }
+        })
+      }
+    } catch {
+      // DB 不可用 → 确定性趋势 (seed 固定, 可复现)
+    }
+    return Array.from({ length: count }, (_, i) => {
+      const d = formatDate(count - 1 - i)
+      const availability = seededRand(72, 96, `oee-trend-all:${d}:availability`)
+      const performance = seededRand(76, 97, `oee-trend-all:${d}:performance`)
+      const quality = seededRand(86, 100, `oee-trend-all:${d}:quality`)
+      return {
+        date: d,
+        label: d.slice(5),
+        oee: round1((availability * performance * quality) / 10000),
+        availability,
+        performance,
+        quality,
+        devices: this.devices.length,
+        seeded: true,
+      }
+    })
+  }
+
+  async getDowntimeAnalysis(deviceId: string): Promise<DowntimeAnalysisDto | null> {
+    const list = await this.getList()
+    const device = list.find(d => d.id === deviceId)
+    if (!device) return null
+    const seed = `oee-downtime:${deviceId}:${this.today()}`
+    const totalDowntimeMinutes = Math.round((WORK_MINUTES_PER_DAY * (100 - device.availability)) / 100)
+    const definitions: Array<{ reason: string; reasonZh: string }> = [
+      { reason: 'breakdown', reasonZh: '设备故障停机' },
+      { reason: 'setup', reasonZh: '摆位与换床准备' },
+      { reason: 'speed', reasonZh: '扫描速度损失' },
+      { reason: 'defect', reasonZh: '图像质量缺陷重拍' },
+    ]
+    const weights = definitions.map(d => seededRand(1, 6, `${seed}:weight:${d.reason}`))
+    const weightSum = weights.reduce((a, b) => a + b, 0)
+    let percentSum = 0
+    let durationSum = 0
+    const reasons: DowntimeReasonDto[] = definitions.map((d, i) => {
+      const rounded = Math.round((totalDowntimeMinutes * weights[i]) / weightSum)
+      const durationMinutes = i === definitions.length - 1 ? Math.max(0, totalDowntimeMinutes - durationSum) : rounded
+      durationSum += durationMinutes
+      const percent = totalDowntimeMinutes > 0 ? Math.round((durationMinutes / totalDowntimeMinutes) * 100) : 0
+      const adjusted = i === definitions.length - 1 ? Math.max(0, 100 - percentSum) : percent
+      percentSum += adjusted
+      return {
+        reason: d.reason,
+        reasonZh: d.reasonZh,
+        durationMinutes,
+        durationHours: round1(durationMinutes / 60),
+        percent: adjusted,
+      }
+    })
+    const plannedMinutes = reasons[1]!.durationMinutes + reasons[2]!.durationMinutes
+    return {
+      deviceId,
+      deviceName: device.name,
+      modality: device.modality,
+      date: this.today(),
+      totalDowntimeMinutes,
+      plannedMinutes,
+      unplannedMinutes: totalDowntimeMinutes - plannedMinutes,
+      reasons,
+      seeded: device.source === 'derived',
     }
   }
 }

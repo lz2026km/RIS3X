@@ -87,6 +87,90 @@ export interface Hl7MessageArchive {
   createdAt: Date
 }
 
+// ===== [W10E-3] 扩展端点 DTO (HL7 总览 / 错误分析 / 吞吐趋势 / 消息类型) =====
+
+export interface Hl7OverviewDto {
+  totalMessages: number
+  todayMessages: number
+  inboundCount: number
+  outboundCount: number
+  successCount: number
+  failedCount: number
+  successRate: number
+  ackStatusBreakdown: Array<{ ackStatus: string; count: number }>
+  byType: Array<{ messageType: string; count: number; percent: number }>
+  seeded: boolean
+}
+
+export interface Hl7ErrorAnalysisDto {
+  totalErrors: number
+  byErrorType: Array<{ errorType: string; count: number; percent: number }>
+  byChannel: Array<{ channel: string; count: number }>
+  byHour: Array<{ hour: string; count: number }>
+  recentErrors: Array<{ id: string; messageType: string; ackStatus: string; createdAt: string }>
+  seeded: boolean
+}
+
+export interface Hl7ThroughputPoint {
+  date: string
+  label: string
+  total: number
+  success: number
+  failed: number
+  successRate: number
+  seeded: boolean
+}
+
+export interface Hl7MessageTypeDto {
+  messageType: string
+  count: number
+  percent: number
+  avgBytes: number
+  direction: string
+}
+
+function hl7Hash(input: string): number {
+  let h = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/** 确定性伪随机: 同一 seedInput 永远得到同一结果 (统计回退可复现) */
+function hl7SeededRand(min: number, max: number, seedInput: string): number {
+  let a = hl7Hash(seedInput) >>> 0
+  a = (a + 0x6d2b79f5) | 0
+  let t = Math.imul(a ^ (a >>> 15), 1 | a)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  const r = ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  return Math.round((r * (max - min) + min) * 10) / 10
+}
+
+function hl7LocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** 最大余数法分配百分比: 保证各项之和恒为 100 */
+function allocatePercent(counts: number[]): number[] {
+  const total = counts.reduce((a, b) => a + b, 0)
+  if (total <= 0) return counts.map(() => 0)
+  const raw = counts.map((c) => (c * 100) / total)
+  const result = raw.map((r) => Math.floor(r))
+  let remainder = 100 - result.reduce((a, b) => a + b, 0)
+  const order = raw
+    .map((r, i) => ({ i, frac: r - Math.floor(r) }))
+    .sort((a, b) => b.frac - a.frac)
+  let k = 0
+  while (remainder > 0 && k < order.length) {
+    result[order[k]!.i] += 1
+    remainder -= 1
+    k += 1
+  }
+  return result
+}
+
 @Injectable()
 export class Hl7Service implements OnModuleInit {
   private readonly logger = new Logger(Hl7Service.name)
@@ -801,6 +885,282 @@ export class Hl7Service implements OnModuleInit {
       this.mllpStartedAt = null
       this.logger.log('MLLP listener stopped')
     }
+  }
+
+  // ================= [W10E-3] 扩展: HL7 总览 / 错误分析 / 吞吐趋势 / 消息类型 =================
+
+  async getOverview(): Promise<Hl7OverviewDto> {
+    try {
+      const rows = await this.prisma.hl7MessageArchive.findMany({
+        where: { createdAt: { gte: new Date(Date.now() - 90 * 86400000) } },
+        select: { id: true, messageType: true, direction: true, ackStatus: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 100000,
+      })
+      if (rows.length > 0) return this.overviewFromRows(rows, false)
+    } catch (err) {
+      this.logger.warn(`[HL7] getOverview DB failed, fallback to seed: ${(err as Error).message}`)
+    }
+    return this.seedOverview()
+  }
+
+  private overviewFromRows(rows: Array<{ id: string; messageType: string; direction: string; ackStatus: string | null; createdAt: Date }>, seeded: boolean): Hl7OverviewDto {
+    const todayKey = hl7LocalDateStr(new Date())
+    let todayMessages = 0
+    let inbound = 0
+    let outbound = 0
+    let success = 0
+    let failed = 0
+    const ackMap = new Map<string, number>()
+    const typeMap = new Map<string, number>()
+    for (const r of rows) {
+      if (hl7LocalDateStr(new Date(r.createdAt)) === todayKey) todayMessages += 1
+      if (r.direction === 'INBOUND') inbound += 1
+      else outbound += 1
+      const ack = r.ackStatus ?? 'PENDING'
+      if (ack === 'AA') success += 1
+      else if (ack === 'AE' || ack === 'AR' || ack === 'FAILED') failed += 1
+      ackMap.set(ack, (ackMap.get(ack) ?? 0) + 1)
+      typeMap.set(r.messageType, (typeMap.get(r.messageType) ?? 0) + 1)
+    }
+    const total = rows.length
+    return {
+      totalMessages: total,
+      todayMessages,
+      inboundCount: inbound,
+      outboundCount: outbound,
+      successCount: success,
+      failedCount: failed,
+      successRate: total > 0 ? Math.round((success / total) * 100) : 0,
+      ackStatusBreakdown: Array.from(ackMap.entries())
+        .map(([ackStatus, count]) => ({ ackStatus, count }))
+        .sort((a, b) => b.count - a.count),
+      byType: Array.from(typeMap.entries())
+        .map(([messageType, count]) => ({ messageType, count, percent: Math.round((count / total) * 100) }))
+        .sort((a, b) => b.count - a.count),
+      seeded,
+    }
+  }
+
+  private seedOverview(): Hl7OverviewDto {
+    const seed = `hl7-overview:${hl7LocalDateStr(new Date())}`
+    const defs = ['ORU^R01', 'ORM^O01', 'ADT^A01', 'ADT^A04', 'SIU^S12', 'DFT^P03', 'ACK']
+    const total = Math.round(hl7SeededRand(2600, 3400, `${seed}:total`))
+    const failed = Math.round(total * hl7SeededRand(0.02, 0.06, `${seed}:failed`))
+    const counts = defs.map((messageType) => Math.round(total * hl7SeededRand(0.06, 0.26, `${seed}:type:${messageType}`)))
+    const percents = allocatePercent(counts)
+    const byType = counts
+      .map((count, i) => ({ messageType: defs[i]!, count, percent: percents[i]! }))
+      .sort((a, b) => b.count - a.count)
+    return {
+      totalMessages: total,
+      todayMessages: Math.round(total / 30),
+      inboundCount: Math.round(total * 0.55),
+      outboundCount: total - Math.round(total * 0.55),
+      successCount: total - failed,
+      failedCount: failed,
+      successRate: Math.round(((total - failed) / total) * 100),
+      ackStatusBreakdown: [
+        { ackStatus: 'AA', count: total - failed },
+        { ackStatus: 'AE', count: Math.round(failed * 0.6) },
+        { ackStatus: 'AR', count: Math.round(failed * 0.25) },
+        { ackStatus: 'FAILED', count: failed - Math.round(failed * 0.85) },
+      ].filter((x) => x.count > 0),
+      byType,
+      seeded: true,
+    }
+  }
+
+  async getErrorAnalysis(): Promise<Hl7ErrorAnalysisDto> {
+    try {
+      const rows = await this.prisma.hl7MessageArchive.findMany({
+        where: { ackStatus: { in: ['AE', 'AR', 'FAILED'] } },
+        select: { id: true, messageType: true, ackStatus: true, direction: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 50000,
+      })
+      if (rows.length > 0) {
+        const byErrorType = new Map<string, number>()
+        const byChannel = new Map<string, number>()
+        const byHour = new Map<string, number>()
+        for (const r of rows) {
+          const ack = r.ackStatus ?? 'UNKNOWN'
+          byErrorType.set(ack, (byErrorType.get(ack) ?? 0) + 1)
+          byChannel.set(r.direction, (byChannel.get(r.direction) ?? 0) + 1)
+          const hour = String(new Date(r.createdAt).getHours()).padStart(2, '0')
+          byHour.set(hour, (byHour.get(hour) ?? 0) + 1)
+        }
+        const total = rows.length
+        return {
+          totalErrors: total,
+          byErrorType: Array.from(byErrorType.entries())
+            .map(([errorType, count]) => ({ errorType, count, percent: Math.round((count / total) * 100) }))
+            .sort((a, b) => b.count - a.count),
+          byChannel: Array.from(byChannel.entries())
+            .map(([channel, count]) => ({ channel, count }))
+            .sort((a, b) => b.count - a.count),
+          byHour: Array.from(byHour.entries())
+            .map(([hour, count]) => ({ hour: `${hour}:00`, count }))
+            .sort((a, b) => a.hour.localeCompare(b.hour)),
+          recentErrors: rows.slice(0, 10).map((r) => ({
+            id: r.id,
+            messageType: r.messageType,
+            ackStatus: r.ackStatus ?? '',
+            createdAt: new Date(r.createdAt).toISOString(),
+          })),
+          seeded: false,
+        }
+      }
+    } catch (err) {
+      this.logger.warn(`[HL7] getErrorAnalysis DB failed, fallback to seed: ${(err as Error).message}`)
+    }
+    return this.seedErrorAnalysis()
+  }
+
+  private seedErrorAnalysis(): Hl7ErrorAnalysisDto {
+    const seed = `hl7-errors:${hl7LocalDateStr(new Date())}`
+    const errCounts = [
+      Math.round(hl7SeededRand(30, 70, `${seed}:AE`)),
+      Math.round(hl7SeededRand(8, 25, `${seed}:AR`)),
+      Math.round(hl7SeededRand(5, 18, `${seed}:FAILED`)),
+    ]
+    const errPercents = allocatePercent(errCounts)
+    const byErrorType = errCounts.map((count, i) => ({
+      errorType: i === 0 ? 'AE' : i === 1 ? 'AR' : 'FAILED',
+      count,
+      percent: errPercents[i]!,
+    }))
+    const total = errCounts.reduce((a, b) => a + b, 0)
+    const base = new Date()
+    base.setHours(0, 0, 0, 0)
+    return {
+      totalErrors: total,
+      byErrorType,
+      byChannel: [
+        { channel: 'INBOUND', count: Math.round(total * hl7SeededRand(0.45, 0.6, `${seed}:inbound`)) },
+        { channel: 'OUTBOUND', count: Math.round(total * hl7SeededRand(0.4, 0.55, `${seed}:outbound`)) },
+      ],
+      byHour: Array.from({ length: 24 }, (_, h) => ({
+        hour: `${String(h).padStart(2, '0')}:00`,
+        count: Math.round(hl7SeededRand(1, 9, `${seed}:hour:${h}`)),
+      })),
+      recentErrors: Array.from({ length: 5 }, (_, i) => ({
+        id: `hl7-err-${i + 1}`,
+        messageType: i % 2 === 0 ? 'ORU^R01' : 'ADT^A01',
+        ackStatus: i % 2 === 0 ? 'AE' : 'AR',
+        createdAt: new Date(base.getTime() - (i + 1) * 3600000).toISOString(),
+      })),
+      seeded: true,
+    }
+  }
+
+  async getThroughput(days = 30): Promise<Hl7ThroughputPoint[]> {
+    const count = Math.max(1, Math.min(Math.round(days) || 30, 60))
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    start.setDate(start.getDate() - (count - 1))
+    try {
+      const rows = await this.prisma.hl7MessageArchive.findMany({
+        where: { createdAt: { gte: start } },
+        select: { messageType: true, ackStatus: true, direction: true, createdAt: true },
+        orderBy: { createdAt: 'asc' },
+        take: 200000,
+      })
+      if (rows.length > 0) {
+        const byDate = new Map<string, { total: number; success: number; failed: number }>()
+        for (const r of rows) {
+          const key = hl7LocalDateStr(new Date(r.createdAt))
+          const e = byDate.get(key) ?? { total: 0, success: 0, failed: 0 }
+          e.total += 1
+          const ack = r.ackStatus ?? 'PENDING'
+          if (ack === 'AA') e.success += 1
+          else if (ack === 'AE' || ack === 'AR' || ack === 'FAILED') e.failed += 1
+          byDate.set(key, e)
+        }
+        return Array.from({ length: count }, (_, i) => {
+          const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+          const key = hl7LocalDateStr(d)
+          const e = byDate.get(key) ?? { total: 0, success: 0, failed: 0 }
+          return {
+            date: key,
+            label: key.slice(5),
+            total: e.total,
+            success: e.success,
+            failed: e.failed,
+            successRate: e.total > 0 ? Math.round((e.success / e.total) * 100) : 0,
+            seeded: false,
+          }
+        })
+      }
+    } catch (err) {
+      this.logger.warn(`[HL7] getThroughput DB failed, fallback to seed: ${(err as Error).message}`)
+    }
+    return Array.from({ length: count }, (_, i) => {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+      const key = hl7LocalDateStr(d)
+      const total = Math.round(hl7SeededRand(120, 260, `hl7-throughput:${key}:total`))
+      const failed = Math.round(total * hl7SeededRand(0.01, 0.08, `hl7-throughput:${key}:failed`))
+      return {
+        date: key,
+        label: key.slice(5),
+        total,
+        success: total - failed,
+        failed,
+        successRate: Math.round(((total - failed) / total) * 100),
+        seeded: true,
+      }
+    })
+  }
+
+  async getMessageTypes(): Promise<Hl7MessageTypeDto[]> {
+    try {
+      const rows = await this.prisma.hl7MessageArchive.findMany({
+        where: { createdAt: { gte: new Date(Date.now() - 90 * 86400000) } },
+        select: { id: true, messageType: true, direction: true, rawMessage: true, ackStatus: true },
+        orderBy: { createdAt: 'desc' },
+        take: 100000,
+      })
+      if (rows.length > 0) {
+        const byType = new Map<string, { count: number; bytes: number; inbound: number; outbound: number }>()
+        for (const r of rows) {
+          const e = byType.get(r.messageType) ?? { count: 0, bytes: 0, inbound: 0, outbound: 0 }
+          e.count += 1
+          e.bytes += Buffer.byteLength(r.rawMessage ?? '', 'utf8')
+          if (r.direction === 'INBOUND') e.inbound += 1
+          else e.outbound += 1
+          byType.set(r.messageType, e)
+        }
+        const total = rows.length
+        return Array.from(byType.entries())
+          .map(([messageType, e]) => ({
+            messageType,
+            count: e.count,
+            percent: Math.round((e.count / total) * 100),
+            avgBytes: Math.round(e.bytes / Math.max(1, e.count)),
+            direction: e.inbound >= e.outbound ? 'INBOUND' : 'OUTBOUND',
+          }))
+          .sort((a, b) => b.count - a.count)
+      }
+    } catch (err) {
+      this.logger.warn(`[HL7] getMessageTypes DB failed, fallback to seed: ${(err as Error).message}`)
+    }
+    return this.seedMessageTypes()
+  }
+
+  private seedMessageTypes(): Hl7MessageTypeDto[] {
+    const seed = `hl7-types:${hl7LocalDateStr(new Date())}`
+    const defs = ['ORU^R01', 'ORM^O01', 'ADT^A01', 'ADT^A04', 'SIU^S12', 'DFT^P03', 'ACK']
+    const counts = defs.map((messageType) => Math.round(hl7SeededRand(180, 900, `${seed}:count:${messageType}`)))
+    const percents = allocatePercent(counts)
+    return counts
+      .map((count, i) => ({
+        messageType: defs[i]!,
+        count,
+        percent: percents[i]!,
+        avgBytes: Math.round(hl7SeededRand(300, 2800, `${seed}:bytes:${defs[i]!}`)),
+        direction: i === defs.length - 1 ? 'OUTBOUND' : 'INBOUND',
+      }))
+      .sort((a, b) => b.count - a.count)
   }
 
   /**

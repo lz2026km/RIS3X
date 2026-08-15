@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { OeeService } from './oee.service'
@@ -21,4 +21,21 @@ export class OeeController {
 
   @Get('stats')
   stats() { return this.service.getStats() }
+
+  // ================= [W10E-3] 扩展端点 (OEE 总览 / 模态对比 / 30日趋势 / 停机分析) =================
+
+  @Get('overview')
+  overview() { return this.service.getOverview() }
+
+  @Get('by-modality')
+  byModality() { return this.service.getByModality() }
+
+  @Get('daily-trend')
+  dailyTrend(@Query('days') days?: string) {
+    const parsed = Number(days)
+    return this.service.getDailyTrend(Number.isFinite(parsed) && parsed > 0 ? parsed : 30)
+  }
+
+  @Get(':id/downtime-analysis')
+  downtimeAnalysis(@Param('id') id: string) { return this.service.getDowntimeAnalysis(id) }
 }

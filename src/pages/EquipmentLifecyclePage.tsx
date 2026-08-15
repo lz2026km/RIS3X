@@ -1,13 +1,16 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Monitor, Package, Wrench, AlertTriangle, Search, Plus,
   X, Trash2, Download, Edit, CheckCircle, Clock, XCircle, Save,
-  ClipboardList, Edit3, Eye
+  ClipboardList, Edit3, Eye, DollarSign,
 } from 'lucide-react'
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
+import { oeeApi } from '../services/api/oeeApi'
 import { Card, message } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { ChartContainer } from '../components/charts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -412,6 +415,204 @@ export default function EquipmentLifecyclePage() {
 
   const totalValue = lifecycleRows.filter(d => d.status !== '已报废').reduce((sum, d) => sum + (d.totalCost ?? 0), 0)
 
+  // ============================================================
+  // [G005 v3.0.6.11-99 Wave 10E-1] 深度分析区块
+  //   E1. 设备状态时间线 (购置→在用→维护→报废)
+  //   E2. 费用分析卡 (购置/维护/折旧)
+  //   E3. 维保到期预警面板 (7天/30天/已过期)
+  //   E4. 设备使用率趋势 (oeeApi → 失败回退派生)
+  // ============================================================
+  const [oeeList, setOeeList] = useState<any[]>([])
+  const [oeeTrendMap, setOeeTrendMap] = useState<Record<string, any[]>>({})
+  const [oeeReal, setOeeReal] = useState(false)
+  const [oeeLoading, setOeeLoading] = useState(false)
+
+  // E4. 加载 OEE 数据: oeeApi.list + getTrend 并行, 失败回退
+  const loadOee = useCallback(async () => {
+    setOeeLoading(true)
+    try {
+      const listRes = await oeeApi.list()
+      if (listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
+        const devices = listRes.data as any[]
+        setOeeList(devices)
+        setOeeReal(true)
+        const map: Record<string, any[]> = {}
+        await Promise.all(devices.slice(0, 6).map(async (d) => {
+          try {
+            const tRes = await oeeApi.getTrend(d.id)
+            if (tRes.success && Array.isArray(tRes.data)) map[d.id] = tRes.data
+          } catch { /* 单设备趋势失败忽略 */ }
+        }))
+        setOeeTrendMap(map)
+        return
+      }
+      setOeeReal(false)
+      // 回退: 从 lifecycleRows 派生
+      setOeeList(lifecycleRows.slice(0, 6).map((d: any, i: number) => ({
+        id: d.id,
+        name: d.name,
+        modality: d.model?.startsWith('MR') ? 'MR' : d.model?.startsWith('CT') ? 'CT' : 'DR',
+        oee: 58 + ((i * 11) % 36),
+        availability: 82 + ((i * 5) % 16),
+        performance: 72 + ((i * 7) % 22),
+        quality: 90 + ((i * 3) % 9),
+        trend: 'stable',
+        source: 'derived' as const,
+      })))
+    } catch {
+      setOeeReal(false)
+      setOeeList(lifecycleRows.slice(0, 6).map((d: any, i: number) => ({
+        id: d.id, name: d.name, modality: 'CT',
+        oee: 58 + ((i * 11) % 36), availability: 82 + ((i * 5) % 16),
+        performance: 72 + ((i * 7) % 22), quality: 90 + ((i * 3) % 9),
+        trend: 'stable', source: 'derived' as const,
+      })))
+    } finally {
+      setOeeLoading(false)
+    }
+  }, [lifecycleRows])
+
+  // E1. 状态时间线数据: 每个设备 4 个阶段节点 (购置/在用/维护/报废)
+  const lifecycleTimeline = useMemo(() => {
+    return lifecycleRows.map((d: any) => {
+      const purchaseDate = d.purchaseDate || '2021-01-01'
+      const isRetired = d.status === '已报废'
+      const isMaint = d.status === '维保中'
+      const monthsInUse = d.lifeMonth || Math.floor((Date.now() - new Date(purchaseDate).getTime()) / 2592000000) || 30
+      const maintAt = new Date(new Date(purchaseDate).getTime() + monthsInUse * 2592000000 * 0.7).toISOString().slice(0, 10)
+      const retireAt = isRetired ? new Date(new Date(purchaseDate).getTime() + (monthsInUse + 24) * 2592000000).toISOString().slice(0, 10) : null
+      const nextMaint = d.nextMaint && d.nextMaint !== '-' ? d.nextMaint : maintAt
+      return {
+        id: d.id,
+        name: d.name,
+        purchaseDate,
+        status: d.status,
+        isRetired,
+        isMaint,
+        nextMaint,
+        retireAt,
+        maintCount: isMaint ? 3 : (d.maintCost ? Math.max(1, Math.round(Number(d.maintCost) / 30000)) : 2),
+        useCount: d.useCount || 0,
+        daysLeft: nextMaint ? Math.round((new Date(nextMaint).getTime() - Date.now()) / 86400000) : 999,
+      }
+    })
+  }, [lifecycleRows])
+
+  // E2. 费用分析: 按模态聚合 购置/维护/折旧
+  const costAnalysis = useMemo(() => {
+    const rows = isApiData ? apiLifecycleData : localDevices
+    const byModality: Record<string, { name: string; purchase: number; maint: number; depreciation: number }> = {}
+    rows.forEach((d: any) => {
+      const mod = String(d.modality ?? d.model ?? '其他').slice(0, 2).toUpperCase()
+      const slot = byModality[mod] ?? { name: mod, purchase: 0, maint: 0, depreciation: 0 }
+      const totalCost = Number(d.totalCost ?? 0)
+      const maintCost = Number(d.maintCost ?? 0)
+      const months = Math.max(1, Number(d.lifeMonth ?? 36))
+      const annualDep = Math.round(totalCost * 0.08)
+      slot.purchase += totalCost
+      slot.maint += maintCost
+      slot.depreciation += annualDep
+      byModality[mod] = slot
+    })
+    const list = Object.values(byModality).sort((a, b) => b.purchase - a.purchase)
+    const totals = list.reduce((acc, x) => ({
+      purchase: acc.purchase + x.purchase,
+      maint: acc.maint + x.maint,
+      depreciation: acc.depreciation + x.depreciation,
+    }), { purchase: 0, maint: 0, depreciation: 0 })
+    return { list, totals }
+  }, [isApiData, apiLifecycleData, localDevices])
+
+  // E3. 维保到期预警分级
+  const maintWarnings = useMemo(() => {
+    const now = Date.now()
+    const day = 86400000
+    const groups = { overdue: [] as any[], soon7: [] as any[], soon30: [] as any[] }
+    lifecycleRows.forEach((d: any) => {
+      if (d.status === '已报废') return
+      const nm = d.nextMaint && d.nextMaint !== '-' ? d.nextMaint : ''
+      if (!nm) return
+      const diff = Math.round((new Date(nm).getTime() - now) / day)
+      const item = { ...d, daysLeft: diff }
+      if (diff < 0) groups.overdue.push(item)
+      else if (diff <= 7) groups.soon7.push(item)
+      else if (diff <= 30) groups.soon30.push(item)
+    })
+    return { ...groups, total: groups.overdue.length + groups.soon7.length + groups.soon30.length }
+  }, [lifecycleRows])
+
+  // OEE 趋势图数据 (选择设备)
+  const [oeeSelectedDevice, setOeeSelectedDevice] = useState<string>('')
+  const oeeChartData = useMemo(() => {
+    const dev = oeeList.find((d: any) => d.id === oeeSelectedDevice) ?? oeeList[0]
+    if (!dev) return []
+    const trend = oeeTrendMap[dev.id]
+    if (Array.isArray(trend) && trend.length > 0) {
+      return trend.map((p: any) => ({
+        day: String(p.date ?? '').slice(5, 10) || '—',
+        OEE: Number(p.oee ?? 0),
+        可用性: Number(p.availability ?? 0),
+        性能: Number(p.performance ?? 0),
+        质量: Number(p.quality ?? 0),
+      }))
+    }
+    // 回退派生 14 天趋势
+    return Array.from({ length: 14 }, (_, i) => {
+      const wave = Math.sin((i + 1) / 3) * 4
+      return {
+        day: `${Math.floor(i / 2) + 1}日`,
+        OEE: Math.round(dev.oee + wave),
+        可用性: Math.round(dev.availability + wave * 0.5),
+        性能: Math.round(dev.performance - wave * 0.6),
+        质量: Math.round(dev.quality + 2),
+      }
+    })
+  }, [oeeList, oeeTrendMap, oeeSelectedDevice])
+
+  // 使用率排行 (OEE 榜)
+  const oeeRank = useMemo(() => [...oeeList].sort((a: any, b: any) => b.oee - a.oee), [oeeList])
+
+  // E5. 设备年龄分布 (按购置年份分组)
+  const ageDistribution = useMemo(() => {
+    const map: Record<string, number> = {}
+    lifecycleRows.forEach((d: any) => {
+      const year = String(d.purchaseDate ?? '').slice(0, 4) || '未知'
+      map[year] = (map[year] || 0) + 1
+    })
+    return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([year, count]) => ({ year, count, pct: Math.round((count / Math.max(1, lifecycleRows.length)) * 100) }))
+  }, [lifecycleRows])
+
+  // E6. 维保费用月度趋势 (从 recordRows 派生)
+  const maintCostTrend = useMemo(() => {
+    const map: Record<string, number> = {}
+    recordRows.forEach((r: any) => {
+      const month = String(r.date ?? '').slice(0, 7)
+      if (month) map[month] = (map[month] || 0) + Number(r.cost ?? 0)
+    })
+    const months = Object.keys(map).sort()
+    if (months.length === 0) {
+      return ['2026-01', '2026-02', '2026-03', '2026-04'].map(m => ({ month: m, cost: 0 }))
+    }
+    return months.map(m => ({ month: m, cost: map[m] }))
+  }, [recordRows])
+
+  // E7. 状态构成
+  const statusBreakdown = useMemo(() => {
+    const map: Record<string, number> = {}
+    lifecycleRows.forEach((d: any) => { map[d.status] = (map[d.status] || 0) + 1 })
+    return Object.entries(map).map(([status, count]) => ({
+      status,
+      count,
+      color: status === '在用' ? '#16a34a' : status === '维保中' ? '#d97706' : status === '空闲' ? '#2563eb' : '#94a3b8',
+    }))
+  }, [lifecycleRows])
+
+  useEffect(() => {
+    void loadOee()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div style={s.root}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -431,7 +632,7 @@ export default function EquipmentLifecyclePage() {
 
       {/* 标签页 */}
       <div style={s.tabs}>
-        {['设备列表', '维保计划', '维保记录'].map(t => (
+        {['设备列表', '维保计划', '维保记录', '深度分析'].map(t => (
           <div
             key={t}
             style={{ ...s.tab, ...(activeTab === t ? s.tabActive : {}) }}
@@ -702,6 +903,287 @@ export default function EquipmentLifecyclePage() {
             </div>
           </Card>
         </div>
+      )}
+
+      {activeTab === '深度分析' && (
+        <>
+          {/* 数据源徽标 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12, padding: '8px 14px', borderRadius: 8, background: oeeReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: oeeReal ? '#15803d' : '#92400e', border: `1px solid ${oeeReal ? '#bbf7d0' : '#fde68a'}` }} data-testid="equipment-deep-source">
+            {oeeLoading ? 'OEE 数据加载中...' : oeeReal
+              ? '数据源: oeeApi (/oee/list + /oee/trend) + deviceMgmtApi 真实接口'
+              : '数据源: 演示回退 (oeeApi 不可用, 基于生命周期数据派生)'}
+            <span style={{ marginLeft: 'auto', opacity: 0.75 }}>更新于 {new Date().toLocaleTimeString('zh-CN')}</span>
+          </div>
+
+          {/* E4. 设备使用率趋势 (OEE) */}
+          <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Monitor size={16} /> 设备使用率趋势 (OEE)
+              <select style={{ ...s.select, marginLeft: 'auto', padding: '4px 10px', fontSize: 13 }} value={oeeSelectedDevice} onChange={e => setOeeSelectedDevice(e.target.value)}>
+                {oeeList.map((d: any) => <option key={d.id} value={d.id}>{d.name} ({d.id})</option>)}
+              </select>
+            </div>
+            {oeeChartData.length === 0 ? (
+              <div style={s.empty}>暂无 OEE 数据</div>
+            ) : (
+              <div>
+                <ChartContainer height={260} state="ready">
+                  <LineChart data={oeeChartData} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                    <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <Tooltip />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="OEE" stroke="#1e40af" strokeWidth={2.2} dot={false} />
+                    <Line type="monotone" dataKey="可用性" stroke="#059669" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="性能" stroke="#d97706" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="质量" stroke="#7c3aed" strokeWidth={1.6} dot={false} />
+                  </LineChart>
+                </ChartContainer>
+                {/* OEE 排行条 */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 12 }}>
+                  {oeeRank.slice(0, 6).map((d: any, i: number) => (
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 22 }}>#{i + 1}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
+                        <div style={{ height: 5, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden', marginTop: 3 }}>
+                          <div style={{ width: `${Math.min(100, d.oee)}%`, height: '100%', background: d.oee >= 85 ? '#16a34a' : d.oee >= 65 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: d.oee >= 85 ? '#16a34a' : d.oee >= 65 ? '#d97706' : '#dc2626' }}>{Math.round(d.oee)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* E1. 设备状态时间线 */}
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Clock size={16} /> 设备状态时间线 (购置→在用→维护→报废)
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>共 {lifecycleTimeline.length} 台设备</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {lifecycleTimeline.slice(0, 8).map((d: any) => {
+                const phases = [
+                  { label: '购置', date: d.purchaseDate, done: true, color: '#1e40af' },
+                  { label: '在用', date: d.purchaseDate, done: !d.isRetired, color: '#059669' },
+                  { label: '维保', date: d.nextMaint, done: d.isMaint || true, color: '#d97706', highlight: d.isMaint },
+                  { label: '报废', date: d.retireAt ?? '—', done: d.isRetired, color: '#94a3b8' },
+                ]
+                return (
+                  <div key={d.id} style={{ padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 13 }}>{d.name}</span>
+                      <code style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</code>
+                      <span style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: d.isRetired ? 'var(--bg-card)' : d.isMaint ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', color: d.isRetired ? 'var(--text-secondary)' : d.isMaint ? '#92400e' : '#15803d' }}>
+                        {d.status}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                      {phases.map((p, i) => (
+                        <div key={p.label} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, position: 'relative', zIndex: 2 }}>
+                            <div style={{
+                              width: 18, height: 18, borderRadius: '50%',
+                              background: p.done ? p.color : '#fff',
+                              border: `2px solid ${p.done ? p.color : '#cbd5e1'}`,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              {p.done && <span style={{ color: '#fff', fontSize: 10, fontWeight: 800 }}>✓</span>}
+                            </div>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: p.done ? p.color : 'var(--text-secondary)' }}>{p.label}</span>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.date}</span>
+                          </div>
+                          {i < phases.length - 1 && (
+                            <div style={{ flex: 1, height: 2, background: p.done ? p.color : '#e2e8f0', marginBottom: 34 }} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 14, marginTop: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
+                      <span>已使用 <b style={{ color: 'var(--text-primary)' }}>{d.useCount}</b> 次</span>
+                      <span>维保 <b style={{ color: '#d97706' }}>{d.maintCount}</b> 次</span>
+                      <span>下次维保 <b style={{ color: d.daysLeft < 0 ? '#dc2626' : '#d97706' }}>{d.nextMaint}</b></span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+
+          {/* E3. 维保到期预警面板 */}
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertTriangle size={16} /> 维保到期预警
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>预警 {maintWarnings.total} 台</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {[
+                { key: 'overdue', label: '已过期', color: '#dc2626', bg: 'var(--color-error-bg)', items: maintWarnings.overdue },
+                { key: 'soon7', label: '7天内到期', color: '#d97706', bg: 'var(--color-warning-bg)', items: maintWarnings.soon7 },
+                { key: 'soon30', label: '30天内到期', color: '#2563eb', bg: 'var(--color-info-bg)', items: maintWarnings.soon30 },
+              ].map(g => (
+                <div key={g.key} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span style={{ padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 700, background: g.bg, color: g.color }}>{g.label}</span>
+                    <b style={{ fontSize: 16, color: g.color }}>{g.items.length}</b>
+                  </div>
+                  {g.items.length === 0 ? (
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>无</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {g.items.slice(0, 4).map((d: any) => (
+                        <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
+                          <span style={{ fontWeight: 600, color: 'var(--color-primary-800)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.nextMaint}</span>
+                          <b style={{ color: g.color, fontSize: 12 }}>{Math.abs(d.daysLeft)}天</b>
+                        </div>
+                      ))}
+                      {g.items.length > 4 && <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>…等 {g.items.length} 台</div>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* E2. 费用分析卡 */}
+          <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <DollarSign size={16} /> 费用分析 (购置 / 维护 / 折旧)
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+              {[
+                { label: '设备购置总值', value: costAnalysis.totals.purchase, color: '#1e40af', unit: '¥' },
+                { label: '累计维护费用', value: costAnalysis.totals.maint, color: '#d97706', unit: '¥' },
+                { label: '年折旧额 (8%)', value: costAnalysis.totals.depreciation, color: '#7c3aed', unit: '¥' },
+              ].map(c => (
+                <div key={c.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{c.label}</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>
+                    {c.unit}{(c.value / 10000).toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400 }}>万</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={s.table}>
+                <thead>
+                  <tr>
+                    <th style={s.th}>模态</th>
+                    <th style={s.th}>购置总值</th>
+                    <th style={s.th}>维护费用</th>
+                    <th style={s.th}>年折旧</th>
+                    <th style={s.th}>维护/购置比</th>
+                    <th style={{ ...s.th, width: 180 }}>占比</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {costAnalysis.list.map((m: any) => {
+                    const ratio = m.purchase > 0 ? Math.round((m.maint / m.purchase) * 100) : 0
+                    const pct = costAnalysis.totals.purchase > 0 ? Math.round((m.purchase / costAnalysis.totals.purchase) * 100) : 0
+                    return (
+                      <tr key={m.name} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                        <td style={s.td}><b style={{ color: '#1e40af' }}>{m.name}</b></td>
+                        <td style={s.td}>¥{m.purchase.toLocaleString()}</td>
+                        <td style={s.td}>¥{m.maint.toLocaleString()}</td>
+                        <td style={s.td}>¥{m.depreciation.toLocaleString()}</td>
+                        <td style={s.td}><span style={{ color: ratio > 12 ? '#dc2626' : '#059669', fontWeight: 700 }}>{ratio}%</span></td>
+                        <td style={s.td}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
+                            </div>
+                            <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 40, textAlign: 'right' }}>{pct}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+          {/* E7. 状态构成 + E5. 设备年龄分布 + E6. 维保费用趋势 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: 16, marginTop: 20 }}>
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Monitor size={15} /> 状态构成
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {statusBreakdown.map(st => (
+                  <div key={st.status} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 52, fontSize: 12, color: 'var(--text-secondary)' }}>{st.status}</span>
+                    <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ width: `${Math.round((st.count / Math.max(1, lifecycleRows.length)) * 100)}%`, height: '100%', background: st.color, borderRadius: 999 }} />
+                    </div>
+                    <b style={{ fontSize: 13, color: st.color, width: 22, textAlign: 'right' }}>{st.count}</b>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: 11, color: 'var(--text-secondary)' }}>
+                <span>在用率: <b style={{ color: '#16a34a' }}>{lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '在用').length / lifecycleRows.length) * 100) : 0}%</b></span>
+                <span>维保占比: <b style={{ color: '#d97706' }}>{lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '维保中').length / lifecycleRows.length) * 100) : 0}%</b></span>
+              </div>
+            </Card>
+
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Clock size={15} /> 设备年龄分布 (购置年份)
+              </div>
+              {ageDistribution.length === 0 ? (
+                <div style={s.empty}>暂无数据</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {ageDistribution.map(a => (
+                    <div key={a.year} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 42, fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{a.year}</span>
+                      <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
+                        <div style={{ width: `${a.pct}%`, height: '100%', background: Number(a.year) >= 2022 ? '#059669' : Number(a.year) >= 2020 ? '#d97706' : '#dc2626', borderRadius: 999 }} />
+                      </div>
+                      <b style={{ fontSize: 13, color: 'var(--text-primary)', width: 22, textAlign: 'right' }}>{a.count}</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                平均机龄: <b style={{ color: 'var(--text-primary)' }}>{lifecycleRows.length > 0 ? (lifecycleRows.reduce((s: number, d: any) => s + (d.lifeMonth || 36), 0) / lifecycleRows.length / 12).toFixed(1) : '-'} 年</b>
+                <br />折旧政策: 直线法 8%/年
+              </div>
+            </Card>
+
+            <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Wrench size={15} /> 维保费用月度趋势
+              </div>
+              {maintCostTrend.length === 0 ? (
+                <div style={s.empty}>暂无数据</div>
+              ) : (
+                <ChartContainer height={150} state="ready">
+                  <LineChart data={maintCostTrend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <Tooltip formatter={(v: any) => [`¥${Number(v).toLocaleString()}`, '维保费用']} />
+                    <Line type="monotone" dataKey="cost" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
+                  </LineChart>
+                </ChartContainer>
+              )}
+              <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
+                <span>累计: ¥{maintCostTrend.reduce((s, m) => s + m.cost, 0).toLocaleString()}</span>
+                <span>月度峰值: ¥{Math.max(...maintCostTrend.map(m => m.cost), 0).toLocaleString()}</span>
+              </div>
+            </Card>
+          </div>
+
+          {/* 口径说明 */}
+          <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+            <b style={{ color: '#1e40af' }}>口径说明:</b> 时间线节点依据设备状态自动渲染 (报废设备显示报废节点); 折旧按直线法 8%/年估算; OEE = 可用性 × 性能 × 质量; 维保预警按下次维保日期分级 (已过期 / 7天内 / 30天内)。真实接口不可用时自动回退演示数据并在顶部标注。
+          </div>
+        </>
       )}
 
       {/* 设备详情弹窗 */}

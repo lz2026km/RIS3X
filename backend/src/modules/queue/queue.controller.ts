@@ -9,7 +9,7 @@
  * - POST /queue/:roomId/complete 完成当前号
  * - POST /queue/:roomId/recall   重呼
  */
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -23,6 +23,11 @@ const CallSchema = z
     patientId: z.string().min(1).optional(),
   })
   .optional()
+
+// [W10E-3] 优先级调整: 仅允许 普通/紧急/危重
+const PrioritySchema = z.object({
+  priority: z.enum(['普通', '紧急', '危重']),
+})
 
 @ApiTags('queue')
 @ApiBearerAuth()
@@ -39,6 +44,37 @@ export class QueueController {
   @Get('rooms')
   getRooms() {
     return this.service.rooms()
+  }
+
+  // ================= [W10E-3] 扩展端点 (叫号总览/房间状态/趋势/候诊统计/优先级) =================
+
+  @Get('overview')
+  getOverview() {
+    return this.service.getOverview()
+  }
+
+  @Get('room-status')
+  getRoomStatusSummary() {
+    return this.service.getRoomStatusSummary()
+  }
+
+  @Get('daily-trend')
+  getDailyTrend(@Query('days') days?: string) {
+    const parsed = Number(days)
+    return this.service.getDailyTrend(Number.isFinite(parsed) && parsed > 0 ? parsed : 7)
+  }
+
+  @Get('waiting-stats')
+  getWaitingStats() {
+    return this.service.getWaitingStats()
+  }
+
+  @Post(':id/priority')
+  setPriority(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PrioritySchema)) body: z.infer<typeof PrioritySchema>,
+  ) {
+    return this.service.setPriority(id, body.priority)
   }
 
   @Get(':roomId')

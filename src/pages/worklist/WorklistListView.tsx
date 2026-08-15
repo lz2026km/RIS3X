@@ -119,6 +119,8 @@ interface ListViewProps {
   prefetchStatus?: Record<string, 'cached' | 'queued' | 'none'>;
   /** [G005 v3.0.6.11-96 Wave 2B (D)] C-STORE 传输状态 (从 listTransfers 派生): examId|accessionNumber -> queued/sending/paused/failed/completed/canceled */
   transferStatus?: Record<string, string>;
+  /** [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板: 隐藏列 key 集合 (actions 列恒显示) */
+  hiddenColumns?: string[];
 }
 
 // 影像缩略图预览: 有 thumbnail 用图, 无则显示模态图标 + 帧数
@@ -213,11 +215,13 @@ export function ListView({
   onCriticalValueClick,
   prefetchStatus,
   transferStatus,
+  // [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板: 隐藏列 key 集合 (由 WorklistPage 传入)
+  hiddenColumns,
 }: ListViewProps) {
   // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
   const listPagination = usePagination(exams, 10);
   const navigate = useNavigate();
-  const columns = useMemo<ProColumn<RadiologyExam>[]>(() => [
+  const baseColumns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
       title: "优先级",
       dataIndex: "priority",
@@ -547,6 +551,14 @@ export function ListView({
       ),
     },
   ], [exams, onRowClick, onAssignDoctor, onViewRequisition, onViewHistory, onCriticalValueClick, prefetchStatus]);
+
+  // [G005 v3.0.6.11-99 Wave 10E-1] 列显隐: 过滤隐藏列 (actions 列固定右侧不可隐藏, 保证操作可达)
+  const columns = useMemo<ProColumn<RadiologyExam>[]>(() => {
+    if (!hiddenColumns || hiddenColumns.length === 0) return baseColumns;
+    const hidden = new Set(hiddenColumns.filter((k) => k !== "actions"));
+    const filtered = baseColumns.filter((c) => !hidden.has(String(c.key ?? c.dataIndex ?? "")));
+    return filtered;
+  }, [baseColumns, hiddenColumns]);
 
   return (
     <ProTable<RadiologyExam>

@@ -7,9 +7,88 @@
  * - POST /queue/:id/call|complete|recall: 叫号操作 (内存状态)
  * DB 不可用时回退内置种子数据, 保证前端叫号流程可用。
  */
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
+
+// ===== [W10E-3] 扩展端点 DTO (叫号总览/房间状态/趋势/候诊统计) =====
+
+export interface QueueOverviewDto {
+  date: string
+  todayCalled: number
+  todayCompleted: number
+  waitingCount: number
+  calledCount: number
+  inServiceCount: number
+  completedCount: number
+  avgWaitMinutes: number
+  maxWaitMinutes: number
+  timeoutCount: number
+  busyRooms: number
+  idleRooms: number
+  totalRooms: number
+  avgQueueLength: number
+  seeded: boolean
+}
+
+export interface RoomStatusSummaryDto {
+  totalRooms: number
+  byStatus: Record<string, number>
+  waitingTotal: number
+  inServiceTotal: number
+  busyRate: number
+  byModality: Array<{ modality: string; total: number; busy: number; waiting: number; completed: number }>
+  seeded: boolean
+}
+
+export interface QueueDailyTrendPoint {
+  date: string
+  label: string
+  called: number
+  completed: number
+  timeout: number
+  seeded: boolean
+}
+
+export interface QueueWaitingStatsDto {
+  total: number
+  waitingCount: number
+  calledCount: number
+  avgWaitMinutes: number
+  maxWaitMinutes: number
+  timeoutCount: number
+  distribution: Array<{ range: string; count: number; percent: number }>
+  byModality: Array<{ modality: string; count: number }>
+  byPriority: Array<{ priority: string; count: number }>
+  byPatientType: Array<{ patientType: string; count: number }>
+  seeded: boolean
+}
+
+const TIMEOUT_MINUTES = 30
+
+function hashString(input: string): number {
+  let h = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/** 确定性伪随机: 同一 seedInput 永远得到同一结果 (趋势/统计回退数据可复现) */
+function seededRand(min: number, max: number, seedInput: string): number {
+  let a = hashString(seedInput) >>> 0
+  a = (a + 0x6d2b79f5) | 0
+  let t = Math.imul(a ^ (a >>> 15), 1 | a)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  const r = ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  return Math.round((r * (max - min) + min) * 10) / 10
+}
+
+function localDateStr(d: Date | string): string {
+  const date = d instanceof Date ? d : new Date(d)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
 
 export type QueueStatus = 'waiting' | 'called' | 'in_service' | 'completed'
 export type QueueStatusZh = '等待中' | '已呼叫' | '检查中' | '已完成'
@@ -110,6 +189,8 @@ export class QueueService {
   private readonly callStates = new Map<string, CallState>()
   private readonly roomCounters = new Map<string, number>()
   private readonly roomCurrent = new Map<string, string>()
+  // [W10E-3] 优先级调整 (内存覆盖; 无独立 DB 字段, DB 不可用时确定性回退)
+  private readonly priorityOverrides = new Map<string, QueueCallItem['priority']>()
   // [G005 W2-A P0] 叫号状态落库: DB 可用时读写 queue_states 表, 不可用回退内存 Map
   private dbAvailable: boolean | null = null
   private hydrated = false
@@ -292,7 +373,7 @@ export class QueueService {
         ? `${String(scheduledAt.getHours()).padStart(2, '0')}:${String(scheduledAt.getMinutes()).padStart(2, '0')}`
         : '',
       waitMinutes,
-      priority: PRIORITY_TO_ZH[exam.priority ?? ''] ?? '普通',
+      priority: this.priorityOverrides.get(id) ?? PRIORITY_TO_ZH[exam.priority ?? ''] ?? '普通',
       patientType: TYPE_TO_ZH[patient.type ?? ''] ?? '门诊',
       calledCount: st.calledCount,
       lastCalledTime: st.lastCalledTime,
@@ -311,12 +392,14 @@ export class QueueService {
 
   private applyStateToSeed(item: QueueCallItem): QueueCallItem {
     const s = this.callStates.get(item.id)
-    if (!s) return item
+    const priority = this.priorityOverrides.get(item.id)
+    if (!s && !priority) return item
     return {
       ...item,
-      status: STATUS_TO_ZH[s.status],
-      calledCount: s.calledCount,
-      lastCalledTime: s.lastCalledTime,
+      status: s ? STATUS_TO_ZH[s.status] : item.status,
+      calledCount: s?.calledCount ?? item.calledCount,
+      lastCalledTime: s?.lastCalledTime ?? item.lastCalledTime,
+      priority: priority ?? item.priority,
     }
   }
 
@@ -459,5 +542,191 @@ export class QueueService {
     await this.persistEntry(entry, state)
     if (entry.roomId) await this.persistRoomCounter(entry.roomId, entry.queueNum)
     return { ...entry, ...this.statusOf(entry.id, 'called') }
+  }
+
+  // ================= [W10E-3] 扩展: 叫号总览 / 房间状态 / 趋势 / 候诊统计 =================
+
+  async getOverview(): Promise<QueueOverviewDto> {
+    const [all, rooms] = await Promise.all([this.list(), this.rooms()])
+    const seeded = all.length > 0 && all[0].id.startsWith('q-SEED-')
+    const waiting = all.filter((i) => i.status === '等待中')
+    const called = all.filter((i) => i.status === '已呼叫')
+    const inService = all.filter((i) => i.status === '检查中')
+    const completed = all.filter((i) => i.status === '已完成')
+    const todayCalled = all.filter((i) => i.calledCount > 0).length
+    const waitMins = all.map((i) => i.waitMinutes)
+    const avgWaitMinutes = waitMins.length > 0 ? Math.round(waitMins.reduce((a, b) => a + b, 0) / waitMins.length) : 0
+    const maxWaitMinutes = waitMins.length > 0 ? Math.max(...waitMins) : 0
+    const timeoutCount = waitMins.filter((m) => m > TIMEOUT_MINUTES).length
+    const busyRooms = rooms.filter((r) => r.status === '使用中').length
+    const idleRooms = rooms.filter((r) => r.status === '空闲').length
+    const totalWaiting = rooms.reduce((a, r) => a + r.waitCount, 0)
+    const avgQueueLength = rooms.length > 0 ? Math.round((totalWaiting / rooms.length) * 10) / 10 : 0
+    return {
+      date: localDateStr(new Date()),
+      todayCalled,
+      todayCompleted: completed.length,
+      waitingCount: waiting.length,
+      calledCount: called.length,
+      inServiceCount: inService.length,
+      completedCount: completed.length,
+      avgWaitMinutes,
+      maxWaitMinutes,
+      timeoutCount,
+      busyRooms,
+      idleRooms,
+      totalRooms: rooms.length,
+      avgQueueLength,
+      seeded,
+    }
+  }
+
+  async getRoomStatusSummary(): Promise<RoomStatusSummaryDto> {
+    const rooms = await this.rooms()
+    const seeded = rooms.length > 0 && rooms[0].id.startsWith('ROOM-')
+    const byStatus: Record<string, number> = { 空闲: 0, 使用中: 0, 暂停: 0, 维护中: 0 }
+    const byModality = new Map<string, { modality: string; total: number; busy: number; waiting: number; completed: number }>()
+    for (const r of rooms) {
+      byStatus[r.status] = (byStatus[r.status] ?? 0) + 1
+      const m = byModality.get(r.modality) ?? { modality: r.modality || '未知', total: 0, busy: 0, waiting: 0, completed: 0 }
+      m.total += 1
+      if (r.status === '使用中') m.busy += 1
+      m.waiting += r.waitCount
+      m.completed += r.completedToday
+      byModality.set(r.modality || '未知', m)
+    }
+    const waitingTotal = rooms.reduce((a, r) => a + r.waitCount, 0)
+    const inServiceTotal = rooms.filter((r) => r.currentPatient).length
+    return {
+      totalRooms: rooms.length,
+      byStatus,
+      waitingTotal,
+      inServiceTotal,
+      busyRate: rooms.length > 0 ? Math.round(((byStatus['使用中'] ?? 0) / rooms.length) * 100) : 0,
+      byModality: Array.from(byModality.values()),
+      seeded,
+    }
+  }
+
+  async getDailyTrend(days = 7): Promise<QueueDailyTrendPoint[]> {
+    const count = Math.max(1, Math.min(Math.round(days) || 7, 30))
+    const now = new Date()
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (count - 1))
+    try {
+      const rows = await (this.prisma as any).queueState?.findMany({
+        where: {
+          tenantId: currentTenantId(),
+          OR: [{ completedAt: { gte: start } }, { lastCallAt: { gte: start } }],
+        },
+      })
+      if (Array.isArray(rows) && rows.length > 0) {
+        const startKey = localDateStr(start)
+        const byDate = new Map<string, { called: number; completed: number }>()
+        for (const row of rows) {
+          const calledKey = row.lastCallAt ? localDateStr(row.lastCallAt) : null
+          if (calledKey && calledKey >= startKey) {
+            const e = byDate.get(calledKey) ?? { called: 0, completed: 0 }
+            e.called += 1
+            byDate.set(calledKey, e)
+          }
+          const doneKey = row.completedAt ? localDateStr(row.completedAt) : null
+          if (doneKey && doneKey >= startKey) {
+            const e = byDate.get(doneKey) ?? { called: 0, completed: 0 }
+            e.completed += 1
+            byDate.set(doneKey, e)
+          }
+        }
+        return Array.from({ length: count }, (_, i) => {
+          const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+          const key = localDateStr(d)
+          const e = byDate.get(key) ?? { called: 0, completed: 0 }
+          return {
+            date: key,
+            label: `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+            called: e.called,
+            completed: e.completed,
+            timeout: 0,
+            seeded: false,
+          }
+        })
+      }
+    } catch {
+      // DB 不可用 → 确定性种子趋势 (可复现, 不写库)
+    }
+    return Array.from({ length: count }, (_, i) => {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+      const key = localDateStr(d)
+      const called = Math.round(seededRand(40, 90, `queue-trend:${key}:called`))
+      const completed = Math.round(called * seededRand(0.85, 0.98, `queue-trend:${key}:completed`))
+      const timeout = Math.round(called * seededRand(0.03, 0.12, `queue-trend:${key}:timeout`))
+      return {
+        date: key,
+        label: `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+        called,
+        completed,
+        timeout,
+        seeded: true,
+      }
+    })
+  }
+
+  async setPriority(id: string, priority: string): Promise<QueueCallItem> {
+    await this.hydrateFromDb()
+    if (!['普通', '紧急', '危重'].includes(priority)) {
+      throw new BadRequestException('优先级必须是 普通/紧急/危重 之一')
+    }
+    const entry = await this.resolveEntry(id)
+    if (!entry) throw new NotFoundException(`Queue entry ${id} not found`)
+    this.priorityOverrides.set(entry.id, priority as QueueCallItem['priority'])
+    const seed = this.findSeedEntry(entry.id)
+    return { ...entry, priority: priority as QueueCallItem['priority'], status: seed?.status ?? entry.status }
+  }
+
+  async getWaitingStats(): Promise<QueueWaitingStatsDto> {
+    const all = await this.list()
+    const seeded = all.length > 0 && all[0].id.startsWith('q-SEED-')
+    const active = all.filter((i) => i.status === '等待中' || i.status === '已呼叫')
+    const waiting = all.filter((i) => i.status === '等待中')
+    const called = all.filter((i) => i.status === '已呼叫')
+    const waitMins = active.map((i) => i.waitMinutes)
+    const avgWaitMinutes = waitMins.length > 0 ? Math.round(waitMins.reduce((a, b) => a + b, 0) / waitMins.length) : 0
+    const maxWaitMinutes = waitMins.length > 0 ? Math.max(...waitMins) : 0
+    const timeoutCount = waitMins.filter((m) => m > TIMEOUT_MINUTES).length
+    const buckets = [
+      { range: '<10分钟', test: (m: number) => m < 10 },
+      { range: '10-30分钟', test: (m: number) => m >= 10 && m <= 30 },
+      { range: '30-60分钟', test: (m: number) => m > 30 && m <= 60 },
+      { range: '>60分钟', test: (m: number) => m > 60 },
+    ]
+    const distribution = buckets.map((b) => {
+      const count = active.filter((i) => b.test(i.waitMinutes)).length
+      return { range: b.range, count, percent: active.length > 0 ? Math.round((count / active.length) * 100) : 0 }
+    })
+    const group = <T extends string>(key: T, items: QueueCallItem[]) => {
+      const map = new Map<string, number>()
+      for (const i of items) {
+        const v = String(i[key as keyof QueueCallItem] ?? '未知')
+        map.set(v, (map.get(v) ?? 0) + 1)
+      }
+      return Array.from(map.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+    }
+    const byModality = group('modality', active).map(({ name, count }) => ({ modality: name, count }))
+    const byPriority = group('priority', active).map(({ name, count }) => ({ priority: name, count }))
+    const byPatientType = group('patientType', active).map(({ name, count }) => ({ patientType: name, count }))
+    return {
+      total: all.length,
+      waitingCount: waiting.length,
+      calledCount: called.length,
+      avgWaitMinutes,
+      maxWaitMinutes,
+      timeoutCount,
+      distribution,
+      byModality,
+      byPriority,
+      byPatientType,
+      seeded,
+    }
   }
 }

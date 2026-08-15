@@ -136,6 +136,33 @@ export class Hl7Controller {
 
   // ============ [W3-B] 归档 + MLLP 管理端点 (integrationApi.hl7Api) ============
 
+  // ============ [W10E-3] 扩展端点 (HL7 总览/错误分析/吞吐趋势/消息类型) ============
+
+  @Get('overview')
+  @ApiOperation({ summary: 'HL7 总览: 消息量/成功率/ACK 分布/类型分布' })
+  overview() {
+    return this.service.getOverview()
+  }
+
+  @Get('error-analysis')
+  @ApiOperation({ summary: 'HL7 错误分析: 错误类型/通道/时段分布' })
+  errorAnalysis() {
+    return this.service.getErrorAnalysis()
+  }
+
+  @Get('throughput')
+  @ApiOperation({ summary: 'HL7 吞吐趋势 (默认 30 日)' })
+  throughput(@Query('days') days?: string) {
+    const parsed = Number(days)
+    return this.service.getThroughput(Number.isFinite(parsed) && parsed > 0 ? parsed : 30)
+  }
+
+  @Get('message-types')
+  @ApiOperation({ summary: 'HL7 消息类型分布' })
+  messageTypes() {
+    return this.service.getMessageTypes()
+  }
+
   @Get('archive')
   @ApiOperation({ summary: 'HL7 message archive (read-only, Hl7MessageArchive)' })
   async getArchive(

@@ -56,6 +56,33 @@ export class AuditController {
     res.send(csv)
   }
 
+  // [W10E-3] 扩展端点 (总览/用户活跃/操作趋势/高危操作) — 静态路由须在 :id 之前声明
+  @Get('overview')
+  @ApiOperation({ summary: '审计总览 (今日操作/活跃用户/高危操作/成功率)' })
+  overview() {
+    return this.audit.getOverview()
+  }
+
+  @Get('user-activity')
+  @ApiOperation({ summary: '用户活跃排行' })
+  userActivity(@Query('limit') limit?: string) {
+    const parsed = Number(limit)
+    return this.audit.getUserActivity(Number.isFinite(parsed) && parsed > 0 ? parsed : 10)
+  }
+
+  @Get('action-trend')
+  @ApiOperation({ summary: '近 30 日操作趋势' })
+  actionTrend(@Query('days') days?: string) {
+    const parsed = Number(days)
+    return this.audit.getActionTrend(Number.isFinite(parsed) && parsed > 0 ? parsed : 30)
+  }
+
+  @Get('high-risk')
+  @ApiOperation({ summary: '高危操作清单 (删除/导出/批量)' })
+  highRisk() {
+    return this.audit.getHighRisk()
+  }
+
   // [W2-C] 详情 (静态路由 stats/export 已在上方声明, 不会被 :id 抢占)
   @Get(':id')
   @ApiOperation({ summary: '瀹¤鏃ュ織璇︽儏' })

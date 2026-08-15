@@ -103,6 +103,9 @@ export type {
   QualityDto,
 } from "./statsApi";
 
+export { biApi } from "./biApi";
+export type { KpiDto, DeviceOeeDto, WallTemplateDto } from "./biApi";
+
 export { userApi } from "./userApi";
 export type { UserDto } from "./userApi";
 

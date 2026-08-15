@@ -136,6 +136,39 @@ export class VnaController {
     return this.service.getStats()
   }
 
+  // ─────────────────────── [W10E-3] 扩展端点 (总览/存储趋势/分层/校验/重复分析) ───────────────────────
+
+  @Get('overview')
+  @ApiOperation({ summary: '归档总览: 对象数/容量/分层分布/近30日增长率' })
+  getOverview() {
+    return this.service.getOverview()
+  }
+
+  @Get('storage-trend')
+  @ApiOperation({ summary: '存储增长趋势 (默认 30 日, 累计容量)' })
+  getStorageTrend(@Query('days') days?: string) {
+    const parsed = Number(days)
+    return this.service.getStorageTrend(Number.isFinite(parsed) && parsed > 0 ? parsed : 30)
+  }
+
+  @Get('by-tier')
+  @ApiOperation({ summary: '分层统计 (hot/warm/cold: 数量/容量/类型)' })
+  getByTier() {
+    return this.service.getByTier()
+  }
+
+  @Post('objects/:id/verify')
+  @ApiOperation({ summary: '对象完整性校验 (SHA-256 摘要 + 尺寸比对)' })
+  verifyObject(@Param('id') id: string) {
+    return this.service.verifyObject(id)
+  }
+
+  @Get('duplicate-analysis')
+  @ApiOperation({ summary: '重复对象分析 (按 名称+尺寸 分组, 计算浪费容量)' })
+  getDuplicateAnalysis() {
+    return this.service.getDuplicateAnalysis()
+  }
+
   @Get('studies')
   @ApiOperation({ summary: 'DICOM 检查归档列表 (dicomInstance 按 Study 聚合)' })
   listStudies() {

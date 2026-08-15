@@ -41,6 +41,8 @@ export default function DoseSearchPanel({
     { key: "pediatricopt", label: t("doseTrack.tabs.pediatricopt") },
     { key: "staff", label: t("doseTrack.tabs.staff") },
     { key: "spc", label: t("doseTrack.tabs.spc") },
+    // [G005 v3.0.6.11-99 Wave 10E-1] 深度分析 (剂量排行/趋势/DRL超标/类型对比)
+    { key: "analytics", label: "深度分析" },
   ] as const;
 
   return (

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
   Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
-  Download, CloudDownload, CheckCircle2,
+  Download, CloudDownload, CheckCircle2, Clock, SlidersHorizontal, History,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar,
@@ -257,7 +257,17 @@ export default function WorklistPage() {
   // [G005 放射流程P0] 详情抽屉"书写报告"→ 跳转完整书写页 (保留内联快速弹窗组件不动)
   const navigate = useNavigate()
 
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  // [G005 v3.0.6.11-99 Wave 10E-1] 视图切换记忆: viewMode 持久化到 localStorage
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      const saved = localStorage.getItem('worklist-view-mode')
+      if (saved === 'list' || saved === 'card' || saved === 'kanban') return saved
+    } catch { /* localStorage 不可用 */ }
+    return 'list'
+  })
+  useEffect(() => {
+    try { localStorage.setItem('worklist-view-mode', viewMode) } catch { /* ignore */ }
+  }, [viewMode])
 
   const [filters, setFilters] = useState<FilterState>(() => {
     const today = new Date();
@@ -376,6 +386,25 @@ export default function WorklistPage() {
       }
     }
   }, [fetchOnce])
+
+  // ---- B7. 批量操作动态 (本地活动流, localStorage 持久化最近 30 条) ----
+  const [batchActivity, setBatchActivity] = useState<Array<{ time: string; action: string; count: number; source: 'api' | 'local' }>>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('worklist-batch-activity') || '[]')
+      return Array.isArray(saved) ? saved : []
+    } catch { return [] }
+  })
+  const recordBatchActivity = useCallback((action: string, count: number, source: 'api' | 'local') => {
+    setBatchActivity(prev => {
+      const next = [{ time: new Date().toISOString(), action, count, source }, ...prev].slice(0, 30)
+      try { localStorage.setItem('worklist-batch-activity', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }, [])
+  const clearBatchActivity = useCallback(() => {
+    setBatchActivity([])
+    try { localStorage.removeItem('worklist-batch-activity') } catch { /* ignore */ }
+  }, [])
 
   const [batch, setBatch] = useState<BatchState>({
     selectedIds: new Set(),
@@ -755,6 +784,180 @@ export default function WorklistPage() {
     }
   }, [exams])
 
+  // ============================================================
+  // [G005 v3.0.6.11-99 Wave 10E-1] 工作台深化区块
+  //   B1. 列表列配置面板 (localStorage 持久化列显隐)
+  //   B2. SLA 分析卡 (超时分布直方图)
+  //   B3. 今日进度条 (完成/总数)
+  //   B4. 批量操作扩展卡 (今日已签/已开始计数)
+  // ============================================================
+  const dataSourceIsReal = !loadError && !loading
+
+  // ---- B1. 列配置面板 (localStorage) ----
+  const WORKLIST_COLUMNS: Array<{ key: string; label: string; default: boolean }> = [
+    { key: 'priority', label: '优先级', default: true },
+    { key: 'patientName', label: '患者姓名', default: true },
+    { key: 'demographics', label: '性别/年龄', default: true },
+    { key: 'examItemName', label: '检查项目', default: true },
+    { key: 'device', label: '检查设备', default: true },
+    { key: 'roomId', label: '检查室', default: false },
+    { key: 'images', label: '图像', default: true },
+    { key: 'prefetch', label: '预取状态', default: false },
+    { key: 'transfer', label: '传输状态', default: false },
+    { key: 'patientType', label: '患者类型', default: true },
+    { key: 'status', label: '状态', default: true },
+    { key: 'criticalFinding', label: '危急值', default: true },
+    { key: 'technologistName', label: '技师', default: false },
+    { key: 'radiologistId', label: '报告医生', default: true },
+    { key: 'createdTime', label: '申请时间', default: true },
+    { key: 'sla', label: 'SLA', default: true },
+    { key: 'actions', label: '操作', default: true },
+  ]
+  const [showColumnConfig, setShowColumnConfig] = useState(false)
+  const [columnConfig, setColumnConfig] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('worklist-column-config') || 'null')
+      if (saved && typeof saved === 'object') return { ...saved }
+    } catch { /* ignore */ }
+    return {}
+  })
+  useEffect(() => {
+    try { localStorage.setItem('worklist-column-config', JSON.stringify(columnConfig)) } catch { /* ignore */ }
+  }, [columnConfig])
+  const visibleColumns = useMemo(() => {
+    const map = columnConfig
+    return WORKLIST_COLUMNS.filter(c => (c.key in map ? map[c.key] : c.default)).map(c => c.key)
+  }, [columnConfig])
+  const hiddenColumnKeys = useMemo(() => WORKLIST_COLUMNS.map(c => c.key).filter(k => !visibleColumns.includes(k)), [visibleColumns])
+  const toggleColumn = (key: string) => setColumnConfig(prev => ({ ...prev, [key]: !(key in prev ? prev[key] : true) }))
+  const resetColumnConfig = () => {
+    setColumnConfig({})
+    setShowColumnConfig(false)
+  }
+  const allColumnsShown = hiddenColumnKeys.length === 0
+
+  // ---- B2. SLA 分析卡 (超时分布直方图) ----
+  const slaBuckets = useMemo(() => {
+    const buckets = { lt30: 0, m30to60: 0, gt60: 0 }
+    filteredExams.forEach(e => {
+      const info = getSLAInfo(e.createdTime)
+      if (info.status === 'critical') buckets.gt60 += 1
+      else if (info.status === 'warning') buckets.m30to60 += 1
+      else buckets.lt30 += 1
+    })
+    const total = Math.max(1, filteredExams.length)
+    return [
+      { name: '<30min', value: buckets.lt30, pct: Math.round((buckets.lt30 / total) * 100), color: '#059669' },
+      { name: '30-60min', value: buckets.m30to60, pct: Math.round((buckets.m30to60 / total) * 100), color: '#d97706' },
+      { name: '>60min', value: buckets.gt60, pct: Math.round((buckets.gt60 / total) * 100), color: '#dc2626' },
+    ]
+  }, [filteredExams])
+  const avgWaitMinutes = useMemo(() => {
+    if (filteredExams.length === 0) return 0
+    const sum = filteredExams.reduce((acc, e) => {
+      const t = e.createdTime ? new Date(e.createdTime).getTime() : 0
+      return t > 0 ? acc + (Date.now() - t) / 60000 : acc
+    }, 0)
+    return Math.round(sum / filteredExams.length)
+  }, [filteredExams])
+  const slaExceedRate = useMemo(() => {
+    if (filteredExams.length === 0) return 0
+    return Math.round((slaBuckets.reduce((s, b) => s + (b.name !== '<30min' ? b.value : 0), 0) / filteredExams.length) * 100)
+  }, [filteredExams, slaBuckets])
+
+  // ---- B2.5 近 7 日 SLA 趋势 (按 createdTime 日聚合超期/完成) ----
+  const slaTrend7d = useMemo(() => {
+    const days: Array<{ date: string; overdue: number; total: number; rate: number }> = []
+    for (let i = 6; i >= 0; i -= 1) {
+      const d = new Date(Date.now() - i * 86400000)
+      const key = d.toISOString().slice(0, 10)
+      days.push({ date: key, overdue: 0, total: 0, rate: 0 })
+    }
+    const dayIndex = (iso: string) => days.findIndex(d => d.date === (iso || '').slice(0, 10))
+    exams.forEach(e => {
+      const idx = dayIndex(e.createdTime)
+      if (idx < 0) return
+      const slot = days[idx]
+      if (!slot) return
+      const info = getSLAInfo(e.createdTime)
+      slot.total += 1
+      if (info.status !== 'normal') slot.overdue += 1
+    })
+    days.forEach(d => { d.rate = d.total > 0 ? Math.round((d.overdue / d.total) * 100) : 0 })
+    return days.map(d => ({
+      day: `${Number(d.date.slice(5, 7))}/${Number(d.date.slice(8, 10))}`,
+      rate: d.rate,
+      overdue: d.overdue,
+      total: d.total,
+    }))
+  }, [exams])
+  const slaTrendPeak = useMemo(() => slaTrend7d.reduce((best, d) => (d.rate > best.rate ? d : best), slaTrend7d[0] ?? { day: '-', rate: 0, overdue: 0, total: 0 }), [slaTrend7d])
+
+  // ---- B3. 今日进度 (完成/总数) ----
+  const todayProgress = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const todayExams = exams.filter(e => (e.examDate || '').slice(0, 10) === today)
+    const done = todayExams.filter(e => normalizeExamStatus(e.status) === 'COMPLETED').length
+    return {
+      total: todayExams.length,
+      done,
+      percent: todayExams.length > 0 ? Math.round((done / todayExams.length) * 100) : 0,
+      pending: todayExams.length - done,
+    }
+  }, [exams])
+
+  // ---- B4. 批量操作扩展卡: 今日已签/已开始计数 ----
+  const todayBatchCounts = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    let checkedIn = 0
+    let started = 0
+    exams.forEach(e => {
+      if ((e.examDate || '').slice(0, 10) !== today) return
+      const st = normalizeExamStatus(e.status)
+      if (st === 'ARRIVED') checkedIn += 1
+      if (st === 'IN_PROGRESS' || st === 'COMPLETED') started += 1
+    })
+    // 服务端统计合并 (worklistApi.getStats → completedToday)
+    const serverCompleted = serverStats ? Number((serverStats as { completedToday?: number }).completedToday ?? 0) : 0
+    return { checkedIn, started, serverCompleted }
+  }, [exams, serverStats])
+
+  // ---- B5. 模态 SLA 概况 (各模态超期/待办计数) ----
+  const modalitySla = useMemo(() => {
+    const map: Record<string, { modality: string; total: number; critical: number; avgWait: number }> = {}
+    filteredExams.forEach(e => {
+      const m = e.modality || '其他'
+      const info = getSLAInfo(e.createdTime)
+      const slot = map[m] ?? { modality: m, total: 0, critical: 0, avgWait: 0 }
+      slot.total += 1
+      if (info.status !== 'normal') slot.critical += 1
+      map[m] = slot
+    })
+    return Object.values(map)
+      .map(s => ({ ...s, avgWait: 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 6)
+  }, [filteredExams])
+
+  // ---- B6. 今日小时分布 (按 createdTime 小时聚合) ----
+  const todayHourly = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const hours: Array<{ hour: string; count: number }> = []
+    for (let h = 7; h <= 20; h += 1) {
+      hours.push({ hour: `${h}时`, count: 0 })
+    }
+    exams.forEach(e => {
+      if ((e.examDate || '').slice(0, 10) !== today) return
+      const t = e.createdTime ? new Date(e.createdTime).getHours() : -1
+      if (t >= 7 && t <= 20) {
+        const slot = hours[t - 7]
+        if (slot) slot.count += 1
+      }
+    })
+    const peak = hours.reduce((best, h) => (h.count > best.count ? h : best), hours[0] ?? { hour: '-', count: 0 })
+    return { hours, peakHour: peak.hour, peakCount: peak.count }
+  }, [exams])
+
   const resetFilters = () => {
     const today = new Date();
     const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
@@ -808,6 +1011,7 @@ export default function WorklistPage() {
       return
     }
     if (action === 'export') {
+      recordBatchActivity('导出Excel', ids.length, 'local')
       setBatchResultModalData({
         open: true,
         action: actionLabels[action] || action,
@@ -824,6 +1028,7 @@ export default function WorklistPage() {
     let failCount = 0
     try {
       if (action === 'room') {
+        recordBatchActivity('分配检查室', ids.length, 'api')
         const res = await worklistApi.batchAssign(ids, { roomId: batch.roomValue })
         if (res.success) {
           okCount = Number((res.data as { updated?: number } | null)?.updated ?? ids.length)
@@ -834,6 +1039,7 @@ export default function WorklistPage() {
           results.push(res.error?.message ?? '批量分配检查室失败')
         }
       } else {
+        recordBatchActivity('修改优先级', ids.length, 'api')
         for (const id of ids) {
           try {
             const res = await worklistApi.updatePriority(id, batch.priorityValue)
@@ -945,8 +1151,17 @@ export default function WorklistPage() {
   const handleBatchAction = useCallback((action: string) => {
     if (selectedIds.size === 0) return
     const ids = Array.from(selectedIds)
+    recordBatchActivity(action, ids.length, 'api')
     void runBatchApiAction(action, ids)
-  }, [selectedIds, runBatchApiAction])
+  }, [selectedIds, runBatchApiAction, recordBatchActivity])
+
+  const batchActionQuick = useCallback((action: string) => {
+    if (selectedIds.size === 0) {
+      setConfirmModalConfig({ open: true, title: '提示', message: '请先在列表勾选需要批量操作的检查项目', onConfirm: () => setConfirmModalConfig(null) })
+      return
+    }
+    handleBatchAction(action)
+  }, [selectedIds, handleBatchAction])
 
   // ============================================================
   // 修改患者信息 → patientApi.update (后端 PATCH /patients/:id)
@@ -1327,6 +1542,18 @@ export default function WorklistPage() {
             <ViewModeButton mode="kanban" icon={<Kanban size={14} />} label="看板" />
           </div>
 
+          {/* [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板入口 */}
+          <AppButton
+            variant="default"
+            size="compact"
+            onClick={() => setShowColumnConfig(true)}
+            icon={<LayoutList size={12} />}
+            title={allColumnsShown ? '配置列表列显隐' : `已隐藏 ${hiddenColumnKeys.length} 列`}
+            testId="column-config-btn"
+          >
+            列配置{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
+          </AppButton>
+
           <AppButton
             variant="primary"
             size="compact"
@@ -1521,6 +1748,234 @@ export default function WorklistPage() {
         </Card>
       </div>
 
+      {/* [G005 v3.0.6.11-99 Wave 10E-1] B2. SLA 分析卡: 超时分布直方图 + 平均等待 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '2fr 1fr 1fr',
+        gap: 16,
+        marginBottom: 16,
+      }} data-testid="sla-analysis-card">
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Clock size={13} /> SLA 超时分布
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+              平均等待 <b style={{ color: avgWaitMinutes > 30 ? '#d97706' : '#059669' }}>{avgWaitMinutes}</b> min
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 96 }}>
+            {slaBuckets.map(b => (
+              <div key={b.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: b.color }}>{b.value}</span>
+                <div style={{
+                  width: '70%', height: `${Math.max(6, b.value)}px`, minHeight: 4, maxHeight: 60,
+                  background: b.color, borderRadius: '4px 4px 0 0', transition: 'height 0.3s',
+                }} />
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{b.name}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+            <span>超时占比 <b style={{ color: slaExceedRate > 30 ? '#dc2626' : '#059669' }}>{slaExceedRate}%</b></span>
+            <span>SLA 阈值 30min / 60min</span>
+          </div>
+          {/* 近 7 日超时率迷你趋势 */}
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>近 7 日超时率</span>
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                峰值 <b style={{ color: '#d97706' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 34 }}>
+              {slaTrend7d.map(d => (
+                <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} title={`${d.day}: ${d.overdue}/${d.total} 超期`}>
+                  <div style={{
+                    width: '72%', height: Math.max(2, Math.round((d.rate / 100) * 28)), borderRadius: 2,
+                    background: d.rate > 50 ? '#dc2626' : d.rate > 25 ? '#d97706' : '#22c55e',
+                  }} />
+                  <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>{d.day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        {/* B3. 今日进度条 */}
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CheckCircle2 size={13} /> 今日进度
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
+            {todayProgress.percent}%
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 10px' }}>
+            已完成 <b style={{ color: '#059669' }}>{todayProgress.done}</b> / {todayProgress.total} 项
+            {todayProgress.pending > 0 && <span style={{ color: '#d97706' }}> · 待完成 {todayProgress.pending}</span>}
+          </div>
+          <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-deep)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', width: `${todayProgress.percent}%`, borderRadius: 999,
+              background: todayProgress.percent >= 80 ? '#22c55e' : '#3b82f6', transition: 'width 0.5s',
+            }} />
+          </div>
+        </Card>
+
+        {/* B4. 批量操作扩展卡 */}
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <UserCheck size={13} /> 今日批量概况
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px' }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#2563eb', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>今日已签到</div>
+            </div>
+            <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px' }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#059669', lineHeight: 1.2 }}>{todayBatchCounts.started}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>今日已开始</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <AppButton variant="default" size="compact" icon={<UserCheck size={11} />} onClick={() => batchActionQuick('assign')}>批量签到</AppButton>
+            <AppButton variant="default" size="compact" icon={<Play size={11} />} onClick={() => batchActionQuick('start')}>批量开始</AppButton>
+            <AppButton variant="default" size="compact" icon={<CheckCircle size={11} />} onClick={() => batchActionQuick('complete')}>批量完成</AppButton>
+          </div>
+          {serverStats && Number((serverStats as { completedToday?: number }).completedToday ?? 0) > 0 && (
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
+              服务端当日完成: <b style={{ color: '#059669' }}>{todayBatchCounts.serverCompleted}</b>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* [G005 v3.0.6.11-99 Wave 10E-1] B5/B6/B7. 模态 SLA + 今日小时分布 + 批量动态 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: 16,
+        marginBottom: 16,
+      }} data-testid="worklist-deep-row2">
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Monitor size={13} /> 模态 SLA 概况
+          </div>
+          {modalitySla.length === 0 ? (
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {modalitySla.map(m => {
+                const rate = m.total > 0 ? Math.round((m.critical / m.total) * 100) : 0
+                return (
+                  <div key={m.modality} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 40, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{m.modality}</span>
+                    <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${rate}%`, height: '100%', borderRadius: 999,
+                        background: rate > 50 ? '#dc2626' : rate > 25 ? '#d97706' : '#22c55e', transition: 'width 0.4s',
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 110, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      {m.total} 项 · 超时 {m.critical} ({rate}%)
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </Card>
+
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ClipboardList size={13} /> 今日小时分布 (7-20时)
+            {todayHourly.peakCount > 0 && (
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+                高峰 <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> ({todayHourly.peakCount} 项)
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 110 }}>
+            {todayHourly.hours.map(h => {
+              const max = todayHourly.peakCount || 1
+              const hgt = h.count > 0 ? Math.max(6, Math.round((h.count / max) * 96)) : 3
+              return (
+                <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                  <span style={{ fontSize: 10, color: h.count > 0 ? '#1e40af' : 'var(--text-secondary)', fontWeight: 600 }}>{h.count}</span>
+                  <div style={{
+                    width: '78%', height: hgt, borderRadius: '3px 3px 0 0',
+                    background: h.hour === todayHourly.peakHour && h.count > 0 ? '#d97706' : '#3b82f6',
+                    opacity: h.count > 0 ? 0.75 + (h.count / max) * 0.25 : 0.25,
+                  }} />
+                  <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{h.hour.replace('时', '')}</span>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
+
+        <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+          background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <History size={13} /> 批量操作动态
+            </div>
+            {batchActivity.length > 0 && (
+              <button onClick={clearBatchActivity} style={{
+                border: 'none', background: 'none', fontSize: 11, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline',
+              }}>清空</button>
+            )}
+          </div>
+          {batchActivity.length === 0 ? (
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>
+              暂无批量操作记录 · 使用上方「批量签到/开始/完成」后自动记录
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflow: 'auto' }}>
+              {batchActivity.map((a, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '6px 8px', background: 'var(--content-bg)', borderRadius: 6 }}>
+                  <span style={{
+                    padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap',
+                    background: a.source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                    color: a.source === 'api' ? '#059669' : '#d97706',
+                  }}>{a.source === 'api' ? 'API' : '本地'}</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {a.action === 'assign' ? '批量签到' : a.action === 'start' ? '批量开始' : a.action === 'complete' ? '批量完成' : a.action === 'cancel' ? '批量取消' : a.action}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>{a.count} 项</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: 11, whiteSpace: 'nowrap' }}>
+                    {new Date(a.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* [G005 v3.0.6.11-99 Wave 10E-1] 数据源徽标 */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12,
+        padding: '6px 12px', borderRadius: 8,
+        background: dataSourceIsReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+        color: dataSourceIsReal ? '#059669' : '#d97706',
+        border: `1px solid ${dataSourceIsReal ? '#bbf7d0' : '#fde68a'}`,
+      }} data-testid="worklist-data-source-badge">
+        <Wifi size={12} />
+        {dataSourceIsReal ? '数据源: 真实接口 (/exams + /worklist) · 列配置/视图模式已本地持久化' : '数据源: 本地 initialData 回退 (后端不可用) · 分析卡基于回退数据'}
+      </div>
+
       {/* [W1-B] 服务器状态分布: GET /worklist/stats */}
       {serverStats && (
         <Card bordered={false} style={{
@@ -1591,6 +2046,7 @@ export default function WorklistPage() {
           onCriticalValueClick={handleCriticalValueClick}
           prefetchStatus={prefetchStatusMap}
           transferStatus={transferStatusMap}
+          hiddenColumns={hiddenColumnKeys}
         />
       )}
 
@@ -1970,6 +2426,68 @@ export default function WorklistPage() {
           items={sortCompareItems}
           onClose={() => setShowSortCompare(false)}
         />
+      )}
+
+      {/* [G005 v3.0.6.11-99 Wave 10E-1] B1. 列配置面板 (localStorage 持久化) */}
+      {showColumnConfig && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="列配置"
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          }}
+          onKeyDown={(e) => { if (e.key === 'Escape') setShowColumnConfig(false); }}
+          onClick={() => setShowColumnConfig(false)}
+        >
+          <Card bordered={false} style={{
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxHeight: '80vh', overflow: 'auto',
+          }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <SlidersHorizontal size={16} /> 列表列配置
+              </h3>
+              <button onClick={() => setShowColumnConfig(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }} aria-label="关闭">
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              选择列表视图要显示的列（配置自动保存到本地，刷新后保留）
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 16 }}>
+              {WORKLIST_COLUMNS.map(c => {
+                const isOn = c.key in columnConfig ? columnConfig[c.key] : c.default
+                return (
+                  <label key={c.key} style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8,
+                    border: `1px solid ${isOn ? '#bfdbfe' : 'var(--border-color)'}`,
+                    background: isOn ? '#eff6ff' : 'var(--bg-card)', cursor: 'pointer', fontSize: 13,
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={isOn}
+                      onChange={() => toggleColumn(c.key)}
+                      style={{ accentColor: '#1e40af', cursor: 'pointer' }}
+                    />
+                    <span style={{ color: isOn ? '#1e40af' : 'var(--text-secondary)', fontWeight: isOn ? 600 : 400 }}>{c.label}</span>
+                    {c.key === 'actions' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>恒显示</span>}
+                  </label>
+                )
+              })}
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={resetColumnConfig} style={{
+                padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6,
+                background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13,
+              }}>恢复默认</button>
+              <button onClick={() => setShowColumnConfig(false)} style={{
+                padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af',
+                color: '#fff', cursor: 'pointer', fontSize: 13,
+              }}>应用</button>
+            </div>
+          </Card>
+        </div>
       )}
     </PageContainer>
   )
