@@ -3,7 +3,10 @@ import { Button, Empty, Skeleton, Tag, Dropdown, Popconfirm } from 'antd'
 import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History, Activity, RefreshCw, ArrowLeftRight, ArrowUp, PenLine, AlertTriangle, Radar, Save } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
-import { ProTable, type ProColumn } from '../../components/data/ProTable'
+// [v3.0.6.11-103 Wave 6] 表格统一: ProTable → DataTable (斑马纹/行高/列头/分页统一)
+import { DataTable } from '../../components/common/DataTable'
+import type { ProColumn } from '../../components/data/ProTable'
+import type { TableColumnsType } from 'antd'
 import { formatDateTime } from '../../utils/date';
 import { usePagination } from '../../hooks/usePagination';
 import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWritable, isDraftOverdue } from './reportUtils';
@@ -270,13 +273,11 @@ export default function ReportTableView({
   ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave]);
 
   return (
-    <ProTable<RadiologyReport>
-      columns={columns}
+    <DataTable<RadiologyReport>
+      columns={columns as unknown as TableColumnsType<RadiologyReport>}
       dataSource={listPagination.pageData}
       rowKey="id"
       loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
-      showToolbar={false}
-      size="small"
       pagination={listPagination.pagination}
       scroll={{ x: 1250 }}
       rowSelection={{

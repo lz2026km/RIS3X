@@ -6,7 +6,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message, Modal } from 'antd';
+import { message, Modal, Tag } from 'antd';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -22,7 +22,13 @@ import {
 } from '../data/reviewRevisionCollabMock';
 import { reportApi, type ReportDto } from '../services/api/reportApi';
 import { useAuth } from '../hooks/useAuth';
-
+// [v3.0.6.11-103 Wave 12] 审核增强: diff 高亮 / 危急值自动检测 / 随访建议
+import { computeDiff, type DiffChunk } from '../services/reportDiffEngine';
+import { criticalAlertApi } from '../services/api/criticalAlertApi';
+import FollowupAutoBookPanel from '../components/report/v3/R3.WRITING/FollowupAutoBookPanel';
+import { t } from '../i18n/appI18n';
+import { CheckCircle2, Siren, CalendarClock } from 'lucide-react';
+import ReportFlowBar from '../components/report/ReportFlowBar';
 // [v3.0.6.11-70] P0 真实化: 后端 ReportDto → 审核任务 (状态过滤/阶段映射)
 function reportToReviewTask(r: ReportDto): ReviewTask | null {
   const key = `${r.status ?? ''}`;
@@ -60,6 +66,7 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
     findingsText: r.findings || undefined,
     impressionText: r.impression || r.diagnosis || undefined,
     recommendationsText: r.recommendations || undefined,
+    statusRaw: r.status || r.state || '',
   } as ReviewTask;
 }
 
@@ -416,6 +423,7 @@ export default function ReportReviewPage() {
               setAuditDecision={setAuditDecision}
               submitting={submitting}
               onAuditSubmit={handleAuditSubmit}
+              onReloadTasks={() => { void loadTasks(); }}
             />
           ) : (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>请从左侧选择审核任务</div>
@@ -460,7 +468,8 @@ const ReviewTaskDetail: React.FC<{
   setAuditDecision: (v: any) => void;
   submitting: boolean;
   onAuditSubmit: (decision: 'approve' | 'reject') => void;
-}> = ({ task, currentUser, auditSuggestion, setAuditSuggestion, auditScore, setAuditScore, auditDecision, setAuditDecision, submitting, onAuditSubmit }) => {
+  onReloadTasks?: () => void;
+}> = ({ task, currentUser, auditSuggestion, setAuditSuggestion, auditScore, setAuditScore, auditDecision, setAuditDecision, submitting, onAuditSubmit, onReloadTasks }) => {
   const stageConf = STAGE_CONFIG[task.stage];
   const statusConf = STATUS_CONFIG[task.status];
   const StageIcon = stageConf.icon;
@@ -473,8 +482,181 @@ const ReviewTaskDetail: React.FC<{
   // [v3.0.6.11-98 Wave3B P1] 全屏预览: 报告内容全屏 Modal (详情组件内状态)
   const [previewFull, setPreviewFull] = useState(false);
 
+  // [v3.0.6.11-103 Wave 12] 修改痕迹视图: GET /reports/:id/diff → 原文 vs 当前 diff 高亮
+  const [diffOpen, setDiffOpen] = useState(false);
+  const [diffLoading, setDiffLoading] = useState(false);
+  const [diffData, setDiffData] = useState<{ old: string; cur: string; changes: string[] } | null>(null);
+
+  const loadDiff = useCallback(async () => {
+    if (diffOpen) { setDiffOpen(false); return; }
+    setDiffOpen(true);
+    setDiffLoading(true);
+    try {
+      const res = await reportApi.diff(task.reportId);
+      if (res.success && res.data) {
+        const oldV = res.data.oldVersion ?? {};
+        const newV = res.data.newVersion ?? {};
+        const pick = (v: Record<string, unknown>) => [v.findings, v.impression, v.diagnosis, v.recommendations].filter(Boolean).join('\n\n');
+        setDiffData({
+          old: pick(oldV as Record<string, unknown>) || findingsText,
+          cur: pick(newV as Record<string, unknown>) || findingsText,
+          changes: Array.isArray(res.data.changes) ? res.data.changes : [],
+        });
+      } else {
+        setDiffData({ old: findingsText, cur: findingsText, changes: [] });
+      }
+    } catch {
+      setDiffData({ old: findingsText, cur: findingsText, changes: [] });
+    } finally {
+      setDiffLoading(false);
+    }
+  }, [task.reportId, findingsText]);
+
+  // [v3.0.6.11-103 Wave 12] 发布后处置: 危急值关键词自动检测 (报告正文命中即提示转危急值处置)
+  const criticalKeywords = ['脑疝', '主动脉夹层', '主动脉瘤', '肺栓塞', '气胸', '张力性气胸', '消化道穿孔', '急性肠梗阻', '颅内出血', '蛛网膜下腔出血', '脑出血', '急性心包填塞', '夹层', '大出血'];
+  const fullText = `${findingsText}\n${impressionText}\n${(task as any).recommendationsText ?? ''}`;
+  const criticalHits = useMemo(() => criticalKeywords.filter((k) => fullText.includes(k)), [fullText]);
+  const [cvBusy, setCvBusy] = useState(false);
+  const handleTransferCritical = useCallback(async () => {
+    setCvBusy(true);
+    try {
+      const res = await criticalAlertApi.create({
+        criticalValueId: task.reportId,
+        level: 'critical',
+        patientId: (task as any).patientId || task.reportId,
+        patientName: task.patientName,
+        studyId: task.reportId,
+        modality: task.modality,
+        title: `审核发布后检测: ${criticalHits.join('/')}`,
+        description: `报告 ${task.reportId} 审核后命中危急值关键词: ${criticalHits.join('、')}`,
+        reportId: task.reportId,
+      });
+      if (res.success) {
+        message.success(t('w12.review.criticalCreated'));
+        setTimeout(() => { window.location.href = '/critical-alert'; }, 1200);
+      } else {
+        message.error(t('w12.review.criticalCreateFail'));
+      }
+    } catch {
+      message.error(t('w12.review.criticalCreateFail'));
+    } finally {
+      setCvBusy(false);
+    }
+  }, [task, criticalHits]);
+
   return (
     <div>
+      {/* [v3.0.6.11-103 Wave 12] 报告流程状态条: 7 态状态机 + 下一步一键流转 (审核/签发场景) */}
+      <div style={{ marginBottom: 12 }}>
+        <ReportFlowBar
+          status={(task as any).statusRaw || (task.stage === 'initial' ? 'INITIAL_REVIEW' : task.stage === 'final' ? 'FINAL_REVIEW' : task.stage === 'sign' ? 'SIGNING' : undefined)}
+          reportId={task.reportId}
+          compact
+          onTransited={(to) => {
+            void to;
+            setAuditDecision(null);
+            setAuditSuggestion('');
+            setTimeout(() => { onReloadTasks?.(); }, 800);
+          }}
+        />
+      </div>
+      {/* [v3.0.6.11-103 Wave 12] 修改痕迹视图: 原文 + diff 高亮 */}
+      {diffOpen && (
+        <div style={{
+          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+          border: '1px solid var(--border-color)',
+        }} data-testid="review-diff-view">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <History size={14} /> {t('w12.review.modificationView')}
+              <Tag color="green" style={{ margin: 0 }}>{task.reportId}</Tag>
+            </div>
+            <button onClick={() => setDiffOpen(false)} style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>
+              {t('w12.review.originalView')}
+            </button>
+          </div>
+          {diffLoading ? (
+            <div style={{ padding: 24, textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w12.review.diffLoading')}</div>
+          ) : diffData && diffData.old !== diffData.cur ? (
+            <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
+              <div style={{ marginBottom: 6, color: '#64748b' }}>
+                <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 8 }}>删除 (修改前)</span>
+                <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: 3 }}>新增 (修改后)</span>
+              </div>
+              <DiffHighlight oldText={diffData.old} newText={diffData.cur} />
+              {diffData.changes.length > 0 && (
+                <div style={{ marginTop: 10, padding: 8, background: 'var(--color-warning-bg)', borderRadius: 6 }}>
+                  <div style={{ fontWeight: 700, color: '#b45309', marginBottom: 4 }}>{t('w12.review.diffField')} ({diffData.changes.length})</div>
+                  {diffData.changes.map((c, i) => (
+                    <div key={i} style={{ fontSize: 12, color: '#78350f' }}>• {c}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ padding: 16, textAlign: 'center', color: 'var(--color-success)', fontSize: 12 }}>
+              <CheckCircle2 size={14} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('w12.review.diffNoChange')}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* [v3.0.6.11-103 Wave 12] 发布后处置: 危急值自动检测 + 一键转危急值处置 + 随访自动建议 */}
+      {(task.status === 'completed' || task.status === 'rejected') && (
+        <div style={{
+          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
+          border: '1px solid var(--border-color)',
+        }} data-testid="post-publish-panel">
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ShieldCheck size={14} /> {t('w12.review.postPublish')}
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            {criticalHits.length > 0 ? (
+              <div style={{
+                padding: 10, borderRadius: 6, background: 'var(--color-error-bg)',
+                border: '1px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Siren size={16} color="#dc2626" />
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#b91c1c' }}>
+                      {t('w12.review.criticalDetected')}: {criticalHits.join('、')}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#7f1d1d' }}>{t('w12.review.criticalDetectedHint')}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => void handleTransferCritical()}
+                  disabled={cvBusy}
+                  style={{
+                    padding: '8px 14px', border: 'none', borderRadius: 6,
+                    background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  <AlertTriangle size={13} /> {cvBusy ? '…' : t('w12.review.toCritical')}
+                </button>
+              </div>
+            ) : (
+              <div style={{ padding: 10, borderRadius: 6, background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', fontSize: 12, color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CheckCircle2 size={13} /> {t('w12.review.criticalNone')}
+              </div>
+            )}
+          </div>
+          <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CalendarClock size={13} /> {t('w12.review.followupSuggest')}
+            </div>
+            <FollowupAutoBookPanel
+              reportText={`${findingsText}\n${impressionText}\n${(task as any).recommendationsText ?? ''}`}
+              patientId={(task as any).patientId || task.reportId}
+              patientName={task.patientName}
+              reportId={task.reportId}
+              examId={(task as any).examId}
+            />
+          </div>
+        </div>
+      )}
       {/* 头部 */}
       <div style={{
         background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
@@ -553,21 +735,35 @@ const ReviewTaskDetail: React.FC<{
         background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
         border: '1px solid var(--border-color)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FileText size={14} /> 报告内容
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FileText size={14} /> 报告内容
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {/* [v3.0.6.11-103 Wave 12] 修改痕迹开关: 原文 ↔ diff 高亮 */}
+              <button
+                onClick={() => void loadDiff()}
+                style={{
+                  padding: '4px 8px', border: `1px solid ${diffOpen ? '#1e40af' : 'var(--border-color)'}`, borderRadius: 4,
+                  background: diffOpen ? 'var(--color-info-bg)' : 'var(--bg-card)',
+                  color: diffOpen ? '#1e40af' : 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 4, fontWeight: diffOpen ? 700 : 400,
+                }}
+              >
+                <History size={11} /> {diffOpen ? t('w12.review.originalView') : t('w12.review.modificationView')}
+              </button>
+              <button
+                onClick={() => setPreviewFull(true)}
+                style={{
+                  padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
+                  background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}
+              >
+                <Eye size={11} /> 全屏预览
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => setPreviewFull(true)}
-            style={{
-              padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-              background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4,
-            }}
-          >
-            <Eye size={11} /> 全屏预览
-          </button>
-        </div>
         <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 8 }}>
             <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
@@ -734,6 +930,26 @@ const ReviewTaskDetail: React.FC<{
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
               }}
             />
+            {/* [v3.0.6.11-103 Wave 12] 快捷退回原因: 一键填充 */}
+            <div style={{ marginTop: 6 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('w12.review.quickReasons')}</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {QUICK_REJECT_REASONS.map(r => (
+                  <button
+                    key={r}
+                    onClick={() => setAuditSuggestion(r)}
+                    style={{
+                      padding: '4px 8px', borderRadius: 12, fontSize: 11, cursor: 'pointer',
+                      background: auditSuggestion === r ? 'var(--color-error-bg)' : 'var(--bg-card)',
+                      border: `1px solid ${auditSuggestion === r ? '#fca5a5' : 'var(--border-color)'}`,
+                      color: auditSuggestion === r ? '#b91c1c' : 'var(--text-secondary)',
+                    }}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* 决策按钮 */}
@@ -794,3 +1010,32 @@ const InfoCell: React.FC<{ label: string; value: string; alert?: boolean }> = ({
     <div style={{ fontSize: 12, color: alert ? '#dc2626' : 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );
+
+// ============================================================
+// [v3.0.6.11-103 Wave 12] 修改痕迹 diff 高亮 (computeDiff: 红=删除 绿=新增)
+// ============================================================
+const DiffHighlight: React.FC<{ oldText: string; newText: string }> = ({ oldText, newText }) => {
+  const chunks = useMemo<DiffChunk[]>(() => computeDiff(oldText, newText), [oldText, newText]);
+  return (
+    <div style={{ whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }} data-testid="review-diff-highlight">
+      {chunks.map((c: DiffChunk, i: number) =>
+        c.type === 'removed' ? (
+          <span key={i} style={{ background: '#fef2f2', color: '#b91c1c', textDecoration: 'line-through', borderRadius: 2, padding: '0 2px' }}>{c.text}</span>
+        ) : c.type === 'added' ? (
+          <span key={i} style={{ background: '#ecfdf5', color: '#047857', borderRadius: 2, padding: '0 2px' }}>{c.text}</span>
+        ) : (
+          <span key={i}>{c.text}</span>
+        )
+      )}
+    </div>
+  );
+};
+
+// [v3.0.6.11-103 Wave 12] 退回快捷原因 (一键填充审核意见)
+const QUICK_REJECT_REASONS = [
+  '影像所见与诊断意见不一致, 请复核图像后修改',
+  '诊断意见缺少关键所见描述, 建议补充病灶特征',
+  '检查部位与申请单不符, 请核对后重新书写',
+  '术语使用不规范, 建议按 ICD 标准术语修改',
+  '建议漏写, 请补充随访/复查建议',
+];

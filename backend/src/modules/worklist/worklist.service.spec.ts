@@ -120,6 +120,79 @@ describe('WorklistService', () => {
     })
   })
 
+  // [v3.0.6.11-103 Wave 13] 流程质量门禁: PATCH state 非法跳转 400 / 合法流转 200 / 防跳转
+  describe('state machine gate (PATCH state 非法跳转校验)', () => {
+    const makeService = (fromState: string, update = jest.fn().mockResolvedValue({ ...exam })) => {
+      const prisma = makePrisma({ exam: { findUnique: jest.fn().mockResolvedValue({ ...exam, state: fromState }), update } })
+      return { service: new WorklistService(prisma), update }
+    }
+
+    it('合法流转: SCHEDULED → ARRIVED → IN_PROGRESS 200', async () => {
+      const { service, update } = makeService('SCHEDULED')
+      await service.update('E1', { state: 'ARRIVED' })
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'ARRIVED' }) }))
+      const { service: s2, update: u2 } = makeService('ARRIVED')
+      await s2.update('E1', { state: 'IN_PROGRESS' })
+      expect(u2).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'IN_PROGRESS' }) }))
+    })
+
+    it('非法跳转: ARRIVED → COMPLETED (跳过 IN_PROGRESS) 400', async () => {
+      const { service, update } = makeService('ARRIVED')
+      await expect(service.update('E1', { state: 'COMPLETED' })).rejects.toBeInstanceOf(BadRequestException)
+      await expect(service.update('E1', { state: 'COMPLETED' })).rejects.toThrow('INVALID_TRANSITION')
+      expect(update).not.toHaveBeenCalled()
+    })
+
+    it('非法跳转: SCHEDULED → IN_PROGRESS / COMPLETED (未签到未开始) 400', async () => {
+      const { service } = makeService('SCHEDULED')
+      await expect(service.update('E1', { state: 'IN_PROGRESS' })).rejects.toThrow('INVALID_TRANSITION')
+      await expect(service.update('E1', { state: 'COMPLETED' })).rejects.toThrow('INVALID_TRANSITION')
+      await expect(service.update('E1', { state: 'PENDING_REPORT' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('合法流转: IN_PROGRESS → PAUSED → IN_PROGRESS (暂停/继续侧链)', async () => {
+      const { service, update } = makeService('IN_PROGRESS')
+      await service.update('E1', { state: 'PAUSED' })
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'PAUSED' }) }))
+      const { service: s2, update: u2 } = makeService('PAUSED')
+      await s2.update('E1', { state: 'IN_PROGRESS' })
+      expect(u2).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'IN_PROGRESS' }) }))
+    })
+
+    it('合法流转: COMPLETED → IMAGE_READY → QC_REJECT → IN_PROGRESS (质控+重拍闭环)', async () => {
+      const { service, update } = makeService('COMPLETED')
+      await service.update('E1', { state: 'IMAGE_READY' })
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'IMAGE_READY' }) }))
+      const { service: s2 } = makeService('IMAGE_READY')
+      await s2.update('E1', { state: 'QC_REJECT' })
+      const { service: s3 } = makeService('QC_REJECT')
+      await s3.update('E1', { state: 'IN_PROGRESS' })
+      const { service: s4 } = makeService('QC_REJECT')
+      await s4.update('E1', { state: 'PENDING_REPORT' })
+    })
+
+    it('非法流转: CANCELLED / PENDING_REPORT 终态不可再流转', async () => {
+      const { service } = makeService('CANCELLED')
+      await expect(service.update('E1', { state: 'ARRIVED' })).rejects.toThrow('INVALID_TRANSITION')
+      const { service: s2 } = makeService('PENDING_REPORT')
+      await expect(s2.update('E1', { state: 'COMPLETED' })).rejects.toThrow('INVALID_TRANSITION')
+    })
+
+    it('同态幂等: SCHEDULED → SCHEDULED 200 (PATCH 重复提交放行)', async () => {
+      const { service, update } = makeService('SCHEDULED')
+      await service.update('E1', { state: 'SCHEDULED' })
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'SCHEDULED' }) }))
+    })
+
+    it('未携带 state 的 PATCH (priority/techNote 等) 不受门禁影响', async () => {
+      const { service, update } = makeService('COMPLETED')
+      await service.update('E1', { priority: 'URGENT', techNote: '备注' })
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ priority: 'URGENT', techNotes: '备注' }),
+      }))
+    })
+  })
+
   describe('assign', () => {
     it('sets deviceId on exam (validating device exists)', async () => {
       const update = jest.fn().mockResolvedValue({ ...exam, deviceId: 'D1' })

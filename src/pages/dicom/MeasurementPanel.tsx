@@ -4,12 +4,13 @@
 //  - 标注双向同步: 前端 canvas 绘制 ↔ 后端标注对象 (measurement-v2 模块)
 //  - 历史版本: 每次更新快照, 支持回滚
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Ruler, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as EyeIcon, EyeOff, FileText, Bone, ScanLine, Route, History, RotateCcw, Link2, PenTool, RefreshCw, HeartPulse } from 'lucide-react'
+import { Ruler, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as EyeIcon, EyeOff, FileText, Bone, ScanLine, Route, History, RotateCcw, Link2, PenTool, RefreshCw, HeartPulse, Database, Zap, Repeat2 } from 'lucide-react'
 const RectIcon = Square
 import type { Dispatch, SetStateAction } from 'react'
 import type { MeasureSubMenu, Measurement, RightTab, Tool, MeasureV2Type, Point2D, MeasureV2Record, MeasureV2Version, AnnotationV2Type, AnnotationV2Record, AnnotationV2Version } from './DicomViewerTypes'
 import { MEASURE_V2_META, MEASURE_V2_TOOL_ORDER, computeMeasureV2 } from './DicomViewerTypes'
-import { measurementV2Api } from '../../services/api/measurementV2Api'
+import { measurementV2Api, type MeasurementTypeMeta, type ComputeResult, type ConvertCoordinatesResult } from '../../services/api/measurementV2Api'
+import { t } from '../../i18n/appI18n'
 
 const PRIMARY = '#1e40af'
 
@@ -320,6 +321,20 @@ export default function MeasurementPanel(props: Props) {
   const [annVersionsFor, setAnnVersionsFor] = useState<string | null>(null)
   const [annSynced, setAnnSynced] = useState(false)
 
+  // [v3.0.6.11-103 Wave 2B] V2 服务端能力: 类型元数据 / 确定性计算 / 坐标换算 / seed 检查
+  const [v2TypeMeta, setV2TypeMeta] = useState<MeasurementTypeMeta[]>([])
+  const [v2MetaLoaded, setV2MetaLoaded] = useState(false)
+  const [serverCompute, setServerCompute] = useState<ComputeResult | null>(null)
+  const [serverComputeType, setServerComputeType] = useState<MeasureV2Type>('line')
+  const [serverComputeBusy, setServerComputeBusy] = useState(false)
+  const [convResult, setConvResult] = useState<ConvertCoordinatesResult | null>(null)
+  const [convDirection, setConvDirection] = useState<'pixelToWorld' | 'worldToPixel'>('pixelToWorld')
+  const [convBusy, setConvBusy] = useState(false)
+  const [seedUids, setSeedUids] = useState<string[]>([])
+  const [editingAnnId, setEditingAnnId] = useState<string | null>(null)
+  const [annEditText, setAnnEditText] = useState('')
+  const [annEditBusy, setAnnEditBusy] = useState(false)
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const currentStudyUid = studyUid?.trim() || DEFAULT_STUDY_UID
 
@@ -348,6 +363,17 @@ export default function MeasurementPanel(props: Props) {
     void refreshV2Measurements()
     void refreshV2Annotations()
   }, [refreshV2Measurements, refreshV2Annotations])
+
+  // [v3.0.6.11-103 Wave 2B] 服务端能力初始化: 类型元数据 + seed 检查 (真实 API, 失败静默)
+  useEffect(() => {
+    measurementV2Api.listTypes().then((meta) => {
+      setV2TypeMeta(meta)
+      setV2MetaLoaded(true)
+    }).catch(() => { /* 后端不可达: 使用前端 MEASURE_V2_META */ })
+    measurementV2Api.seedStudyUids().then((uids) => {
+      if (Array.isArray(uids) && uids.length > 0) setSeedUids(uids)
+    }).catch(() => { /* 后端不可达 */ })
+  }, [])
 
   // 选中测量 → 属性面板同步标签
   useEffect(() => {
@@ -606,6 +632,65 @@ export default function MeasurementPanel(props: Props) {
 
   const v2VariableTool = v2Tool !== null && MEASURE_V2_META[v2Tool].fixedPoints === 0
 
+  // [v3.0.6.11-103 Wave 2B] 服务端确定性计算: POST /measurement-v2/compute
+  const runServerCompute = useCallback(async () => {
+    setServerComputeBusy(true)
+    setServerCompute(null)
+    const meta = MEASURE_V2_META[serverComputeType]
+    const pts: Point2D[] = meta.fixedPoints > 0
+      ? Array.from({ length: meta.fixedPoints }, (_, i) => ({ x: 80 + i * 90, y: 120 + (i % 2) * 70 }))
+      : [{ x: 60, y: 160 }, { x: 160, y: 200 }, { x: 260, y: 240 }]
+    try {
+      const res = await measurementV2Api.compute({
+        type: serverComputeType,
+        points: pts,
+        pixelSpacing: DEFAULT_SPACING,
+        ...(serverComputeType === 'calciumScore' ? { huValues: [210, 340, 520, 165], huThreshold: 130 } : {}),
+      })
+      setServerCompute(res)
+    } catch {
+      setServerCompute(null)
+    } finally {
+      setServerComputeBusy(false)
+    }
+  }, [serverComputeType])
+
+  // [v3.0.6.11-103 Wave 2B] 像素 ↔ 世界坐标换算: POST /measurement-v2/coordinates/convert
+  const runCoordConvert = useCallback(async () => {
+    setConvBusy(true)
+    setConvResult(null)
+    const pts: Point2D[] = [{ x: 100, y: 120 }, { x: 240, y: 300 }]
+    try {
+      const res = await measurementV2Api.convertCoordinates({ points: pts, pixelSpacing: DEFAULT_SPACING, direction: convDirection })
+      setConvResult(res)
+    } catch {
+      setConvResult(null)
+    } finally {
+      setConvBusy(false)
+    }
+  }, [convDirection])
+
+  // [v3.0.6.11-103 Wave 2B] 标注文字编辑: PUT /measurement-v2/annotations/:id (版本 +1)
+  const startEditAnn = (ann: AnnotationV2Record) => {
+    setEditingAnnId(ann.id)
+    setAnnEditText(ann.text ?? '')
+  }
+
+  const saveAnnText = useCallback(async () => {
+    if (!editingAnnId) return
+    setAnnEditBusy(true)
+    try {
+      const updated = await measurementV2Api.updateAnnotation(editingAnnId, { text: annEditText.trim() })
+      setAnnRecords((prev) => prev.map((a) => (a.id === editingAnnId ? updated : a)))
+      showToast(t('measurementV2.annUpdated') || '标注已更新 (版本 +1)')
+      setEditingAnnId(null)
+    } catch {
+      showToast(t('measurementV2.annUpdateFailed') || '标注更新失败: 后端不可达')
+    } finally {
+      setAnnEditBusy(false)
+    }
+  }, [editingAnnId, annEditText, showToast])
+
   if (rightTab !== 'measure') return null
 
   return (
@@ -770,15 +855,25 @@ export default function MeasurementPanel(props: Props) {
           <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>暂无标注对象 (在画布上选择标注类型后点击绘制)</div>
         ) : (
           annRecords.map(a => (
-            <div key={a.id} style={s.annItem}>
-              <div style={{ ...s.measureItemColor, background: a.color, borderRadius: 2 }} />
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || ANN_TYPE_LABEL[a.type]}</span>
-                <span style={{ color: '#94a3b8', marginLeft: 4 }}>{ANN_TYPE_LABEL[a.type]} · {a.pixelPoints.length}点{a.measurementId ? ' · 🔗' : ''}</span>
-              </span>
-              <button style={{ ...s.smallBtn, padding: '1px 6px' }} title="关联到选中测量" onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
-              <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
-              <button style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>
+            <div key={a.id}>
+              <div style={s.annItem}>
+                <div style={{ ...s.measureItemColor, background: a.color, borderRadius: 2 }} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || ANN_TYPE_LABEL[a.type]}</span>
+                  <span style={{ color: '#94a3b8', marginLeft: 4 }}>{ANN_TYPE_LABEL[a.type]} · {a.pixelPoints.length}点{a.measurementId ? ' · 🔗' : ''}</span>
+                </span>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title="编辑标注文字 (PUT /annotations/:id)" onClick={() => startEditAnn(a)}>✎</button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title="关联到选中测量" onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>
+              </div>
+              {editingAnnId === a.id && (
+                <div style={{ display: 'flex', gap: 4, marginTop: 4, alignItems: 'center' }}>
+                  <input style={s.input} value={annEditText} onChange={e => setAnnEditText(e.target.value)} placeholder="标注文字..." />
+                  <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={annEditBusy} onClick={() => void saveAnnText()}>保存</button>
+                  <button style={s.smallBtn} onClick={() => setEditingAnnId(null)}>取消</button>
+                </div>
+              )}
             </div>
           ))
         )}
@@ -796,6 +891,89 @@ export default function MeasurementPanel(props: Props) {
             ))}
           </div>
         )}
+      </div>
+
+      {/* ── [v3.0.6.11-103 Wave 2B] V2 服务端能力: 类型元数据 / 计算 / 坐标换算 / seed ── */}
+      <div style={{ ...s.infoSection, border: '1px solid #ccfbf1', borderRadius: 10, padding: 10, background: '#f0fdfa' }}>
+        <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Database size={12} />{t('measurementV2.serverCap') || 'V2 服务端能力'}</span>
+          <span style={{ ...s.badge, background: v2MetaLoaded ? '#dcfce7' : '#fef3c7', color: v2MetaLoaded ? '#16a34a' : '#d97706' }}>
+            {v2MetaLoaded ? (t('measurementV2.metaLoaded') || 'GET /types 已加载') : (t('measurementV2.localMeta') || '前端元数据')}
+          </span>
+        </div>
+
+        {/* 8 工具类型元数据 (GET /measurement-v2/types) */}
+        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>{t('measurementV2.typeMetaTitle') || '8 工具类型元数据 (单位/取点数/确定性/公式)'}</div>
+        <div style={{ maxHeight: 140, overflowY: 'auto', marginBottom: 8 }}>
+          {(v2TypeMeta.length > 0 ? v2TypeMeta : MEASURE_V2_TOOL_ORDER.map(type => {
+            const m = MEASURE_V2_META[type]
+            return { type, label: m.label, unit: m.unit, minPoints: m.minPoints, fixedPoints: m.fixedPoints, deterministic: m.deterministic, formula: m.formula, precision: m.precision } as MeasurementTypeMeta
+          })).map(meta => (
+            <div key={meta.type} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', borderBottom: '1px solid #f0fdfa', fontSize: 11 }}>
+              <span style={{ fontWeight: 700, color: '#0f766e', width: 90 }}>{meta.label}</span>
+              <span style={{ color: '#475569', width: 56 }}>{meta.unit}</span>
+              <span style={{ color: '#94a3b8', width: 74 }}>{meta.fixedPoints > 0 ? `${meta.fixedPoints}点` : `${meta.minPoints}点+`}</span>
+              <span style={{ color: meta.deterministic ? '#16a34a' : '#d97706', width: 64 }}>{meta.deterministic ? '确定性' : '近似'}</span>
+              <span style={{ color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta.formula}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 服务端确定性计算 (POST /measurement-v2/compute) */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 11, color: '#64748b' }}>{t('measurementV2.serverCompute') || '服务端计算'}:</span>
+          <select
+            value={serverComputeType}
+            onChange={e => setServerComputeType(e.target.value as MeasureV2Type)}
+            style={{ ...s.input, maxWidth: 130 }}
+          >
+            {MEASURE_V2_TOOL_ORDER.map(type => <option key={type} value={type}>{MEASURE_V2_META[type].label}</option>)}
+          </select>
+          <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={serverComputeBusy} onClick={() => void runServerCompute()}>
+            <Zap size={10} />{t('measurementV2.computeBtn') || '计算'}
+          </button>
+          {serverCompute && (
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#0f766e' }}>
+              {serverCompute.value} {serverCompute.unit} · {serverCompute.formula}
+            </span>
+          )}
+          {serverComputeBusy && <span style={{ fontSize: 11, color: '#94a3b8' }}>POST /measurement-v2/compute...</span>}
+        </div>
+
+        {/* 坐标换算 (POST /measurement-v2/coordinates/convert) */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 11, color: '#64748b' }}>{t('measurementV2.coordConvert') || '坐标换算'}:</span>
+          <select
+            value={convDirection}
+            onChange={e => setConvDirection(e.target.value as 'pixelToWorld' | 'worldToPixel')}
+            style={{ ...s.input, maxWidth: 130 }}
+          >
+            <option value="pixelToWorld">像素 → 世界</option>
+            <option value="worldToPixel">世界 → 像素</option>
+          </select>
+          <button style={{ ...s.smallBtn, ...s.smallBtnPrimary }} disabled={convBusy} onClick={() => void runCoordConvert()}>
+            <Repeat2 size={10} />{t('measurementV2.convertBtn') || '换算'}
+          </button>
+          {convResult && (
+            <span style={{ fontSize: 11, color: '#0f766e' }}>
+              {convResult.points.map(p => `(${Math.round(p.x * 100) / 100},${Math.round(p.y * 100) / 100})`).join(' ')}
+            </span>
+          )}
+        </div>
+
+        {/* Seed 检查检查 (GET /measurement-v2/seed-study-uids) */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 11, color: '#64748b' }}>{t('measurementV2.seedTitle') || '后端 Seed 检查'}:</span>
+          <button style={s.smallBtn} onClick={() => { measurementV2Api.seedStudyUids().then(uids => setSeedUids(uids)).catch(() => showToast(t('measurementV2.seedFailed') || 'Seed 检查失败')) }}>
+            <RefreshCw size={10} />{t('measurementV2.seedBtn') || '刷新'}
+          </button>
+          {seedUids.length > 0 && (
+            <span style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {seedUids[0]}
+              {seedUids.length > 1 && ` (+${seedUids.length - 1})`}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ── 测量结果 (传统) ── */}

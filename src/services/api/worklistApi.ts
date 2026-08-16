@@ -90,6 +90,71 @@ export interface TechnicianDashboardDto {
   trend: Array<{ date: string; completed: number }>
 }
 
+// [v3.0.6.11-103 Wave 1B] 今日总览 DTO (GET /worklist/overview)
+export interface WorklistOverviewDto {
+  date: string
+  total: number
+  todayTotal: number
+  completedToday: number
+  completedRate: number
+  avgDurationMin: number
+  byStatus: Record<string, number>
+  byModality: Array<{ modality: string; count: number }>
+  byRoom: Array<{ room: string; count: number; completed: number; inProgress: number }>
+  byHour: Array<{ hour: string; count: number }>
+  peakHour: string
+}
+
+// [v3.0.6.11-103 Wave 1B] 模态分组 DTO (GET /worklist/by-modality)
+export interface WorklistModalityItemDto {
+  modality: string
+  total: number
+  inProgress: number
+  completed: number
+  pending: number
+  todayCompleted: number
+  avgDurationMin: number
+}
+
+// [v3.0.6.11-103 Wave 1B] 技师维度明细 DTO (GET /worklist/technician-stats)
+export interface WorklistTechnicianStatDto {
+  id: string
+  name: string
+  completedCount: number
+  retakeCount: number
+  avgDurationMin: number
+}
+export interface WorklistTechnicianStatsDto {
+  summary: {
+    totalCompleted: number
+    totalRetake: number
+    avgDurationMin: number
+    retakeRate: number
+    technicianCount: number
+  }
+  technicians: WorklistTechnicianStatDto[]
+}
+
+// [v3.0.6.11-103 Wave 1B] 检查时间线 DTO (GET /worklist/timeline/:id)
+export interface WorklistTimelineEventDto {
+  type: string
+  label: string
+  timestamp: string
+  actor?: string
+  note?: string
+}
+export interface WorklistTimelineDto {
+  examId: string
+  accessionNumber?: string
+  patientId?: string
+  patientName?: string
+  modality: string
+  bodyPart?: string
+  state: string
+  totalEvents: number
+  events: WorklistTimelineEventDto[]
+}
+
 // [G005 Wave1A W9] 状态流转: checkin/start/complete/cancel 后失效 /worklist 前缀缓存
 async function invalidateWorklist(): Promise<void> {
   await invalidateApiCacheByPrefix('/worklist')
@@ -211,6 +276,28 @@ export const worklistApi = {
   // [v3.0.6.11-100 Wave 1A] 多技师协作: 交接班 (POST /worklist/:id/handover)
   handover: async (id: string, dto: { fromId: string; toId: string; note?: string }) => {
     const res = await api.post(`/worklist/${id}/handover`, dto)
+    await invalidateWorklist()
+    return res
+  },
+
+  // [v3.0.6.11-103 Wave 1B] 今日总览 (按状态/模态/房间) — GET /worklist/overview
+  getOverview: () => api.get<WorklistOverviewDto>('/worklist/overview'),
+
+  // [v3.0.6.11-103 Wave 1B] 模态分组列表 — GET /worklist/by-modality
+  getByModality: () => api.get<{ items: WorklistModalityItemDto[]; total: number }>('/worklist/by-modality'),
+
+  // [v3.0.6.11-103 Wave 1B] 技师维度明细 (完成数/平均时长/重拍数) — GET /worklist/technician-stats
+  getTechnicianStats: () => api.get<WorklistTechnicianStatsDto>('/worklist/technician-stats'),
+
+  // [v3.0.6.11-103 Wave 1B] 检查时间线 (登记→签到→开始→暂停→完成→质控 事件流) — GET /worklist/timeline/:id
+  getTimeline: (id: string) => api.get<WorklistTimelineDto>(`/worklist/timeline/${id}`),
+
+  // [v3.0.6.11-103 Wave 1B] 技师备注保存 — POST /worklist/:id/notes (note 必填; latest=true 覆盖式写入)
+  saveNotes: async (id: string, note: string, opts?: { latest?: boolean }) => {
+    const res = await api.post<{ ok: boolean; examId: string; techNotes: string }>(
+      `/worklist/${id}/notes`,
+      { note, latest: opts?.latest ?? false },
+    )
     await invalidateWorklist()
     return res
   },

@@ -19,7 +19,8 @@ interface Appointment {
 
 interface Props {
   viewMode: string
-  setViewMode: Dispatch<SetStateAction<"calendar" | "list" | "reminders">>
+  // [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentPage 增加 "management" 视图 (嵌入 AppointmentManagementPage)
+  setViewMode: Dispatch<SetStateAction<"calendar" | "list" | "reminders" | "management">>
   calendarSubView: string
   setCalendarSubView: (v: 'day' | 'week' | 'month') => void
   weekDates: Date[]

@@ -1,4 +1,4 @@
-{
+﻿{
   "workbench": "工作台",
   "aiOrchestration": "AI 编排平台",
   "dicomViewerClassic": "DICOM 经典查看器",
@@ -294,6 +294,7 @@
   "roomOccupancy": "检查室占用率",
   "techSchedule": "技师排班",
   "techOps": "技师调度优化 V2",
+  "techWorkbench": "技师工作台",
   "techKpi": "技师 KPI 看板",
   "benchmarkCompare": "报表同比环比",
   "aiDiagnosisAccuracy": "AI 准确率仪表盘",
@@ -352,6 +353,7 @@
   "dentalRadFusion": "口腔影像融合",
   "emrTemplates": "EMR 模板",
   "systemAdmin": "系统管理后台",
+  "emergencyChannel": "急诊通道",
   "treatmentPlans": "治疗方案中心",
   "patientUnified": "统一患者门户",
   "commandCenter": "指挥中心",

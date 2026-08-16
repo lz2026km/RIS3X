@@ -8,6 +8,8 @@ import { invalidateApiCache } from '../services/api/client'
 import {
   vnaApi, type VnaObject, type VnaObjectType, type VnaStats, type VnaStudy, type PatientArchive,
   type VnaLifecycleTier, type LifecyclePolicy, type LifecycleEvent, TIER_LABEL,
+  type VnaOverview, type VnaStorageTrendPoint, type VnaTierStat, type VnaVerification,
+  type DuplicateAnalysis,
 } from '../services/api/vnaApi'
 import { UploadOutlined } from '@ant-design/icons'
 import {
@@ -31,6 +33,9 @@ import {
   Layers as LayersIcon,
 } from 'lucide-react'
 import { Inbox, Trash2, ArrowRight } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts'
+import { ChartContainer } from '../components/charts'
+import { t } from '../i18n/appI18n'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const { Text } = Typography
@@ -108,6 +113,16 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   const [migrateTarget, setMigrateTarget] = useState<{ object: VnaObject; tier: VnaLifecycleTier } | null>(null)
   const [migrating, setMigrating] = useState(false)
 
+  // [W10E-3] 存储分析 (总览/趋势/分层/重复) + 完整性校验
+  const [overview, setOverview] = useState<VnaOverview | null>(null)
+  const [trend, setTrend] = useState<VnaStorageTrendPoint[]>([])
+  const [byTier, setByTier] = useState<VnaTierStat[]>([])
+  const [duplicates, setDuplicates] = useState<DuplicateAnalysis | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [trendDays, setTrendDays] = useState(30)
+  const [verifyResult, setVerifyResult] = useState<VnaVerification | null>(null)
+  const [verifyingId, setVerifyingId] = useState<string | null>(null)
+
   const previewRevoked = useRef<Set<string>>(new Set())
 
   const loadStats = useCallback(async () => {
@@ -156,6 +171,26 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
     }
   }, [])
 
+  // [W10E-3] 存储分析数据 (overview / storage-trend / by-tier / duplicate-analysis)
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true)
+    try {
+      const [oRes, tRes, bRes, dRes] = await Promise.all([
+        vnaApi.getOverview(),
+        vnaApi.getStorageTrend(trendDays),
+        vnaApi.getByTier(),
+        vnaApi.getDuplicateAnalysis(),
+      ])
+      if (oRes.success) setOverview(oRes.data)
+      else message.error(oRes.error?.message || '归档总览加载失败')
+      if (tRes.success && Array.isArray(tRes.data)) setTrend(tRes.data)
+      if (bRes.success && Array.isArray(bRes.data)) setByTier(bRes.data)
+      if (dRes.success) setDuplicates(dRes.data)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }, [trendDays])
+
   const refreshArchive = useCallback(async () => {
     await invalidateApiCache('/vna/objects')
     await invalidateApiCache('/vna/stats')
@@ -164,7 +199,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
     void loadStats()
     void loadStudies()
     void loadLifecycle()
-  }, [loadObjects, loadStats, loadStudies, loadLifecycle])
+    void loadAnalytics()
+  }, [loadObjects, loadStats, loadStudies, loadLifecycle, loadAnalytics])
 
   useEffect(() => {
     document.title = 'VNA 厂商中立归档 - G005 RIS'
@@ -172,7 +208,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
     void loadObjects()
     void loadStudies()
     void loadLifecycle()
-  }, [loadStats, loadObjects, loadStudies, loadLifecycle])
+    void loadAnalytics()
+  }, [loadStats, loadObjects, loadStudies, loadLifecycle, loadAnalytics])
 
   const revokePreview = useCallback((url: string | null) => {
     if (url && !previewRevoked.current.has(url)) {
@@ -344,6 +381,24 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
     }
   }, [migrateTarget, refreshArchive])
 
+  // [W10E-3] 对象完整性校验 (POST /vna/objects/:id/verify)
+  const handleVerify = useCallback(async (obj: VnaObject) => {
+    setVerifyingId(obj.id)
+    try {
+      const res = await vnaApi.verifyObject(obj.id)
+      if (res.success) {
+        setVerifyResult(res.data)
+        message.success(res.data.status === 'integrity-ok' ? `校验通过: ${obj.name}` : `校验异常: ${obj.name}`)
+      } else {
+        message.error(res.error?.message || '完整性校验失败')
+      }
+    } catch {
+      message.error('校验请求失败')
+    } finally {
+      setVerifyingId(null)
+    }
+  }, [])
+
   // ─────────────────────── 患者归档视图 ───────────────────────
 
   const handleQueryPatient = useCallback(async () => {
@@ -442,7 +497,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       const conf = TIER_TAG[tier]
       return <Tag color={conf.color}>{conf.label}</Tag>
     } },
-    { title: '操作', key: 'actions', width: 280, render: (_: unknown, r: VnaObject) => (
+    { title: '操作', key: 'actions', width: 340, render: (_: unknown, r: VnaObject) => (
       <Space size={4}>
         {actionRender(r)}
         <Button
@@ -452,6 +507,15 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
           onClick={() => setMigrateTarget({ object: r, tier: 'warm' })}
         >
           迁移
+        </Button>
+        <Button
+          size="small"
+          type="link"
+          icon={<ShieldCheck size={13} />}
+          loading={verifyingId === r.id}
+          onClick={() => void handleVerify(r)}
+        >
+          校验
         </Button>
       </Space>
     ) },
@@ -704,6 +768,107 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                 </div>
               ),
             },
+            {
+              // [W10E-3] 存储分析: overview / storage-trend / by-tier / duplicate-analysis / verify
+              key: 'analytics',
+              label: <span><HardDrive size={13} /> 存储分析</span>,
+              children: (
+                <div data-testid="vna-analytics-panel">
+                  <Alert
+                    style={{ marginBottom: 16 }}
+                    type="info"
+                    showIcon
+                    title={t('vnaOps.analyticsTitle')}
+                    description={t('vnaOps.analyticsDesc')}
+                  />
+                  <Space style={{ marginBottom: 12 }} wrap>
+                    <Button icon={<RefreshCw size={14} />} loading={analyticsLoading} onClick={() => void loadAnalytics()}>{t('vnaOps.refresh')}</Button>
+                    <Select
+                      style={{ width: 140 }}
+                      value={trendDays}
+                      onChange={(v: number) => setTrendDays(v)}
+                      options={[
+                        { value: 7, label: t('vnaOps.days7') },
+                        { value: 30, label: t('vnaOps.days30') },
+                        { value: 60, label: t('vnaOps.days60') },
+                      ]}
+                    />
+                  </Space>
+
+                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.totalObjects')} value={overview?.totalObjects ?? 0} prefix={<FileText size={15} />} /></Card></Col>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.totalCapacity')} value={overview ? formatSize(overview.totalSizeBytes) : '-'} prefix={<HardDrive size={15} />} /></Card></Col>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.wormLocked')} value={overview?.wormLockedCount ?? 0} prefix={<ShieldCheck size={15} />} /></Card></Col>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.last30dNew')} value={overview?.last30dNewObjects ?? 0} prefix={<Plus size={15} />} /></Card></Col>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.growthRate')} value={overview?.growthRate ?? 0} suffix="%" prefix={<RefreshCw size={15} />} /></Card></Col>
+                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.studies')} value={overview?.studyCount ?? 0} prefix={<DatabaseIcon size={15} />} /></Card></Col>
+                  </Row>
+
+                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={14}>
+                      <Card size="small" title={t('vnaOps.trendTitle')}>
+                        {trend.length > 0 ? (
+                          <ChartContainer height={260} testId="vna-storage-trend">
+                            <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: 8 }}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${(v / 1024 / 1024).toFixed(0)}MB`} width={72} />
+                              <RechartsTooltip
+                                formatter={(value: number, name: string) => [formatSize(value), name === 'totalSizeBytes' ? t('vnaOps.cumulativeCapacity') : t('vnaOps.addedBytes')]}
+                              />
+                              <Line type="monotone" dataKey="totalSizeBytes" stroke="#7c3aed" strokeWidth={2} dot={false} />
+                              <Line type="monotone" dataKey="addedBytes" stroke="#0891b2" strokeWidth={1.5} dot={false} />
+                            </LineChart>
+                          </ChartContainer>
+                        ) : (
+                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noTrendData')} style={{ padding: 24 }} />
+                        )}
+                      </Card>
+                    </Col>
+                    <Col span={10}>
+                      <Card size="small" title={t('vnaOps.byTierTitle')}>
+                        <Table
+                          data-testid="vna-by-tier"
+                          rowKey="tier"
+                          size="small"
+                          pagination={false}
+                          loading={analyticsLoading}
+                          dataSource={byTier}
+                          columns={[
+                            { title: t('vnaOps.tier'), dataIndex: 'tierZh', key: 'tierZh', width: 80, render: (v: string, r: VnaTierStat) => <Tag color={TIER_TAG[r.tier]?.color}>{v}</Tag> },
+                            { title: t('vnaOps.objectCount'), dataIndex: 'count', key: 'count', width: 90, render: (v: number, r: VnaTierStat) => `${v} (${r.percent}%)` },
+                            { title: t('vnaOps.capacity'), dataIndex: 'sizeBytes', key: 'size', render: (v: number) => formatSize(v) },
+                            { title: t('vnaOps.types'), key: 'types', width: 110, render: (_: unknown, r: VnaTierStat) => `${t('vnaOps.documents')} ${r.documents} / ${t('vnaOps.images')} ${r.images}` },
+                          ]}
+                        />
+                      </Card>
+                    </Col>
+                  </Row>
+
+                  <Card size="small" title={t('vnaOps.duplicateTitle')} extra={duplicates ? <Tag color="red">{t('vnaOps.wasted')} {formatSize(duplicates.wastedBytes)}</Tag> : undefined}>
+                    {duplicates && duplicates.totalDuplicates > 0 ? (
+                      <Table
+                        data-testid="vna-duplicate-analysis"
+                        rowKey={(r) => `${r.name}-${r.size}`}
+                        size="small"
+                        scroll={{ x: 'max-content' }}
+                        dataSource={duplicates.groups}
+                        pagination={{ pageSize: 5 }}
+                        columns={[
+                          { title: t('vnaOps.objectName'), dataIndex: 'name', key: 'name', ellipsis: true },
+                          { title: t('vnaOps.singleSize'), dataIndex: 'size', key: 'size', width: 110, render: (v: number) => formatSize(v) },
+                          { title: t('vnaOps.dupCount'), dataIndex: 'count', key: 'count', width: 80, render: (v: number) => <Tag color="orange">× {v}</Tag> },
+                          { title: t('vnaOps.wasted'), dataIndex: 'wastedBytes', key: 'wasted', width: 120, render: (v: number) => <span style={{ color: '#dc2626' }}>{formatSize(v)}</span> },
+                          { title: t('vnaOps.firstCreated'), dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
+                        ]}
+                      />
+                    ) : (
+                      <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('vnaOps.noDuplicates')} style={{ padding: 16 }} />
+                    )}
+                  </Card>
+                </div>
+              ),
+            },
           ]}
         />
       </Card>
@@ -873,6 +1038,35 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               options={TIER_ORDER.map((t) => ({ value: t, label: `${TIER_TAG[t].label} · ${TIER_LABEL[t]}` }))}
             />
           </Space>
+        )}
+      </Modal>
+
+      {/* [W10E-3] 完整性校验结果 Modal */}
+      <Modal
+        title={t('vnaOps.verifyTitle')}
+        open={verifyResult != null}
+        onCancel={() => setVerifyResult(null)}
+        footer={<Button type="primary" onClick={() => setVerifyResult(null)}>{t('vnaOps.close')}</Button>}
+        destroyOnHidden
+      >
+        {verifyResult && (
+          <>
+            <Alert
+              style={{ marginBottom: 16 }}
+              type={verifyResult.status === 'integrity-ok' ? 'success' : verifyResult.status === 'size-mismatch' ? 'warning' : 'error'}
+              showIcon
+              message={verifyResult.status === 'integrity-ok' ? t('vnaOps.verifyOk') : verifyResult.status === 'size-mismatch' ? t('vnaOps.verifyMismatch') : t('vnaOps.verifyMissing')}
+            />
+            <Descriptions column={1} size="small" bordered>
+              <Descriptions.Item label={t('vnaOps.object')}>{verifyResult.object.name}</Descriptions.Item>
+              <Descriptions.Item label={t('vnaOps.checksum')}>
+                <Typography.Text code style={{ fontSize: 12 }}>{verifyResult.checksum || '-'}</Typography.Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('vnaOps.actualSize')}>{formatSize(verifyResult.sizeBytes)}</Descriptions.Item>
+              <Descriptions.Item label={t('vnaOps.expectedSize')}>{formatSize(verifyResult.expectedSizeBytes)}</Descriptions.Item>
+              <Descriptions.Item label={t('vnaOps.verifiedAt')}>{formatDate(verifyResult.verifiedAt)}</Descriptions.Item>
+            </Descriptions>
+          </>
         )}
       </Modal>
     </div>

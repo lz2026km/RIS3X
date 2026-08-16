@@ -23,6 +23,13 @@ export type {
   AppButtonSize,
   AppButtonVariant,
 } from "./AppButton";
+// [v3.0.6.11-103 Wave 7] 按钮/表单/模态/三态 规范组件
+export { ActionButton, ACTION_ICONS, ACTION_VARIANTS } from "./ActionButton";
+export type { ActionButtonProps, StandardAction } from "./ActionButton";
+export { FormField, FormSubmitBar, FORM_LAYOUT, FORM_LABEL_WIDTH } from "./FormField";
+export type { FormFieldProps, FormSubmitBarProps } from "./FormField";
+export { StateView } from "./StateView";
+export type { StateViewProps } from "./StateView";
 // [v3.0.6.8-26] UI 标准化新增组件
 export { StickyActionBar } from "./StickyActionBar";
 export type {
@@ -43,6 +50,9 @@ export type { ThemeTokens } from "./ThemeTokens";
 export { VirtualTable } from "./VirtualTable";
 export type { VirtualTableProps } from "./VirtualTable";
 export { EmptyState } from "./EmptyState";
-export type { EmptyStateProps } from "./EmptyState";
+export type { EmptyStateProps, EmptyStateType } from "./EmptyState";
 export type { StatCardColor, StatCardTrend } from "./StatCard";
-export type { PageHeaderSize, PageHeaderAlign } from "./PageHeader";
+export type { PageHeaderSize, PageHeaderAlign, PageHeaderCrumb } from "./PageHeader";
+// [v3.0.6.11-103 Wave 5] 放射专属图标集 + 专业主题包
+export * from "../icons/radiologyIcons";
+export type { RadiologyIconProps } from "../icons/radiologyIcons";

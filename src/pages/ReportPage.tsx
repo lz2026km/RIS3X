@@ -47,6 +47,8 @@ import { ReviewResultModal, BatchResultModal, PrintModal, BulkActionModal } from
 import ReportDiffModal, { type ReportDiffData } from './report/ReportDiffModal'; // [W2-3] 多版本并排对比
 import ReportAuditTrailDrawer from './report/ReportAuditTrailDrawer'; // [W2-C] 审计轨迹 Drawer
 import ReportCriticalModal from './report/ReportCriticalModal'; // [W2-3] 危急值一键转入
+// [v3.0.6.11-103 Wave 2A] 报告统计报表 (overview/by-doctor/daily-trend)
+import ReportStatsModal from './report/ReportStatsModal';
 import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday } from './report/reportUtils';
 
 // [v3.0.6.11-95 Wave2B P1] 筛选预置 (localStorage: report-filter-presets)
@@ -142,6 +144,8 @@ export default function ReportPage() {
   const [savePresetName, setSavePresetName] = useState('');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" | "info" }>({ show: false, message: "", type: "success" });
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => { setToast({ show: true, message, type }); setTimeout(() => setToast(t => ({ ...t, show: false })), 3000); };
+  // [v3.0.6.11-103 Wave 2A] 报告统计报表 (overview/by-doctor/daily-trend)
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [exportModal, setExportModal] = useState<{ show: boolean; title: string; message: string; complete: boolean }>({ show: false, title: "", message: "", complete: false });
   const [reviewResultModal, setReviewResultModal] = useState<{ show: boolean; reportId: string; result: string; suggestion: string }>({ show: false, reportId: "", result: "", suggestion: "" });
   const [batchResultModal, setBatchResultModal] = useState<{ show: boolean; title: string; message: string; type: "success" | "error" }>({ show: false, title: "", message: "", type: "success" });
@@ -569,6 +573,12 @@ export default function ReportPage() {
           <StatCard label="平均周转" value={stats.avgTurnaround} icon={<Clock size={20} />} color="#0891b2" sub="小时 (创建→发布)" />
           <StatCard label="本周总量" value={stats.thisWeekTotal} icon={<BarChart3 size={20} />} color="#7c3aed" sub="本周报告总数" />
         </div>
+        {/* [v3.0.6.11-103 Wave 2A] 报告统计报表入口: overview / by-doctor / daily-trend */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <button onClick={() => setStatsModalOpen(true)} style={{ padding: "5px 14px", borderRadius: 8, border: "1px solid #1e40af", background: "var(--bg-card)", color: "#1e40af", fontSize: 12, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s" }} data-testid="report-stats-open">
+            <BarChart3 size={13} /> 统计报表
+          </button>
+        </div>
 
         <ReportBanners />
 
@@ -635,6 +645,9 @@ export default function ReportPage() {
       <ReportCriticalModal report={criticalModal.report} submitting={criticalModal.submitting} onClose={() => setCriticalModal({ report: null, submitting: false })} onSubmit={(severity, description, method) => { if (criticalModal.report) void handleCriticalSubmit(criticalModal.report, severity, description, method); }} />
 
       <ReportToast show={toast.show} message={toast.message} type={toast.type} />
+
+      {/* [v3.0.6.11-103 Wave 2A] 报告统计报表 (overview/by-doctor/daily-trend) */}
+      <ReportStatsModal open={statsModalOpen} onClose={() => setStatsModalOpen(false)} />
 
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
       <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />保存当前筛选为快捷预置</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText="保存" cancelText="取消" width={400} destroyOnHidden>

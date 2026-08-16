@@ -27,12 +27,21 @@ export interface AppDrawerProps {
   testId?: string;
   headerStyle?: CSSProperties;
   contentStyle?: CSSProperties;
+  /** [v3.0.6.11-103 Wave 7] 统一宽度三档: sm=480 / md=720 / lg=960 */
+  size?: "sm" | "md" | "lg";
 }
 
 const DEFAULT_WIDTH = 480;
 const DEFAULT_HEIGHT = 360;
 const MOBILE_BREAKPOINT = 768;
 const Z_DRAWER = "var(--z-modal, 500)";
+
+/** [v3.0.6.11-103 Wave 7] 统一宽度三档: 480 / 720 / 960 */
+const SIZE_WIDTH: Record<NonNullable<AppDrawerProps["size"]>, number> = {
+  sm: 480,
+  md: 720,
+  lg: 960,
+};
 
 const useIsMobile = (): boolean => {
   const [isMobile, setIsMobile] = useState(() => {
@@ -61,7 +70,7 @@ export function AppDrawer({
   children,
   footer,
   placement = "right",
-  width = DEFAULT_WIDTH,
+  width,
   height = DEFAULT_HEIGHT,
   closeOnMaskClick = true,
   closeOnEsc = true,
@@ -71,11 +80,13 @@ export function AppDrawer({
   testId,
   headerStyle,
   contentStyle,
+  size,
 }: AppDrawerProps) {
   const containerRef = useFocusTrap(open);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const isMobile = useIsMobile();
   const isFullScreen = fullScreenOnMobile && isMobile;
+  const resolvedWidth = width ?? (size ? SIZE_WIDTH[size] : DEFAULT_WIDTH);
 
   useEffect(() => {
     if (!open) return;
@@ -149,7 +160,7 @@ export function AppDrawer({
   if (isFullScreen) {
     panelStyle = { ...panelBase, inset: 0, width: "100vw", height: "100vh" };
   } else if (placement === "left" || placement === "right") {
-    const w = typeof width === "number" ? Math.min(width, 1000) : width;
+    const w = typeof resolvedWidth === "number" ? Math.min(resolvedWidth, 1000) : resolvedWidth;
     panelStyle = {
       ...panelBase,
       top: 0,

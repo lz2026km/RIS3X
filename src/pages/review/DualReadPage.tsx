@@ -49,6 +49,9 @@ const DualReadPage: React.FC = () => {
   // [v3.0.6.11-95] W4-B P2: 受控分页 (双阅分配表)
   const assignPagination = usePagination(assignments, 10)
 
+  // [v3.0.6.11-103 Wave 2A] 差异统计端点: GET /dual-read/discrepancy (失败静默回退本地派生)
+  const [discStats, setDiscStats] = useState<{ totalAssignments: number; pendingCount: number; bothDoneCount: number; arbitratedCount: number; avgDiscrepancy: number } | null>(null)
+
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
@@ -64,6 +67,13 @@ const DualReadPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // [v3.0.6.11-103 Wave 2A] 加载差异统计 (getDiscrepancyStats), 失败静默
+  useEffect(() => {
+    void dualReadApi.getDiscrepancyStats().then((res) => {
+      if (res.success && res.data) setDiscStats(res.data)
+    }).catch(() => { /* 静默回退本地派生 */ })
   }, [])
 
   // [G-21 Wave3C] 行内展示关联报告链接
@@ -203,6 +213,10 @@ const DualReadPage: React.FC = () => {
   const arbitrated = assignments.filter(a => a.status === 'arbitrated').length
   const scored = assignments.filter(a => a.discrepancyScore != null)
   const avgDisc = scored.length ? scored.reduce((s, a) => s + (a.discrepancyScore ?? 0), 0) / scored.length : 0
+  // [v3.0.6.11-103 Wave 2A] 差异统计: 端点优先, 本地派生兜底
+  const discAvg = discStats ? discStats.avgDiscrepancy : avgDisc
+  const discTotal = discStats ? discStats.totalAssignments : total
+  const discArbitrated = discStats ? discStats.arbitratedCount : arbitrated
 
   const columns = [
     { title: '检查号', dataIndex: 'studyId', key: 'studyId' },
@@ -263,9 +277,9 @@ const DualReadPage: React.FC = () => {
       </Space>
       {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="总分配" value={total} prefix={<GitBranch size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已仲裁" value={arbitrated} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="平均不一致率" value={`${(avgDisc * 100).toFixed(1)}%`} prefix={<BarChart3 size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title="总分配" value={discTotal} prefix={<GitBranch size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title="已仲裁" value={discArbitrated} prefix={<CheckCircle size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title="平均不一致率" value={`${(discAvg * 100).toFixed(1)}%`} prefix={<BarChart3 size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="待处理" value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>分配双阅</Button>}>

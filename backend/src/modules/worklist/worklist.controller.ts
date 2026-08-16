@@ -46,6 +46,9 @@ const UpdateWorklistSchema = z.object({
   bodyPart: z.string().max(128).optional(),
   modality: z.string().max(32).optional(),
   scheduledAt: z.string().max(40).nullable().optional(),
+  // [v3.0.6.11-103 Wave 11] 剂量记录 (CT 剂量: DLP / CTDIvol, 技师工作站完成检查强制项)
+  doseDlp: z.coerce.number().min(0).max(100000).optional(),
+  doseCtdivol: z.coerce.number().min(0).max(10000).optional(),
 })
 
 const AssignBodySchema = z.object({
@@ -177,6 +180,8 @@ export class WorklistController {
       bodyPart: body.bodyPart,
       modality: body.modality,
       scheduledAt: body.scheduledAt,
+      doseDlp: body.doseDlp,
+      doseCtdivol: body.doseCtdivol,
     })
   }
 

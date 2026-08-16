@@ -10,6 +10,24 @@ export type WorklistState = (typeof WORKLIST_STATES)[number]
 // [v3.0.6.11-95 Wave 1A] IN_PROGRESS 用于质控退回后的「重拍登记」流转
 export const QC_STATES = ['IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'IN_PROGRESS'] as const
 export type QcState = (typeof QC_STATES)[number]
+
+// [v3.0.6.11-103 Wave 13] 检查状态机合法流转表 (流程质量门禁):
+//   主链: SCHEDULED→ARRIVED→IN_PROGRESS→COMPLETED→(QC_REJECT→IN_PROGRESS 重拍闭环)→PENDING_REPORT
+//   侧链: 暂停/继续 (IN_PROGRESS↔PAUSED)、取消 (SCHEDULED/ARRIVED/IN_PROGRESS/PAUSED→CANCELLED)、
+//         质控链 (COMPLETED/IN_PROGRESS→IMAGE_READY→QC_REJECT|QC_PASS→PENDING_REPORT)
+//   PATCH /worklist/:id { state } 与 updateQcState 共用此表校验, 非法跳转返回 400。
+export const EXAM_TRANSITIONS: Record<WorklistState, WorklistState[]> = {
+  SCHEDULED: ['ARRIVED', 'CANCELLED'],
+  ARRIVED: ['IN_PROGRESS', 'CANCELLED'],
+  IN_PROGRESS: ['COMPLETED', 'PAUSED', 'CANCELLED', 'IMAGE_READY'],
+  PAUSED: ['IN_PROGRESS', 'CANCELLED'],
+  COMPLETED: ['IMAGE_READY'],
+  CANCELLED: [],
+  IMAGE_READY: ['QC_REJECT', 'QC_PASS', 'PENDING_REPORT'],
+  QC_REJECT: ['IN_PROGRESS', 'PENDING_REPORT'],
+  QC_PASS: ['PENDING_REPORT', 'IMAGE_READY', 'QC_REJECT'],
+  PENDING_REPORT: ['IMAGE_READY', 'QC_REJECT'],
+}
 // 允许质控流转的源态 (检查已完成后的影像阶段; IN_PROGRESS 允许技师工作站直接评定)
 const QC_ALLOWED_FROM = ['COMPLETED', 'IN_PROGRESS', 'IMAGE_READY', 'QC_REJECT', 'QC_PASS', 'PENDING_REPORT']
 // 重拍登记 (QC_REJECT → IN_PROGRESS) 允许的源态
@@ -68,7 +86,8 @@ export class WorklistService {
     for (const [k, v] of Object.entries(data)) {
       // [v3.0.6.11-100 Wave 1B] retakeReason/retakeReasons: 重拍原因内存回退 (统计维度)
       // [v3.0.6.11-100 Wave 1A] primaryTechnicianId/backupTechnicianId: 多技师协作主备技师内存回退
-      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt', 'retakeReason', 'retakeReasons', 'primaryTechnicianId', 'backupTechnicianId'].includes(k)) extras[k] = v
+      // [v3.0.6.11-103 Wave 11] doseDlp/doseCtdivol: 剂量记录内存回退 (技师工作站完成检查强制项)
+      if (['techNotes', 'qcNotes', 'qualityRating', 'retakeCount', 'priority', 'pausedAt', 'retakeReason', 'retakeReasons', 'primaryTechnicianId', 'backupTechnicianId', 'doseDlp', 'doseCtdivol'].includes(k)) extras[k] = v
       else base[k] = v
     }
     try {
@@ -253,10 +272,14 @@ export class WorklistService {
     return { ...merged, ops, primaryTechnician, backupTechnician }
   }
 
-  async update(id: string, dto: { state?: WorklistState; priority?: string; deviceId?: string | null; bodyPart?: string; modality?: string; scheduledAt?: string | null; techNote?: string; qcNote?: string; rating?: string }) {
-    await this.getExam(id)
+  async update(id: string, dto: { state?: WorklistState; priority?: string; deviceId?: string | null; bodyPart?: string; modality?: string; scheduledAt?: string | null; techNote?: string; qcNote?: string; rating?: string; doseDlp?: number; doseCtdivol?: number }) {
+    const exam = await this.getExam(id)
     const data: any = {}
-    if (dto.state !== undefined) data.state = dto.state
+    if (dto.state !== undefined) {
+      // [v3.0.6.11-103 Wave 13] 流程质量门禁: PATCH state 走合法流转表, 非法跳转 (如 ARRIVED→COMPLETED 跳过 IN_PROGRESS) 拒绝
+      this.assertExamTransition(exam.state, dto.state, id)
+      data.state = dto.state
+    }
     // [v3.0.6.11-95 Wave 1A P0-3] 批量改优先级落库 (PATCH /worklist/:id { priority }, 中文别名归一化 ROUTINE/URGENT/STAT)
     const priority = normalizePriority(dto.priority)
     if (priority !== undefined) data.priority = priority
@@ -268,6 +291,9 @@ export class WorklistService {
     if (dto.bodyPart !== undefined) data.bodyPart = dto.bodyPart
     if (dto.modality !== undefined) data.modality = dto.modality
     if (dto.scheduledAt !== undefined) data.scheduledAt = dto.scheduledAt ? new Date(dto.scheduledAt) : null
+    // [v3.0.6.11-103 Wave 11] 剂量记录 (DLP / CTDIvol) 落库 (新列未迁移时回退内存)
+    if (dto.doseDlp !== undefined) data.doseDlp = dto.doseDlp
+    if (dto.doseCtdivol !== undefined) data.doseCtdivol = dto.doseCtdivol
     const result = await this.updateExam(id, data, { patient: true, device: true })
     if (dto.state !== undefined) this.notifyWorklistChanged(`state=${dto.state}`, id)
     return result
@@ -445,6 +471,20 @@ export class WorklistService {
     })
     this.notifyWorklistChanged('cancel', id)
     return result
+  }
+
+  /**
+   * [v3.0.6.11-103 Wave 13] 检查状态机门禁: 校验 from → to 是否在 EXAM_TRANSITIONS 合法流转表内。
+   * 同态幂等放行 (PATCH 重复提交不报错); 非法跳转抛 400 并给出当前状态可去向列表。
+   */
+  private assertExamTransition(from: string, to: WorklistState, id: string): void {
+    if (from === to) return
+    const allowed = EXAM_TRANSITIONS[from as WorklistState] ?? []
+    if (!allowed.includes(to)) {
+      throw new BadRequestException(
+        `INVALID_TRANSITION: Exam ${id} ${from} → ${to} 不允许 (非法跳转; 合法流转: ${from} → ${allowed.length > 0 ? allowed.join('/') : '无'})`,
+      )
+    }
   }
 
   /**

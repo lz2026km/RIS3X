@@ -130,7 +130,6 @@ export const dentalApi = {
   getCadTemplates: () => api.get<any[]>(`${DENTAL_API}/cad/templates`),
 
   // [v3.0.6.8-88] Phase 1: 种植 3D 规划 (12 方法)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getImplantBrands: () => api.get<any[]>(`${DENTAL_API}/implant/inventory/brands`),
   getImplantModels: (brandId?: string, toothNo?: number) => {
     let q = '';
@@ -139,7 +138,7 @@ export const dentalApi = {
     return api.get<any[]>(`${DENTAL_API}/implant/inventory/models${q}`);
   },
   createImplantPlan3d: (data: any) => api.post<any>(`${DENTAL_API}/implant/plan-3d`, data),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 种植 3D 规划详情 (GET /dental/implant/plan-3d/:id, DentalImplant3DPage 详情刷新)
   getImplantPlan3d: (id: string) => api.get<any>(`${DENTAL_API}/implant/plan-3d/${id}`),
   listImplantPlans3d: () => api.get<any[]>(`${DENTAL_API}/implant/plan-3d`),
   updateImplantPlacement: (id: string, placement: any) =>
@@ -157,7 +156,6 @@ export const dentalApi = {
   getGuideSleeves: (brand?: string) => api.get<any[]>(`${DENTAL_API}/implant/inventory/sleeves${brand ? '?brand=' + brand : ''}`),
   /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getAbutments: (brand?: string) => api.get<any[]>(`${DENTAL_API}/implant/abutments${brand ? '?brand=' + brand : ''}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getGuideMaterials: () => api.get<any[]>(`${DENTAL_API}/guide/materials`),
   listSurgicalGuides: () => api.get<any[]>(`${DENTAL_API}/guide/list`),
   createSurgicalGuide: (data: any) => api.post<any>(`${DENTAL_API}/guide`, data),
@@ -178,15 +176,15 @@ export const dentalApi = {
 
   // 种植体 CRUD (3)
   listImplants: () => api.get<any[]>(`${DENTAL_API}/implants`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 种植体登记 (POST /dental/implants, DentalImplant3DPage 登记)
   createImplant: (data: any) => api.post<any>(`${DENTAL_API}/implants`, data),
   updateImplant: (id: string, data: any) => api.put<any>(`${DENTAL_API}/implants/${id}`, data),
 
   // 预约 CRUD (3)
   listAppointments: () => api.get<any[]>(`${DENTAL_API}/appointments`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 预约登记 (POST /dental/appointments, DentalEmrPage 新建预约)
   createAppointment: (data: any) => api.post<any>(`${DENTAL_API}/appointments`, data),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 预约改期/更新 (PUT /dental/appointments/:id, DentalEmrPage 改期)
   updateAppointment: (id: string, data: any) => api.put<any>(`${DENTAL_API}/appointments/${id}`, data),
 
   // 发票 CRUD (2)
@@ -213,7 +211,7 @@ export const dentalApi = {
   // [v3.0.6.11-88 Round10] 参数扩展: type(专科过滤, MSW 支持) + page(分页)
   listTreatments: (params?: { status?: string; patientId?: string; pageSize?: number; type?: string; page?: number }) =>
     api.get<any[]>(`${DENTAL_API}/treatments?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 治疗详情 (GET /dental/treatments/:id, DentalTreatmentPage 详情)
   getTreatment: (id: string) => api.get<any>(`${DENTAL_API}/treatments/${id}`),
   createTreatment: (data: any) => api.post<any>(`${DENTAL_API}/treatments`, data),
   updateTreatment: (id: string, data: any) => api.put<any>(`${DENTAL_API}/treatments/${id}`, data),
@@ -264,7 +262,7 @@ export const dentalApi = {
   createScheduleAppointment: (data: any) =>
     api.post<any>(`${DENTAL_API}/schedule/appointments`, data),
   // [G005 W3-A] 排班端点补齐: 单条预约 / 状态流转 (后端 /dental/schedule/appointments/:id、/:id/status)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 排班单条预约详情 (GET /dental/schedule/appointments/:id, DentalSchedulePage 详情)
   getScheduleAppointment: (id: string) =>
     api.get<any>(`${DENTAL_API}/schedule/appointments/${id}`),
   updateScheduleAppointmentStatus: (id: string, status: string) =>
@@ -283,23 +281,19 @@ export const dentalApi = {
 
   // ===== [G005 Wave1B] 正畸 ortho (DentalOrthoPage / DentalAlignerPage, 后端 /dental/ortho/*) =====
   listOrthoPlans: () => api.get<any[]>(`${DENTAL_API}/ortho/plans`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 新建正畸病例 (POST /dental/ortho/plans, DentalOrthoPage 新建)
   createOrthoPlan: (data: any) => api.post<any>(`${DENTAL_API}/ortho/plans`, data),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 正畸病例详情 (GET /dental/ortho/plans/:id, DentalOrthoPage 详情)
   getOrthoPlan: (id: string) => api.get<any>(`${DENTAL_API}/ortho/plans/${encodeURIComponent(id)}`),
   analyzeDentalArch: (data?: any) =>
     api.post<any>(`${DENTAL_API}/ortho/arch-analysis`, data ?? {}),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 隐形矫治方案 CRUD (DentalAlignerPage: 新建/详情/阶段生成/进度更新)
   listAlignerPlans: () => api.get<any[]>(`${DENTAL_API}/ortho/aligner-plans`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   createAlignerPlan: (data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans`, data),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   getAlignerPlan: (id: string) => api.get<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}`),
   getAlignerStages: (id: string) => api.get<any[]>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/stages`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   generateAlignerStages: (id: string) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/stages`),
   getAlignerProgress: (id: string) => api.get<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/progress`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   updateAlignerProgress: (id: string, data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/progress`, data),
   approveAlignerPlan: (id: string) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/approve`, {}),
   orderAlignerLab: (id: string, data: any) => api.post<any>(`${DENTAL_API}/ortho/aligner-plans/${encodeURIComponent(id)}/order-lab`, data),
@@ -307,9 +301,9 @@ export const dentalApi = {
   // ===== [G005 Wave1B] 头影测量 ceph (DentalCephPage, 后端 /dental/ceph/*) =====
   listCephStudies: (params?: { patientId?: string }) =>
     api.get<any[]>(`${DENTAL_API}/ceph/studies${params?.patientId ? '?patientId=' + encodeURIComponent(params.patientId) : ''}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 头影检查详情 (GET /dental/ceph/studies/:id, DentalCephPage 详情刷新)
   getCephStudy: (id: string) => api.get<any>(`${DENTAL_API}/ceph/studies/${encodeURIComponent(id)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] 新建头影检查 (POST /dental/ceph/studies, DentalCephPage 新建)
   createCephStudy: (data: any) => api.post<any>(`${DENTAL_API}/ceph/studies`, data),
   getCephAnalysisTypes: () => api.get<any[]>(`${DENTAL_API}/ceph/analysis-types`),
   getCephLandmarks: (studyId?: string) =>
@@ -322,10 +316,13 @@ export const dentalApi = {
 
   // ===== [G005 Wave1B] CBCT 体绘制 (DentalVolumeViewerPage, 后端 /dental/volume/*) =====
   listVolumeStudies: () => api.get<any[]>(`${DENTAL_API}/volume/studies`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [G005 W3-B] CBCT 体数据详情 (GET /dental/volume/studies/:id, DentalVolumeViewerPage 详情刷新)
   getVolumeStudy: (id: string) => api.get<any>(`${DENTAL_API}/volume/studies/${encodeURIComponent(id)}`),
   listVolumePresets: () => api.get<any[]>(`${DENTAL_API}/volume/presets`),
   applyVolumePreset: (id: string) => api.post<any>(`${DENTAL_API}/volume/presets/${encodeURIComponent(id)}/apply`, {}),
+  // [G005 W3-B] 牙弓曲线路径 (GET /dental/volume/studies/:id/curve-path, DentalVolumeViewerPage 曲断参数)
+  getVolumeCurvePath: (id: string) =>
+    api.get<any>(`${DENTAL_API}/volume/studies/${encodeURIComponent(id)}/curve-path`),
 
   // [v3.0.6.11-96 Wave2A P0] 患者 360° 视图 7 端点 (DentalEmrPage 在用, 后端 /dental/patients/:id/overview*)
   getPatientOverview: (patientId: string) =>

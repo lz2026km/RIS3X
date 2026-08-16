@@ -210,6 +210,34 @@ export interface SrTemplateInfo {
   tid: string
 }
 
+// [G005 Wave 10A] 测量模板库 (后端 GET /dicom-sr/measurement-templates*)
+export interface MeasurementTemplateItem {
+  code: string
+  scheme: 'SCT' | 'DCM' | 'UMLS'
+  meaning: string
+  unit: string
+  normalRange?: { min?: number; max?: number; label?: string }
+  description: string
+}
+
+export interface MeasurementTemplate {
+  id: string
+  templateId: 'tid1500' | 'tid2000'
+  templateName: string
+  modality: string
+  bodyPart: string
+  category: string
+  purpose: string
+  measurements: MeasurementTemplateItem[]
+  snomedFindings: string[]
+}
+
+export interface MeasurementTemplateCategory {
+  category: string
+  count: number
+  modalities: string[]
+}
+
 const SR_PATH = '/dicom-sr'
 
 export const srDocumentApi = {
@@ -261,6 +289,22 @@ export const srDocumentApi = {
     await invalidateApiCache(`${SR_PATH}/${srId}`)
     return res
   },
+
+  // [G005 Wave 10A] 测量模板库 (TID 1500/2000, 20 个完整模板 seed)
+  listMeasurementTemplateCategories: () =>
+    api.get<MeasurementTemplateCategory[]>(`${SR_PATH}/measurement-templates/categories`),
+
+  listMeasurementTemplates: (params?: { modality?: string; bodyPart?: string; category?: string }) => {
+    const qs = new URLSearchParams()
+    if (params?.modality) qs.set('modality', params.modality)
+    if (params?.bodyPart) qs.set('bodyPart', params.bodyPart)
+    if (params?.category) qs.set('category', params.category)
+    const q = qs.toString()
+    return api.get<MeasurementTemplate[]>(`${SR_PATH}/measurement-templates${q ? `?${q}` : ''}`)
+  },
+
+  getMeasurementTemplate: (id: string) =>
+    api.get<MeasurementTemplate>(`${SR_PATH}/measurement-templates/${encodeURIComponent(id)}`),
 
   downloadDocument: async (id: string): Promise<{ blob: Blob; filename: string } | null> => {
     const url = `${API_BASE}${SR_PATH}/${id}/download`

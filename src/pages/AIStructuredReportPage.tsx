@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Save, Printer } from "lucide-react";
 import { PageHeader } from "../components/common/PageHeader";
+import { t } from "../i18n/appI18n";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
 import { aiPlatformApi } from "../services/api/aiPlatformApi";
 
@@ -808,17 +809,17 @@ const AIStructuredReportPage: React.FC = () => {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!formData.patientName.trim()) errs.patientName = "请输入患者姓名";
-    if (!formData.patientId.trim()) errs.patientId = "请输入患者ID";
-    if (!formData.age.trim()) errs.age = "请输入年龄";
+    if (!formData.patientName.trim()) errs.patientName = t("aiStructured.placeholderPatientName");
+    if (!formData.patientId.trim()) errs.patientId = t("aiStructured.placeholderPatientId");
+    if (!formData.age.trim()) errs.age = t("aiStructured.placeholderAge");
     if (!formData.finding.examMethod.trim())
-      errs["finding.examMethod"] = "请输入检查方法";
+      errs["finding.examMethod"] = t("aiStructured.errExamMethod");
     if (!formData.finding.examPart.trim())
-      errs["finding.examPart"] = "请输入检查部位";
+      errs["finding.examPart"] = t("aiStructured.errExamPart");
     if (!formData.finding.description.trim())
-      errs["finding.description"] = "请输入检查所见描述";
+      errs["finding.description"] = t("aiStructured.errDescription");
     if (!formData.impression.diagnoses[0]?.conclusion.trim())
-      errs["impression.conclusion"] = "请输入至少一条诊断结论";
+      errs["impression.conclusion"] = t("aiStructured.errConclusion");
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -841,7 +842,7 @@ const AIStructuredReportPage: React.FC = () => {
       toastTimeoutsRef.current.push(t1);
     };
     if (!validate()) {
-      showToast("请填写必填字段", "#dc2626");
+      showToast(t("aiStructured.requiredFields"), "#dc2626");
       return;
     }
     if (savingReport) return;
@@ -860,14 +861,14 @@ const AIStructuredReportPage: React.FC = () => {
         },
       });
       if (res.success && res.data) {
-        showToast(`报告已保存 · ${(res.data as { id?: string })?.id ?? ""}`, "#059669");
+        showToast(t("aiStructured.reportSaved", { id: (res.data as { id?: string })?.id ?? "" }), "#059669");
         setPreviewJson(generateJsonReport());
       } else {
-        throw new Error(res.error?.message ?? "接口返回失败");
+        throw new Error(res.error?.message ?? t("aiStructured.apiError"));
       }
     } catch (e) {
       console.error("[AIStructuredReport] 保存失败, 回退本地演示:", e);
-      showToast("保存接口暂不可用, 已本地生成演示报告 (待接入)", "#b45309");
+      showToast(t("aiStructured.saveFallback"), "#b45309");
       setPreviewJson(generateJsonReport());
     } finally {
       setSavingReport(false);
@@ -1208,12 +1209,12 @@ const AIStructuredReportPage: React.FC = () => {
       {/* Header */}
       <header style={styles.header}>
         <h1 style={styles.title}>
-          AI结构化报告系统 — WS/T 500-2016
-          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>演示数据 · 模板演示</span>
+          {t("aiStructured.title")}
+          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
         </h1>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <span style={{ fontSize: "13px", opacity: 0.9 }}>
-            当前用户: 医生001
+            {t("aiStructured.currentUser")}
           </span>
           <button style={styles.voiceButton} onClick={handleVoiceRecord}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -1224,7 +1225,7 @@ const AIStructuredReportPage: React.FC = () => {
               )}
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
             </svg>
-            {isRecording ? "停止录音" : "语音录入"}
+            {isRecording ? t("aiStructured.stopRecording") : t("aiStructured.voiceInput")}
           </button>
         </div>
       </header>
@@ -1247,12 +1248,12 @@ const AIStructuredReportPage: React.FC = () => {
                   onClick={() => setActiveSpecialtyTab(tab)}
                 >
                   {tab === "ct"
-                    ? "CT专科"
+                    ? t("aiStructured.specCt")
                     : tab === "mr"
-                      ? "MR专科"
+                      ? t("aiStructured.specMr")
                       : tab === "dxr"
-                        ? "DXR专科"
-                        : "乳腺专科"}
+                        ? t("aiStructured.specDxr")
+                        : t("aiStructured.specBreast")}
                 </button>
               ))}
             </div>
@@ -1265,7 +1266,7 @@ const AIStructuredReportPage: React.FC = () => {
                 marginBottom: "8px",
               }}
             >
-              选择模板 ({templates.length}个)
+              {t("aiStructured.selectTemplate", { count: templates.length })}
             </div>
             {templates.map((template) => (
               <div
@@ -1298,11 +1299,11 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.formSection}>
             {/* Patient Info */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title="患者信息" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> 患者姓名
+                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.patientName")}
                   </label>
                   <input
                     type="text"
@@ -1313,7 +1314,7 @@ const AIStructuredReportPage: React.FC = () => {
                       ...styles.input,
                       borderColor: errors.patientName ? "#dc2626" : undefined,
                     }}
-                    placeholder="请输入患者姓名"
+                    placeholder={t("aiStructured.placeholderPatientName")}
                     maxLength={50}
                     required
                   />
@@ -1327,7 +1328,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> 患者ID
+                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.patientId")}
                   </label>
                   <input
                     type="text"
@@ -1338,7 +1339,7 @@ const AIStructuredReportPage: React.FC = () => {
                       ...styles.input,
                       borderColor: errors.patientId ? "#dc2626" : undefined,
                     }}
-                    placeholder="请输入患者ID"
+                    placeholder={t("aiStructured.placeholderPatientId")}
                     maxLength={20}
                     required
                   />
@@ -1352,7 +1353,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> 年龄
+                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.age")}
                   </label>
                   <input
                     type="text"
@@ -1363,7 +1364,7 @@ const AIStructuredReportPage: React.FC = () => {
                       ...styles.input,
                       borderColor: errors.age ? "#dc2626" : undefined,
                     }}
-                    placeholder="请输入年龄"
+                    placeholder={t("aiStructured.placeholderAge")}
                     maxLength={3}
                     required
                   />
@@ -1376,19 +1377,19 @@ const AIStructuredReportPage: React.FC = () => {
                   )}
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>性别</label>
+                  <label style={styles.label}>{t("aiStructured.gender")}</label>
                   <select
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
                     style={styles.select}
                   >
-                    <option value="男">男</option>
-                    <option value="女">女</option>
+                    <option value="男">{t("aiStructured.male")}</option>
+                    <option value="女">{t("aiStructured.female")}</option>
                   </select>
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>检查日期</label>
+                  <label style={styles.label}>{t("aiStructured.examDate")}</label>
                   <input
                     type="date"
                     name="examDate"
@@ -1403,11 +1404,11 @@ const AIStructuredReportPage: React.FC = () => {
             {/* WS/T 500-2016 三段式报告 */}
             {/* Finding Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title="检查所见（Finding）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> 检查方法
+                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.examMethod")}
                   </label>
                   <input
                     type="text"
@@ -1420,7 +1421,7 @@ const AIStructuredReportPage: React.FC = () => {
                         ? "#dc2626"
                         : undefined,
                     }}
-                    placeholder="如：CT平扫"
+                    placeholder={t("aiStructured.placeholderExamMethod")}
                     maxLength={100}
                     required
                   />
@@ -1434,7 +1435,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> 检查部位
+                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.examPart")}
                   </label>
                   <input
                     type="text"
@@ -1447,7 +1448,7 @@ const AIStructuredReportPage: React.FC = () => {
                         ? ("#dc2626" as string)
                         : undefined,
                     }}
-                    placeholder="如：颅脑"
+                    placeholder={t("aiStructured.placeholderExamPart")}
                     maxLength={100}
                     required
                   />
@@ -1460,7 +1461,7 @@ const AIStructuredReportPage: React.FC = () => {
                   )}
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>图像数量</label>
+                  <label style={styles.label}>{t("aiStructured.imageCount")}</label>
                   <input
                     type="text"
                     name="finding.imageCount"
@@ -1473,7 +1474,7 @@ const AIStructuredReportPage: React.FC = () => {
               </div>
               <div style={{ marginTop: "12px" }}>
                 <label style={styles.label}>
-                  <span style={{ color: "#dc2626" }}>*</span> 主要所见描述
+                  <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.mainFindings")}
                 </label>
                 <textarea
                   name="finding.description"
@@ -1486,7 +1487,7 @@ const AIStructuredReportPage: React.FC = () => {
                       ? "#dc2626"
                       : undefined,
                   }}
-                  placeholder="请输入检查所见描述..."
+                  placeholder={t("aiStructured.placeholderMainFindings")}
                   maxLength={2000}
                   required
                 />
@@ -1497,14 +1498,14 @@ const AIStructuredReportPage: React.FC = () => {
                 )}
               </div>
               <div style={{ marginTop: "12px" }}>
-                <label style={styles.label}>重建序列</label>
+                <label style={styles.label}>{t("aiStructured.reconstructionSequence")}</label>
                 <input
                   type="text"
                   name="finding.reconstructionSequence"
                   value={formData.finding.reconstructionSequence}
                   onChange={handleInputChange}
                   style={styles.input}
-                  placeholder="如：横断面1mm薄层重建"
+                  placeholder={t("aiStructured.placeholderReconstruction")}
                 />
               </div>
             </section>
@@ -1513,54 +1514,54 @@ const AIStructuredReportPage: React.FC = () => {
             <section style={styles.section}>
               <PageHeader
                 variant="inline"
-                title={activeSpecialtyTab === "ct" ? "CT专科字段" : activeSpecialtyTab === "mr" ? "MR专科字段" : activeSpecialtyTab === "dxr" ? "DXR专科字段" : "乳腺专科字段"}
+                title={activeSpecialtyTab === "ct" ? t("aiStructured.specCtFields") : activeSpecialtyTab === "mr" ? t("aiStructured.specMrFields") : activeSpecialtyTab === "dxr" ? t("aiStructured.specDxrFields") : t("aiStructured.specBreastFields")}
                 style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }}
               />
 
               {activeSpecialtyTab === "ct" && (
                 <div style={styles.formGrid}>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>对比剂使用</label>
+                    <label style={styles.label}>{t("aiStructured.contrastAgent")}</label>
                     <input
                       type="text"
                       name="ctData.contrastAgent"
                       value={formData.ctData.contrastAgent}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：碘佛醇100ml"
+                      placeholder={t("aiStructured.placeholderContrastAgent")}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>扫描时相</label>
+                    <label style={styles.label}>{t("aiStructured.scanPhase")}</label>
                     <input
                       type="text"
                       name="ctData.scanPhase"
                       value={formData.ctData.scanPhase}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：动脉期+静脉期"
+                      placeholder={t("aiStructured.placeholderScanPhase")}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>重建序列</label>
+                    <label style={styles.label}>{t("aiStructured.reconstructionSequence")}</label>
                     <input
                       type="text"
                       name="ctData.reconstructionSequence"
                       value={formData.ctData.reconstructionSequence}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：MIP+VR"
+                      placeholder={t("aiStructured.placeholderMipVr")}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>窗宽窗位</label>
+                    <label style={styles.label}>{t("aiStructured.windowSettings")}</label>
                     <input
                       type="text"
                       name="ctData.windowSettings"
                       value={formData.ctData.windowSettings}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：窗宽400/窗位50"
+                      placeholder={t("aiStructured.placeholderWindow")}
                     />
                   </div>
                 </div>
@@ -1570,60 +1571,60 @@ const AIStructuredReportPage: React.FC = () => {
                 <div>
                   <div style={styles.formGrid}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>序列名称</label>
+                      <label style={styles.label}>{t("aiStructured.sequenceName")}</label>
                       <input
                         type="text"
                         name="mrData.sequenceName"
                         value={formData.mrData.sequenceName}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：SE/TSE序列"
+                        placeholder={t("aiStructured.placeholderSequenceName")}
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>扫描方位</label>
+                      <label style={styles.label}>{t("aiStructured.scanOrientation")}</label>
                       <input
                         type="text"
                         name="mrData.scanOrientation"
                         value={formData.mrData.scanOrientation}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：横轴位+冠状位"
+                        placeholder={t("aiStructured.placeholderOrientation")}
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>T1T2信号</label>
+                      <label style={styles.label}>{t("aiStructured.t1t2Signal")}</label>
                       <input
                         type="text"
                         name="mrData.t1t2Signal"
                         value={formData.mrData.t1t2Signal}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：T1WI等信号/T2WI高信号"
+                        placeholder={t("aiStructured.placeholderT1t2")}
                       />
                     </div>
                   </div>
                   <div style={{ ...styles.formGrid, marginTop: "12px" }}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>弥散DWI</label>
+                      <label style={styles.label}>{t("aiStructured.diffusionDwi")}</label>
                       <input
                         type="text"
                         name="mrData.diffusionDWI"
                         value={formData.mrData.diffusionDWI}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：DWI未见受限区"
+                        placeholder={t("aiStructured.placeholderDwi")}
                       />
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>增强扫描</label>
+                      <label style={styles.label}>{t("aiStructured.contrastEnhanced")}</label>
                       <input
                         type="text"
                         name="mrData.contrastEnhanced"
                         value={formData.mrData.contrastEnhanced}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：Gd-DTPA增强后均匀强化"
+                        placeholder={t("aiStructured.placeholderContrastEnhanced")}
                       />
                     </div>
                   </div>
@@ -1633,39 +1634,39 @@ const AIStructuredReportPage: React.FC = () => {
               {activeSpecialtyTab === "dxr" && (
                 <div style={styles.formGrid}>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>投照方位</label>
+                    <label style={styles.label}>{t("aiStructured.projectionPosition")}</label>
                     <input
                       type="text"
                       name="dxrData.projectionPosition"
                       value={formData.dxrData.projectionPosition}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：正位+侧位"
+                      placeholder={t("aiStructured.placeholderProjection")}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>曝光参数</label>
+                    <label style={styles.label}>{t("aiStructured.exposureParams")}</label>
                     <input
                       type="text"
                       name="dxrData.exposureParams"
                       value={formData.dxrData.exposureParams}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：120kV/200mAs"
+                      placeholder={t("aiStructured.placeholderExposure")}
                     />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>图像质量评级</label>
+                    <label style={styles.label}>{t("aiStructured.imageQuality")}</label>
                     <select
                       name="dxrData.imageQualityRating"
                       value={formData.dxrData.imageQualityRating}
                       onChange={handleInputChange}
                       style={styles.select}
                     >
-                      <option value="">请选择</option>
-                      <option value="优">优</option>
-                      <option value="良">良</option>
-                      <option value="差">差</option>
+                      <option value="">{t("aiStructured.selectOption")}</option>
+                      <option value="优">{t("aiStructured.qualityExcellent")}</option>
+                      <option value="良">{t("aiStructured.qualityGood")}</option>
+                      <option value="差">{t("aiStructured.qualityPoor")}</option>
                     </select>
                   </div>
                 </div>
@@ -1675,54 +1676,54 @@ const AIStructuredReportPage: React.FC = () => {
                 <div>
                   <div style={styles.formGrid}>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>BI-RADS分类</label>
+                      <label style={styles.label}>{t("aiStructured.biradsClassification")}</label>
                       <select
                         name="breastData.biradsClassification"
                         value={formData.breastData.biradsClassification}
                         onChange={handleInputChange}
                         style={styles.select}
                       >
-                        <option value="">请选择</option>
-                        <option value="BI-RADS 0类">BI-RADS 0类</option>
-                        <option value="BI-RADS 1类">BI-RADS 1类</option>
-                        <option value="BI-RADS 2类">BI-RADS 2类</option>
-                        <option value="BI-RADS 3类">BI-RADS 3类</option>
-                        <option value="BI-RADS 4类">BI-RADS 4类</option>
-                        <option value="BI-RADS 5类">BI-RADS 5类</option>
-                        <option value="BI-RADS 6类">BI-RADS 6类</option>
+                        <option value="">{t("aiStructured.selectOption")}</option>
+                        <option value="BI-RADS 0类">{t("aiStructured.birads0")}</option>
+                        <option value="BI-RADS 1类">{t("aiStructured.birads1")}</option>
+                        <option value="BI-RADS 2类">{t("aiStructured.birads2")}</option>
+                        <option value="BI-RADS 3类">{t("aiStructured.birads3")}</option>
+                        <option value="BI-RADS 4类">{t("aiStructured.birads4")}</option>
+                        <option value="BI-RADS 5类">{t("aiStructured.birads5")}</option>
+                        <option value="BI-RADS 6类">{t("aiStructured.birads6")}</option>
                       </select>
                     </div>
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>两侧乳腺对照</label>
+                      <label style={styles.label}>{t("aiStructured.bilateralComparison")}</label>
                       <input
                         type="text"
                         name="breastData.bilateralComparison"
                         value={formData.breastData.bilateralComparison}
                         onChange={handleInputChange}
                         style={styles.input}
-                        placeholder="如：两侧对称"
+                        placeholder={t("aiStructured.placeholderBilateral")}
                       />
                     </div>
                   </div>
                   <div style={{ marginTop: "12px" }}>
-                    <label style={styles.label}>钙化描述</label>
+                    <label style={styles.label}>{t("aiStructured.calcification")}</label>
                     <input
                       type="text"
                       name="breastData.calcificationDescription"
                       value={formData.breastData.calcificationDescription}
                       onChange={handleInputChange}
                       style={styles.input}
-                      placeholder="如：未见恶性钙化"
+                      placeholder={t("aiStructured.placeholderCalcification")}
                     />
                   </div>
                   <div style={{ marginTop: "12px" }}>
-                    <label style={styles.label}>肿块特征</label>
+                    <label style={styles.label}>{t("aiStructured.massFeatures")}</label>
                     <textarea
                       name="breastData.massFeatures"
                       value={formData.breastData.massFeatures}
                       onChange={handleInputChange}
                       style={styles.textarea}
-                      placeholder="请描述肿块的位置、大小、形态等特征..."
+                      placeholder={t("aiStructured.placeholderMassFeatures")}
                     />
                   </div>
                 </div>
@@ -1736,30 +1737,30 @@ const AIStructuredReportPage: React.FC = () => {
                   setShowPreview(true);
                 }}
               >
-                📋 生成结构化JSON报告预览
+                {t("aiStructured.generateJsonPreview")}
               </button>
             </section>
 
             {/* Impression Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title="诊断意见（Impression）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
 
-              <div style={styles.sectionSubtitle}>诊断结论（支持多诊断）</div>
+              <div style={styles.sectionSubtitle}>{t("aiStructured.impressionSubtitle")}</div>
               {formData.impression.diagnoses.map((diag, index) => (
                 <div key={diag.id} style={styles.diagnosisCard}>
                   <div style={styles.diagnosisHeader}>
-                    <span style={styles.diagnosisNumber}>诊断 {index + 1}</span>
+                    <span style={styles.diagnosisNumber}>{t("aiStructured.diagnosisN", { n: index + 1 })}</span>
                     {formData.impression.diagnoses.length > 1 && (
                       <button
                         style={styles.removeButton}
                         onClick={() => handleRemoveDiagnosis(index)}
                       >
-                        删除
+                        {t("aiStructured.delete")}
                       </button>
                     )}
                   </div>
                   <div style={{ marginBottom: "8px" }}>
-                    <label style={styles.label}>诊断结论</label>
+                    <label style={styles.label}>{t("aiStructured.diagnosis")}</label>
                     <input
                       type="text"
                       value={diag.conclusion}
@@ -1771,11 +1772,11 @@ const AIStructuredReportPage: React.FC = () => {
                         )
                       }
                       style={styles.input}
-                      placeholder="请输入诊断结论"
+                      placeholder={t("aiStructured.placeholderDiagnosis")}
                     />
                   </div>
                   <div>
-                    <label style={styles.label}>诊断依据</label>
+                    <label style={styles.label}>{t("aiStructured.diagnosisBasis")}</label>
                     <input
                       type="text"
                       value={diag.basis}
@@ -1783,62 +1784,62 @@ const AIStructuredReportPage: React.FC = () => {
                         handleDiagnosisChange(index, "basis", e.target.value)
                       }
                       style={styles.input}
-                      placeholder="请输入诊断依据"
+                      placeholder={t("aiStructured.placeholderDiagnosisBasis")}
                     />
                   </div>
                 </div>
               ))}
               <button style={styles.addButton} onClick={handleAddDiagnosis}>
-                + 添加诊断结论
+                {t("aiStructured.addDiagnosis")}
               </button>
 
               <div style={{ marginTop: "16px" }}>
-                <label style={styles.label}>鉴别诊断</label>
+                <label style={styles.label}>{t("aiStructured.differentialDiagnosis")}</label>
                 <textarea
                   name="impression.differentialDiagnosis"
                   value={formData.impression.differentialDiagnosis}
                   onChange={handleInputChange}
                   style={styles.textarea}
-                  placeholder="请输入鉴别诊断..."
+                  placeholder={t("aiStructured.placeholderDifferential")}
                 />
               </div>
             </section>
 
             {/* Recommendation Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title="建议（Recommendation）" style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>进一步检查建议</label>
+                  <label style={styles.label}>{t("aiStructured.furtherExam")}</label>
                   <input
                     type="text"
                     name="recommendation.furtherExamSuggestion"
                     value={formData.recommendation.furtherExamSuggestion}
                     onChange={handleInputChange}
                     style={styles.input}
-                    placeholder="如：建议MRI增强检查"
+                    placeholder={t("aiStructured.placeholderFurtherExam")}
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>随访建议</label>
+                  <label style={styles.label}>{t("aiStructured.followup")}</label>
                   <input
                     type="text"
                     name="recommendation.followupSuggestion"
                     value={formData.recommendation.followupSuggestion}
                     onChange={handleInputChange}
                     style={styles.input}
-                    placeholder="如：6个月后复查"
+                    placeholder={t("aiStructured.placeholderFollowup")}
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>治疗建议</label>
+                  <label style={styles.label}>{t("aiStructured.treatment")}</label>
                   <input
                     type="text"
                     name="recommendation.treatmentSuggestion"
                     value={formData.recommendation.treatmentSuggestion}
                     onChange={handleInputChange}
                     style={styles.input}
-                    placeholder="如：外科会诊"
+                    placeholder={t("aiStructured.placeholderTreatment")}
                   />
                 </div>
               </div>
@@ -1853,27 +1854,27 @@ const AIStructuredReportPage: React.FC = () => {
                 setExpandedHistory(expandedHistory ? null : "main")
               }
             >
-              历史报告 ({HISTORY_REPORTS.length})
+              {t("aiStructured.historyReports", { count: HISTORY_REPORTS.length })}
             </button>
             <div style={styles.buttonGroup}>
               <button
                 style={{ ...styles.button, ...styles.buttonOutline }}
                 onClick={handlePreview}
               >
-                预览
+                {t("aiStructured.preview")}
               </button>
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
                 onClick={() => void handleSubmit()}
                 disabled={savingReport}
               >
-                <Save size={14} /> {savingReport ? "保存中..." : "保存报告"}
+                <Save size={14} /> {savingReport ? t("aiStructured.saving") : t("aiStructured.saveReport")}
               </button>
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
                 onClick={handlePrint}
               >
-                <Printer size={14} /> 打印
+                <Printer size={14} /> {t("aiStructured.print")}
               </button>
             </div>
           </div>
@@ -1889,7 +1890,7 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.previewModal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.previewHeader}>
               <span style={{ fontWeight: 600, fontSize: "16px" }}>
-                结构化JSON报告预览
+                {t("aiStructured.jsonPreviewTitle")}
               </span>
               <button
                 style={styles.closeButton}

@@ -15,6 +15,7 @@ import { VOUCHER_DATA } from '../data/initialData';
 import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { ChartContainer } from '../components/charts';
+import { t } from '../i18n/appI18n';
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -80,7 +81,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD001",
     patientName: "张伟",
     patientId: "P202400001",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颅CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -95,7 +96,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD002",
     patientName: "李娜",
     patientId: "P202400002",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "头颅MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -110,10 +111,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD003",
     patientName: "王磊",
     patientId: "P202400003",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "脑血管DSA",
     drugName: "比伐卢定注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "0.6ml:5000IU",
     restriction: "限DSA手术使用",
     reason: "申请使用比伐卢定注射液行脑血管DSA检查",
@@ -125,7 +126,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD004",
     patientName: "赵敏",
     patientId: "P202400004",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -140,7 +141,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD005",
     patientName: "周涛",
     patientId: "P202400005",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆布醇注射液",
     drugCategory: "MRI对比剂",
@@ -155,10 +156,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD006",
     patientName: "吴静",
     patientId: "P202400006",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "心脏DSA",
     drugName: "肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "12500U/支",
     restriction: "限DSA手术使用",
     reason: "申请使用肝素钠注射液行心脏DSA检查",
@@ -170,7 +171,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD007",
     patientName: "郑强",
     patientId: "P202400007",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺动脉CTA",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -185,7 +186,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD008",
     patientName: "钱琳",
     patientId: "P202400008",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆贝葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -200,10 +201,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD009",
     patientName: "孙鹏",
     patientId: "P202400009",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "肾动脉DSA",
     drugName: "磺达肝癸钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "2.5mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用磺达肝癸钠注射液行肾动脉DSA检查",
@@ -215,7 +216,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD010",
     patientName: "马超",
     patientId: "P202400010",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘佛醇注射液",
     drugCategory: "CT对比剂",
@@ -230,7 +231,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD011",
     patientName: "胡霞",
     patientId: "P202400011",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "腹部MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -245,10 +246,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD012",
     patientName: "林峰",
     patientId: "P202400012",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "外周血管DSA",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用阿加曲班注射液行外周血管DSA检查",
@@ -260,7 +261,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD013",
     patientName: "董洁",
     patientId: "P202400013",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颅CT增强",
     drugName: "碘帕醇注射液",
     drugCategory: "CT对比剂",
@@ -275,7 +276,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD014",
     patientName: "杨帆",
     patientId: "P202400014",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "头颅MRI增强",
     drugName: "钆特醇注射液",
     drugCategory: "MRI对比剂",
@@ -290,10 +291,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD015",
     patientName: "蒋伟",
     patientId: "P202400015",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "脑血管DSA",
     drugName: "利伐沙班片",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/片",
     restriction: "限DSA手术使用",
     reason: "申请使用利伐沙班片行脑血管DSA检查",
@@ -305,7 +306,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD016",
     patientName: "刘洋",
     patientId: "P202400016",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -320,7 +321,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD017",
     patientName: "陈静",
     patientId: "P202400017",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -335,10 +336,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD018",
     patientName: "黄志明",
     patientId: "P202400018",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "心脏DSA",
     drugName: "比伐卢定注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "0.6ml:5000IU",
     restriction: "限DSA手术使用",
     reason: "申请使用比伐卢定注射液行心脏DSA检查",
@@ -350,7 +351,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD019",
     patientName: "徐敏",
     patientId: "P202400019",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺动脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -365,7 +366,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD020",
     patientName: "高建",
     patientId: "P202400020",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆布醇注射液",
     drugCategory: "MRI对比剂",
@@ -380,10 +381,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD021",
     patientName: "何婷",
     patientId: "P202400021",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "肾动脉DSA",
     drugName: "肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "12500U/支",
     restriction: "限DSA手术使用",
     reason: "申请使用肝素钠注射液行肾动脉DSA检查",
@@ -395,7 +396,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD022",
     patientName: "许刚",
     patientId: "P202400022",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -410,7 +411,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD023",
     patientName: "曹娟",
     patientId: "P202400023",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "腹部MRI增强",
     drugName: "钆贝葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -425,10 +426,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD024",
     patientName: "冯强",
     patientId: "P202400024",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "外周血管DSA",
     drugName: "磺达肝癸钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "2.5mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用磺达肝癸钠注射液行外周血管DSA检查",
@@ -440,7 +441,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD025",
     patientName: "贺磊",
     patientId: "P202400025",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颅CT增强",
     drugName: "碘佛醇注射液",
     drugCategory: "CT对比剂",
@@ -455,7 +456,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD026",
     patientName: "贺娟",
     patientId: "P202400026",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "头颅MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -470,10 +471,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD027",
     patientName: "贺志强",
     patientId: "P202400027",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "脑血管DSA",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用阿加曲班注射液行脑血管DSA检查",
@@ -485,7 +486,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD028",
     patientName: "贺梅",
     patientId: "P202400028",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘帕醇注射液",
     drugCategory: "CT对比剂",
@@ -500,7 +501,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD029",
     patientName: "贺勇",
     patientId: "P202400029",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆特醇注射液",
     drugCategory: "MRI对比剂",
@@ -515,10 +516,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD030",
     patientName: "贺丽",
     patientId: "P202400030",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "心脏DSA",
     drugName: "利伐沙班片",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/片",
     restriction: "限DSA手术使用",
     reason: "申请使用利伐沙班片行心脏DSA检查",
@@ -530,7 +531,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD031",
     patientName: "贺鹏",
     patientId: "P202400031",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -545,7 +546,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD032",
     patientName: "贺洁",
     patientId: "P202400032",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -560,10 +561,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD033",
     patientName: "贺刚",
     patientId: "P202400033",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "肾动脉DSA",
     drugName: "比伐卢定注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "0.6ml:5000IU",
     restriction: "限DSA手术使用",
     reason: "申请使用比伐卢定注射液行肾动脉DSA检查",
@@ -575,7 +576,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD034",
     patientName: "贺霞",
     patientId: "P202400034",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -590,7 +591,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD035",
     patientName: "贺峰",
     patientId: "P202400035",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "腹部MRI增强",
     drugName: "钆布醇注射液",
     drugCategory: "MRI对比剂",
@@ -605,10 +606,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD036",
     patientName: "贺敏",
     patientId: "P202400036",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "外周血管DSA",
     drugName: "肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "12500U/支",
     restriction: "限DSA手术使用",
     reason: "申请使用肝素钠注射液行外周血管DSA检查",
@@ -620,7 +621,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD037",
     patientName: "贺伟",
     patientId: "P202400037",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颅CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -635,7 +636,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD038",
     patientName: "贺娜",
     patientId: "P202400038",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "头颅MRI增强",
     drugName: "钆贝葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -650,10 +651,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD039",
     patientName: "贺磊",
     patientId: "P202400039",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "脑血管DSA",
     drugName: "磺达肝癸钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "2.5mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用磺达肝癸钠注射液行脑血管DSA检查",
@@ -665,7 +666,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD040",
     patientName: "贺娟",
     patientId: "P202400040",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘佛醇注射液",
     drugCategory: "CT对比剂",
@@ -680,7 +681,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD041",
     patientName: "贺强",
     patientId: "P202400041",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -695,10 +696,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD042",
     patientName: "贺静",
     patientId: "P202400042",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "心脏DSA",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/支",
     restriction: "限DSA手术使用",
     reason: "申请使用阿加曲班注射液行心脏DSA检查",
@@ -710,7 +711,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD043",
     patientName: "贺明",
     patientId: "P202400043",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺动脉CTA",
     drugName: "碘帕醇注射液",
     drugCategory: "CT对比剂",
@@ -725,7 +726,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD044",
     patientName: "贺玲",
     patientId: "P202400044",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆特醇注射液",
     drugCategory: "MRI对比剂",
@@ -740,10 +741,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD045",
     patientName: "贺浩",
     patientId: "P202400045",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "肾动脉DSA",
     drugName: "利伐沙班片",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "20mg/片",
     restriction: "限DSA手术使用",
     reason: "申请使用利伐沙班片行肾动脉DSA检查",
@@ -755,7 +756,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD046",
     patientName: "贺燕",
     patientId: "P202400046",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -770,7 +771,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD047",
     patientName: "贺超",
     patientId: "P202400047",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "腹部MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -785,10 +786,10 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD048",
     patientName: "贺涛",
     patientId: "P202400048",
-    examType: "DSA手术",
+    examType: t("insuranceAudit.typeDsaSurgery"),
     examItem: "外周血管DSA",
     drugName: "比伐卢定注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     drugSpec: "0.6ml:5000IU",
     restriction: "限DSA手术使用",
     reason: "申请使用比伐卢定注射液行外周血管DSA检查",
@@ -800,7 +801,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD049",
     patientName: "贺蓉",
     patientId: "P202400049",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颅CT增强",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -815,7 +816,7 @@ const pendingAuditData: PendingAudit[] = [
     id: "AUD050",
     patientName: "贺龙",
     patientId: "P202400050",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "头颅MRI增强",
     drugName: "钆布醇注射液",
     drugCategory: "MRI对比剂",
@@ -834,7 +835,7 @@ const auditHistory: AuditHistory[] = [
     id: 1,
     patientName: "张三",
     patientId: "P30001",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -846,7 +847,7 @@ const auditHistory: AuditHistory[] = [
     id: 2,
     patientName: "李四",
     patientId: "P30002",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -861,7 +862,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "李审核",
     auditTime: "2026-05-01 09:30",
@@ -871,7 +872,7 @@ const auditHistory: AuditHistory[] = [
     id: 4,
     patientName: "赵六",
     patientId: "P30004",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -883,7 +884,7 @@ const auditHistory: AuditHistory[] = [
     id: 5,
     patientName: "钱七",
     patientId: "P30005",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -896,7 +897,7 @@ const auditHistory: AuditHistory[] = [
     id: 6,
     patientName: "孙八",
     patientId: "P30006",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -912,7 +913,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "张审核",
     auditTime: "2026-05-01 10:30",
@@ -922,7 +923,7 @@ const auditHistory: AuditHistory[] = [
     id: 8,
     patientName: "吴十",
     patientId: "P30008",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -934,7 +935,7 @@ const auditHistory: AuditHistory[] = [
     id: 9,
     patientName: "郑一",
     patientId: "P30009",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -949,7 +950,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-05-01 11:15",
@@ -958,7 +959,7 @@ const auditHistory: AuditHistory[] = [
     id: 11,
     patientName: "陈三",
     patientId: "P30011",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -971,7 +972,7 @@ const auditHistory: AuditHistory[] = [
     id: 12,
     patientName: "褚四",
     patientId: "P30012",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -984,7 +985,7 @@ const auditHistory: AuditHistory[] = [
     id: 13,
     patientName: "卫五",
     patientId: "P30013",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -999,7 +1000,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "李审核",
     auditTime: "2026-05-01 12:15",
@@ -1008,7 +1009,7 @@ const auditHistory: AuditHistory[] = [
     id: 15,
     patientName: "沈七",
     patientId: "P30015",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1020,7 +1021,7 @@ const auditHistory: AuditHistory[] = [
     id: 16,
     patientName: "韩八",
     patientId: "P30016",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1032,7 +1033,7 @@ const auditHistory: AuditHistory[] = [
     id: 17,
     patientName: "杨九",
     patientId: "P30017",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1047,7 +1048,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "王审核",
     auditTime: "2026-05-01 14:30",
@@ -1057,7 +1058,7 @@ const auditHistory: AuditHistory[] = [
     id: 19,
     patientName: "秦一",
     patientId: "P30019",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1069,7 +1070,7 @@ const auditHistory: AuditHistory[] = [
     id: 20,
     patientName: "尤二",
     patientId: "P30020",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1082,7 +1083,7 @@ const auditHistory: AuditHistory[] = [
     id: 21,
     patientName: "许三",
     patientId: "P30021",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1097,7 +1098,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "张审核",
     auditTime: "2026-05-01 15:30",
@@ -1107,7 +1108,7 @@ const auditHistory: AuditHistory[] = [
     id: 23,
     patientName: "吕五",
     patientId: "P30023",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -1119,7 +1120,7 @@ const auditHistory: AuditHistory[] = [
     id: 24,
     patientName: "施六",
     patientId: "P30024",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1134,7 +1135,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-05-01 16:15",
@@ -1143,7 +1144,7 @@ const auditHistory: AuditHistory[] = [
     id: 26,
     patientName: "孔八",
     patientId: "P30026",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1156,7 +1157,7 @@ const auditHistory: AuditHistory[] = [
     id: 27,
     patientName: "曹九",
     patientId: "P30027",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1168,7 +1169,7 @@ const auditHistory: AuditHistory[] = [
     id: 28,
     patientName: "严十",
     patientId: "P30028",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1183,7 +1184,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "李审核",
     auditTime: "2026-05-01 17:15",
@@ -1192,7 +1193,7 @@ const auditHistory: AuditHistory[] = [
     id: 30,
     patientName: "金二",
     patientId: "P30030",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1204,7 +1205,7 @@ const auditHistory: AuditHistory[] = [
     id: 31,
     patientName: "魏三",
     patientId: "P30031",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1216,7 +1217,7 @@ const auditHistory: AuditHistory[] = [
     id: 32,
     patientName: "陶四",
     patientId: "P30032",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1231,7 +1232,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "王审核",
     auditTime: "2026-04-30 09:30",
@@ -1241,7 +1242,7 @@ const auditHistory: AuditHistory[] = [
     id: 34,
     patientName: "戚六",
     patientId: "P30034",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1253,7 +1254,7 @@ const auditHistory: AuditHistory[] = [
     id: 35,
     patientName: "谢七",
     patientId: "P30035",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1266,7 +1267,7 @@ const auditHistory: AuditHistory[] = [
     id: 36,
     patientName: "邹八",
     patientId: "P30036",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1281,7 +1282,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "张审核",
     auditTime: "2026-04-30 10:30",
@@ -1291,7 +1292,7 @@ const auditHistory: AuditHistory[] = [
     id: 38,
     patientName: "水十",
     patientId: "P30038",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -1303,7 +1304,7 @@ const auditHistory: AuditHistory[] = [
     id: 39,
     patientName: "窦一",
     patientId: "P30039",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1318,7 +1319,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-30 11:15",
@@ -1327,7 +1328,7 @@ const auditHistory: AuditHistory[] = [
     id: 41,
     patientName: "石三",
     patientId: "P30041",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1339,7 +1340,7 @@ const auditHistory: AuditHistory[] = [
     id: 42,
     patientName: "韦四",
     patientId: "P30042",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1352,7 +1353,7 @@ const auditHistory: AuditHistory[] = [
     id: 43,
     patientName: "程五",
     patientId: "P30043",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1367,7 +1368,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "李审核",
     auditTime: "2026-04-30 14:00",
@@ -1376,7 +1377,7 @@ const auditHistory: AuditHistory[] = [
     id: 45,
     patientName: "柳七",
     patientId: "P30045",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1388,7 +1389,7 @@ const auditHistory: AuditHistory[] = [
     id: 46,
     patientName: "杜八",
     patientId: "P30046",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1400,7 +1401,7 @@ const auditHistory: AuditHistory[] = [
     id: 47,
     patientName: "阮九",
     patientId: "P30047",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1415,7 +1416,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "王审核",
     auditTime: "2026-04-30 15:00",
@@ -1425,7 +1426,7 @@ const auditHistory: AuditHistory[] = [
     id: 49,
     patientName: "梅五",
     patientId: "P30049",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1437,7 +1438,7 @@ const auditHistory: AuditHistory[] = [
     id: 50,
     patientName: "林六",
     patientId: "P30050",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1449,7 +1450,7 @@ const auditHistory: AuditHistory[] = [
     id: 51,
     patientName: "万六",
     patientId: "P30051",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1464,7 +1465,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-30 16:00",
@@ -1473,7 +1474,7 @@ const auditHistory: AuditHistory[] = [
     id: 53,
     patientName: "伍八",
     patientId: "P30053",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -1485,7 +1486,7 @@ const auditHistory: AuditHistory[] = [
     id: 54,
     patientName: "余九",
     patientId: "P30054",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1501,7 +1502,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-30 16:45",
@@ -1510,7 +1511,7 @@ const auditHistory: AuditHistory[] = [
     id: 56,
     patientName: "卜一",
     patientId: "P30056",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1522,7 +1523,7 @@ const auditHistory: AuditHistory[] = [
     id: 57,
     patientName: "顾二",
     patientId: "P30057",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1534,7 +1535,7 @@ const auditHistory: AuditHistory[] = [
     id: 58,
     patientName: "孟三",
     patientId: "P30058",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1549,7 +1550,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "李审核",
     auditTime: "2026-04-29 09:15",
@@ -1558,7 +1559,7 @@ const auditHistory: AuditHistory[] = [
     id: 60,
     patientName: "黄五",
     patientId: "P30060",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1571,7 +1572,7 @@ const auditHistory: AuditHistory[] = [
     id: 61,
     patientName: "萧六",
     patientId: "P30061",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1583,7 +1584,7 @@ const auditHistory: AuditHistory[] = [
     id: 62,
     patientName: "尹七",
     patientId: "P30062",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1598,7 +1599,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "王审核",
     auditTime: "2026-04-29 10:15",
@@ -1607,7 +1608,7 @@ const auditHistory: AuditHistory[] = [
     id: 64,
     patientName: "邵九",
     patientId: "P30064",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1619,7 +1620,7 @@ const auditHistory: AuditHistory[] = [
     id: 65,
     patientName: "汪十",
     patientId: "P30065",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1631,7 +1632,7 @@ const auditHistory: AuditHistory[] = [
     id: 66,
     patientName: "毛一",
     patientId: "P30066",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1647,7 +1648,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-29 11:15",
@@ -1656,7 +1657,7 @@ const auditHistory: AuditHistory[] = [
     id: 68,
     patientName: "米三",
     patientId: "P30068",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -1668,7 +1669,7 @@ const auditHistory: AuditHistory[] = [
     id: 69,
     patientName: "贝四",
     patientId: "P30069",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1683,7 +1684,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-29 12:00",
@@ -1692,7 +1693,7 @@ const auditHistory: AuditHistory[] = [
     id: 71,
     patientName: "臧六",
     patientId: "P30071",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1705,7 +1706,7 @@ const auditHistory: AuditHistory[] = [
     id: 72,
     patientName: "计七",
     patientId: "P30072",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1717,7 +1718,7 @@ const auditHistory: AuditHistory[] = [
     id: 73,
     patientName: "伏八",
     patientId: "P30073",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1732,7 +1733,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "李审核",
     auditTime: "2026-04-29 14:45",
@@ -1741,7 +1742,7 @@ const auditHistory: AuditHistory[] = [
     id: 75,
     patientName: "戴十",
     patientId: "P30075",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1753,7 +1754,7 @@ const auditHistory: AuditHistory[] = [
     id: 76,
     patientName: "谈一",
     patientId: "P30076",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1765,7 +1766,7 @@ const auditHistory: AuditHistory[] = [
     id: 77,
     patientName: "宋二",
     patientId: "P30077",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1780,7 +1781,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "王审核",
     auditTime: "2026-04-29 15:45",
@@ -1790,7 +1791,7 @@ const auditHistory: AuditHistory[] = [
     id: 79,
     patientName: "庞四",
     patientId: "P30079",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1802,7 +1803,7 @@ const auditHistory: AuditHistory[] = [
     id: 80,
     patientName: "熊五",
     patientId: "P30080",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1814,7 +1815,7 @@ const auditHistory: AuditHistory[] = [
     id: 81,
     patientName: "纪六",
     patientId: "P30081",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1829,7 +1830,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "拒绝",
     auditor: "张审核",
     auditTime: "2026-04-29 16:45",
@@ -1839,7 +1840,7 @@ const auditHistory: AuditHistory[] = [
     id: 83,
     patientName: "屈八",
     patientId: "P30083",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -1851,7 +1852,7 @@ const auditHistory: AuditHistory[] = [
     id: 84,
     patientName: "项九",
     patientId: "P30084",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1866,7 +1867,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-29 17:30",
@@ -1875,7 +1876,7 @@ const auditHistory: AuditHistory[] = [
     id: 86,
     patientName: "董一",
     patientId: "P30086",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "前列腺MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1887,7 +1888,7 @@ const auditHistory: AuditHistory[] = [
     id: 87,
     patientName: "梁二",
     patientId: "P30087",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "冠脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -1899,7 +1900,7 @@ const auditHistory: AuditHistory[] = [
     id: 88,
     patientName: "杜三",
     patientId: "P30088",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "肺结节CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1914,7 +1915,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "肿瘤栓塞术",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "补充资料",
     auditor: "李审核",
     auditTime: "2026-04-28 09:45",
@@ -1924,7 +1925,7 @@ const auditHistory: AuditHistory[] = [
     id: 90,
     patientName: "马五",
     patientId: "P30090",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "骨关节MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1936,7 +1937,7 @@ const auditHistory: AuditHistory[] = [
     id: 91,
     patientName: "苗六",
     patientId: "P30091",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "腹部CT增强",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -1948,7 +1949,7 @@ const auditHistory: AuditHistory[] = [
     id: 92,
     patientName: "凤七",
     patientId: "P30092",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "颅脑MRI增强",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -1963,7 +1964,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "冠状动脉造影",
     drugName: "普通肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "王审核",
     auditTime: "2026-04-28 10:45",
@@ -1972,7 +1973,7 @@ const auditHistory: AuditHistory[] = [
     id: 94,
     patientName: "方九",
     patientId: "P30094",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "胸部CT增强",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -1984,7 +1985,7 @@ const auditHistory: AuditHistory[] = [
     id: 95,
     patientName: "俞十",
     patientId: "P30095",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "乳腺MRI增强",
     drugName: "钆喷酸葡胺注射液",
     drugCategory: "MRI对比剂",
@@ -1996,7 +1997,7 @@ const auditHistory: AuditHistory[] = [
     id: 96,
     patientName: "任一",
     patientId: "P30096",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "头颈CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -2011,7 +2012,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "脑血管取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-28 11:45",
@@ -2020,7 +2021,7 @@ const auditHistory: AuditHistory[] = [
     id: 98,
     patientName: "柳三",
     patientId: "P30098",
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examItem: "肝脏MRI增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -2032,7 +2033,7 @@ const auditHistory: AuditHistory[] = [
     id: 99,
     patientName: "酆四",
     patientId: "P30099",
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examItem: "主动脉CTA",
     drugName: "碘海醇注射液",
     drugCategory: "CT对比剂",
@@ -2047,7 +2048,7 @@ const auditHistory: AuditHistory[] = [
     examType: "DSA",
     examItem: "外周血管支架术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     result: "通过",
     auditor: "张审核",
     auditTime: "2026-04-28 14:15",
@@ -2123,7 +2124,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 9,
     name: "普通肝素钠注射液",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction:
       "限介入手术抗凝，禁用于有出血倾向、肝素诱导血小板减少症(HIT)患者",
     applicableExams: "DSA/血管介入/肿瘤栓塞/取栓术",
@@ -2132,7 +2133,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 10,
     name: "低分子肝素钠注射液",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction: "限介入手术抗凝及术后预防性抗凝，限二级以上医疗机构",
     applicableExams: "外周血管介入/支架术后/深静脉血栓预防",
     notes: "皮下注射，无需监测ACT，使用方便",
@@ -2140,7 +2141,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 11,
     name: "阿加曲班注射液",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction: "限急性缺血性脑卒中抗凝，发病48小时内使用，医保适应证严格限定",
     applicableExams: "急性脑梗死取栓术/动脉内溶栓",
     notes: "直接凝血酶抑制剂，需监测APTT",
@@ -2148,7 +2149,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 12,
     name: "磺达肝癸钠注射液",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction: "限DSA手术抗凝，限二级以上医疗机构使用",
     applicableExams: "DSA/血管介入手术",
     notes: "选择性Xa因子抑制剂，肾脏清除",
@@ -2156,7 +2157,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 13,
     name: "比伐卢定注射液",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction: "限PCI术中抗凝，限二级以上医疗机构使用",
     applicableExams: "冠脉介入/PCI术/急性心梗介入治疗",
     notes: "直接凝血酶抑制剂，作用可逆",
@@ -2164,7 +2165,7 @@ const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 14,
     name: "利伐沙班片",
-    category: "抗凝药物",
+    category: t("insuranceAudit.anticoagulant"),
     restriction: "限深静脉血栓(DVT)和肺栓塞(PE)治疗及预防复发",
     applicableExams: "骨科DVT预防/血管外科术后抗凝",
     notes: "口服Xa因子抑制剂，胃肠道吸收好",
@@ -2175,7 +2176,7 @@ const restrictedDrugs: RestrictedDrug[] = [
 const indicationRules: IndicationRule[] = [
   {
     id: 1,
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examName: "CT肺动脉造影(CTPA)",
     drugName: "碘普罗胺注射液",
     drugCategory: "CT对比剂",
@@ -2185,7 +2186,7 @@ const indicationRules: IndicationRule[] = [
   },
   {
     id: 2,
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examName: "颅脑MRI增强扫描",
     drugName: "钆双胺注射液",
     drugCategory: "MRI对比剂",
@@ -2199,14 +2200,14 @@ const indicationRules: IndicationRule[] = [
     examType: "DSA",
     examName: "急性脑梗死取栓术",
     drugName: "阿加曲班注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     insuranceRequirement:
       "限急性缺血性脑卒中(发病48小时内)使用；医保严格限定适应证，需神经科会诊记录",
     description: "阿加曲班用于急性脑梗死动脉内介入治疗后的抗凝，需监测APTT",
   },
   {
     id: 4,
-    examType: "MRI增强",
+    examType: t("insuranceAudit.typeMriEnhance"),
     examName: "肝脏MRI动态增强",
     drugName: "钆塞酸二钠注射液",
     drugCategory: "MRI对比剂",
@@ -2216,7 +2217,7 @@ const indicationRules: IndicationRule[] = [
   },
   {
     id: 5,
-    examType: "CT增强",
+    examType: t("insuranceAudit.typeCtEnhance"),
     examName: "冠状动脉CTA",
     drugName: "碘克沙醇注射液",
     drugCategory: "CT对比剂",
@@ -2229,7 +2230,7 @@ const indicationRules: IndicationRule[] = [
     examType: "DSA",
     examName: "外周血管支架置入术",
     drugName: "低分子肝素钠注射液",
-    drugCategory: "抗凝药物",
+    drugCategory: t("insuranceAudit.anticoagulant"),
     insuranceRequirement:
       "限介入手术抗凝及术后预防性抗凝；限二级以上医疗机构；需评估出血风险",
     description: "低分子肝素用于外周血管介入术中及术后抗凝，预防支架内血栓形成",
@@ -2544,6 +2545,18 @@ const styles: Record<string, React.CSSProperties> = {
     background: "var(--content-bg)",
     outline: "none",
     cursor: "pointer",
+  },
+  input: {
+    width: "100%",
+    padding: "8px 12px",
+    borderRadius: 6,
+    border: "1px solid var(--border-color)",
+    fontSize: 13,
+    fontFamily: "inherit",
+    boxSizing: "border-box",
+    outline: "none",
+    background: "var(--content-bg)",
+    color: "var(--text-primary)",
   },
   cardList: {
     display: "grid",
@@ -3122,16 +3135,16 @@ type TabKey =
   | "drg";
 
 const TAB_LABELS: Record<TabKey, string> = {
-  pending: "待审核",
-  history: "审核历史",
-  stats: "统计分析",
-  rules: "规则管理",
-  voucher: "电子凭证管理",
-  fundMonitor: "基金监控",
-  claim837: "837理赔",
-  denial: "拒赔管理",
-  preAuth: "预授权",
-  drg: "DRG校验",
+  pending: t("insuranceAudit.statusPending"),
+  history: t("insuranceAudit.auditHistory"),
+  stats: t("insuranceAudit.statistics"),
+  rules: t("insuranceAudit.ruleManagement"),
+  voucher: t("insuranceAudit.voucherTitle"),
+  fundMonitor: t("insuranceAudit.fundMonitoring"),
+  claim837: t("insuranceAudit.claims837"),
+  denial: t("insuranceAudit.denialManagement"),
+  preAuth: t("insuranceAudit.preAuthorization"),
+  drg: t("insuranceAudit.drgValidation"),
 };
 
 const TAB_ICONS: Record<TabKey, React.ReactNode> = {
@@ -3272,7 +3285,7 @@ const PendingAuditCard: React.FC<{
         style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 4 }}
         onClick={() => onViewDetail(audit.id)}
       >
-        <FileText size={16} /> 详情
+        <FileText size={16} /> {t("insuranceAudit.detail")}
       </button>
     </div>
   </div>
@@ -3334,7 +3347,7 @@ export default function InsuranceAuditPage() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [rejectReasonText, setRejectReasonText] = useState("");
 
-  // [W2-B] 保险审计详情 (getInsuranceAudit)
+  // [W2-B] 保险审计详情 (insuranceApi.getById 优先, datareportApi.getInsuranceAudit 回退)
   const [showAuditDetail, setShowAuditDetail] = useState(false);
   const [auditDetailLoading, setAuditDetailLoading] = useState(false);
   const [auditDetail, setAuditDetail] = useState<DataReportAuditDto | null>(null);
@@ -3343,16 +3356,24 @@ export default function InsuranceAuditPage() {
     setAuditDetailLoading(true);
     setShowAuditDetail(true);
     setAuditDetail(null);
-    void datareportApi.getInsuranceAudit(id).then((res) => {
-      setAuditDetailLoading(false);
-      if (res.success) {
-        const raw = res.data as unknown;
-        const item = Array.isArray(raw) ? raw[0] : raw;
-        setAuditDetail((item as DataReportAuditDto) ?? null);
-      } else {
-        setToastType("error");
-        setToastMessage(res.error?.message || "详情加载失败");
+    void insuranceApi.getById(id).then((res) => {
+      if (res.success && res.data) {
+        setAuditDetailLoading(false);
+        setAuditDetail(res.data as unknown as DataReportAuditDto);
+        return;
       }
+      // 回退: datareport 聚合视图 (与医保平台同表)
+      void datareportApi.getInsuranceAudit(id).then((res2) => {
+        setAuditDetailLoading(false);
+        if (res2.success) {
+          const raw = res2.data as unknown;
+          const item = Array.isArray(raw) ? raw[0] : raw;
+          setAuditDetail((item as DataReportAuditDto) ?? null);
+        } else {
+          setToastType("error");
+          setToastMessage(res2.error?.message || t("insuranceAudit.detailLoadFailed"));
+        }
+      });
     });
   };
 
@@ -3375,14 +3396,14 @@ export default function InsuranceAuditPage() {
               patientName: d.patientName,
               patientId: d.patientId,
               examType: d.examType || "CT",
-              examItem: d.examType || "影像检查",
-              drugName: d.drugName || d.drugCategory || "对比剂",
-              drugCategory: d.drugCategory || "对比剂",
-              drugSpec: "常规规格",
-              restriction: "医保限制用药目录",
-              reason: d.reason || "待审核",
+              examItem: d.examType || t("insuranceAudit.examTypeImage"),
+              drugName: d.drugName || d.drugCategory || t("insuranceAudit.contrast2"),
+              drugCategory: d.drugCategory || t("insuranceAudit.contrast2"),
+              drugSpec: t("insuranceAudit.regularSpec"),
+              restriction: t("insuranceAudit.restrictedDrugList"),
+              reason: d.reason || t("insuranceAudit.statusPending"),
               submitTime: d.submitTime || "",
-              submitDept: "放射科",
+              submitDept: t("insuranceAudit.radiologyDept"),
               urgency: "中",
             });
           }
@@ -3396,14 +3417,14 @@ export default function InsuranceAuditPage() {
               patientName: d.patientName,
               patientId: d.patientId,
               examType: d.examItem || "CT",
-              examItem: d.examItem || "影像检查",
-              drugName: d.contrastAgent || d.anticoagulant || "对比剂",
-              drugCategory: d.contrastAgent ? "对比剂" : "抗凝药物",
-              drugSpec: "常规规格",
-              restriction: "医保限制用药目录",
-              reason: d.reason || "待审核",
+              examItem: d.examItem || t("insuranceAudit.examTypeImage"),
+              drugName: d.contrastAgent || d.anticoagulant || t("insuranceAudit.contrast2"),
+              drugCategory: d.contrastAgent ? t("insuranceAudit.contrast2") : t("insuranceAudit.anticoagulant"),
+              drugSpec: t("insuranceAudit.regularSpec"),
+              restriction: t("insuranceAudit.restrictedDrugList"),
+              reason: d.reason || t("insuranceAudit.statusPending"),
               submitTime: "",
-              submitDept: "放射科",
+              submitDept: t("insuranceAudit.radiologyDept"),
               urgency: "中",
             });
           }
@@ -3429,10 +3450,10 @@ export default function InsuranceAuditPage() {
       icd10: "I63.9",
       cpt: "70460",
       amount: 850,
-      status: "已提交",
+      status: t("insuranceAudit.statusSubmitted"),
       submitDate: "2026-05-01",
-      carrier: "中国人保",
-      trackStatus: "已受理",
+      carrier: t("insuranceAudit.insurerPicc"),
+      trackStatus: t("insuranceAudit.statusAccepted"),
     },
     {
       id: "CLM002",
@@ -3442,10 +3463,10 @@ export default function InsuranceAuditPage() {
       icd10: "C71.9",
       cpt: "70553",
       amount: 1200,
-      status: "待提交",
+      status: t("insuranceAudit.statusPendingSubmit"),
       submitDate: "",
-      carrier: "中国平安",
-      trackStatus: "待提交",
+      carrier: t("insuranceAudit.insurerPingAn"),
+      trackStatus: t("insuranceAudit.statusPendingSubmit"),
     },
     {
       id: "CLM003",
@@ -3455,10 +3476,10 @@ export default function InsuranceAuditPage() {
       icd10: "I65.9",
       cpt: "75680",
       amount: 2800,
-      status: "已提交",
+      status: t("insuranceAudit.statusSubmitted"),
       submitDate: "2026-04-28",
-      carrier: "中国人保",
-      trackStatus: "审核中",
+      carrier: t("insuranceAudit.insurerPicc"),
+      trackStatus: t("insuranceAudit.statusReviewing"),
     },
     {
       id: "CLM004",
@@ -3468,10 +3489,10 @@ export default function InsuranceAuditPage() {
       icd10: "C22.0",
       cpt: "74160",
       amount: 950,
-      status: "已支付",
+      status: t("insuranceAudit.statusPaid"),
       submitDate: "2026-04-25",
-      carrier: "中国平安",
-      trackStatus: "已支付",
+      carrier: t("insuranceAudit.insurerPingAn"),
+      trackStatus: t("insuranceAudit.statusPaid"),
     },
     {
       id: "CLM005",
@@ -3481,35 +3502,35 @@ export default function InsuranceAuditPage() {
       icd10: "C61",
       cpt: "72196",
       amount: 1500,
-      status: "被拒",
+      status: t("insuranceAudit.statusDenied"),
       submitDate: "2026-04-20",
-      carrier: "中国人保",
-      trackStatus: "拒赔",
+      carrier: t("insuranceAudit.insurerPicc"),
+      trackStatus: t("insuranceAudit.denial"),
     },
   ];
   const icdCptMapping = [
-    { icd10: "I63.9", description: "脑梗死", cpt: "70460", exam: "头颅CT增强" },
+    { icd10: "I63.9", description: t("insuranceAudit.diseaseCerebralInfarction"), cpt: "70460", exam: "头颅CT增强" },
     {
       icd10: "C71.9",
-      description: "脑恶性肿瘤",
+      description: t("insuranceAudit.diseaseBrainMalignancy"),
       cpt: "70553",
       exam: "头颅MRI增强",
     },
     {
       icd10: "I65.9",
-      description: "脑动脉狭窄",
+      description: t("insuranceAudit.diseaseCerebralStenosis"),
       cpt: "75680",
       exam: "脑血管DSA",
     },
     {
       icd10: "C22.0",
-      description: "肝细胞癌",
+      description: t("insuranceAudit.diseaseHcc"),
       cpt: "74160",
       exam: "腹部CT增强",
     },
     {
       icd10: "C61",
-      description: "前列腺癌",
+      description: t("insuranceAudit.diseaseProstateCancer"),
       cpt: "72196",
       exam: "前列腺MRI增强",
     },
@@ -3525,11 +3546,11 @@ export default function InsuranceAuditPage() {
       patientId: "P202400005",
       examItem: "前列腺MRI增强",
       denialReason: "coding_error",
-      description: "CPT编码与ICD-10不匹配",
+      description: t("insuranceAudit.denialCptIcdMismatch"),
       amount: 1500,
       date: "2026-04-25",
-      carrier: "中国人保",
-      appealStatus: "待申诉",
+      carrier: t("insuranceAudit.insurerPicc"),
+      appealStatus: t("insuranceAudit.statusPendingAppeal"),
     },
     {
       id: "DEN002",
@@ -3537,11 +3558,11 @@ export default function InsuranceAuditPage() {
       patientId: "P202400006",
       examItem: "冠脉CTA",
       denialReason: "authorization_missing",
-      description: "未获得预先授权",
+      description: t("insuranceAudit.denialNoPreAuth"),
       amount: 1800,
       date: "2026-04-22",
-      carrier: "中国平安",
-      appealStatus: "申诉中",
+      carrier: t("insuranceAudit.insurerPingAn"),
+      appealStatus: t("insuranceAudit.statusAppealing"),
     },
     {
       id: "DEN003",
@@ -3549,11 +3570,11 @@ export default function InsuranceAuditPage() {
       patientId: "P202400007",
       examItem: "肺动脉CTA",
       denialReason: "medical_necessity",
-      description: "医保判定非医学必要",
+      description: t("insuranceAudit.denialNotMedicallyNecessary2"),
       amount: 1200,
       date: "2026-04-18",
-      carrier: "中国人保",
-      appealStatus: "已通过",
+      carrier: t("insuranceAudit.insurerPicc"),
+      appealStatus: t("insuranceAudit.statusApproved"),
     },
     {
       id: "DEN004",
@@ -3561,11 +3582,11 @@ export default function InsuranceAuditPage() {
       patientId: "P202400008",
       examItem: "腹部CT增强",
       denialReason: "duplicate",
-      description: "同一项目重复申报",
+      description: t("insuranceAudit.denialDuplicateClaim"),
       amount: 950,
       date: "2026-04-15",
-      carrier: "中国平安",
-      appealStatus: "已拒绝",
+      carrier: t("insuranceAudit.insurerPingAn"),
+      appealStatus: t("insuranceAudit.statusRejected"),
     },
     {
       id: "DEN005",
@@ -3573,11 +3594,11 @@ export default function InsuranceAuditPage() {
       patientId: "P202400009",
       examItem: "肾动脉DSA",
       denialReason: "coding_error",
-      description: "ICD-10代码与性别不符",
+      description: t("insuranceAudit.denialIcdGenderMismatch"),
       amount: 2200,
       date: "2026-04-10",
-      carrier: "中国人保",
-      appealStatus: "待申诉",
+      carrier: t("insuranceAudit.insurerPicc"),
+      appealStatus: t("insuranceAudit.statusPendingAppeal"),
     },
   ];
   const denialRateTrend = [
@@ -3589,11 +3610,11 @@ export default function InsuranceAuditPage() {
     { month: "2026-04", rate: 9.8 },
   ];
   const denialReasonLabels: Record<string, string> = {
-    coding_error: "编码错误",
-    authorization_missing: "缺少授权",
-    medical_necessity: "医学必要性",
-    duplicate: "重复申报",
-    other: "其他",
+    coding_error: t("insuranceAudit.denialCodingError"),
+    authorization_missing: t("insuranceAudit.denialMissingAuthorization"),
+    medical_necessity: t("insuranceAudit.medicalNecessity"),
+    duplicate: t("insuranceAudit.duplicateClaim"),
+    other: t("insuranceAudit.other"),
   };
   const [denialAppealFilter, setDenialAppealFilter] = useState("全部");
 
@@ -3606,7 +3627,7 @@ export default function InsuranceAuditPage() {
       examItem: "冠脉CTA",
       requestedDate: "2026-04-28",
       status: "pending",
-      docs: ["申请单", "病历摘要", "心电图"],
+      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.ecg")],
       docsCompleted: 2,
       expiryDate: "2026-05-28",
     },
@@ -3617,7 +3638,7 @@ export default function InsuranceAuditPage() {
       examItem: "头颅MRI增强",
       requestedDate: "2026-04-25",
       status: "approved",
-      docs: ["申请单", "病历摘要", "影像报告", "病理报告"],
+      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.imageReport"), t("insuranceAudit.pathologyReport")],
       docsCompleted: 4,
       expiryDate: "2026-05-25",
     },
@@ -3628,7 +3649,7 @@ export default function InsuranceAuditPage() {
       examItem: "脑血管DSA",
       requestedDate: "2026-04-20",
       status: "denied",
-      docs: ["申请单", "病历摘要", "CT报告"],
+      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.medicalSummary"), t("insuranceAudit.ctReport")],
       docsCompleted: 3,
       expiryDate: "2026-05-20",
     },
@@ -3639,7 +3660,7 @@ export default function InsuranceAuditPage() {
       examItem: "腹部CT增强",
       requestedDate: "2026-04-30",
       status: "pending",
-      docs: ["申请单", "肝功能报告"],
+      docs: [t("insuranceAudit.applicationForm"), t("insuranceAudit.liverFunctionReport")],
       docsCompleted: 1,
       expiryDate: "2026-05-30",
     },
@@ -3654,7 +3675,7 @@ export default function InsuranceAuditPage() {
       patientId: "P202400001",
       icdCodes: "I63.9, I10",
       drgCode: "B70A",
-      drgName: "脑血管疾病伴合并症",
+      drgName: t("insuranceAudit.drgCerebrovascularWithCc"),
       expectedCost: 15000,
       actualCost: 16800,
       outlier: false,
@@ -3666,7 +3687,7 @@ export default function InsuranceAuditPage() {
       patientId: "P202400002",
       icdCodes: "C71.9, D63.0",
       drgCode: "A10A",
-      drgName: "神经系统肿瘤伴合并症",
+      drgName: t("insuranceAudit.drgNeuroTumorWithCc"),
       expectedCost: 25000,
       actualCost: 32000,
       outlier: true,
@@ -3678,7 +3699,7 @@ export default function InsuranceAuditPage() {
       patientId: "P202400003",
       icdCodes: "I65.9",
       drgCode: "B70B",
-      drgName: "脑血管疾病不伴合并症",
+      drgName: t("insuranceAudit.drgCerebrovascularNoCc"),
       expectedCost: 12000,
       actualCost: 11500,
       outlier: false,
@@ -3690,7 +3711,7 @@ export default function InsuranceAuditPage() {
       patientId: "P202400004",
       icdCodes: "C22.0, K70.3",
       drgCode: "H60A",
-      drgName: "肝胆系统肿瘤伴合并症",
+      drgName: t("insuranceAudit.drgHepatobiliaryTumorWithCc"),
       expectedCost: 20000,
       actualCost: 28500,
       outlier: true,
@@ -3698,10 +3719,10 @@ export default function InsuranceAuditPage() {
     },
   ];
   const drgMapping = [
-    { icdStart: "A00", icdEnd: "B99", drg: "A", category: "感染性疾病" },
-    { icdStart: "C00", icdEnd: "D49", drg: "B", category: "肿瘤" },
-    { icdStart: "I60", icdEnd: "I69", drg: "B70", category: "脑血管疾病" },
-    { icdStart: "K70", icdEnd: "K77", drg: "H60", category: "肝胆疾病" },
+    { icdStart: "A00", icdEnd: "B99", drg: "A", category: t("insuranceAudit.drgInfectious") },
+    { icdStart: "C00", icdEnd: "D49", drg: "B", category: t("insuranceAudit.drgTumor") },
+    { icdStart: "I60", icdEnd: "I69", drg: "B70", category: t("insuranceAudit.drgCerebrovascular") },
+    { icdStart: "K70", icdEnd: "K77", drg: "H60", category: t("insuranceAudit.drgHepatobiliary") },
   ];
 
   const pageSize = 10;
@@ -3754,7 +3775,7 @@ export default function InsuranceAuditPage() {
 
   // [W2-C] 导出审核历史为 CSV
   const handleExportHistory = () => {
-    const header = "患者,患者ID,检查类型,检查项目,药品,药品类别,审核结果,审核人,审核时间,原因";
+    const header = t("insuranceAudit.csvHeader");
     const rows = filteredHistory.map((h) =>
       [
         h.patientName,
@@ -3814,7 +3835,7 @@ export default function InsuranceAuditPage() {
     void insuranceApi.approve(id).then((res) => {
       if (!res.success) {
         setToastType("error");
-        setToastMessage(res.error?.message || t("approveFailed", "通过失败"));
+        setToastMessage(res.error?.message || t("approveFailed", t("insuranceAudit.approveFailed")));
         return;
       }
       setToastType("success");
@@ -3835,7 +3856,7 @@ export default function InsuranceAuditPage() {
 
   const confirmReject = () => {
     if (pendingId) {
-      const reason = rejectReasonText.trim() || t("rejectDefaultReason", "不符合医保限制用药条件");
+      const reason = rejectReasonText.trim() || t("rejectDefaultReason", t("insuranceAudit.approveFailedReason"));
       setToastType("error");
       setToastMessage(t("rejectedMsg") + `: ${pendingId}`);
       setShowRejectModal(false);
@@ -3847,7 +3868,7 @@ export default function InsuranceAuditPage() {
           setPendingAudits((prev) => prev.filter((a) => a.id !== pendingId));
         } else {
           setToastType("error");
-          setToastMessage(res.error?.message || t("rejectFailed", "拒绝失败"));
+          setToastMessage(res.error?.message || t("rejectFailed", t("insuranceAudit.rejectFailed")));
         }
       });
     }
@@ -3862,6 +3883,89 @@ export default function InsuranceAuditPage() {
     }
   };
 
+  // [Wave 4A] 新建医保审核记录 (insuranceApi.create, 后端 POST /insurance-audits)
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    patientId: "",
+    patientName: "",
+    examItem: "",
+    contrastAgent: "",
+    anticoagulant: "",
+    amount: 0,
+    reason: "",
+  });
+
+  const openCreateModal = () => {
+    setCreateForm({
+      patientId: "",
+      patientName: "",
+      examItem: "",
+      contrastAgent: "",
+      anticoagulant: "",
+      amount: 0,
+      reason: "",
+    });
+    setShowCreateModal(true);
+  };
+
+  const handleCreateAudit = async () => {
+    if (!createForm.patientId.trim() || !createForm.patientName.trim()) {
+      setToastType("error");
+      setToastMessage(t("insuranceAudit.patientRequired"));
+      return;
+    }
+    if (!createForm.contrastAgent.trim() && !createForm.anticoagulant.trim()) {
+      setToastType("error");
+      setToastMessage(t("insuranceAudit.drugRequired"));
+      return;
+    }
+    setCreating(true);
+    const res = await insuranceApi.create({
+      patientId: createForm.patientId.trim(),
+      patientName: createForm.patientName.trim(),
+      examItem: createForm.examItem.trim() || t("insuranceAudit.examTypeImage"),
+      contrastAgent: createForm.contrastAgent.trim() || undefined,
+      anticoagulant: createForm.anticoagulant.trim() || undefined,
+      amount: createForm.amount > 0 ? createForm.amount : undefined,
+      reason: createForm.reason.trim() || t("insuranceAudit.newRecordAdded"),
+    });
+    setCreating(false);
+    if (res.success) {
+      setToastType("success");
+      setToastMessage(`已创建审核记录: ${res.data.id}`);
+      setShowCreateModal(false);
+      // 同步刷新待审核列表
+      const listRes = await insuranceApi.list();
+      if (listRes.success && Array.isArray(listRes.data)) {
+        const mapped: PendingAudit[] = [];
+        (listRes.data as any[]).forEach((d) => {
+          if (d.status === "pending") {
+            mapped.push({
+              id: d.id,
+              patientName: d.patientName,
+              patientId: d.patientId,
+              examType: d.examItem || "CT",
+              examItem: d.examItem || t("insuranceAudit.examTypeImage"),
+              drugName: d.contrastAgent || d.anticoagulant || t("insuranceAudit.contrast2"),
+              drugCategory: d.contrastAgent ? t("insuranceAudit.contrast2") : t("insuranceAudit.anticoagulant"),
+              drugSpec: t("insuranceAudit.regularSpec"),
+              restriction: t("insuranceAudit.restrictedDrugList"),
+              reason: d.reason || t("insuranceAudit.statusPending"),
+              submitTime: "",
+              submitDept: t("insuranceAudit.radiologyDept"),
+              urgency: "中",
+            });
+          }
+        });
+        if (mapped.length > 0) setPendingAudits(mapped);
+      }
+    } else {
+      setToastType("error");
+      setToastMessage(res.error?.message || t("insuranceAudit.createFailed"));
+    }
+  };
+
   return (
     <div style={styles.root}>
       <PageHeader
@@ -3869,7 +3973,7 @@ export default function InsuranceAuditPage() {
         title={t("title")}
         subtitle={
           /* [G005 Wave2B P2] statsData/fundTrendData 等大量硬编码 → 部分演示数据徽标 */
-          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600 }}>部分演示数据</span>
+          <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600 }}>{t("insuranceAudit.partialDemoData")}</span>
         }
       />
 
@@ -3895,7 +3999,7 @@ export default function InsuranceAuditPage() {
           color="warning"
         />
         <StatCard
-          title="平均审核时间"
+          title={t("insuranceAudit.avgAuditTime")}
           value={statsData.avgReviewTime}
           icon={<Clock size={22} />}
           color="primary"
@@ -3909,36 +4013,36 @@ export default function InsuranceAuditPage() {
         <div style={styles.fundMonitorHeader}>
           <h3 style={styles.fundMonitorTitle}>
             <DollarSign size={20} style={{ color: "#16a34a" }} />
-            医保基金监控
+            {t("insuranceAudit.fundMonitorTitle")}
           </h3>
           <AppText size="xs" color="secondary" as="span">
-            数据更新于 2026-05-27 12:00
+            {t("insuranceAudit.dataUpdatedAt")}
           </AppText>
         </div>
 
         {/* 基金监控KPI */}
         <div style={styles.fundKpiRow}>
           <StatCard
-            title="本月基金使用率"
+            title={t("insuranceAudit.monthlyFundUsage")}
             value={fundMonitorKPI.usageRate}
             suffix="%"
             icon={<Percent size={22} />}
             color="success"
           />
           <StatCard
-            title="基金余额预警"
+            title={t("insuranceAudit.fundBalanceWarning")}
             value={fundMonitorKPI.balanceWarning}
             icon={<AlertTriangle size={22} />}
             color={fundMonitorKPI.balanceWarning === "正常" ? "success" : fundMonitorKPI.balanceWarning === "警告" ? "warning" : "error"}
           />
           <StatCard
-            title="本月违规使用次数"
+            title={t("insuranceAudit.monthlyViolations")}
             value={fundMonitorKPI.violationCount}
             icon={<AlertOctagon size={22} />}
             color="error"
           />
           <StatCard
-            title="审核通过率"
+            title={t("insuranceAudit.approvalRate")}
             value={fundMonitorKPI.passRateTrend}
             suffix="%"
             icon={<TrendingUp size={22} />}
@@ -3959,9 +4063,9 @@ export default function InsuranceAuditPage() {
                   color: "#16a34a",
                 }}
               />
-              近30天基金使用趋势
+              {t("insuranceAudit.fundTrendRecent30d")}
             </div>
-            <ChartContainer height={220} state={fundTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无基金使用趋势数据">
+            <ChartContainer height={220} state={fundTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noFundTrendData")}>
               <AreaChart data={fundTrendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <XAxis
@@ -3969,9 +4073,9 @@ export default function InsuranceAuditPage() {
                   tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit="万" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
                 <Tooltip
-                  formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
+                  formatter={(value: number) => [`¥${value}万元`, t("insuranceAudit.usageAmount")]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4009,11 +4113,11 @@ export default function InsuranceAuditPage() {
                   color: "#f97316",
                 }}
               />
-              科室医保使用分布
+              {t("insuranceAudit.deptUsageDist")}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ width: 220, height: 220, flexShrink: 0 }}>
-              <ChartContainer height={220} state={deptUsageData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无科室分布数据">
+              <ChartContainer height={220} state={deptUsageData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDeptDistData")}>
                 <PieChart>
                   <Pie
                     data={deptUsageData}
@@ -4029,7 +4133,7 @@ export default function InsuranceAuditPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => [`${value}%`, "占比"]}
+                    formatter={(value: number) => [`${value}%`, t("insuranceAudit.share")]}
                     contentStyle={{
                       borderRadius: 8,
                       border: "1px solid var(--border-color)",
@@ -4090,9 +4194,9 @@ export default function InsuranceAuditPage() {
                   color: "#3b82f6",
                 }}
               />
-              近12个月基金使用趋势
+              {t("insuranceAudit.fundTrendRecent12m")}
             </div>
-            <ChartContainer height={200} state={fundMonthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度基金数据">
+            <ChartContainer height={200} state={fundMonthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noMonthlyFundData")}>
               <BarChart data={fundMonthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <XAxis
@@ -4100,9 +4204,9 @@ export default function InsuranceAuditPage() {
                   tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit="万" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit={t("insuranceAudit.tenThousand")} />
                 <Tooltip
-                  formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
+                  formatter={(value: number) => [`¥${value}万元`, t("insuranceAudit.usageAmount")]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid var(--border-color)",
@@ -4135,7 +4239,7 @@ export default function InsuranceAuditPage() {
                   color: "#dc2626",
                 }}
               />
-              违规使用预警
+              {t("insuranceAudit.violationWarning")}
               <span
                 style={{
                   marginLeft: 8,
@@ -4144,7 +4248,7 @@ export default function InsuranceAuditPage() {
                   color: "var(--text-secondary)",
                 }}
               >
-                共 {violationAlerts.length} 条
+                {t("insuranceAudit.totalPrefix")} {violationAlerts.length} {t("insuranceAudit.items")}
               </span>
             </div>
             <div style={{ maxHeight: 200, overflowY: "auto" }}>
@@ -4201,9 +4305,9 @@ export default function InsuranceAuditPage() {
                 color: "#8b5cf6",
               }}
             />
-            审核通过率趋势（近30天）
+            {t("insuranceAudit.approvalTrendRecent30d")}
           </div>
-            <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无通过率趋势数据">
+            <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noApprovalTrendData")}>
               <AreaChart data={passRateTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
@@ -4214,7 +4318,7 @@ export default function InsuranceAuditPage() {
                 unit="%"
               />
               <Tooltip
-                formatter={(value: number) => [`${value}%`, "通过率"]}
+                formatter={(value: number) => [`${value}%`, t("insuranceAudit.passedRate")]}
                 contentStyle={{ borderRadius: 8, border: "1px solid var(--border-color)" }}
               />
               <Area
@@ -4283,9 +4387,9 @@ export default function InsuranceAuditPage() {
               onChange={(e) => setFilterType(e.target.value)}
             >
               <option value="全部">{t("allTypes")}</option>
-              <option value="CT增强">CT增强</option>
-              <option value="MRI增强">MRI增强</option>
-              <option value="DSA手术">DSA手术</option>
+              <option value="CT增强">{t("insuranceAudit.typeCtEnhance")}</option>
+              <option value="MRI增强">{t("insuranceAudit.typeMriEnhance")}</option>
+              <option value="DSA手术">{t("insuranceAudit.typeDsaSurgery")}</option>
             </select>
             <button
               onClick={() => {
@@ -4305,14 +4409,14 @@ export default function InsuranceAuditPage() {
                           patientName: d.patientName,
                           patientId: d.patientId,
                           examType: d.examType || "CT",
-                          examItem: d.examType || "影像检查",
-                          drugName: d.drugName || d.drugCategory || "对比剂",
-                          drugCategory: d.drugCategory || "对比剂",
-                          drugSpec: "常规规格",
-                          restriction: "医保限制用药目录",
-                          reason: d.reason || "待审核",
+                          examItem: d.examType || t("insuranceAudit.examTypeImage"),
+                          drugName: d.drugName || d.drugCategory || t("insuranceAudit.contrast2"),
+                          drugCategory: d.drugCategory || t("insuranceAudit.contrast2"),
+                          drugSpec: t("insuranceAudit.regularSpec"),
+                          restriction: t("insuranceAudit.restrictedDrugList"),
+                          reason: d.reason || t("insuranceAudit.statusPending"),
                           submitTime: d.submitTime || "",
-                          submitDept: "放射科",
+                          submitDept: t("insuranceAudit.radiologyDept"),
                           urgency: "中",
                         });
                       }
@@ -4326,9 +4430,16 @@ export default function InsuranceAuditPage() {
               <RefreshCw size={16} />
               {t("refresh")}
             </button>
+            <button
+              onClick={openCreateModal}
+              style={{ ...styles.btn, ...styles.btnPrimary }}
+            >
+              <Plus size={16} />
+              {t("insuranceAudit.newAuditRecord")}
+            </button>
             {auditLoading && (
               <span style={{ fontSize: 12, color: "#1e40af", display: "flex", alignItems: "center", gap: 6 }}>
-                <Loader2 size={14} className="spin" /> 正在同步医保平台数据...
+                <Loader2 size={14} className="spin" /> {t("insuranceAudit.syncingPlatform")}
               </span>
             )}
           </div>
@@ -4342,7 +4453,7 @@ export default function InsuranceAuditPage() {
               />
               <div>{t("noPending")}</div>
               <div style={{ fontSize: 12, marginTop: 4, color: "var(--text-secondary)" }}>
-                暂无数据
+                {t("insuranceAudit.noData")}
               </div>
             </div>
           ) : (
@@ -4363,16 +4474,16 @@ export default function InsuranceAuditPage() {
               {pendingTotalPages > 1 && (
                 <div style={styles.pagination}>
                   <div style={styles.pageInfo}>
-                    显示 {(pendingPage - 1) * pageSize + 1} -{" "}
+                    {t("insuranceAudit.showing")} {(pendingPage - 1) * pageSize + 1} -{" "}
                     {Math.min(pendingPage * pageSize, filteredPending.length)}{" "}
-                    条，共 {filteredPending.length} 条 · 第 {pendingPage}/
-                    {pendingTotalPages} 页
+                    {t("insuranceAudit.itemsOf")} {filteredPending.length} {t("insuranceAudit.itemsPage")} {pendingPage}/
+                    {pendingTotalPages} {t("insuranceAudit.pageUnit")}
                   </div>
                   <div style={styles.pageButtons}>
                     <button
                       style={styles.pageBtn}
                       disabled={pendingPage === 1}
-                      aria-label="上一页"
+                      aria-label={t("insuranceAudit.prevPage")}
                       onClick={() => setPendingPage((p) => Math.max(1, p - 1))}
                     >
                       <ChevronLeft size={16} />
@@ -4414,7 +4525,7 @@ export default function InsuranceAuditPage() {
                     <button
                       style={styles.pageBtn}
                       disabled={pendingPage === pendingTotalPages}
-                      aria-label="下一页"
+                      aria-label={t("insuranceAudit.nextPage")}
                       onClick={() =>
                         setPendingPage((p) =>
                           Math.min(pendingTotalPages, p + 1),
@@ -4493,7 +4604,7 @@ export default function InsuranceAuditPage() {
                 <button
                   style={styles.pageBtn}
                   disabled={historyPage === 1}
-                  aria-label="上一页"
+                  aria-label={t("insuranceAudit.prevPage")}
                   onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
                 >
                   <ChevronLeft size={16} />
@@ -4529,7 +4640,7 @@ export default function InsuranceAuditPage() {
                 <button
                   style={styles.pageBtn}
                   disabled={historyPage === totalPages}
-                  aria-label="下一页"
+                  aria-label={t("insuranceAudit.nextPage")}
                   onClick={() =>
                     setHistoryPage((p) => Math.min(totalPages, p + 1))
                   }
@@ -4555,24 +4666,24 @@ export default function InsuranceAuditPage() {
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>CT增强审核</div>
+              <div style={styles.statTitle}>{t("insuranceAudit.statCtEnhance")}</div>
               <div style={styles.statValue}>158</div>
               <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
-                占比 48.5%
+                {t("insuranceAudit.share485")}
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>MRI增强审核</div>
+              <div style={styles.statTitle}>{t("insuranceAudit.statMriEnhance")}</div>
               <div style={styles.statValue}>98</div>
               <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
-                占比 30.1%
+                {t("insuranceAudit.share301")}
               </AppText>
             </div>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>DSA抗凝审核</div>
+              <div style={styles.statTitle}>{t("insuranceAudit.statDsaAnticoag")}</div>
               <div style={styles.statValue}>70</div>
               <AppText size="xs" color="secondary" as="div" style={{ marginTop: 4 }}>
-                占比 21.5%
+                {t("insuranceAudit.share215")}
               </AppText>
             </div>
           </div>
@@ -4583,12 +4694,12 @@ export default function InsuranceAuditPage() {
                 size={18}
                 style={{ marginRight: 8, verticalAlign: "middle" }}
               />
-              审核结果分布
+              {t("insuranceAudit.resultDist")}
             </div>
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
-                  通过率
+                  {t("insuranceAudit.passedRate")}
                 </AppText>
                 <div
                   style={{
@@ -4618,7 +4729,7 @@ export default function InsuranceAuditPage() {
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
-                  拒绝率
+                  {t("insuranceAudit.rejectedRate")}
                 </AppText>
                 <div
                   style={{
@@ -4648,7 +4759,7 @@ export default function InsuranceAuditPage() {
               </div>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <AppText size="sm" color="secondary" as="div" style={{ marginBottom: 8 }}>
-                  补充资料率
+                  {t("insuranceAudit.supplementRate")}
                 </AppText>
                 <div
                   style={{
@@ -4685,7 +4796,7 @@ export default function InsuranceAuditPage() {
                 size={18}
                 style={{ marginRight: 8, verticalAlign: "middle" }}
               />
-              药品使用排行 (Top 5)
+              {t("insuranceAudit.drugTop5")}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -4744,38 +4855,38 @@ export default function InsuranceAuditPage() {
         <>
           {/* 蓝色渐变卡片头部 */}
           <div style={styles.voucherCard}>
-            <div style={styles.voucherCardTitle}>电子凭证管理</div>
+            <div style={styles.voucherCardTitle}>{t("insuranceAudit.voucherTitle")}</div>
             <div style={styles.voucherCardSubtitle}>
-              医保审核电子凭证记录与查询
+              {t("insuranceAudit.voucherSubtitle")}
             </div>
             <div style={styles.voucherStatsRow}>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>{voucherStats.total}</div>
-                <div style={styles.voucherStatLabel}>凭证总数</div>
+                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherTotal")}</div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.invoiced}
                 </div>
-                <div style={styles.voucherStatLabel}>已开票</div>
+                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherIssued2")}</div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.pending}
                 </div>
-                <div style={styles.voucherStatLabel}>待开票</div>
+                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherPending2")}</div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   {voucherStats.cancelled}
                 </div>
-                <div style={styles.voucherStatLabel}>已作废</div>
+                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherVoided")}</div>
               </div>
               <div style={styles.voucherStatItem}>
                 <div style={styles.voucherStatValue}>
                   ¥{voucherStats.totalAmount.toLocaleString()}
                 </div>
-                <div style={styles.voucherStatLabel}>总金额</div>
+                <div style={styles.voucherStatLabel}>{t("insuranceAudit.voucherTotalAmount")}</div>
               </div>
             </div>
           </div>
@@ -4786,13 +4897,13 @@ export default function InsuranceAuditPage() {
               <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
-                placeholder="搜索患者姓名、ID、凭证ID、关联审核ID..."
+                placeholder={t("insuranceAudit.voucherSearchPlaceholder")}
                 value={voucherSearch}
                 onChange={(e) => setVoucherSearch(e.target.value)}
               />
             </div>
             <div style={{ display: "flex", gap: 8 }}>
-              {["全部", "已开票", "待开票", "已作废"].map((status) => (
+              {["全部", t("insuranceAudit.voucherIssued2"), t("insuranceAudit.voucherPending2"), t("insuranceAudit.voucherVoided")].map((status) => (
                 <button
                   key={status}
                   style={{
@@ -4814,14 +4925,14 @@ export default function InsuranceAuditPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={styles.voucherTh}>凭证ID</th>
-                  <th style={styles.voucherTh}>关联审核ID</th>
-                  <th style={styles.voucherTh}>患者姓名</th>
-                  <th style={styles.voucherTh}>患者ID</th>
-                  <th style={styles.voucherTh}>凭证类型</th>
-                  <th style={styles.voucherTh}>金额</th>
-                  <th style={styles.voucherTh}>开票时间</th>
-                  <th style={styles.voucherTh}>状态</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.voucherId")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.linkedAuditId")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.patientName")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.patientId")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.voucherType")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.amount")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.issueTime")}</th>
+                  <th style={styles.voucherTh}>{t("insuranceAudit.status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -4897,8 +5008,8 @@ export default function InsuranceAuditPage() {
               fontSize: 13,
             }}
           >
-            显示 {Math.min(50, filteredVouchers.length)} /{" "}
-            {filteredVouchers.length} 条记录
+            {t("insuranceAudit.showing")} {Math.min(50, filteredVouchers.length)} /{" "}
+            {filteredVouchers.length} {t("insuranceAudit.recordsUnit")}
           </div>
         </>
       )}
@@ -4920,7 +5031,7 @@ export default function InsuranceAuditPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <FileText size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>
-                837 (X12 5010) 理赔申请
+                {t("insuranceAudit.claimsTitle")}
               </span>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -4941,12 +5052,12 @@ export default function InsuranceAuditPage() {
                 }}
               >
                 <Upload size={14} />
-                {claimBatchMode ? "取消批量" : "批量提交"}
+                {claimBatchMode ? t("insuranceAudit.cancelBatch") : t("insuranceAudit.batchSubmit")}
               </button>
               <button
                 onClick={() => {
                   setToastType("success");
-                  setToastMessage("模拟提交成功，已发送至保险商");
+                  setToastMessage(t("insuranceAudit.claimSubmitted2"));
                 }}
                 style={{
                   padding: "6px 14px",
@@ -4963,7 +5074,7 @@ export default function InsuranceAuditPage() {
                 }}
               >
                 <Send size={14} />
-                提交理赔
+                {t("insuranceAudit.submitClaim")}
               </button>
             </div>
           </div>
@@ -4983,7 +5094,7 @@ export default function InsuranceAuditPage() {
                 borderBottom: "1px solid var(--border-color)",
               }}
             >
-              {["全部", "待提交", "已提交", "已支付", "被拒"].map((s) => (
+              {["全部", t("insuranceAudit.statusPendingSubmit"), t("insuranceAudit.statusSubmitted"), t("insuranceAudit.statusPaid"), t("insuranceAudit.statusDenied")].map((s) => (
                 <button
                   key={s}
                   onClick={() => setClaimStatusFilter(s)}
@@ -5011,15 +5122,15 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   {[
-                    "理赔ID",
-                    "患者",
-                    "检查项目",
+                    t("insuranceAudit.claimId"),
+                    t("insuranceAudit.patient"),
+                    t("insuranceAudit.examItem2"),
                     "ICD-10",
                     "CPT",
-                    "金额",
-                    "保险商",
-                    "提交日期",
-                    "状态",
+                    t("insuranceAudit.amount"),
+                    t("insuranceAudit.insurer2"),
+                    t("insuranceAudit.submitDate"),
+                    t("insuranceAudit.status"),
                   ].map((h) => (
                     <th
                       key={h}
@@ -5178,7 +5289,7 @@ export default function InsuranceAuditPage() {
                 margin: "0 0 12px",
               }}
             >
-              ICD-10 / CPT 编码映射
+              {t("insuranceAudit.codeMappingTitle")}
             </h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -5208,7 +5319,7 @@ export default function InsuranceAuditPage() {
                       fontSize: 12,
                     }}
                   >
-                    描述
+                    {t("insuranceAudit.description")}
                   </th>
                   <th
                     style={{
@@ -5230,7 +5341,7 @@ export default function InsuranceAuditPage() {
                       fontSize: 12,
                     }}
                   >
-                    适用检查
+                    {t("insuranceAudit.applicableExam")}
                   </th>
                 </tr>
               </thead>
@@ -5301,14 +5412,14 @@ export default function InsuranceAuditPage() {
           >
             {[
               {
-                label: "拒赔总数",
+                label: t("insuranceAudit.denialTotal"),
                 value: denialData.length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
                 bg: "#ef444422",
               },
               {
-                label: "待申诉",
+                label: t("insuranceAudit.statusPendingAppeal"),
                 value: denialData.filter((d) => d.appealStatus === "待申诉")
                   .length,
                 icon: <AlertTriangle size={18} />,
@@ -5316,7 +5427,7 @@ export default function InsuranceAuditPage() {
                 bg: "#f59e0b22",
               },
               {
-                label: "申诉中",
+                label: t("insuranceAudit.statusAppealing"),
                 value: denialData.filter((d) => d.appealStatus === "申诉中")
                   .length,
                 icon: <Loader2 size={18} />,
@@ -5324,7 +5435,7 @@ export default function InsuranceAuditPage() {
                 bg: "#3b82f622",
               },
               {
-                label: "已通过",
+                label: t("insuranceAudit.statusApproved"),
                 value: denialData.filter((d) => d.appealStatus === "已通过")
                   .length,
                 icon: <CheckCircle size={18} />,
@@ -5387,7 +5498,7 @@ export default function InsuranceAuditPage() {
                   gap: 6,
                 }}
               >
-                {["全部", "待申诉", "申诉中", "已通过", "已拒绝"].map((s) => (
+                {["全部", t("insuranceAudit.statusPendingAppeal"), t("insuranceAudit.statusAppealing"), t("insuranceAudit.statusApproved"), t("insuranceAudit.statusRejected")].map((s) => (
                   <button
                     key={s}
                     onClick={() => setDenialAppealFilter(s)}
@@ -5415,12 +5526,12 @@ export default function InsuranceAuditPage() {
                     }}
                   >
                     {[
-                      "患者",
-                      "检查",
-                      "拒赔原因",
-                      "原因说明",
-                      "金额",
-                      "申诉状态",
+                      t("insuranceAudit.patient"),
+                      t("insuranceAudit.exam"),
+                      t("insuranceAudit.denialReason"),
+                      t("insuranceAudit.reasonNote"),
+                      t("insuranceAudit.amount"),
+                      t("insuranceAudit.appealStatus"),
                     ].map((h) => (
                       <th
                         key={h}
@@ -5527,18 +5638,18 @@ export default function InsuranceAuditPage() {
                             }}
                           >
                             {d.appealStatus === "待申诉"
-                              ? "待申诉"
+                              ? t("insuranceAudit.statusPendingAppeal")
                               : d.appealStatus === "申诉中"
-                                ? "申诉中"
+                                ? t("insuranceAudit.statusAppealing")
                                 : d.appealStatus === "已通过"
-                                  ? "已通过"
-                                  : "已拒绝"}
+                                  ? t("insuranceAudit.statusApproved")
+                                  : t("insuranceAudit.statusRejected")}
                           </span>
                           {d.appealStatus === "待申诉" && (
                             <button
                               onClick={() => {
                                 setToastType("success");
-                                setToastMessage("申诉信已生成");
+                                setToastMessage(t("insuranceAudit.appealLetterGenerated"));
                               }}
                               style={{
                                 marginLeft: 6,
@@ -5551,7 +5662,7 @@ export default function InsuranceAuditPage() {
                                 cursor: "pointer",
                               }}
                             >
-                              申诉
+                              {t("insuranceAudit.appeal")}
                             </button>
                           )}
                         </td>
@@ -5576,9 +5687,9 @@ export default function InsuranceAuditPage() {
                   margin: "0 0 12px",
                 }}
               >
-                拒赔率趋势
+                {t("insuranceAudit.denialRateTrend")}
               </h3>
-              <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无拒赔率趋势数据">
+              <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDenialTrendData")}>
                 <AreaChart data={denialRateTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
@@ -5648,21 +5759,21 @@ export default function InsuranceAuditPage() {
           >
             {[
               {
-                label: "总预授权数",
+                label: t("insuranceAudit.preauthTotal"),
                 value: preAuthData.length,
                 icon: <ClipboardList size={18} />,
                 color: ACCENT,
                 bg: "#3b82f622",
               },
               {
-                label: "待审批",
+                label: t("insuranceAudit.preauthPending"),
                 value: preAuthData.filter((p) => p.status === "pending").length,
                 icon: <Clock size={18} />,
                 color: WARNING,
                 bg: "#f59e0b22",
               },
               {
-                label: "已批准",
+                label: t("insuranceAudit.preauthApproved"),
                 value: preAuthData.filter((p) => p.status === "approved")
                   .length,
                 icon: <CheckCircle size={18} />,
@@ -5670,7 +5781,7 @@ export default function InsuranceAuditPage() {
                 bg: "#22c55e22",
               },
               {
-                label: "已拒绝",
+                label: t("insuranceAudit.statusRejected"),
                 value: preAuthData.filter((p) => p.status === "denied").length,
                 icon: <XCircle size={18} />,
                 color: DANGER,
@@ -5741,11 +5852,11 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   {s === "pending"
-                    ? "待审批"
+                    ? t("insuranceAudit.preauthPending")
                     : s === "approved"
-                      ? "已批准"
+                      ? t("insuranceAudit.preauthApproved")
                       : s === "denied"
-                        ? "已拒绝"
+                        ? t("insuranceAudit.statusRejected")
                         : "全部"}
                 </button>
               ))}
@@ -5753,7 +5864,7 @@ export default function InsuranceAuditPage() {
             <button
               onClick={() => {
                 setToastType("success");
-                setToastMessage("预授权请求已创建");
+                setToastMessage(t("insuranceAudit.preauthCreated"));
               }}
               style={{
                 padding: "6px 14px",
@@ -5770,7 +5881,7 @@ export default function InsuranceAuditPage() {
               }}
             >
               <Plus size={14} />
-              新建预授权
+              {t("insuranceAudit.newPreauth")}
             </button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -5793,10 +5904,10 @@ export default function InsuranceAuditPage() {
                       : "var(--color-warning-bg)";
                 const statusLabel =
                   p.status === "pending"
-                    ? "待审批"
+                    ? t("insuranceAudit.preauthPending")
                     : p.status === "approved"
-                      ? "已批准"
-                      : "已拒绝";
+                      ? t("insuranceAudit.preauthApproved")
+                      : t("insuranceAudit.statusRejected");
                 return (
                   <div
                     key={p.id}
@@ -5856,7 +5967,7 @@ export default function InsuranceAuditPage() {
                                 type="button"
                                 onClick={() => {
                                   setToastType("success");
-                                  setToastMessage("预授权已批准");
+                                  setToastMessage(t("insuranceAudit.preauthApprovedMsg"));
                                 }}
                                 style={{
                                   padding: "6px 14px",
@@ -5869,7 +5980,7 @@ export default function InsuranceAuditPage() {
                                   cursor: "pointer",
                                 }}
                               >
-                                批准
+                                {t("insuranceAudit.approve")}
                               </button>
                             </PermissionGate>
                             <PermissionGate permission="audit.approve">
@@ -5877,7 +5988,7 @@ export default function InsuranceAuditPage() {
                                 type="button"
                                 onClick={() => {
                                   setToastType("error");
-                                  setToastMessage("预授权已拒绝");
+                                  setToastMessage(t("insuranceAudit.preauthRejectedMsg"));
                                 }}
                                 style={{
                                   padding: "6px 14px",
@@ -5891,7 +6002,7 @@ export default function InsuranceAuditPage() {
                                   marginLeft: 4,
                                 }}
                               >
-                                拒绝
+                                {t("insuranceAudit.reject")}
                               </button>
                             </PermissionGate>
                           </>
@@ -5907,11 +6018,11 @@ export default function InsuranceAuditPage() {
                       }}
                     >
                       <AppText size="xs" color="secondary" as="div">
-                        检查:{" "}
+                        {t("insuranceAudit.examLabel")}{" "}
                         <span style={{ color: "var(--text-secondary)" }}>{p.examItem}</span>
                       </AppText>
                       <AppText size="xs" color="secondary" as="div">
-                        请求日期:{" "}
+                        {t("insuranceAudit.requestDateLabel")}{" "}
                         <span style={{ color: "var(--text-secondary)" }}>
                           {p.requestedDate}
                         </span>
@@ -5919,7 +6030,7 @@ export default function InsuranceAuditPage() {
                     </div>
                     <div>
                       <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 6 }}>
-                        所需材料 ({p.docsCompleted}/{p.docs.length})
+                        {t("insuranceAudit.requiredMaterials")}{p.docsCompleted}/{p.docs.length})
                       </AppText>
                       <div
                         style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
@@ -5957,7 +6068,7 @@ export default function InsuranceAuditPage() {
                         }}
                       >
                         <Clock size={11} />
-                        有效期至: {p.expiryDate}
+                        {t("insuranceAudit.expiryLabel")} {p.expiryDate}
                       </div>
                     )}
                   </div>
@@ -5979,28 +6090,28 @@ export default function InsuranceAuditPage() {
           >
             {[
               {
-                label: "DRG验证总数",
+                label: t("insuranceAudit.drgTotal"),
                 value: drgData.length,
                 icon: <BarChart3 size={18} />,
                 color: ACCENT,
                 bg: "#3b82f622",
               },
               {
-                label: "有效验证",
+                label: t("insuranceAudit.drgValid"),
                 value: drgData.filter((d) => d.validationScore >= 80).length,
                 icon: <CheckCircle size={18} />,
                 color: SUCCESS,
                 bg: "#22c55e22",
               },
               {
-                label: "异常病例",
+                label: t("insuranceAudit.drgAbnormal"),
                 value: drgData.filter((d) => d.outlier).length,
                 icon: <AlertTriangle size={18} />,
                 color: WARNING,
                 bg: "#f59e0b22",
               },
               {
-                label: "平均校验分",
+                label: t("insuranceAudit.drgAvgScore"),
                 value: Math.round(
                   drgData.reduce((s, d) => s + d.validationScore, 0) /
                     drgData.length,
@@ -6063,14 +6174,14 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   {[
-                    "患者",
-                    "ICD代码",
-                    "DRG分组",
-                    "预期费用",
-                    "实际费用",
-                    "费用偏差",
-                    "异常",
-                    "校验分",
+                    t("insuranceAudit.patient"),
+                    t("insuranceAudit.drgIcdCode"),
+                    t("insuranceAudit.drgGroup"),
+                    t("insuranceAudit.drgExpectedCost"),
+                    t("insuranceAudit.drgActualCost"),
+                    t("insuranceAudit.drgCostDeviation"),
+                    t("insuranceAudit.abnormal"),
+                    t("insuranceAudit.validationScore"),
                   ].map((h) => (
                     <th
                       key={h}
@@ -6214,7 +6325,7 @@ export default function InsuranceAuditPage() {
                 margin: "0 0 12px",
               }}
             >
-              DRG分组映射
+              {t("insuranceAudit.drgGroupMapping")}
             </h3>
             <div
               style={{
@@ -6268,7 +6379,7 @@ export default function InsuranceAuditPage() {
                   size={18}
                   style={{ marginRight: 8, verticalAlign: "middle" }}
                 />
-                医保适应证规则
+                {t("insuranceAudit.indicationRules")}
               </h3>
             </div>
             <button
@@ -6276,7 +6387,7 @@ export default function InsuranceAuditPage() {
                 const btn = (evt?.target ||
                   evt?.currentTarget) as HTMLButtonElement;
                 const orig = btn.innerHTML;
-                btn.innerHTML = "⏳ 添加中...";
+                btn.innerHTML = t("insuranceAudit.adding");
                 btn.disabled = true;
                 await new Promise((r) => setTimeout(r, 1500));
                 const rules = (() => {
@@ -6289,18 +6400,18 @@ export default function InsuranceAuditPage() {
                 rules.push({
                   id: Date.now(),
                   examType: "CT",
-                  examName: "新规则",
-                  drugName: "碘对比剂",
+                  examName: t("insuranceAudit.newRule"),
+                  drugName: t("insuranceAudit.drugIodineContrast"),
                   drugCategory: "CT对比剂",
-                  restriction: "新添加规则",
-                  applicableExams: "CT检查",
+                  restriction: t("insuranceAudit.ruleAdded"),
+                  applicableExams: t("insuranceAudit.examCt"),
                   notes: "",
                 });
                 localStorage.setItem(
                   "g005_insurance_rules",
                   JSON.stringify(rules),
                 );
-                btn.innerHTML = "✅ 已添加";
+                btn.innerHTML = t("insuranceAudit.added");
                 setTimeout(() => {
                   btn.innerHTML = orig;
                   btn.disabled = false;
@@ -6309,7 +6420,7 @@ export default function InsuranceAuditPage() {
               style={{ ...styles.btn, ...styles.btnPrimary }}
             >
               <Settings size={16} />
-              添加规则
+              {t("insuranceAudit.addRule")}
             </button>
           </div>
 
@@ -6347,8 +6458,8 @@ export default function InsuranceAuditPage() {
                       type="button"
                       onClick={() => setRuleToDelete(rule)}
                       style={{ ...styles.btn, ...styles.btnOutline }}
-                      title="删除规则"
-                      aria-label="删除规则"
+                      title={t("insuranceAudit.deleteRule")}
+                      aria-label={t("insuranceAudit.deleteRule")}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -6357,7 +6468,7 @@ export default function InsuranceAuditPage() {
               </div>
               <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
                 <Pill size={14} style={{ marginRight: 6 }} />
-                <strong>药品:</strong> {rule.drugName}
+                <strong>{t("insuranceAudit.drugLabel")}</strong> {rule.drugName}
               </div>
               <div
                 style={{
@@ -6391,17 +6502,17 @@ export default function InsuranceAuditPage() {
                 size={18}
                 style={{ marginRight: 8, verticalAlign: "middle" }}
               />
-              限制药品库
+              {t("insuranceAudit.restrictedDrugLibrary")}
             </h3>
             <div style={styles.tableWrapper}>
               <div style={{ overflowX: "auto" }}><table style={styles.drugTable}>
                 <thead>
                   <tr>
-                    <th style={styles.drugTh}>药品名称</th>
-                    <th style={styles.drugTh}>类别</th>
-                    <th style={styles.drugTh}>医保限制</th>
-                    <th style={styles.drugTh}>适用检查</th>
-                    <th style={styles.drugTh}>注意事项</th>
+                    <th style={styles.drugTh}>{t("insuranceAudit.drugName")}</th>
+                    <th style={styles.drugTh}>{t("insuranceAudit.category")}</th>
+                    <th style={styles.drugTh}>{t("insuranceAudit.insuranceRestriction")}</th>
+                    <th style={styles.drugTh}>{t("insuranceAudit.applicableExam")}</th>
+                    <th style={styles.drugTh}>{t("insuranceAudit.cautions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -6490,18 +6601,18 @@ export default function InsuranceAuditPage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="保险审计详情"
+          aria-label={t("insuranceAudit.auditDetailTitle")}
           style={styles.modalOverlay}
           onClick={() => setShowAuditDetail(false)}
         >
           <div style={{ ...styles.modal, width: 560, maxWidth: "92vw" }} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalTitle}>
               <FileText size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
-              保险审计详情
+              {t("insuranceAudit.auditDetailTitle")}
             </div>
             {auditDetailLoading ? (
               <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
-                详情加载中...
+                {t("insuranceAudit.detailLoading")}
               </div>
             ) : auditDetail ? (
               <div>
@@ -6514,35 +6625,35 @@ export default function InsuranceAuditPage() {
                   }}
                 >
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>审核编号：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditNoLabel")}</span>
                     <b>{auditDetail.id ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>患者：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.patientLabel")}</span>
                     <b>{auditDetail.patientName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>患者编号：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.patientIdLabel")}</span>
                     <b>{auditDetail.patientId ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>检查类型：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.examTypeLabel")}</span>
                     <b>{auditDetail.examType ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>药品：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.drugLabel2")}</span>
                     <b>{auditDetail.drugName ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>药品类别：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.drugCategoryLabel")}</span>
                     <b>{auditDetail.drugCategory ?? "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>提交时间：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.submitTimeLabel")}</span>
                     <b>{auditDetail.submitTime || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>状态：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.statusLabel")}</span>
                     <span
                       style={{
                         ...styles.badge,
@@ -6562,11 +6673,11 @@ export default function InsuranceAuditPage() {
                     </span>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>审核人：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditorLabel")}</span>
                     <b>{auditDetail.auditor || "-"}</b>
                   </div>
                   <div>
-                    <span style={{ color: "var(--text-secondary)" }}>审核时间：</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t("insuranceAudit.auditTimeLabel")}</span>
                     <b>{auditDetail.auditTime || "-"}</b>
                   </div>
                 </div>
@@ -6581,17 +6692,17 @@ export default function InsuranceAuditPage() {
                     }}
                   >
                     <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
-                      审核结果：{auditDetail.result || "-"}
+                      {t("insuranceAudit.auditResultLabel")}{auditDetail.result || "-"}
                     </div>
                     <div style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                      原因说明：{auditDetail.reason || "-"}
+                      {t("insuranceAudit.reasonLabel")}{auditDetail.reason || "-"}
                     </div>
                   </div>
                 )}
               </div>
             ) : (
               <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
-                未找到该审计记录
+                {t("insuranceAudit.recordNotFound")}
               </div>
             )}
             <div style={styles.modalActions}>
@@ -6599,7 +6710,7 @@ export default function InsuranceAuditPage() {
                 style={{ ...styles.btn, ...styles.btnPrimary }}
                 onClick={() => setShowAuditDetail(false)}
               >
-                关闭
+                {t("insuranceAudit.close")}
               </button>
             </div>
           </div>
@@ -6621,7 +6732,7 @@ export default function InsuranceAuditPage() {
             <textarea
               value={rejectReasonText}
               onChange={(e) => setRejectReasonText(e.target.value)}
-              placeholder="请输入拒绝原因（必填，将同步至医保平台）"
+              placeholder={t("insuranceAudit.rejectReasonRequired")}
               rows={3}
               style={{
                 width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)",
@@ -6679,9 +6790,9 @@ export default function InsuranceAuditPage() {
       {/* 规则删除确认 */}
       <ConfirmDialog
         open={!!ruleToDelete}
-        title="删除医保规则"
+        title={t("insuranceAudit.deleteRuleConfirm")}
         message={`确定要删除规则 "${ruleToDelete?.examName}" 吗?该操作不可撤销。`}
-        confirmText="删除"
+        confirmText={t("insuranceAudit.delete")}
         variant="danger"
         onCancel={() => setRuleToDelete(null)}
         onConfirm={() => {
@@ -6695,6 +6806,107 @@ export default function InsuranceAuditPage() {
           }
         }}
       />
+
+      {/* [Wave 4A] 新建医保审核记录 Modal (insuranceApi.create) */}
+      {showCreateModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("insuranceAudit.newRecordTitle")}
+          style={styles.modalOverlay}
+          onClick={() => !creating && setShowCreateModal(false)}
+        >
+          <div style={{ ...styles.modal, width: 520, maxWidth: "92vw" }} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalTitle}>
+              <Plus size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+              {t("insuranceAudit.newRecordTitle")}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 13 }}>
+              <div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.patientIdRequired")}</div>
+                <input
+                  style={styles.input}
+                  placeholder={t("insuranceAudit.patientIdPlaceholder")}
+                  value={createForm.patientId}
+                  onChange={(e) => setCreateForm({ ...createForm, patientId: e.target.value })}
+                />
+              </div>
+              <div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.patientNameRequired")}</div>
+                <input
+                  style={styles.input}
+                  placeholder={t("insuranceAudit.patientName")}
+                  value={createForm.patientName}
+                  onChange={(e) => setCreateForm({ ...createForm, patientName: e.target.value })}
+                />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.examItem2")}</div>
+                <input
+                  style={styles.input}
+                  placeholder={t("insuranceAudit.examItemPlaceholder")}
+                  value={createForm.examItem}
+                  onChange={(e) => setCreateForm({ ...createForm, examItem: e.target.value })}
+                />
+              </div>
+              <div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.contrast2")}</div>
+                <input
+                  style={styles.input}
+                  placeholder={t("insuranceAudit.contrastPlaceholder")}
+                  value={createForm.contrastAgent}
+                  onChange={(e) => setCreateForm({ ...createForm, contrastAgent: e.target.value })}
+                />
+              </div>
+              <div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.anticoagulant")}</div>
+                <input
+                  style={styles.input}
+                  placeholder={t("insuranceAudit.anticoagulantPlaceholder")}
+                  value={createForm.anticoagulant}
+                  onChange={(e) => setCreateForm({ ...createForm, anticoagulant: e.target.value })}
+                />
+              </div>
+              <div>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.amountYuan")}</div>
+                <input
+                  style={styles.input}
+                  type="number"
+                  placeholder="0"
+                  value={createForm.amount || ""}
+                  onChange={(e) => setCreateForm({ ...createForm, amount: Number(e.target.value) || 0 })}
+                />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.applyReason")}</div>
+                <textarea
+                  rows={2}
+                  style={{ ...styles.input, resize: "vertical" }}
+                  placeholder={t("insuranceAudit.applyReasonPlaceholder")}
+                  value={createForm.reason}
+                  onChange={(e) => setCreateForm({ ...createForm, reason: e.target.value })}
+                />
+              </div>
+            </div>
+            <div style={styles.modalActions}>
+              <button
+                style={{ ...styles.btn, ...styles.btnOutline }}
+                onClick={() => setShowCreateModal(false)}
+                disabled={creating}
+              >
+                {t("cancel")}
+              </button>
+              <button
+                style={{ ...styles.btn, ...styles.btnPrimary }}
+                onClick={() => void handleCreateAudit()}
+                disabled={creating}
+              >
+                {creating ? t("insuranceAudit.submitting") : t("insuranceAudit.submitAudit")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

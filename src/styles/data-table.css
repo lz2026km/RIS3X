@@ -1,0 +1,41 @@
+/**
+ * G005 放射RIS系统 v3.0.6.11-103 Wave 6 - 表格统一规范样式
+ * DataTable 专用: 斑马纹 / 行高 / 列头 / hover 高亮 / 分页器对齐
+ */
+.data-table .ant-table-thead > tr > th {
+  background: var(--bg-deep, #f8fafc);
+  color: var(--text-secondary, #475569);
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.data-table .ant-table-tbody > tr > td {
+  padding: 12px 14px;
+}
+
+.data-table .ant-table-tbody > tr.dt-zebra > td {
+  background: var(--bg-primary, #f8fafc);
+}
+
+.data-table .ant-table-tbody > tr.dt-zebra:hover > td,
+.data-table .ant-table-tbody > tr.dt-zebra.ant-table-row-selected:hover > td {
+  background: var(--color-primary-50, #eff6ff) !important;
+}
+
+.data-table .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  background: var(--color-primary-50, #eff6ff) !important;
+}
+
+.data-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: var(--color-primary-50, #eff6ff);
+}
+
+.data-table .ant-table-pagination.ant-pagination {
+  margin: 16px 0 0;
+  justify-content: flex-end;
+}
+
+.data-table .ant-table-wrapper .ant-table {
+  font-size: 13px;
+}

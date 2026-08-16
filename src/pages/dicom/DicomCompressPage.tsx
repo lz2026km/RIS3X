@@ -30,7 +30,7 @@ import {
   Descriptions,
   Modal,
 } from "antd";
-import { BarChart3, File, FlaskConical, Inbox, Maximize2, RotateCw, Shrink, Trash2, Upload, Zap } from 'lucide-react'
+import { BarChart3, File, FlaskConical, Inbox, Maximize2, RotateCw, Repeat2, Shrink, Trash2, Upload, Zap } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "../../i18n/appI18n";
 
@@ -128,6 +128,11 @@ export default function DicomCompressPage() {
   // [v3.0.6.11-101 W1A] 8 算法基准 + 策略建议
   const [strategies, setStrategies] = useState<CompressStrategy[]>([]);
   const [benchmarkResult, setBenchmarkResult] = useState<CodecBenchmarkResult | null>(null);
+  // [v3.0.6.11-103 Wave 2B] 真编码工具: real-jpeg2000 / transcode
+  const [j2kLoading, setJ2kLoading] = useState(false);
+  const [transcodeLoading, setTranscodeLoading] = useState(false);
+  const [transcodeTarget, setTranscodeTarget] = useState<string>("1.2.840.10008.1.2.4.90");
+  const [transcodeResult, setTranscodeResult] = useState<DicomCompressTask | null>(null);
   const { pageData: taskPageData, pagination: taskPagination } = usePagination(tasks, 8);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -430,6 +435,61 @@ export default function DicomCompressPage() {
     } catch (err) {
       console.warn("[DicomCompress] file read failed", err);
       messageApi.error(t("compressV2.fileReadFailed"));
+    }
+  };
+
+  // [v3.0.6.11-103 Wave 2B] 真 JPEG2000 编码: POST /dicom/compress/real-jpeg2000 (OpenJPEG WASM 无损)
+  const handleRealJpeg2000 = async () => {
+    setJ2kLoading(true);
+    try {
+      const res = await dicomCompressApi.realJpeg2000({
+        fileId: selectedFileId,
+        quality: selectedLossy ? quality : undefined,
+        dataBase64: uploadedBase64,
+      });
+      const data = res.data as DicomCompressTask | null;
+      if (!data) {
+        messageApi.error(t("compressV2.j2kRespError"));
+        return;
+      }
+      setCurrentTask(data);
+      startPolling(data.id);
+      messageApi.success(t("compressV2.j2kStarted", { id: data.id }));
+    } catch (err) {
+      console.warn("[DicomCompress] realJpeg2000 failed", err);
+      messageApi.error(t("compressV2.j2kFailed"));
+    } finally {
+      setJ2kLoading(false);
+    }
+  };
+
+  // [v3.0.6.11-103 Wave 2B] 实例转码: POST /dicom/compress/transcode (目标传输语法重新编码)
+  const handleTranscode = async () => {
+    setTranscodeLoading(true);
+    setTranscodeResult(null);
+    try {
+      const res = await dicomCompressApi.transcode({
+        fileId: selectedFileId,
+        targetSyntax: transcodeTarget,
+        quality: selectedLossy ? quality : undefined,
+        dataBase64: uploadedBase64,
+      });
+      const data = res.data as DicomCompressTask | null;
+      if (!data) {
+        messageApi.error(t("compressV2.transcodeRespError"));
+        return;
+      }
+      setTranscodeResult(data);
+      setCurrentTask(data);
+      startPolling(data.id);
+      messageApi.success(t("compressV2.transcodeStarted", { id: data.id }));
+      loadTasks();
+      loadRatios();
+    } catch (err) {
+      console.warn("[DicomCompress] transcode failed", err);
+      messageApi.error(t("compressV2.transcodeFailed"));
+    } finally {
+      setTranscodeLoading(false);
     }
   };
 
@@ -826,6 +886,40 @@ export default function DicomCompressPage() {
               >
                 {t("compressV2.compareAll")}
               </Button>
+              <Button
+                icon={<Zap />}
+                loading={j2kLoading}
+                onClick={() => void handleRealJpeg2000()}
+                block
+              >
+                {t("compressV2.j2kEncode")}
+              </Button>
+              <Divider style={{ margin: "8px 0" }} />
+              <Text strong style={{ fontSize: 13 }}>{t("compressV2.transcodeTitle")}</Text>
+              <Select
+                style={{ width: "100%", marginTop: 4 }}
+                value={transcodeTarget}
+                onChange={setTranscodeTarget}
+                options={syntaxes.map(s => ({
+                  value: s.uid,
+                  label: `${s.name} (${s.lossy ? t("compressV2.lossy") : t("compressV2.lossless")})`,
+                }))}
+              />
+              <Button
+                icon={<Repeat2 />}
+                loading={transcodeLoading}
+                onClick={() => void handleTranscode()}
+                block
+              >
+                {t("compressV2.transcodeBtn")}
+              </Button>
+              {transcodeResult && (
+                <Alert
+                  type="info"
+                  showIcon
+                  message={t("compressV2.transcodeDone", { id: transcodeResult.id, status: transcodeResult.status })}
+                />
+              )}
               <Button icon={<RotateCw />} onClick={refreshAll} block>
                 {t("compressV2.refreshTasks")}
               </Button>

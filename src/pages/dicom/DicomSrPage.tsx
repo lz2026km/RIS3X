@@ -1,10 +1,10 @@
 import { t } from '../../i18n/appI18n'
 import { dicomSrApi, type DicomSrTemplate, type DicomSrDocument } from '../../services/api/dicomApi'
 import { encapsulatedPdfApi, type EncapsulatedPdf } from '../../services/api/dicomApi'
-import { srDocumentApi, type SrDocument } from '../../services/api/srReportApi'
-import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented, Table, Badge } from 'antd'
-import { FileText, Play, Eye, Copy, Download, FilePlus2, Database, GitBranch, BarChart3, RefreshCcw, Link2, FolderTree } from 'lucide-react'
-import React, { useState, useEffect } from 'react'
+import { srDocumentApi, type SrDocument, type MeasurementTemplate, type MeasurementTemplateCategory } from '../../services/api/srReportApi'
+import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented, Table, Badge, Select, Modal, Divider } from 'antd'
+import { FileText, Play, Eye, Copy, Download, FilePlus2, Database, GitBranch, BarChart3, RefreshCcw, Link2, FolderTree, Library, Search } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { PageHeader } from '../../components/common/PageHeader'
 
@@ -31,6 +31,84 @@ export const DicomSrPage: React.FC = () => {
   // [v3.0.6.11-99 Wave10B] 本会话 SR 生成历史
   const [genHistory, setGenHistory] = useState<Array<{ id: string; reportId: string; tid: string; status: string; generatedAt: string }>>([])
   const [pdfHistory, setPdfHistory] = useState<Array<{ id: string; reportId: string; size: number; generatedAt: string }>>([])
+
+  // [v3.0.6.11-103 Wave 2B] 测量模板库 (GET /dicom-sr/measurement-templates*)
+  const [mtCategories, setMtCategories] = useState<MeasurementTemplateCategory[]>([])
+  const [mtTemplates, setMtTemplates] = useState<MeasurementTemplate[]>([])
+  const [mtFilter, setMtFilter] = useState<{ modality?: string; category?: string }>({})
+  const [mtLoading, setMtLoading] = useState(false)
+  const [mtDetail, setMtDetail] = useState<MeasurementTemplate | null>(null)
+  const [mtDetailOpen, setMtDetailOpen] = useState(false)
+  const [mtDetailLoading, setMtDetailLoading] = useState(false)
+
+  // [v3.0.6.11-103 Wave 2B] 已封装 PDF 查询 (GET /dicom-sr/encapsulated/:id)
+  const [pdfLookupId, setPdfLookupId] = useState('')
+  const [pdfLookupLoading, setPdfLookupLoading] = useState(false)
+  const [pdfLookupResult, setPdfLookupResult] = useState<EncapsulatedPdf | null>(null)
+  const [pdfLookupState, setPdfLookupState] = useState<'idle' | 'ok' | 'none' | 'err'>('idle')
+
+  // 测量模板库: 分类统计 + 列表 (可按模态/分类过滤)
+  const loadMtCategories = useCallback(async () => {
+    try {
+      const res = await srDocumentApi.listMeasurementTemplateCategories()
+      if (res.success && Array.isArray(res.data)) setMtCategories(res.data)
+    } catch {
+      /* 后端不可达: 保持空态 */
+    }
+  }, [])
+
+  const loadMtTemplates = useCallback(async () => {
+    setMtLoading(true)
+    try {
+      const res = await srDocumentApi.listMeasurementTemplates(mtFilter.modality || mtFilter.category ? mtFilter : undefined)
+      if (res.success && Array.isArray(res.data)) setMtTemplates(res.data)
+    } catch {
+      setMtTemplates([])
+    } finally {
+      setMtLoading(false)
+    }
+  }, [mtFilter])
+
+  useEffect(() => { void loadMtCategories() }, [loadMtCategories])
+  useEffect(() => { void loadMtTemplates() }, [loadMtTemplates])
+
+  const openMtDetail = async (id: string) => {
+    setMtDetailOpen(true)
+    setMtDetail(null)
+    setMtDetailLoading(true)
+    try {
+      const res = await srDocumentApi.getMeasurementTemplate(id)
+      if (res.success && res.data) setMtDetail(res.data)
+    } catch {
+      /* 保持空态 */
+    } finally {
+      setMtDetailLoading(false)
+    }
+  }
+
+  const handlePdfLookup = async () => {
+    const id = pdfLookupId.trim()
+    if (!id) {
+      message.warning(t('dicomSr.enterReportId') || '请输入报告ID')
+      return
+    }
+    setPdfLookupLoading(true)
+    setPdfLookupState('idle')
+    setPdfLookupResult(null)
+    try {
+      const res = await encapsulatedPdfApi.findById(id)
+      if (res.success && res.data) {
+        setPdfLookupResult(res.data)
+        setPdfLookupState('ok')
+      } else {
+        setPdfLookupState('none')
+      }
+    } catch {
+      setPdfLookupState('err')
+    } finally {
+      setPdfLookupLoading(false)
+    }
+  }
 
   useEffect(() => {
     setLoadingTemplates(true)
@@ -546,6 +624,48 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label="生成时间">{new Date(pdfDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
           )}
+
+          {/* [v3.0.6.11-103 Wave 2B] 已封装 PDF 查询 (GET /dicom-sr/encapsulated/:id) */}
+          <Divider style={{ margin: '8px 0' }} />
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
+            {t('dicomSr.pdfLookup') || '查询已封装 PDF'} <Tag color="purple" style={{ fontSize: 10 }}>GET /dicom-sr/encapsulated/:id</Tag>
+          </div>
+          <Space>
+            <Input
+              style={{ width: 300 }}
+              placeholder={t('dicomSr.pdfLookupPlaceholder') || '输入封装 PDF ID...'}
+              value={pdfLookupId}
+              onChange={(e) => setPdfLookupId(e.target.value)}
+              onPressEnter={() => void handlePdfLookup()}
+            />
+            <Button icon={<Search size={13} />} onClick={() => void handlePdfLookup()} loading={pdfLookupLoading}>
+              {t('dicomSr.pdfLookupBtn') || '查询'}
+            </Button>
+          </Space>
+          {pdfLookupState === 'ok' && pdfLookupResult && (
+            <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
+              <Descriptions.Item label="ID">{pdfLookupResult.id}</Descriptions.Item>
+              <Descriptions.Item label="SOP Class UID">{pdfLookupResult.sopClassUid}</Descriptions.Item>
+              <Descriptions.Item label="报告 ID">{pdfLookupResult.reportId}</Descriptions.Item>
+              <Descriptions.Item label="SOP 实例 UID">
+                <Text copyable style={{ fontSize: 12 }}>{pdfLookupResult.sopInstanceUid}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Study UID">
+                <Text copyable style={{ fontSize: 12 }}>{pdfLookupResult.studyInstanceUid}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="大小">{pdfLookupResult.size} 字节</Descriptions.Item>
+            </Descriptions>
+          )}
+          {pdfLookupState === 'none' && (
+            <div style={{ marginTop: 8, fontSize: 12, color: '#92400e', background: 'var(--color-warning-bg)', padding: '8px 12px', borderRadius: 6 }}>
+              {t('dicomSr.pdfNotFound') || '未找到该封装 PDF'}
+            </div>
+          )}
+          {pdfLookupState === 'err' && (
+            <div style={{ marginTop: 8, fontSize: 12, color: '#b91c1c', background: 'var(--color-error-bg)', padding: '8px 12px', borderRadius: 6 }}>
+              {t('dicomSr.pdfLookupFailed') || '封装 PDF 查询失败'}
+            </div>
+          )}
         </Space>
       </Card>
 
@@ -786,6 +906,152 @@ export const DicomSrPage: React.FC = () => {
           </div>
         </Space>
       </Card>
+
+      {/* ============================================================
+          [v3.0.6.11-103 Wave 2B] 测量模板库 (TID 1500/2000, 20 模板 seed)
+          GET /dicom-sr/measurement-templates/categories | /measurement-templates | /measurement-templates/:id
+          ============================================================ */}
+      <Card
+        title={
+          <Space>
+            <Library size={14} />
+            <span>{t('dicomSr.mtLib') || '测量模板库 (TID 1500/2000)'}</span>
+            <Tag color="cyan" style={{ fontSize: 10 }}>20 模板 seed</Tag>
+          </Space>
+        }
+        size="small"
+        style={{ marginBottom: 16 }}
+        extra={<Tag color="geekblue">GET /dicom-sr/measurement-templates*</Tag>}
+      >
+        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>
+          {t('dicomSr.mtSub') || '20 个完整测量模板 (SNOMED 编码 + 单位 + 正常参考范围 + 测量说明), 覆盖 CT 胸腹 / MR 脑脊柱 / DR 骨折 / MG 乳腺'}
+        </div>
+
+        {/* 分类统计 */}
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+          {t('dicomSr.mtCategories') || '模板分类'}
+        </div>
+        <Space wrap size={[8, 8]} style={{ marginBottom: 12 }}>
+          {mtCategories.map((c) => (
+            <Tag
+              key={c.category}
+              color={mtFilter.category === c.category ? 'blue' : 'default'}
+              style={{ cursor: 'pointer', padding: '2px 10px' }}
+              onClick={() => setMtFilter((f) => ({ ...f, category: f.category === c.category ? undefined : c.category }))}
+            >
+              {c.category} ({c.count}) · {c.modalities.join('/')}
+            </Tag>
+          ))}
+        </Space>
+
+        {/* 过滤 + 刷新 */}
+        <Space wrap style={{ marginBottom: 12 }}>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{t('dicomSr.mtModality') || '模态'}:</span>
+          <Select
+            allowClear
+            style={{ width: 140 }}
+            placeholder={t('dicomSr.mtAll') || '全部'}
+            value={mtFilter.modality}
+            onChange={(v) => setMtFilter((f) => ({ ...f, modality: v ?? undefined }))}
+            options={['CT', 'MR', 'DR', 'MG'].map((m) => ({ value: m, label: m }))}
+          />
+          <Button size="small" icon={<RefreshCcw size={12} />} onClick={() => void loadMtTemplates()}>
+            {t('dicomSr.mtSearch') || '查询模板'}
+          </Button>
+        </Space>
+
+        {mtLoading ? (
+          <div style={{ textAlign: 'center', padding: 24 }}>
+            <Spin size="small" />
+          </div>
+        ) : mtTemplates.length > 0 ? (
+          <Table
+            size="small"
+            dataSource={mtTemplates}
+            rowKey="id"
+            pagination={{ pageSize: 10, showSizeChanger: false }}
+            scroll={{ x: 'max-content' }}
+            columns={[
+              { title: 'ID', dataIndex: 'id', key: 'id', width: 200, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+              { title: '模板名称', dataIndex: 'templateName', key: 'templateName', width: 220 },
+              { title: 'TID', dataIndex: 'templateId', key: 'templateId', width: 80, render: (v: string) => <Tag color="purple">{v}</Tag> },
+              { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
+              { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 80 },
+              { title: '分类', dataIndex: 'category', key: 'category', width: 100 },
+              { title: '测量项', dataIndex: 'measurements', key: 'measurements', width: 120, render: (v: MeasurementTemplate['measurements']) => `${v.length} 项` },
+              {
+                title: t('dicomSr.mtView') || '查看',
+                key: 'action',
+                width: 90,
+                render: (_: unknown, r: MeasurementTemplate) => (
+                  <Button size="small" icon={<Eye size={12} />} onClick={() => void openMtDetail(r.id)}>详情</Button>
+                ),
+              },
+            ]}
+          />
+        ) : (
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dicomSr.mtNoData') || '暂无模板 (可按模态/分类过滤)'} />
+        )}
+      </Card>
+
+      {/* 测量模板详情 Modal */}
+      <Modal
+        title={mtDetail ? mtDetail.templateName : (t('dicomSr.mtDetail') || '模板详情')}
+        open={mtDetailOpen}
+        onCancel={() => setMtDetailOpen(false)}
+        footer={<Button onClick={() => setMtDetailOpen(false)}>关闭</Button>}
+        width={640}
+      >
+        {mtDetailLoading ? (
+          <div style={{ textAlign: 'center', padding: 32 }}>
+            <Spin />
+          </div>
+        ) : mtDetail ? (
+          <div>
+            <Descriptions size="small" column={2} bordered style={{ marginBottom: 12 }}>
+              <Descriptions.Item label="ID" span={2}><code style={{ fontSize: 11 }}>{mtDetail.id}</code></Descriptions.Item>
+              <Descriptions.Item label="TID"><Tag color="purple">{mtDetail.templateId}</Tag></Descriptions.Item>
+              <Descriptions.Item label="模态"><Tag color="blue">{mtDetail.modality}</Tag></Descriptions.Item>
+              <Descriptions.Item label="部位">{mtDetail.bodyPart}</Descriptions.Item>
+              <Descriptions.Item label="分类">{mtDetail.category}</Descriptions.Item>
+              <Descriptions.Item label={t('dicomSr.mtPurpose') || '用途'} span={2}>{mtDetail.purpose}</Descriptions.Item>
+            </Descriptions>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
+              {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements.length})
+            </div>
+            <Table
+              size="small"
+              dataSource={mtDetail.measurements}
+              rowKey={(r) => `${r.code}-${r.meaning}`}
+              pagination={false}
+              columns={[
+                { title: '编码', dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <code style={{ fontSize: 10 }}>{v}</code> },
+                { title: '方案', dataIndex: 'scheme', key: 'scheme', width: 60 },
+                { title: '测量项', dataIndex: 'meaning', key: 'meaning', width: 160 },
+                { title: '单位', dataIndex: 'unit', key: 'unit', width: 60 },
+                {
+                  title: t('dicomSr.mtNormalRange') || '正常范围',
+                  key: 'normalRange',
+                  width: 130,
+                  render: (_: unknown, r: MeasurementTemplate['measurements'][number]) =>
+                    r.normalRange?.label ?? (r.normalRange?.min !== undefined || r.normalRange?.max !== undefined
+                      ? `${r.normalRange.min ?? '−∞'} ~ ${r.normalRange.max ?? '+∞'}`
+                      : '-'),
+                },
+                { title: '说明', dataIndex: 'description', key: 'description' },
+              ]}
+            />
+            <div style={{ marginTop: 10 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>{t('dicomSr.mtSnomed') || 'SNOMED 发现编码'}:</span>
+              <Space wrap size={4} style={{ marginTop: 4 }}>
+                {mtDetail.snomedFindings.map((c) => <Tag key={c} style={{ fontSize: 10, fontFamily: 'monospace' }}>{c}</Tag>)}
+              </Space>
+            </div>
+          </div>
+        ) : (
+          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无数据" />
+        )}
+      </Modal>
     </div>
   )
 }

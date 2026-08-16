@@ -23,24 +23,25 @@ import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 // [v3.0.6.11-99 Wave10B] 深化数据源: 急诊通道 / 检查耗时 / 危急值SLA
 import { emergencyChannelApi, type EmergencyTriggerRecord } from '../services/api/emergencyChannelApi'
 import { worklistApi } from '../services/api/worklistApi'
+import { t } from '../i18n/appI18n'
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [
-  { label: '今日检查量', value: 326, unit: '例', yesterday: 298, trend: 'up' },
-  { label: '今日预约量', value: 358, unit: '例', yesterday: 342, trend: 'up' },
-  { label: '在检人数', value: 24, unit: '人', trend: 'neutral' },
-  { label: '等待人数', value: 86, unit: '人', trend: 'down' },
-  { label: '设备利用率', value: 91.2, unit: '%', trend: 'up' },
-  { label: '平均候诊时间', value: 12, unit: '分钟', trend: 'down' },
+  { label: t('opsCenter.kpiTodayExams'), value: 326, unit: t('opsCenter.unitExam'), yesterday: 298, trend: 'up' },
+  { label: t('opsCenter.kpiTodayAppointments'), value: 358, unit: t('opsCenter.unitExam'), yesterday: 342, trend: 'up' },
+  { label: t('opsCenter.kpiInProgress'), value: 24, unit: t('opsCenter.unitPeople'), trend: 'neutral' },
+  { label: t('opsCenter.kpiWaiting'), value: 86, unit: t('opsCenter.unitPeople'), trend: 'down' },
+  { label: t('opsCenter.kpiEquipmentUsage'), value: 91.2, unit: '%', trend: 'up' },
+  { label: t('opsCenter.kpiAvgWait'), value: 12, unit: t('opsCenter.unitMinute'), trend: 'down' },
 ]
 
 const ROOMS = [
-  { name: 'CT1室', status: '检查中', patient: '王建国', color: '#4ade80' },
-  { name: 'CT2室', status: '空闲', patient: '-', color: 'var(--text-secondary)' },
-  { name: 'MRI1室', status: '准备中', patient: '李秀英', color: '#fbbf24' },
-  { name: 'MRI2室', status: '检查中', patient: '张志明', color: '#4ade80' },
-  { name: 'X线室', status: '检查中', patient: '陈晓燕', color: '#4ade80' },
-  { name: '乳腺室', status: '空闲', patient: '-', color: 'var(--text-secondary)' },
+  { name: 'CT1室', status: t('opsCenter.roomOccupied'), patient: '王建国', color: '#4ade80' },
+  { name: 'CT2室', status: t('opsCenter.roomIdle'), patient: '-', color: 'var(--text-secondary)' },
+  { name: 'MRI1室', status: t('opsCenter.roomPreparing'), patient: '李秀英', color: '#fbbf24' },
+  { name: 'MRI2室', status: t('opsCenter.roomOccupied'), patient: '张志明', color: '#4ade80' },
+  { name: 'X线室', status: t('opsCenter.roomOccupied'), patient: '陈晓燕', color: '#4ade80' },
+  { name: '乳腺室', status: t('opsCenter.roomIdle'), patient: '-', color: 'var(--text-secondary)' },
 ]
 
 const QUEUE_DATA = [
@@ -95,16 +96,16 @@ const DOCTOR_RANKING = [
 const PROJECT_DATA = [
   { name: 'CT', value: 128, color: '#3b82f6' },
   { name: 'MRI', value: 85, color: '#4ade80' },
-  { name: 'X线', value: 72, color: '#fbbf24' },
+  { name: t('opsCenter.projXray'), value: 72, color: '#fbbf24' },
   { name: 'MG', value: 28, color: '#f97316' },
-  { name: '其他', value: 13, color: '#8b5cf6' },
+  { name: t('opsCenter.projOther'), value: 13, color: '#8b5cf6' },
 ]
 
 const QUALITY_DATA = [
-  { label: '危急值', value: 2, icon: AlertTriangle, color: '#ef4444', status: 'warning' },
-  { label: '院感事件', value: 0, icon: Activity, color: '#4ade80', status: 'normal' },
-  { label: '设备故障', value: 0, icon: Wrench, color: '#fbbf24', status: 'warning' },
-  { label: '投诉/建议', value: 1, icon: MessageSquare, color: '#3b82f6', status: 'info' },
+  { label: t('opsCenter.qCritical'), value: 2, icon: AlertTriangle, color: '#ef4444', status: 'warning' },
+  { label: t('opsCenter.qInfection'), value: 0, icon: Activity, color: '#4ade80', status: 'normal' },
+  { label: t('opsCenter.qFault'), value: 0, icon: Wrench, color: '#fbbf24', status: 'warning' },
+  { label: t('opsCenter.qComplaint'), value: 1, icon: MessageSquare, color: '#3b82f6', status: 'info' },
 ]
 
 const EFFICIENCY_DATA = {
@@ -115,20 +116,20 @@ const EFFICIENCY_DATA = {
 }
 
 const ALERT_MATERIALS = [
-  { name: 'CT胶片', stock: 45, threshold: 100 },
-  { name: 'MRI造影剂', stock: 8, threshold: 20 },
-  { name: '钼靶胶片', stock: 12, threshold: 30 },
-  { name: 'X线胶片', stock: 25, threshold: 50 },
+  { name: t('opsCenter.matCtFilm'), stock: 45, threshold: 100 },
+  { name: t('opsCenter.matMriContrast'), stock: 8, threshold: 20 },
+  { name: t('opsCenter.matMammoFilm'), stock: 12, threshold: 30 },
+  { name: t('opsCenter.matXrayFilm'), stock: 25, threshold: 50 },
 ]
 
 const PIE_COLORS = ['#3b82f6', '#4ade80', '#fbbf24', '#f97316', '#8b5cf6']
 
 // [W2-A] 检查室状态映射 (occupancyApi)
 const ROOM_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  occupied: { label: '检查中', color: '#4ade80' },
-  idle: { label: '空闲', color: 'var(--text-secondary)' },
-  disinfecting: { label: '消毒中', color: '#fbbf24' },
-  fault: { label: '故障', color: '#ef4444' },
+  occupied: { label: t('opsCenter.roomOccupied'), color: '#4ade80' },
+  idle: { label: t('opsCenter.roomIdle'), color: 'var(--text-secondary)' },
+  disinfecting: { label: t('opsCenter.roomDisinfecting'), color: '#fbbf24' },
+  fault: { label: t('opsCenter.roomFault'), color: '#ef4444' },
 }
 
 function toNum(v: unknown): number {
@@ -515,7 +516,7 @@ function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
       <div style={{ ...s.kpiTrend, color: trendColor }}>
         <TrendIcon size={16} />
         <span>{diff > 0 ? '+' : ''}{diff} ({percent}%)</span>
-        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>较昨日</span>
+        <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>{t('opsCenter.vsYesterday')}</span>
       </div>
     </div>
   )
@@ -612,7 +613,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
         />
         {/* 峰值标注 */}
         <circle cx={peakX} cy={peakY} r="2" fill="#fbbf24" />
-        <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">峰值</text>
+        <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">{t('opsCenter.peakLabel')}</text>
       </svg>
       {/* X轴标签 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', padding: '0 5px' }}>
@@ -626,11 +627,11 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
       <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 3, background: '#4ade80', borderRadius: 2 }} />
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.legendToday')}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 20, height: 3, background: '#64748b', borderRadius: 2, borderBottom: '2px dashed #64748b' }} />
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>昨日</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.legendYesterday')}</span>
         </div>
       </div>
     </div>
@@ -669,7 +670,7 @@ function PieChartComponent({ data }: { data: typeof PROJECT_DATA }) {
           ))}
           <circle cx="50" cy="50" r="25" fill="#1e293b" />
           <text x="50" y="48" textAnchor="middle" fill="#f1f5f9" fontSize="10" fontWeight="700">{total}</text>
-          <text x="50" y="56" textAnchor="middle" fill="#64748b" fontSize="5">总检查</text>
+          <text x="50" y="56" textAnchor="middle" fill="#64748b" fontSize="5">{t('opsCenter.pieTotal')}</text>
         </svg>
       </div>
       <div style={s.pieLegend}>
@@ -733,13 +734,13 @@ export default function OperationsCenterPage() {
   const [rooms, setRooms] = useState(ROOMS)
   const [queueData, setQueueData] = useState(QUEUE_DATA)
   const [hourlyData, setHourlyData] = useState(HOURLY_DATA)
-  const [hourlyCaption, setHourlyCaption] = useState('每小时检查量统计（0-24时）')
+  const [hourlyCaption, setHourlyCaption] = useState(t('opsCenter.hourlyCaptionDemo'))
   const [doctorRanking, setDoctorRanking] = useState(DOCTOR_RANKING)
   const [projectData, setProjectData] = useState(PROJECT_DATA)
   const [qualityData, setQualityData] = useState(QUALITY_DATA)
   const [efficiencyData, setEfficiencyData] = useState(EFFICIENCY_DATA)
   const [alertMaterials, setAlertMaterials] = useState(ALERT_MATERIALS)
-  const [peakText, setPeakText] = useState('高峰时段: 15:00 (82例)')
+  const [peakText, setPeakText] = useState(`${t('opsCenter.peakHourPrefix')}15:00 (82例)`)
   const [todayTotal, setTodayTotal] = useState(326)
   const [yesterdayTotal, setYesterdayTotal] = useState(298)
   const [growthText, setGrowthText] = useState('+9.4%')
@@ -756,19 +757,19 @@ export default function OperationsCenterPage() {
 
   // 12 KPI: 在既有 6 项基础上追加 6 项 (开机率/技师效率/报告及时率/危急值闭环率/报告积压/设备故障)
   const [kpiExt, setKpiExt] = useState([
-    { label: '设备开机率', value: 96.4, unit: '%', yesterday: 95.8, trend: 'up' as const },
-    { label: '技师效率(平均检查时长)', value: 18, unit: '分钟', yesterday: 20, trend: 'up' as const },
-    { label: '报告及时率', value: 96.5, unit: '%', yesterday: 95.2, trend: 'up' as const },
-    { label: '危急值闭环率', value: 100, unit: '%', yesterday: 98.6, trend: 'up' as const },
-    { label: '报告积压', value: 8, unit: '份', yesterday: 12, trend: 'down' as const },
-    { label: '设备故障数', value: 0, unit: '台', yesterday: 1, trend: 'down' as const },
+    { label: t('opsCenter.kpiUptime'), value: 96.4, unit: '%', yesterday: 95.8, trend: 'up' as const },
+    { label: t('opsCenter.kpiTechEfficiency'), value: 18, unit: t('opsCenter.unitMinute'), yesterday: 20, trend: 'up' as const },
+    { label: t('opsCenter.kpiReportTimely'), value: 96.5, unit: '%', yesterday: 95.2, trend: 'up' as const },
+    { label: t('opsCenter.kpiCriticalClosure'), value: 100, unit: '%', yesterday: 98.6, trend: 'up' as const },
+    { label: t('opsCenter.kpiPendingReports'), value: 8, unit: t('opsCenter.unitReport'), yesterday: 12, trend: 'down' as const },
+    { label: t('opsCenter.kpiDeviceFaults'), value: 0, unit: t('opsCenter.unitDevice'), yesterday: 1, trend: 'down' as const },
   ])
 
   // 预警面板 (设备离线/超时排队/危急值超时)
   const [alerts, setAlerts] = useState<Array<{ id: string; type: string; level: 'danger' | 'warning' | 'info'; title: string; detail: string; time: string }>>([
-    { id: 'a-1', type: 'device', level: 'warning', title: '设备离线监测', detail: 'DSA-2 (西门子) 心跳丢失 12 分钟', time: '12分钟前' },
-    { id: 'a-2', type: 'queue', level: 'warning', title: '候诊超时', detail: 'CT3 室排队 6 人超过 30 分钟', time: '8分钟前' },
-    { id: 'a-3', type: 'critical', level: 'danger', title: '危急值响应超时', detail: '1 例危急值超过 SLA 10 分钟未闭环', time: '15分钟前' },
+    { id: 'a-1', type: 'device', level: 'warning', title: t('opsCenter.alertDeviceOffline'), detail: t('opsCenter.alertDetailHeartbeat', { n: 12 }), time: t('opsCenter.timeMinutesAgo', { n: 12 }) },
+    { id: 'a-2', type: 'queue', level: 'warning', title: t('opsCenter.alertQueueTimeout'), detail: t('opsCenter.alertDetailQueue', { room: 'CT3', n: 6, m: 30 }), time: t('opsCenter.timeMinutesAgo', { n: 8 }) },
+    { id: 'a-3', type: 'critical', level: 'danger', title: t('opsCenter.alertCriticalTimeout'), detail: t('opsCenter.alertDetailCritical', { n: 1, m: 10 }), time: t('opsCenter.timeMinutesAgo', { n: 15 }) },
   ])
 
   // 急诊通道记录 (emergencyChannelApi.listRecords)
@@ -776,10 +777,10 @@ export default function OperationsCenterPage() {
   const [emergencyConfig, setEmergencyConfig] = useState<{ autoTrigger: boolean; keywords: string[]; channels: number }>({ autoTrigger: true, keywords: ['脑出血', '主动脉夹层', '肺栓塞'], channels: 4 })
   // [v3.0.6.11-99 Wave10B] 急诊通道渠道明细 + SLA 统计
   const [channelDetail, setChannelDetail] = useState<Array<{ type: string; label: string; enabled: boolean; priority: number; targetRole: string }>>([
-    { type: 'in-app', label: '站内信', enabled: true, priority: 1, targetRole: '值班医师' },
-    { type: 'phone', label: '电话', enabled: true, priority: 2, targetRole: '值班医师' },
-    { type: 'sms', label: '短信', enabled: true, priority: 3, targetRole: '科主任' },
-    { type: 'wechat', label: '企业微信', enabled: true, priority: 4, targetRole: '医务处' },
+    { type: 'in-app', label: t('opsCenter.channelInApp'), enabled: true, priority: 1, targetRole: t('opsCenter.roleOnDuty') },
+    { type: 'phone', label: t('opsCenter.channelPhone'), enabled: true, priority: 2, targetRole: t('opsCenter.roleOnDuty') },
+    { type: 'sms', label: t('opsCenter.channelSms'), enabled: true, priority: 3, targetRole: t('opsCenter.roleDeptHead') },
+    { type: 'wechat', label: t('opsCenter.channelWechat'), enabled: true, priority: 4, targetRole: t('opsCenter.roleMedAffairs') },
   ])
   const [emergencySummary, setEmergencySummary] = useState({
     total: 0, acknowledged: 0, completed: 0, avgMinutes: 0, slaMin: 10,
@@ -835,7 +836,7 @@ export default function OperationsCenterPage() {
       const anyReal = Boolean(daily || bi || occRooms.length || occTrends.length || oee || workload.length)
       if (!anyReal) {
         setDataSource('demo')
-        setApiError('API 暂不可用，当前展示内置演示数据')
+        setApiError(t('opsCenter.apiUnavailable'))
         return
       }
       setDataSource('api')
@@ -848,12 +849,12 @@ export default function OperationsCenterPage() {
       const waitingCount = lastOcc ? Math.max(0, toNum(lastOcc.total) - toNum(lastOcc.occupied)) : undefined
       const avgTAT = toNum(daily?.avgTAT ?? timing?.medianMinutes)
       setKpiData([
-        { label: '今日检查量', value: todayExam || KPI_DATA[0].value, unit: '例', yesterday: (yestExam ?? todayExam) || KPI_DATA[0].yesterday, trend: 'up' },
-        { label: '今日预约量', value: toNum(daily?.examCount) || KPI_DATA[1].value, unit: '例', yesterday: todayExam || KPI_DATA[1].yesterday, trend: 'up' },
-        { label: '在检人数', value: occupiedRooms, unit: '人', trend: 'neutral', yesterday: occupiedRooms },
-        { label: '等待人数', value: waitingCount ?? KPI_DATA[3].value, unit: '人', trend: 'neutral', yesterday: waitingCount ?? KPI_DATA[3].value },
-        { label: '设备利用率', value: toNum(oee?.average) || KPI_DATA[4].value, unit: '%', trend: 'neutral', yesterday: toNum(oee?.average) || KPI_DATA[4].value },
-        { label: '平均报告时间', value: avgTAT || KPI_DATA[5].value, unit: '分钟', trend: 'neutral', yesterday: avgTAT || KPI_DATA[5].value },
+        { label: t('opsCenter.kpiTodayExams'), value: todayExam || KPI_DATA[0].value, unit: t('opsCenter.unitExam'), yesterday: (yestExam ?? todayExam) || KPI_DATA[0].yesterday, trend: 'up' },
+        { label: t('opsCenter.kpiTodayAppointments'), value: toNum(daily?.examCount) || KPI_DATA[1].value, unit: t('opsCenter.unitExam'), yesterday: todayExam || KPI_DATA[1].yesterday, trend: 'up' },
+        { label: t('opsCenter.kpiInProgress'), value: occupiedRooms, unit: t('opsCenter.unitPeople'), trend: 'neutral', yesterday: occupiedRooms },
+        { label: t('opsCenter.kpiWaiting'), value: waitingCount ?? KPI_DATA[3].value, unit: t('opsCenter.unitPeople'), trend: 'neutral', yesterday: waitingCount ?? KPI_DATA[3].value },
+        { label: t('opsCenter.kpiEquipmentUsage'), value: toNum(oee?.average) || KPI_DATA[4].value, unit: '%', trend: 'neutral', yesterday: toNum(oee?.average) || KPI_DATA[4].value },
+        { label: t('opsCenter.kpiAvgReportTime'), value: avgTAT || KPI_DATA[5].value, unit: t('opsCenter.unitMinute'), trend: 'neutral', yesterday: avgTAT || KPI_DATA[5].value },
       ])
 
       // ---- 检查室状态 (occupancyApi) ----
@@ -881,11 +882,11 @@ export default function OperationsCenterPage() {
           peak: false,
         }))
         setHourlyData(pts)
-        setHourlyCaption('近7日每日检查量对比（API 实时）')
+        setHourlyCaption(t('opsCenter.hourlyCaptionApi'))
         const peak = pts.reduce((m, p) => (p.today > m.today ? p : m), pts[0] || { hour: '-', today: 0 })
-        setPeakText(`高峰日: ${peak.hour} (${peak.today}例)`)
+        setPeakText(`${t('opsCenter.peakDayPrefix')}${peak.hour} (${peak.today}${t('opsCenter.unitExam')})`)
       } else {
-        setHourlyCaption('每小时检查量统计（0-24时）· 演示数据')
+        setHourlyCaption(t('opsCenter.hourlyCaptionDemo'))
       }
 
       // ---- 医生工作量排行 (statsApi/workload) ----
@@ -945,7 +946,7 @@ export default function OperationsCenterPage() {
         safety: todayExam ? Math.round(((todayExam - defectCount) / todayExam) * 100) : 100,
       })
     } catch (e) {
-      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setApiError(e instanceof Error ? e.message : t('opsCenter.loadFailed'))
       setDataSource('demo')
     } finally {
       setLoading(false)
@@ -990,7 +991,7 @@ export default function OperationsCenterPage() {
       const anyReal = Boolean(ecRecords || ecConfig || cvSla || wlStats || oee || faults.length || devices.length || workload.length)
       if (!anyReal) {
         setExtSource('demo')
-        setExtError('扩展接口暂不可用，当前展示演示预警数据')
+        setExtError(t('opsCenter.extUnavailable'))
         return
       }
       setExtSource('api')
@@ -1042,25 +1043,25 @@ export default function OperationsCenterPage() {
       faults.slice(0, 3).forEach((f: any, i: number) => {
         nextAlerts.push({
           id: `dev-${i}`, type: 'device', level: 'danger',
-          title: '设备故障/离线', detail: `${f.deviceName ?? f.name ?? '设备'} · ${f.faultType ?? f.description ?? f.reason ?? '异常'}`,
-          time: String(f.createdAt ?? f.reportedAt ?? '').slice(5, 16).replace('T', ' ') || '刚刚',
+          title: t('opsCenter.alertFaultOffline'), detail: t('opsCenter.alertDetailFault', { name: f.deviceName ?? f.name ?? '设备', reason: f.faultType ?? f.description ?? f.reason ?? '异常' }),
+          time: String(f.createdAt ?? f.reportedAt ?? '').slice(5, 16).replace('T', ' ') || t('opsCenter.alertJustNow'),
         })
       })
       const overdue = Array.isArray((cvSla as any)?.overdue) ? (cvSla as any).overdue.filter((o: any) => toNum(o.responseMinutes) > toNum((cvSla as any)?.slaMinutes)) : []
       if (overdue.length > 0) {
         nextAlerts.push({
           id: 'cv-timeout', type: 'critical', level: 'danger',
-          title: '危急值响应超时',
-          detail: `${overdue.length} 例危急值超过 SLA ${toNum((cvSla as any)?.slaMinutes)} 分钟未闭环`,
-          time: '超时预警',
+          title: t('opsCenter.alertCriticalTimeout'),
+          detail: t('opsCenter.alertDetailCritical', { n: overdue.length, m: toNum((cvSla as any)?.slaMinutes) }),
+          time: t('opsCenter.alertTimeout'),
         })
       }
       const waiting = toNum(daily?.waitingCount ?? 0)
       if (waiting > 50) {
         nextAlerts.push({
           id: 'queue-timeout', type: 'queue', level: 'warning',
-          title: '候诊积压', detail: `当前候诊人数 ${waiting} 人，超过 50 人阈值`,
-          time: '实时',
+          title: t('opsCenter.alertQueueBacklog'), detail: t('opsCenter.alertDetailBacklog', { n: waiting, m: 50 }),
+          time: t('opsCenter.alertRealtime'),
         })
       }
       if (nextAlerts.length > 0) setAlerts(nextAlerts)
@@ -1074,12 +1075,12 @@ export default function OperationsCenterPage() {
       const cvClosure = toNum((cvSla as any)?.complianceRate ?? 0)
       const pendingReports = toNum((daily as any)?.pendingCount ?? (biApi ? 0 : 0))
       setKpiExt([
-        { label: '设备开机率', value: availability || kpiExt[0].value, unit: '%', yesterday: availability || kpiExt[0].yesterday, trend: 'neutral' as const },
-        { label: '技师效率(平均检查时长)', value: techEfficiency || kpiExt[1].value, unit: '分钟', yesterday: techEfficiency || kpiExt[1].yesterday, trend: 'neutral' as const },
-        { label: '报告及时率', value: timelyPct || kpiExt[2].value, unit: '%', yesterday: timelyPct || kpiExt[2].yesterday, trend: 'neutral' as const },
-        { label: '危急值闭环率', value: cvClosure || kpiExt[3].value, unit: '%', yesterday: cvClosure || kpiExt[3].yesterday, trend: 'neutral' as const },
-        { label: '报告积压', value: pendingReports || kpiExt[4].value, unit: '份', yesterday: pendingReports || kpiExt[4].yesterday, trend: 'neutral' as const },
-        { label: '设备故障数', value: faults.length, unit: '台', yesterday: kpiExt[5].yesterday, trend: faults.length === 0 ? 'down' : 'neutral' as const },
+        { label: t('opsCenter.kpiUptime'), value: availability || kpiExt[0].value, unit: '%', yesterday: availability || kpiExt[0].yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiTechEfficiency'), value: techEfficiency || kpiExt[1].value, unit: t('opsCenter.unitMinute'), yesterday: techEfficiency || kpiExt[1].yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiReportTimely'), value: timelyPct || kpiExt[2].value, unit: '%', yesterday: timelyPct || kpiExt[2].yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiCriticalClosure'), value: cvClosure || kpiExt[3].value, unit: '%', yesterday: cvClosure || kpiExt[3].yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiPendingReports'), value: pendingReports || kpiExt[4].value, unit: t('opsCenter.unitReport'), yesterday: pendingReports || kpiExt[4].yesterday, trend: 'neutral' as const },
+        { label: t('opsCenter.kpiDeviceFaults'), value: faults.length, unit: t('opsCenter.unitDevice'), yesterday: kpiExt[5].yesterday, trend: faults.length === 0 ? 'down' : 'neutral' as const },
       ])
 
       // ---- 设备维度看板 ----
@@ -1117,13 +1118,13 @@ export default function OperationsCenterPage() {
 
       // ---- 质量维度看板 ----
       setQualityBoard([
-        { id: 'q1', label: '危急值闭环率', value: cvClosure || 100, unit: '%', ok: cvClosure >= 95 || cvClosure === 0 },
-        { id: 'q2', label: '报告及时率', value: timelyPct || 96.5, unit: '%', ok: true },
-        { id: 'q3', label: '设备平均利用率', value: toNum(oee?.average ?? 0) || 91.2, unit: '%', ok: true },
-        { id: 'q4', label: '当日危急值事件', value: toNum(cvStats?.total ?? daily?.criticalCount ?? 0), unit: '例', ok: true },
+        { id: 'q1', label: t('opsCenter.kpiCriticalClosure'), value: cvClosure || 100, unit: '%', ok: cvClosure >= 95 || cvClosure === 0 },
+        { id: 'q2', label: t('opsCenter.kpiReportTimely'), value: timelyPct || 96.5, unit: '%', ok: true },
+        { id: 'q3', label: t('opsCenter.kpiEquipmentUsage'), value: toNum(oee?.average ?? 0) || 91.2, unit: '%', ok: true },
+        { id: 'q4', label: t('opsCenter.qCritical'), value: toNum(cvStats?.total ?? daily?.criticalCount ?? 0), unit: t('opsCenter.unitExam'), ok: true },
       ])
     } catch (e) {
-      setExtError(e instanceof Error ? e.message : '扩展数据加载失败，已回退演示数据')
+      setExtError(e instanceof Error ? e.message : t('opsCenter.extLoadFailed'))
       setExtSource('demo')
     } finally {
       setExtLoading(false)
@@ -1144,11 +1145,11 @@ export default function OperationsCenterPage() {
   // ============================================================
   const renderSectionTabs = () => {
     const tabs: Array<{ key: OpsSection; label: string; icon: React.ReactNode }> = [
-      { key: 'overview', label: '总览', icon: <LayoutDashboard size={14} /> },
-      { key: 'equipment', label: '设备', icon: <Monitor size={14} /> },
-      { key: 'manpower', label: '人力', icon: <Users size={14} /> },
-      { key: 'quality', label: '质量', icon: <ShieldCheck size={14} /> },
-      { key: 'emergency', label: '急诊通道', icon: <Siren size={14} /> },
+      { key: 'overview', label: t('opsCenter.tabOverview'), icon: <LayoutDashboard size={14} /> },
+      { key: 'equipment', label: t('opsCenter.tabEquipment'), icon: <Monitor size={14} /> },
+      { key: 'manpower', label: t('opsCenter.tabManpower'), icon: <Users size={14} /> },
+      { key: 'quality', label: t('opsCenter.tabQuality'), icon: <ShieldCheck size={14} /> },
+      { key: 'emergency', label: t('opsCenter.tabEmergency'), icon: <Siren size={14} /> },
     ]
     return (
       <div style={{
@@ -1177,7 +1178,7 @@ export default function OperationsCenterPage() {
             background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, fontSize: 12, marginLeft: 8,
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
-            深化数据: API 实时
+            {t('opsCenter.extApiBadge')}
           </span>
         )}
         {extSource === 'demo' && (
@@ -1186,10 +1187,10 @@ export default function OperationsCenterPage() {
             background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontWeight: 600, fontSize: 12, marginLeft: 8,
           }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fbbf24' }} />
-            深化数据: 演示回退
+            {t('opsCenter.extDemoBadge')}
           </span>
         )}
-        {extLoading && <span style={{ fontSize: 12, color: '#fbbf24', alignSelf: 'center' }}>同步中…</span>}
+        {extLoading && <span style={{ fontSize: 12, color: '#fbbf24', alignSelf: 'center' }}>{t('opsCenter.extSyncing')}</span>}
       </div>
     )
   }
@@ -1206,15 +1207,15 @@ export default function OperationsCenterPage() {
     <div style={{ ...s.panel, marginBottom: 16 }}>
       <div style={s.panelTitle}>
         <BadgeAlert size={18} color={alerts.some(a => a.level === 'danger') ? '#ef4444' : '#fbbf24'} />
-        运营预警
+        {t('opsCenter.alertsTitle')}
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
-          {alerts.length} 项待关注
+          {t('opsCenter.alertsPending', { n: alerts.length })}
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {alerts.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px 0', color: '#4ade80', fontSize: 13 }}>
-            <CheckCircle size={20} style={{ marginBottom: 6 }} /> 暂无预警，系统运行平稳
+            <CheckCircle size={20} style={{ marginBottom: 6 }} /> {t('opsCenter.noAlerts')}
           </div>
         )}
         {alerts.map(a => (
@@ -1239,7 +1240,7 @@ export default function OperationsCenterPage() {
                   background: a.level === 'danger' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
                   color: a.level === 'danger' ? '#ef4444' : '#fbbf24',
                 }}>
-                  {a.level === 'danger' ? '紧急' : '关注'}
+                  {a.level === 'danger' ? t('opsCenter.alertUrgent') : t('opsCenter.alertAttention')}
                 </span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -1253,7 +1254,7 @@ export default function OperationsCenterPage() {
       {extError && (
         <div style={{ marginTop: 10, fontSize: 11, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
           <AlertTriangle size={11} /> {extError}
-          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid #fbbf24', background: 'transparent', color: '#fbbf24', cursor: 'pointer', fontSize: 11 }}>重试</button>
+          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid #fbbf24', background: 'transparent', color: '#fbbf24', cursor: 'pointer', fontSize: 11 }}>{t('opsCenter.retry')}</button>
         </div>
       )}
     </div>
@@ -1264,25 +1265,25 @@ export default function OperationsCenterPage() {
     <div style={s.panel}>
       <div style={s.panelTitle}>
         <Monitor size={18} color="#3b82f6" />
-        设备运行看板
+        {t('opsCenter.equipmentBoardTitle')}
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
-          deviceMgmtApi · oeeApi · 开机率/利用率/故障
+          {t('opsCenter.equipmentBoardSub')}
         </span>
       </div>
       {deviceBoard.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
-          设备数据暂不可用，请检查 deviceMgmtApi 连接
+          {t('opsCenter.equipmentNoData')}
         </div>
       ) : (
         <table style={s.table}>
           <thead>
             <tr>
-              <th style={s.th}>设备</th>
-              <th style={s.th}>模态</th>
-              <th style={s.th}>状态</th>
-              <th style={s.th}>利用率</th>
-              <th style={s.th}>故障数</th>
-              <th style={s.th}>最后心跳</th>
+              <th style={s.th}>{t('opsCenter.thDevice')}</th>
+              <th style={s.th}>{t('opsCenter.thModality')}</th>
+              <th style={s.th}>{t('opsCenter.thStatus')}</th>
+              <th style={s.th}>{t('opsCenter.thUtilization')}</th>
+              <th style={s.th}>{t('opsCenter.thFaultCount')}</th>
+              <th style={s.th}>{t('opsCenter.thHeartbeat')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1317,7 +1318,7 @@ export default function OperationsCenterPage() {
       {/* [v3.0.6.11-99 Wave10B] 开机率/利用率 7 日趋势 (oeeApi dailyTrend 回退演示) */}
       <div style={{ marginTop: 16 }}>
         <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Zap size={14} color="#fbbf24" /> 近 7 日开机率 / 利用率趋势 (oeeApi)
+          <Zap size={14} color="#fbbf24" /> {t('opsCenter.uptimeTrend')}
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 130 }}>
           {[
@@ -1327,18 +1328,18 @@ export default function OperationsCenterPage() {
             { day: 'D-3', uptime: 96.7, util: 91.2 },
             { day: 'D-2', uptime: 95.9, util: 89.4 },
             { day: 'D-1', uptime: 96.3, util: 90.8 },
-            { day: '今日', uptime: kpiExt[0].value, util: kpiExt[2].value || 91.2 },
+            { day: t('opsCenter.todayLabel'), uptime: kpiExt[0].value, util: kpiExt[2].value || 91.2 },
           ].map(d => (
             <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 100 }}>
                 <div style={{
                   width: 12, borderRadius: '3px 3px 0 0', height: `${d.uptime}px`,
                   background: 'linear-gradient(180deg, #4ade80, #16a34a)', opacity: 0.9,
-                }} title={`开机率 ${d.uptime}%`} />
+                }} title={t('opsCenter.uptimeTooltip', { n: d.uptime })} />
                 <div style={{
                   width: 12, borderRadius: '3px 3px 0 0', height: `${d.util}px`,
                   background: 'linear-gradient(180deg, #60a5fa, #2563eb)', opacity: 0.85,
-                }} title={`利用率 ${d.util}%`} />
+                }} title={t('opsCenter.utilTooltip', { n: d.util })} />
               </div>
               <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.day}</span>
               <span style={{ fontSize: 10, color: '#4ade80' }}>{d.uptime}%</span>
@@ -1347,10 +1348,10 @@ export default function OperationsCenterPage() {
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#4ade80' }} /> 开机率
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#4ade80' }} /> {t('opsCenter.legendUptime')}
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#60a5fa' }} /> 利用率
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: '#60a5fa' }} /> {t('opsCenter.legendUtilization')}
           </span>
         </div>
       </div>
@@ -1362,24 +1363,24 @@ export default function OperationsCenterPage() {
     <div style={s.panel}>
       <div style={s.panelTitle}>
         <Users size={18} color="#8b5cf6" />
-        人力效能看板
+        {t('opsCenter.manpowerBoardTitle')}
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
-          worklistApi.getStats · statsApi.getWorkload · 技师效率
+          {t('opsCenter.manpowerBoardSub')}
         </span>
       </div>
       {manpowerBoard.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
-          人力数据暂不可用
+          {t('opsCenter.manpowerNoData')}
         </div>
       ) : (
         <table style={s.table}>
           <thead>
             <tr>
-              <th style={s.th}>人员</th>
-              <th style={s.th}>角色</th>
-              <th style={s.th}>今日完成</th>
-              <th style={s.th}>平均检查时长</th>
-              <th style={s.th}>状态</th>
+              <th style={s.th}>{t('opsCenter.thPerson')}</th>
+              <th style={s.th}>{t('opsCenter.thRole')}</th>
+              <th style={s.th}>{t('opsCenter.thCompletedToday')}</th>
+              <th style={s.th}>{t('opsCenter.thAvgDuration')}</th>
+              <th style={s.th}>{t('opsCenter.thStatus')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1387,11 +1388,11 @@ export default function OperationsCenterPage() {
               <tr key={m.id}>
                 <td style={{ ...s.td, fontWeight: 600 }}>{m.name}</td>
                 <td style={s.td}>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: m.role === '技师' ? 'rgba(139,92,246,0.15)' : 'rgba(59,130,246,0.15)', color: m.role === '技师' ? '#a78bfa' : '#60a5fa' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: m.role === t('opsCenter.roleTech') ? 'rgba(139,92,246,0.15)' : 'rgba(59,130,246,0.15)', color: m.role === t('opsCenter.roleTech') ? '#a78bfa' : '#60a5fa' }}>
                     {m.role}
                   </span>
                 </td>
-                <td style={s.td}>{m.completedCount} 例</td>
+                <td style={s.td}>{m.completedCount} {t('opsCenter.unitExam')}</td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
@@ -1401,13 +1402,13 @@ export default function OperationsCenterPage() {
                         background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? '#fbbf24' : '#ef4444',
                       }} />
                     </div>
-                    <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} 分钟</span>
+                    <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} {t('opsCenter.unitMinute')}</span>
                   </div>
                 </td>
                 <td style={s.td}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : '#fbbf24' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : '#fbbf24' }} />
-                    {m.online ? '在线' : '离线'}
+                    {m.online ? t('opsCenter.statusOnline') : t('opsCenter.statusOffline')}
                   </span>
                 </td>
               </tr>
@@ -1424,7 +1425,7 @@ export default function OperationsCenterPage() {
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <ShieldCheck size={18} color="#4ade80" />
-          质量指标
+          {t('opsCenter.qualityMetrics')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {qualityBoard.map(q => (
@@ -1448,7 +1449,7 @@ export default function OperationsCenterPage() {
               color: q.ok ? '#4ade80' : '#ef4444', padding: '4px 10px', borderRadius: 999,
               background: q.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
             }}>
-              <CheckCircle size={12} /> {q.label} {q.ok ? '达标' : '关注'}
+              <CheckCircle size={12} /> {q.label} {q.ok ? t('opsCenter.qOk') : t('opsCenter.qAttention')}
             </span>
           ))}
         </div>
@@ -1456,14 +1457,14 @@ export default function OperationsCenterPage() {
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <Gauge size={18} color="#fbbf24" />
-          质量维度细目 (biApi/criticalExtApi)
+          {t('opsCenter.qualityDetailSub')}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
-            { label: '危急值闭环率', value: kpiExt[3].value, color: '#4ade80' },
-            { label: '报告及时率', value: kpiExt[2].value, color: '#3b82f6' },
-            { label: '设备开机率', value: kpiExt[0].value, color: '#8b5cf6' },
-            { label: '技师效率达标', value: kpiExt[1].value > 0 && kpiExt[1].value <= 25 ? 100 : 80, color: '#fbbf24' },
+            { label: t('opsCenter.kpiCriticalClosure'), value: kpiExt[3].value, color: '#4ade80' },
+            { label: t('opsCenter.kpiReportTimely'), value: kpiExt[2].value, color: '#3b82f6' },
+            { label: t('opsCenter.kpiUptime'), value: kpiExt[0].value, color: '#8b5cf6' },
+            { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1].value > 0 && kpiExt[1].value <= 25 ? 100 : 80, color: '#fbbf24' },
           ].map(item => (
             <div key={item.label}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
@@ -1486,11 +1487,11 @@ export default function OperationsCenterPage() {
       {/* [v3.0.6.11-99 Wave10B] 急诊通道统计条 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
         {[
-          { label: '累计触发', value: emergencySummary.total, color: '#3b82f6', unit: '次' },
-          { label: '今日触发', value: emergencySummary.todayCount, color: '#fbbf24', unit: '次' },
-          { label: '已确认', value: emergencySummary.acknowledged, color: '#60a5fa', unit: '次' },
-          { label: '已完成闭环', value: emergencySummary.completed, color: '#4ade80', unit: '次' },
-          { label: '平均响应', value: emergencySummary.avgMinutes, color: '#a78bfa', unit: `分钟/SLA ${emergencySummary.slaMin}` },
+          { label: t('opsCenter.ecTotal'), value: emergencySummary.total, color: '#3b82f6', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecToday'), value: emergencySummary.todayCount, color: '#fbbf24', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecAcknowledged'), value: emergencySummary.acknowledged, color: '#60a5fa', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecCompleted'), value: emergencySummary.completed, color: '#4ade80', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecAvgResponse'), value: emergencySummary.avgMinutes, color: '#a78bfa', unit: t('opsCenter.ecAvgUnit', { n: emergencySummary.slaMin }) },
         ].map(s => (
           <div key={s.label} style={{
             padding: 16, textAlign: 'center', borderRadius: 10,
@@ -1508,7 +1509,7 @@ export default function OperationsCenterPage() {
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <Siren size={18} color="#ef4444" />
-          急诊通道配置
+          {t('opsCenter.ecConfigTitle')}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{
@@ -1518,13 +1519,13 @@ export default function OperationsCenterPage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>
               <HeartPulse size={16} color={emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8'} />
-              自动触发
+              {t('opsCenter.ecAutoTrigger')}
               <span style={{ marginLeft: 'auto', fontSize: 12, color: emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8' }}>
-                {emergencyConfig.autoTrigger ? '已开启' : '已关闭'}
+                {emergencyConfig.autoTrigger ? t('opsCenter.ecOn') : t('opsCenter.ecOff')}
               </span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              触发关键词:
+              {t('opsCenter.ecKeywords')}
               {emergencyConfig.keywords.length === 0 && <span>—</span>}
               {emergencyConfig.keywords.map(k => (
                 <span key={k} style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontSize: 11 }}>
@@ -1533,21 +1534,21 @@ export default function OperationsCenterPage() {
               ))}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
-              已启用通知渠道: <strong style={{ color: '#f1f5f9' }}>{emergencyConfig.channels}</strong> 类 (短信/电话/站内/微信等)
+              <span dangerouslySetInnerHTML={{ __html: t('opsCenter.ecChannelsEnabled', { n: emergencyConfig.channels }) }} />
             </div>
           </div>
           <div style={{
             padding: 14, borderRadius: 8, background: 'rgba(51,65,85,0.5)',
             border: '1px solid rgba(71,85,105,0.5)', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6,
           }}>
-            <strong style={{ color: '#f1f5f9' }}>通道说明:</strong> 急诊绿色通道面向脑出血 / 主动脉夹层 / 肺栓塞等危急场景，触发后按优先级依次推送至值班医师 → 科主任 → 医务处，并记录完整通知轨迹。
+            <span dangerouslySetInnerHTML={{ __html: t('opsCenter.ecConfigDesc') }} />
           </div>
         </div>
       </div>
       <div style={s.panel}>
         <div style={s.panelTitle}>
           <Stethoscope size={18} color="#3b82f6" />
-          急诊通道触发记录
+          {t('opsCenter.ecRecordsTitle')}
           <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
             emergencyChannelApi.listRecords
           </span>
@@ -1555,8 +1556,8 @@ export default function OperationsCenterPage() {
         {emergencyRecords.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
             <CheckCircle size={28} color="#4ade80" style={{ margin: '0 auto 10px', display: 'block' }} />
-            暂无急诊通道触发记录
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>（接口不可用时展示演示数据）</div>
+            {t('opsCenter.ecNoRecords')}
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{t('opsCenter.ecNoRecordsSub')}</div>
           </div>
         ) : (
           <div style={{ maxHeight: 360, overflowY: 'auto' }}>
@@ -1582,7 +1583,7 @@ export default function OperationsCenterPage() {
                     {r.reason} · {r.channels.join(' / ')}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-                    {String(r.triggeredAt ?? '').slice(5, 16).replace('T', ' ')} · 触发人 {r.triggeredBy}
+                    {String(r.triggeredAt ?? '').slice(5, 16).replace('T', ' ')} · {t('opsCenter.ecTriggeredBy', { name: r.triggeredBy })}
                   </div>
                 </div>
                 <span style={{
@@ -1590,7 +1591,7 @@ export default function OperationsCenterPage() {
                   background: r.status === 'completed' ? 'rgba(34,197,94,0.15)' : r.status === 'acknowledged' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
                   color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : '#ef4444',
                 }}>
-                {r.status === 'completed' ? '已完成' : r.status === 'acknowledged' ? '已确认' : '已发送'}
+                {r.status === 'completed' ? t('opsCenter.ecStatusCompleted') : r.status === 'acknowledged' ? t('opsCenter.ecStatusAcknowledged') : t('opsCenter.ecStatusSent')}
               </span>
             </div>
           ))}
@@ -1604,15 +1605,15 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Bell size={18} color="#60a5fa" />
-            通知渠道明细 (按优先级)
+            {t('opsCenter.ecChannelsTitle')}
           </div>
           <table style={s.table}>
             <thead>
               <tr>
-                <th style={s.th}>优先级</th>
-                <th style={s.th}>渠道</th>
-                <th style={s.th}>目标角色</th>
-                <th style={s.th}>状态</th>
+                <th style={s.th}>{t('opsCenter.thPriority')}</th>
+                <th style={s.th}>{t('opsCenter.thChannel')}</th>
+                <th style={s.th}>{t('opsCenter.thTargetRole')}</th>
+                <th style={s.th}>{t('opsCenter.thStatus')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1636,7 +1637,7 @@ export default function OperationsCenterPage() {
                       color: c.enabled ? '#4ade80' : '#94a3b8',
                     }}>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.enabled ? '#4ade80' : '#94a3b8' }} />
-                      {c.enabled ? '已启用' : '未启用'}
+                      {c.enabled ? t('opsCenter.ecEnabled') : t('opsCenter.ecDisabled')}
                     </span>
                   </td>
                 </tr>
@@ -1644,17 +1645,17 @@ export default function OperationsCenterPage() {
             </tbody>
           </table>
           <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            按优先级顺序触达: 高优先级渠道失败后自动降级至下一渠道，直至确认回执或升级至科主任/医务处。
+            {t('opsCenter.ecEscalationDesc')}
           </div>
         </div>
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <HeartPulse size={18} color="#ef4444" />
-            触发类型分布
+            {t('opsCenter.ecTypeDist')}
           </div>
           {emergencySummary.byType.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
-              暂无触发类型数据
+              {t('opsCenter.ecNoTypeData')}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1664,7 +1665,7 @@ export default function OperationsCenterPage() {
                   <div key={type}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
                       <span>{type}</span>
-                      <span style={{ color: '#ef4444', fontWeight: 700 }}>{count} 次</span>
+                      <span style={{ color: '#ef4444', fontWeight: 700 }}>{count} {t('opsCenter.ecUnit')}</span>
                     </div>
                     <div style={{ height: 8, background: 'rgba(51,65,85,0.8)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{
@@ -1681,7 +1682,7 @@ export default function OperationsCenterPage() {
             marginTop: 16, padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7,
             background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#fecaca',
           }}>
-            <strong>闭环要求:</strong> 触发后值班医师须在 {emergencySummary.slaMin || 10} 分钟内确认回执，超时自动升级科主任；临床接收后状态置 completed 完成闭环。
+            <span dangerouslySetInnerHTML={{ __html: t('opsCenter.ecClosureReq', { n: emergencySummary.slaMin || 10 }) }} />
           </div>
         </div>
       </div>
@@ -1695,19 +1696,19 @@ export default function OperationsCenterPage() {
         <div style={s.headerTitle}>
           <Scan size={32} color="#3b82f6" />
           <div>
-            <h1 style={s.headerText}>运营指挥中心</h1>
-            <p style={s.headerSub}>放射科 | 实时数据监控</p>
+            <h1 style={s.headerText}>{t('opsCenter.headerTitle')}</h1>
+            <p style={s.headerSub}>{t('opsCenter.headerSub')}</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {loading && (
             <span style={{ fontSize: 12, color: '#fbbf24' }}>
               <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2, animation: 'spin 1s linear infinite' }} />
-              数据同步中...
+              {t('opsCenter.syncing')}
             </span>
           )}
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>当前时间</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.currentTime')}</div>
             <div style={s.headerTime}>
               {currentTime.toLocaleTimeString('zh-CN', { hour12: false })}
             </div>
@@ -1724,12 +1725,12 @@ export default function OperationsCenterPage() {
           color: dataSource === 'api' ? '#4ade80' : '#fbbf24', fontWeight: 600,
         }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#4ade80' : '#fbbf24' }} />
-          数据源: {dataSource === 'api' ? 'API 实时 (statsApi/occupancyApi/biApi/oeeApi)' : '演示数据'}
+          {dataSource === 'api' ? t('opsCenter.dataSourceApi') : t('opsCenter.dataSourceDemo')}
         </span>
         {apiError && (
           <span style={{ color: '#ef4444' }}>
             {apiError}
-            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('opsCenter.retry')}</button>
           </span>
         )}
       </div>
@@ -1759,13 +1760,13 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Bell size={20} color="#3b82f6" />
-            实时叫号与候诊态势
+            {t('opsCenter.callingTitle')}
           </div>
           
           <div style={s.callingCard}>
-            <div style={s.callingLabel}>当前呼叫</div>
+            <div style={s.callingLabel}>{t('opsCenter.callingNow')}</div>
             <div style={s.callingPatient}>张志明</div>
-            <div style={s.callingRoom}>MRI2室 检查中</div>
+            <div style={s.callingRoom}>MRI2室 {t('opsCenter.roomOccupied')}</div>
           </div>
 
           <div style={s.roomGrid}>
@@ -1775,7 +1776,7 @@ export default function OperationsCenterPage() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>等待队列变化（过去1小时）</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.queueChange')}</div>
             <QueueChart data={queueData} />
           </div>
         </div>
@@ -1784,7 +1785,7 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <TrendingUp size={20} color="#4ade80" />
-            今日检查趋势
+            {t('opsCenter.todayTrend')}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{hourlyCaption}</span>
@@ -1797,19 +1798,19 @@ export default function OperationsCenterPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{todayTotal}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日总检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.todayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{yesterdayTotal}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>昨日总检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.yesterdayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{growthText}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>环比增长</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.momGrowth')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{peakText.split('(')[0].replace('高峰日: ', '').trim()}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>高峰时段</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{peakText.split('(')[0].replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.peakPeriod')}</div>
             </div>
           </div>
         </div>
@@ -1818,17 +1819,17 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Gauge size={20} color="#8b5cf6" />
-            科室工作量排行
+            {t('opsCenter.workloadRanking')}
           </div>
           
           <table style={s.table}>
             <thead>
               <tr>
                 <th style={{ ...s.th, width: 40 }}>#</th>
-                <th style={s.th}>医生</th>
-                <th style={s.th}>报告</th>
-                <th style={s.th}>危急值</th>
-                <th style={s.th}>QC评分</th>
+                <th style={s.th}>{t('opsCenter.thDoctor')}</th>
+                <th style={s.th}>{t('opsCenter.thReports')}</th>
+                <th style={s.th}>{t('opsCenter.thCritical')}</th>
+                <th style={s.th}>{t('opsCenter.thQcScore')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1855,7 +1856,7 @@ export default function OperationsCenterPage() {
           </table>
 
           <div style={{ marginTop: 24 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>检查项目分布</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.projectDistribution')}</div>
             <PieChartComponent data={projectData} />
           </div>
         </div>
@@ -1867,7 +1868,7 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Shield size={20} color="#ef4444" />
-            质量与安全指标
+            {t('opsCenter.qualitySafetyTitle')}
           </div>
           <div style={s.qualityGrid}>
             {qualityData.map((item, idx) => (
@@ -1876,19 +1877,19 @@ export default function OperationsCenterPage() {
           </div>
           
           <div style={{ marginTop: 20, padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>今日概览</div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.todayOverview')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{summaryOverview.adverse}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>不良事件</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.adverseEvents')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{summaryOverview.normal}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>正常检查</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.normalExams')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>安全率</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.safetyRate')}</div>
               </div>
             </div>
           </div>
@@ -1898,30 +1899,30 @@ export default function OperationsCenterPage() {
         <div style={s.panel}>
           <div style={s.panelTitle}>
             <Activity size={20} color="#4ade80" />
-            资源与效率
+            {t('opsCenter.resourcesEfficiency')}
           </div>
           
-          <ProgressBar label="设备使用率" value={efficiencyData.equipmentUsage} color="#3b82f6" />
-          <ProgressBar label="诊室占用率" value={efficiencyData.roomOccupancy} color="#8b5cf6" />
-          <ProgressBar label="报告及时率" value={efficiencyData.reportTimelyRate} color="#4ade80" />
+          <ProgressBar label={t('opsCenter.progressEquipmentUsage')} value={efficiencyData.equipmentUsage} color="#3b82f6" />
+          <ProgressBar label={t('opsCenter.progressRoomOccupancy')} value={efficiencyData.roomOccupancy} color="#8b5cf6" />
+          <ProgressBar label={t('opsCenter.progressReportTimely')} value={efficiencyData.reportTimelyRate} color="#4ade80" />
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 28, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>平均检查时长(分钟)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.avgExamTime')}</div>
             </div>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>报告及时率</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.progressReportTimely')}</div>
             </div>
           </div>
 
           <div style={{ marginTop: 20 }}>
             <div style={{ fontSize: 14, color: '#ef4444', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={16} />
-              耗材消耗预警
+              {t('opsCenter.materialAlert')}
             </div>
             <div style={s.alertList}>
               {alertMaterials.map((item, idx) => (
@@ -1968,12 +1969,12 @@ export default function OperationsCenterPage() {
         <div style={{ display: 'flex', gap: 32 }}>
           <span style={{ fontSize: 12, color: '#4ade80', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
-            系统正常运行
+            {t('opsCenter.systemNormal')}
           </span>
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>数据更新: {new Date().toLocaleTimeString('zh-CN')} · 数据源: {dataSource === 'api' ? 'API 实时' : '演示数据'}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.dataUpdated', { time: new Date().toLocaleTimeString('zh-CN'), source: dataSource === 'api' ? t('opsCenter.dataSourceApiShort') : t('opsCenter.dataSourceDemoShort') })}</span>
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-          G005 放射科RIS系统 v0.7.0 | 运营指挥中心
+          {t('opsCenter.footer')}
         </div>
       </div>
     </div>

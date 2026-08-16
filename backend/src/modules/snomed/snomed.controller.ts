@@ -19,6 +19,12 @@ export class SnomedController {
     return this.svc.encode(body.text, body.modality)
   }
 
+  // [v3.0.6.11-103 Wave 17] 自动编码: 报告文本 → 诊断词 → SNOMED CT + ICD-10 建议
+  @Post('auto-encode')
+  autoEncode(@Body(new ZodValidationPipe(EncodeSchema)) body: { text: string }) {
+    return this.svc.autoEncode(body.text)
+  }
+
   @Get('search')
   search(@Query('q') q: string) {
     return this.svc.search(q)

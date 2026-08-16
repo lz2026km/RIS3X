@@ -46,5 +46,16 @@
   "notified": "Notified",
   "overdue": "Overdue",
   "completed": "Completed",
-  "statsTitle": "Critical Stats"
+  "statsTitle": "Critical Stats",
+  "byReport": "Search by Report",
+  "byReportPlaceholder": "Enter report ID to find related alerts",
+  "byReportSearch": "Search",
+  "relatedAlerts": "Related Alerts",
+  "noRelatedAlerts": "No related alerts for this report",
+  "communicationLog": "Communication Log",
+  "communicationLogEmpty": "No communication records",
+  "channel": "Channel",
+  "communicationAt": "Time",
+  "alertDetail": "Alert Detail",
+  "alertDetailRefresh": "Refresh Detail"
 }

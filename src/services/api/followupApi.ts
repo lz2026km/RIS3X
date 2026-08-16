@@ -148,6 +148,9 @@ export const followupApi = {
   // [v3.0.6.11-100 Wave2C P3] 报告→随访触发规则: GET /followup-trigger-rules (规则列表 + 触发模式)
   listTriggerRules: () =>
     api.get<{ items: FollowUpTriggerRuleDto[]; mode: 'auto' | 'hint' }>('/followup-trigger-rules'),
+
+  // [v3.0.6.11-103 Wave 1B] 触发模式配置: GET /followup-trigger-rules/mode (auto=自动创建 / hint=仅提示)
+  getTriggerMode: () => api.get<{ mode: 'auto' | 'hint' }>('/followup-trigger-rules/mode'),
 }
 
 export type FollowUpListResult = ListData<FollowUpPlan>

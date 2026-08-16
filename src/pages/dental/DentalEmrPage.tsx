@@ -1,9 +1,10 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Select, Row, Col, Statistic, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal } from 'antd';
-import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye } from 'lucide-react';
+import { Card, Space, Tag, Select, Row, Col, Statistic, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal, Form, Input, message } from 'antd';
+import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye, Plus } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 import { usePagination } from '../../hooks/usePagination';
 
 export const DentalEmrPage: React.FC = () => {
@@ -30,6 +31,70 @@ export const DentalEmrPage: React.FC = () => {
   const [bitewingImages, setBitewingImages] = useState<any[]>([]);
   const [imgDetail, setImgDetail] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  // [G005 W3-B] 预约登记/改期: POST /dental/appointments (createAppointment) + PUT /dental/appointments/:id (updateAppointment)
+  const [apptCreateOpen, setApptCreateOpen] = useState(false);
+  const [apptEditItem, setApptEditItem] = useState<any>(null);
+  const [apptSaving, setApptSaving] = useState(false);
+  const [apptForm] = Form.useForm();
+
+  const DENTIST_OPTIONS = ['王医生', '李医生', '张医生', '赵医生'];
+
+  const openApptCreate = () => {
+    apptForm.setFieldsValue({ patientId: selectedId, dateTime: new Date().toISOString().slice(0, 16).replace('T', ' '), dentistId: DENTIST_OPTIONS[0], reason: '复诊', notes: '' });
+    setApptCreateOpen(true);
+  };
+
+  const openApptEdit = (a: any) => {
+    setApptEditItem(a);
+    apptForm.setFieldsValue({
+      dateTime: `${a.date ?? ''} ${a.time ?? ''}`.trim(),
+      dentistId: a.dentist ?? DENTIST_OPTIONS[0],
+      reason: a.type ?? a.description ?? '复诊',
+      notes: a.description ?? '',
+    });
+  };
+
+  const handleSaveAppt = async () => {
+    try {
+      const values = await apptForm.validateFields();
+      setApptSaving(true);
+      if (apptEditItem) {
+        const res = await dentalApi.updateAppointment(apptEditItem.id, {
+          dateTime: values.dateTime,
+          dentistId: values.dentistId,
+          reason: values.reason,
+          notes: values.notes,
+        });
+        if (res.success) {
+          message.success('预约已更新');
+          setApptEditItem(null);
+          void loadPatient(selectedId);
+        } else {
+          message.error(res.error?.message ?? '更新失败');
+        }
+      } else {
+        const res = await dentalApi.createAppointment({
+          patientId: values.patientId,
+          dateTime: values.dateTime,
+          dentistId: values.dentistId,
+          reason: values.reason,
+          notes: values.notes,
+        });
+        if (res.success) {
+          message.success('预约已登记');
+          setApptCreateOpen(false);
+          apptForm.resetFields();
+          void loadPatient(selectedId);
+        } else {
+          message.error(res.error?.message ?? '登记失败');
+        }
+      }
+    } catch {
+      // 表单校验失败
+    } finally {
+      setApptSaving(false);
+    }
+  };
 
   const loadImages = async () => {
     setImgLoading(true);
@@ -174,9 +239,14 @@ export const DentalEmrPage: React.FC = () => {
               {key:'treatments', label:<span><FileText size={12}/>治疗记录 ({treatments.length})</span>, children:<Table dataSource={pagedTreatments} rowKey="id" size="small" pagination={treatmentsPagination}
                 columns={[{title:'日期',dataIndex:'date',width:100},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>,width:100},{title:'牙位',dataIndex:'toothNo',width:60,render:(t:number)=>t?<Tag color="blue">#{t}</Tag>:'全口'},{title:'描述',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'费用',dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
               scroll={{ x: 'max-content' }}/>},
-              {key:'appointments', label:<span><Clock size={12}/>预约 ({appts.length})</span>, children:<Table dataSource={pagedAppts} rowKey="id" size="small" pagination={apptsPagination}
-                columns={[{title:'日期',dataIndex:'date'},{title:'时间',dataIndex:'time'},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>},{title:'内容',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'牙椅',dataIndex:'chair'},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={({completed:'已完成',scheduled:'已预约',cancelled:'已取消'})[s] ?? s} />}]} 
-              scroll={{ x: 'max-content' }}/>},
+              {key:'appointments', label:<span><Clock size={12}/>预约 ({appts.length})</span>, children:<>
+                <div style={{ marginBottom: 8 }}>
+                  <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openApptCreate}>{t("w3b.apptCreate")}</Button>
+                </div>
+                <Table dataSource={pagedAppts} rowKey="id" size="small" pagination={apptsPagination}
+                columns={[{title:'日期',dataIndex:'date'},{title:'时间',dataIndex:'time'},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>},{title:'内容',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'牙椅',dataIndex:'chair'},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={({completed:'已完成',scheduled:'已预约',cancelled:'已取消'})[s] ?? s} />},{title:'操作',width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>openApptEdit(r)}>{t("w3b.apptEdit")}</Button>}]} 
+                scroll={{ x: 'max-content' }}/>
+              </>},
               {key:'billing', label:<span><DollarSign size={12}/>费用 ({bills.length})</span>, children:<Table dataSource={pagedBills} rowKey="id" size="small" pagination={billsPagination}
                 columns={[{title:'日期',dataIndex:'date'},{title:'项目',dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={({paid:'已支付',partial:'部分支付'})[s] ?? '欠费'} />}]} 
               scroll={{ x: 'max-content' }}/>},
@@ -217,6 +287,35 @@ export const DentalEmrPage: React.FC = () => {
                 )}
               </Descriptions>
             )}
+          </Modal>
+          {/* [G005 W3-B] 预约登记/改期 Modal: createAppointment (POST) + updateAppointment (PUT) */}
+          <Modal
+            title={apptEditItem ? `${t("w3b.apptEdit")} - ${apptEditItem.patientName ?? ''}` : t("w3b.apptCreate")}
+            open={apptCreateOpen || !!apptEditItem}
+            onCancel={() => { setApptCreateOpen(false); setApptEditItem(null); apptForm.resetFields(); }}
+            onOk={() => void handleSaveAppt()}
+            confirmLoading={apptSaving}
+            width={460}
+          >
+            <Form form={apptForm} layout="vertical" size="small">
+              {!apptEditItem && (
+                <Form.Item label="患者 ID" name="patientId" rules={[{ required: true, message: '请输入患者ID' }]}>
+                  <Input placeholder="患者 ID" />
+                </Form.Item>
+              )}
+              <Form.Item label="日期时间" name="dateTime" rules={[{ required: true, message: '请输入日期时间' }]}>
+                <Input placeholder="如 2025-12-01 09:00" />
+              </Form.Item>
+              <Form.Item label="医生" name="dentistId" rules={[{ required: true }]}>
+                <Select options={DENTIST_OPTIONS.map((d) => ({ value: d, label: d }))} />
+              </Form.Item>
+              <Form.Item label="事由" name="reason" rules={[{ required: true, message: '请输入事由' }]}>
+                <Input placeholder="如 复诊 / 洁牙" />
+              </Form.Item>
+              <Form.Item label="备注" name="notes">
+                <Input.TextArea rows={2} placeholder="备注（可选）" />
+              </Form.Item>
+            </Form>
           </Modal>
         </>
       )}

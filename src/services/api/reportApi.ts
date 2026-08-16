@@ -96,7 +96,17 @@ export const reportApi = {
   submit: async (id: string) => transition(id, 'SUBMITTED'),
 
   // [v3.0.6.11-73] P0 21 态对齐: 提交审核 (WRITING/SUBMITTED → INITIAL_REVIEW)
-  submitForReview: (id: string) => transition(id, 'INITIAL_REVIEW'),
+  // [v3.0.6.11-103 Wave 13] 流程质量门禁: WRITING 必须先 SUBMITTED 才能进审 (防跳转),
+  //   两步提交: WRITING → SUBMITTED → INITIAL_REVIEW; 已在 SUBMITTED 直接进审
+  submitForReview: async (id: string) => {
+    const cur = await api.get<ReportDto>(`/reports/${id}`)
+    const state = cur.data?.state as ReportState | undefined
+    if (state === 'WRITING') {
+      const submitted = await transition(id, 'SUBMITTED')
+      if (!submitted.success) return submitted
+    }
+    return transition(id, 'INITIAL_REVIEW')
+  },
 
   // [v3.0.6.11-95 Wave2A P0] 报告退回重写闭环: ASSIGNED/PENDING_ASSIGNMENT → WRITING (进入书写态)
   startWriting: (id: string, reason?: string) => transition(id, 'WRITING', reason),
@@ -252,6 +262,60 @@ export const reportApi = {
     const res = await api.post<{ id: string; state: string; archivedAt: string; alreadyArchived?: boolean; task: { id: string; reportId: string; status: string; targetTier: string; archivedAt: string } }>(`/reports/${id}/archive`, {})
     await invalidateApiCache(`/reports/${id}`)
     await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
+
+  // [v3.0.6.11-103 Wave 2A] 报告总览: GET /reports/overview (各状态/今日完成/平均时效)
+  getOverview: () =>
+    api.get<{
+      total: number
+      todayCreated: number
+      todayCompleted: number
+      todaySigned: number
+      todayPublished: number
+      criticalCount: number
+      pendingCount: number
+      overdueCount: number
+      avgTurnaroundHours: number
+      byStatus: Record<string, number>
+    }>('/reports/overview'),
+
+  // [v3.0.6.11-103 Wave 2A] 医生维度报告统计: GET /reports/by-doctor
+  getByDoctor: () =>
+    api.get<{
+      items: Array<{ id: string; name: string; total: number; published: number; pending: number; avgTurnaroundHours: number }>
+      total: number
+    }>('/reports/by-doctor'),
+
+  // [v3.0.6.11-103 Wave 2A] 近 N 日报告趋势: GET /reports/daily-trend?days=
+  getDailyTrend: (days = 30) =>
+    api.get<{
+      items: Array<{ date: string; created: number; published: number; signed: number }>
+      total: number
+    }>(`/reports/daily-trend?days=${days}`),
+
+  // [v3.0.6.11-103 Wave 2A] 报告关联病灶列表: GET /reports/:id/lesions
+  getReportLesions: (id: string) =>
+    api.get<{ reportId: string; items: Array<Record<string, unknown>> }>(`/reports/${id}/lesions`),
+
+  // [v3.0.6.11-103 Wave 2A] 报告关联信息 (检查/患者/既往报告/随访/危急值): GET /reports/:id/related
+  getRelated: (id: string) =>
+    api.get<{
+      reportId: string
+      patient: { id: string; name: string; gender?: string; birthDate?: string; phone?: string } | null
+      exam: { id: string; accessionNumber?: string; modality?: string; bodyPart?: string; state?: string; scheduledAt?: string; completedAt?: string } | null
+      previousReports: Array<{ id: string; state?: string; findings?: string; conclusion?: string; createdAt?: string; isCritical?: boolean }>
+      followUpPlans: Array<{ id: string; planDate?: string; nextDate?: string; status?: string; note?: string }>
+      criticalValues: Array<{ id: string; description?: string; severity?: string; state?: string; createdAt?: string; linkedByReport?: boolean }>
+    }>(`/reports/${id}/related`),
+
+  // [v3.0.6.11-103 Wave 2A] 应用模板到报告 (后端合并): POST /reports/:id/templates-apply
+  applyTemplate: async (id: string, templateId: string, mode: 'append' | 'overwrite' = 'append') => {
+    const res = await api.post<ReportDto & { templateApplied?: { templateId: string; name: string; mode: string } }>(
+      `/reports/${id}/templates-apply`,
+      { templateId, mode },
+    )
+    await invalidateApiCache(`/reports/${id}`)
     return res
   },
 }

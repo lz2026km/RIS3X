@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Save,
   ArrowLeft,
   UserPlus,
   ChevronLeft,
@@ -9,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import type { GenderFilter, PatientTypeFilter, PatientFormData } from "./types";
+import { FormField, FormSubmitBar } from "../../components/common/FormField";
 
 interface RegistrationWizardProps {
   open: boolean;
@@ -832,18 +832,7 @@ export function PatientCreateForm({
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <div>
-          <label
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#334155",
-              marginBottom: 6,
-              display: "block",
-            }}
-          >
-            患者姓名 <span style={{ color: "#dc2626" }}>*</span>
-          </label>
+        <FormField label="患者姓名" required error={formErrors.name}>
           <input
             type="text"
             value={formData.name}
@@ -861,27 +850,8 @@ export function PatientCreateForm({
               boxSizing: "border-box",
             }}
           />
-          {formErrors.name && (
-            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
-              {formErrors.name}
-            </div>
-          )}
-        </div>
-        <div>
-          <label
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#334155",
-              marginBottom: 6,
-              display: "block",
-            }}
-          >
-            性别{" "}
-            <span style={{ color: "#dc2626" }} aria-label="必填">
-              *
-            </span>
-          </label>
+        </FormField>
+        <FormField label="性别" required>
           <div
             role="radiogroup"
             aria-label="性别"
@@ -912,7 +882,7 @@ export function PatientCreateForm({
               </label>
             ))}
           </div>
-        </div>
+        </FormField>
         <div>
           <label
             style={{
@@ -943,18 +913,7 @@ export function PatientCreateForm({
             }}
           />
         </div>
-        <div>
-          <label
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#334155",
-              marginBottom: 6,
-              display: "block",
-            }}
-          >
-            身份证号 <span style={{ color: "#dc2626" }}>*</span>
-          </label>
+        <FormField label="身份证号" required error={formErrors.idCard}>
           <input
             type="text"
             value={formData.idCard}
@@ -973,24 +932,8 @@ export function PatientCreateForm({
               boxSizing: "border-box",
             }}
           />
-          {formErrors.idCard && (
-            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
-              {formErrors.idCard}
-            </div>
-          )}
-        </div>
-        <div>
-          <label
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#334155",
-              marginBottom: 6,
-              display: "block",
-            }}
-          >
-            联系电话 <span style={{ color: "#dc2626" }}>*</span>
-          </label>
+        </FormField>
+        <FormField label="联系电话" required error={formErrors.phone}>
           <input
             type="tel"
             value={formData.phone}
@@ -1009,12 +952,7 @@ export function PatientCreateForm({
               boxSizing: "border-box",
             }}
           />
-          {formErrors.phone && (
-            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
-              {formErrors.phone}
-            </div>
-          )}
-        </div>
+        </FormField>
         <div>
           <label
             style={{
@@ -1338,40 +1276,11 @@ export function PatientCreateForm({
           borderTop: "1px solid var(--border-color)",
         }}
       >
-        <button
-          onClick={onCancel}
-          style={{
-            padding: "12px 24px",
-            borderRadius: 8,
-            border: "1px solid var(--border-color)",
-            background: "var(--bg-card)",
-            color: "#64748b",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          取消
-        </button>
-        <button
-          onClick={onSave}
-          style={{
-            padding: "12px 24px",
-            borderRadius: 8,
-            border: "none",
-            background: "#1e40af",
-            color: "#fff",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <Save size={16} />
-          保存患者信息
-        </button>
+        <FormSubmitBar
+          onCancel={onCancel}
+          onSubmit={onSave}
+          submitText="保存患者信息"
+        />
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
   Radio,
   Slider,
   Modal,
+  Table,
 } from "antd";
 import {
   Video,
@@ -37,10 +38,14 @@ import {
   Save,
   Send,
   Layers,
+  FileText,
+  ListTree,
+  Database,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 import { eyeApi } from "../../../services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 export const TeleConsultPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tele");
@@ -120,22 +125,98 @@ export const TeleConsultPage: React.FC = () => {
   const [teleSessions, setTeleSessions] = useState<any[]>([]);
   const [teleConsults, setTeleConsults] = useState<any[]>([]);
   const [teleStats, setTeleStats] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 远程阅片: 流状态/会话详情/意见答复
+  const [teleStreams, setTeleStreams] = useState<any[]>([]);
+  const [detailSessionId, setDetailSessionId] = useState<string>("");
+  const [sessionDetail, setSessionDetail] = useState<any>(null);
+  const [detailConsultId, setDetailConsultId] = useState<string>("");
+  const [consultDetail, setConsultDetail] = useState<any>(null);
+  const [answerText, setAnswerText] = useState("");
   useEffect(() => {
     (async () => {
       try {
-        const [sRes, cRes, stRes] = await Promise.all([
+        const [sRes, cRes, stRes, stmRes] = await Promise.all([
           eyeApi.listTeleSessions(),
           eyeApi.listTeleConsults(),
           eyeApi.getTeleStats(),
+          eyeApi.listTeleStreams(),
         ]);
         if (sRes.success) setTeleSessions(sRes.data || []);
         if (cRes.success) setTeleConsults(cRes.data || []);
         if (stRes.success) setTeleStats(stRes.data);
+        if (stmRes.success) setTeleStreams(stmRes.data || []);
       } catch (e) {
         console.warn("[F03] tele list Error:", (e as Error)?.message);
       }
     })();
   }, []);
+
+  // [v3.0.6.11-103 Wave 3A] 会话详情 / 结束会话
+  const handleSessionDetail = async () => {
+    if (!detailSessionId.trim()) return;
+    try {
+      const res = await eyeApi.getTeleSession(detailSessionId.trim());
+      if (res.success) {
+        setSessionDetail(res.data);
+        message.success("会话详情已加载");
+      }
+    } catch (e: any) {
+      setSessionDetail(null);
+      message.error(e.message);
+    }
+  };
+
+  const handleEndSession = async (sessionId: string) => {
+    try {
+      const res = await eyeApi.endTeleSession(sessionId);
+      if (res.success) {
+        message.success(`会话 ${res.data.sessionId} 已结束`);
+        setSessionDetail(null);
+        const sRes = await eyeApi.listTeleSessions();
+        if (sRes.success) setTeleSessions(sRes.data || []);
+      }
+    } catch (e: any) {
+      message.error(e.message);
+    }
+  };
+
+  // [v3.0.6.11-103 Wave 3A] 会诊记录详情 / 意见答复
+  const handleConsultDetail = async () => {
+    if (!detailConsultId.trim()) return;
+    try {
+      const res = await eyeApi.getTeleConsult(detailConsultId.trim());
+      if (res.success) {
+        setConsultDetail(res.data);
+        setAnswerText("");
+        message.success("会诊记录已加载");
+      }
+    } catch (e: any) {
+      setConsultDetail(null);
+      message.error(e.message);
+    }
+  };
+
+  const handleAnswerConsult = async () => {
+    if (!answerText.trim()) {
+      message.warning("请输入答复内容");
+      return;
+    }
+    try {
+      const res = await eyeApi.answerTeleConsult(detailConsultId.trim(), {
+        answer: answerText,
+        reviewedBy: "D005",
+      });
+      if (res.success) {
+        setConsultDetail(res.data);
+        setAnswerText("");
+        message.success("会诊意见已提交");
+        const cRes = await eyeApi.listTeleConsults();
+        if (cRes.success) setTeleConsults(cRes.data || []);
+      }
+    } catch (e: any) {
+      message.error(e.message);
+    }
+  };
 
   // 创建会诊
   const handleCreateSession = async () => {
@@ -819,6 +900,252 @@ export const TeleConsultPage: React.FC = () => {
                       </Row>
                     </Card>
                   )}
+                </Col>
+              </Row>
+            ),
+          },
+
+          // [v3.0.6.11-103 Wave 3A] 远程阅片: 流状态 / 会话详情 / 意见答复
+          {
+            key: "remote",
+            label: (
+              <span>
+                <MonitorSmartphone size={14} /> {t("eye.tele.remoteReading")}
+              </span>
+            ),
+            children: (
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Card
+                    title={
+                      <Space>
+                        <Database size={16} color="#0891b2" />
+                        {t("eye.tele.streams")}
+                        <Tag color="blue">{teleStreams.length}</Tag>
+                      </Space>
+                    }
+                    size="small"
+                  >
+                    {teleStreams.length === 0 ? (
+                      <Empty
+                        image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                        description={t("eye.common.noData")}
+                      />
+                    ) : (
+                      <Table
+                        size="small"
+                        rowKey="streamId"
+                        dataSource={teleStreams}
+                        pagination={{ pageSize: 5, showSizeChanger: false }}
+                        columns={[
+                          { title: "流 ID", dataIndex: "streamId" },
+                          { title: "检查号", dataIndex: "studyId" },
+                          { title: "目标医院", dataIndex: "targetHospital" },
+                          {
+                            title: "协议",
+                            dataIndex: "protocol",
+                            render: (v: string) => <Tag color="cyan">{v}</Tag>,
+                          },
+                          {
+                            title: "状态",
+                            dataIndex: "status",
+                            render: (v: string) => (
+                              <Tag color={v === "streaming" ? "green" : v === "starting" ? "orange" : "default"}>
+                                {v === "streaming" ? "传输中" : v === "starting" ? "启动中" : "已结束"}
+                              </Tag>
+                            ),
+                          },
+                          {
+                            title: "进度",
+                            render: (_, r: any) =>
+                              r.bytesTransferred
+                                ? `${(Number(r.bytesTransferred) / 1024 / 1024).toFixed(1)} MB`
+                                : "-",
+                          },
+                        ]}
+                        scroll={{ x: "max-content" }}
+                      />
+                    )}
+                  </Card>
+
+                  <Card
+                    title={
+                      <Space>
+                        <ListTree size={16} color="#2563eb" />
+                        {t("eye.tele.sessionDetail")}
+                      </Space>
+                    }
+                    size="small"
+                    style={{ marginTop: 16 }}
+                  >
+                    <Space.Compact style={{ width: "100%" }}>
+                      <Input
+                        placeholder="会话 ID (如 SES-20260701-001)"
+                        value={detailSessionId}
+                        onChange={(e) => setDetailSessionId(e.target.value)}
+                      />
+                      <Button type="primary" onClick={handleSessionDetail}>
+                        {t("eye.common.search")}
+                      </Button>
+                    </Space.Compact>
+                    {sessionDetail ? (
+                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                        <div>
+                          会话: {sessionDetail.sessionId} · 患者 {sessionDetail.patientId}
+                        </div>
+                        <div style={{ color: "var(--text-secondary)" }}>
+                          检查号: {sessionDetail.studyId} · 信令: {sessionDetail.signalingUrl}
+                        </div>
+                        <div style={{ color: "var(--text-secondary)" }}>
+                          开始于 {String(sessionDetail.startedAt ?? "").slice(0, 19).replace("T", " ")}
+                          {sessionDetail.endedAt
+                            ? ` · 结束于 ${String(sessionDetail.endedAt).slice(0, 19).replace("T", " ")}`
+                            : ""}
+                        </div>
+                        <Divider style={{ margin: "8px 0" }} />
+                        <Space>
+                          <Tag color={sessionDetail.status === "active" ? "green" : "default"}>
+                            {sessionDetail.status === "active" ? "进行中" : sessionDetail.status}
+                          </Tag>
+                          <Tag>{sessionDetail.mode}</Tag>
+                          <span>参与: {sessionDetail.participants?.join(" / ")}</span>
+                          {sessionDetail.status === "active" && (
+                            <Button
+                              size="small"
+                              danger
+                              onClick={() => handleEndSession(sessionDetail.sessionId)}
+                            >
+                              {t("eye.tele.endSession")}
+                            </Button>
+                          )}
+                        </Space>
+                        {sessionDetail.network && (
+                          <div style={{ marginTop: 8, color: "var(--text-secondary)" }}>
+                            5G 边缘: {sessionDetail.network.edgeNodeId} · 切片 {sessionDetail.network.slice} · P95 {sessionDetail.network.latencyP95}ms
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+                        {t("eye.common.noData")}
+                      </div>
+                    )}
+                  </Card>
+                </Col>
+
+                <Col span={12}>
+                  <Card
+                    title={
+                      <Space>
+                        <FileText size={16} color="#7c3aed" />
+                        {t("eye.tele.answer")}
+                      </Space>
+                    }
+                    size="small"
+                  >
+                    <Space.Compact style={{ width: "100%" }}>
+                      <Input
+                        placeholder="会诊记录 ID (如 CON-20260708-001)"
+                        value={detailConsultId}
+                        onChange={(e) => setDetailConsultId(e.target.value)}
+                      />
+                      <Button type="primary" onClick={handleConsultDetail}>
+                        {t("eye.common.search")}
+                      </Button>
+                    </Space.Compact>
+                    {consultDetail ? (
+                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                        <Alert
+                          title={`${consultDetail.specialistName ?? consultDetail.specialistId} · ${consultDetail.status === "pending" ? "待答复" : consultDetail.status}`}
+                          description={consultDetail.question}
+                          type={consultDetail.status === "pending" ? "info" : "success"}
+                          showIcon
+                        />
+                        {consultDetail.answer && (
+                          <div style={{ marginTop: 8 }}>
+                            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                              {t("eye.tele.existingAnswer")}:
+                            </div>
+                            <div style={{ color: "var(--text-secondary)" }}>
+                              {consultDetail.answer}
+                            </div>
+                          </div>
+                        )}
+                        {consultDetail.status === "pending" && (
+                          <>
+                            <Divider style={{ margin: "8px 0" }} />
+                            <Input.TextArea
+                              rows={3}
+                              placeholder={t("eye.tele.answerPlaceholder")}
+                              value={answerText}
+                              onChange={(e) => setAnswerText(e.target.value)}
+                            />
+                            <Button
+                              type="primary"
+                              block
+                              icon={<Send size={14} />}
+                              style={{ marginTop: 8 }}
+                              onClick={handleAnswerConsult}
+                            >
+                              {t("eye.tele.submitAnswer")}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: 12, fontSize: 12, color: "var(--text-secondary)" }}>
+                        {t("eye.common.noData")}
+                      </div>
+                    )}
+                  </Card>
+
+                  <Card
+                    title={
+                      <Space>
+                        <Activity size={16} color="#52c41a" />
+                        {t("eye.tele.consultRecords")}
+                      </Space>
+                    }
+                    size="small"
+                    style={{ marginTop: 16 }}
+                  >
+                    {teleConsults.length === 0 ? (
+                      <Empty
+                        image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                        description={t("eye.common.noData")}
+                      />
+                    ) : (
+                      <Table
+                        size="small"
+                        rowKey="consultId"
+                        dataSource={teleConsults}
+                        pagination={{ pageSize: 5, showSizeChanger: false }}
+                        columns={[
+                          { title: "记录 ID", dataIndex: "consultId" },
+                          { title: "专家", dataIndex: "specialistName" },
+                          {
+                            title: "问题",
+                            dataIndex: "question",
+                            ellipsis: true,
+                          },
+                          {
+                            title: "状态",
+                            dataIndex: "status",
+                            render: (v: string) => (
+                              <Tag color={v === "pending" ? "orange" : "green"}>
+                                {v === "pending" ? "待答复" : "已答复"}
+                              </Tag>
+                            ),
+                          },
+                          {
+                            title: "SLA",
+                            render: (_, r: any) => r.sla?.responseTime ?? "-",
+                          },
+                        ]}
+                        scroll={{ x: "max-content" }}
+                      />
+                    )}
+                  </Card>
                 </Col>
               </Row>
             ),

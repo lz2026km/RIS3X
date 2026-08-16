@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/a11y/SkipLink";
+import { ActionButton } from "./ActionButton";
 
 export interface AppModalProps {
   open: boolean;
@@ -22,15 +23,32 @@ export interface AppModalProps {
   className?: string;
   contentStyle?: CSSProperties;
   zIndex?: number;
+  /** 统一宽度四档: sm=420 / md=560 / lg=720 / xl=960 */
   size?: "sm" | "md" | "lg" | "xl";
   testId?: string;
+  /* ---- [v3.0.6.11-103 Wave 7] footer 标准按钮预设 (footer 未传时生效) ---- */
+  /** 确认按钮文案 (默认 "确认") */
+  confirmText?: string;
+  /** 取消按钮文案 (默认 "取消") */
+  cancelText?: string;
+  /** 确认回调 (标准 footer: 取消 + 确认) */
+  onOk?: () => void;
+  /** 取消回调 (默认走 onClose) */
+  onCancel?: () => void;
+  /** 确认按钮加载态 */
+  okLoading?: boolean;
+  /** 确认按钮禁用 */
+  okDisabled?: boolean;
+  /** 危险确认 (确认按钮变 danger variant) */
+  danger?: boolean;
 }
 
+/** [v3.0.6.11-103 Wave 7] 统一宽度四档: 420 / 560 / 720 / 960 */
 const SIZE_WIDTH: Record<NonNullable<AppModalProps["size"]>, number> = {
-  sm: 360,
-  md: 480,
-  lg: 640,
-  xl: 840,
+  sm: 420,
+  md: 560,
+  lg: 720,
+  xl: 960,
 };
 
 const Z_MODAL = "var(--z-modal, 500)";
@@ -57,6 +75,13 @@ export function AppModal({
   zIndex,
   size = "md",
   testId,
+  confirmText = "确认",
+  cancelText = "取消",
+  onOk,
+  onCancel,
+  okLoading = false,
+  okDisabled = false,
+  danger = false,
 }: AppModalProps) {
   const containerRef = useFocusTrap(open);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -263,7 +288,7 @@ export function AppModal({
           >
             {children}
           </div>
-          {footer !== undefined && footer !== null && (
+          {footer !== undefined && footer !== null ? (
             <div
               style={{
                 padding: "12px 20px",
@@ -276,7 +301,36 @@ export function AppModal({
             >
               {footer}
             </div>
-          )}
+          ) : onOk ? (
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid var(--border-color)",
+                background: "var(--bg-primary)",
+                display: "flex",
+                gap: 10,
+                justifyContent: "flex-end",
+              }}
+            >
+              <ActionButton
+                action="cancel"
+                onClick={onCancel ?? onClose}
+                data-testid={testId ? `${testId}-footer-cancel` : undefined}
+              >
+                {cancelText}
+              </ActionButton>
+              <ActionButton
+                action={danger ? "delete" : "submit"}
+                variant={danger ? "danger" : "primary"}
+                loading={okLoading}
+                disabled={okDisabled}
+                onClick={onOk}
+                data-testid={testId ? `${testId}-footer-ok` : undefined}
+              >
+                {confirmText}
+              </ActionButton>
+            </div>
+          ) : null}
         </div>
       </div>
       <style>{`

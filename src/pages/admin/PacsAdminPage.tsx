@@ -13,12 +13,13 @@ import {
   type PacsConfig,
   type PacsRoute,
 } from '../../services/api/pacsAdminApi'
-import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs } from 'antd'
-import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser, Edit3 } from 'lucide-react'
+import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs, Drawer, Descriptions } from 'antd'
+import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser, Edit3, Eye } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 // [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
 import { usePagination } from '../../hooks/usePagination'
 import { displayExamStatus } from '../../utils/statusMaps'
+import { t } from '../../i18n/appI18n'
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -50,6 +51,10 @@ const PacsAdminPage: React.FC = () => {
   // [G005 v3.0.6.11-91 W1-B P1 第12轮] updateServer/deleteStorageGroup 接入: 编辑服务器 / 删除存储组
   const [editingServer, setEditingServer] = useState<PacsServer | null>(null)
   const [deletingStorageId, setDeletingStorageId] = useState<string | null>(null)
+  // [v3.0.6.11-103 Wave 4A] 服务器详情 Drawer (GET /pacs-admin/servers/:id)
+  const [detailServer, setDetailServer] = useState<PacsServer | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
   // [G005 2B] 受控分页 (数据可增长)
   const nodePage = usePagination(nodes, 10)
   const serverPage = usePagination(servers, 10)
@@ -142,6 +147,22 @@ const PacsAdminPage: React.FC = () => {
 
   const handleServerModalOk = () => (editingServer ? handleUpdateServer() : handleAddServer())
 
+  // [v3.0.6.11-103 Wave 4A] 服务器详情 (getServer)
+  const handleViewServer = async (id: string) => {
+    setDetailLoading(true)
+    setDetailOpen(true)
+    setDetailServer(null)
+    try {
+      const res = await pacsAdminApi.getServer(id)
+      if (res.success && res.data) setDetailServer(res.data as PacsServer)
+      else message.error(res.error?.message ?? '服务器详情加载失败')
+    } catch {
+      message.error('服务器详情加载失败')
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   const handleDeleteServer = async (id: string) => {
     const res = await pacsAdminApi.deleteServer(id)
     if (res.success) { message.success('已删除'); void fetchData() }
@@ -229,9 +250,10 @@ const PacsAdminPage: React.FC = () => {
     { title: '检查数', dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
     { title: '存储', dataIndex: 'storageBytes', key: 'storage', width: 100, render: (v: number) => formatBytes(v ?? 0) },
     {
-      title: '操作', key: 'ops', width: 210,
+      title: '操作', key: 'ops', width: 250,
       render: (_: unknown, r: PacsServer) => (
         <Space size={4}>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => void handleViewServer(r.id)}>{t('pacsAdmin.detail')}</Button>
           <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestConnection(r.id)}>测试</Button>
           <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEditServer(r)}>编辑</Button>
           <Popconfirm title="确认删除该服务器？" onConfirm={() => void handleDeleteServer(r.id)}>
@@ -485,6 +507,44 @@ const PacsAdminPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* [v3.0.6.11-103 Wave 4A] 服务器详情 Drawer (GET /pacs-admin/servers/:id) */}
+      <Drawer
+        title={t('pacsAdmin.serverDetail')}
+        width={460}
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => detailServer && void handleViewServer(detailServer.id)}>刷新</Button>}
+      >
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+        ) : detailServer ? (
+          <Descriptions column={1} size="small" bordered>
+            <Descriptions.Item label={t('pacsAdmin.name')}>
+              <Space><Server size={14} color="#2563eb" /><b>{detailServer.name}</b><Tag>{detailServer.aeTitle}</Tag></Space>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.host')}>
+              <Typography.Text style={{ fontFamily: 'monospace' }}>{detailServer.hostname}:{detailServer.port}</Typography.Text>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.aeTitle')}>
+              <Tag color="blue">{detailServer.aeTitle}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.status')}>
+              <Tag color={detailServer.status === 'online' ? 'green' : detailServer.status === 'error' ? 'red' : 'default'} icon={detailServer.status === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>
+                {detailServer.status === 'online' ? '在线' : detailServer.status === 'error' ? '故障' : '离线'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.lastHeartbeat')}>
+              {detailServer.lastHeartbeat ? detailServer.lastHeartbeat.replace('T', ' ').slice(0, 19) : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.storage')}>{formatBytes(detailServer.storageBytes ?? 0)}</Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.studies')}>{detailServer.studyCount?.toLocaleString() ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label={t('pacsAdmin.series')}>{detailServer.seriesCount?.toLocaleString() ?? '-'}</Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <Alert type="error" showIcon message={t('pacsAdmin.detailFailed')} />
+        )}
+      </Drawer>
     </div>
   )
 }

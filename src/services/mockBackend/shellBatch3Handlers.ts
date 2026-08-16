@@ -380,6 +380,96 @@ export const shellBatch3Handlers = [
     return HttpResponse.json(ok({ text, codes }));
   }),
 
+  // [v3.0.6.11-103 Wave 17] 自动编码: 报告文本 → 诊断词 → SNOMED + ICD-10 (确定性规则)
+  http.post(`${API_BASE}/snomed/auto-encode`, async ({ request }) => {
+    await delay(delayMs(200, 400));
+    const body = (await request.json()) as { text?: string };
+    const text = String(body?.text ?? '').trim();
+    if (!text) return HttpResponse.json(ok({ text, terms: [], total: 0, confirmed: 0 }));
+
+    const AUTO_DICT: Array<{ keyword: string; snomed: string[]; icd10: string[] }> = [
+      { keyword: '磨玻璃', snomed: ['427283000'], icd10: ['R91.1'] },
+      { keyword: '结节', snomed: ['30092000'], icd10: ['R91.1'] },
+      { keyword: '毛刺征', snomed: ['45321009'], icd10: ['R91.8'] },
+      { keyword: '钙化', snomed: ['473840003'], icd10: ['R91.8'] },
+      { keyword: '胸腔积液', snomed: ['79619009'], icd10: ['J90'] },
+      { keyword: '肺气肿', snomed: ['87433001'], icd10: ['J43.9'] },
+      { keyword: '肺炎', snomed: ['233604007'], icd10: ['J18.9'] },
+      { keyword: '肝硬化', snomed: ['19943007'], icd10: ['K74.6'] },
+      { keyword: '肝囊肿', snomed: ['40845000'], icd10: ['K76.89'] },
+      { keyword: '骨折', snomed: ['125605004'], icd10: ['T14.2'] },
+      { keyword: '脑梗死', snomed: ['432504006'], icd10: ['I63.9'] },
+      { keyword: '水肿', snomed: ['79654002'], icd10: ['R60.9'] },
+      { keyword: '肿瘤', snomed: ['363346000'], icd10: ['C80.1'] },
+    ];
+    const SNOMED_PT: Record<string, { pt: string; fsn: string; tag: string }> = {
+      '427283000': { pt: 'Ground glass opacity', fsn: 'Ground glass opacity (morphologic abnormality)', tag: 'morphologic abnormality' },
+      '30092000': { pt: 'Nodule', fsn: 'Nodule (morphologic abnormality)', tag: 'morphologic abnormality' },
+      '45321009': { pt: 'Spiculated lesion', fsn: 'Spiculated lesion (morphologic abnormality)', tag: 'morphologic abnormality' },
+      '473840003': { pt: 'Calcification', fsn: 'Calcification (morphologic abnormality)', tag: 'morphologic abnormality' },
+      '79619009': { pt: 'Pleural effusion', fsn: 'Pleural effusion (disorder)', tag: 'disorder' },
+      '87433001': { pt: 'Pulmonary emphysema', fsn: 'Pulmonary emphysema (disorder)', tag: 'disorder' },
+      '233604007': { pt: 'Pneumonia', fsn: 'Pneumonia (disorder)', tag: 'disorder' },
+      '19943007': { pt: 'Cirrhosis of liver', fsn: 'Cirrhosis of liver (disorder)', tag: 'disorder' },
+      '40845000': { pt: 'Cyst of liver', fsn: 'Cyst of liver (disorder)', tag: 'disorder' },
+      '125605004': { pt: 'Fracture of bone', fsn: 'Fracture of bone (disorder)', tag: 'disorder' },
+      '432504006': { pt: 'Cerebral infarction', fsn: 'Infarction of brain (disorder)', tag: 'disorder' },
+      '79654002': { pt: 'Edema', fsn: 'Edema (finding)', tag: 'finding' },
+      '363346000': { pt: 'Malignant neoplasm', fsn: 'Malignant neoplastic disease (disorder)', tag: 'disorder' },
+    };
+    const ICD10_TITLE: Record<string, string> = {
+      'R91.1': '肺部结节影像学发现', 'R91.8': '肺其他影像学异常发现', 'J90': '胸腔积液',
+      'J43.9': '肺气肿,未特指', 'J18.9': '肺炎,病原体未特指', 'K74.6': '其他及未特指的肝硬化',
+      'K76.89': '其他特指的肝脏疾病', 'T14.2': '身体未特指部位的骨折', 'I63.9': '脑梗死,未特指',
+      'R60.9': '水肿,未特指', 'C80.1': '恶性肿瘤,未特指部位',
+    };
+    const terms: any[] = [];
+    const seenSpans = new Set<string>();
+    const ordered = [...AUTO_DICT].sort((a, b) => b.keyword.length - a.keyword.length);
+    for (const item of ordered) {
+      let from = 0;
+      while (true) {
+        const idx = text.indexOf(item.keyword, from);
+        if (idx === -1) break;
+        const spanKey = `${idx}-${idx + item.keyword.length}`;
+        const overlap = Array.from(seenSpans).some((k) => {
+          const [s, e] = k.split('-').map(Number);
+          return idx < (e as number) && idx + item.keyword.length > (s as number);
+        });
+        if (!overlap) {
+          seenSpans.add(spanKey);
+          const base = item.keyword.length >= 3 ? 0.92 : 0.8;
+          terms.push({
+            keyword: item.keyword,
+            matched: true,
+            sourcePhrase: item.keyword,
+            start: idx,
+            end: idx + item.keyword.length,
+            section: idx < text.indexOf('【印象】') || text.indexOf('【印象】') === -1 ? 'findings' : 'impression',
+            snomed: item.snomed.map((id) => ({
+              conceptId: id,
+              pt: SNOMED_PT[id]?.pt ?? id,
+              fsn: SNOMED_PT[id]?.fsn ?? id,
+              semanticTag: SNOMED_PT[id]?.tag ?? 'disorder',
+              matchType: 'exact',
+              confidence: base,
+            })),
+            icd10: item.icd10.map((code) => ({
+              code,
+              title: ICD10_TITLE[code] ?? code,
+              matchType: 'exact',
+              confidence: base,
+            })),
+            confidence: base,
+          });
+        }
+        from = idx + item.keyword.length;
+      }
+    }
+    terms.sort((a, b) => a.start - b.start);
+    return HttpResponse.json(ok({ text, terms, total: terms.length, confirmed: terms.filter((t) => t.confidence >= 0.9).length }));
+  }),
+
   // ========== Terminology ==========
   http.get(`${API_BASE}/terminology/mappings`, async () => {
     await delay(delayMs());

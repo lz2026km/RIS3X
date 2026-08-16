@@ -3,12 +3,24 @@
  * 从 CriticalValue 表派生告警 (未闭环 + escalated), 支持确认/解决/升级/创建。
  * DB 不可用时回退内置种子告警, 保证前端 CriticalAlertPage 可用。
  */
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 
 export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'escalated'
 export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency'
+
+// [v3.0.6.11-103 Wave 13] 危急值 5 步流程: 触发→通知→确认→处置→记录 (闭环)
+export type CriticalFlowStep = 'triggered' | 'notified' | 'confirmed' | 'treating' | 'closed'
+export type CriticalFlowStatus = CriticalFlowStep | 'escalated'
+
+export interface CriticalFlowSteps {
+  triggered?: string
+  notified?: string
+  confirmed?: string
+  treating?: string
+  closed?: string
+}
 
 export interface CriticalAlertItem {
   id: string
@@ -28,6 +40,10 @@ export interface CriticalAlertItem {
   resolvedAt?: string
   // [G005 Wave 8] 报告→危急值反向引用: 来源报告 ID (报告详情「危急值」区块反查)
   reportId?: string
+  // [v3.0.6.11-103 Wave 13] 5 步流程: 当前步骤索引 (0-4, -1=已升级) + 各步时间戳
+  step?: number
+  flowStatus?: CriticalFlowStatus
+  flowSteps?: CriticalFlowSteps
 }
 
 export interface CriticalAlertStats {
@@ -109,6 +125,36 @@ const STATE_TO_STATUS: Record<string, AlertStatus> = {
 // 未闭环状态 (告警列表范围): 非终态或已升级
 const OPEN_STATES = new Set(['FOUND', 'NOTIFIED', 'VOICE_CALLED', 'RECEIPTED', 'RESOLVING', 'ACKNOWLEDGED', 'ESCALATED'])
 
+// [v3.0.6.11-103 Wave 13] 5 步流程: 状态 → 步骤索引 (0 触发 / 1 通知 / 2 确认 / 3 处置 / 4 记录闭环; -1=已升级)
+const STATE_STEP: Record<string, number> = {
+  FOUND: 0,
+  NOTIFIED: 1,
+  VOICE_CALLED: 1,
+  RECEIPTED: 2,
+  ACKNOWLEDGED: 2,
+  RESOLVING: 3,
+  RESOLVED: 4,
+  CLOSED_LOOP: 4,
+  CANCELLED: 4,
+  ESCALATED: -1,
+}
+
+export const CRITICAL_FLOW_STEPS: CriticalFlowStep[] = ['triggered', 'notified', 'confirmed', 'treating', 'closed']
+
+// 每步可执行时的前置状态集合 (不能跳步)
+const NOTIFY_FROM = ['FOUND']
+const CONFIRM_FROM = ['NOTIFIED', 'VOICE_CALLED']
+const TREAT_FROM = ['RECEIPTED', 'ACKNOWLEDGED']
+const CLOSE_FROM = ['RESOLVING']
+
+// 种子告警 (无 DB state) 从 status 推导步骤状态
+const SEED_STATE_FROM_STATUS: Record<string, string> = {
+  active: 'FOUND',
+  acknowledged: 'ACKNOWLEDGED',
+  resolved: 'RESOLVED',
+  escalated: 'ESCALATED',
+}
+
 const SEED_ALERTS: CriticalAlertItem[] = [
   { id: 'CA-001', patientId: 'RAD-P003', patientName: '李明', studyId: 'S20260801001', modality: 'CT', alertType: 'critical_value', severity: 'critical', title: '胸部CT危急值: 主动脉夹层可能', description: 'CTA 显示主动脉增宽伴内膜片, 疑似主动脉夹层, 需立即处理。', status: 'active', createdAt: new Date(Date.now() - 45 * 60_000).toISOString() },
   { id: 'CA-002', patientId: 'RAD-P001', patientName: '张伟', studyId: 'S20260801002', modality: 'MR', alertType: 'critical_value', severity: 'emergency', title: '头颅MR: 急性大面积脑梗死', description: 'DWI 显示左侧大脑中动脉供血区大面积高信号, 急诊处理。', status: 'acknowledged', acknowledgedBy: 'Dr. 王浩', acknowledgedAt: new Date(Date.now() - 120 * 60_000).toISOString(), createdAt: new Date(Date.now() - 3 * 3600_000).toISOString() },
@@ -138,6 +184,11 @@ export class CriticalAlertService {
   /** [G005 Wave 2A] 电话/短信网关内存记录 */
   private readonly callLogs: CallLog[] = [...SEED_CALL_LOGS]
   private readonly smsLogs: SmsLog[] = [...SEED_SMS_LOGS]
+
+  /** [v3.0.6.11-103 Wave 13] 5 步流程内存状态 (DB 不可用/种子告警时覆盖派生) */
+  private readonly flowState = new Map<string, string>()
+  /** [v3.0.6.11-103 Wave 13] 5 步流程各步时间戳内存记录 (处置步骤无 DB 列, 走内存) */
+  private readonly flowStepsMem = new Map<string, CriticalFlowSteps>()
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -239,11 +290,20 @@ export class CriticalAlertService {
   }
 
   private toAlert(cv: any): CriticalAlertItem {
-    const state = String(cv.state ?? 'FOUND')
+    const state = String(this.flowState.get(cv.id) ?? cv.state ?? 'FOUND')
     const patient = cv.patient ?? {}
     const exam = cv.exam ?? {}
     const severity = SEVERITY_MAP[String(cv.severity ?? 'HIGH')] ?? 'warning'
     const extra = this.extras.get(cv.id)
+    const memSteps = this.flowStepsMem.get(cv.id)
+    const step = STATE_STEP[state] ?? 0
+    const flowSteps: CriticalFlowSteps = {
+      triggered: cv.createdAt ? new Date(cv.createdAt).toISOString() : memSteps?.triggered,
+      notified: cv.voiceCalledAt ? new Date(cv.voiceCalledAt).toISOString() : memSteps?.notified,
+      confirmed: cv.confirmedAt ? new Date(cv.confirmedAt).toISOString() : memSteps?.confirmed,
+      treating: memSteps?.treating,
+      closed: cv.closedAt ? new Date(cv.closedAt).toISOString() : memSteps?.closed,
+    }
     const item: CriticalAlertItem = {
       id: cv.id,
       patientId: cv.patientId ?? patient.id,
@@ -262,22 +322,47 @@ export class CriticalAlertService {
       resolvedAt: cv.resolvedAt ? new Date(cv.resolvedAt).toISOString() : undefined,
       // [G005 Wave 8] 报告→危急值反向引用 (内存 extras)
       reportId: extra?.reportId ?? (cv as any).reportId,
+      // [v3.0.6.11-103 Wave 13] 5 步流程: 步骤索引 + 状态 + 各步时间戳
+      step,
+      flowStatus: step < 0 ? 'escalated' : CRITICAL_FLOW_STEPS[Math.min(step, 4)],
+      flowSteps,
     }
     return item
   }
 
+  /** [v3.0.6.11-103 Wave 13] 种子告警 (无 DB state) 的 5 步流程派生: 内存状态/时间戳覆盖 */
+  private withSeedFlow(a: CriticalAlertItem): CriticalAlertItem {
+    const mem = this.flowStepsMem.get(a.id)
+    const st = this.flowState.get(a.id)
+    const state = st ?? SEED_STATE_FROM_STATUS[a.status] ?? 'FOUND'
+    const step = STATE_STEP[state] ?? 0
+    const flowSteps: CriticalFlowSteps = {
+      triggered: mem?.triggered ?? a.createdAt,
+      notified: mem?.notified,
+      confirmed: mem?.confirmed ?? a.acknowledgedAt,
+      treating: mem?.treating,
+      closed: mem?.closed ?? a.resolvedAt,
+    }
+    return {
+      ...a,
+      step,
+      flowStatus: step < 0 ? 'escalated' : CRITICAL_FLOW_STEPS[Math.min(step, 4)],
+      flowSteps,
+    }
+  }
+
   private async deriveAlerts(): Promise<CriticalAlertItem[]> {
     const values = await this.fetchValues()
-    if (!values) return SEED_ALERTS.map((a) => ({ ...a, assignee: this.extras.get(a.id)?.assignee ?? a.assignee }))
+    if (!values) return SEED_ALERTS.map((a) => this.withSeedFlow({ ...a, assignee: this.extras.get(a.id)?.assignee ?? a.assignee }))
     return values
-      .filter((cv: any) => OPEN_STATES.has(String(cv.state ?? 'FOUND')))
+      .filter((cv: any) => OPEN_STATES.has(String(this.flowState.get(cv.id) ?? cv.state ?? 'FOUND')))
       .map((cv: any) => this.toAlert(cv))
   }
 
   private async deriveStats(): Promise<CriticalAlertStats> {
     const values = await this.fetchValues()
     if (!values) {
-      return this.statsFromAlerts(SEED_ALERTS.map((a) => ({ ...a, assignee: this.extras.get(a.id)?.assignee ?? a.assignee })))
+      return this.statsFromAlerts(SEED_ALERTS.map((a) => this.withSeedFlow({ ...a, assignee: this.extras.get(a.id)?.assignee ?? a.assignee })))
     }
     const alerts = values.map((cv: any) => this.toAlert(cv))
     return this.statsFromAlerts(alerts)
@@ -321,8 +406,124 @@ export class CriticalAlertService {
   async getAlert(id: string): Promise<CriticalAlertItem> {
     const alerts = await this.deriveAlerts()
     const hit = alerts.find((a) => a.id === id)
-    if (!hit) throw new NotFoundException(`Critical alert ${id} not found`)
-    return hit
+    if (hit) return hit
+    // [v3.0.6.11-103 Wave 13] 终态 (已闭环/已解决) 告警: 直接查库/种子, 保证闭环后详情仍可查
+    try {
+      const cv = await this.prisma.criticalValue.findUnique({ where: { id } })
+      if (cv) return this.toAlert(cv)
+    } catch {
+      /* DB 不可用 */
+    }
+    const seed = SEED_ALERTS.find((a) => a.id === id)
+    if (seed) return this.withSeedFlow({ ...seed, assignee: this.extras.get(id)?.assignee ?? seed.assignee })
+    throw new NotFoundException(`Critical alert ${id} not found`)
+  }
+
+  // ================= [v3.0.6.11-103 Wave 13] 危急值 5 步流程 (触发→通知→确认→处置→记录) =================
+
+  /** 当前 5 步流程状态 (内存优先, 其次 DB, 最后种子) */
+  private async currentFlowState(id: string): Promise<string> {
+    if (this.flowState.has(id)) return this.flowState.get(id)!
+    try {
+      const cv = await this.prisma.criticalValue.findUnique({ where: { id } })
+      if (cv) return String((cv as any).state ?? 'FOUND')
+    } catch {
+      /* DB 不可用 */
+    }
+    const seed = SEED_ALERTS.find((a) => a.id === id)
+    if (seed) return SEED_STATE_FROM_STATUS[seed.status] ?? 'FOUND'
+    return 'FOUND'
+  }
+
+  /** 落库/落内存 5 步状态 (DB 不可用时回退内存 + 种子 status 同步) */
+  private async persistFlowState(id: string, state: string, extra?: Record<string, unknown>): Promise<void> {
+    try {
+      await this.prisma.criticalValue.update({
+        where: { id },
+        data: { state, ...(extra ?? {}) } as any,
+      })
+    } catch {
+      this.flowState.set(id, state)
+      const seed = SEED_ALERTS.find((a) => a.id === id)
+      if (seed) {
+        seed.status = STATE_TO_STATUS[state] ?? 'active'
+        if (state === 'VOICE_CALLED' || state === 'RECEIPTED' || state === 'RESOLVING' || state === 'NOTIFIED') seed.status = 'active'
+        if (state === 'RESOLVED' || state === 'CLOSED_LOOP') seed.status = 'resolved'
+      }
+    }
+  }
+
+  private recordFlowStep(id: string, key: keyof CriticalFlowSteps): void {
+    const prev = this.flowStepsMem.get(id) ?? {}
+    this.flowStepsMem.set(id, { ...prev, [key]: new Date().toISOString() })
+  }
+
+  private assertFlowStep(id: string, state: string, allowedFrom: string[], action: string, actionLabel: string): void {
+    if (!allowedFrom.includes(state)) {
+      throw new BadRequestException(
+        `INVALID_FLOW_STEP: 危急值 ${id} 当前步骤 ${STATE_STEP[state] ?? -1} (${state}), ${actionLabel}仅允许在「${action}」步骤后执行, 不能跳步`,
+      )
+    }
+  }
+
+  /**
+   * 步骤 2 通知: FOUND → NOTIFIED (短信) / VOICE_CALLED (电话)
+   * 记录通知时间戳 (voiceCalledAt 列 / 内存), 关联 notifiedTo 接收人。
+   */
+  async notify(id: string, dto: { method?: 'phone' | 'sms'; phone?: string; recipient?: string } = {}): Promise<CriticalAlertItem> {
+    await this.ensureExists(id)
+    const state = await this.currentFlowState(id)
+    this.assertFlowStep(id, state, NOTIFY_FROM, 'notify', '通知')
+    const isPhone = dto.method === 'phone'
+    const toState = isPhone ? 'VOICE_CALLED' : 'NOTIFIED'
+    const recipient = dto.recipient?.trim() || dto.phone?.trim() || undefined
+    await this.persistFlowState(id, toState, {
+      voiceCalledAt: new Date(),
+      voiceCalledBy: recipient ?? '当前用户',
+      ...(recipient ? { notifiedTo: recipient } : {}),
+    })
+    this.recordFlowStep(id, 'notified')
+    await this.recordAudit('FLOW_NOTIFY', id, { method: isPhone ? 'phone' : 'sms', phone: dto.phone, recipient, toState })
+    return this.getAlert(id)
+  }
+
+  /** 步骤 3 确认: NOTIFIED/VOICE_CALLED → RECEIPTED (接收人确认), 记录 confirmedAt/confirmedBy/comment */
+  async confirm(id: string, dto: { receiver?: string; comment?: string } = {}): Promise<CriticalAlertItem> {
+    await this.ensureExists(id)
+    const state = await this.currentFlowState(id)
+    this.assertFlowStep(id, state, CONFIRM_FROM, 'confirm', '确认')
+    const receiver = dto.receiver?.trim() || '当前用户'
+    await this.persistFlowState(id, 'RECEIPTED', {
+      confirmedBy: receiver,
+      confirmedAt: new Date(),
+      ...(dto.comment?.trim() ? { confirmedComment: dto.comment.trim() } : {}),
+    })
+    this.recordFlowStep(id, 'confirmed')
+    await this.recordAudit('FLOW_CONFIRM', id, { receiver, comment: dto.comment, toState: 'RECEIPTED' })
+    return this.getAlert(id)
+  }
+
+  /** 步骤 4 处置: RECEIPTED/ACKNOWLEDGED → RESOLVING (医嘱/处理中), 记录处置时间戳 */
+  async treat(id: string, dto: { treatment?: string; orders?: string } = {}): Promise<CriticalAlertItem> {
+    await this.ensureExists(id)
+    const state = await this.currentFlowState(id)
+    this.assertFlowStep(id, state, TREAT_FROM, 'treat', '处置')
+    await this.persistFlowState(id, 'RESOLVING')
+    this.recordFlowStep(id, 'treating')
+    await this.recordAudit('FLOW_TREAT', id, { treatment: dto.treatment, orders: dto.orders, toState: 'RESOLVING' })
+    return this.getAlert(id)
+  }
+
+  /** 步骤 5 记录 (闭环): RESOLVING → CLOSED_LOOP, 记录 closedAt/closedBy + 闭环摘要 */
+  async close(id: string, dto: { summary?: string; closedBy?: string } = {}): Promise<CriticalAlertItem> {
+    await this.ensureExists(id)
+    const state = await this.currentFlowState(id)
+    this.assertFlowStep(id, state, CLOSE_FROM, 'close', '记录闭环')
+    const closedBy = dto.closedBy?.trim() || '当前用户'
+    await this.persistFlowState(id, 'CLOSED_LOOP', { closedBy, closedAt: new Date() })
+    this.recordFlowStep(id, 'closed')
+    await this.recordAudit('FLOW_CLOSE', id, { closedBy, summary: dto.summary, toState: 'CLOSED_LOOP' })
+    return this.getAlert(id)
   }
 
   async acknowledge(id: string, dto: { comment?: string } = {}): Promise<CriticalAlertItem> {
@@ -429,8 +630,9 @@ export class CriticalAlertService {
         })
         id = created.id
       } catch {
+        // [v3.0.6.11-103 Wave 13] id 保证唯一 (同毫秒多次创建不冲突)
         const item: CriticalAlertItem = {
-          id: `CA-${Date.now()}`,
+          id: `CA-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
           patientId: dto.patientId,
           patientName: dto.patientName ?? '未知患者',
           studyId: dto.studyId,

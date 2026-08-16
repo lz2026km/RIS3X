@@ -3,7 +3,8 @@
  * - 规则 seed (10 条) + 关键词匹配
  * - createFollowUpFromReport: 模板存在走 generateFromTemplate, 缺失回退直接创建
  * - 触发模式: hint 默认仅提示 / auto 自动创建
- * - reports.service transition(SUBMITTED) 后置钩子: auto 模式创建计划 + auditLog
+ * - reports.service transition(PUBLISHED) 后置钩子: auto 模式创建计划 + auditLog
+ * [v3.0.6.11-103 Wave 13] 触发点强化: SUBMITTED → PUBLISHED (报告发布后按规则自动创建)
  */
 import { ReportsService } from '../src/reports/reports.service'
 import { FollowUpService } from '../src/modules/followup/followup.service'
@@ -147,7 +148,7 @@ describe('FollowUpTriggerRules (报告→随访自动触发)', () => {
     expect(info.mode).toBe('hint')
   })
 
-  it('ReportsService.transition(SUBMITTED) post-hook auto-creates follow-up plans + audit when mode=auto', async () => {
+  it('ReportsService.transition(PUBLISHED) post-hook auto-creates follow-up plans + audit when mode=auto', async () => {
     const followUpPlanCreate = makePlanCreate()
     const auditCreate = jest.fn().mockResolvedValue({})
     const report = {
@@ -156,7 +157,7 @@ describe('FollowUpTriggerRules (报告→随访自动触发)', () => {
       patientId: 'P-100',
       patient: { name: '王五' },
       examId: 'E-100',
-      state: 'WRITING',
+      state: 'SIGNED',
       impression: '右肺上叶可见磨玻璃样结节影',
       conclusion: '',
       findings: '结节大小约 0.8cm,建议随访复查',
@@ -178,16 +179,16 @@ describe('FollowUpTriggerRules (报告→随访自动触发)', () => {
       undefined,
       followUp,
     )
-    await service.transition('R-100', 'SUBMITTED', 'U-1')
+    await service.transition('R-100', 'PUBLISHED', 'U-1')
     expect(followUpPlanCreate).toHaveBeenCalled()
     expect(auditCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ action: 'FOLLOWUP_TRIGGER', resourceId: 'R-100' }) }))
   })
 
-  it('ReportsService.transition(SUBMITTED) does NOT create plans in hint mode (默认仅提示)', async () => {
+  it('ReportsService.transition(PUBLISHED) does NOT create plans in hint mode (默认仅提示)', async () => {
     const followUpPlanCreate = makePlanCreate()
     const report = {
       id: 'R-101', tenantId: 't1', patientId: 'P-101', patient: { name: '赵六' },
-      examId: null, state: 'WRITING', impression: '右肺上叶磨玻璃影', conclusion: '', findings: '',
+      examId: null, state: 'SIGNED', impression: '右肺上叶磨玻璃影', conclusion: '', findings: '',
       createdAt: new Date(), updatedAt: new Date(),
     }
     const prisma = makePrisma({
@@ -198,7 +199,7 @@ describe('FollowUpTriggerRules (报告→随访自动触发)', () => {
     })
     const followUp = new FollowUpService(prisma as never, makeSystemConfig({}))
     const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}), undefined, followUp)
-    await service.transition('R-101', 'SUBMITTED', 'U-1')
+    await service.transition('R-101', 'PUBLISHED', 'U-1')
     expect(followUpPlanCreate).not.toHaveBeenCalled()
   })
 })

@@ -1,11 +1,16 @@
 ﻿// [W1-5] 导出审批中心 — 申请列表/状态筛选/审批操作/新建申请
+// [v3.0.6.11-103 Wave 9] KPI 统计卡 + i18n + 标准 ActionButton
 // 后端: POST /export-approval, GET /export-approval, POST /export-approval/:id/approve|reject
 import { useState, useEffect, useCallback } from 'react'
+import type { CSSProperties } from 'react'
 import { Modal, Input, Select, message, Spin } from 'antd'
-import { FileDown, Plus, RefreshCw, Check, X, Clock, Loader2, ShieldCheck, FileText } from 'lucide-react'
+import { FileDown, Plus, RefreshCw, Check, X, Clock, Loader2, ShieldCheck, FileText, Inbox, Hourglass, BadgeCheck, Ban } from 'lucide-react'
 import { exportApprovalApi, type ExportApprovalDto } from '../../services/api/analyticsApi'
 import { useAuth } from '../../hooks/useAuth'
 import { normalizeRole } from '../../services/auth/roleUtils'
+import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { ActionButton } from '../../components/common/ActionButton'
 
 type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED'
 
@@ -42,6 +47,8 @@ function fmtTime(iso?: string): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
+const darkCard: CSSProperties = { background: '#161b22', border: '1px solid #30363d', boxShadow: 'none' }
+
 export default function ExportApprovalPage() {
   const { user } = useAuth()
   const role = normalizeRole(user?.role)
@@ -71,10 +78,10 @@ export default function ExportApprovalPage() {
       if (res.success) {
         setItems(normalizeList(res))
       } else {
-        setError(res.error?.message ?? '加载失败')
+        setError(res.error?.message ?? t('w9.exportApproval.loading'))
       }
     } catch (e) {
-      setError((e as Error)?.message ?? '加载失败')
+      setError((e as Error)?.message ?? t('w9.exportApproval.loading'))
     } finally {
       setLoading(false)
     }
@@ -84,11 +91,11 @@ export default function ExportApprovalPage() {
 
   const handleCreate = async () => {
     if (!createReason.trim()) {
-      message.warning('请填写申请原因')
+      message.warning(t('w9.exportApproval.reasonLabel'))
       return
     }
     if (!createResourceId.trim()) {
-      message.warning('请填写资源名称(报告ID/患者号等)')
+      message.warning(t('w9.exportApproval.resourceIdLabel'))
       return
     }
     setSubmitting(true)
@@ -99,17 +106,17 @@ export default function ExportApprovalPage() {
         reason: createReason.trim(),
       })
       if (res.success) {
-        message.success('导出申请已提交,等待审批')
+        message.success(t('w9.exportApproval.submittedMsg'))
         setCreateOpen(false)
         setCreateResource('REPORT')
         setCreateResourceId('')
         setCreateReason('')
         void load()
       } else {
-        message.error(res.error?.message ?? '提交失败')
+        message.error(res.error?.message ?? t('w9.exportApproval.submittedMsg'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '提交失败')
+      message.error((e as Error)?.message ?? t('w9.exportApproval.submittedMsg'))
     } finally {
       setSubmitting(false)
     }
@@ -117,9 +124,9 @@ export default function ExportApprovalPage() {
 
   const handleApprove = (id: string) => {
     Modal.confirm({
-      title: '批准导出申请',
-      content: '确认批准该导出申请?批准后申请者可执行导出。',
-      okText: '批准',
+      title: t('w9.exportApproval.approveTitle'),
+      content: t('w9.exportApproval.approveContent'),
+      okText: t('w9.exportApproval.approve'),
       cancelText: '取消',
       okButtonProps: { style: { background: '#22c55e', borderColor: '#22c55e' } },
       onOk: async () => {
@@ -127,13 +134,13 @@ export default function ExportApprovalPage() {
         try {
           const res = await exportApprovalApi.approve(id)
           if (res.success) {
-            message.success('已批准导出申请')
+            message.success(t('w9.exportApproval.approvedMsg'))
             void load()
           } else {
-            message.error(res.error?.message ?? '操作失败')
+            message.error(res.error?.message ?? t('w9.exportApproval.approvedMsg'))
           }
         } catch (e) {
-          message.error((e as Error)?.message ?? '操作失败')
+          message.error((e as Error)?.message ?? t('w9.exportApproval.approvedMsg'))
         } finally {
           setActionId(null)
         }
@@ -149,7 +156,7 @@ export default function ExportApprovalPage() {
 
   const confirmReject = async () => {
     if (!rejectReason.trim()) {
-      message.warning('请填写拒绝原因')
+      message.warning(t('w9.exportApproval.rejectReason'))
       return
     }
     if (!rejectId) return
@@ -157,16 +164,16 @@ export default function ExportApprovalPage() {
     try {
       const res = await exportApprovalApi.reject(rejectId, rejectReason.trim())
       if (res.success) {
-        message.success('已拒绝导出申请')
+        message.success(t('w9.exportApproval.rejectedMsg'))
         setRejectOpen(false)
         setRejectId(null)
         setRejectReason('')
         void load()
       } else {
-        message.error(res.error?.message ?? '操作失败')
+        message.error(res.error?.message ?? t('w9.exportApproval.rejectedMsg'))
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? '操作失败')
+      message.error((e as Error)?.message ?? t('w9.exportApproval.rejectedMsg'))
     } finally {
       setSubmitting(false)
     }
@@ -180,10 +187,10 @@ export default function ExportApprovalPage() {
   }
 
   const filterTabs: Array<{ key: StatusFilter; label: string; count: number }> = [
-    { key: 'all', label: '全部', count: counts.total },
-    { key: 'PENDING', label: '待审批', count: counts.pending },
-    { key: 'APPROVED', label: '已批准', count: counts.approved },
-    { key: 'REJECTED', label: '已拒绝', count: counts.rejected },
+    { key: 'all', label: t('w9.exportApproval.all'), count: counts.total },
+    { key: 'PENDING', label: t('w9.exportApproval.pending'), count: counts.pending },
+    { key: 'APPROVED', label: t('w9.exportApproval.approved'), count: counts.approved },
+    { key: 'REJECTED', label: t('w9.exportApproval.rejected'), count: counts.rejected },
   ]
 
   const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
@@ -193,60 +200,67 @@ export default function ExportApprovalPage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <FileDown size={24} />
-          <span style={{ fontSize: 20, fontWeight: 600 }}>导出审批中心</span>
+          <span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9.exportApproval.title')}</span>
           <span style={{ fontSize: 12, padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 4 }}>
-            {canApprove ? '管理员/主任模式' : '申请模式'}
+            {canApprove ? t('w9.exportApproval.approved') + '/' + t('w9.exportApproval.rejected') + ' 模式' : '申请模式'}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <RefreshCw size={14} />刷新
-          </button>
-          <button onClick={() => setCreateOpen(true)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}>
-            <Plus size={14} />新建申请
-          </button>
+          <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void load()} icon={<RefreshCw size={14} />} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff' }}>
+            {t('w9.exportApproval.refresh')}
+          </ActionButton>
+          <ActionButton action="create" size="compact" onClick={() => setCreateOpen(true)} icon={<Plus size={14} />} style={{ background: '#22c55e', border: 'none', color: '#fff' }}>
+            {t('w9.exportApproval.create')}
+          </ActionButton>
         </div>
       </div>
 
       <div style={{ padding: '20px 24px' }}>
+        <StatCardGrid minWidth={180} style={{ marginBottom: 16 }}>
+          <StatCard title={t('w9.exportApproval.all')} value={counts.total} icon={<Inbox size={18} />} color="info" style={darkCard} />
+          <StatCard title={t('w9.exportApproval.pending')} value={counts.pending} icon={<Hourglass size={18} />} color="warning" style={darkCard} />
+          <StatCard title={t('w9.exportApproval.approved')} value={counts.approved} icon={<BadgeCheck size={18} />} color="success" style={darkCard} />
+          <StatCard title={t('w9.exportApproval.rejected')} value={counts.rejected} icon={<Ban size={18} />} color="error" style={darkCard} />
+        </StatCardGrid>
+
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-          {filterTabs.map(t => (
-            <button key={t.key} onClick={() => setFilter(t.key)}
-              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filter === t.key ? '#1e40af' : '#21262d', color: filter === t.key ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {t.key === 'PENDING' && <Clock size={13} />}
-              {t.key === 'APPROVED' && <Check size={13} />}
-              {t.key === 'REJECTED' && <X size={13} />}
-              {t.label}
-              <span style={{ padding: '1px 7px', borderRadius: 10, background: filter === t.key ? 'rgba(255,255,255,0.25)' : '#161b22', fontSize: 11 }}>{t.count}</span>
+          {filterTabs.map(tab => (
+            <button key={tab.key} onClick={() => setFilter(tab.key)}
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filter === tab.key ? '#1e40af' : '#21262d', color: filter === tab.key ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {tab.key === 'PENDING' && <Clock size={13} />}
+              {tab.key === 'APPROVED' && <Check size={13} />}
+              {tab.key === 'REJECTED' && <X size={13} />}
+              {tab.label}
+              <span style={{ padding: '1px 7px', borderRadius: 10, background: filter === tab.key ? 'rgba(255,255,255,0.25)' : '#161b22', fontSize: 11 }}>{tab.count}</span>
             </button>
           ))}
         </div>
 
         {error && (
           <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
-            加载失败:{error}
-            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            {t('w9.exportApproval.loading')}:{error}
+            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
           </div>
         )}
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '150px 110px 1fr 90px 150px 120px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>申请者</span>
-            <span>资源类型</span>
-            <span>资源名称 / 申请原因</span>
-            <span>状态</span>
-            <span>申请时间</span>
-            <span style={{ textAlign: 'right' }}>操作</span>
+            <span>{t('w9.exportApproval.requester')}</span>
+            <span>{t('w9.exportApproval.resource')}</span>
+            <span>{t('w9.exportApproval.resourceInfo')}</span>
+            <span>{t('w9.exportApproval.status')}</span>
+            <span>{t('w9.exportApproval.time')}</span>
+            <span style={{ textAlign: 'right' }}>{t('w9.exportApproval.actions')}</span>
           </div>
 
           {loading ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#8b949e' }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>加载审批列表...</div>
+              <div style={{ marginTop: 12, fontSize: 13 }}>{t('w9.exportApproval.loading')}</div>
             </div>
           ) : items.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 13 }}>
-              暂无{filter === 'all' ? '' : STATUS_META[filter]?.label}的导出申请
+              {t('w9.exportApproval.empty')}{filter === 'all' ? '' : `: ${STATUS_META[filter]?.label ?? ''}`}
             </div>
           ) : (
             items.map((item, idx) => {
@@ -264,7 +278,7 @@ export default function ExportApprovalPage() {
                     <div style={{ fontSize: 13 }}>{item.resourceId ?? '—'}</div>
                     <div style={{ fontSize: 12, color: '#8b949e' }}>{item.reason}</div>
                     {item.status === 'REJECTED' && item.rejectReason && (
-                      <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>拒绝原因:{item.rejectReason}</div>
+                      <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>{t('w9.exportApproval.rejectReason')}:{item.rejectReason}</div>
                     )}
                   </div>
                   <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: st.bg, color: st.color, width: 'fit-content' }}>{st.label}</span>
@@ -277,16 +291,16 @@ export default function ExportApprovalPage() {
                       <>
                         <button onClick={() => handleApprove(item.id)} disabled={actionId === item.id}
                           style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
-                          {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}批准
+                          {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}{t('w9.exportApproval.approve')}
                         </button>
                         <button onClick={() => handleReject(item.id)}
                           style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <X size={12} />拒绝
+                          <X size={12} />{t('w9.exportApproval.reject')}
                         </button>
                       </>
                     )}
                     {item.status === 'PENDING' && !canApprove && (
-                      <span style={{ fontSize: 12, color: '#6e7681' }}>等待审批</span>
+                      <span style={{ fontSize: 12, color: '#6e7681' }}>{t('w9.exportApproval.waiting')}</span>
                     )}
                     {item.status !== 'PENDING' && <span style={{ fontSize: 12, color: '#6e7681' }}>—</span>}
                   </div>
@@ -295,17 +309,17 @@ export default function ExportApprovalPage() {
             })
           )}
         </div>
-        <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681', display: 'flex', gap: 16, alignItems: 'center' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="#22c55e" />批准/拒绝仅对管理员与主任可见</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="#3b82f6" />导出操作将自动生成审批申请</span>
+        <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="#22c55e" />{t('w9.exportApproval.approverHint')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="#3b82f6" />{t('w9.exportApproval.autoHint')}</span>
         </div>
       </div>
 
       {/* 新建申请 Modal */}
       <Modal
         open={createOpen}
-        title="新建导出申请"
-        okText="提交申请"
+        title={t('w9.exportApproval.createTitle')}
+        okText={t('w9.exportApproval.create')}
         cancelText="取消"
         confirmLoading={submitting}
         onOk={() => void handleCreate()}
@@ -315,7 +329,7 @@ export default function ExportApprovalPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>资源类型</div>
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.resourceLabel')}</div>
             <Select
               value={createResource}
               onChange={setCreateResource}
@@ -325,12 +339,12 @@ export default function ExportApprovalPage() {
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>资源名称(报告ID / 患者号等)</div>
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.resourceIdLabel')}</div>
             <Input value={createResourceId} onChange={e => setCreateResourceId(e.target.value)} placeholder="例如 RPT-202607-001" />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>申请原因</div>
-            <Input.TextArea value={createReason} onChange={e => setCreateReason(e.target.value)} rows={4} placeholder="请填写导出用途与理由,如:用于院内会诊 / 科研归档" maxLength={200} showCount />
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.reasonLabel')}</div>
+            <Input.TextArea value={createReason} onChange={e => setCreateReason(e.target.value)} rows={4} placeholder={t('w9.exportApproval.reasonPlaceholder')} maxLength={200} showCount />
           </div>
         </div>
       </Modal>
@@ -338,8 +352,8 @@ export default function ExportApprovalPage() {
       {/* 拒绝 Modal */}
       <Modal
         open={rejectOpen}
-        title="拒绝导出申请"
-        okText="确认拒绝"
+        title={t('w9.exportApproval.rejectTitle')}
+        okText={t('w9.exportApproval.reject')}
         cancelText="取消"
         confirmLoading={submitting}
         onOk={() => void confirmReject()}
@@ -349,8 +363,8 @@ export default function ExportApprovalPage() {
         styles={modalStyle}
       >
         <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>拒绝原因(必填)</div>
-          <Input.TextArea value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} placeholder="请填写拒绝原因,将反馈给申请者" maxLength={200} showCount />
+          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.rejectReason')}</div>
+          <Input.TextArea value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} placeholder={t('w9.exportApproval.rejectReason')} maxLength={200} showCount />
         </div>
       </Modal>
     </div>

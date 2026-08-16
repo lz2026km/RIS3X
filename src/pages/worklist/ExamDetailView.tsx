@@ -24,6 +24,9 @@ import {
   RefreshCw,
   CheckCircle,
   CalendarPlus,
+  Clock,
+  StickyNote,
+  Activity,
 } from "lucide-react";
 import {
   initialModalityDevices,
@@ -34,12 +37,15 @@ import type { RadiologyExam } from "../../types";
 import { normalizeExamStatus } from "../../utils/statusMaps";
 import { examApi } from "../../services/api/examApi";
 import { worklistApi } from "../../services/api/worklistApi";
-import { message } from "antd";
+import { RETAKE_REASON_OPTIONS } from "../../services/api/worklistApi";
+import { Input, InputNumber, Modal, Radio, Select, message } from "antd";
 import type { ExamDto } from "../../types/dto";
 // [v3.0.6.11-100 Wave 1B] 设备维护提醒横幅 (设备信息存在时展示)
 import DeviceMaintenanceBanner from "../../components/tech/DeviceMaintenanceBanner";
 // [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 + 交接班
 import TechnicianAssignmentEditor from "../../components/worklist/TechnicianAssignmentEditor";
+// [v3.0.6.11-103 Wave 11] 技师工作站: 流程状态条 (7 态 + 一键流转)
+import FlowStatusBar from "../../components/tech/FlowStatusBar";
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
 
@@ -133,7 +139,7 @@ export interface ExamDetailViewProps {
   onStatusChanged?: () => void;
   // [v3.0.6.11-96 Wave 3A P1] 状态流转成功后的收尾回调 (Drawer: 关闭; 独立页: 重载详情)
   onStatusSuccess?: () => void;
-  initialTab?: "info" | "images" | "history" | "log";
+  initialTab?: "info" | "images" | "history" | "log" | "timeline";
 }
 
 export function ExamDetailView({
@@ -150,12 +156,22 @@ export function ExamDetailView({
   initialTab = "info",
 }: ExamDetailViewProps) {
   const [activeTab, setActiveTab] = useState<
-    "info" | "images" | "history" | "log"
+    "info" | "images" | "history" | "log" | "timeline"
   >(initialTab);
   const [historyExams, setHistoryExams] = useState<RadiologyExam[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyError, setHistoryError] = useState<string | null>(null)
   const lastExamIdRef = useRef<string | null>(null)
+
+  // [v3.0.6.11-103 Wave 1B] 检查时间线: GET /worklist/timeline/:id (登记→签到→开始→暂停→完成→质控 事件流)
+  const [timelineEvents, setTimelineEvents] = useState<Array<{ type: string; label: string; timestamp: string; actor?: string; note?: string }>>([])
+  const [timelineLoading, setTimelineLoading] = useState(false)
+  const [timelineError, setTimelineError] = useState<string | null>(null)
+
+  // [v3.0.6.11-103 Wave 1B] 技师备注: GET /worklist/:id → techNotes + POST /worklist/:id/notes
+  const [techNotes, setTechNotes] = useState("")
+  const [notesText, setNotesText] = useState("")
+  const [notesSaving, setNotesSaving] = useState(false)
 
   // [v3.0.6.11-98 Wave3B P2] 操作日志: worklistApi.getById 返回 ops[] (op/createdAt/actor.fullName),
   //   无数据时展示「暂无操作记录」空态 (替代 -96 伪造时间线)
@@ -187,8 +203,128 @@ export function ExamDetailView({
   // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
   const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake" | null>(null)
 
+  // [v3.0.6.11-103 Wave 11] 剂量记录 (DLP / CTDIvol) + 完成检查强制检查项
+  const [doseDlp, setDoseDlp] = useState<string>("")
+  const [doseCtdivol, setDoseCtdivol] = useState<string>("")
+  const [doseSaving, setDoseSaving] = useState(false)
+  const [completeModal, setCompleteModal] = useState<{
+    quality: "ok" | "retake" | null
+    dlp: string
+    ctdivol: string
+    note: string
+    retakeReason: string
+  } | null>(null)
+  const [completeBusy, setCompleteBusy] = useState(false)
+
+  // [v3.0.6.11-103 Wave 11] 打开详情时回显剂量记录 (PATCH /worklist/:id 落库, 新列未迁移回退内存)
+  useEffect(() => {
+    if (!exam) return
+    let cancelled = false
+    worklistApi.getById(exam.id)
+      .then(res => {
+        if (cancelled) return
+        const raw = (res.data ?? {}) as unknown as Record<string, unknown>
+        setDoseDlp(typeof raw.doseDlp === "number" ? String(raw.doseDlp) : "")
+        setDoseCtdivol(typeof raw.doseCtdivol === "number" ? String(raw.doseCtdivol) : "")
+      })
+      .catch(() => { if (!cancelled) { setDoseDlp(""); setDoseCtdivol("") } })
+    return () => { cancelled = true }
+  }, [exam?.id])
+
+  const handleSaveDose = async () => {
+    if (!exam) return
+    const fields: Record<string, unknown> = {}
+    if (doseDlp.trim() !== "") fields.doseDlp = Number(doseDlp)
+    if (doseCtdivol.trim() !== "") fields.doseCtdivol = Number(doseCtdivol)
+    if (Object.keys(fields).length === 0) {
+      message.warning("请先输入剂量数值")
+      return
+    }
+    setDoseSaving(true)
+    try {
+      const res = await worklistApi.patch(exam.id, fields)
+      if (res.success) {
+        message.success("剂量记录已保存")
+        onStatusChanged?.()
+      } else {
+        message.error(res.error?.message ?? "剂量保存失败")
+      }
+    } catch {
+      message.error("剂量保存失败")
+    } finally {
+      setDoseSaving(false)
+    }
+  }
+
+  const saveDoseSilently = async (dlp: string, ctdivol: string) => {
+    const fields: Record<string, unknown> = {}
+    if (dlp.trim() !== "") fields.doseDlp = Number(dlp)
+    if (ctdivol.trim() !== "") fields.doseCtdivol = Number(ctdivol)
+    if (Object.keys(fields).length === 0) return
+    await worklistApi.patch(exam!.id, fields)
+  }
+
+  const executeComplete = async () => {
+    const state = completeModal
+    if (!state || !exam) return
+    if (!state.quality) {
+      message.warning("请选择图像是否合格")
+      return
+    }
+    if (state.quality === "ok") {
+      if (state.dlp.trim() === "" && state.ctdivol.trim() === "") {
+        message.warning("图像合格时必须填写剂量记录（DLP/CTDIvol）")
+        return
+      }
+      if (state.note.trim() === "") {
+        message.warning("技师备注不能为空")
+        return
+      }
+    } else if (!state.retakeReason) {
+      message.warning("重拍必须选择原因")
+      return
+    }
+    setCompleteBusy(true)
+    try {
+      if (state.quality === "ok") {
+        await saveDoseSilently(state.dlp, state.ctdivol)
+        if (state.note.trim() !== "") await worklistApi.saveNotes(exam.id, state.note)
+        const res = await worklistApi.complete(exam.id)
+        if (!res.success) {
+          message.error(res.error?.message ?? "完成失败")
+          return
+        }
+        message.success("检查已完成，已自动进入报告待审列表")
+      } else {
+        const qc = await worklistApi.updateState(exam.id, "QC_REJECT", state.note || "技师评定图像不合格")
+        if (!qc.success) {
+          message.error(qc.error?.message ?? "重拍登记失败")
+          return
+        }
+        const rt = await worklistApi.updateState(exam.id, "IN_PROGRESS", state.note || undefined, { retakeReason: state.retakeReason })
+        if (!rt.success) {
+          message.error(rt.error?.message ?? "重拍登记失败")
+          return
+        }
+        message.success("重拍已登记，检查自动回到「检查中」，重拍计数 +1")
+      }
+      setCompleteModal(null)
+      onStatusChanged?.()
+      onStatusSuccess?.()
+    } catch {
+      message.error("操作失败")
+    } finally {
+      setCompleteBusy(false)
+    }
+  }
+
   const handleStatusAction = async (action: "checkin" | "start" | "complete" | "cancel" | "pause" | "resume" | "retake") => {
     if (!exam) return
+    // [v3.0.6.11-103 Wave 11] 完成检查 → 强制检查项 (图像合格/剂量/技师备注)
+    if (action === "complete") {
+      setCompleteModal({ quality: null, dlp: doseDlp, ctdivol: doseCtdivol, note: "", retakeReason: "" })
+      return
+    }
     setStatusBusy(action)
     try {
       const res =
@@ -196,15 +332,13 @@ export function ExamDetailView({
           ? await worklistApi.checkIn(exam.id)
           : action === "start"
             ? await worklistApi.start(exam.id)
-            : action === "complete"
-              ? await worklistApi.complete(exam.id)
-              : action === "pause"
-                ? await worklistApi.pauseExam(exam.id)
-                : action === "resume"
-                  ? await worklistApi.resumeExam(exam.id)
-                  : action === "retake"
-                    ? await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍登记")
-                    : await worklistApi.cancel(exam.id, "详情抽屉取消")
+            : action === "pause"
+              ? await worklistApi.pauseExam(exam.id)
+              : action === "resume"
+                ? await worklistApi.resumeExam(exam.id)
+                : action === "retake"
+                  ? await worklistApi.updateState(exam.id, "IN_PROGRESS", "重拍登记")
+                  : await worklistApi.cancel(exam.id, "详情抽屉取消")
       if (res.success) {
         message.success(action === "pause" ? "检查已暂停" : action === "resume" ? "检查已继续" : action === "retake" ? "重拍已登记" : "状态已更新")
         onStatusChanged?.()
@@ -280,6 +414,82 @@ export function ExamDetailView({
       })
     return () => { cancelled = true }
   }, [exam, activeTab])
+
+  // [v3.0.6.11-103 Wave 1B] 检查时间线页签: GET /worklist/timeline/:id
+  useEffect(() => {
+    if (!exam) return
+    if (activeTab !== "timeline") return
+    let cancelled = false
+    setTimelineLoading(true)
+    setTimelineError(null)
+    worklistApi.getTimeline(exam.id)
+      .then(res => {
+        if (cancelled) return
+        if (res.success && res.data) {
+          setTimelineEvents(Array.isArray(res.data.events) ? res.data.events.map(e => ({
+            type: e.type,
+            label: e.label,
+            timestamp: e.timestamp,
+            actor: e.actor,
+            note: e.note,
+          })) : [])
+        } else {
+          setTimelineEvents([])
+          setTimelineError(res.error?.message ?? "时间线加载失败")
+        }
+        setTimelineLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setTimelineEvents([])
+        setTimelineError("时间线加载失败")
+        setTimelineLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [exam, activeTab])
+
+  // [v3.0.6.11-103 Wave 1B] 技师备注: 打开详情时回显已有 techNotes
+  useEffect(() => {
+    if (!exam) return
+    let cancelled = false
+    worklistApi.getById(exam.id)
+      .then(res => {
+        if (cancelled) return
+        const raw = (res.data ?? {}) as unknown as Record<string, unknown>
+        const existing = typeof raw.techNotes === "string" ? raw.techNotes : ""
+        setTechNotes(existing)
+        setNotesText("")
+      })
+      .catch(() => { if (!cancelled) setTechNotes("") })
+    return () => { cancelled = true }
+  }, [exam?.id])
+
+  // [v3.0.6.11-103 Wave 1B] 保存技师备注: POST /worklist/:id/notes (追加带时间戳)
+  const handleSaveNotes = async () => {
+    if (!exam) return
+    const trimmed = notesText.trim()
+    if (!trimmed) {
+      message.warning("请先输入备注内容")
+      return
+    }
+    setNotesSaving(true)
+    try {
+      const res = await worklistApi.saveNotes(exam.id, trimmed)
+      if (res.success) {
+        const saved = (res.data as { techNotes?: string } | null)?.techNotes
+        setTechNotes(typeof saved === "string" ? saved : techNotes ? `${techNotes}\n${trimmed}` : trimmed)
+        setNotesText("")
+        onStatusChanged?.()
+        message.success("技师备注已保存")
+      } else {
+        message.error(res.error?.message ?? "备注保存失败")
+      }
+    } catch {
+      message.error("备注保存失败")
+    } finally {
+      setNotesSaving(false)
+    }
+  }
 
   // [v3.0.6.11-98 Wave3B P1] 打印条码: 无 barcode 库 → canvas 绘制确定性条码图并下载 PNG
   const handlePrintBarcode = () => {
@@ -467,6 +677,15 @@ export function ExamDetailView({
         </div>
       </div>
 
+      {/* [v3.0.6.11-103 Wave 11] 流程状态条: 7 态 + 一键流转 */}
+      <div style={{ padding: "12px 20px 0", background: "var(--content-bg)" }}>
+        <FlowStatusBar
+          status={exam.status}
+          busy={statusBusy !== null}
+          onAction={(action) => void handleStatusAction(action)}
+        />
+      </div>
+
       {/* [v3.0.6.11-100 Wave 1B] 设备维护提醒 (设备信息存在时) */}
       {exam.deviceId && (
         <div style={{ padding: "12px 20px 0", background: "var(--content-bg)" }}>
@@ -498,6 +717,11 @@ export function ExamDetailView({
           label="操作日志"
           tabKey="log"
           icon={<Clipboard size={12} />}
+        />
+        <DrawerTab
+          label="时间线"
+          tabKey="timeline"
+          icon={<Clock size={12} />}
         />
       </div>
 
@@ -698,6 +922,145 @@ export function ExamDetailView({
                       <ArrowLeftRight size={12} /> 交接班
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* [v3.0.6.11-103 Wave 11] 剂量记录: DLP / CTDIvol 输入 + 保存 (PATCH /worklist/:id) */}
+            <div style={{ marginBottom: 20 }} data-testid="dose-record-section">
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#1e40af",
+                  marginBottom: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Activity size={14} />
+                剂量记录
+              </div>
+              <div
+                style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
+              >
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+                      DLP (mGy·cm) {exam.modality === "CT" && <span style={{ color: "#dc2626" }}>*</span>}
+                    </div>
+                    <InputNumber
+                      style={{ width: "100%" }} min={0} max={100000}
+                      value={doseDlp !== "" ? Number(doseDlp) : undefined}
+                      onChange={(v) => setDoseDlp(v !== null && v !== undefined ? String(v) : "")}
+                      placeholder="0.0"
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+                      CTDIvol (mGy) {exam.modality === "CT" && <span style={{ color: "#dc2626" }}>*</span>}
+                    </div>
+                    <InputNumber
+                      style={{ width: "100%" }} min={0} max={10000}
+                      value={doseCtdivol !== "" ? Number(doseCtdivol) : undefined}
+                      onChange={(v) => setDoseCtdivol(v !== null && v !== undefined ? String(v) : "")}
+                      placeholder="0.0"
+                    />
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                    {exam.modality === "CT" ? "CT 检查完成前必须记录剂量 (完成确认弹窗强制校验)" : "非 CT 检查可留空"}
+                  </span>
+                  <button
+                    onClick={() => void handleSaveDose()}
+                    disabled={doseSaving}
+                    style={{
+                      padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
+                      fontSize: 12, fontWeight: 600, background: "#0d9488", color: "#fff",
+                      display: "flex", alignItems: "center", gap: 4,
+                    }}
+                    data-testid="dose-save-btn"
+                  >
+                    <Activity size={12} /> {doseSaving ? "保存中..." : "保存剂量"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* [v3.0.6.11-103 Wave 1B] 技师备注: 回显 techNotes + POST /worklist/:id/notes */}
+            <div style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#1e40af",
+                  marginBottom: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <StickyNote size={14} />
+                技师备注
+              </div>
+              <div
+                style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
+                data-testid="tech-notes-section"
+              >
+                {techNotes ? (
+                  <div
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      fontSize: 12,
+                      color: "var(--text-secondary)",
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 8,
+                      padding: "10px 12px",
+                      marginBottom: 10,
+                      maxHeight: 140,
+                      overflow: "auto",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {techNotes}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 10 }}>
+                    暂无技师备注
+                  </div>
+                )}
+                <textarea
+                  value={notesText}
+                  onChange={(e) => setNotesText(e.target.value)}
+                  placeholder="记录扫描参数/患者配合情况等备注（追加带时间戳）"
+                  style={{
+                    width: "100%",
+                    minHeight: 64,
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    resize: "vertical",
+                  }}
+                />
+                <div style={{ display: "flex", gap: 8, marginTop: 10, justifyContent: "flex-end" }}>
+                  <button
+                    onClick={() => void handleSaveNotes()}
+                    disabled={notesSaving}
+                    style={{
+                      padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
+                      fontSize: 12, fontWeight: 600, background: "#1e40af", color: "#fff",
+                      display: "flex", alignItems: "center", gap: 4,
+                    }}
+                    data-testid="tech-notes-save-btn"
+                  >
+                    <StickyNote size={12} /> {notesSaving ? "保存中..." : "保存备注"}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1001,6 +1364,153 @@ export function ExamDetailView({
                   </div>
                 ))}
               </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "timeline" && (
+          <div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#1e40af",
+                marginBottom: 12,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Clock size={14} />
+              检查时间线
+              <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 400, color: "var(--text-secondary)" }}>
+                GET /worklist/timeline/:id
+              </span>
+            </div>
+            <div style={{ position: "relative" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 11,
+                  top: 0,
+                  bottom: 0,
+                  width: 2,
+                  background: "#e2e8f0",
+                }}
+              />
+              {timelineLoading ? (
+                <div
+                  style={{
+                    background: "var(--content-bg)",
+                    borderRadius: 10,
+                    padding: 40,
+                    textAlign: "center",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <div style={{ fontSize: 12 }}>正在加载时间线...</div>
+                </div>
+              ) : timelineError ? (
+                <div
+                  style={{
+                    background: "var(--content-bg)",
+                    borderRadius: 10,
+                    padding: 40,
+                    textAlign: "center",
+                    color: "#dc2626",
+                  }}
+                >
+                  <div style={{ fontSize: 12 }}>{timelineError}</div>
+                </div>
+              ) : timelineEvents.length === 0 ? (
+                <div
+                  style={{
+                    background: "var(--content-bg)",
+                    borderRadius: 10,
+                    padding: 40,
+                    textAlign: "center",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <Clock size={32} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
+                  <div style={{ fontSize: 12 }}>暂无时间线事件</div>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                  {timelineEvents.map((ev, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        gap: 16,
+                        paddingBottom: idx < timelineEvents.length - 1 ? 20 : 0,
+                        position: "relative",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: "50%",
+                          background: idx === timelineEvents.length - 1 ? "#059669" : "#1e40af",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          flexShrink: 0,
+                          zIndex: 1,
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            background: "var(--content-bg)",
+                            borderRadius: 8,
+                            padding: "10px 14px",
+                            border: "1px solid var(--border-color)",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontWeight: 600,
+                              color: "var(--text-secondary)",
+                              fontSize: 12,
+                              marginBottom: 4,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: 8,
+                            }}
+                          >
+                            <span>{ev.label}</span>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: "var(--text-secondary)",
+                                fontFamily: "monospace",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {ev.timestamp ? new Date(ev.timestamp).toLocaleString("zh-CN", { hour12: false }) : ""}
+                            </span>
+                          </div>
+                          {ev.note && (
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 2 }}>
+                              {ev.note}
+                            </div>
+                          )}
+                          {ev.actor && (
+                            <div style={{ fontSize: 11, color: "#64748b" }}>操作人: {ev.actor}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -1377,6 +1887,87 @@ export function ExamDetailView({
           创建随访计划
         </button>
       </div>
+
+      {/* [v3.0.6.11-103 Wave 11] 完成检查确认: 强制检查项 (图像是否合格/剂量已记录/技师备注) */}
+      <Modal
+        open={completeModal !== null}
+        title="完成检查确认"
+        onCancel={() => setCompleteModal(null)}
+        onOk={() => void executeComplete()}
+        okText="完成"
+        okButtonProps={{ disabled: completeBusy }}
+        confirmLoading={completeBusy}
+        width={520}
+        destroyOnClose
+      >
+        {completeModal && (
+          <div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+              完成前请确认以下强制检查项
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>
+                <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> 图像是否合格
+              </div>
+              <Radio.Group
+                value={completeModal.quality}
+                onChange={(e) => setCompleteModal(s => s ? { ...s, quality: e.target.value } : s)}
+                options={[
+                  { value: "ok", label: "合格" },
+                  { value: "retake", label: "重拍" },
+                ]}
+              />
+            </div>
+            {completeModal.quality === "ok" && (
+              <>
+                <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 8 }}>
+                  <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> 剂量记录
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>DLP (mGy·cm)</div>
+                    <InputNumber
+                      style={{ width: "100%" }} min={0} max={100000}
+                      value={completeModal.dlp !== "" ? Number(completeModal.dlp) : undefined}
+                      onChange={(v) => setCompleteModal(s => s ? { ...s, dlp: v !== null && v !== undefined ? String(v) : "" } : s)}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>CTDIvol (mGy)</div>
+                    <InputNumber
+                      style={{ width: "100%" }} min={0} max={10000}
+                      value={completeModal.ctdivol !== "" ? Number(completeModal.ctdivol) : undefined}
+                      onChange={(v) => setCompleteModal(s => s ? { ...s, ctdivol: v !== null && v !== undefined ? String(v) : "" } : s)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+            {completeModal.quality === "retake" && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>重拍原因</div>
+                <Select
+                  style={{ width: "100%" }} placeholder="选择重拍原因" value={completeModal.retakeReason || undefined}
+                  onChange={(v) => setCompleteModal(s => s ? { ...s, retakeReason: v } : s)}
+                  options={RETAKE_REASON_OPTIONS}
+                />
+              </div>
+            )}
+            <div>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
+                <StickyNote size={11} style={{ verticalAlign: -2, marginRight: 4 }} /> 技师备注 *
+              </div>
+              <Input.TextArea
+                rows={2}
+                value={completeModal.note}
+                onChange={(e) => setCompleteModal(s => s ? { ...s, note: e.target.value } : s)}
+                placeholder="记录扫描参数/图像情况等备注（追加带时间戳）"
+                maxLength={500}
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* [v3.0.6.11-100 Wave 1A] 多技师协作: 主备技师分配 / 交接班 */}
       <TechnicianAssignmentEditor

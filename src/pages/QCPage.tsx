@@ -36,6 +36,9 @@ import {
 import { AppText } from '../components/common/AppText'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { PageHeader } from '../components/common/PageHeader'
+// [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage(评分/危急值/缺陷/月报) + RadiologyQCDashboardPage(放射质控总览) 嵌入为 QCPage 新 Tab
+import QualityControlPage from './QualityControlPage'
+import RadiologyQCDashboardPage from './qc/RadiologyQCDashboardPage'
 
 const PRIMARY = '#1e40af'
 
@@ -50,25 +53,28 @@ const WHITE = '#ffffff'
 
 // 甲乙丙丁等级颜色
 const GRADE_COLORS: Record<string, { bg: string; color: string; border: string; label: string }> = {
-  '甲': { bg: '#22c55e22', color: '#059669', border: '#059669', label: '甲级（优秀）' },
-  '乙': { bg: '#3b82f622', color: '#1e40af', border: '#1e40af', label: '乙级（良好）' },
-  '丙': { bg: '#f59e0b22', color: '#f59e0b', border: '#d97706', label: '丙级（合格）' },
-  '丁': { bg: '#ef444422', color: '#ef4444', border: '#dc2626', label: '丁级（不合格）' },
+  '甲': { bg: '#22c55e22', color: '#059669', border: '#059669', label: t("qcPage.gradeAExcellent") },
+  '乙': { bg: '#3b82f622', color: '#1e40af', border: '#1e40af', label: t("qcPage.gradeBGood") },
+  '丙': { bg: '#f59e0b22', color: '#f59e0b', border: '#d97706', label: t("qcPage.gradeCPass") },
+  '丁': { bg: '#ef444422', color: '#ef4444', border: '#dc2626', label: t("qcPage.gradeDFail") },
 }
 
 const TABS = [
-  { key: 'report', label: '报告质量评分', icon: <FileText size={15} /> },
-  { key: 'image', label: '影像质量控制', icon: <Image size={15} /> },
-  { key: 'timeout', label: '超时报告统计', icon: <Clock size={15} /> },
-  { key: 'inspection', label: '人工抽检', icon: <ClipboardCheck size={15} /> },
-  { key: 'dashboard', label: '质控指标仪表盘', icon: <BarChart3 size={15} /> },
-  { key: 'regional', label: '区域影像质控', icon: <Globe size={15} /> },
-  { key: 'settings', label: '质控规则设置', icon: <Settings size={15} /> },
-  { key: 'peerReview', label: '同行评审', icon: <Users size={15} /> },
-  { key: 'ruleChecker', label: '规则检查', icon: <ClipboardCheck size={15} /> },
-  { key: 'radPath', label: '病理对照', icon: <Activity size={15} /> },
-  { key: 'acr', label: 'ACR认证', icon: <Award size={15} /> },
-  { key: 'trendAnalysis', label: '趋势分析', icon: <TrendingUp size={15} /> },
+  { key: 'report', label: t("qcPage.reportQualityScore"), icon: <FileText size={15} /> },
+  { key: 'image', label: t("qcPage.imageQc"), icon: <Image size={15} /> },
+  { key: 'timeout', label: t("qcPage.overdueStats"), icon: <Clock size={15} /> },
+  { key: 'inspection', label: t("qcPage.manualSampling"), icon: <ClipboardCheck size={15} /> },
+  { key: 'dashboard', label: t("qcPage.qcDashboard"), icon: <BarChart3 size={15} /> },
+  { key: 'regional', label: t("qcPage.regionalImageQc"), icon: <Globe size={15} /> },
+  { key: 'settings', label: t("qcPage.qcRuleSettings"), icon: <Settings size={15} /> },
+  { key: 'peerReview', label: t("qcPage.peerReview"), icon: <Users size={15} /> },
+  { key: 'ruleChecker', label: t("qcPage.ruleCheck"), icon: <ClipboardCheck size={15} /> },
+  { key: 'radPath', label: t("qcPage.pathologyCompare"), icon: <Activity size={15} /> },
+  { key: 'acr', label: t("qcPage.acrAccreditation"), icon: <Award size={15} /> },
+  { key: 'trendAnalysis', label: t("qcPage.trendAnalysis"), icon: <TrendingUp size={15} /> },
+  // [v3.0.6.11-103 Wave 10] 重复页合并: 吸收 QualityControlPage / RadiologyQCDashboardPage 功能 (旧路由 /quality-control /qc-dashboard redirect → /qc)
+  { key: 'v3', label: t("qcPage.qcManagement"), icon: <ClipboardList size={15} /> },
+  { key: 'radDashboard', label: t("qcPage.radiologyQcOverview"), icon: <Activity size={15} /> },
 ]
 
 // [v3.0.6.8-28] 报告质控数据 - 来源: EXAM_REPORT_PRE (600 报告) + DOCTOR_MASTER + QUALITY_SCORE_PRE
@@ -79,12 +85,12 @@ const reportQCData = (() => {
     const reviewDoctor = DOCTORS_BY_TITLE['副主任医师'].concat(DOCTORS_BY_TITLE['主任医师'])[idx % 4];
     const score = r.qcScore;
     const grade = score >= 95 ? '甲' : score >= 85 ? '乙' : score >= 75 ? '丙' : '丁';
-    const status = score >= 95 ? '优秀' : score >= 85 ? '良好' : score >= 75 ? '一般' : '差';
+    const status = score >= 95 ? t("qcPage.excellent") : score >= 85 ? t("qcPage.good") : score >= 75 ? t("qcPage.fair") : t("qcPage.poor");
     return {
       id: r.reportId,
       patientName: r.patientName,
-      reportDoctor: reportDoctor?.name || '未知',
-      reviewDoctor: reviewDoctor?.name || '未知',
+      reportDoctor: reportDoctor?.name || t("qcPage.unknown"),
+      reviewDoctor: reviewDoctor?.name || t("qcPage.unknown"),
       score: Math.round(score),
       completeness: Math.round(score - 3),
       accuracy: Math.round(score + 1),
@@ -109,22 +115,22 @@ const gradeDistributionData = (() => {
   });
   const total = QUALITY_SCORE_PRE.length || 1;
   return [
-    { grade: '甲', label: '甲级（优秀）', count: counts['甲'], percentage: Math.round((counts['甲'] / total) * 100), color: '#059669', bg: '#22c55e22', description: '报告完整、规范、准确、及时' },
-    { grade: '乙', label: '乙级（良好）', count: counts['乙'], percentage: Math.round((counts['乙'] / total) * 100), color: '#1e40af', bg: '#3b82f622', description: '报告完整、轻微软硬件问题' },
-    { grade: '丙', label: '丙级（合格）', count: counts['丙'], percentage: Math.round((counts['丙'] / total) * 100), color: '#f59e0b', bg: '#f59e0b22', description: '报告基本完整、存在漏项' },
-    { grade: '丁', label: '丁级（不合格）', count: counts['丁'], percentage: Math.round((counts['丁'] / total) * 100), color: '#ef4444', bg: '#ef444422', description: '报告不完整或不准确' },
+    { grade: '甲', label: t("qcPage.gradeAExcellent"), count: counts['甲'], percentage: Math.round((counts['甲'] / total) * 100), color: '#059669', bg: '#22c55e22', description: t("qcPage.descExcellent") },
+    { grade: '乙', label: t("qcPage.gradeBGood"), count: counts['乙'], percentage: Math.round((counts['乙'] / total) * 100), color: '#1e40af', bg: '#3b82f622', description: t("qcPage.descGood") },
+    { grade: '丙', label: t("qcPage.gradeCPass"), count: counts['丙'], percentage: Math.round((counts['丙'] / total) * 100), color: '#f59e0b', bg: '#f59e0b22', description: t("qcPage.descPass") },
+    { grade: '丁', label: t("qcPage.gradeDFail"), count: counts['丁'], percentage: Math.round((counts['丁'] / total) * 100), color: '#ef4444', bg: '#ef444422', description: t("qcPage.descFail") },
   ];
 })()
 
 // 报告缺陷类型统计（国家卫健委2024年版）
 const reportDefectData = [
-  { defectType: '描述不完整/漏项', count: 28, percentage: 25, trend: '下降', color: '#f97316' },
-  { defectType: '诊断结论不明确', count: 22, percentage: 20, trend: '上升', color: '#ef4444' },
-  { defectType: '术语使用不规范', count: 18, percentage: 16, trend: '持平', color: '#eab308' },
-  { defectType: '检查所见与结论不符', count: 12, percentage: 11, trend: '下降', color: '#22c55e' },
-  { defectType: '危急值漏报/迟报', count: 8, percentage: 7, trend: '下降', color: '#3b82f6' },
-  { defectType: '报告超时', count: 15, percentage: 14, trend: '持平', color: '#8b5cf6' },
-  { defectType: '其他缺陷', count: 9, percentage: 7, trend: '持平', color: 'var(--text-secondary)' },
+  { defectType: t("qcPage.defectIncomplete"), count: 28, percentage: 25, trend: t("qcPage.down"), color: '#f97316' },
+  { defectType: t("qcPage.defectUnclearDiagnosis"), count: 22, percentage: 20, trend: t("qcPage.up"), color: '#ef4444' },
+  { defectType: t("qcPage.defectTerminology"), count: 18, percentage: 16, trend: t("qcPage.flat"), color: '#eab308' },
+  { defectType: t("qcPage.defectMismatch"), count: 12, percentage: 11, trend: t("qcPage.down"), color: '#22c55e' },
+  { defectType: t("qcPage.defectCriticalMissed"), count: 8, percentage: 7, trend: t("qcPage.down"), color: '#3b82f6' },
+  { defectType: t("qcPage.defectOverdue"), count: 15, percentage: 14, trend: t("qcPage.flat"), color: '#8b5cf6' },
+  { defectType: t("qcPage.defectOther"), count: 9, percentage: 7, trend: t("qcPage.flat"), color: 'var(--text-secondary)' },
 ]
 
 // 报告书写正确率指标（国家卫健委2024年版）
@@ -137,25 +143,25 @@ const inspectionRecordsData = (() => {
     const inspector = DOCTORS_BY_TITLE['副主任医师'].concat(DOCTORS_BY_TITLE['主任医师'])[idx % 4];
     const score = Math.round(r.qcScore);
     const grade = score >= 95 ? '甲' : score >= 85 ? '乙' : score >= 75 ? '丙' : '丁';
-    const defects = score >= 95 ? [] : score >= 85 ? [] : score >= 75 ? ['术语使用不规范'] : ['描述不完整/漏项', '诊断结论不明确', '危急值漏报/迟报'].slice(0, 2);
-    const status = score >= 85 ? '已通过' : score >= 75 ? '需整改' : '不合格';
+    const defects = score >= 95 ? [] : score >= 85 ? [] : score >= 75 ? [t("qcPage.defectTerminology")] : [t("qcPage.defectIncomplete"), t("qcPage.defectUnclearDiagnosis"), t("qcPage.defectCriticalMissed")].slice(0, 2);
+    const status = score >= 85 ? t("qcPage.passed") : score >= 75 ? t("qcPage.needsCorrection") : t("qcPage.failed");
     const comments: Record<string, string> = {
-      '甲': '报告规范完整，无缺陷',
-      '乙': '报告质量良好',
-      '丙': '术语使用需进一步规范',
-      '丁': '报告存在严重缺陷，需重新书写',
+      '甲': t("qcPage.reviewPassNote"),
+      '乙': t("qcPage.reviewGoodNote"),
+      '丙': t("qcPage.reviewTermNote"),
+      '丁': t("qcPage.reviewFailNote"),
     };
     return {
       id: `INS-${r.examAt.split('T')[0]?.replace(/-/g, '')}-${String(idx + 1).padStart(3, '0')}`,
       reportId: r.reportId,
       patientName: r.patientName,
-      reportDoctor: reportDoctor?.name || '未知',
-      inspector: inspector?.name || '未知',
+      reportDoctor: reportDoctor?.name || t("qcPage.unknown"),
+      inspector: inspector?.name || t("qcPage.unknown"),
       inspectionDate: r.examAt.split('T')[0],
       grade,
       score,
       defects,
-      inspectorComment: comments[grade] || '良好',
+      inspectorComment: comments[grade] || t("qcPage.good"),
       status,
     };
   });
@@ -177,11 +183,11 @@ const inspectionStats = {
 
 // [v3.0.6.8-28] 影像质控数据 - 来源: DEVICE_MASTER + EXAM_REPORT_PRE
 const imageQCData = (() => {
-  const issuePool = ['运动伪影', '曝光不当', '体位不正', '对比剂用量不足', '轻微运动伪影', '图像噪声', '金属伪影'];
+  const issuePool = [t("qcPage.imageArtifactMotion"), t("qcPage.imageExposure"), t("qcPage.imagePositioning"), t("qcPage.contrastInsufficient"), t("qcPage.imageMotionMinor"), t("qcPage.imageNoise"), t("qcPage.imageMetalArtifact")];
   return DEVICE_MASTER.slice(0, 8).map((d, idx) => {
     const report = EXAM_REPORT_PRE[idx];
     const score = report ? Math.round(report.qcScore) : Math.round(85 + Math.random() * 10);
-    const status = score >= 95 ? '优秀' : score >= 85 ? '良好' : score >= 75 ? '一般' : '差';
+    const status = score >= 95 ? t("qcPage.excellent") : score >= 85 ? t("qcPage.good") : score >= 75 ? t("qcPage.fair") : t("qcPage.poor");
     const issues = score >= 95 ? [] : score >= 85 ? [issuePool[idx % 6]!] : score >= 75 ? [issuePool[idx % 6]!, issuePool[(idx + 2) % 6]!] : [issuePool[idx % 6]!];
     return {
       id: report?.reportId || `IMG-${idx + 1}`,
@@ -196,10 +202,10 @@ const imageQCData = (() => {
 
 // Timeout reports
 const timeoutData = [
-  { id: 'RAD-EX002', patientName: '李秀英', examItem: '头颅MR平扫', scheduledTime: '10:00', actualReportTime: '14:30', delayMinutes: 270, reason: 'MR设备维护延迟', severity: '严重' },
-  { id: 'RAD-EX003', patientName: '王建国', examItem: '胸部DR正侧位', scheduledTime: '11:00', actualReportTime: '12:15', delayMinutes: 75, reason: '体检报告高峰积压', severity: '一般' },
-  { id: 'RAD-EX004', patientName: '赵晓敏', examItem: '头颅CT平扫', scheduledTime: '12:00', actualReportTime: '15:45', delayMinutes: 225, reason: '急诊优先处理', severity: '严重' },
-  { id: 'RAD-EX006', patientName: '孙伟', examItem: '腰椎MR平扫', scheduledTime: '15:00', actualReportTime: '18:00', delayMinutes: 180, reason: '报告医师临时会议', severity: '中等' },
+  { id: 'RAD-EX002', patientName: '李秀英', examItem: t("qcPage.examHeadMr"), scheduledTime: '10:00', actualReportTime: '14:30', delayMinutes: 270, reason: t("qcPage.issueMrMaintenance"), severity: t("qcPage.severe") },
+  { id: 'RAD-EX003', patientName: '王建国', examItem: t("qcPage.examChestDr"), scheduledTime: '11:00', actualReportTime: '12:15', delayMinutes: 75, reason: t("qcPage.issueCheckupBacklog"), severity: t("qcPage.fair") },
+  { id: 'RAD-EX004', patientName: '赵晓敏', examItem: t("qcPage.examHeadCt"), scheduledTime: '12:00', actualReportTime: '15:45', delayMinutes: 225, reason: t("qcPage.issueEmergencyPriority"), severity: t("qcPage.severe") },
+  { id: 'RAD-EX006', patientName: '孙伟', examItem: t("qcPage.examLumbarMr"), scheduledTime: '15:00', actualReportTime: '18:00', delayMinutes: 180, reason: t("qcPage.issueDoctorMeeting"), severity: t("qcPage.medium") },
 ]
 
 // ==================== 医生报告质量评分数据 ====================
@@ -209,9 +215,9 @@ const timeoutData = [
 
 // 评分矩阵说明
 const SCORE_MATRIX = [
-  { dimension: '格式规范', weight: '30%', indicators: '报告完整性/模板使用/描述规范', color: '#3b82f6' },
-  { dimension: '诊断准确', weight: '50%', indicators: '误诊率/漏诊率/修改次数', color: '#059669' },
-  { dimension: '时效性', weight: '20%', indicators: '报告及时率/超时率', color: '#f59e0b' },
+  { dimension: t("qcPage.dimFormat"), weight: '30%', indicators: t("qcPage.dimFormatDesc"), color: '#3b82f6' },
+  { dimension: t("qcPage.dimAccuracy"), weight: '50%', indicators: t("qcPage.dimAccuracyDesc"), color: '#059669' },
+  { dimension: t("qcPage.dimTimeliness"), weight: '20%', indicators: t("qcPage.dimTimelinessDesc"), color: '#f59e0b' },
 ]
 
 // 医生评分排行榜 - 10名医生
@@ -248,10 +254,10 @@ const doctorScoreData = (() => {
 
 // 质控问题分布数据
 const qcIssueDistribution = [
-  { issueType: '格式错误', count: 28, percentage: 32, color: '#3b82f6', trend: '下降' },
-  { issueType: '描述不规范', count: 24, percentage: 28, color: '#d97706', trend: '下降' },
-  { issueType: '疑似误诊', count: 18, percentage: 21, color: '#ef4444', trend: '上升' },
-  { issueType: '超时', count: 17, percentage: 19, color: '#7c3aed', trend: '持平' },
+  { issueType: t("qcPage.defectFormat"), count: 28, percentage: 32, color: '#3b82f6', trend: t("qcPage.down") },
+  { issueType: t("qcPage.defectDescription"), count: 24, percentage: 28, color: '#d97706', trend: t("qcPage.down") },
+  { issueType: t("qcPage.defectMisdiagnosis"), count: 18, percentage: 21, color: '#ef4444', trend: t("qcPage.up") },
+  { issueType: t("qcPage.overdue"), count: 17, percentage: 19, color: '#7c3aed', trend: t("qcPage.flat") },
 ]
 
 // 医生评分汇总统计
@@ -288,66 +294,66 @@ const dashboardData = {
     count: 18 + Math.floor(Math.random() * 12 ),
   })),
   issueDistribution: [
-    { name: '运动伪影', value: 28, color: '#ef4444' },
-    { name: '曝光不当', value: 22, color: '#f97316' },
-    { name: '体位不正', value: 18, color: '#eab308' },
-    { name: '对比剂问题', value: 12, color: '#22c55e' },
-    { name: '设备故障', value: 8, color: '#3b82f6' },
-    { name: '其他', value: 12, color: 'var(--text-secondary)' },
+    { name: t("qcPage.imageArtifactMotion"), value: 28, color: '#ef4444' },
+    { name: t("qcPage.imageExposure"), value: 22, color: '#f97316' },
+    { name: t("qcPage.imagePositioning"), value: 18, color: '#eab308' },
+    { name: t("qcPage.defectContrast"), value: 12, color: '#22c55e' },
+    { name: t("qcPage.defectDevice"), value: 8, color: '#3b82f6' },
+    { name: t("qcPage.other"), value: 12, color: 'var(--text-secondary)' },
   ],
-  weakLinks: ['报告及时性', '描述规范性', '危急值追踪'],
+  weakLinks: [t("qcPage.reportTimeliness"), t("qcPage.descriptionStandard"), t("qcPage.criticalTracking")],
 }
 
 // ==================== 区域影像质控数据 ====================
 
 // 区域机构数据
 const regionalInstitutions = [
-  { id: 'HOSP001', name: '市第一人民医院', level: '三甲', joinedDate: '2024-01-15', status: 'active', reportsThisMonth: 4521, avgScore: 91.2, ranking: 1, contact: '张主任', phone: '0551-12345678', trend: 'up' as const },
-  { id: 'HOSP002', name: '市第三医院', level: '三乙', joinedDate: '2024-03-20', status: 'active', reportsThisMonth: 3280, avgScore: 88.7, ranking: 3, contact: '李主任', phone: '0551-23456789', trend: 'down' as const },
-  { id: 'HOSP003', name: '县人民医院', level: '二甲', joinedDate: '2024-06-01', status: 'active', reportsThisMonth: 2156, avgScore: 85.4, ranking: 5, contact: '王主任', phone: '0552-34567890', trend: 'same' as const },
-  { id: 'HOSP004', name: '区中心医院', level: '二乙', joinedDate: '2024-09-15', status: 'active', reportsThisMonth: 1892, avgScore: 82.1, ranking: 7, contact: '赵主任', phone: '0553-45678901', trend: 'down' as const },
-  { id: 'HOSP005', name: '市中医院', level: '三甲', joinedDate: '2024-02-10', status: 'active', reportsThisMonth: 2890, avgScore: 89.5, ranking: 2, contact: '刘主任', phone: '0551-56789012', trend: 'up' as const },
-  { id: 'HOSP006', name: '矿工医院', level: '二甲', joinedDate: '2025-01-05', status: 'active', reportsThisMonth: 1234, avgScore: 80.3, ranking: 8, contact: '陈主任', phone: '0552-67890123', trend: 'down' as const },
-  { id: 'HOSP007', name: '市妇幼保健院', level: '三甲', joinedDate: '2024-11-20', status: 'active', reportsThisMonth: 1567, avgScore: 87.2, ranking: 4, contact: '周主任', phone: '0551-78901234', trend: 'up' as const },
-  { id: 'HOSP008', name: '乡镇卫生院', level: '一甲', joinedDate: '2025-03-01', status: 'active', reportsThisMonth: 456, avgScore: 76.8, ranking: 10, contact: '孙主任', phone: '0554-89012345', trend: 'up' as const },
+  { id: 'HOSP001', name: t("qcPage.hospitalCity1"), level: t("qcPage.gradeTertiaryA"), joinedDate: '2024-01-15', status: 'active', reportsThisMonth: 4521, avgScore: 91.2, ranking: 1, contact: '张主任', phone: '0551-12345678', trend: 'up' as const },
+  { id: 'HOSP002', name: t("qcPage.hospitalCity3"), level: t("qcPage.gradeTertiaryB"), joinedDate: '2024-03-20', status: 'active', reportsThisMonth: 3280, avgScore: 88.7, ranking: 3, contact: '李主任', phone: '0551-23456789', trend: 'down' as const },
+  { id: 'HOSP003', name: t("qcPage.hospitalCounty"), level: t("qcPage.gradeSecondaryA"), joinedDate: '2024-06-01', status: 'active', reportsThisMonth: 2156, avgScore: 85.4, ranking: 5, contact: '王主任', phone: '0552-34567890', trend: 'same' as const },
+  { id: 'HOSP004', name: t("qcPage.hospitalDistrict"), level: t("qcPage.gradeSecondaryB"), joinedDate: '2024-09-15', status: 'active', reportsThisMonth: 1892, avgScore: 82.1, ranking: 7, contact: '赵主任', phone: '0553-45678901', trend: 'down' as const },
+  { id: 'HOSP005', name: t("qcPage.hospitalTcm"), level: t("qcPage.gradeTertiaryA"), joinedDate: '2024-02-10', status: 'active', reportsThisMonth: 2890, avgScore: 89.5, ranking: 2, contact: '刘主任', phone: '0551-56789012', trend: 'up' as const },
+  { id: 'HOSP006', name: t("qcPage.hospitalMiner"), level: t("qcPage.gradeSecondaryA"), joinedDate: '2025-01-05', status: 'active', reportsThisMonth: 1234, avgScore: 80.3, ranking: 8, contact: '陈主任', phone: '0552-67890123', trend: 'down' as const },
+  { id: 'HOSP007', name: t("qcPage.hospitalMaternal"), level: t("qcPage.gradeTertiaryA"), joinedDate: '2024-11-20', status: 'active', reportsThisMonth: 1567, avgScore: 87.2, ranking: 4, contact: '周主任', phone: '0551-78901234', trend: 'up' as const },
+  { id: 'HOSP008', name: t("qcPage.hospitalTownship"), level: t("qcPage.gradeTertiaryA1"), joinedDate: '2025-03-01', status: 'active', reportsThisMonth: 456, avgScore: 76.8, ranking: 10, contact: '孙主任', phone: '0554-89012345', trend: 'up' as const },
 ]
 
 // 区域排名数据
 const regionalRanking = [
-  { institution: '市第一人民医院', score: 91.2, imageQuality: 93, reportQuality: 90, timeliness: 88, criticalValueReport: 98, ranking: 1, trend: 'up', trendValue: 1.2 },
-  { institution: '市中医院', score: 89.5, imageQuality: 91, reportQuality: 88, timeliness: 87, criticalValueReport: 96, ranking: 2, trend: 'up', trendValue: 0.8 },
-  { institution: '市第三医院', score: 88.7, imageQuality: 89, reportQuality: 88, timeliness: 86, criticalValueReport: 95, ranking: 3, trend: 'down', trendValue: -0.5 },
-  { institution: '市妇幼保健院', score: 87.2, imageQuality: 88, reportQuality: 86, timeliness: 85, criticalValueReport: 94, ranking: 4, trend: 'up', trendValue: 1.5 },
-  { institution: '县人民医院', score: 85.4, imageQuality: 86, reportQuality: 84, timeliness: 83, criticalValueReport: 92, ranking: 5, trend: 'same', trendValue: 0 },
-  { institution: '区中心医院', score: 82.1, imageQuality: 83, reportQuality: 81, timeliness: 80, criticalValueReport: 89, ranking: 7, trend: 'down', trendValue: -1.2 },
-  { institution: '矿工医院', score: 80.3, imageQuality: 81, reportQuality: 79, timeliness: 78, criticalValueReport: 87, ranking: 8, trend: 'down', trendValue: -0.8 },
-  { institution: '乡镇卫生院', score: 76.8, imageQuality: 77, reportQuality: 75, timeliness: 74, criticalValueReport: 82, ranking: 10, trend: 'up', trendValue: 2.1 },
+  { institution: t("qcPage.hospitalCity1"), score: 91.2, imageQuality: 93, reportQuality: 90, timeliness: 88, criticalValueReport: 98, ranking: 1, trend: 'up', trendValue: 1.2 },
+  { institution: t("qcPage.hospitalTcm"), score: 89.5, imageQuality: 91, reportQuality: 88, timeliness: 87, criticalValueReport: 96, ranking: 2, trend: 'up', trendValue: 0.8 },
+  { institution: t("qcPage.hospitalCity3"), score: 88.7, imageQuality: 89, reportQuality: 88, timeliness: 86, criticalValueReport: 95, ranking: 3, trend: 'down', trendValue: -0.5 },
+  { institution: t("qcPage.hospitalMaternal"), score: 87.2, imageQuality: 88, reportQuality: 86, timeliness: 85, criticalValueReport: 94, ranking: 4, trend: 'up', trendValue: 1.5 },
+  { institution: t("qcPage.hospitalCounty"), score: 85.4, imageQuality: 86, reportQuality: 84, timeliness: 83, criticalValueReport: 92, ranking: 5, trend: 'same', trendValue: 0 },
+  { institution: t("qcPage.hospitalDistrict"), score: 82.1, imageQuality: 83, reportQuality: 81, timeliness: 80, criticalValueReport: 89, ranking: 7, trend: 'down', trendValue: -1.2 },
+  { institution: t("qcPage.hospitalMiner"), score: 80.3, imageQuality: 81, reportQuality: 79, timeliness: 78, criticalValueReport: 87, ranking: 8, trend: 'down', trendValue: -0.8 },
+  { institution: t("qcPage.hospitalTownship"), score: 76.8, imageQuality: 77, reportQuality: 75, timeliness: 74, criticalValueReport: 82, ranking: 10, trend: 'up', trendValue: 2.1 },
 ]
 
 // 质控标准数据
 const qcStandards = {
   imageQuality: {
-    excellent: { min: 90, desc: '图像清晰，对比度适中，无伪影' },
-    good: { min: 80, desc: '图像清晰，轻微伪影不影响诊断' },
-    fair: { min: 70, desc: '图像质量一般，存在伪影但可诊断' },
-    poor: { min: 0, desc: '图像质量差，无法用于诊断' },
+    excellent: { min: 90, desc: t("qcPage.imageGradeADesc") },
+    good: { min: 80, desc: t("qcPage.imageGradeBDesc") },
+    fair: { min: 70, desc: t("qcPage.imageGradeCDesc") },
+    poor: { min: 0, desc: t("qcPage.imageGradeDDesc") },
   },
   reportQuality: {
-    excellent: { min: 90, desc: '报告完整、规范、准确' },
-    good: { min: 80, desc: '报告完整，轻微不规范' },
-    fair: { min: 70, desc: '报告基本完整，存在漏项' },
-    poor: { min: 0, desc: '报告不完整或不准确' },
+    excellent: { min: 90, desc: t("qcPage.reportGradeADesc") },
+    good: { min: 80, desc: t("qcPage.reportGradeBDesc") },
+    fair: { min: 70, desc: t("qcPage.reportGradeCDesc") },
+    poor: { min: 0, desc: t("qcPage.descFail") },
   },
   timeliness: {
-    urgent: { minutes: 30, desc: '危急值立即通知，≤30分钟' },
-    stat: { minutes: 60, desc: '急诊报告≤60分钟' },
-    routine: { minutes: 120, desc: '常规报告≤2小时' },
-    extended: { minutes: 240, desc: '特殊检查≤4小时' },
+    urgent: { minutes: 30, desc: t("qcPage.ruleCritical30") },
+    stat: { minutes: 60, desc: t("qcPage.ruleEmergency60") },
+    routine: { minutes: 120, desc: t("qcPage.ruleRoutine2h") },
+    extended: { minutes: 240, desc: t("qcPage.ruleSpecial4h") },
   },
   criticalValue: {
-    required: { rate: 100, desc: '危急值10分钟内通知临床' },
-    reported: { rate: 95, desc: '危急值登记完整率≥95%' },
-    callback: { rate: 90, desc: '危急值回访确认率≥90%' },
+    required: { rate: 100, desc: t("qcPage.ruleCriticalNotify10") },
+    reported: { rate: 95, desc: t("qcPage.ruleCriticalRegister95") },
+    callback: { rate: 90, desc: t("qcPage.ruleCriticalFollowup90") },
   },
 }
 
@@ -376,26 +382,26 @@ regionalInstitutions.map(inst => ({
 
 // 问题追踪数据
 const issueTrackingData = [
-  { id: 'IT001', institution: '县人民医院', issueType: '报告超时', description: '部分报告超过规定时限', severity: '中', status: '整改中', reportedDate: '2026-04-15', dueDate: '2026-05-15' },
-  { id: 'IT002', institution: '乡镇卫生院', issueType: '图像质量问题', description: '部分图像质量不达标', severity: '高', status: '整改中', reportedDate: '2026-04-10', dueDate: '2026-05-10' },
-  { id: 'IT003', institution: '矿工医院', issueType: '危急值漏报', description: '发现3例危急值未及时上报', severity: '高', status: '已整改', reportedDate: '2026-03-28', dueDate: '2026-04-28' },
-  { id: 'IT004', institution: '区中心医院', issueType: '报告不规范', description: '报告格式不符合规范要求', severity: '低', status: '已整改', reportedDate: '2026-04-05', dueDate: '2026-04-20' },
+  { id: 'IT001', institution: t("qcPage.hospitalCounty"), issueType: t("qcPage.defectOverdue"), description: t("qcPage.issueSomeOverdue"), severity: t("qcPage.medium2"), status: t("qcPage.correcting"), reportedDate: '2026-04-15', dueDate: '2026-05-15' },
+  { id: 'IT002', institution: t("qcPage.hospitalTownship"), issueType: t("qcPage.issueImageQuality"), description: t("qcPage.issueImageBelowStandard"), severity: t("qcPage.high"), status: t("qcPage.correcting"), reportedDate: '2026-04-10', dueDate: '2026-05-10' },
+  { id: 'IT003', institution: t("qcPage.hospitalMiner"), issueType: t("qcPage.issueCriticalMissed"), description: t("qcPage.issueCritical3Missed"), severity: t("qcPage.high"), status: t("qcPage.corrected"), reportedDate: '2026-03-28', dueDate: '2026-04-28' },
+  { id: 'IT004', institution: t("qcPage.hospitalDistrict"), issueType: t("qcPage.issueReportNonStandard"), description: t("qcPage.issueReportFormat"), severity: t("qcPage.low"), status: t("qcPage.corrected"), reportedDate: '2026-04-05', dueDate: '2026-04-20' },
 ]
 
 // 不合格原因分析
 const unqualifiedReasonData = [
-  { reason: '图像伪影', count: 45, percentage: 32, trend: '下降' },
-  { reason: '报告描述不完整', count: 32, percentage: 23, trend: '持平' },
-  { reason: '超时未出报告', count: 24, percentage: 17, trend: '下降' },
-  { reason: '危急值漏报', count: 12, percentage: 9, trend: '下降' },
-  { reason: '诊断结论不明确', count: 18, percentage: 13, trend: '上升' },
-  { reason: '其他', count: 9, percentage: 6, trend: '持平' },
+  { reason: t("qcPage.issueArtifact"), count: 45, percentage: 32, trend: t("qcPage.down") },
+  { reason: t("qcPage.issueIncompleteDesc"), count: 32, percentage: 23, trend: t("qcPage.flat") },
+  { reason: t("qcPage.issueNoReportInTime"), count: 24, percentage: 17, trend: t("qcPage.down") },
+  { reason: t("qcPage.issueCriticalMissed"), count: 12, percentage: 9, trend: t("qcPage.down") },
+  { reason: t("qcPage.defectUnclearDiagnosis"), count: 18, percentage: 13, trend: t("qcPage.up") },
+  { reason: t("qcPage.other"), count: 9, percentage: 6, trend: t("qcPage.flat") },
 ]
 
 // 月报/季报/年报数据
 const reportSummaryData = {
   monthly: {
-    period: '2026年4月',
+    period: t("qcPage.period2026Apr"),
     totalReports: 15620,
     avgScore: 87.2,
     excellentCount: 10153,
@@ -404,14 +410,14 @@ const reportSummaryData = {
     criticalValueReported: 245,
     criticalValueOnTime: 238,
     issues: [
-      { type: '图像质量问题', count: 156, percentage: 42 },
-      { type: '报告超时', count: 89, percentage: 24 },
-      { type: '报告不规范', count: 78, percentage: 21 },
-      { type: '危急值问题', count: 48, percentage: 13 },
+      { type: t("qcPage.issueImageQuality"), count: 156, percentage: 42 },
+      { type: t("qcPage.defectOverdue"), count: 89, percentage: 24 },
+      { type: t("qcPage.issueReportNonStandard"), count: 78, percentage: 21 },
+      { type: t("qcPage.issueCritical"), count: 48, percentage: 13 },
     ],
   },
   quarterly: {
-    period: '2026年Q1',
+    period: t("qcPage.period2026Q1"),
     totalReports: 45680,
     avgScore: 85.8,
     excellentCount: 28540,
@@ -420,13 +426,13 @@ const reportSummaryData = {
     criticalValueReported: 698,
     criticalValueOnTime: 672,
     trends: [
-      { metric: '优良率', value: '62.5%', trend: 'up', change: '+2.3%' },
-      { metric: '达标率', value: '92.5%', trend: 'up', change: '+1.5%' },
-      { metric: '超时率', value: '0.68%', trend: 'down', change: '-0.15%' },
+      { metric: t("qcPage.excellentGoodRate"), value: '62.5%', trend: 'up', change: '+2.3%' },
+      { metric: t("qcPage.complianceRate"), value: '92.5%', trend: 'up', change: '+1.5%' },
+      { metric: t("qcPage.overdueRate"), value: '0.68%', trend: 'down', change: '-0.15%' },
     ],
   },
   yearly: {
-    period: '2025年度',
+    period: t("qcPage.period2025"),
     totalReports: 178520,
     avgScore: 84.2,
     excellentCount: 102180,
@@ -487,7 +493,7 @@ export default function QCPage() {
       if (examRes.success || consRes.success || userRes.success) {
         setLoadError(null)
       } else {
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError(t("qcPage.apiUnavailableLocal"))
       }
       setLoading(false)
     })()
@@ -512,11 +518,11 @@ export default function QCPage() {
   const [peerReviewTab, setPeerReviewTab] = useState<'assignment' | 'scoring' | 'reliability'>('assignment')
   
   const [peerReviewAssignments, setPeerReviewAssignments] = useState([
-    { id: 'PR001', caseId: 'RAD-RPT011', patientName: '张伟', originalAuthor: '李明辉', reviewer: '王秀峰', blindedId: 'B-001', status: '待评分', accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-01' },
-    { id: 'PR002', caseId: 'RAD-RPT012', patientName: '李娜', originalAuthor: '王秀峰', reviewer: '张海涛', blindedId: 'B-002', status: '已评分', accuracy: 92, completeness: 88, timeliness: 90, submittedAt: '2026-05-01' },
-    { id: 'PR003', caseId: 'RAD-RPT013', patientName: '赵敏', originalAuthor: '张海涛', reviewer: '刘芳', blindedId: 'B-003', status: '已评分', accuracy: 85, completeness: 82, timeliness: 88, submittedAt: '2026-05-02' },
-    { id: 'PR004', caseId: 'RAD-RPT014', patientName: '王磊', originalAuthor: '刘芳', reviewer: '李明辉', blindedId: 'B-004', status: '待评分', accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-02' },
-    { id: 'PR005', caseId: 'RAD-RPT015', patientName: '周涛', originalAuthor: '陈志强', reviewer: '王秀峰', blindedId: 'B-005', status: '已评分', accuracy: 78, completeness: 80, timeliness: 75, submittedAt: '2026-05-03' },
+    { id: 'PR001', caseId: 'RAD-RPT011', patientName: '张伟', originalAuthor: '李明辉', reviewer: '王秀峰', blindedId: 'B-001', status: t("qcPage.pendingScore"), accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-01' },
+    { id: 'PR002', caseId: 'RAD-RPT012', patientName: '李娜', originalAuthor: '王秀峰', reviewer: '张海涛', blindedId: 'B-002', status: t("qcPage.scored"), accuracy: 92, completeness: 88, timeliness: 90, submittedAt: '2026-05-01' },
+    { id: 'PR003', caseId: 'RAD-RPT013', patientName: '赵敏', originalAuthor: '张海涛', reviewer: '刘芳', blindedId: 'B-003', status: t("qcPage.scored"), accuracy: 85, completeness: 82, timeliness: 88, submittedAt: '2026-05-02' },
+    { id: 'PR004', caseId: 'RAD-RPT014', patientName: '王磊', originalAuthor: '刘芳', reviewer: '李明辉', blindedId: 'B-004', status: t("qcPage.pendingScore"), accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-02' },
+    { id: 'PR005', caseId: 'RAD-RPT015', patientName: '周涛', originalAuthor: '陈志强', reviewer: '王秀峰', blindedId: 'B-005', status: t("qcPage.scored"), accuracy: 78, completeness: 80, timeliness: 75, submittedAt: '2026-05-03' },
   ])
   const [peerReviewDetail, setPeerReviewDetail] = useState<typeof peerReviewAssignments[0] | null>(null)
 
@@ -538,10 +544,10 @@ export default function QCPage() {
         id: `PR${String(Date.now() % 100000).padStart(3, '0')}-${i}`,
         caseId: c.caseId,
         patientName: c.patientName,
-        originalAuthor: '系统',
+        originalAuthor: t("qcPage.system"),
         reviewer,
         blindedId: `B-${String(Math.floor(100 + Math.random() * 900))}`,
-        status: '待评分',
+        status: t("qcPage.pendingScore"),
         accuracy: 0, completeness: 0, timeliness: 0,
         submittedAt: new Date().toISOString().slice(0, 10),
       }
@@ -554,7 +560,7 @@ export default function QCPage() {
   const handlePeerReviewScore = (a: typeof peerReviewAssignments[0]) => {
     if (a.status === '待评分') {
       const scores = { accuracy: 75 + Math.floor(Math.random() * 25), completeness: 75 + Math.floor(Math.random() * 25), timeliness: 75 + Math.floor(Math.random() * 25) }
-      setPeerReviewAssignments((prev) => prev.map((x) => x.id === a.id ? { ...x, ...scores, status: '已评分' } : x))
+      setPeerReviewAssignments((prev) => prev.map((x) => x.id === a.id ? { ...x, ...scores, status: t("qcPage.scored") } : x))
       showToast(`评分已提交 (${a.id})`, 'success')
     } else {
       setPeerReviewDetail(a)
@@ -565,14 +571,14 @@ export default function QCPage() {
   // Rule-Based Report Checker 状态
   const [ruleCheckerTab, setRuleCheckerTab] = useState<'rules' | 'results'>('rules')
   const qcRulesConfig = [
-    { id: 'R001', category: 'structure', name: '报告包含所有必需章节', description: '检查所见、诊断意见、建议等章节齐全', enabled: true, passed: true },
-    { id: 'R002', category: 'content', name: '患者信息完整', description: '患者姓名、ID、年龄、性别与申请单一致', enabled: true, passed: true },
-    { id: 'R003', category: 'terminology', name: '使用标准放射学术语', description: '禁止使用口语化、非标准缩写描述', enabled: true, passed: false },
-    { id: 'R004', category: 'structure', name: '影像描述结构化', description: '按解剖部位分层描述，逻辑清晰', enabled: true, passed: true },
-    { id: 'R005', category: 'compliance', name: '包含危急值标注', description: '若存在危急值必须在报告中标注并通知', enabled: true, passed: false },
-    { id: 'R006', category: 'content', name: '诊断意见有证据支持', description: '诊断结论与影像所见描述一致', enabled: true, passed: true },
-    { id: 'R007', category: 'terminology', name: 'BI-RADS/LU-RADS分级规范', description: '肿瘤筛查报告按相应标准分级', enabled: true, passed: false },
-    { id: 'R008', category: 'compliance', name: '报告时效达标', description: '急诊≤30min，常规≤120min', enabled: true, passed: true },
+    { id: 'R001', category: 'structure', name: t("qcPage.ruleAllSections"), description: t("qcPage.ruleSectionsDesc"), enabled: true, passed: true },
+    { id: 'R002', category: 'content', name: t("qcPage.rulePatientInfo"), description: t("qcPage.rulePatientInfoConsistent"), enabled: true, passed: true },
+    { id: 'R003', category: 'terminology', name: t("qcPage.ruleStandardTerms"), description: t("qcPage.ruleTermsDesc"), enabled: true, passed: false },
+    { id: 'R004', category: 'structure', name: t("qcPage.ruleStructuredDesc"), description: t("qcPage.ruleStructuredDescNote"), enabled: true, passed: true },
+    { id: 'R005', category: 'compliance', name: t("qcPage.ruleCriticalAnnotation"), description: t("qcPage.ruleCriticalMarkDesc"), enabled: true, passed: false },
+    { id: 'R006', category: 'content', name: t("qcPage.ruleEvidenceBased"), description: t("qcPage.ruleEvidenceDesc"), enabled: true, passed: true },
+    { id: 'R007', category: 'terminology', name: t("qcPage.ruleBiRads"), description: t("qcPage.ruleBiRadsDesc"), enabled: true, passed: false },
+    { id: 'R008', category: 'compliance', name: t("qcPage.ruleTimely"), description: t("qcPage.ruleTimelyDesc"), enabled: true, passed: true },
   ]
   const overallQualityScore = 82
 
@@ -581,14 +587,14 @@ export default function QCPage() {
   // [v3.0.6.8-28] 放射-病理对照数据 - 来源: 抽样 8 例
   // [W3-C] 改为 state: 发起会诊/标记复查 为真实状态变更
   const [radPathData, setRadPathData] = useState([
-    { id: 'RP001', patientName: '张伟', radDiagnosis: '左肺上叶结节，LU-RADS 4A', pathResult: '肺腺癌', concordance: 'concordant' as const, date: '2026-04-20', consultationStarted: false, needsReview: false },
-    { id: 'RP002', patientName: '李娜', radDiagnosis: '右乳BI-RADS 4C', pathResult: '浸润性导管癌', concordance: 'concordant' as const, date: '2026-04-21', consultationStarted: false, needsReview: false },
-    { id: 'RP003', patientName: '王磊', radDiagnosis: '肝S8段结节，HCC可能', pathResult: '局灶性结节样增生', concordance: 'discordant' as const, date: '2026-04-22', consultationStarted: false, needsReview: false },
-    { id: 'RP004', patientName: '赵敏', radDiagnosis: '甲状腺左叶结节，TI-RADS 4', pathResult: '甲状腺乳头状癌', concordance: 'concordant' as const, date: '2026-04-23', consultationStarted: false, needsReview: false },
-    { id: 'RP005', patientName: '周涛', radDiagnosis: '胰腺体部占位', pathResult: '自身免疫性胰腺炎', concordance: 'discordant' as const, date: '2026-04-24', consultationStarted: false, needsReview: false },
-    { id: 'RP006', patientName: '吴静', radDiagnosis: '左肾下极肿块', pathResult: '肾透明细胞癌', concordance: 'concordant' as const, date: '2026-04-25', consultationStarted: false, needsReview: false },
-    { id: 'RP007', patientName: '郑强', radDiagnosis: '右肺下叶磨玻璃影', pathResult: '结果待定', concordance: 'indeterminate' as const, date: '2026-04-26', consultationStarted: false, needsReview: false },
-    { id: 'RP008', patientName: '钱琳', radDiagnosis: '子宫肌瘤', pathResult: '子宫平滑肌瘤', concordance: 'concordant' as const, date: '2026-04-27', consultationStarted: false, needsReview: false },
+    { id: 'RP001', patientName: '张伟', radDiagnosis: t("qcPage.caseLungNodule"), pathResult: t("qcPage.caseLungAdeno"), concordance: 'concordant' as const, date: '2026-04-20', consultationStarted: false, needsReview: false },
+    { id: 'RP002', patientName: '李娜', radDiagnosis: t("qcPage.caseBreastBiRads"), pathResult: t("qcPage.caseInvasiveDuctal"), concordance: 'concordant' as const, date: '2026-04-21', consultationStarted: false, needsReview: false },
+    { id: 'RP003', patientName: '王磊', radDiagnosis: t("qcPage.caseLiverNodule"), pathResult: t("qcPage.caseFnh"), concordance: 'discordant' as const, date: '2026-04-22', consultationStarted: false, needsReview: false },
+    { id: 'RP004', patientName: '赵敏', radDiagnosis: t("qcPage.caseThyroidNodule"), pathResult: t("qcPage.caseThyroidPtc"), concordance: 'concordant' as const, date: '2026-04-23', consultationStarted: false, needsReview: false },
+    { id: 'RP005', patientName: '周涛', radDiagnosis: t("qcPage.casePancreasMass"), pathResult: t("qcPage.caseAutoimmunePancreatitis"), concordance: 'discordant' as const, date: '2026-04-24', consultationStarted: false, needsReview: false },
+    { id: 'RP006', patientName: '吴静', radDiagnosis: t("qcPage.caseKidneyMass"), pathResult: t("qcPage.caseRenalClearCell"), concordance: 'concordant' as const, date: '2026-04-25', consultationStarted: false, needsReview: false },
+    { id: 'RP007', patientName: '郑强', radDiagnosis: t("qcPage.caseGgo"), pathResult: t("qcPage.casePending"), concordance: 'indeterminate' as const, date: '2026-04-26', consultationStarted: false, needsReview: false },
+    { id: 'RP008', patientName: '钱琳', radDiagnosis: t("qcPage.caseUterineFibroid"), pathResult: t("qcPage.caseLeiomyoma"), concordance: 'concordant' as const, date: '2026-04-27', consultationStarted: false, needsReview: false },
   ])
 
   // [W3-C] 发起会诊: 标记该病例进入会诊流程
@@ -623,18 +629,18 @@ export default function QCPage() {
   // ACR Compliance 状态
   const [acrTab, setAcrTab] = useState<'requirements' | 'readiness'>('requirements')
   const acrRequirementsData = [
-    { modality: 'CT', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告规范性', '人员资质'], completed: 4, total: 5, status: '部分达标' },
-    { modality: 'MR', requirements: ['设备质控记录', '安全培训记录', '图像质量评估', '紧急预案演练', '对比剂管理'], completed: 3, total: 5, status: '部分达标' },
-    { modality: 'DR', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告时效性', '人员继续教育'], completed: 5, total: 5, status: '已达标' },
-    { modality: 'MG', requirements: ['MQSA合规', '设备质控', '报告标准', '剂量记录', '技师认证'], completed: 2, total: 5, status: '未达标' },
-    { modality: 'DSA', requirements: ['设备质控', '辐射防护', '对比剂管理', '应急预案', '人员资质'], completed: 3, total: 5, status: '部分达标' },
+    { modality: 'CT', requirements: [t("qcPage.acrDeviceQc"), t("qcPage.acrDoseMonitoring"), t("qcPage.acrImageQuality"), t("qcPage.acrReportStandard"), t("qcPage.acrStaffQualification")], completed: 4, total: 5, status: t("qcPage.partiallyCompliant") },
+    { modality: 'MR', requirements: [t("qcPage.acrDeviceQc"), t("qcPage.acrSafetyTraining"), t("qcPage.acrImageQuality"), t("qcPage.acrEmergencyDrill"), t("qcPage.acrContrastManagement")], completed: 3, total: 5, status: t("qcPage.partiallyCompliant") },
+    { modality: 'DR', requirements: [t("qcPage.acrDeviceQc"), t("qcPage.acrDoseMonitoring"), t("qcPage.acrImageQuality"), t("qcPage.acrReportTimeliness"), t("qcPage.acrContinuingEducation")], completed: 5, total: 5, status: t("qcPage.compliant") },
+    { modality: 'MG', requirements: [t("qcPage.acrMqsa"), t("qcPage.acrDeviceQc2"), t("qcPage.acrReportStandard2"), t("qcPage.acrDoseRecords"), t("qcPage.acrTechCertification")], completed: 2, total: 5, status: t("qcPage.notCompliant") },
+    { modality: 'DSA', requirements: [t("qcPage.acrDeviceQc2"), t("qcPage.acrRadiationProtection"), t("qcPage.acrContrastManagement"), t("qcPage.acrEmergencyPlan"), t("qcPage.acrStaffQualification")], completed: 3, total: 5, status: t("qcPage.partiallyCompliant") },
   ]
   const readinessScore = 72
   const inspectionFindings = [
-    { id: 'F001', date: '2025-10-15', inspector: '省质控中心', findings: 'DR图像归档不完整', severity: '中', status: '已整改' },
-    { id: 'F002', date: '2025-10-15', inspector: '省质控中心', findings: 'CT辐射剂量记录不规范', severity: '高', status: '整改中' },
-    { id: 'F003', date: '2025-07-20', inspector: '市卫健委', findings: '危急值报告流程不完善', severity: '高', status: '已整改' },
-    { id: 'F004', date: '2025-04-10', inspector: '院内质控', findings: '报告术语使用不规范', severity: '低', status: '已整改' },
+    { id: 'F001', date: '2025-10-15', inspector: t("qcPage.issueProvincialQc"), findings: t("qcPage.issueDrArchive"), severity: t("qcPage.medium2"), status: t("qcPage.corrected") },
+    { id: 'F002', date: '2025-10-15', inspector: t("qcPage.issueProvincialQc"), findings: t("qcPage.issueCtDose"), severity: t("qcPage.high"), status: t("qcPage.correcting") },
+    { id: 'F003', date: '2025-07-20', inspector: t("qcPage.issueMunicipalHealth"), findings: t("qcPage.issueCriticalFlow"), severity: t("qcPage.high"), status: t("qcPage.corrected") },
+    { id: 'F004', date: '2025-04-10', inspector: t("qcPage.issueInternalQc"), findings: t("qcPage.issueTerminology"), severity: t("qcPage.low"), status: t("qcPage.corrected") },
   ]
 
   // Trend Analysis 状态
@@ -669,8 +675,8 @@ export default function QCPage() {
       }));
   })()
   const controlAlerts = [
-    { month: '2025-11', type: 'out_of_control_up', message: '全院评分超出控制上限 (84.2 > 89.5?)' },
-    { month: '2026-03', type: 'warning_up', message: '全院评分接近上限警戒线' },
+    { month: '2025-11', type: 'out_of_control_up', message: t("qcPage.alertScoreAboveUcl") },
+    { month: '2026-03', type: 'warning_up', message: t("qcPage.alertScoreNearUcl") },
   ]
   const indivDoctorTrendData = doctorScoreData.slice(0, 4)
 
@@ -708,13 +714,13 @@ export default function QCPage() {
   const handleSaveRules = () => {
     setQcRules({ ...tempRules })
     setEditingRules(false)
-    showToast('质控规则已保存', 'success')
+    showToast(t("qcPage.rulesSaved"), 'success')
   }
 
   
 
   const handleExportPDF = (type: string) => {
-    setProgressModal({ show: true, title: '报表生成', message: `正在生成${type}报表，请稍候...`, complete: false })
+    setProgressModal({ show: true, title: t("qcPage.reportGeneration"), message: `正在生成${type}报表，请稍候...`, complete: false })
     setTimeout(() => {
       setProgressModal(p => ({ ...p, complete: true, message: `${type}报表已生成` }))
       setTimeout(() => setProgressModal(p => ({ ...p, show: false })), 2000)
@@ -724,17 +730,17 @@ export default function QCPage() {
   const trendData = trendRange === '7d' ? dashboardData.trend7days : dashboardData.trend30days
 
   const statCardsReport = [
-    { label: '今日审核数', value: reportQCData.filter(r => r.date === '2026-05-01').length, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
-    { label: '平均评分', value: '87.3', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
-    { label: '超时审核数', value: timeoutData.length, icon: <Clock size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
-    { label: '优秀率', value: `${Math.round(reportQCData.filter(r => r.status === '优秀').length / reportQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
+    { label: t("qcPage.todayReviews"), value: reportQCData.filter(r => r.date === '2026-05-01').length, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
+    { label: t("qcPage.avgScore"), value: '87.3', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+    { label: t("qcPage.overdueReviews"), value: timeoutData.length, icon: <Clock size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
+    { label: t("qcPage.excellentRate"), value: `${Math.round(reportQCData.filter(r => r.status === '优秀').length / reportQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
   ]
 
   const statCardsImage = [
-    { label: '今日采集数', value: imageQCData.length, icon: <Camera size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
-    { label: '优秀率', value: `${Math.round(imageQCData.filter(i => i.status === '优秀').length / imageQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
-    { label: '废片率', value: `${Math.round(imageQCData.filter(i => i.status === '差').length / imageQCData.length * 100)}%`, icon: <AlertTriangle size={18} color={DANGER} />, bg: '#ef444422', color: DANGER },
-    { label: '平均评分', value: '87.2', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+    { label: t("qcPage.todayCaptures"), value: imageQCData.length, icon: <Camera size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
+    { label: t("qcPage.excellentRate"), value: `${Math.round(imageQCData.filter(i => i.status === '优秀').length / imageQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
+    { label: t("qcPage.rejectRate"), value: `${Math.round(imageQCData.filter(i => i.status === '差').length / imageQCData.length * 100)}%`, icon: <AlertTriangle size={18} color={DANGER} />, bg: '#ef444422', color: DANGER },
+    { label: t("qcPage.avgScore"), value: '87.2', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
   ]
 
   
@@ -755,11 +761,11 @@ export default function QCPage() {
   // 渲染区域质控子Tab
   const renderRegionalSubTabs = () => {
     const subTabs = [
-      { key: 'overview', label: '区域总览', icon: <BarChart2 size={14} /> },
-      { key: 'ranking', label: '机构排名', icon: <Award size={14} /> },
-      { key: 'standards', label: '质控标准', icon: <Target size={14} /> },
-      { key: 'reports', label: '质控报表', icon: <FileBarChart size={14} /> },
-      { key: 'tracking', label: '问题追踪', icon: <AlertTriangle size={14} /> },
+      { key: 'overview', label: t("qcPage.regionalOverview"), icon: <BarChart2 size={14} /> },
+      { key: 'ranking', label: t("qcPage.rankings"), icon: <Award size={14} /> },
+      { key: 'standards', label: t("qcPage.qcStandards"), icon: <Target size={14} /> },
+      { key: 'reports', label: t("qcPage.qcReports"), icon: <FileBarChart size={14} /> },
+      { key: 'tracking', label: t("qcPage.issueTracking"), icon: <AlertTriangle size={14} /> },
     ]
     return (
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 16, display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
@@ -797,14 +803,14 @@ export default function QCPage() {
 
   return (
     <div data-testid="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
-      {loading && <LoadingBanner message="正在从 API 加载质控数据..." />}
+      {loading && <LoadingBanner message={t("qcPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
       <PageHeader
         as="h1"
         size="md"
         icon={<div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={18} color='#fff' /></div>}
-        title={<>{t('qc.title')}<AppText size="xs" color="secondary" style={{ fontWeight: 400, marginLeft: 8 }}>质控中心</AppText></>}
+        title={<>{t('qc.title')}<AppText size="xs" color="secondary" style={{ fontWeight: 400, marginLeft: 8 }}>{t("qcPage.pageTitle")}</AppText></>}
         subtitle={<AppText size="sm" color="secondary" as="p" style={{ margin: 0 }}>{t('qc.subtitle')}</AppText>}
         style={{ marginBottom: 20 }}
       />
@@ -852,14 +858,14 @@ export default function QCPage() {
           }}>
             <div style={{ fontSize: 18 }}>🚀</div>
               <div style={{ flex: 1 }}>
-              <AppText size="xs" weight={700} color="success" as="div">v1.0.4 质量评分 + AI 增强子系统就绪</AppText>
-              <AppText size="xs" color="success" as="div" style={{ marginTop: 2 }}>5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿</AppText>
+              <AppText size="xs" weight={700} color="success" as="div">{t("qcPage.versionBadge")}</AppText>
+              <AppText size="xs" color="success" as="div" style={{ marginTop: 2 }}>{t("qcPage.pageSubtitle2")}</AppText>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>关键字扫描</button>
-              <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#5b21b6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>评分规则</button>
-              <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#b91c1c', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>缺陷字典</button>
-              <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>AI 初稿</button>
+              <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabKeywordScan")}</button>
+              <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#5b21b6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabScoreRules")}</button>
+              <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#b91c1c', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabDefectLibrary")}</button>
+              <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabAiDraft")}</button>
             </div>
           </div>
 
@@ -881,7 +887,7 @@ export default function QCPage() {
           {/* 评分系统三维矩阵 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>评分与绩效关联</AppText>
+              <Target size={16} color={PRIMARY} />{t("qcPage.scoreMatrixTitle")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.scorePerfLink")}</AppText>
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
               {SCORE_MATRIX.map(item => (
@@ -901,8 +907,8 @@ export default function QCPage() {
                 <BarChart3 size={14} color={WHITE} />
               </div>
               <div>
-                <AppText size="sm" weight={700} as="div" style={{ color: PRIMARY }}>评分计算公式</AppText>
-                <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>总分 = 格式分×0.3 + 准确分×0.5 + 时效分×0.2</AppText>
+                <AppText size="sm" weight={700} as="div" style={{ color: PRIMARY }}>{t("qcPage.scoreFormula")}</AppText>
+                <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>{t("qcPage.scoreFormulaBody")}</AppText>
               </div>
             </div>
           </div>
@@ -910,16 +916,16 @@ export default function QCPage() {
           {/* 医生评分排行榜 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>本月统计</AppText>
+              <Award size={16} color={PRIMARY} />{t("qcPage.doctorRanking")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.monthlyStats")}</AppText>
             </h3>
             {/* 排行榜统计卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
               {[
-                { label: '平均总分', value: doctorScoreStats.avgTotalScore.toFixed(1), icon: <Star size={16} />, color: ACCENT, bg: '#3b82f622' },
-                { label: '优秀医生', value: `${doctorScoreStats.excellentCount}人`, icon: <Award size={16} />, color: SUCCESS, bg: '#22c55e22' },
-                { label: '良好医生', value: `${doctorScoreStats.goodCount}人`, icon: <ThumbsUp size={16} />, color: WARNING, bg: '#f59e0b22' },
-                { label: '合格医生', value: `${doctorScoreStats.fairCount}人`, icon: <CheckCircle size={16} />, color: '#f97316', bg: '#f9731622' },
-                { label: '待改进', value: `${doctorScoreStats.poorCount}人`, icon: <AlertTriangle size={16} />, color: DANGER, bg: '#ef444422' },
+                { label: t("qcPage.avgTotal"), value: doctorScoreStats.avgTotalScore.toFixed(1), icon: <Star size={16} />, color: ACCENT, bg: '#3b82f622' },
+                { label: t("qcPage.excellentDoctors"), value: `${doctorScoreStats.excellentCount}人`, icon: <Award size={16} />, color: SUCCESS, bg: '#22c55e22' },
+                { label: t("qcPage.goodDoctors"), value: `${doctorScoreStats.goodCount}人`, icon: <ThumbsUp size={16} />, color: WARNING, bg: '#f59e0b22' },
+                { label: t("qcPage.passDoctors"), value: `${doctorScoreStats.fairCount}人`, icon: <CheckCircle size={16} />, color: '#f97316', bg: '#f9731622' },
+                { label: t("qcPage.needsImprovement"), value: `${doctorScoreStats.poorCount}人`, icon: <AlertTriangle size={16} />, color: DANGER, bg: '#ef444422' },
               ].map(card => (
                 <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px', textAlign: 'center' }}>
                   <div style={{ color: card.color, marginBottom: 6 }}>{card.icon}</div>
@@ -932,7 +938,7 @@ export default function QCPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['排名', '医生姓名', '总分', '格式分(30%)', '准确分(50%)', '时效分(20%)', '报告数', '绩效等级'].map(h => (
+                  {[t("qcPage.rank"), t("qcPage.doctorName"), t("qcPage.totalScore"), t("qcPage.formatScore"), t("qcPage.accuracyScore"), t("qcPage.timelinessScore"), t("qcPage.reportCount"), t("qcPage.perfGrade")].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -943,7 +949,7 @@ export default function QCPage() {
                   const rankBgColor = doctor.rank === 1 ? 'var(--color-warning-bg)' : doctor.rank === 2 ? 'var(--bg-card)' : doctor.rank === 3 ? 'var(--color-warning-bg)' : idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-primary)'
                   const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
                   const gradeColor = doctor.totalScore >= 90 ? SUCCESS : doctor.totalScore >= 80 ? WARNING : doctor.totalScore >= 70 ? '#f97316' : DANGER
-                  const gradeLabel = doctor.totalScore >= 90 ? '优秀' : doctor.totalScore >= 80 ? '良好' : doctor.totalScore >= 70 ? '合格' : '待改进'
+                  const gradeLabel = doctor.totalScore >= 90 ? t("qcPage.excellent") : doctor.totalScore >= 80 ? t("qcPage.good") : doctor.totalScore >= 70 ? t("qcPage.pass") : t("qcPage.needsImprovement")
                   return (
                     <tr key={doctor.id} style={{ borderBottom: `1px solid ${BORDER}`, background: rankBgColor }}
                       onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-info-bg)'}
@@ -969,7 +975,7 @@ export default function QCPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.accuracyScore)}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.timelinessScore)}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <AppText size="xs" color="secondary" as="span">{doctor.reportCount}份</AppText>
+                        <AppText size="xs" color="secondary" as="span">{doctor.reportCount}{t("qcPage.reportUnit")}</AppText>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? 'var(--color-success-bg)' : doctor.totalScore >= 80 ? 'var(--color-warning-bg)' : doctor.totalScore >= 70 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: gradeColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
@@ -988,14 +994,14 @@ export default function QCPage() {
             {/* 问题类型统计 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />质控问题分布<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>本月统计</AppText>
+                <AlertTriangle size={16} color={WARNING} />{t("qcPage.issueDistribution")}<AppText size="xs" color="secondary" style={{ fontWeight: 400 }}>{t("qcPage.monthlyStats")}</AppText>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
                 {qcIssueDistribution.map(item => (
                   <div key={item.issueType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                     <AppText size="xs" as="span" style={{ flex: 1 }}>{item.issueType}</AppText>
-                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}{t("qcPage.caseUnit")}</AppText>
                     <AppText size="xs" color="secondary" as="span" style={{ minWidth: 32 }}>{item.percentage}%</AppText>
                     <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                       {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
@@ -1008,7 +1014,7 @@ export default function QCPage() {
                   <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                   <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
                   <YAxis dataKey='issueType' type='category' tick={{ fontSize: 12, color: GRAY }} width={70} />
-                  <Tooltip formatter={(v) => [`${v}例`, '数量']} />
+                  <Tooltip formatter={(v) => [`${v}例`, t("qcPage.quantity")]} />
                   <Bar dataKey='count' radius={[0, 4, 4, 0]}>
                     {qcIssueDistribution.map((entry) => (
                       <Cell key={entry.issueType} fill={entry.color} />
@@ -1021,13 +1027,13 @@ export default function QCPage() {
             {/* 各维度平均分 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <BarChart3 size={16} color={PRIMARY} />各维度平均得分<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>全体医生</span>
+                <BarChart3 size={16} color={PRIMARY} />{t("qcPage.dimAvgScores")}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t("qcPage.allDoctors")}</span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[
-                  { label: '格式规范', score: doctorScoreStats.avgFormatScore, weight: '30%', color: '#3b82f6' },
-                  { label: '诊断准确', score: doctorScoreStats.avgAccuracyScore, weight: '50%', color: '#059669' },
-                  { label: '时效性', score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: '#d97706' },
+                  { label: t("qcPage.dimFormat"), score: doctorScoreStats.avgFormatScore, weight: '30%', color: '#3b82f6' },
+                  { label: t("qcPage.dimAccuracy"), score: doctorScoreStats.avgAccuracyScore, weight: '50%', color: '#059669' },
+                  { label: t("qcPage.dimTimeliness"), score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: '#d97706' },
                 ].map(item => (
                   <div key={item.label}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -1036,7 +1042,7 @@ export default function QCPage() {
                         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.label}</span>
                         <span style={{ padding: '1px 6px', background: `${item.color}20`, color: item.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{item.weight}</span>
                       </div>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: item.score >= 85 ? SUCCESS : item.score >= 75 ? WARNING : DANGER }}>{item.score.toFixed(1)}分</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: item.score >= 85 ? SUCCESS : item.score >= 75 ? WARNING : DANGER }}>{item.score.toFixed(1)}{t("qcPage.scoreUnit")}</span>
                     </div>
                     <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                       <div style={{ width: `${item.score}%`, height: '100%', background: item.color, borderRadius: 4, transition: 'width 0.3s' }} />
@@ -1046,8 +1052,8 @@ export default function QCPage() {
               </div>
               <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <AppText size="xs" color="secondary" as="span">综合加权平均分</AppText>
-                  <span style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}分</span>
+                  <AppText size="xs" color="secondary" as="span">{t("qcPage.weightedAvg")}</AppText>
+                  <span style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}{t("qcPage.scoreUnit")}</span>
                 </div>
               </div>
             </div>
@@ -1056,14 +1062,14 @@ export default function QCPage() {
           {/* 甲乙丙丁等级分布 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
+              <Award size={16} color={PRIMARY} />{t("qcPage.gradeDistribution")}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
               {gradeDistributionData.map(item => (
                 <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.grade}</div>
                   <div style={{ fontSize: 12, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}份</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}{t("qcPage.reportUnit")}</div>
                   <div style={{ fontSize: 12, color: item.color }}>{item.percentage}%</div>
                 </div>
               ))}
@@ -1073,7 +1079,7 @@ export default function QCPage() {
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                 <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
                 <YAxis dataKey='grade' type='category' tick={{ fontSize: 12, color: GRAY }} width={20} />
-                <Tooltip formatter={(v) => [`${v}份`, '数量']} />
+                <Tooltip formatter={(v) => [`${v}份`, t("qcPage.quantity")]} />
                 <Bar dataKey='count' radius={[0, 4, 4, 0]}>
                   {gradeDistributionData.map((entry) => (
                     <Cell key={entry.grade} fill={entry.color} />
@@ -1087,10 +1093,10 @@ export default function QCPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 12, border: '1px solid var(--border-color)', display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: LIGHT_BG, borderRadius: 8, padding: '8px 12px' }}>
               <Search size={14} color={GRAY} />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名、报告ID..." style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent', color: PRIMARY }} />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("qcPage.searchPlaceholder")} style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent', color: PRIMARY }} />
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {['全部', '优秀', '良好', '一般', '差'].map(s => (
+              {['全部', t("qcPage.excellent"), t("qcPage.good"), t("qcPage.fair"), t("qcPage.poor")].map(s => (
                 <button key={s} onClick={() => setFilterStatus(s)} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${filterStatus === s ? ACCENT : BORDER}`, background: filterStatus === s ? ACCENT : 'var(--bg-card)', color: filterStatus === s ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   {s}
                 </button>
@@ -1103,7 +1109,7 @@ export default function QCPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['报告ID', '患者姓名', '报告医生', '审核医生', '等级', '总分', '完整性', '准确性', '规范性', '及时性', '状态', '操作'].map(h => (
+                  {[t("qcPage.reportId"), t("qcPage.patientName"), t("qcPage.reportDoctor"), t("qcPage.reviewDoctor"), t("qcPage.grade"), t("qcPage.totalScore"), t("qcPage.completeness"), t("qcPage.accuracy"), t("qcPage.standardness"), t("qcPage.timeliness"), t("qcPage.status"), t("qcPage.actions")].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -1151,7 +1157,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Stat Cards [v3.0.6.11-96 Wave5A P2] imageQCData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {statCardsImage.map(card => (
@@ -1172,7 +1178,7 @@ export default function QCPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['检查号', '患者', '设备', '影像评分', '主要问题', '状态', '操作'].map(h => (
+                  {[t("qcPage.accessionNo"), t("qcPage.patient"), t("qcPage.device"), t("qcPage.imageScore"), t("qcPage.mainIssues"), t("qcPage.status"), t("qcPage.actions")].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -1233,7 +1239,7 @@ export default function QCPage() {
                   <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
                     <span style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)' }}>{item.name}</span>
-                    <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{item.value}例</span>
+                    <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{item.value}{t("qcPage.caseUnit")}</span>
                     <span style={{ fontSize: 12, color: GRAY }}>{Math.round(item.value / dashboardData.issueDistribution.reduce((s, i) => s + i.value, 0) * 100)}%</span>
                   </div>
                 ))}
@@ -1247,7 +1253,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Summary Cards [v3.0.6.11-96 Wave5A P2] timeoutData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -1256,7 +1262,7 @@ export default function QCPage() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.timeoutCount')}</span>
               </div>
               <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{timeoutData.length}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>占今日报告 {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.shareOfToday")} {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -1264,7 +1270,7 @@ export default function QCPage() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.severeTimeout')}</span>
               </div>
               <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{timeoutData.filter(t => t.severity === '严重').length}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>延迟超过3小时</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.delayOver3h")}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -1272,7 +1278,7 @@ export default function QCPage() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.avgDelay')}</span>
               </div>
               <div style={{ fontSize: 28, fontWeight: 700, color: ACCENT }}>{Math.round(timeoutData.reduce((s, t) => s + t.delayMinutes, 0) / timeoutData.length)}</div>
-              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>分钟/例</div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t("qcPage.minPerCase")}</div>
             </div>
           </div>
 
@@ -1281,7 +1287,7 @@ export default function QCPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['检查号', '患者', '检查项目', '计划时间', '实际报告', '延迟(分钟)', '超时原因', '严重程度'].map(h => (
+                  {[t("qcPage.accessionNo"), t("qcPage.patient"), t("qcPage.examItem"), t("qcPage.plannedTime"), t("qcPage.actualReport"), t("qcPage.delayMinutes"), t("qcPage.overdueReason"), t("qcPage.severity")].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -1321,10 +1327,10 @@ export default function QCPage() {
                 <AlertTriangle size={16} color={WARNING} />{t('qc.timeoutAnalysis')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { reason: '设备维护/故障延迟', count: 1, pct: '25%' },
-                  { reason: '报告医师临时会议/培训', count: 1, pct: '25%' },
-                  { reason: '急诊优先导致积压', count: 1, pct: '25%' },
-                  { reason: '体检高峰时段积压', count: 1, pct: '25%' },
+                  { reason: t("qcPage.reasonDeviceMaintenance"), count: 1, pct: '25%' },
+                  { reason: t("qcPage.reasonDoctorMeeting"), count: 1, pct: '25%' },
+                  { reason: t("qcPage.reasonEmergencyBacklog"), count: 1, pct: '25%' },
+                  { reason: t("qcPage.reasonCheckupBacklog"), count: 1, pct: '25%' },
                 ].map(item => (
                   <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ flex: 1 }}>
@@ -1333,7 +1339,7 @@ export default function QCPage() {
                         <div style={{ width: item.pct, height: '100%', background: WARNING, borderRadius: 3 }} />
                       </div>
                     </div>
-                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY, minWidth: 40, textAlign: 'right' }}>{item.count}例</AppText>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY, minWidth: 40, textAlign: 'right' }}>{item.count}{t("qcPage.caseUnit")}</AppText>
                   </div>
                 ))}
               </div>
@@ -1343,10 +1349,10 @@ export default function QCPage() {
                 <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { suggestion: '建立设备预防性维护机制，减少突发故障', priority: '高' },
-                  { suggestion: '会议/培训时间错开报告高峰时段', priority: '中' },
-                  { suggestion: '增设体检报告快速通道', priority: '中' },
-                  { suggestion: '优化急诊报告优先级调度算法', priority: '高' },
+                  { suggestion: t("qcPage.actionDeviceMaintenance"), priority: t("qcPage.high") },
+                  { suggestion: t("qcPage.actionMeetingScheduling"), priority: t("qcPage.medium2") },
+                  { suggestion: t("qcPage.actionCheckupFastTrack"), priority: t("qcPage.medium2") },
+                  { suggestion: t("qcPage.actionEmergencyScheduler"), priority: t("qcPage.high") },
                 ].map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
                     <div style={{ width: 20, height: 20, borderRadius: '50%', background: PRIMARY, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
@@ -1368,15 +1374,15 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* 抽检统计卡片 [v3.0.6.11-96 Wave5A P2] inspectionStats 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>演示数据（本地示例）</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
             {[
-              { label: '本月抽检总数', value: inspectionStats.totalInspected, icon: <ClipboardList size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
-              { label: '抽检通过率', value: `${inspectionStats.passedRate}%`, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
-              { label: '抽检甲级率', value: `${inspectionStats.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
-              { label: '缺陷发现率', value: `${inspectionStats.defectRate}%`, icon: <AlertTriangle size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
-              { label: '抽检平均分', value: inspectionStats.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
+              { label: t("qcPage.samplingTotal"), value: inspectionStats.totalInspected, icon: <ClipboardList size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
+              { label: t("qcPage.samplingPassRate"), value: `${inspectionStats.passedRate}%`, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
+              { label: t("qcPage.samplingGradeARate"), value: `${inspectionStats.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+              { label: t("qcPage.defectFoundRate"), value: `${inspectionStats.defectRate}%`, icon: <AlertTriangle size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
+              { label: t("qcPage.samplingAvgScore"), value: inspectionStats.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1402,7 +1408,7 @@ export default function QCPage() {
                   <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '10px 6px', textAlign: 'center', border: `2px solid ${item.color}` }}>
                     <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.grade}</div>
                     <div style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{item.label.split('（')[1]?.replace('）', '')}</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.count}份</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.count}{t("qcPage.reportUnit")}</div>
                   </div>
                 ))}
               </div>
@@ -1421,14 +1427,14 @@ export default function QCPage() {
             {/* 抽检缺陷类型分布 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>演示数据（本地示例）</span>
+                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>{t("qcPage.demoData")}</span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {reportDefectData.map(item => (
                   <div key={item.defectType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                     <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.defectType}</span>
-                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}{t("qcPage.caseUnit")}</AppText>
                     <AppText size="xs" color="secondary" as="span" style={{ minWidth: 32 }}>{item.percentage}%</AppText>
                     <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                       {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
@@ -1446,7 +1452,7 @@ export default function QCPage() {
                 <ClipboardList size={16} color={ACCENT} />{t('qcdefect.inspectionList')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
               </h3>
               <button
-                onClick={() => { setFormModal({ show: true, title: '新增抽检记录' }) }}
+                onClick={() => { setFormModal({ show: true, title: t("qcPage.newSample") }) }}
                 style={{
                   padding: '6px 14px',
                   borderRadius: 8,
@@ -1466,7 +1472,7 @@ export default function QCPage() {
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['抽检ID', '报告ID', '患者', '报告医生', '抽检医生', '抽检日期', '等级', '评分', '缺陷', '审核意见', '状态', '操作'].map(h => (
+                  {[t("qcPage.sampleId"), t("qcPage.reportId"), t("qcPage.patient"), t("qcPage.reportDoctor"), t("qcPage.sampleDoctor"), t("qcPage.sampleDate"), t("qcPage.grade"), t("qcPage.score"), t("qcPage.defect"), t("qcPage.reviewComment"), t("qcPage.status"), t("qcPage.actions")].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
@@ -1522,17 +1528,17 @@ export default function QCPage() {
                 <AlertTriangle size={16} color={WARNING} />{t('qcdefect.issueSummary')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { issue: '描述不完整/漏项', count: inspectionRecordsData.filter(r => r.defects.includes('描述不完整/漏项')).length, severity: '高' },
-                  { issue: '术语使用不规范', count: inspectionRecordsData.filter(r => r.defects.includes('术语使用不规范')).length, severity: '中' },
-                  { issue: '诊断结论不明确', count: inspectionRecordsData.filter(r => r.defects.includes('诊断结论不明确')).length, severity: '高' },
-                  { issue: '危急值漏报/迟报', count: inspectionRecordsData.filter(r => r.defects.includes('危急值漏报/迟报')).length, severity: '高' },
+                  { issue: t("qcPage.defectIncomplete"), count: inspectionRecordsData.filter(r => r.defects.includes(t("qcPage.defectIncomplete"))).length, severity: t("qcPage.high") },
+                  { issue: t("qcPage.defectTerminology"), count: inspectionRecordsData.filter(r => r.defects.includes(t("qcPage.defectTerminology"))).length, severity: t("qcPage.medium2") },
+                  { issue: t("qcPage.defectUnclearDiagnosis"), count: inspectionRecordsData.filter(r => r.defects.includes(t("qcPage.defectUnclearDiagnosis"))).length, severity: t("qcPage.high") },
+                  { issue: t("qcPage.defectCriticalMissed"), count: inspectionRecordsData.filter(r => r.defects.includes(t("qcPage.defectCriticalMissed"))).length, severity: t("qcPage.high") },
                 ].map(item => (
                   <div key={item.issue} style={{ display: 'flex', alignItems: 'center', gap: 10, background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: item.severity === '高' ? DANGER : WARNING, flexShrink: 0 }} />
                     <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.issue}</span>
-                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                    <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}{t("qcPage.caseUnit")}</AppText>
                     <span style={{ padding: '1px 6px', background: item.severity === '高' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: item.severity === '高' ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
-                      {item.severity === '高' ? '严重' : '中等'}
+                      {item.severity === '高' ? t("qcPage.severe") : t("qcPage.medium")}
                     </span>
                   </div>
                 ))}
@@ -1543,10 +1549,10 @@ export default function QCPage() {
                 <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { suggestion: '针对描述不完整问题，组织报告规范书写培训', priority: '高' },
-                  { suggestion: '建立常用医学术语库，减少不规范术语使用', priority: '中' },
-                  { suggestion: '完善危急值报告制度，加强流程监管', priority: '高' },
-                  { suggestion: '定期发布甲级报告示例，供医生学习参考', priority: '中' },
+                  { suggestion: t("qcPage.actionWritingTraining"), priority: t("qcPage.high") },
+                  { suggestion: t("qcPage.actionTerminologyLibrary"), priority: t("qcPage.medium2") },
+                  { suggestion: t("qcPage.actionCriticalFlow"), priority: t("qcPage.high") },
+                  { suggestion: t("qcPage.actionGradeAExamples"), priority: t("qcPage.medium2") },
                 ].map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
                     <div style={{ width: 20, height: 20, borderRadius: '50%', background: PRIMARY, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
@@ -1569,10 +1575,10 @@ export default function QCPage() {
           {/* Key Metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '达标率', value: `${dashboardData.passRate}%`, icon: <Target size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
-              { label: '优良率', value: `${dashboardData.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
-              { label: '总审核数', value: dashboardData.totalReviewed, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
-              { label: '综合评分', value: dashboardData.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
+              { label: t("qcPage.complianceRate"), value: `${dashboardData.passRate}%`, icon: <Target size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
+              { label: t("qcPage.excellentGoodRate"), value: `${dashboardData.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+              { label: t("qcPage.totalReviews"), value: dashboardData.totalReviewed, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
+              { label: t("qcPage.compositeScore"), value: dashboardData.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1590,11 +1596,11 @@ export default function QCPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* Pass Rate Ring */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>达标率 / 优良率</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t("qcPage.complianceExcellentRate2")}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <ResponsiveContainer width='100%' height={180}>
                   <RechartsPie>
-                    <Pie data={[{ name: '达标', value: dashboardData.passRate }, { name: '未达标', value: 100 - dashboardData.passRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
+                    <Pie data={[{ name: t("qcPage.compliant"), value: dashboardData.passRate }, { name: t("qcPage.notCompliant"), value: 100 - dashboardData.passRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
                       <Cell fill={SUCCESS} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
@@ -1602,7 +1608,7 @@ export default function QCPage() {
                 </ResponsiveContainer>
                 <ResponsiveContainer width='100%' height={180}>
                   <RechartsPie>
-                    <Pie data={[{ name: '优良', value: dashboardData.excellentRate }, { name: '非优良', value: 100 - dashboardData.excellentRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
+                    <Pie data={[{ name: t("qcPage.excellentGood"), value: dashboardData.excellentRate }, { name: t("qcPage.notExcellentGood"), value: 100 - dashboardData.excellentRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
                       <Cell fill={'#f59e0b'} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
@@ -1654,7 +1660,7 @@ export default function QCPage() {
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                 <XAxis dataKey='date' tick={{ fontSize: 12, color: GRAY }} />
                 <YAxis domain={[75, 95]} tick={{ fontSize: 12, color: GRAY }} />
-                <Tooltip formatter={(v, name) => [name === 'score' ? `${v}分` : `${v}份`, name === 'score' ? '评分' : '报告数']} />
+                <Tooltip formatter={(v, name) => [name === 'score' ? `${v}分` : `${v}份`, name === 'score' ? t("qcPage.score") : t("qcPage.reportCount")]} />
                 <Area type='monotone' dataKey='score' stroke={ACCENT} fill='#3b82f622' strokeWidth={2} name='score' />
                 <Line type='monotone' dataKey='count' stroke={SUCCESS} strokeWidth={1.5} dot={false} name='count' />
               </AreaChart>
@@ -1681,15 +1687,15 @@ export default function QCPage() {
                 <Target size={16} color={ACCENT} />{t('qc.targetVsActual')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: '报告及时率', target: '95%', actual: '88%', color: DANGER },
-                  { label: '优良率', target: '70%', actual: '65%', color: WARNING },
-                  { label: '废片率', target: '<2%', actual: '1.8%', color: SUCCESS },
-                  { label: '危急值10min内通知', target: '100%', actual: '96%', color: WARNING },
+                  { label: t("qcPage.timelyRate"), target: '95%', actual: '88%', color: DANGER },
+                  { label: t("qcPage.excellentGoodRate"), target: '70%', actual: '65%', color: WARNING },
+                  { label: t("qcPage.rejectRate"), target: '<2%', actual: '1.8%', color: SUCCESS },
+                  { label: t("qcPage.criticalNotify10min"), target: '100%', actual: '96%', color: WARNING },
                 ].map(item => (
                   <div key={item.label}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                       <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{item.label}</span>
-                      <span style={{ fontSize: 12, color: GRAY }}>目标: {item.target} | 实际: <span style={{ fontWeight: 700, color: item.color }}>{item.actual}</span></span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.targetLabel")} {item.target} {t("qcPage.actualLabel")} <span style={{ fontWeight: 700, color: item.color }}>{item.actual}</span></span>
                     </div>
                       <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, position: 'relative' }}>
                       <div style={{ height: '100%', borderRadius: 4, background: item.color, width: `${(parseFloat(item.actual.replace('%', '')) / parseFloat(item.target.replace('%', '').replace('<', ''))) * 100}%`, maxWidth: '100%', transition: 'width 0.3s' }} />
@@ -1761,9 +1767,9 @@ export default function QCPage() {
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
                     <YAxis domain={[75, 95]} tick={{ fontSize: 12, color: GRAY }} />
                     <Tooltip formatter={(v, name) => {
-                      if (name === 'avgScore') return [`${v}分`, '综合评分']
-                      if (name === 'excellentRate') return [`${v}%`, '优良率']
-                      if (name === 'passRate') return [`${v}%`, '达标率']
+                      if (name === 'avgScore') return [`${v}分`, t("qcPage.compositeScore")]
+                      if (name === 'excellentRate') return [`${v}%`, t("qcPage.excellentGoodRate")]
+                      if (name === 'passRate') return [`${v}%`, t("qcPage.complianceRate")]
                       return [v, name]
                     }} />
                     <Area type='monotone' dataKey='avgScore' stroke={ACCENT} fill='#3b82f622' strokeWidth={2} name='avgScore' />
@@ -1818,11 +1824,11 @@ export default function QCPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{inst.name}</span>
                           <span style={{ padding: '1px 6px', background: inst.level === '三甲' ? 'var(--color-info-bg)' : inst.level === '三乙' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: inst.level === '三甲' ? ACCENT : inst.level === '三乙' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{inst.level}</span>
-                          <span style={{ fontSize: 12, color: GRAY }}>第{inst.ranking}名</span>
+                          <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.rankPrefix")}{inst.ranking}名</span>
                         </div>
                         <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
-                          <span style={{ fontSize: 12, color: GRAY }}>本月报告: <span style={{ fontWeight: 600, color: PRIMARY }}>{inst.reportsThisMonth.toLocaleString()}</span></span>
-                          <span style={{ fontSize: 12, color: GRAY }}>平均分: <span style={{ fontWeight: 600, color: inst.avgScore >= 85 ? SUCCESS : inst.avgScore >= 80 ? WARNING : DANGER }}>{inst.avgScore}</span></span>
+                          <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.monthlyReports")} <span style={{ fontWeight: 600, color: PRIMARY }}>{inst.reportsThisMonth.toLocaleString()}</span></span>
+                          <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.avgScoreLabel")} <span style={{ fontWeight: 600, color: inst.avgScore >= 85 ? SUCCESS : inst.avgScore >= 80 ? WARNING : DANGER }}>{inst.avgScore}</span></span>
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1845,7 +1851,7 @@ export default function QCPage() {
                         <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                         <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
                         <YAxis dataKey='reason' type='category' tick={{ fontSize: 12, color: GRAY }} width={90} />
-                        <Tooltip formatter={(v) => [`${v}例`, '数量']} />
+                        <Tooltip formatter={(v) => [`${v}例`, t("qcPage.quantity")]} />
                         <Bar dataKey='count' fill={WARNING} radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -1855,7 +1861,7 @@ export default function QCPage() {
                       <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 8, height: 8, borderRadius: 2, background: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, flexShrink: 0 }} />
                         <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.reason}</span>
-                        <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}例</AppText>
+                        <AppText size="xs" weight={700} as="span" style={{ color: PRIMARY }}>{item.count}{t("qcPage.caseUnit")}</AppText>
                         <span style={{ fontSize: 12, color: GRAY, minWidth: 36 }}>{item.percentage}%</span>
                         <span style={{ fontSize: 12, padding: '1px 6px', background: item.trend === '下降' ? 'var(--color-success-bg)' : item.trend === '上升' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>{item.trend}</span>
                       </div>
@@ -1875,7 +1881,7 @@ export default function QCPage() {
                 <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                      {['排名', '医疗机构', '综合评分', '图像质量', '报告质量', '时效性', '危急值报告', '趋势'].map(h => (
+                      {[t("qcPage.rank"), t("qcPage.institution"), t("qcPage.compositeScore"), t("qcPage.imageQuality"), t("qcPage.reportQuality"), t("qcPage.dimTimeliness"), t("qcPage.criticalReporting"), t("qcPage.trend")].map(h => (
                         <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                       ))}
                     </tr>
@@ -1936,10 +1942,10 @@ export default function QCPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                   <ResponsiveContainer width='100%' height={280}>
                     <RadarChart data={[
-                      { subject: '图像质量', top1: 93, top2: 91, top3: 89 },
-                      { subject: '报告质量', top1: 90, top2: 88, top3: 88 },
-                      { subject: '时效性', top1: 88, top2: 87, top3: 86 },
-                      { subject: '危急值报告', top1: 98, top2: 96, top3: 95 },
+                      { subject: t("qcPage.imageQuality"), top1: 93, top2: 91, top3: 89 },
+                      { subject: t("qcPage.reportQuality"), top1: 90, top2: 88, top3: 88 },
+                      { subject: t("qcPage.dimTimeliness"), top1: 88, top2: 87, top3: 86 },
+                      { subject: t("qcPage.criticalReporting"), top1: 98, top2: 96, top3: 95 },
                     ]}>
                       <PolarGrid stroke='var(--border-color)' />
                       <PolarAngleAxis dataKey='subject' tick={{ fontSize: 12, color: GRAY }} />
@@ -1951,9 +1957,9 @@ export default function QCPage() {
                   </ResponsiveContainer>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {[
-                      { name: '市第一人民医院', score: 91.2, color: PIE_COLORS[0], rank: 1 },
-                      { name: '市中医院', score: 89.5, color: PIE_COLORS[1], rank: 2 },
-                      { name: '市第三医院', score: 88.7, color: PIE_COLORS[2], rank: 3 },
+                      { name: t("qcPage.hospitalCity1"), score: 91.2, color: PIE_COLORS[0], rank: 1 },
+                      { name: t("qcPage.hospitalTcm"), score: 89.5, color: PIE_COLORS[1], rank: 2 },
+                      { name: t("qcPage.hospitalCity3"), score: 88.7, color: PIE_COLORS[2], rank: 3 },
                     ].map(inst => (
                       <div key={inst.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', background: inst.rank <= 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1983,10 +1989,10 @@ export default function QCPage() {
                   <Image size={16} color={ACCENT} />{t('qc.imageQualityStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
-                    { level: '优秀', min: '≥90分', desc: qcStandards.imageQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
-                    { level: '良好', min: '80-89分', desc: qcStandards.imageQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
-                    { level: '一般', min: '70-79分', desc: qcStandards.imageQuality.fair.desc, color: '#f97316', bg: '#f9731622' },
-                    { level: '差', min: '<70分', desc: qcStandards.imageQuality.poor.desc, color: DANGER, bg: '#ef444422' },
+                    { level: t("qcPage.excellent"), min: t("qcPage.score90plus"), desc: qcStandards.imageQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
+                    { level: t("qcPage.good"), min: t("qcPage.score80to89"), desc: qcStandards.imageQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
+                    { level: t("qcPage.fair"), min: t("qcPage.score70to79"), desc: qcStandards.imageQuality.fair.desc, color: '#f97316', bg: '#f9731622' },
+                    { level: t("qcPage.poor"), min: t("qcPage.scoreBelow70"), desc: qcStandards.imageQuality.poor.desc, color: DANGER, bg: '#ef444422' },
                   ].map(item => (
                     <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -2005,10 +2011,10 @@ export default function QCPage() {
                   <FileText size={16} color={ACCENT} />{t('qc.reportQualityStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
-                    { level: '优秀', min: '≥90分', desc: qcStandards.reportQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
-                    { level: '良好', min: '80-89分', desc: qcStandards.reportQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
-                    { level: '一般', min: '70-79分', desc: qcStandards.reportQuality.fair.desc, color: '#f97316', bg: '#f9731622' },
-                    { level: '差', min: '<70分', desc: qcStandards.reportQuality.poor.desc, color: DANGER, bg: '#ef444422' },
+                    { level: t("qcPage.excellent"), min: t("qcPage.score90plus"), desc: qcStandards.reportQuality.excellent.desc, color: SUCCESS, bg: '#22c55e22' },
+                    { level: t("qcPage.good"), min: t("qcPage.score80to89"), desc: qcStandards.reportQuality.good.desc, color: WARNING, bg: '#f59e0b22' },
+                    { level: t("qcPage.fair"), min: t("qcPage.score70to79"), desc: qcStandards.reportQuality.fair.desc, color: '#f97316', bg: '#f9731622' },
+                    { level: t("qcPage.poor"), min: t("qcPage.scoreBelow70"), desc: qcStandards.reportQuality.poor.desc, color: DANGER, bg: '#ef444422' },
                   ].map(item => (
                     <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -2027,10 +2033,10 @@ export default function QCPage() {
                   <Clock size={16} color={ACCENT} />{t('qc.reportTimelinessStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
-                    { type: '危急值', minutes: '≤30分钟', desc: qcStandards.timeliness.urgent.desc, color: DANGER, bg: '#ef444422', icon: <AlertTriangle size={16} /> },
-                    { type: '急诊', minutes: '≤60分钟', desc: qcStandards.timeliness.stat.desc, color: WARNING, bg: '#f59e0b22', icon: <Zap size={16} /> },
-                    { type: '常规', minutes: '≤2小时', desc: qcStandards.timeliness.routine.desc, color: ACCENT, bg: '#3b82f622', icon: <Clock size={16} /> },
-                    { type: '特殊', minutes: '≤4小时', desc: qcStandards.timeliness.extended.desc, color: '#8b5cf6', bg: '#8b5cf622', icon: <FileText size={16} /> },
+                    { type: t("qcPage.criticalValue"), minutes: t("qcPage.emergency30Min"), desc: qcStandards.timeliness.urgent.desc, color: DANGER, bg: '#ef444422', icon: <AlertTriangle size={16} /> },
+                    { type: t("qcPage.emergency"), minutes: t("qcPage.within60Min"), desc: qcStandards.timeliness.stat.desc, color: WARNING, bg: '#f59e0b22', icon: <Zap size={16} /> },
+                    { type: t("qcPage.routine"), minutes: t("qcPage.routine2h"), desc: qcStandards.timeliness.routine.desc, color: ACCENT, bg: '#3b82f622', icon: <Clock size={16} /> },
+                    { type: t("qcPage.special"), minutes: t("qcPage.special4h"), desc: qcStandards.timeliness.extended.desc, color: '#8b5cf6', bg: '#8b5cf622', icon: <FileText size={16} /> },
                   ].map(item => (
                     <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `1px solid ${item.color}` }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -2050,9 +2056,9 @@ export default function QCPage() {
                   <AlertTriangle size={16} color={DANGER} />{t('qc.criticalValueStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                   {[
-                    { type: '10min内通知', rate: '100%', desc: qcStandards.criticalValue.required.desc, color: SUCCESS, bg: '#22c55e22' },
-                    { type: '登记完整率', rate: '≥95%', desc: qcStandards.criticalValue.reported.desc, color: SUCCESS, bg: '#22c55e22' },
-                    { type: '回访确认率', rate: '≥90%', desc: qcStandards.criticalValue.callback.desc, color: WARNING, bg: '#f59e0b22' },
+                    { type: t("qcPage.notify10Min"), rate: '100%', desc: qcStandards.criticalValue.required.desc, color: SUCCESS, bg: '#22c55e22' },
+                    { type: t("qcPage.registerRate"), rate: '≥95%', desc: qcStandards.criticalValue.reported.desc, color: SUCCESS, bg: '#22c55e22' },
+                    { type: t("qcPage.followupConfirmRate"), rate: '≥90%', desc: qcStandards.criticalValue.callback.desc, color: WARNING, bg: '#f59e0b22' },
                   ].map(item => (
                     <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '16px', border: `1px solid ${item.color}` }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.type}</div>
@@ -2072,9 +2078,9 @@ export default function QCPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 12, border: '1px solid var(--border-color)', display: 'flex', gap: 8, alignItems: 'center' }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, marginRight: 8 }}>{t('qc.reportType')}</span>
                 {[
-                  { key: 'monthly', label: '月报', icon: <FileBarChart size={14} /> },
-                  { key: 'quarterly', label: '季报', icon: <BarChart2 size={14} /> },
-                  { key: 'yearly', label: '年报', icon: <FileBarChart size={14} /> },
+                  { key: 'monthly', label: t("qcPage.monthlyReport"), icon: <FileBarChart size={14} /> },
+                  { key: 'quarterly', label: t("qcPage.quarterlyReport"), icon: <BarChart2 size={14} /> },
+                  { key: 'yearly', label: t("qcPage.annualReport"), icon: <FileBarChart size={14} /> },
                 ].map(type => (
                   <button
                     key={type.key}
@@ -2099,7 +2105,7 @@ export default function QCPage() {
                 ))}
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                   <button
-                    onClick={() => handleExportPDF(regionalReportType === 'monthly' ? '月度质控报告' : regionalReportType === 'quarterly' ? '季度质控报告' : '年度质控报告')}
+                    onClick={() => handleExportPDF(regionalReportType === 'monthly' ? t("qcPage.monthlyQcReport") : regionalReportType === 'quarterly' ? t("qcPage.quarterlyQcReport") : t("qcPage.annualQcReport"))}
                     style={{
                       padding: '6px 16px',
                       borderRadius: 8,
@@ -2124,15 +2130,15 @@ export default function QCPage() {
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <FileBarChart size={16} color={ACCENT} />{reportSummaryData.monthly.period} 质控月报
+                        <FileBarChart size={16} color={ACCENT} />{reportSummaryData.monthly.period} {t("qcPage.qcMonthlyReport")}
                       </h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                       {[
-                        { label: '报告总量', value: reportSummaryData.monthly.totalReports.toLocaleString(), icon: <FileText size={16} />, color: ACCENT, bg: '#3b82f622' },
-                        { label: '平均评分', value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: '#f59e0b', bg: '#f59e0b22' },
-                        { label: '达标率', value: `${reportSummaryData.monthly.passRate}%`, icon: <Target size={16} />, color: SUCCESS, bg: '#22c55e22' },
-                        { label: '超时报告', value: reportSummaryData.monthly.timeoutCount, icon: <Clock size={16} />, color: WARNING, bg: '#f59e0b22' },
+                        { label: t("qcPage.totalReports"), value: reportSummaryData.monthly.totalReports.toLocaleString(), icon: <FileText size={16} />, color: ACCENT, bg: '#3b82f622' },
+                        { label: t("qcPage.avgScore"), value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: '#f59e0b', bg: '#f59e0b22' },
+                        { label: t("qcPage.complianceRate"), value: `${reportSummaryData.monthly.passRate}%`, icon: <Target size={16} />, color: SUCCESS, bg: '#22c55e22' },
+                        { label: t("qcPage.overdueReports"), value: reportSummaryData.monthly.timeoutCount, icon: <Clock size={16} />, color: WARNING, bg: '#f59e0b22' },
                       ].map(card => (
                         <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -2145,18 +2151,18 @@ export default function QCPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                       <div>
-                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>优秀报告数: {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
+                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.excellentReportsLabel")} {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
                         <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                           <div style={{ width: `${reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100}%`, height: '100%', background: SUCCESS, borderRadius: 4 }} />
                         </div>
-                        <span style={{ fontSize: 12, color: GRAY }}>优良率: {Math.round(reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100)}%</span>
+                        <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.excellentGoodRateLabel")} {Math.round(reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100)}%</span>
                       </div>
                       <div>
-                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>危急值报告: {reportSummaryData.monthly.criticalValueReported}</h4>
+                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.criticalReportsLabel")} {reportSummaryData.monthly.criticalValueReported}</h4>
                         <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                           <div style={{ width: `${reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100}%`, height: '100%', background: ACCENT, borderRadius: 4 }} />
                         </div>
-                        <span style={{ fontSize: 12, color: GRAY }}>及时率: {Math.round(reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100)}%</span>
+                        <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.timelyRateLabel")} {Math.round(reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100)}%</span>
                       </div>
                     </div>
                   </div>
@@ -2180,7 +2186,7 @@ export default function QCPage() {
                           <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: PIE_COLORS[idx % PIE_COLORS.length], flexShrink: 0 }} />
                             <span style={{ flex: 1, fontSize: 12, color: 'var(--text-primary)' }}>{item.type}</span>
-                            <span style={{ fontWeight: 700, color: PRIMARY }}>{item.count}例</span>
+                            <span style={{ fontWeight: 700, color: PRIMARY }}>{item.count}{t("qcPage.caseUnit")}</span>
                             <span style={{ fontSize: 12, color: GRAY }}>{item.percentage}%</span>
                           </div>
                         ))}
@@ -2194,14 +2200,14 @@ export default function QCPage() {
               {regionalReportType === 'quarterly' && (
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <BarChart2 size={16} color={ACCENT} />{reportSummaryData.quarterly.period} 质控季报
+                    <BarChart2 size={16} color={ACCENT} />{reportSummaryData.quarterly.period} {t("qcPage.qcQuarterlyReport")}
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
-                      { label: '报告总量', value: reportSummaryData.quarterly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
-                      { label: '平均评分', value: reportSummaryData.quarterly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
-                      { label: '达标率', value: `${reportSummaryData.quarterly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
-                      { label: '超时报告', value: reportSummaryData.quarterly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
+                      { label: t("qcPage.totalReports"), value: reportSummaryData.quarterly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
+                      { label: t("qcPage.avgScore"), value: reportSummaryData.quarterly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
+                      { label: t("qcPage.complianceRate"), value: `${reportSummaryData.quarterly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
+                      { label: t("qcPage.overdueReports"), value: reportSummaryData.quarterly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
                         <AppText size="xs" weight={600} as="div" style={{ color: card.color, marginBottom: 6 }}>{card.label}</AppText>
@@ -2210,7 +2216,7 @@ export default function QCPage() {
                     ))}
                   </div>
                   <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>环比变化</h4>
+                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.momChange")}</h4>
                     <div style={{ display: 'flex', gap: 16 }}>
                       {reportSummaryData.quarterly.trends.map(item => (
                         <div key={item.metric} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2231,14 +2237,14 @@ export default function QCPage() {
               {regionalReportType === 'yearly' && (
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileBarChart size={16} color={ACCENT} />{reportSummaryData.yearly.period} 质控年报
+                    <FileBarChart size={16} color={ACCENT} />{reportSummaryData.yearly.period} {t("qcPage.qcAnnualReport")}
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
-                      { label: '报告总量', value: reportSummaryData.yearly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
-                      { label: '平均评分', value: reportSummaryData.yearly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
-                      { label: '达标率', value: `${reportSummaryData.yearly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
-                      { label: '超时报告', value: reportSummaryData.yearly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
+                      { label: t("qcPage.totalReports"), value: reportSummaryData.yearly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
+                      { label: t("qcPage.avgScore"), value: reportSummaryData.yearly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
+                      { label: t("qcPage.complianceRate"), value: `${reportSummaryData.yearly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
+                      { label: t("qcPage.overdueReports"), value: reportSummaryData.yearly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
                         <AppText size="xs" weight={600} as="div" style={{ color: card.color, marginBottom: 6 }}>{card.label}</AppText>
@@ -2247,7 +2253,7 @@ export default function QCPage() {
                     ))}
                   </div>
                   <div>
-                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>年度优秀机构</h4>
+                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.annualExcellentInstitutions")}</h4>
                     <div style={{ display: 'flex', gap: 12 }}>
                       {reportSummaryData.yearly.rankings.map((r, idx) => (
                         <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? 'var(--color-warning-bg)' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? '#fbbf24' : BORDER}` }}>
@@ -2256,7 +2262,7 @@ export default function QCPage() {
                           </div>
                           <div>
                             <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{r.institution}</div>
-                            <div style={{ fontSize: 12, color: GRAY }}>第{idx + 1}名 · {r.score}分</div>
+                            <div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.rankPrefix")}{idx + 1}{t("qcPage.doctorsDot")} {r.score}{t("qcPage.scoreUnit")}</div>
                           </div>
                         </div>
                       ))}
@@ -2275,7 +2281,7 @@ export default function QCPage() {
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={16} color={WARNING} />{t('qc.issueTracking')}</h3>
                   <button
-                    onClick={() => { setFormModal({ show: true, title: '新增问题记录' }) }}
+                    onClick={() => { setFormModal({ show: true, title: t("qcPage.newIssue") }) }}
                     style={{
                       padding: '6px 14px',
                       borderRadius: 8,
@@ -2294,25 +2300,25 @@ export default function QCPage() {
                 </div>
                 <VirtualTable
                   columns={[
-                    { title: '记录ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
-                    { title: '机构', dataIndex: 'institution', key: 'institution', render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{v}</span> },
+                    { title: t("qcPage.recordId"), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    { title: t("qcPage.institution2"), dataIndex: 'institution', key: 'institution', render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{v}</span> },
                     {
-                      title: '问题类型', dataIndex: 'issueType', key: 'issueType',
-                      render: (v: string) => <span style={{ padding: '2px 8px', background: v.includes('危急值') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v.includes('危急值') ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                      title: t("qcPage.issueType"), dataIndex: 'issueType', key: 'issueType',
+                      render: (v: string) => <span style={{ padding: '2px 8px', background: v.includes(t("qcPage.criticalValue")) ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v.includes(t("qcPage.criticalValue")) ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
                     },
-                    { title: '问题描述', dataIndex: 'description', key: 'description', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
+                    { title: t("qcPage.issueDescription"), dataIndex: 'description', key: 'description', ellipsis: true, render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
                     {
-                      title: '严重程度', dataIndex: 'severity', key: 'severity', width: 90,
+                      title: t("qcPage.severity"), dataIndex: 'severity', key: 'severity', width: 90,
                       render: (v: string) => <span style={{ padding: '2px 8px', background: v === '高' ? 'var(--color-error-bg)' : v === '中' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: v === '高' ? DANGER : v === '中' ? WARNING : GRAY, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
                     },
                     {
-                      title: '状态', dataIndex: 'status', key: 'status', width: 90,
+                      title: t("qcPage.status"), dataIndex: 'status', key: 'status', width: 90,
                       render: (v: string) => <span style={{ padding: '2px 8px', background: v === '已整改' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: v === '已整改' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
                     },
-                    { title: '上报日期', dataIndex: 'reportedDate', key: 'reportedDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
-                    { title: '整改期限', dataIndex: 'dueDate', key: 'dueDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    { title: t("qcPage.reportedAt"), dataIndex: 'reportedDate', key: 'reportedDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
+                    { title: t("qcPage.correctionDeadline"), dataIndex: 'dueDate', key: 'dueDate', width: 110, render: (v: string) => <span style={{ fontSize: 12, color: GRAY }}>{v}</span> },
                     {
-                      title: '操作', key: 'action', width: 90,
+                      title: t("qcPage.actions"), key: 'action', width: 90,
                       render: (_: unknown, item) => (
                         <button
                           onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
@@ -2331,9 +2337,9 @@ export default function QCPage() {
               {/* 整改统计 */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {[
-                  { label: '待整改', count: issueTrackingData.filter(i => i.status === '整改中').length, color: WARNING, bg: '#f59e0b22' },
-                  { label: '已整改', count: issueTrackingData.filter(i => i.status === '已整改').length, color: SUCCESS, bg: '#22c55e22' },
-                  { label: '逾期未整改', count: 0, color: DANGER, bg: '#ef444422' },
+                  { label: t("qcPage.pendingCorrection"), count: issueTrackingData.filter(i => i.status === '整改中').length, color: WARNING, bg: '#f59e0b22' },
+                  { label: t("qcPage.corrected"), count: issueTrackingData.filter(i => i.status === '已整改').length, color: SUCCESS, bg: '#22c55e22' },
+                  { label: t("qcPage.overdueCorrection"), count: 0, color: DANGER, bg: '#ef444422' },
                 ].map(item => (
                   <div key={item.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2356,9 +2362,9 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', marginBottom: 8, display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
             {[
-              { key: 'assignment', label: '随机分配', icon: <Users size={14} /> },
-              { key: 'scoring', label: '评分标准', icon: <Star size={14} /> },
-              { key: 'reliability', label: 'Cohen Kappa 一致性', icon: <BarChart3 size={14} /> },
+              { key: 'assignment', label: t("qcPage.randomAssign"), icon: <Users size={14} /> },
+              { key: 'scoring', label: t("qcPage.scoringStandard"), icon: <Star size={14} /> },
+              { key: 'reliability', label: t("qcPage.kappaAgreement"), icon: <BarChart3 size={14} /> },
             ].map(tab => (
               <button key={tab.key} onClick={() => setPeerReviewTab(tab.key as 'assignment' | 'scoring' | 'reliability')} style={{
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
@@ -2377,7 +2383,7 @@ export default function QCPage() {
               </div>
               <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                  {['案例ID', '患者', '原作者', '评审人', '盲ID', '状态', '操作'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
+                  {[t("qcPage.caseId"), t("qcPage.patient"), t("qcPage.originalAuthor"), t("qcPage.reviewer"), t("qcPage.blindId"), t("qcPage.status"), t("qcPage.actions")].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
                 </tr></thead>
                 <tbody>
                   {peerReviewAssignments.map((a, idx) => (
@@ -2404,14 +2410,14 @@ export default function QCPage() {
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.reviewCriteria')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
                 {[
-                  { dim: '准确性 (Accuracy)', desc: '诊断结论与影像发现的一致性', weight: '40%', icon: <Target size={20} />, color: '#059669' },
-                  { dim: '完整性 (Completeness)', desc: '报告涵盖所有必要描述要素', weight: '35%', icon: <FileText size={20} />, color: '#3b82f6' },
-                  { dim: '及时性 (Timeliness)', desc: '报告在标准时限内完成', weight: '25%', icon: <Clock size={20} />, color: '#f59e0b' },
+                  { dim: t("qcPage.accuracyMetric2"), desc: t("qcPage.accuracyDesc"), weight: '40%', icon: <Target size={20} />, color: '#059669' },
+                  { dim: t("qcPage.completenessMetric2"), desc: t("qcPage.completenessDesc"), weight: '35%', icon: <FileText size={20} />, color: '#3b82f6' },
+                  { dim: t("qcPage.timelinessMetric2"), desc: t("qcPage.timelinessDesc"), weight: '25%', icon: <Clock size={20} />, color: '#f59e0b' },
                 ].map(item => (
                   <div key={item.dim} style={{ background: `${item.color}10`, borderRadius: 10, padding: 16, border: `2px solid ${item.color}` }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE }}>{item.icon}</div>
-                      <div><div style={{ fontSize: 14, fontWeight: 700, color: item.color }}>{item.dim}</div><div style={{ fontSize: 12, color: item.color, opacity: 0.7 }}>权重 {item.weight}</div></div>
+                      <div><div style={{ fontSize: 14, fontWeight: 700, color: item.color }}>{item.dim}</div><div style={{ fontSize: 12, color: item.color, opacity: 0.7 }}>{t("qcPage.weight")} {item.weight}</div></div>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.desc}</div>
                   </div>
@@ -2427,17 +2433,17 @@ export default function QCPage() {
                   <div style={{ fontSize: 48, fontWeight: 800, color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>{kappaData.kappaValue.toFixed(2)}</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginTop: 8 }}>Cohen's Kappa</div>
                   <div style={{ padding: '4px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, display: 'inline-block', marginTop: 8, background: kappaData.kappaValue >= 0.75 ? 'var(--color-success-bg)' : kappaData.kappaValue >= 0.6 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>
-                    {kappaData.agreement === 'substantial' ? '高度一致' : kappaData.agreement === 'moderate' ? '中度一致' : '需要改进'}
+                    {kappaData.agreement === 'substantial' ? t("qcPage.highlyConsistent") : kappaData.agreement === 'moderate' ? t("qcPage.moderatelyConsistent") : t("qcPage.needsImprovement2")}
                   </div>
                 </div>
                 <div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {[
-                      { label: '评审人1', value: kappaData.reviewer1, color: ACCENT },
-                      { label: '评审人2', value: kappaData.reviewer2, color: SUCCESS },
-                      { label: '总案例数', value: `${kappaData.totalCases}例`, color: PRIMARY },
-                      { label: '一致案例数', value: `${kappaData.agreedCases}例`, color: SUCCESS },
-                      { label: '一致率', value: `${(kappaData.agreedCases / kappaData.totalCases * 100).toFixed(1)}%`, color: WARNING },
+                      { label: t("qcPage.reviewer1"), value: kappaData.reviewer1, color: ACCENT },
+                      { label: t("qcPage.reviewer2"), value: kappaData.reviewer2, color: SUCCESS },
+                      { label: t("qcPage.totalCases"), value: `${kappaData.totalCases}例`, color: PRIMARY },
+                      { label: t("qcPage.consistentCases"), value: `${kappaData.agreedCases}例`, color: SUCCESS },
+                      { label: t("qcPage.agreementRate"), value: `${(kappaData.agreedCases / kappaData.totalCases * 100).toFixed(1)}%`, color: WARNING },
                     ].map(item => (
                       <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6 }}>
                         <AppText size="xs" color="secondary">{item.label}</AppText>
@@ -2457,10 +2463,10 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '质量评分', value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? 'var(--color-success-bg)' : overallQualityScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
-              { label: '总规则数', value: qcRulesConfig.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
-              { label: '通过数', value: qcRulesConfig.filter(r => r.passed).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
-              { label: '失败数', value: qcRulesConfig.filter(r => !r.passed).length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
+              { label: t("qcPage.qualityScore"), value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? 'var(--color-success-bg)' : overallQualityScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
+              { label: t("qcPage.totalRules"), value: qcRulesConfig.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
+              { label: t("qcPage.passCount"), value: qcRulesConfig.filter(r => r.passed).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
+              { label: t("qcPage.failCount"), value: qcRulesConfig.filter(r => !r.passed).length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -2470,8 +2476,8 @@ export default function QCPage() {
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
             {[
-              { key: 'rules', label: '规则配置', icon: <Settings size={14} /> },
-              { key: 'results', label: '检查结果', icon: <CheckCircle size={14} /> },
+              { key: 'rules', label: t("qcPage.ruleConfig"), icon: <Settings size={14} /> },
+              { key: 'results', label: t("qcPage.checkResult"), icon: <CheckCircle size={14} /> },
             ].map(tab => (
               <button key={tab.key} onClick={() => setRuleCheckerTab(tab.key as 'rules' | 'results')} style={{
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
@@ -2487,7 +2493,7 @@ export default function QCPage() {
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 {['structure', 'content', 'terminology', 'compliance'].map(cat => (
                   <span key={cat} style={{ padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--bg-card)', color: GRAY }}>
-                    {cat === 'structure' ? '结构' : cat === 'content' ? '内容' : cat === 'terminology' ? '术语' : '合规'}
+                    {cat === 'structure' ? t("qcPage.structure") : cat === 'content' ? t("qcPage.content") : cat === 'terminology' ? t("qcPage.terminology") : t("qcPage.compliance")}
                   </span>
                 ))}
               </div>
@@ -2501,8 +2507,8 @@ export default function QCPage() {
                         <div style={{ fontSize: 13, fontWeight: 600, color: PRIMARY }}>{rule.name}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>{rule.description}</div>
                       </div>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: `${catColor}15`, color: catColor }}>{rule.category === 'structure' ? '结构' : rule.category === 'content' ? '内容' : rule.category === 'terminology' ? '术语' : '合规'}</span>
-                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: rule.passed ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: rule.passed ? SUCCESS : DANGER }}>{rule.passed ? '通过' : '未通过'}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: `${catColor}15`, color: catColor }}>{rule.category === 'structure' ? t("qcPage.structure") : rule.category === 'content' ? t("qcPage.content") : rule.category === 'terminology' ? t("qcPage.terminology") : t("qcPage.compliance")}</span>
+                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: rule.passed ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: rule.passed ? SUCCESS : DANGER }}>{rule.passed ? t("qcPage.pass2") : t("qcPage.notPassed")}</span>
                     </div>
                   )
                 })}
@@ -2532,10 +2538,10 @@ export default function QCPage() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
-                    { label: '结构', value: 85, color: '#3b82f6' },
-                    { label: '内容', value: 78, color: '#059669' },
-                    { label: '术语', value: 72, color: '#f59e0b' },
-                    { label: '合规', value: 88, color: '#7c3aed' },
+                    { label: t("qcPage.structure"), value: 85, color: '#3b82f6' },
+                    { label: t("qcPage.content"), value: 78, color: '#059669' },
+                    { label: t("qcPage.terminology"), value: 72, color: '#f59e0b' },
+                    { label: t("qcPage.compliance"), value: 88, color: '#7c3aed' },
                   ].map(item => (
                     <div key={item.label}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
@@ -2559,10 +2565,10 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '总对照例数', value: concordanceStats.total, icon: <Activity size={18} />, color: ACCENT, bg: '#3b82f622' },
-              { label: '一致', value: concordanceStats.concordant, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
-              { label: '不一致', value: concordanceStats.discordant, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
-              { label: '一致率', value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: '#f59e0b', bg: '#f59e0b22' },
+              { label: t("qcPage.totalCompareCases"), value: concordanceStats.total, icon: <Activity size={18} />, color: ACCENT, bg: '#3b82f622' },
+              { label: t("qcPage.consistent"), value: concordanceStats.concordant, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
+              { label: t("qcPage.inconsistent"), value: concordanceStats.discordant, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
+              { label: t("qcPage.agreementRate"), value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: '#f59e0b', bg: '#f59e0b22' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -2572,8 +2578,8 @@ export default function QCPage() {
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
             {[
-              { key: 'overview', label: '对照总览', icon: <Activity size={14} /> },
-              { key: 'discordant', label: '不一致案例', icon: <AlertTriangle size={14} /> },
+              { key: 'overview', label: t("qcPage.compareOverview"), icon: <Activity size={14} /> },
+              { key: 'discordant', label: t("qcPage.inconsistentCases"), icon: <AlertTriangle size={14} /> },
             ].map(tab => (
               <button key={tab.key} onClick={() => setRadPathTab(tab.key as 'overview' | 'discordant')} style={{
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
@@ -2592,7 +2598,7 @@ export default function QCPage() {
                     <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
                     <YAxis domain={[70, 95]} tick={{ fontSize: 12, color: GRAY }} unit='%' />
-                    <Tooltip formatter={(v) => [`${v}%`, '一致率']} />
+                    <Tooltip formatter={(v) => [`${v}%`, t("qcPage.agreementRate")]} />
                     <Area type='monotone' dataKey='rate' stroke={SUCCESS} fill='var(--color-success-bg)' strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -2600,7 +2606,7 @@ export default function QCPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                 <thead>
                   <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                    {['案例ID', '患者', '影像诊断', '病理结果', '一致性', '日期'].map(h => (
+                    {[t("qcPage.caseId"), t("qcPage.patient"), t("qcPage.imagingDiagnosis"), t("qcPage.pathologyResult"), t("qcPage.consistency"), t("qcPage.date")].map(h => (
                       <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                     ))}
                   </tr>
@@ -2614,7 +2620,7 @@ export default function QCPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-primary)' }}>{d.pathResult}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                         <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: 'var(--color-success-bg)', color: SUCCESS }}>
-                          {d.concordance === 'concordant' ? '一致' : d.concordance === 'discordant' ? '不一致' : '待定'}
+                          {d.concordance === 'concordant' ? t("qcPage.consistent") : d.concordance === 'discordant' ? t("qcPage.inconsistent") : t("qcPage.pending")}
                         </span>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.date}</td>
@@ -2651,12 +2657,12 @@ export default function QCPage() {
                       </div>
                       <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
                         {d.consultationStarted ? (
-                          <span style={{ padding: '4px 12px', borderRadius: 6, background: 'var(--color-info-bg)', color: ACCENT, fontSize: 12, fontWeight: 600 }}>已发起会诊</span>
+                          <span style={{ padding: '4px 12px', borderRadius: 6, background: 'var(--color-info-bg)', color: ACCENT, fontSize: 12, fontWeight: 600 }}>{t("qcPage.consultationInitiated")}</span>
                         ) : (
                           <button onClick={() => handleStartConsultation(d)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.startConsultation')}</button>
                         )}
                         {d.needsReview ? (
-                          <span style={{ padding: '4px 12px', borderRadius: 6, background: 'var(--color-warning-bg)', color: WARNING, fontSize: 12, fontWeight: 600 }}>已标记复查</span>
+                          <span style={{ padding: '4px 12px', borderRadius: 6, background: 'var(--color-warning-bg)', color: WARNING, fontSize: 12, fontWeight: 600 }}>{t("qcPage.followupMarked")}</span>
                         ) : (
                           <button onClick={() => handleMarkReview(d)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.markReview')}</button>
                         )}
@@ -2675,10 +2681,10 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: '文档准备就绪度', value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? 'var(--color-success-bg)' : readinessScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
-              { label: '达标模态数', value: acrRequirementsData.filter(a => a.status === '已达标').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
-              { label: '待整改模态', value: acrRequirementsData.filter(a => a.status !== '已达标').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#f59e0b22' },
-              { label: '既往检查记录', value: inspectionFindings.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
+              { label: t("qcPage.docReadiness"), value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? 'var(--color-success-bg)' : readinessScore >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' },
+              { label: t("qcPage.compliantModalities"), value: acrRequirementsData.filter(a => a.status === '已达标').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
+              { label: t("qcPage.pendingModalities"), value: acrRequirementsData.filter(a => a.status !== '已达标').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#f59e0b22' },
+              { label: t("qcPage.historyChecklist"), value: inspectionFindings.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#3b82f622' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -2688,8 +2694,8 @@ export default function QCPage() {
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
             {[
-              { key: 'requirements', label: 'ACR要求清单', icon: <ClipboardList size={14} /> },
-              { key: 'readiness', label: '就绪度与检查', icon: <FileText size={14} /> },
+              { key: 'requirements', label: t("qcPage.acrChecklist"), icon: <ClipboardList size={14} /> },
+              { key: 'readiness', label: t("qcPage.readinessCheck"), icon: <FileText size={14} /> },
             ].map(tab => (
               <button key={tab.key} onClick={() => setAcrTab(tab.key as 'requirements' | 'readiness')} style={{
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
@@ -2709,7 +2715,7 @@ export default function QCPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{mod.modality}</span>
-                        <span style={{ fontSize: 12, color: GRAY }}>{mod.completed}/{mod.total} 项达标</span>
+                        <span style={{ fontSize: 12, color: GRAY }}>{mod.completed}/{mod.total} {t("qcPage.itemsCompliant")}</span>
                       </div>
                       <span style={{ padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: statusBg, color: statusColor }}>{mod.status}</span>
                     </div>
@@ -2740,11 +2746,11 @@ export default function QCPage() {
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {[
-                      { label: '质控手册', value: 80, color: SUCCESS },
-                      { label: '操作SOP', value: 75, color: WARNING },
-                      { label: '培训记录', value: 60, color: WARNING },
-                      { label: '设备维护日志', value: 85, color: SUCCESS },
-                      { label: '应急演练报告', value: 55, color: DANGER },
+                      { label: t("qcPage.acrManual"), value: 80, color: SUCCESS },
+                      { label: t("qcPage.acrSop"), value: 75, color: WARNING },
+                      { label: t("qcPage.acrTrainingRecords"), value: 60, color: WARNING },
+                      { label: t("qcPage.acrMaintenanceLog"), value: 85, color: SUCCESS },
+                      { label: t("qcPage.acrDrillReport"), value: 55, color: DANGER },
                     ].map(item => (
                       <div key={item.label}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
@@ -2763,7 +2769,7 @@ export default function QCPage() {
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.inspectionFindings')}</h3>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
-                    {['日期', '检查机构', '发现项', '严重程度', '状态'].map(h => (
+                    {[t("qcPage.date"), t("qcPage.checkInstitution"), t("qcPage.foundItems"), t("qcPage.severity"), t("qcPage.status")].map(h => (
                       <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
                     ))}
                   </tr></thead>
@@ -2794,8 +2800,8 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '4px', display: 'flex', gap: 4, border: '1px solid var(--border-color)' }}>
             {[
-              { key: 'department', label: '科室整体趋势', icon: <BarChart3 size={14} /> },
-              { key: 'individual', label: '个人趋势', icon: <User size={14} /> },
+              { key: 'department', label: t("qcPage.deptOverallTrend"), icon: <BarChart3 size={14} /> },
+              { key: 'individual', label: t("qcPage.personalTrend"), icon: <User size={14} /> },
             ].map(tab => (
               <button key={tab.key} onClick={() => setTrendAnalysisTab(tab.key as 'department' | 'individual')} style={{
                 flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
@@ -2809,10 +2815,10 @@ export default function QCPage() {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                 {[
-                  { label: '当前月均', value: monthlyQualityData[monthlyQualityData.length - 1].deptAvg, suffix: '分', color: ACCENT, bg: '#3b82f622' },
-                  { label: '控制上限(UCL)', value: monthlyQualityData[0].upperControl, suffix: '分', color: SUCCESS, bg: '#22c55e22' },
-                  { label: '控制下限(LCL)', value: monthlyQualityData[0].lowerControl, suffix: '分', color: WARNING, bg: '#f59e0b22' },
-                  { label: '整体均值(CL)', value: monthlyQualityData[0].mean, suffix: '分', color: '#8b5cf6', bg: '#8b5cf622' },
+                  { label: t("qcPage.currentMonthlyAvg"), value: monthlyQualityData[monthlyQualityData.length - 1].deptAvg, suffix: t("qcPage.scoreUnit"), color: ACCENT, bg: '#3b82f622' },
+                  { label: t("qcPage.ucl"), value: monthlyQualityData[0].upperControl, suffix: t("qcPage.scoreUnit"), color: SUCCESS, bg: '#22c55e22' },
+                  { label: t("qcPage.lcl"), value: monthlyQualityData[0].lowerControl, suffix: t("qcPage.scoreUnit"), color: WARNING, bg: '#f59e0b22' },
+                  { label: t("qcPage.cl"), value: monthlyQualityData[0].mean, suffix: t("qcPage.scoreUnit"), color: '#8b5cf6', bg: '#8b5cf622' },
                 ].map(card => (
                   <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2875,10 +2881,10 @@ export default function QCPage() {
                 {indivDoctorTrendData.map((doc, idx) => (
                   <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: WHITE }}>{doc.rank}</div>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>报告 {doc.reportCount} 份</div></div>
+                    <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.report")} {doc.reportCount} {t("qcPage.reportUnit")}</div></div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 26, fontWeight: 700, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>
-                      <div style={{ fontSize: 12, color: GRAY }}>总分</div>
+                      <div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.totalScore")}</div>
                     </div>
                   </div>
                 ))}
@@ -2901,9 +2907,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.reportTimeoutMinutes} onChange={e => setTempRules({ ...tempRules, reportTimeoutMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reportTimeoutMinutes} 分钟</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reportTimeoutMinutes} {t("qcPage.minutes")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>超时未审核自动提醒</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.ruleOverdueReminder")}</span>
                 </div>
               </div>
               <div>
@@ -2912,9 +2918,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.reminderBeforeMinutes} onChange={e => setTempRules({ ...tempRules, reminderBeforeMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reminderBeforeMinutes} 分钟</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reminderBeforeMinutes} {t("qcPage.minutes")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>超时前提醒</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.ruleRemindBefore")}</span>
                 </div>
               </div>
               <div>
@@ -2923,9 +2929,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.autoEscalateAfterMinutes} onChange={e => setTempRules({ ...tempRules, autoEscalateAfterMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.autoEscalateAfterMinutes} 分钟</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.autoEscalateAfterMinutes} {t("qcPage.minutes")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>超时后自动升级</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.ruleEscalateAfter")}</span>
                 </div>
               </div>
               <div>
@@ -2934,9 +2940,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.dailyReviewQuota} onChange={e => setTempRules({ ...tempRules, dailyReviewQuota: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.dailyReviewQuota} 份/医生</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.dailyReviewQuota} {t("qcPage.reportsPerDoctor")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>每人每日审核量</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.dailyReviewPerDoctor2")}</span>
                 </div>
               </div>
             </div>
@@ -2953,9 +2959,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreExcellent} onChange={e => setTempRules({ ...tempRules, imageScoreExcellent: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreExcellent} 分</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreExcellent} {t("qcPage.scoreUnit")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>≥此分数为优秀</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.excellentThreshold")}</span>
                 </div>
               </div>
               <div>
@@ -2964,9 +2970,9 @@ export default function QCPage() {
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreGood} onChange={e => setTempRules({ ...tempRules, imageScoreGood: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
                   ) : (
-                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreGood} 分</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreGood} {t("qcPage.scoreUnit")}</div>
                   )}
-                  <span style={{ fontSize: 12, color: GRAY }}>≥此分数为良好</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>{t("qcPage.goodThreshold")}</span>
                 </div>
               </div>
             </div>
@@ -2974,10 +2980,10 @@ export default function QCPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>{t('qc.gradeDescription')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 {[
-                  { level: '优秀', range: `≥${qcRules.imageScoreExcellent}分`, color: SUCCESS, bg: '#22c55e22' },
-                  { level: '良好', range: `${qcRules.imageScoreGood}-${qcRules.imageScoreExcellent - 1}分`, color: WARNING, bg: '#f59e0b22' },
-                  { level: '一般', range: '70-79分', color: '#c2410c', bg: '#f9731622' },
-                  { level: '差', range: '<70分', color: DANGER, bg: '#ef444422' },
+                  { level: t("qcPage.excellent"), range: `≥${qcRules.imageScoreExcellent}分`, color: SUCCESS, bg: '#22c55e22' },
+                  { level: t("qcPage.good"), range: `${qcRules.imageScoreGood}-${qcRules.imageScoreExcellent - 1}分`, color: WARNING, bg: '#f59e0b22' },
+                  { level: t("qcPage.fair"), range: t("qcPage.score70to79"), color: '#c2410c', bg: '#f9731622' },
+                  { level: t("qcPage.poor"), range: t("qcPage.scoreBelow70"), color: DANGER, bg: '#ef444422' },
                 ].map(item => (
                   <div key={item.level} style={{ background: item.bg, borderRadius: 6, padding: '8px 10px', textAlign: 'center' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: item.color }}>{item.level}</div>
@@ -2994,11 +3000,11 @@ export default function QCPage() {
               <Bell size={16} color={ACCENT} />{t('qc.reminderRules')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { label: '报告超时提醒', enabled: true, desc: '报告超过设定时限未审核时自动提醒' },
-                { label: '危急值追踪提醒', enabled: true, desc: '危急值报告发送后未确认时持续提醒' },
-                { label: '质量评分预警', enabled: true, desc: '当评分低于阈值时向主管发送预警' },
-                { label: '废片自动登记', enabled: false, desc: '影像质量评分低于70分时自动登记废片' },
-                { label: '同行评审分配', enabled: true, desc: '按设定比例自动分配同行评审任务' },
+                { label: t("qcPage.alertOverdueReminder"), enabled: true, desc: t("qcPage.alertOverdueDesc") },
+                { label: t("qcPage.alertCriticalTracking"), enabled: true, desc: t("qcPage.alertCriticalDesc") },
+                { label: t("qcPage.alertScoreWarning"), enabled: true, desc: t("qcPage.alertScoreDesc") },
+                { label: t("qcPage.alertRejectAuto"), enabled: false, desc: t("qcPage.alertRejectDesc") },
+                { label: t("qcPage.alertPeerAssign"), enabled: true, desc: t("qcPage.alertPeerDesc") },
               ].map((rule, _idx) => (
                 <div key={rule.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                   <div style={{ flex: 1 }}>
@@ -3029,6 +3035,21 @@ export default function QCPage() {
           </div>
         </div>
       )}
+
+      {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 QualityControlPage (评分/危急值/缺陷/月报/实时仪表盘) */}
+      {activeTab === 'v3' && (
+        <div data-testid="qc-embedded-quality-control" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <QualityControlPage />
+        </div>
+      )}
+
+      {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 RadiologyQCDashboardPage (放射科质控总看板) */}
+      {activeTab === 'radDashboard' && (
+        <div data-testid="qc-embedded-rad-dashboard" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 4, border: '1px solid var(--border-color)' }}>
+          <RadiologyQCDashboardPage />
+        </div>
+      )}
+
       {/* 评分弹窗 */}
       {showRatingModal && selectedReport && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
@@ -3044,20 +3065,20 @@ export default function QCPage() {
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{selectedReport.patientName}</div>
                 <div style={{ fontSize: 12, color: GRAY }}>{selectedReport.id}</div>
-                <div style={{ fontSize: 12, color: GRAY }}>报告医生: {selectedReport.reportDoctor}</div>
+                <div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.reportDoctorLabel")} {selectedReport.reportDoctor}</div>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { dimension: '完整性', score: selectedReport.completeness, key: 'completeness' },
-                { dimension: '准确性', score: selectedReport.accuracy, key: 'accuracy' },
-                { dimension: '规范性', score: selectedReport.standardization, key: 'standardization' },
-                { dimension: '及时性', score: selectedReport.timeliness, key: 'timeliness' },
+                { dimension: t("qcPage.completeness"), score: selectedReport.completeness, key: 'completeness' },
+                { dimension: t("qcPage.accuracy"), score: selectedReport.accuracy, key: 'accuracy' },
+                { dimension: t("qcPage.standardness"), score: selectedReport.standardization, key: 'standardization' },
+                { dimension: t("qcPage.timeliness"), score: selectedReport.timeliness, key: 'timeliness' },
               ].map(item => (
                 <div key={item.key}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{item.dimension}</span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: SCORE_COLORS[item.score >= 90 ? '优秀' : item.score >= 80 ? '良好' : '一般'] }}>{item.score}分</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: SCORE_COLORS[item.score >= 90 ? "优秀" : item.score >= 80 ? "良好" : "一般"] }}>{item.score}{t("qcPage.scoreUnit")}</span>
                   </div>
                   {renderScoreBar(item.score)}
                 </div>
@@ -3097,7 +3118,7 @@ export default function QCPage() {
             ) : (
               <>
                 <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
-                <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}完成</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}{t("qcPage.complete")}</div>
                 <AppText size="sm" color="secondary" as="div">{progressModal.message}</AppText>
               </>
             )}
@@ -3129,7 +3150,7 @@ export default function QCPage() {
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{formModal.title}</h2>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
-            <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>表单内容（模拟）</div>
+            <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>{t("qcPage.formContentDemo")}</div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('dc.cancel')}</button>
               <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('qc.confirm')}</button>
@@ -3143,17 +3164,17 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPeerReviewDetail(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>盲审评分详情 - {peerReviewDetail.id}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t("qcPage.blindReviewDetail")} {peerReviewDetail.id}</h2>
               <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { label: '案例', value: `${peerReviewDetail.caseId} · ${peerReviewDetail.patientName}` },
-                { label: '盲ID', value: peerReviewDetail.blindedId },
-                { label: '评审人', value: peerReviewDetail.reviewer },
-                { label: '准确性', value: `${peerReviewDetail.accuracy} 分` },
-                { label: '完整性', value: `${peerReviewDetail.completeness} 分` },
-                { label: '及时性', value: `${peerReviewDetail.timeliness} 分` },
+                { label: t("qcPage.case"), value: `${peerReviewDetail.caseId} · ${peerReviewDetail.patientName}` },
+                { label: t("qcPage.blindId"), value: peerReviewDetail.blindedId },
+                { label: t("qcPage.reviewer"), value: peerReviewDetail.reviewer },
+                { label: t("qcPage.accuracy"), value: `${peerReviewDetail.accuracy} 分` },
+                { label: t("qcPage.completeness"), value: `${peerReviewDetail.completeness} 分` },
+                { label: t("qcPage.timeliness"), value: `${peerReviewDetail.timeliness} 分` },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6 }}>
                   <AppText size="xs" color="secondary">{item.label}</AppText>

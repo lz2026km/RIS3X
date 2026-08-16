@@ -1,5 +1,8 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
+// [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
+import { KpiCard, KpiCardGrid, DashboardCard, ProgressRing, SkeletonKpi } from '../components/dashboard';
+import { Users, FileCheck2, AlertTriangle, Clock3, Monitor, Cpu, Activity } from 'lucide-react';
 
 // 放射科设备数据 - 扩充版
 const devices = [
@@ -299,7 +302,20 @@ const DepartmentDashboardPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div role="status" data-testid="dept-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (loading) {
+    // [v3.0.6.11-103 Wave 6] 骨架屏加载态
+    return (
+      <div role="status" data-testid="dept-loading" style={{ padding: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+          {Array.from({ length: 5 }, (_, i) => <SkeletonKpi key={i} />)}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ height: 320, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div style={{ height: 320, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        </div>
+      </div>
+    );
+  }
   if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!dataAvailable) {
     return (
@@ -331,35 +347,30 @@ const DepartmentDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 统计卡片 */}
-      <div style={styles.statsGrid}>
-        <div style={styles.statCard}>
-          <div style={styles.statValue}>{kpi.totalPatients}</div>
-          <div style={styles.statLabel}>今日接诊总数</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statValue}>{kpi.completedToday}</div>
-          <div style={styles.statLabel}>已完成检查</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={{...styles.statValue, color: '#ef4444'}}>{kpi.pendingReports}</div>
-          <div style={styles.statLabel}>待撰写报告</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statValue}>{kpi.avgWaitTime}</div>
-          <div style={styles.statLabel}>平均候检时间</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={{...styles.statValue, color: '#22c55e'}}>{kpi.activeDevices}/{kpi.totalDevices}</div>
-          <div style={styles.statLabel}>设备运行状态</div>
-        </div>
-      </div>
+      {/* 统计卡片 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
+      <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
+        <KpiCard title="今日接诊总数" value={kpi.totalPatients} icon={<Users size={20} />} color="primary" />
+        <KpiCard title="已完成检查" value={kpi.completedToday} icon={<FileCheck2 size={20} />} color="success" />
+        <KpiCard title="待撰写报告" value={kpi.pendingReports} icon={<AlertTriangle size={20} />} color="error" />
+        <KpiCard title="平均候检时间" value={kpi.avgWaitTime} icon={<Clock3 size={20} />} color="warning" />
+        <KpiCard title="设备运行状态" value={`${kpi.activeDevices}/${kpi.totalDevices}`} suffix="台" icon={<Monitor size={20} />} color="info" />
+      </KpiCardGrid>
 
       {/* 双栏布局 */}
       <div style={styles.sectionGrid}>
         {/* 设备状态 */}
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>设备状态监控</div>
+        <DashboardCard
+          title="设备状态监控"
+          icon={<Cpu size={14} />}
+          extra={
+            <ProgressRing
+              percent={Math.round((kpi.activeDevices / Math.max(kpi.totalDevices, 1)) * 100)}
+              size={52}
+              strokeWidth={6}
+              subLabel="运行率"
+            />
+          }
+        >
           {devices.map((device) => {
             const statusColor = getStatusColor(device.status);
             return (
@@ -393,11 +404,10 @@ const DepartmentDashboardPage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </DashboardCard>
 
         {/* 检查类型统计 */}
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>各类型检查统计</div>
+        <DashboardCard title="各类型检查统计" icon={<Activity size={14} />}>
           {examStats.map((exam) => {
             const completionRate = (exam.completed / exam.total * 100).toFixed(0);
             return (
@@ -428,7 +438,7 @@ const DepartmentDashboardPage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </DashboardCard>
       </div>
 
       {/* 底部提示 */}

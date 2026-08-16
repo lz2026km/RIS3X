@@ -5,7 +5,7 @@ import { currentTenantId } from '../../common/tenant/tenant-utils'
 import type { z } from 'zod'
 import type { ApplyTemplateSchema, CreateFollowUpPlanSchema, FromExamFollowUpSchema, UpdateFollowUpPlanSchema } from './followup.schema'
 // [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发规则 (内存 + seed)
-import { listFollowUpTriggerRules, type FollowUpTriggerMatch, type FollowUpTriggerMode } from './followup-trigger-rules'
+import { listFollowUpTriggerRules, matchFollowUpTriggerRules, type FollowUpTriggerMatch, type FollowUpTriggerMode } from './followup-trigger-rules'
 import type { SystemConfigService } from '../../system-storage/system-config.service'
 
 type CreateDto = z.infer<typeof CreateFollowUpPlanSchema>
@@ -577,10 +577,11 @@ export class FollowUpService {
   }
 
   /**
-   * 报告提交 (SUBMITTED) 后置钩子: 按关键词匹配规则创建随访计划
+   * 报告发布 (PUBLISHED) 后置钩子 / 手动补建: 按关键词匹配规则创建随访计划
    * - 规则模板存在 (followUpTemplate) → generateFromTemplate 按 intervals 批量生成
    * - 模板缺失 (演示规则) → 按 intervals 逐条直接创建, 不抛错
-   * 返回 { created, items, matched } 供 reports.service 写审计
+   * - [v3.0.6.11-103 Wave 13] 去重: 同报告同模板已有计划 (含 PENDING/REMINDED/IN_PROGRESS) 则跳过, 防重发重复创建
+   * 返回 { created, items, matched, skipped } 供 reports.service 写审计
    */
   async createFollowUpFromReport(input: {
     reportId: string
@@ -589,13 +590,28 @@ export class FollowUpService {
     examId?: string
     planDate: string
     matches: FollowUpTriggerMatch[]
-  }): Promise<{ created: number; items: any[]; matched: string[] }> {
+  }): Promise<{ created: number; items: any[]; matched: string[]; skipped: string[] }> {
     const created: any[] = []
     const matched: string[] = []
+    const skipped: string[] = []
     const base = toDate(input.planDate)
+    const existingTemplateIds = new Set<string>()
+    try {
+      const existing = await this.prisma.followUpPlan.findMany({
+        where: { tenantId: currentTenantId(), reportId: input.reportId, status: { notIn: ['MISSED', 'CANCELLED'] } },
+        select: { templateId: true },
+      })
+      for (const p of existing) if (p.templateId) existingTemplateIds.add(p.templateId)
+    } catch {
+      /* 去重查询失败不阻塞创建 */
+    }
     for (const m of input.matches) {
       const rule = m.rule
       matched.push(rule.keyword)
+      if (existingTemplateIds.has(rule.templateId)) {
+        skipped.push(rule.keyword)
+        continue
+      }
       try {
         const res = await this.generateFromTemplate({
           templateId: rule.templateId,
@@ -630,6 +646,78 @@ export class FollowUpService {
         }
       }
     }
-    return { created: created.length, items: created, matched }
+    return { created: created.length, items: created, matched, skipped }
+  }
+
+  // ============ [v3.0.6.11-103 Wave 13] 随访自动触发强化 ============
+
+  /**
+   * POST /followups/from-report — 手动补建: 按报告内容关键词触发随访计划 (不受 auto/hint 模式限制)
+   * 已存在同报告同模板计划时去重跳过; 无命中返回 { created: 0, matched: [] }。
+   */
+  async fromReport(dto: { reportId: string; reason?: string }) {
+    const report = await ((this.prisma as any).report?.findUnique
+      ? this.prisma.report.findUnique({ where: { id: dto.reportId }, include: { patient: true } }).catch(() => null)
+      : Promise.resolve(null))
+    if (!report) throw new NotFoundException(`Report ${dto.reportId} not found`)
+    const patient = (report as any).patient
+    const text = [(report as any).impression ?? '', (report as any).conclusion ?? '', (report as any).findings ?? ''].join('\n')
+    const matches = matchFollowUpTriggerRules(text)
+    if (matches.length === 0) {
+      this.logger.log(`[FollowUp] from-report ${dto.reportId} 无规则命中 (manual)`)
+      return { created: 0, items: [], matched: [], skipped: [], reason: dto.reason ?? null }
+    }
+    const res = await this.createFollowUpFromReport({
+      reportId: dto.reportId,
+      patientId: String((report as any).patientId ?? patient?.id ?? ''),
+      patientName: String(patient?.name ?? (report as any).patientName ?? '未知患者'),
+      examId: (report as any).examId ?? undefined,
+      planDate: new Date().toISOString().slice(0, 10),
+      matches,
+    })
+    this.logger.log(`[FollowUp] from-report ${dto.reportId} manual: matched ${res.matched.join(',')}, created ${res.created}, skipped ${res.skipped.join(',')}`)
+    return { ...res, reason: dto.reason ?? null }
+  }
+
+  /**
+   * GET /followups/reminder-queue — 随访到期提醒队列:
+   * 启用提醒 (reminderEnabled) 且未闭环 (非 COMPLETED/MISSED/CANCELLED) 的计划,
+   * nextDate ≤ 今天为逾期 (OVERDUE), 今天到期为 dueToday, 其余为未来 N 天 upcoming。
+   */
+  async reminderQueue(days: number) {
+    const daysNum = Number.isFinite(days) && days > 0 ? days : 7
+    const horizon = addDays(new Date(), daysNum)
+    const items = await this.prisma.followUpPlan.findMany({
+      where: {
+        tenantId: currentTenantId(),
+        reminderEnabled: true,
+        status: { notIn: ['COMPLETED', 'MISSED', 'CANCELLED'] },
+        nextDate: { lte: horizon },
+      },
+      orderBy: { nextDate: 'asc' },
+    })
+    const now = Date.now()
+    let overdue = 0
+    let dueToday = 0
+    let upcoming = 0
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(todayStart)
+    todayEnd.setDate(todayEnd.getDate() + 1)
+    for (const p of items) {
+      const t = new Date(p.nextDate).getTime()
+      if (t < todayStart.getTime()) overdue += 1
+      else if (t < todayEnd.getTime()) dueToday += 1
+      else upcoming += 1
+    }
+    return {
+      items: items.map((p) => this.toDto(p as any)),
+      total: items.length,
+      days: daysNum,
+      overdue,
+      dueToday,
+      upcoming,
+      queueType: overdue > 0 ? 'OVERDUE' : dueToday > 0 ? 'DUE_TODAY' : 'UPCOMING',
+    }
   }
 }

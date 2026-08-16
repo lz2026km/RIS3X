@@ -9,8 +9,6 @@ import {
   Play,
   Search,
   X,
-  ChevronLeft,
-  ChevronRight,
   Camera,
   Monitor,
   FileText,
@@ -53,11 +51,15 @@ import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
 import { Modal, Form, Input, Select, Popconfirm, message } from "antd";
+import type { TableColumnsType } from "antd";
+// [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
+import { DataTable } from "../components/common/DataTable";
 import BatchActionBar from "../components/batch/BatchActionBar";
 import { AppButton } from "../components/common/AppButton";
 import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 import { useNavigate } from "react-router-dom";
+import { t } from '../i18n/appI18n';
 
 // ==================== 常量配置 ====================
 const PRIMARY = "#1e40af"; // 浅蓝
@@ -80,16 +82,16 @@ const STATUS_CONFIG: Record<
   已报告: { color: "#16a34a", bg: "#22c55e22", label: "已报告" },
   已发布: { color: "#7c3aed", bg: "#8b5cf622", label: "已发布" },
   待报告: { color: "#0891b2", bg: "#06b6d422", label: "待报告" },
-  已登记: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "已登记" },
-  已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "已预约" },
+  已登记: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusRegistered") },
+  已预约: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusScheduled") },
   // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
-  draft: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: "草稿" },
-  submitted: { color: "var(--color-success-bg)", bg: "#059669", label: "已提交" },
-  reviewed: { color: "var(--color-success-bg)", bg: "#047857", label: "已审核" },
-  cosigned: { color: "var(--color-info-bg)", bg: "#2563eb", label: "已会签" },
+  draft: { color: "var(--text-secondary)", bg: "var(--bg-deep)", label: t("examPage.statusDraft") },
+  submitted: { color: "var(--color-success-bg)", bg: "#059669", label: t("examPage.statusSubmitted") },
+  reviewed: { color: "var(--color-success-bg)", bg: "#047857", label: t("examPage.statusReviewed") },
+  cosigned: { color: "var(--color-info-bg)", bg: "#2563eb", label: t("examPage.statusCosigned") },
   published: { color: "var(--color-success-bg)", bg: "#047857", label: "已发布" },
-  rejected: { color: "var(--color-error-bg)", bg: "#dc2626", label: "已驳回" },
-  revised: { color: "var(--color-warning-bg)", bg: "#f59e0b", label: "已修订" },
+  rejected: { color: "var(--color-error-bg)", bg: "#dc2626", label: t("examPage.statusRejected") },
+  revised: { color: "var(--color-warning-bg)", bg: "#f59e0b", label: t("examPage.statusRevised") },
 };
 
 // 设备类型
@@ -192,10 +194,10 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
   const examDate = new Date(exam.examDate);
 
   const nodes: ExamStatusNode[] = [
-    { key: "reserved", label: "已预约", color: "var(--text-secondary)", bgColor: "var(--bg-card)" },
+    { key: "reserved", label: t("examPage.statusScheduled"), color: "var(--text-secondary)", bgColor: "var(--bg-card)" },
     {
       key: "registered",
-      label: "已登记",
+      label: t("examPage.statusRegistered"),
       color: "#22c55e",
       bgColor: "var(--color-success-bg)",
     },
@@ -214,7 +216,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
     },
     {
       key: "reviewed",
-      label: "报告审核",
+      label: t("examPage.stageReportReview"),
       color: "#22c55e",
       bgColor: "var(--color-success-bg)",
     },
@@ -269,7 +271,7 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Da
           node.bgColor = "var(--color-error-bg)";
         }
       }
-      node.timestamp = "进行中";
+      node.timestamp = t("examPage.inProgress");
     }
   });
 
@@ -342,7 +344,7 @@ export default function ExamPage() {
         setLoadError(null);
       } else {
         setAllExams(initialRadiologyExams);
-        setLoadError("API 不可用，使用本地数据");
+        setLoadError(t("examPage.apiUnavailableLocal"));
       }
       setLoading(false);
     })();
@@ -362,16 +364,16 @@ export default function ExamPage() {
         examId: e.id,
         accessionNumber: e.id,
         patientName: e.patientName,
-        examItemName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || "检查",
+        examItemName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || t("examPage.exam2"),
         modality: e.modality,
         deviceNumber: e.deviceId ?? `D-${idx + 1}`,
         roomName: e.roomId ?? `R-${idx + 1}`,
-        technologistName: e.technicianId ?? "当前技师",
+        technologistName: e.technicianId ?? t("examPage.currentTechnician"),
         startTime: e.scheduledAt ?? "",
         estimatedDuration: 15,
         imagesAcquired: storeImagesOverride[e.id] ?? e.imageCount ?? 0,
         completed,
-        signature: completed ? (e.technicianId ?? "技师") : undefined,
+        signature: completed ? (e.technicianId ?? t("examPage.technician")) : undefined,
       }
     })
   }, [storeExams, storeImagesOverride])
@@ -390,17 +392,17 @@ export default function ExamPage() {
         id: `TR-${e.id}`,
         patientId: e.patientId ?? `P-${idx + 1}`,
         patientName: e.patientName,
-        gender: e.gender ?? "未知",
+        gender: e.gender ?? t("examPage.unknown"),
         age: e.age ?? 0,
         patientType: e.patientType ?? "门诊",
         transferReason: reason,
-        fromDepartment: "开单科室",
-        toDepartment: "放射科",
+        fromDepartment: t("examPage.orderingDept"),
+        toDepartment: t("examPage.radiologyDept"),
         transferTime: e.scheduledAt ?? "",
-        attendingDoctor: e.doctorId ?? "主治医生",
-        notes: e.contrastUsed ? "使用对比剂" : "常规检查",
+        attendingDoctor: e.doctorId ?? t("examPage.attendingDoctor"),
+        notes: e.contrastUsed ? t("examPage.useContrast") : t("examPage.routineExam"),
         examCompleted: completed,
-        examName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || "检查",
+        examName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || t("examPage.exam2"),
       }
     })
   }, [storeExams])
@@ -430,7 +432,7 @@ export default function ExamPage() {
   const [modalityDist, setModalityDist] = useState<Array<{ modality: string; count: number }>>(() => {
     const map = new Map<string, number>()
     initialRadiologyExams.forEach(e => {
-      const m = String(e.modality ?? '其他')
+      const m = String(e.modality ?? t("examPage.other"))
       map.set(m, (map.get(m) || 0) + 1)
     })
     return [...map.entries()].map(([modality, count]) => ({ modality, count })).sort((a, b) => b.count - a.count)
@@ -439,7 +441,7 @@ export default function ExamPage() {
   const retakeStats = useMemo(() => {
     const byMod: Record<string, { total: number; retakes: number }> = {}
     allExams.forEach(e => {
-      const m = String(e.modality ?? '其他')
+      const m = String(e.modality ?? t("examPage.other"))
       const cur = byMod[m] || { total: 0, retakes: 0 }
       cur.total += 1
       const rc = Number((e as unknown as { retakeCount?: number }).retakeCount ?? 0)
@@ -464,7 +466,7 @@ export default function ExamPage() {
   const patientTimeline = useMemo(() => {
     const map = new Map<string, typeof allExams>()
     allExams.slice(0, 400).forEach(e => {
-      const pid = String(e.patientId ?? e.patientName ?? '未知患者')
+      const pid = String(e.patientId ?? e.patientName ?? t("examPage.unknownPatient"))
       const arr = map.get(pid) || []
       arr.push(e)
       map.set(pid, arr)
@@ -523,10 +525,10 @@ export default function ExamPage() {
         }
       }
       setAnalyticsSource(anyReal ? 'real' : 'demo')
-      if (!anyReal) setAnalyticsError('深度分析接口暂不可用 (worklistApi/statsApi)，展示本地派生数据')
+      if (!anyReal) setAnalyticsError(t("examPage.deepAnalysisFallback"))
     } catch (e) {
       setAnalyticsSource('demo')
-      setAnalyticsError(`深度分析加载失败: ${(e as Error)?.message ?? '网络错误'}（回退本地派生）`)
+      setAnalyticsError(`深度分析加载失败: ${(e as Error)?.message ?? t("examPage.networkError")}（回退本地派生）`)
     } finally {
       setAnalyticsLoading(false)
     }
@@ -581,9 +583,6 @@ export default function ExamPage() {
     return filteredExams.slice(start, start + pageSize);
   }, [filteredExams, page]);
 
-  // 总页数
-  const totalPages = Math.max(1, Math.ceil(filteredExams.length / pageSize));
-
   // 底部统计
   const stats = useMemo(() => {
     return {
@@ -637,7 +636,7 @@ export default function ExamPage() {
         const res = await worklistApi.updateState(
           modal.exam.id,
           state,
-          actionNotes || (imageQuality === "差" ? "影像质控退回" : "影像质控通过"),
+          actionNotes || (imageQuality === "差" ? t("examPage.qcReturned") : t("examPage.qcPassed")),
           { rating: imageQuality, qcNote: actionNotes || undefined },
         );
         if (res.success) {
@@ -647,13 +646,13 @@ export default function ExamPage() {
               : `检查图像已可用 (评级 ${imageQuality})`,
           );
         } else {
-          message.error(res.error?.message ?? "质控评定保存失败");
+          message.error(res.error?.message ?? t("examPage.qcSaveFailed"));
         }
       } else {
         await useExamStore.getState().transition(modal.exam.id, "start");
       }
     } catch (e) {
-      message.error((e as Error)?.message ?? "操作失败");
+      message.error((e as Error)?.message ?? t("examPage.opFailed"));
     } finally {
       closeModal();
     }
@@ -697,7 +696,7 @@ export default function ExamPage() {
       if (action === "sign") {
         // 检查 → 报告 ID 映射 (无 reportId 时回退检查 ID, 后端将逐条校验过渡)
         const reportIds = ids.map((id) => allExams.find((e) => e.id === id)?.reportId || id);
-        const res = await reportApi.batchTransition(reportIds, "SIGNED", "批量签字");
+        const res = await reportApi.batchTransition(reportIds, "SIGNED", t("examPage.batchSign"));
         if (res.success) {
           const data = (res.data ?? { succeeded: [], failed: [] }) as {
             succeeded?: Array<{ id: string }>;
@@ -709,7 +708,7 @@ export default function ExamPage() {
           (data.succeeded ?? []).forEach((s) => log("batch_sign", s.id));
         } else {
           failCount = ids.length;
-          results.push(res.error?.message ?? "批量签字失败");
+          results.push(res.error?.message ?? t("examPage.batchSignFailed"));
         }
       } else if (action === "print") {
         for (const id of ids) {
@@ -728,11 +727,11 @@ export default function ExamPage() {
               log("batch_print", id);
             } else {
               failCount += 1;
-              results.push(`${id}: ${res.error?.message ?? "创建打印任务失败"}`);
+              results.push(`${id}: ${res.error?.message ?? t("examPage.printTaskFailed")}`);
             }
           } catch (err) {
             failCount += 1;
-            results.push(`${id}: ${err instanceof Error ? err.message : "打印任务失败"}`);
+            results.push(`${id}: ${err instanceof Error ? err.message : t("examPage.printFailed")}`);
           }
         }
       } else if (action === "export") {
@@ -742,7 +741,7 @@ export default function ExamPage() {
             ? [e.id, e.accessionNumber, e.patientId, e.patientName, e.modality, e.bodyPart, e.status, e.examDate, e.examTime ?? ""].join(",")
             : [id].join(",");
         });
-        const csvContent = ["检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期,检查时间", ...rows].join("\n");
+        const csvContent = [t("examPage.csvHeaderFull"), ...rows].join("\n");
         const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -755,7 +754,7 @@ export default function ExamPage() {
       }
     } catch (err) {
       failCount = ids.length;
-      results.push(err instanceof Error ? err.message : "批量操作失败");
+      results.push(err instanceof Error ? err.message : t("examPage.batchOpFailed"));
     }
     if (action !== "assign") {
       if (failCount === 0 && okCount > 0) {
@@ -782,7 +781,7 @@ export default function ExamPage() {
       message.success(`批量分配设备成功 ${ids.length} 项`);
       ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
     } else {
-      message.error(res.error?.message ?? "批量分配设备失败");
+      message.error(res.error?.message ?? t("examPage.batchAssignFailed"));
     }
     void reloadExams();
     setSelectedIds(new Set());
@@ -835,7 +834,7 @@ export default function ExamPage() {
         URL.revokeObjectURL(url);
         return;
       }
-      throw new Error(res.error?.message ?? "导出接口无数据");
+      throw new Error(res.error?.message ?? t("examPage.exportNoData"));
     } catch {
       const rows = filteredExams.map((e) =>
         [
@@ -850,7 +849,7 @@ export default function ExamPage() {
         ].join(","),
       );
       const csvContent =
-        ["检查ID,检查号,患者ID,患者姓名,设备,部位,状态,检查日期", ...rows].join("\n");
+        [t("examPage.csvHeaderBasic"), ...rows].join("\n");
       const blob = new Blob(["\ufeff" + csvContent], {
         type: "text/csv;charset=utf-8",
       });
@@ -894,7 +893,7 @@ export default function ExamPage() {
   const handleExamImportSubmit = async () => {
     const rows = parseImportText(importText);
     if (rows.length === 0) {
-      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: "未解析到检查数据, 请检查 JSON/CSV 格式 (patientId/accessionNumber/modality/bodyPart 为必填)" }] });
+      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: t("examPage.importParseFailed") }] });
       return;
     }
     setImporting(true);
@@ -905,10 +904,10 @@ export default function ExamPage() {
         setImportResult(res.data);
         if (res.data.imported > 0) await reloadExams();
       } else {
-        setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: res.error?.message ?? "导入失败" }] });
+        setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: res.error?.message ?? t("examPage.importFailed") }] });
       }
     } catch (e) {
-      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: "导入失败: " + ((e as Error)?.message ?? String(e)) }] });
+      setImportResult({ imported: 0, skipped: 0, errors: [{ index: 0, message: t("examPage.importFailedPrefix") + ((e as Error)?.message ?? String(e)) }] });
     } finally {
       setImporting(false);
     }
@@ -929,7 +928,7 @@ export default function ExamPage() {
   const handleOpenMergeModal = () => {
     const sel = allExams.filter((e) => selectedIds.has(e.id));
     if (sel.length < 2) {
-      alert("请至少选择 2 个检查进行合并");
+      alert(t("examPage.mergeNeedTwo"));
       return;
     }
     setMergeTargetId(sel[0].id);
@@ -940,7 +939,7 @@ export default function ExamPage() {
   const handleMergeSubmit = async () => {
     const ids = Array.from(selectedIds).filter((id) => id !== mergeTargetId);
     if (!mergeTargetId || ids.length === 0) {
-      setMergeResult("请选择目标检查");
+      setMergeResult(t("examPage.mergeSelectTarget"));
       return;
     }
     setMerging(true);
@@ -956,10 +955,10 @@ export default function ExamPage() {
         await reloadExams();
         log("merge", mergeTargetId);
       } else {
-        setMergeResult("合并失败: " + (res.error?.message ?? "未知错误"));
+        setMergeResult(t("examPage.mergeFailedPrefix") + (res.error?.message ?? t("examPage.unknownError")));
       }
     } catch (e) {
-      setMergeResult("合并失败: " + ((e as Error)?.message ?? String(e)));
+      setMergeResult(t("examPage.mergeFailedPrefix") + ((e as Error)?.message ?? String(e)));
     } finally {
       setMerging(false);
     }
@@ -984,7 +983,7 @@ export default function ExamPage() {
       .map((s) => s.trim())
       .filter(Boolean);
     if (reportIds.length < 2) {
-      setSplitResult("请输入至少 2 份报告 ID（逗号分隔）");
+      setSplitResult(t("examPage.splitNeedTwo"));
       return;
     }
     setSplitting(true);
@@ -999,10 +998,10 @@ export default function ExamPage() {
         await reloadExams();
         log("split", splitExam.id);
       } else {
-        setSplitResult("拆分失败: " + (res.error?.message ?? "未知错误"));
+        setSplitResult(t("examPage.splitFailedPrefix") + (res.error?.message ?? t("examPage.unknownError")));
       }
     } catch (e) {
-      setSplitResult("拆分失败: " + ((e as Error)?.message ?? String(e)));
+      setSplitResult(t("examPage.splitFailedPrefix") + ((e as Error)?.message ?? String(e)));
     } finally {
       setSplitting(false);
     }
@@ -1013,7 +1012,7 @@ export default function ExamPage() {
     SHORTCUTS.CANCEL(() => { if (modal.visible) closeModal(); }),
   ]);
   useNavigationShortcuts([
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams'; }, description: '导航到检查' },
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams'; }, description: t("examPage.navigateToExam") },
   ]);
 
   // [Wave1B P2] 新建检查: examApi.create → 刷新列表
@@ -1032,13 +1031,13 @@ export default function ExamPage() {
         bodyPart: values.bodyPart,
         scheduledAt: values.scheduledAt || new Date().toISOString().slice(0, 10),
       });
-      if (!res.success) throw new Error(res.error?.message ?? "创建失败");
+      if (!res.success) throw new Error(res.error?.message ?? t("examPage.createFailed"));
       message.success(`检查已创建: ${res.data.id ?? res.data.examId}`);
       setShowCreateModal(false);
       createExamForm.resetFields();
       await reloadExams();
     } catch (e) {
-      message.error((e as Error)?.message ?? "创建失败");
+      message.error((e as Error)?.message ?? t("examPage.createFailed"));
     } finally {
       setCreatingExam(false);
     }
@@ -1050,11 +1049,11 @@ export default function ExamPage() {
     setDeletingExamId(exam.id);
     try {
       const res = await examApi.delete(exam.id);
-      if (!res.success) throw new Error(res.error?.message ?? "删除失败");
+      if (!res.success) throw new Error(res.error?.message ?? t("examPage.deleteFailed"));
       message.success(`检查已删除: ${exam.accessionNumber}`);
       await reloadExams();
     } catch (e) {
-      message.error((e as Error)?.message ?? "删除失败");
+      message.error((e as Error)?.message ?? t("examPage.deleteFailed"));
     } finally {
       setDeletingExamId(null);
     }
@@ -1072,10 +1071,10 @@ export default function ExamPage() {
       }}
     >
       {[
-        { key: "list" as TabType, label: "检查列表", icon: ClipboardList },
-        { key: "technician" as TabType, label: "技师执行", icon: Monitor },
-        { key: "transfer" as TabType, label: "转科追踪", icon: ArrowRight },
-        { key: "analytics" as TabType, label: "深度分析", icon: BarChart3 },
+        { key: "list" as TabType, label: t("examPage.examList"), icon: ClipboardList },
+        { key: "technician" as TabType, label: t("examPage.techExecution"), icon: Monitor },
+        { key: "transfer" as TabType, label: t("examPage.deptTransferTrack"), icon: ArrowRight },
+        { key: "analytics" as TabType, label: t("examPage.deepAnalysis"), icon: BarChart3 },
       ].map((tab) => (
         <AppButton
           key={tab.key}
@@ -1161,9 +1160,9 @@ export default function ExamPage() {
         </div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
-            技师工作站
+            {t("examPage.techWorkstation")}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查执行管理</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.pageTitle")}</div>
         </div>
       </div>
 
@@ -1184,7 +1183,7 @@ export default function ExamPage() {
         />
         <input
           type="text"
-          placeholder="搜索患者/检查号..."
+          placeholder={t("examPage.searchPlaceholder")}
           value={filters.search}
           onChange={(e) => handleFilterChange("search", e.target.value)}
           style={{
@@ -1220,7 +1219,7 @@ export default function ExamPage() {
       >
         {["全部", "普通", "紧急", "危重"].map((p) => (
           <option key={p} value={p}>
-            {p === "全部" ? "全部优先级" : `⚑ ${p}`}
+            {p === "全部" ? t("examPage.allPriorities") : `⚑ ${p}`}
           </option>
         ))}
       </select>
@@ -1240,7 +1239,7 @@ export default function ExamPage() {
       >
         {["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map((s) => (
           <option key={s} value={s}>
-            {s === "全部" ? "全部状态" : s}
+            {s === "全部" ? t("examPage.allStatuses") : s}
           </option>
         ))}
       </select>
@@ -1260,7 +1259,7 @@ export default function ExamPage() {
       >
         {MODALITY_LIST.map((m) => (
           <option key={m} value={m}>
-            {m === "全部" ? "全部设备" : m}
+            {m === "全部" ? t("examPage.allDevices") : m}
           </option>
         ))}
       </select>
@@ -1314,7 +1313,7 @@ export default function ExamPage() {
             color: "var(--text-secondary)",
           }}
         >
-          <X size={14} /> 清空
+          <X size={14} /> {t("examPage.clear")}
         </button>
       )}
 
@@ -1340,7 +1339,7 @@ export default function ExamPage() {
             color: "#2563eb",
           }}
         >
-          <PlusCircle size={13} /> 新建检查
+          <PlusCircle size={13} /> {t("examPage.newExam2")}
         </button>
         <button
           onClick={() => setShowImportModal(true)}
@@ -1358,7 +1357,7 @@ export default function ExamPage() {
             color: "#059669",
           }}
         >
-          <Upload size={13} /> 批量导入
+          <Upload size={13} /> {t("examPage.batchImport")}
         </button>
         <button
           onClick={() => void handleExamExport()}
@@ -1376,7 +1375,7 @@ export default function ExamPage() {
             color: PRIMARY,
           }}
         >
-          <Download size={13} /> 批量导出
+          <Download size={13} /> {t("examPage.batchExport2")}
         </button>
         {/* [G005 Wave4B] G-18 检查合并入口 (多选 2+ 行) */}
         <button
@@ -1397,7 +1396,7 @@ export default function ExamPage() {
             opacity: selectedIds.size < 2 ? 0.45 : 1,
           }}
         >
-          <MergeIcon size={13} /> 合并检查
+          <MergeIcon size={13} /> {t("examPage.mergeExams")}
         </button>
       </div>
     </div>
@@ -1418,7 +1417,7 @@ export default function ExamPage() {
         {nodes.map((node, index) => (
           <div key={node.key} style={{ display: "flex", alignItems: "center" }}>
             <div
-              title={`${node.label}${node.timestamp ? ": " + node.timestamp : ""}${node.isOverdue ? " (超时)" : ""}`}
+              title={`${node.label}${node.timestamp ? ": " + node.timestamp : ""}${node.isOverdue ? t("examPage.timeoutSuffix") : ""}`}
               style={{
                 width: index === 0 || index === nodes.length - 1 ? 8 : 10,
                 height: index === 0 || index === nodes.length - 1 ? 8 : 10,
@@ -1445,403 +1444,332 @@ export default function ExamPage() {
   };
 
   // 表格
-  const ExamTable = () => (
-    <div style={{ flex: 1, overflow: "auto", backgroundColor: "var(--bg-card)" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: 12,
-        }}
-      >
-        <thead>
-          <tr
-            style={{
-              backgroundColor: PRIMARY_BG,
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-            }}
-          >
-            {[
-              "",
-              "检查号",
-              "患者信息",
-              "检查项目",
-              "设备",
-              "优先级",
-              "状态",
-              "检查时间",
-              "操作",
-            ].map((h, _i) => (
-              <th
-                key={h}
-                style={{
-                  padding: "10px 12px",
-                  textAlign: "left",
-                  fontWeight: 600,
-                  color: PRIMARY,
-                  borderBottom: `2px solid ${PRIMARY}`,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {h}
-              </th>
-            ))}
-            {/* 批量选择 */}
-            <th style={{ padding: "10px 12px", textAlign: "center", borderBottom: `2px solid ${PRIMARY}`, width: 40 }}>
-              <input
-                type="checkbox"
-                checked={paginatedExams.length > 0 && paginatedExams.every((e) => selectedIds.has(e.id))}
-                onChange={() => {
-                  if (paginatedExams.every((e) => selectedIds.has(e.id))) {
-                    setSelectedIds(new Set());
-                  } else {
-                    setSelectedIds(new Set(paginatedExams.map((e) => e.id)));
-                  }
-                }}
-                style={{ cursor: "pointer", width: 16, height: 16 }}
-              />
-            </th>
-            {/* 新增：状态时间轴表头 */}
-            <th
+  const ExamTable = () => {
+    // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable)
+    const columns: TableColumnsType<RadiologyExam> = [
+      {
+        title: t("examPage.accessionNo2"),
+        dataIndex: "accessionNumber",
+        key: "accessionNumber",
+        width: 130,
+        render: (value) => (
+          <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>{String(value)}</span>
+        ),
+      },
+      {
+        title: t("examPage.patientInfo"),
+        dataIndex: "patientName",
+        key: "patientName",
+        width: 220,
+        render: (_value, exam) => (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
               style={{
-                padding: "10px 12px",
-                textAlign: "left",
-                fontWeight: 600,
-                color: PRIMARY,
-                borderBottom: `2px solid ${PRIMARY}`,
-                whiteSpace: "nowrap",
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: PRIMARY_BG,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
               }}
             >
-              闭环状态
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedExams.length === 0 ? (
-            <tr>
-              <td
-                  colSpan={10}
+              <User size={14} style={{ color: PRIMARY }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>{exam.patientName}</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                {exam.gender} · {exam.age}{t("examPage.ageSuffix")} {exam.patientType}
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: t("examPage.examItem"),
+        dataIndex: "examItemName",
+        key: "examItemName",
+        width: 180,
+        render: (_value, exam) => (
+          <div>
+            <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{exam.examItemName}</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+              {exam.modality} · {exam.bodyPart}
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: t("examPage.device2"),
+        dataIndex: "deviceName",
+        key: "deviceName",
+        width: 160,
+        render: (_value, exam) => (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Monitor size={14} style={{ color: "var(--text-secondary)" }} />
+              <span style={{ color: "var(--text-secondary)" }}>{exam.deviceName?.split("（")[0] || "-"}</span>
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{exam.roomName}</div>
+          </div>
+        ),
+      },
+      {
+        title: t("examPage.priority"),
+        dataIndex: "priority",
+        key: "priority",
+        width: 90,
+        render: (value, exam) => {
+          const pStyle = getPriorityStyle(exam.priority);
+          return (
+            <span
+              style={{
+                display: "inline-block",
+                padding: "2px 8px",
+                borderRadius: 4,
+                fontSize: 12,
+                fontWeight: 600,
+                ...pStyle,
+              }}
+            >
+              {String(value)}
+            </span>
+          );
+        },
+      },
+      {
+        title: t("examPage.status"),
+        dataIndex: "status",
+        key: "status",
+        width: 100,
+        render: (_value, exam) => {
+          const sStyle = getStatusStyle(exam.status);
+          return (
+            <span
+              style={{
+                display: "inline-block",
+                padding: "2px 8px",
+                borderRadius: 4,
+                fontSize: 12,
+                fontWeight: 600,
+                ...sStyle,
+              }}
+            >
+              {sStyle.label}
+            </span>
+          );
+        },
+      },
+      {
+        title: t("examPage.examTime"),
+        dataIndex: "examDate",
+        key: "examTime",
+        width: 140,
+        render: (_value, exam) => (
+          <div>
+            <div style={{ color: "var(--text-secondary)" }}>{exam.examDate}</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{formatTime(exam.examTime ?? "")}</div>
+          </div>
+        ),
+      },
+      {
+        title: t("examPage.actions"),
+        dataIndex: "id",
+        key: "actions",
+        width: 300,
+        fixed: "right",
+        render: (_value, exam) => (
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            {exam.status === "待检查" && (
+              <AppButton
+                variant="primary"
+                size="compact"
+                onClick={() => openModal(exam, "start")}
+                icon={<Play size={10} />}
+              >
+                {t("examPage.start")}
+              </AppButton>
+            )}
+            {exam.status === "检查中" && (
+              <>
+                <button
+                  onClick={() => openModal(exam, "complete")}
                   style={{
-                  padding: "40px 12px",
-                  textAlign: "center",
+                    padding: "4px 10px",
+                    borderRadius: 4,
+                    border: "none",
+                    backgroundColor: "#16a34a",
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <CheckCircle2 size={10} /> {t("examPage.complete")}
+                </button>
+                <button
+                  onClick={() => openModal(exam, "quality")}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    border: "1px solid var(--border-color)",
+                    backgroundColor: "var(--bg-card)",
+                    color: "var(--text-secondary)",
+                    fontSize: 12,
+                    cursor: "pointer",
+                  }}
+                >
+                  {t("examPage.quality")}
+                </button>
+              </>
+            )}
+            {/* [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片 */}
+            <button
+              onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
+              title={t("examPage.readFilm")}
+              style={{
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "1px solid var(--border-color)",
+                backgroundColor: "var(--bg-card)",
+                color: "var(--text-secondary)",
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <Eye size={10} /> {t("examPage.readFilm")}
+            </button>
+            {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id */}
+            <button
+              onClick={() => navigate(`/exam/${exam.id}`)}
+              title={t("examPage.examDetail")}
+              style={{
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "1px solid var(--border-color)",
+                backgroundColor: "var(--bg-card)",
+                color: "var(--text-secondary)",
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <ExternalLink size={10} /> {t("examPage.detail")}
+            </button>
+            {(exam.status === "已报告" || exam.status === "待报告") && (
+              <button
+                onClick={() => openModal(exam, "quality")}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 4,
+                  border: "1px solid var(--border-color)",
+                  backgroundColor: "var(--bg-card)",
                   color: "var(--text-secondary)",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <Search size={32} style={{ opacity: 0.5 }} />
-                  <div>未找到符合条件的检查记录</div>
-                </div>
-              </td>
-            </tr>
-          ) : (
-            paginatedExams.map((exam, idx) => {
-              const pStyle = getPriorityStyle(exam.priority);
-              const sStyle = getStatusStyle(exam.status);
-              return (
-                <tr
-                  key={exam.id}
-                  style={{
-                    backgroundColor: idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)",
-                    transition: "background-color 0.15s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = PRIMARY_BG)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor =
-                      idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)")
-                  }
-                >
-                  {/* 批量选择 */}
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(exam.id)}
-                      onChange={() => {
-                        const next = new Set(selectedIds);
-                        if (next.has(exam.id)) next.delete(exam.id);
-                        else next.add(exam.id);
-                        setSelectedIds(next);
-                      }}
-                      style={{ cursor: "pointer", width: 16, height: 16 }}
-                    />
-                  </td>
-                  {/* 检查号 */}
-                  <td
-                    style={{
-                      padding: "10px 12px",
-                      fontFamily: "monospace",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    {exam.accessionNumber}
-                  </td>
-                  {/* 患者信息 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
-                    >
-                      <div
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          backgroundColor: PRIMARY_BG,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <User size={14} style={{ color: PRIMARY }} />
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 600, color: "var(--text-primary)" }}>
-                          {exam.patientName}
-                        </div>
-                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                          {exam.gender} · {exam.age}岁 · {exam.patientType}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  {/* 检查项目 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>
-                      {exam.examItemName}
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                      {exam.modality} · {exam.bodyPart}
-                    </div>
-                  </td>
-                  {/* 设备 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 4 }}
-                    >
-                      <Monitor size={14} style={{ color: "var(--text-secondary)" }} />
-                      <span style={{ color: "var(--text-secondary)" }}>
-                        {exam.deviceName?.split("（")[0] || "-"}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                      {exam.roomName}
-                    </div>
-                  </td>
-                  {/* 优先级 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        ...pStyle,
-                      }}
-                    >
-                      {exam.priority}
-                    </span>
-                  </td>
-                  {/* 状态 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        ...sStyle,
-                      }}
-                    >
-                      {sStyle.label}
-                    </span>
-                  </td>
-                  {/* 检查时间 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <div style={{ color: "var(--text-secondary)" }}>{exam.examDate}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                      {formatTime(exam.examTime)}
-                    </div>
-                  </td>
-                  {/* 操作 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {exam.status === "待检查" && (
-                        <AppButton
-                          variant="primary"
-                          size="compact"
-                          onClick={() => openModal(exam, "start")}
-                          icon={<Play size={10} />}
-                        >
-                          开始
-                        </AppButton>
-                      )}
-                      {exam.status === "检查中" && (
-                        <>
-                          <button
-                            onClick={() => openModal(exam, "complete")}
-                            style={{
-                              padding: "4px 10px",
-                              borderRadius: 4,
-                              border: "none",
-                              backgroundColor: "#16a34a",
-                              color: "#fff",
-                              fontSize: 12,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 4,
-                            }}
-                          >
-                            <CheckCircle2 size={10} /> 完成
-                          </button>
-                          <button
-                            onClick={() => openModal(exam, "quality")}
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: 4,
-                              border: "1px solid var(--border-color)",
-                              backgroundColor: "var(--bg-card)",
-                              color: "var(--text-secondary)",
-                              fontSize: 12,
-                              cursor: "pointer",
-                            }}
-                          >
-                            质量
-                          </button>
-                        </>
-                      )}
-                  {/* [G005 放射流程P0] 检查→阅片: 行操作直达 DICOM 阅片 */}
-                  <button
-                    onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(exam.accessionNumber || exam.id || '')}&examId=${exam.id}`)}
-                    title="阅片"
-                    style={{
-                      padding: "4px 8px",
-                      borderRadius: 4,
-                      border: "1px solid var(--border-color)",
-                      backgroundColor: "var(--bg-card)",
-                      color: "var(--text-secondary)",
-                      fontSize: 12,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <Eye size={10} /> 阅片
-                  </button>
-                  {/* [v3.0.6.11-96 Wave 3A P1] 详情 → 独立路由 /exam/:id */}
-                  <button
-                    onClick={() => navigate(`/exam/${exam.id}`)}
-                    title="检查详情"
-                    style={{
-                      padding: "4px 8px",
-                      borderRadius: 4,
-                      border: "1px solid var(--border-color)",
-                      backgroundColor: "var(--bg-card)",
-                      color: "var(--text-secondary)",
-                      fontSize: 12,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <ExternalLink size={10} /> 详情
-                  </button>
-                  {(exam.status === "已报告" ||
-                    exam.status === "待报告") && (
-                        <button
-                          onClick={() => openModal(exam, "quality")}
-                          style={{
-                            padding: "4px 10px",
-                            borderRadius: 4,
-                            border: "1px solid var(--border-color)",
-                            backgroundColor: "var(--bg-card)",
-                            color: "var(--text-secondary)",
-                            fontSize: 12,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <FileText size={10} /> 查看
-                        </button>
-                      )}
-                      {/* [G005 Wave4B] G-18 检查拆分入口 */}
-                      <button
-                        onClick={() => handleOpenSplitModal(exam)}
-                        title="按报告归属拆分检查"
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: 4,
-                          border: "1px solid #d97706",
-                          backgroundColor: "var(--bg-card)",
-                          color: "#d97706",
-                          fontSize: 12,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        <SplitIcon size={10} /> 拆分
-                      </button>
-                      {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
-                      <Popconfirm
-                        title="删除该检查?"
-                        description={`确定删除检查 "${exam.accessionNumber}" 吗？`}
-                        okText="删除"
-                        cancelText="取消"
-                        okButtonProps={{ danger: true }}
-                        onConfirm={() => void handleDeleteExam(exam)}
-                      >
-                        <button
-                          title="删除检查"
-                          disabled={deletingExamId === exam.id}
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: 4,
-                            border: "1px solid #dc2626",
-                            backgroundColor: "var(--bg-card)",
-                            color: "#dc2626",
-                            fontSize: 12,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                            opacity: deletingExamId === exam.id ? 0.5 : 1,
-                          }}
-                        >
-                          <X size={10} /> 删除
-                        </button>
-                      </Popconfirm>
-                    </div>
-                  </td>
-                  {/* 闭环状态时间轴 */}
-                  <td style={{ padding: "10px 12px" }}>
-                    <StatusTimeline exam={exam} />
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+                <FileText size={10} /> {t("examPage.view")}
+              </button>
+            )}
+            {/* [G005 Wave4B] G-18 检查拆分入口 */}
+            <button
+              onClick={() => handleOpenSplitModal(exam)}
+              title={t("examPage.splitByReport")}
+              style={{
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "1px solid #d97706",
+                backgroundColor: "var(--bg-card)",
+                color: "#d97706",
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <SplitIcon size={10} /> {t("examPage.split")}
+            </button>
+            {/* [Wave1B P2] 删除检查: examApi.delete (Popconfirm danger) */}
+            <Popconfirm
+              title={t("examPage.deleteConfirm")}
+              description={`确定删除检查 "${exam.accessionNumber}" 吗？`}
+              okText={t("examPage.delete")}
+              cancelText={t("examPage.cancel")}
+              okButtonProps={{ danger: true }}
+              onConfirm={() => void handleDeleteExam(exam)}
+            >
+              <button
+                title={t("examPage.deleteExam")}
+                disabled={deletingExamId === exam.id}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 4,
+                  border: "1px solid #dc2626",
+                  backgroundColor: "var(--bg-card)",
+                  color: "#dc2626",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  opacity: deletingExamId === exam.id ? 0.5 : 1,
+                }}
+              >
+                <X size={10} /> {t("examPage.delete")}
+              </button>
+            </Popconfirm>
+          </div>
+        ),
+      },
+      {
+        title: t("examPage.closedLoopStatus"),
+        dataIndex: "id",
+        key: "timeline",
+        width: 300,
+        render: (_value, exam) => <StatusTimeline exam={exam} />,
+      },
+    ];
+
+    return (
+      <div style={{ flex: 1, minWidth: 0, backgroundColor: "var(--bg-card)" }}>
+        <DataTable<RadiologyExam>
+          columns={columns}
+          dataSource={paginatedExams}
+          rowKey="id"
+          loading={loading}
+          zebra
+          emptyText={t("examPage.noMatches")}
+          scroll={{ y: "calc(100vh - 420px)" }}
+          pagination={{
+            current: page,
+            pageSize,
+            total: filteredExams.length,
+            onChange: (p) => setPage(p),
+            showSizeChanger: false,
+          }}
+          rowSelection={{
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: [...selectedIds],
+            onChange: (keys) => setSelectedIds(new Set(keys.map(String))),
+          }}
+        />
+      </div>
+    );
+  };
 
   // 技师执行Tab内容
   const TechnicianExecutionTab = () => (
@@ -1900,7 +1828,7 @@ export default function ExamPage() {
                   fontWeight: 600,
                 }}
               >
-                {execution.completed ? "已完成" : "进行中"}
+                {execution.completed ? "已完成" : t("examPage.inProgress")}
               </div>
             </div>
 
@@ -1923,7 +1851,7 @@ export default function ExamPage() {
                 <div
                   style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                 >
-                  设备编号
+                  {t("examPage.deviceId")}
                 </div>
                 <div
                   style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
@@ -1941,7 +1869,7 @@ export default function ExamPage() {
                 <div
                   style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 2 }}
                 >
-                  检查室
+                  {t("examPage.examRoom")}
                 </div>
                 <div
                   style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
@@ -1968,7 +1896,7 @@ export default function ExamPage() {
                 {execution.technologistName}
               </span>
               <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                （当前登录）
+                {t("examPage.currentLogin")}
               </span>
             </div>
 
@@ -1981,7 +1909,7 @@ export default function ExamPage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>开始时间</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.startTime")}</div>
                 <div
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
@@ -1989,11 +1917,11 @@ export default function ExamPage() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>预计时长</div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.expectedDuration")}</div>
                 <div
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
-                  {execution.estimatedDuration}分钟
+                  {execution.estimatedDuration}{t("examPage.minutes")}
                 </div>
               </div>
             </div>
@@ -2011,7 +1939,7 @@ export default function ExamPage() {
                 <span
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
-                  图像采集数量
+                  {t("examPage.imageCount")}
                 </span>
                 <div
                   style={{
@@ -2043,7 +1971,7 @@ export default function ExamPage() {
                       backgroundColor: execution.completed ? "var(--bg-primary)" : "var(--bg-card)",
                     }}
                   />
-                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>帧</span>
+                  <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.framesUnit")}</span>
                 </div>
               </div>
               {/* 采集进度条 */}
@@ -2088,7 +2016,7 @@ export default function ExamPage() {
                 }}
               >
                 <CheckCircle2 size={16} />
-                确认采集完成
+                {t("examPage.confirmCaptureDone")}
               </button>
             )}
 
@@ -2121,7 +2049,7 @@ export default function ExamPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    技师电子签名
+                    {t("examPage.techESign")}
                   </div>
                   <div
                     style={{
@@ -2156,7 +2084,7 @@ export default function ExamPage() {
       >
         {[
           {
-            label: "转科总数",
+            label: t("examPage.totalTransfers"),
             value: transferRecords.length,
             color: PRIMARY,
             bg: PRIMARY_BG,
@@ -2176,7 +2104,7 @@ export default function ExamPage() {
             color: "#f59e0b", bg: "#f59e0b22",
           },
           {
-            label: "待完成检查",
+            label: t("examPage.pendingExams"),
             value: transferRecords.filter((r) => !r.examCompleted).length,
             color: "#f97316",
             bg: "#f9731622",
@@ -2247,7 +2175,7 @@ export default function ExamPage() {
                     {record.patientName}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    {record.gender} · {record.age}岁 · {record.patientType}
+                    {record.gender} · {record.age}{t("examPage.ageSuffix")} {record.patientType}
                   </div>
                 </div>
               </div>
@@ -2271,7 +2199,7 @@ export default function ExamPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {record.examCompleted ? "✓ 检查已完成" : "⏳ 检查待完成"}
+                  {record.examCompleted ? t("examPage.examDone") : t("examPage.examPending")}
                 </div>
                 <div
                   style={{
@@ -2319,7 +2247,7 @@ export default function ExamPage() {
               >
                 <ArrowRight size={14} style={{ color: "#dc2626" }} />
                 <div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>转出科室</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.fromDept")}</div>
                   <div
                     style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                   >
@@ -2339,7 +2267,7 @@ export default function ExamPage() {
               >
                 <ArrowRight size={14} style={{ color: "#16a34a" }} />
                 <div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>转入科室</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.toDept")}</div>
                   <div
                     style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
                   >
@@ -2360,7 +2288,7 @@ export default function ExamPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <Clock size={14} style={{ color: "var(--text-secondary)" }} />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  转科时间：
+                  {t("examPage.transferTime")}
                 </span>
                 <span
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
@@ -2371,7 +2299,7 @@ export default function ExamPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <Stethoscope size={14} style={{ color: "var(--text-secondary)" }} />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  主治医生：
+                  {t("examPage.attendingLabel")}
                 </span>
                 <span
                   style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
@@ -2400,7 +2328,7 @@ export default function ExamPage() {
                     marginBottom: 4,
                   }}
                 >
-                  转科备注
+                  {t("examPage.transferNote")}
                 </div>
                 <div style={{ fontSize: 12, color: "#78500b" }}>
                   {record.notes}
@@ -2428,7 +2356,7 @@ export default function ExamPage() {
                   }}
                 />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                  跟随检查：
+                  {t("examPage.followExam")}
                 </span>
                 <span
                   style={{
@@ -2453,138 +2381,7 @@ export default function ExamPage() {
     </div>
   );
 
-  // 分页组件
-  const Pagination = () => (
-    <div
-      style={{
-        backgroundColor: "var(--bg-card)",
-        borderTop: "1px solid var(--border-color)",
-        padding: "10px 20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-        共{" "}
-        <span style={{ fontWeight: 600, color: PRIMARY }}>
-          {filteredExams.length}
-        </span>{" "}
-        条记录， 第{" "}
-        <span style={{ fontWeight: 600, color: PRIMARY }}>{page}</span> /{" "}
-        {totalPages} 页
-      </div>
-      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-        <button
-          onClick={() => setPage(1)}
-          disabled={page === 1}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 4,
-            border: "1px solid var(--border-color)",
-            backgroundColor: "var(--bg-card)",
-            color: page === 1 ? "#cbd5e1" : PRIMARY,
-            fontSize: 12,
-            cursor: page === 1 ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <ChevronLeft size={14} />
-          <ChevronLeft size={14} />
-        </button>
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 4,
-            border: "1px solid var(--border-color)",
-            backgroundColor: "var(--bg-card)",
-            color: page === 1 ? "#cbd5e1" : PRIMARY,
-            fontSize: 12,
-            cursor: page === 1 ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <ChevronLeft size={14} />
-        </button>
-        {/* 页码 */}
-        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-          let p;
-          if (totalPages <= 5) {
-            p = i + 1;
-          } else if (page <= 3) {
-            p = i + 1;
-          } else if (page >= totalPages - 2) {
-            p = totalPages - 4 + i;
-          } else {
-            p = page - 2 + i;
-          }
-          return (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              style={{
-                minWidth: 32,
-                padding: "6px 8px",
-                borderRadius: 4,
-                border: "1px solid",
-                borderColor: page === p ? PRIMARY : "var(--border-color)",
-                backgroundColor: page === p ? PRIMARY : "var(--bg-card)",
-                color: page === p ? "#fff" : "#64748b",
-                fontSize: 12,
-                cursor: "pointer",
-                fontWeight: page === p ? 600 : 400,
-              }}
-            >
-              {p}
-            </button>
-          );
-        })}
-        <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page === totalPages}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 4,
-            border: "1px solid var(--border-color)",
-            backgroundColor: "var(--bg-card)",
-            color: page === totalPages ? "#cbd5e1" : PRIMARY,
-            fontSize: 12,
-            cursor: page === totalPages ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <ChevronRight size={14} />
-        </button>
-        <button
-          onClick={() => setPage(totalPages)}
-          disabled={page === totalPages}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 4,
-            border: "1px solid var(--border-color)",
-            backgroundColor: "var(--bg-card)",
-            color: page === totalPages ? "#cbd5e1" : PRIMARY,
-            fontSize: 12,
-            cursor: page === totalPages ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <ChevronRight size={14} />
-          <ChevronRight size={14} />
-        </button>
-      </div>
-    </div>
-  );
+  // [v3.0.6.11-103 Wave 6] 分页器已统一由 DataTable 内置分页器承担 (ExamTable)
 
   // [v3.0.6.11-99 Wave10B] 深度分析视图: 时间线/模态分布/耗时分析/重拍率
   const AnalyticsTab = () => {
@@ -2607,9 +2404,9 @@ export default function ExamPage() {
             color: analyticsSource === 'real' ? '#065f46' : '#92400e',
           }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: analyticsSource === 'real' ? '#059669' : '#d97706' }} />
-            数据源: {analyticsSource === 'real' ? 'API 实时 (worklistApi/statsApi)' : '本地派生'}
+            {t("examPage.dataSource")} {analyticsSource === 'real' ? t("examPage.sourceRealApi") : t("examPage.sourceLocal")}
           </span>
-          {analyticsLoading && <span style={{ color: '#d97706' }}>同步中…</span>}
+          {analyticsLoading && <span style={{ color: '#d97706' }}>{t("examPage.syncing")}</span>}
           <button
             onClick={() => void loadAnalytics()}
             style={{
@@ -2618,7 +2415,7 @@ export default function ExamPage() {
               border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY,
             }}
           >
-            <RefreshCcw size={12} /> 刷新
+            <RefreshCcw size={12} /> {t("examPage.refresh")}
           </button>
         </div>
         {analyticsError && (
@@ -2634,8 +2431,8 @@ export default function ExamPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <PieChartIcon size={16} color={PRIMARY} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>模态分布卡</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 {totalDist} 例检查</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.modalityDistCard")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.totalPrefix")} {totalDist} {t("examPage.examCases")}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             {/* 简易环形图 */}
@@ -2670,7 +2467,7 @@ export default function ExamPage() {
                 <text x="60" y="56" textAnchor="middle" fontSize="18" fontWeight="700" fill={PRIMARY}>
                   {totalDist}
                 </text>
-                <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">总检查</text>
+                <text x="60" y="72" textAnchor="middle" fontSize="9" fill="#94a3b8">{t("examPage.totalExams")}</text>
               </svg>
             </div>
             {/* 图例 */}
@@ -2702,15 +2499,15 @@ export default function ExamPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <Timer size={16} color="#f59e0b" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>检查耗时分析 (按模态平均时长)</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.durationAnalysis")}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {analyticsSource === 'real' ? 'worklistApi.getStats.avgDurationMin 派生' : '本地估算'}
+              {analyticsSource === 'real' ? t("examPage.durationDerivedFrom") : t("examPage.localEstimate")}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, height: 160, padding: '0 8px' }}>
             {durationByModality.map(d => (
               <div key={d.modality} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.avgMin}分</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.avgMin}{t("examPage.minUnit")}</span>
                 <div style={{
                   width: '55%', height: `${(d.avgMin / maxDur) * 120}px`, minHeight: 8, borderRadius: '4px 4px 0 0',
                   background: d.avgMin <= 15 ? 'linear-gradient(180deg, #22c55e, #86efac)'
@@ -2724,13 +2521,13 @@ export default function ExamPage() {
           </div>
           <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#22c55e' }} /> ≤15分 (快速检查)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#22c55e' }} /> {t("examPage.durationFast")}
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#3b82f6' }} /> 16-25分
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#3b82f6' }} /> {t("examPage.durationMedium")}
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#f59e0b' }} /> &gt;25分 (长时检查)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: '#f59e0b' }} /> {t("examPage.durationLong")}
             </span>
           </div>
         </div>
@@ -2739,13 +2536,13 @@ export default function ExamPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
             <TrendingUp size={16} color="#dc2626" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>重拍率统计</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.retakeStats")}</span>
             <span style={{
               fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
               background: retakeStats.avgRate <= 5 ? 'var(--color-success-bg)' : retakeStats.avgRate <= 8 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
               color: retakeStats.avgRate <= 5 ? '#065f46' : retakeStats.avgRate <= 8 ? '#92400e' : '#991b1b',
             }}>
-              综合重拍率 {retakeStats.avgRate.toFixed(1)}% ({retakeStats.totalRetakes}/{retakeStats.totalExams})
+              {t("examPage.overallRetakeRate")} {retakeStats.avgRate.toFixed(1)}% ({retakeStats.totalRetakes}/{retakeStats.totalExams})
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2753,7 +2550,7 @@ export default function ExamPage() {
               <div key={r.modality}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: 'var(--text-secondary)' }}>
-                    {r.modality} <span style={{ color: '#94a3b8' }}>({r.retakes} 次 / {r.total} 例)</span>
+                    {r.modality} <span style={{ color: '#94a3b8' }}>({r.retakes} {t("examPage.timesPer")} {r.total} {t("examPage.casesSuffix")}</span>
                   </span>
                   <span style={{
                     fontWeight: 700,
@@ -2772,7 +2569,7 @@ export default function ExamPage() {
             ))}
           </div>
           <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 6, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            重拍率 = 重拍次数 / 检查总数。重拍率 &gt; 8% 的模态建议排查设备参数与技师操作规范，&gt; 5% 需关注体位摆放一致性。
+            {t("examPage.retakeNote")}
           </div>
         </div>
 
@@ -2780,12 +2577,12 @@ export default function ExamPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <Layers size={16} color="#7c3aed" />
-            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>检查时间线 (按患者)</span>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>近 {patientTimeline.length} 位多检患者 · 按检查次数排序</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTimeline")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.lastPrefix")} {patientTimeline.length} {t("examPage.multiExamPatients")}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 480, overflowY: 'auto' }}>
             {patientTimeline.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>暂无检查数据</div>
+              <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>{t("examPage.noExamData")}</div>
             )}
             {patientTimeline.map(g => (
               <div key={g.patientId} style={{ border: '1px solid var(--border-color)', borderRadius: 10, overflow: 'hidden' }}>
@@ -2808,7 +2605,7 @@ export default function ExamPage() {
                     fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 999,
                     background: 'var(--color-info-bg)', color: PRIMARY,
                   }}>
-                    {g.items.length} 次检查
+                    {g.items.length} {t("examPage.examTimes")}
                   </span>
                 </div>
                 <div style={{ padding: '10px 14px', position: 'relative' }}>
@@ -2862,13 +2659,13 @@ export default function ExamPage() {
                           display: 'flex', alignItems: 'center', gap: 4,
                         }}
                       >
-                        <Eye size={11} /> 查看影像
+                        <Eye size={11} /> {t("examPage.viewImages")}
                       </button>
                     </div>
                   ))}
                   {g.items.length > 6 && (
                     <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: '4px 0' }}>
-                      另有 {g.items.length - 6} 次更早检查…
+                      {t("examPage.additionalPrefix")} {g.items.length - 6} {t("examPage.earlierExams")}
                     </div>
                   )}
                 </div>
@@ -2883,8 +2680,8 @@ export default function ExamPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <TrendingUp size={16} color={PRIMARY} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>近 14 日检查量趋势</span>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>由检查日期派生</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.examTrend14d")}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t("examPage.derivedFromExamDate")}</span>
             </div>
             {(() => {
               const byDay = new Map<string, number>()
@@ -2895,7 +2692,7 @@ export default function ExamPage() {
               const days = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-14)
               const maxCount = Math.max(1, ...days.map(([, c]) => c))
               return days.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>暂无日期数据</div>
+                <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>{t("examPage.noDateData")}</div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 120 }}>
                   {days.map(([day, count]) => (
@@ -2914,9 +2711,9 @@ export default function ExamPage() {
               )
             })()}
             <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
-              日均 <strong style={{ color: PRIMARY }}>
+              {t("examPage.dailyAvg")} <strong style={{ color: PRIMARY }}>
                 {Math.round(allExams.length / Math.max(1, new Set(allExams.map(e => String(e.examDate || '').slice(0, 10))).size))}
-              </strong> 例
+              </strong> {t("examPage.casesUnit")}
             </div>
           </div>
 
@@ -2924,16 +2721,16 @@ export default function ExamPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <PieChartIcon size={16} color="#8b5cf6" />
-              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>状态 / 类型 / 优先级分布</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t("examPage.distTitle")}</span>
             </div>
             {(() => {
               const statusMap = new Map<string, number>()
               const typeMap = new Map<string, number>()
               const prioMap = new Map<string, number>()
               allExams.forEach(e => {
-                const st = STATUS_CONFIG[e.status]?.label || e.status || '未知'
+                const st = STATUS_CONFIG[e.status]?.label || e.status || t("examPage.unknown")
                 statusMap.set(st, (statusMap.get(st) || 0) + 1)
-                const pt = String(e.patientType || '门诊')
+                const pt = String(e.patientType || "门诊")
                 typeMap.set(pt, (typeMap.get(pt) || 0) + 1)
                 const pr = String(e.priority || '普通')
                 prioMap.set(pr, (prioMap.get(pr) || 0) + 1)
@@ -2961,11 +2758,11 @@ export default function ExamPage() {
               }
               return (
                 <div>
-                  {distRow('检查状态', statusMap, {
+                  {distRow(t("examPage.examStatus"), statusMap, {
                     '待检查': '#3b82f6', '检查中': '#f59e0b', '已报告': '#16a34a', '已发布': '#8b5cf6', '待报告': '#06b6d4', '已登记': '#64748b',
                   })}
-                  {distRow('患者类型', typeMap, { '门诊': '#3b82f6', '住院': '#8b5cf6', '急诊': '#ef4444', '体检': '#10b981' })}
-                  {distRow('优先级', prioMap, { '普通': '#94a3b8', '紧急': '#f59e0b', '危重': '#ef4444' })}
+                  {distRow(t("examPage.patientType"), typeMap, { '门诊': '#3b82f6', '住院': '#8b5cf6', '急诊': '#ef4444', '体检': '#10b981' })}
+                  {distRow(t("examPage.priority"), prioMap, { '普通': '#94a3b8', '紧急': '#f59e0b', '危重': '#ef4444' })}
                 </div>
               )
             })()}
@@ -2997,7 +2794,7 @@ export default function ExamPage() {
     >
       {[
         {
-          label: "全部记录",
+          label: t("examPage.allRecords"),
           value: stats.total,
           icon: FileText,
           color: "#fff",
@@ -3068,27 +2865,27 @@ export default function ExamPage() {
 
     const actionConfig = {
       start: {
-        title: "开始检查",
+        title: t("examPage.startExam"),
         color: PRIMARY,
-        confirmText: "确认开始",
+        confirmText: t("examPage.confirmStart"),
         icon: Play,
       },
       complete: {
-        title: "完成检查",
+        title: t("examPage.completeExam"),
         color: "#16a34a",
-        confirmText: "确认完成",
+        confirmText: t("examPage.confirmComplete"),
         icon: CheckCircle2,
       },
       cancel: {
-        title: "取消检查",
+        title: t("examPage.cancelExam"),
         color: "#dc2626",
-        confirmText: "确认取消",
+        confirmText: t("examPage.confirmCancel"),
         icon: XCircle,
       },
       quality: {
-        title: "图像质量评定",
+        title: t("examPage.qualityAssessment"),
         color: "#0891b2",
-        confirmText: "保存评定",
+        confirmText: t("examPage.saveAssessment"),
         icon: Camera,
       },
     }[modal.action || "start"];
@@ -3171,7 +2968,7 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>患者姓名</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.patientName")}</span>
                 <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                   {modal.exam.patientName}
                 </span>
@@ -3183,7 +2980,7 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查项目</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.examItem")}</span>
                 <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.examItemName}
                 </span>
@@ -3195,13 +2992,13 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>检查号</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.accessionNo2")}</span>
                 <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
                   {modal.exam.accessionNumber}
                 </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>设备</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.device2")}</span>
                 <span style={{ color: "var(--text-primary)" }}>
                   {modal.exam.deviceName?.split("（")[0]}
                 </span>
@@ -3220,10 +3017,10 @@ export default function ExamPage() {
                     marginBottom: 8,
                   }}
                 >
-                  图像质量评级
+                  {t("examPage.qualityRating")}
                 </label>
                 <div style={{ display: "flex", gap: 8 }}>
-                  {["优", "良", "差"].map((q) => (
+                  {["优", t("examPage.good"), "差"].map((q) => (
                     <button
                       key={q}
                       onClick={() => setImageQuality(q)}
@@ -3278,12 +3075,12 @@ export default function ExamPage() {
                   marginBottom: 8,
                 }}
               >
-                操作备注
+                {t("examPage.opNote")}
               </label>
               <textarea
                 value={actionNotes}
                 onChange={(e) => setActionNotes(e.target.value)}
-                placeholder="请输入操作备注（可选）..."
+                placeholder={t("examPage.opNotePlaceholder")}
                 rows={3}
                 style={{
                   width: "100%",
@@ -3326,7 +3123,7 @@ export default function ExamPage() {
                 cursor: "pointer",
               }}
             >
-              取消
+              {t("examPage.cancel")}
             </button>
             <button
               onClick={handleExecute}
@@ -3361,7 +3158,7 @@ export default function ExamPage() {
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {loading && <LoadingBanner message="正在从 API 加载检查数据..." />}
+      {loading && <LoadingBanner message={t("examPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Tab栏 */}
       <TabBar />
@@ -3372,10 +3169,10 @@ export default function ExamPage() {
         onAction={handleBatchAction}
         onClear={() => setSelectedIds(new Set())}
         actions={[
-          { key: "assign", label: "批量分配", icon: <UserCheck size={14} />, confirm: "确认分配?" },
-          { key: "sign", label: "批量签字", icon: <CheckSquare size={14} />, confirm: "确认签字?" },
-          { key: "print", label: "批量打印", icon: <Printer size={14} /> },
-          { key: "export", label: "批量导出", icon: <Download size={14} /> },
+          { key: "assign", label: t("examPage.batchAssign"), icon: <UserCheck size={14} />, confirm: t("examPage.confirmAssign") },
+          { key: "sign", label: t("examPage.batchSign"), icon: <CheckSquare size={14} />, confirm: t("examPage.confirmSign") },
+          { key: "print", label: t("examPage.batchPrint"), icon: <Printer size={14} /> },
+          { key: "export", label: t("examPage.batchExport2"), icon: <Download size={14} /> },
         ]}
       />
 
@@ -3385,15 +3182,15 @@ export default function ExamPage() {
         open={batchAssignModal.visible}
         onCancel={() => setBatchAssignModal((prev) => ({ ...prev, visible: false }))}
         onOk={() => void handleBatchAssignConfirm()}
-        okText="确认分配"
-        cancelText="取消"
+        okText={t("examPage.confirmAssign2")}
+        cancelText={t("examPage.cancel")}
       >
         <div style={{ padding: "8px 0 4px", fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
-          为选中的 {selectedIds.size} 项检查统一分配检查设备:
+          {t("examPage.forSelected")} {selectedIds.size} {t("examPage.assignDeviceFor")}
         </div>
         <Select
           style={{ width: "100%" }}
-          placeholder="请选择设备"
+          placeholder={t("examPage.selectDevice")}
           value={batchAssignModal.deviceId || undefined}
           onChange={(v) => setBatchAssignModal((prev) => ({ ...prev, deviceId: v }))}
           options={initialModalityDevices.map((d) => ({ value: d.id, label: `${d.name}（${d.modality ?? ""}）` }))}
@@ -3407,8 +3204,6 @@ export default function ExamPage() {
           <FilterBar />
           {/* 检查列表表格 */}
           <ExamTable />
-          {/* 分页 */}
-          <Pagination />
         </>
       )}
 
@@ -3470,7 +3265,7 @@ export default function ExamPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <MergeIcon size={18} color="#fff" />
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
-                  合并检查
+                  {t("examPage.mergeExams")}
                 </span>
               </div>
               <button
@@ -3491,7 +3286,7 @@ export default function ExamPage() {
             </div>
             <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
-                已选 {selectedIds.size} 个检查（须为同一患者）: 选择合并后保留的【目标检查】, 其余检查的报告将迁移至目标检查。
+                {t("examPage.selected")} {selectedIds.size} {t("examPage.mergeNote")}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {allExams
@@ -3538,10 +3333,10 @@ export default function ExamPage() {
                     borderRadius: 6,
                     fontSize: 12,
                     lineHeight: 1.6,
-                    background: mergeResult.includes("成功")
+                    background: mergeResult.includes(t("examPage.success"))
                       ? "var(--color-success-bg)"
                       : "var(--color-error-bg)",
-                    color: mergeResult.includes("成功")
+                    color: mergeResult.includes(t("examPage.success"))
                       ? "#16a34a"
                       : "#dc2626",
                   }}
@@ -3571,7 +3366,7 @@ export default function ExamPage() {
                   cursor: "pointer",
                 }}
               >
-                取消
+                {t("examPage.cancel")}
               </button>
               <button
                 onClick={() => void handleMergeSubmit()}
@@ -3588,7 +3383,7 @@ export default function ExamPage() {
                   opacity: merging ? 0.6 : 1,
                 }}
               >
-                {merging ? "合并中..." : "确认合并"}
+                {merging ? t("examPage.merging") : t("examPage.confirmMerge")}
               </button>
             </div>
           </div>
@@ -3641,7 +3436,7 @@ export default function ExamPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <SplitIcon size={18} color="#fff" />
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
-                  拆分检查
+                  {t("examPage.splitExam")}
                 </span>
               </div>
               <button
@@ -3662,14 +3457,14 @@ export default function ExamPage() {
             </div>
             <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
-                检查 {splitExam.accessionNumber}（{splitExam.patientName} ·{" "}
-                {splitExam.examItemName}）: 输入该检查下的报告 ID（逗号分隔）, 每份报告将独立成新检查。
+                {t("examPage.exam2")} {splitExam.accessionNumber}（{splitExam.patientName} ·{" "}
+                {splitExam.examItemName}{t("examPage.splitNote")}
               </div>
               <textarea
                 value={splitReportIds}
                 onChange={(e) => setSplitReportIds(e.target.value)}
                 rows={4}
-                placeholder={"例如: " + (splitExam.reportId ?? "RPT-0001") + ", RPT-0002"}
+                placeholder={t("examPage.examplePrefix") + (splitExam.reportId ?? "RPT-0001") + ", RPT-0002"}
                 style={{
                   width: "100%",
                   padding: "10px 12px",
@@ -3690,10 +3485,10 @@ export default function ExamPage() {
                     borderRadius: 6,
                     fontSize: 12,
                     lineHeight: 1.6,
-                    background: splitResult.includes("成功")
+                    background: splitResult.includes(t("examPage.success"))
                       ? "var(--color-success-bg)"
                       : "var(--color-error-bg)",
-                    color: splitResult.includes("成功")
+                    color: splitResult.includes(t("examPage.success"))
                       ? "#16a34a"
                       : "#dc2626",
                   }}
@@ -3723,7 +3518,7 @@ export default function ExamPage() {
                   cursor: "pointer",
                 }}
               >
-                关闭
+                {t("examPage.close")}
               </button>
               <button
                 onClick={() => void handleSplitSubmit()}
@@ -3740,7 +3535,7 @@ export default function ExamPage() {
                   opacity: splitting ? 0.6 : 1,
                 }}
               >
-                {splitting ? "拆分中..." : "确认拆分"}
+                {splitting ? t("examPage.splitting") : t("examPage.confirmSplit")}
               </button>
             </div>
           </div>
@@ -3796,7 +3591,7 @@ export default function ExamPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Upload size={18} color="#fff" />
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
-                  批量导入检查
+                  {t("examPage.batchImportExam")}
                 </span>
               </div>
               <button
@@ -3824,14 +3619,12 @@ export default function ExamPage() {
                   lineHeight: 1.8,
                 }}
               >
-                支持 <strong>JSON 数组</strong> 或 <strong>CSV</strong> (表头:
-                patientId/accessionNumber/modality/bodyPart/scheduledAt/deviceId)。
-                患者不存在将报错列出, 检查号重复自动跳过。
+                {t("examPage.supports")} <strong>{t("examPage.jsonArray")}</strong> {t("examPage.or")} <strong>CSV</strong> {t("examPage.importHeaderNote")}
               </div>
               <textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                placeholder={'[\n  { "patientId": "P000001", "accessionNumber": "ACC-2026-0001", "modality": "CT", "bodyPart": "胸部", "scheduledAt": "2026-08-07T09:00:00.000Z" }\n]'}
+                placeholder={t("examPage.importExample")}
                 rows={8}
                 style={{
                   width: "100%",
@@ -3861,7 +3654,7 @@ export default function ExamPage() {
                   }}
                 >
                   <Upload size={13} />
-                  上传 .csv / .json 文件
+                  {t("examPage.uploadFiles")}
                   <input
                     type="file"
                     accept=".csv,.json,text/csv,application/json"
@@ -3885,7 +3678,7 @@ export default function ExamPage() {
                   }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
-                    导入完成: 成功 {importResult.imported} / 跳过 {importResult.skipped} / 失败 {importResult.errors.length}
+                    {t("examPage.importDoneSuccess")} {importResult.imported} {t("examPage.skippedSuffix")} {importResult.skipped} {t("examPage.failedSuffix")} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (
                     <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
@@ -3920,7 +3713,7 @@ export default function ExamPage() {
                   cursor: "pointer",
                 }}
               >
-                关闭
+                {t("examPage.close")}
               </button>
               <button
                 onClick={() => void handleExamImportSubmit()}
@@ -3940,7 +3733,7 @@ export default function ExamPage() {
                 }}
               >
                 <Upload size={13} />
-                {importing ? "导入中..." : "开始导入"}
+                {importing ? t("examPage.importing") : t("examPage.startImport")}
               </button>
             </div>
           </div>
@@ -3949,35 +3742,35 @@ export default function ExamPage() {
 
       {/* [Wave1B P2] 新建检查 Modal: examApi.create */}
       <Modal
-        title="新建检查"
+        title={t("examPage.newExam2")}
         open={showCreateModal}
         onOk={() => void handleCreateExam()}
         onCancel={() => setShowCreateModal(false)}
         confirmLoading={creatingExam}
-        okText="创建"
-        cancelText="取消"
+        okText={t("examPage.create")}
+        cancelText={t("examPage.cancel")}
         width={480}
       >
-        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ modality: "CT", bodyPart: "胸部" }}>
-          <Form.Item name="patientId" label="患者" rules={[{ required: true, message: "请选择患者" }]}>
+        <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 12 }} initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}>
+          <Form.Item name="patientId" label={t("examPage.patient")} rules={[{ required: true, message: t("examPage.selectPatientRequired") }]}>
             <Select
               showSearch
               optionFilterProp="label"
-              placeholder="选择患者 (姓名 / ID)"
+              placeholder={t("examPage.selectPatient")}
               options={initialPatients.slice(0, 100).map((p) => ({
                 value: p.id,
                 label: `${p.name} (${p.id})`,
               }))}
             />
           </Form.Item>
-          <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+          <Form.Item name="modality" label={t("examPage.modality")} rules={[{ required: true }]}>
             <Select options={MODALITY_LIST.filter((m) => m !== "全部").map((m) => ({ value: m, label: m }))} />
           </Form.Item>
-          <Form.Item name="bodyPart" label="部位" rules={[{ required: true, message: "请输入检查部位" }]}>
-            <Input placeholder="如：胸部 / 头颅 / 腹部" />
+          <Form.Item name="bodyPart" label={t("examPage.bodyPart")} rules={[{ required: true, message: t("examPage.bodyPartRequired") }]}>
+            <Input placeholder={t("examPage.bodyPartPlaceholder")} />
           </Form.Item>
-          <Form.Item name="accessionNumber" label="检查号 (留空自动生成)">
-            <Input placeholder="如：ACC-20260812-001" />
+          <Form.Item name="accessionNumber" label={t("examPage.accessionOptional")}>
+            <Input placeholder={t("examPage.accessionPlaceholder")} />
           </Form.Item>
         </Form>
       </Modal>

@@ -1,14 +1,16 @@
 // [v3.0.6.11-54] Phase 2: 危急值告警 (真实列表 + 级别筛选 + 处理闭环)
 import {
-  criticalAlertApi, type CriticalAlert, type CriticalAlertStats,
+  criticalAlertApi, type CriticalAlert, type CriticalAlertStats, type CriticalFlowStep,
 } from '../../services/api/criticalAlertApi'
 import {
   Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message,
-  Modal, Input, Select, Alert, Spin, Badge, Progress,
+  Modal, Input, Select, Alert, Spin, Badge, Progress, Steps, Radio,
 } from 'antd'
 import { EmptyState } from '../../components/common/EmptyState'
-import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock, Phone, MessageSquare, Search } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { CommunicationEntry } from '../../services/api/criticalAlertApi'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -21,7 +23,21 @@ const typeLabel: Record<string, string> = {
   critical_value: '危急值', unexpected_finding: '意外发现', technical_issue: '技术问题', protocol_deviation: '协议偏离',
 }
 
+// [v3.0.6.11-103 Wave 13] 危急值 5 步流程元数据 (i18n 文案走 critical.* 键)
+const FLOW_STEP_KEYS: Array<{ key: CriticalFlowStep; label: string; desc: string }> = [
+  { key: 'triggered', label: 'flowStepTriggered', desc: 'flowStepTriggeredDesc' },
+  { key: 'notified', label: 'flowStepNotified', desc: 'flowStepNotifiedDesc' },
+  { key: 'confirmed', label: 'flowStepConfirmed', desc: 'flowStepConfirmedDesc' },
+  { key: 'treating', label: 'flowStepTreating', desc: 'flowStepTreatingDesc' },
+  { key: 'closed', label: 'flowStepClosed', desc: 'flowStepClosedDesc' },
+]
+const FLOW_STATUS_LABEL: Record<string, string> = {
+  triggered: 'flowStepTriggered', notified: 'flowStepNotified', confirmed: 'flowStepConfirmed',
+  treating: 'flowStepTreating', closed: 'flowStepClosed', escalated: 'flowStatusEscalated',
+}
+
 const CriticalAlertPage: React.FC = () => {
+  const { t } = useTranslation('critical')
   const [alerts, setAlerts] = useState<CriticalAlert[]>([])
   const [stats, setStats] = useState<CriticalAlertStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -30,10 +46,21 @@ const CriticalAlertPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selected, setSelected] = useState<CriticalAlert | null>(null)
-  const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   // [W2-C] 受控分页
   const [alertPage, setAlertPage] = useState(1)
+  // [G005 Wave1A] 按报告查询关联告警 (GET /critical-alert/for-report/:reportId)
+  const [reportIdInput, setReportIdInput] = useState('')
+  const [relatedAlerts, setRelatedAlerts] = useState<CriticalAlert[]>([])
+  const [relatedShown, setRelatedShown] = useState(false)
+  const [relatedLoading, setRelatedLoading] = useState(false)
+  // [G005 Wave1A] 通知记录 (GET /critical-alert/alerts/:id/communication-log)
+  const [logOpen, setLogOpen] = useState(false)
+  const [logEntries, setLogEntries] = useState<CommunicationEntry[]>([])
+  const [logLoading, setLogLoading] = useState(false)
+  // [v3.0.6.11-103 Wave 13] 5 步流程: 当前步骤输入 (通知方式 / 确认人 / 处置 / 闭环摘要)
+  const [flowNotifyMethod, setFlowNotifyMethod] = useState<'phone' | 'sms'>('phone')
+  const [flowInput, setFlowInput] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -65,41 +92,52 @@ const CriticalAlertPage: React.FC = () => {
 
   const refresh = () => { void load() }
 
-  const handleAcknowledge = async () => {
-    if (!selected) return
-    setSubmitting(true)
-    try {
-      const res = await criticalAlertApi.acknowledge(selected.id, { comment: comment || undefined })
-      if (res.success) {
-        message.success('已确认')
-        setDetailOpen(false)
-        setComment('')
-        refresh()
-      } else {
-        message.error(res.error?.message ?? '确认失败')
-      }
-    } catch {
-      message.error('确认失败')
-    } finally {
-      setSubmitting(false)
-    }
+  // [v3.0.6.11-103 Wave 13] 5 步流程状态标签 i18n (flowStatus → critical.* 键)
+  const flowLabel = (v?: string): string => {
+    const k = v ? FLOW_STATUS_LABEL[v] : undefined
+    return k ? t(k) : (v ?? '—')
   }
 
-  const handleResolve = async () => {
+  // 当前流程状态 → 下一步动作步骤 (triggered→notified→confirmed→treating→closed)
+  const nextFlowAction = (fs?: string): CriticalFlowStep => {
+    if (fs === 'triggered') return 'notified'
+    if (fs === 'notified') return 'confirmed'
+    if (fs === 'confirmed') return 'treating'
+    return 'closed'
+  }
+  const nextFlowActionLabel = (fs?: string): string => {
+    if (fs === 'triggered') return t('flowActionNotify')
+    if (fs === 'notified') return t('flowActionConfirm')
+    if (fs === 'confirmed') return t('flowActionTreat')
+    if (fs === 'treating') return t('flowActionClose')
+    return t('flowDone')
+  }
+
+  // [v3.0.6.11-103 Wave 13] 5 步流程步骤操作: 通知→确认→处置→记录闭环 (后端状态机校验, 不能跳步)
+  const handleFlowStep = async (step: CriticalFlowStep) => {
     if (!selected) return
     setSubmitting(true)
     try {
-      const res = await criticalAlertApi.resolve(selected.id, { resolution: '已处理完毕' })
+      let res
+      if (step === 'notified') {
+        res = await criticalAlertApi.notify(selected.id, { method: flowNotifyMethod })
+      } else if (step === 'confirmed') {
+        res = await criticalAlertApi.confirm(selected.id, { receiver: flowInput.trim() || undefined })
+      } else if (step === 'treating') {
+        res = await criticalAlertApi.treat(selected.id, { treatment: flowInput.trim() || undefined })
+      } else {
+        res = await criticalAlertApi.close(selected.id, { summary: flowInput.trim() || undefined })
+      }
       if (res.success) {
-        message.success('已解决')
-        setDetailOpen(false)
-        setComment('')
+        message.success(t('flowSuccess'))
+        setFlowInput('')
+        await refreshDetail(selected.id)
         refresh()
       } else {
-        message.error(res.error?.message ?? '操作失败')
+        message.error(res.error?.message ?? t('flowFail'))
       }
     } catch {
-      message.error('操作失败')
+      message.error(t('flowFail'))
     } finally {
       setSubmitting(false)
     }
@@ -119,6 +157,58 @@ const CriticalAlertPage: React.FC = () => {
     }
   }
 
+  // [G005 Wave1A] 按报告查询关联告警
+  const handleSearchByReport = async (value: string) => {
+    const reportId = value.trim()
+    if (!reportId) {
+      message.warning('请输入报告 ID')
+      return
+    }
+    setRelatedLoading(true)
+    try {
+      const res = await criticalAlertApi.forReport(reportId)
+      if (res.success) setRelatedAlerts(res.data ?? [])
+      else {
+        setRelatedAlerts([])
+        message.warning(res.error?.message ?? '查询失败')
+      }
+      setRelatedShown(true)
+    } catch {
+      setRelatedAlerts([])
+      setRelatedShown(true)
+      message.error('查询失败')
+    } finally {
+      setRelatedLoading(false)
+    }
+  }
+
+  // [G005 Wave1A] 详情刷新 (GET /critical-alert/alerts/:id)
+  const refreshDetail = async (id: string) => {
+    try {
+      const res = await criticalAlertApi.getAlert(id)
+      if (res.success && res.data) {
+        setSelected(res.data)
+        setAlerts(prev => prev.map(a => a.id === id ? { ...a, ...res.data } : a))
+      }
+    } catch {
+      /* 保持列表数据 */
+    }
+  }
+
+  // [G005 Wave1A] 通知记录 (GET /critical-alert/alerts/:id/communication-log)
+  const openCommunicationLog = async (id: string) => {
+    setLogOpen(true)
+    setLogLoading(true)
+    try {
+      const res = await criticalAlertApi.getCommunicationLog(id)
+      setLogEntries(res.success ? (res.data ?? []) : [])
+    } catch {
+      setLogEntries([])
+    } finally {
+      setLogLoading(false)
+    }
+  }
+
   const columns = [
     { title: '患者', dataIndex: 'patientName', key: 'patientName', width: 110 },
     { title: '告警类型', dataIndex: 'alertType', key: 'alertType', width: 110, render: (v: string) => <Tag>{typeLabel[v] ?? v}</Tag> },
@@ -126,12 +216,13 @@ const CriticalAlertPage: React.FC = () => {
     { title: '标题', dataIndex: 'title', key: 'title' },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 70 },
     { title: '状态', dataIndex: 'status', key: 'status', width: 110, render: (v: string) => <Tag color={statusColor[v]}>{statusLabel[v] ?? v}</Tag> },
+    { title: t('flowColumn'), dataIndex: 'flowStatus', key: 'flowStatus', width: 100, render: (v: string) => v ? <Tag color={v === 'closed' ? 'green' : v === 'escalated' ? 'purple' : 'blue'}>{flowLabel(v)}</Tag> : <Tag>—</Tag> },
     { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => new Date(v).toLocaleString() },
     { title: '操作', key: 'action', width: 160, render: (_: unknown, r: CriticalAlert) => (
       <Space size={4}>
         <Button size="small" type="primary" icon={<CheckCircle size={12} />}
           disabled={r.status !== 'active' && r.status !== 'acknowledged'}
-          onClick={() => { setSelected(r); setDetailOpen(true) }}>处理</Button>
+onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>处理</Button>
         {r.status === 'active' && (
           <Button size="small" icon={<ArrowUp size={12} />} onClick={() => void handleEscalate(r)}>上报</Button>
         )}
@@ -147,6 +238,14 @@ const CriticalAlertPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }}>
         <AlertTriangle size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>危急值告警</span>
+        <Input.Search
+          size="small"
+          placeholder={t('byReportPlaceholder')}
+          allowClear
+          onSearch={handleSearchByReport}
+          style={{ width: 280 }}
+          prefix={<Search size={12} />}
+        />
         <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} loading={loading}>刷新</Button>
       </Space>
 
@@ -181,6 +280,47 @@ const CriticalAlertPage: React.FC = () => {
         </Card>
       )}
 
+      {/* [G005 Wave1A] 按报告查询关联告警 (GET /critical-alert/for-report/:reportId) */}
+      {relatedShown && (
+        <Card
+          size="small"
+          title={t('relatedAlerts')}
+          style={{ marginBottom: 16 }}
+          extra={<Button size="small" onClick={() => { setRelatedShown(false); setRelatedAlerts([]) }}>关闭</Button>}
+        >
+          <Spin spinning={relatedLoading}>
+            {relatedAlerts.length === 0 ? (
+              <EmptyState description={t('noRelatedAlerts')} />
+            ) : (
+              <Table
+                rowKey="id"
+                size="small"
+                dataSource={relatedAlerts}
+                pagination={false}
+                columns={[
+                  { title: '患者', dataIndex: 'patientName', key: 'patientName' },
+                  { title: '类型', dataIndex: 'alertType', key: 'alertType', render: (v: string) => <Tag>{typeLabel[v] ?? v}</Tag> },
+                  { title: '严重度', dataIndex: 'severity', key: 'severity', render: (v: string) => <Tag color={severityColor[v]}>{severityLabel[v] ?? v}</Tag> },
+                  { title: '标题', dataIndex: 'title', key: 'title' },
+                  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={statusColor[v]}>{statusLabel[v] ?? v}</Tag> },
+                  { title: '时间', dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => new Date(v).toLocaleString() },
+                  {
+                    title: '操作',
+                    key: 'action',
+                    render: (_: unknown, r: CriticalAlert) => (
+                      <Space size={4}>
+                        <Button size="small" icon={<RefreshCw size={11} />} onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }}>处理</Button>
+                        <Button size="small" icon={<Phone size={11} />} onClick={() => void openCommunicationLog(r.id)}>{t('communicationLog')}</Button>
+                      </Space>
+                    ),
+                  },
+                ]}
+              />
+            )}
+          </Spin>
+        </Card>
+      )}
+
       <Card
         size="small"
         title="告警列表"
@@ -211,14 +351,16 @@ const CriticalAlertPage: React.FC = () => {
       <Modal
         title="处理告警"
         open={detailOpen}
-        onOk={() => void handleAcknowledge()}
         onCancel={() => setDetailOpen(false)}
         confirmLoading={submitting}
-        width={620}
+        width={640}
         footer={selected ? [
           <Button key="cancel" onClick={() => setDetailOpen(false)}>取消</Button>,
-          <Button key="resolve" type="default" loading={submitting} onClick={() => void handleResolve()}>标记已解决</Button>,
-          <Button key="ack" type="primary" loading={submitting} onClick={() => void handleAcknowledge()}>确认处理</Button>,
+          <Button key="log" icon={<Phone size={12} />} onClick={() => void openCommunicationLog(selected.id)}>{t('communicationLog')}</Button>,
+          <Button key="escalate" danger icon={<ArrowUp size={12} />} onClick={() => { void handleEscalate(selected); setDetailOpen(false) }}>升级上报</Button>,
+          <Button key="flow" type="primary" loading={submitting} disabled={!selected.flowStatus || selected.flowStatus === 'closed' || selected.flowStatus === 'escalated'} onClick={() => void handleFlowStep(nextFlowAction(selected.flowStatus))}>
+            {nextFlowActionLabel(selected.flowStatus)}
+          </Button>,
         ] : null}
       >
         {selected && (
@@ -230,15 +372,93 @@ const CriticalAlertPage: React.FC = () => {
                   <Tag color={severityColor[selected.severity]}>{severityLabel[selected.severity] ?? selected.severity}</Tag>
                   <Tag>{typeLabel[selected.alertType] ?? selected.alertType}</Tag>
                   <Badge status={(statusColor[selected.status] as any)} text={statusLabel[selected.status] ?? selected.status} />
+                  {selected.flowStatus && <Tag color={selected.flowStatus === 'closed' ? 'green' : 'blue'}>{flowLabel(selected.flowStatus)}</Tag>}
                 </Space>
                 <Text strong>标题: {selected.title}</Text>
                 <Text type="secondary">描述: {selected.description}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>检查: {selected.studyId} · 模态 {selected.modality} · 触发时间 {new Date(selected.createdAt).toLocaleString()}</Text>
               </Space>
             </Card>
-            <TextArea placeholder="处理备注（可选）" rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
+
+            {/* [v3.0.6.11-103 Wave 13] 5 步流程进度: 触发→通知→确认→处置→记录 (闭环) */}
+            <Card size="small" style={{ marginBottom: 16 }} title={<Space size={6}><AlertTriangle size={13} color="#2563eb" />{t('flowTitle')}</Space>}>
+              <Steps
+                size="small"
+                current={selected.flowStatus === 'escalated' ? 0 : Math.max(0, selected.step ?? 0)}
+                status={selected.flowStatus === 'closed' ? 'finish' : selected.flowStatus === 'escalated' ? 'error' : 'process'}
+                items={FLOW_STEP_KEYS.map((s) => ({ title: <span className="text-xs">{t(s.label)}</span>, description: <span className="text-[10px] text-slate-400">{t(s.desc)}</span> }))}
+              />
+              {selected.flowSteps && (
+                <Space wrap size={[8, 4]} style={{ marginTop: 10 }}>
+                  {FLOW_STEP_KEYS.map((s) => {
+                    const ts = selected.flowSteps?.[s.key]
+                    return (
+                      <Tag key={s.key} color={ts ? 'blue' : 'default'} style={{ fontSize: 11 }}>
+                        {t(s.label)}: {ts ? new Date(ts).toLocaleString() : '—'}
+                      </Tag>
+                    )
+                  })}
+                </Space>
+              )}
+            </Card>
+
+            {/* 当前步骤输入 */}
+            {selected.flowStatus === 'triggered' && (
+              <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                <Text type="secondary">{t('flowNotifyDesc')}</Text>
+                <Radio.Group value={flowNotifyMethod} onChange={(e) => setFlowNotifyMethod(e.target.value)}>
+                  <Radio.Button value="phone">电话</Radio.Button>
+                  <Radio.Button value="sms">短信</Radio.Button>
+                </Radio.Group>
+              </Space>
+            )}
+            {(selected.flowStatus === 'notified' || selected.flowStatus === 'confirmed' || selected.flowStatus === 'treating') && (
+              <TextArea
+                placeholder={selected.flowStatus === 'notified' ? t('flowConfirmPlaceholder') : selected.flowStatus === 'confirmed' ? t('flowTreatPlaceholder') : t('flowClosePlaceholder')}
+                rows={2}
+                value={flowInput}
+                onChange={(e) => setFlowInput(e.target.value)}
+              />
+            )}
+            {selected.flowStatus === 'closed' && (
+              <Alert type="success" showIcon message={t('flowClosed')} />
+            )}
           </>
         )}
+      </Modal>
+
+      {/* [G005 Wave1A] 通知记录 (GET /critical-alert/alerts/:id/communication-log) */}
+      <Modal
+        title={<Space><MessageSquare size={14} color="#3b82f6" />{t('communicationLog')}</Space>}
+        open={logOpen}
+        onCancel={() => setLogOpen(false)}
+        footer={<Button onClick={() => setLogOpen(false)}>关闭</Button>}
+        width={640}
+      >
+        <Spin spinning={logLoading}>
+          {logEntries.length === 0 ? (
+            <EmptyState description={t('communicationLogEmpty')} />
+          ) : (
+            <Table
+              rowKey="id"
+              size="small"
+              dataSource={logEntries}
+              pagination={false}
+              columns={[
+                {
+                  title: t('channel'),
+                  dataIndex: 'channel',
+                  key: 'channel',
+                  render: (v: string) => <Tag color={v === 'phone' ? 'blue' : 'green'} icon={v === 'phone' ? <Phone size={11} /> : <MessageSquare size={11} />}>{v === 'phone' ? '电话' : '短信'}</Tag>,
+                },
+                { title: '号码', dataIndex: 'phone', key: 'phone' },
+                { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'sent' || v === 'connected' || v === 'initiated' ? 'blue' : v === 'failed' ? 'red' : 'default'}>{v}</Tag> },
+                { title: t('communicationAt'), dataIndex: 'at', key: 'at', render: (v: string) => v ? new Date(v).toLocaleString() : '—' },
+                { title: '时长', dataIndex: 'durationSec', key: 'durationSec', render: (v: number) => (v != null ? `${v}s` : '—') },
+              ]}
+            />
+          )}
+        </Spin>
       </Modal>
     </div>
   )

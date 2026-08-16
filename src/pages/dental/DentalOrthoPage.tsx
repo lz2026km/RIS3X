@@ -1,6 +1,7 @@
 // [v3.0.6.11-60] Batch 3: 正畸管理 (dentalApi 真实数据 + 新建病例 Modal + 治疗阶段)
 // [G005 Wave1B] 裸 fetch → dentalApi.listOrthoPlans (后端 /dental/ortho/plans 真实实现)
 import { dentalApi } from '../../services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 import { DentalPageLayout } from './DentalShared';
 import { Table, Tag, Button, message, Space, Alert, Spin, Modal, Form, Input, InputNumber, Steps, Descriptions, Empty, Progress } from 'antd';
 import { Plus, RefreshCw, Smile, Eye, PlayCircle, CheckCircle2, FolderOpen } from 'lucide-react';
@@ -52,7 +53,24 @@ export const DentalOrthoPage: React.FC = () => {
 
   const createPlan = async () => {
     const values = await form.validateFields();
-    const res = await dentalApi.createTreatment({
+    // [G005 W3-B] 新建正畸病例: POST /dental/ortho/plans (createOrthoPlan), 失败回退 createTreatment
+    const res = await dentalApi.createOrthoPlan({
+      patientName: values.patientName,
+      patientId: values.patientId,
+      diagnosis: values.diagnosis,
+      plan: values.plan ?? '正畸治疗计划',
+      cost: values.cost ?? 0,
+      toothNo: values.toothNo,
+      status: 'Planned',
+    }).catch(() => null);
+    if (res && res.success) {
+      message.success('正畸病例已创建');
+      setModalOpen(false);
+      form.resetFields();
+      void load();
+      return;
+    }
+    const fb = await dentalApi.createTreatment({
       type: 'Orthodontic',
       patientName: values.patientName,
       diagnosis: values.diagnosis,
@@ -60,13 +78,27 @@ export const DentalOrthoPage: React.FC = () => {
       cost: values.cost ?? 0,
       status: 'Planned',
     });
-    if (res.success) {
-      message.success('正畸病例已创建');
+    if (fb.success) {
+      message.success(`${t('w3b.orthoCreate')} (fallback)`);
       setModalOpen(false);
       form.resetFields();
       void load();
     } else {
-      message.error(res.error?.message ?? '创建失败');
+      message.error(fb.error?.message ?? '创建失败');
+    }
+  };
+
+  // [G005 W3-B] 正畸详情: GET /dental/ortho/plans/:id (getOrthoPlan)
+  const openDetail = async (plan: OrthoPlan) => {
+    try {
+      const res = await dentalApi.getOrthoPlan(plan.id);
+      if (res.success && res.data) {
+        setDetail({ ...plan, ...res.data });
+      } else {
+        setDetail(plan);
+      }
+    } catch {
+      setDetail(plan);
     }
   };
 
@@ -136,7 +168,7 @@ export const DentalOrthoPage: React.FC = () => {
                 title: '操作',
                 render: (_, t: OrthoPlan) => (
                   <Space size={4}>
-                    <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(t)}>阶段</Button>
+                    <Button size="small" icon={<Eye size={12} />} onClick={() => void openDetail(t)}>阶段</Button>
                     <Button size="small" icon={<PlayCircle size={12} />} onClick={() => void updateStage(t, 'Active')}>启动</Button>
                     <Button size="small" icon={<CheckCircle2 size={12} />} onClick={() => void updateStage(t, 'Completed')}>完成</Button>
                   </Space>
@@ -160,6 +192,9 @@ export const DentalOrthoPage: React.FC = () => {
         <Form form={form} layout="vertical" initialValues={{ cost: 0 }}>
           <Form.Item name="patientName" label="患者姓名" rules={[{ required: true, message: '请输入患者姓名' }]}>
             <Input placeholder="请输入患者姓名" />
+          </Form.Item>
+          <Form.Item name="patientId" label="患者 ID">
+            <Input placeholder="可选" />
           </Form.Item>
           <Form.Item name="diagnosis" label="诊断" rules={[{ required: true, message: '请输入诊断' }]}>
             <Input placeholder="如：安氏 II 类 1 分类错颌" />

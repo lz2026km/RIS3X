@@ -21,6 +21,7 @@ import {
   RefreshCw, Edit3, ChevronRight, Info, Zap, Target,
   Crosshair, Circle, AlertCircle, CheckCircle2, Loader2
 } from 'lucide-react'
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 样式常量 - 蓝色主题
@@ -1671,7 +1672,7 @@ export default function FindingLibraryPage() {
                   fontWeight: 700,
                   color: '#b45309',
                 }}>
-                  征象库加载中…
+                  {t("findingLib.loading")}
                 </span>
               ) : dataSource === 'api' ? (
                 <span style={{
@@ -1685,7 +1686,7 @@ export default function FindingLibraryPage() {
                   fontWeight: 700,
                   color: '#15803d',
                 }}>
-                  服务端征象库 · 后端 {findings.length} 条征象
+                  {t("findingLib.serverBadge")} {findings.length} {t("findingLib.findingCount")}
                 </span>
               ) : (
                 <span style={{
@@ -1699,7 +1700,7 @@ export default function FindingLibraryPage() {
                   fontWeight: 700,
                   color: '#b45309',
                 }}>
-                  内置知识库回退 · 前端内置 {ALL_FINDINGS.length} 条征象
+                  {t("findingLib.fallbackBadge")} {ALL_FINDINGS.length} {t("findingLib.findingCount")}
                 </span>
               )}
             </div>

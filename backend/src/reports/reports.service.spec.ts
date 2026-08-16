@@ -186,7 +186,8 @@ describe('ReportsService htmlContent 持久化 (Wave1A P0)', () => {
 })
 
 // [v3.0.6.11-92 Wave1B P0] 审核分步 transition: 不允许跳过中间态 (DRAFT→INITIAL_REVIEW→FINAL_REVIEW→CO_SIGN_REVIEW→REVIEWED)
-describe('ReportsService REPORT_TRANSITIONS 审核链 (Wave1B P0)', () => {
+// [v3.0.6.11-103 Wave 13] 流程质量门禁: 主链 WRITING→SUBMITTED→INITIAL_REVIEW→FINAL_REVIEW/CO_SIGN_REVIEW→...→PUBLISHED→ARCHIVED
+describe('ReportsService REPORT_TRANSITIONS 审核链 (Wave1B P0 + Wave13 门禁)', () => {
   it('allows step-wise review chain SUBMITTED → INITIAL_REVIEW → FINAL_REVIEW → CO_SIGN_REVIEW → REVIEWED', () => {
     expect(REPORT_TRANSITIONS.SUBMITTED).toContain('INITIAL_REVIEW')
     expect(REPORT_TRANSITIONS.INITIAL_REVIEW).toContain('FINAL_REVIEW')
@@ -196,10 +197,28 @@ describe('ReportsService REPORT_TRANSITIONS 审核链 (Wave1B P0)', () => {
     expect(REPORT_TRANSITIONS.SIGNED).toContain('PUBLISHED')
   })
 
-  it('forbids skipping intermediate states (INITIAL_REVIEW → REVIEWED allowed, SUBMITTED → REVIEWED also allowed as shortcut)', () => {
+  it('[Wave13 门禁] forbids skipping intermediate states (WRITING→INITIAL_REVIEW / SUBMITTED→REVIEWED / INITIAL_REVIEW→REVIEWED 全部拒绝)', () => {
+    // 书写必须先提交: WRITING 不可直达 INITIAL_REVIEW (跳过 SUBMITTED)
+    expect(REPORT_TRANSITIONS.WRITING).not.toContain('INITIAL_REVIEW')
+    expect(REPORT_TRANSITIONS.WRITING).toContain('SUBMITTED')
+    // 提交后必须先进初审: SUBMITTED 不可直达 REVIEWED (旧 shortcut 已移除)
+    expect(REPORT_TRANSITIONS.SUBMITTED).not.toContain('REVIEWED')
+    expect(REPORT_TRANSITIONS.INITIAL_REVIEW).not.toContain('REVIEWED')
+    expect(REPORT_TRANSITIONS.INITIAL_REVIEW).toContain('FINAL_REVIEW')
     expect(REPORT_TRANSITIONS.INITIAL_REVIEW).not.toContain('SIGNED')
     expect(REPORT_TRANSITIONS.FINAL_REVIEW).not.toContain('PUBLISHED')
-    expect(REPORT_TRANSITIONS.SUBMITTED).toContain('REVIEWED')
+    // 发布后归档: PUBLISHED → ARCHIVED 合法
+    expect(REPORT_TRANSITIONS.PUBLISHED).toContain('ARCHIVED')
+    // 驳回闭环: REJECTED → WRITING 合法
+    expect(REPORT_TRANSITIONS.REJECTED).toContain('WRITING')
+  })
+
+  it('[Wave13 门禁] transition() rejects direct review hop WRITING → INITIAL_REVIEW with INVALID_TRANSITION', async () => {
+    const prisma = makePrisma({
+      report: { findUnique: jest.fn().mockResolvedValue({ id: 'R1', state: 'WRITING' }) },
+    })
+    const service = new ReportsService(prisma as never, makeQueue(), makeSystemConfig({}))
+    await expect(service.transition('R1', 'INITIAL_REVIEW', 'U1')).rejects.toThrow('INVALID_TRANSITION')
   })
 
   it('transition() rejects invalid state hop with INVALID_TRANSITION', async () => {

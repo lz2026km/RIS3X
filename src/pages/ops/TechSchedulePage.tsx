@@ -1,3 +1,4 @@
+// @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 SchedulePage "技师排班" Tab (src/pages/SchedulePage.tsx), 文件保留, 旧路由 /ops/tech-schedule 已 redirect → /schedule。功能未删除, 请勿单独继续扩展本页。
 // G005 放射RIS系统 v3.0.6.11-99 Wave 6B (tech-schedule) - 技师排班管理
 // 功能: 月历矩阵(日期×技师) + 统计卡 + 新建/批量生成/筛选 + 单元格操作(确认/换班/请假/编辑/删除)
 import { useCallback, useEffect, useMemo, useState } from 'react'

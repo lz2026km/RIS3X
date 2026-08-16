@@ -27,6 +27,8 @@ import { reportApi } from '@services/api/reportApi';
 import { reportQualityApi, type QualityEvaluation } from '@services/api/reportQualityApi';
 import { templatesApi } from '@services/api/templatesApi';
 import { detectConflicts } from '@services/keywordConflictDetector';
+// [v3.0.6.11-103 Wave 7] 按钮规范: 保存/提交/打印/导出 标准动作按钮
+import { ActionButton } from '@components/common/ActionButton';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { sanitizeHtml } from '@utils/sanitization';
 import { getCurrentUser } from '@utils/auth';
@@ -38,14 +40,18 @@ import CriticalValueCard from '@components/report/v3/R3.QUALITY/CriticalValueCar
 import { criticalAlertApi, type CriticalAlert } from '@services/api/criticalAlertApi';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { displayStatus, toEnState } from '@components/report/statusMeta';
+// [v3.0.6.11-103 Wave 12] 报告流程状态条 (7 态状态机 + 下一步一键流转)
+import ReportFlowBar from '@components/report/ReportFlowBar';
+import { t } from '@i18n/appI18n';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
-  Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin, Collapse, Checkbox, Radio,
+  Alert, message, Modal, Progress, Badge, Input, Select, Spin, Collapse, Checkbox, Radio,
 } from 'antd';
-import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, FileDown, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy, MessageSquareText, Ruler, Plus, Trash2, Download, Camera, PenLine, ListTree } from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3, Printer, ChevronUp, ChevronDown, BookMarked, Lock, ExternalLink, BadgeCheck, MonitorPlay , Type, Keyboard, XCircle, Radar, Star, Copy, MessageSquareText, Ruler, Plus, Trash2, Download, Camera, PenLine, ListTree } from 'lucide-react';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Inbox, SearchX } from 'lucide-react'
+import { SearchX } from 'lucide-react'
+import { EmptyState } from '@components/common/EmptyState';
 
 const { Sider, Content } = Layout;
 
@@ -56,17 +62,17 @@ function AITab({ reportId, modality, bodyPart, onApplyToEditor }: { reportId: st
       reportId={reportId}
       modality={modality}
       bodyPart={bodyPart}
-      clinicalInfo="女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。"
+      clinicalInfo={t("reportWrite.demoComplaint2")}
       onAccept={(result) => {
         const text = [result?.findings, result?.impression, result?.recommendations].filter(Boolean).join('\n\n');
         onApplyToEditor(text || result?.findings || '');
-        message.success('已应用 AI 草稿到编辑器');
+        message.success(t("reportWrite.aiDraftApplied"));
       }}
       // [v3.0.6.11-100 Wave 3A (G-19)] 结构化字段 → 预填编辑器 (现病史/检查所见/诊断意见)
       onApplyStructured={(sections) => {
         const text = (sections ?? []).map((s) => `【${s.heading}】\n${s.content}`).join('\n\n');
         if (text) onApplyToEditor(text);
-        message.success('已预填结构化字段到编辑器');
+        message.success(t("reportWrite.structuredPrefilled"));
       }}
     />
   );
@@ -82,32 +88,32 @@ function HistoryTab({ priorReports, onCompare, dataSource = 'mock', summary, onF
   const summaryBlock = summary ? (
     <div className="mb-2 p-2 border border-emerald-200 rounded bg-emerald-50/70" data-testid="prior-summary-card">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-semibold text-emerald-700">既往病史摘要</span>
+        <span className="text-xs font-semibold text-emerald-700">{t("reportWrite.historySummary")}</span>
         <span className="flex items-center gap-1">
           {summary.source === 'db' ? (
-            <Tag color="green" className="text-[10px]">真实数据</Tag>
+            <Tag color="green" className="text-[10px]">{t("reportWrite.realData")}</Tag>
           ) : (
-            <Tag color="orange" className="text-[10px]" title="无真实既往报告,摘要为演示数据">演示数据</Tag>
+            <Tag color="orange" className="text-[10px]" title={t("reportWrite.noRealPriorDemo")}>{t("reportWrite.demoData")}</Tag>
           )}
           <Button size="small" type="primary" className="text-[10px] h-6" onClick={onFillHistory} data-testid="fill-history-btn">
-            一键填充基础病史
+            {t("reportWrite.fillHistory")}
           </Button>
         </span>
       </div>
       <div className="text-[11px] text-slate-600">
-        上次报告日期: {summary.lastReportDate ? new Date(summary.lastReportDate).toLocaleDateString('zh-CN') : '—'}
-        <span className="mx-1 text-slate-300">|</span>既往报告 {summary.count} 份
+        {t("reportWrite.lastReportDate")} {summary.lastReportDate ? new Date(summary.lastReportDate).toLocaleDateString('zh-CN') : '—'}
+        <span className="mx-1 text-slate-300">|</span>{t("reportWrite.priorReports")} {summary.count} {t("reportWrite.reportUnit")}
       </div>
       <div className="text-[11px] text-slate-600 mt-1 flex items-center flex-wrap gap-1">
-        常见诊断:
+        {t("reportWrite.commonDiagnoses")}
         {summary.commonDiagnoses.length > 0
           ? summary.commonDiagnoses.map((d) => (
               <Tag key={d.keyword} color="cyan" className="text-[10px]">{d.keyword} ×{d.count}</Tag>
             ))
-          : <span className="text-slate-400">暂无重复诊断关键词</span>}
+          : <span className="text-slate-400">{t("reportWrite.noRepeatKeywords")}</span>}
       </div>
       {summary.lastImpression && (
-        <div className="text-[11px] text-slate-500 mt-1 line-clamp-2">最近诊断意见: {summary.lastImpression}</div>
+        <div className="text-[11px] text-slate-500 mt-1 line-clamp-2">{t("reportWrite.recentImpressionLabel")} {summary.lastImpression}</div>
       )}
     </div>
   ) : null;
@@ -115,7 +121,7 @@ function HistoryTab({ priorReports, onCompare, dataSource = 'mock', summary, onF
     return (
       <div className="space-y-2">
         {summaryBlock}
-        {!summary && <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={dataSource === 'api' ? '该患者暂无历史报告' : '无历史报告'} />}
+        {!summary && <EmptyState type="nodata" description={dataSource === 'api' ? t("reportWrite.noHistory") : t("reportWrite.noHistoryShort")} />}
       </div>
     );
   }
@@ -123,11 +129,11 @@ function HistoryTab({ priorReports, onCompare, dataSource = 'mock', summary, onF
     <div className="space-y-2">
       {summaryBlock}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-slate-500">共 {priorReports.length} 份历史报告</span>
+        <span className="text-xs text-slate-500">{t("reportWrite.totalPrefix")} {priorReports.length} {t("reportWrite.historyCount")}</span>
         {dataSource === 'api' ? (
-          <Tag color="green" className="text-[10px]">真实数据</Tag>
+          <Tag color="green" className="text-[10px]">{t("reportWrite.realData")}</Tag>
         ) : (
-          <Tag color="orange" className="text-[10px]" title="历史报告数据为演示数据">演示数据</Tag>
+          <Tag color="orange" className="text-[10px]" title={t("reportWrite.historyDemoNote")}>{t("reportWrite.demoData")}</Tag>
         )}
       </div>
       {priorReports.map((p: any) => (
@@ -140,7 +146,7 @@ function HistoryTab({ priorReports, onCompare, dataSource = 'mock', summary, onF
           <div className="flex items-center gap-2 mt-2">
             {p.comparisonDelta && <Tag color="orange" className="text-[10px]">{p.comparisonDelta.summary}</Tag>}
             <Button size="small" type="link" className="text-[10px] p-0 h-auto" onClick={() => onCompare(p.findings, `${p.reportId} (${p.studyDate ? new Date(p.studyDate).toLocaleDateString() : ''})`)}>
-              对比当前
+              {t("reportWrite.compareCurrent")}
             </Button>
           </div>
         </div>
@@ -175,14 +181,14 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
       if (seriesUid) {
         const res = await similarCaseApi.hybridSearch({ reportText: text.trim(), seriesUID: seriesUid, limit: 5 });
         if (res.success && Array.isArray(res.data)) setCases(res.data as CaseRow[]);
-        else setError('融合检索服务返回异常');
+        else setError(t("reportWrite.fusionSearchError"));
       } else {
         const res = await similarCaseApi.search({ reportText: text.trim(), modality, bodyPart, limit: 5 });
         if (res.success && Array.isArray(res.data)) setCases(res.data);
-        else setError('检索服务返回异常');
+        else setError(t("reportWrite.searchError"));
       }
     } catch {
-      setError('相似病例检索失败');
+      setError(t("reportWrite.similarSearchFailed"));
     } finally {
       setLoading(false);
     }
@@ -196,20 +202,20 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · 按相关度前 ${cases.length} 条` : '输入报告文本后自动检索;可选关联检查启用影像特征融合'}</span>
+        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · 按相关度前 ${cases.length} 条` : t("reportWrite.searchHint2")}</span>
         <Space size={4}>
           <Select
-            size="small" allowClear showSearch placeholder="关联检查(影像特征)"
+            size="small" allowClear showSearch placeholder={t("reportWrite.linkExams")}
             style={{ width: 180 }} value={selectedSeries} onChange={setSelectedSeries}
             options={seriesList.map((s) => ({ label: `${s.modality}·${s.bodyPart}`, value: s.seriesUid }))}
           />
-          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => run(reportText, selectedSeries)}>刷新</Button>
+          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => run(reportText, selectedSeries)}>{t("reportWrite.refresh")}</Button>
         </Space>
       </div>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> 检索中…</div>
+        <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> {t("reportWrite.searching2")}</div>
       ) : cases.length === 0 ? (
-        <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="输入报告文本后自动检索相似病例" />
+        <EmptyState type="noresult" description={t("reportWrite.searchHint")} />
       ) : (
         <>
       {cases.map((c) => (
@@ -219,16 +225,16 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
               <Tag color="purple">{c.reportId}</Tag>
               <Tag color="cyan">{c.modality}</Tag>
               <Tag>{c.bodyPart}</Tag>
-              {c.gender && <span className="text-slate-400">{c.gender}{c.age}岁</span>}
+              {c.gender && <span className="text-slate-400">{c.gender}{c.age}{t("reportWrite.yearsOld")}</span>}
             </Space>
             <Tag color="blue">{c.similarity}%</Tag>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
           {typeof c.imageScore === 'number' && typeof c.textScore === 'number' && (
             <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
-              <span>文本 <b className="text-slate-600">{Math.round(c.textScore * 100)}%</b></span>
-              <span>影像 <b className="text-slate-600">{Math.round(c.imageScore * 100)}%</b></span>
-              {c.featureSummary != null && <span>平均 {c.featureSummary.mean}</span>}
+              <span>{t("reportWrite.text")} <b className="text-slate-600">{Math.round(c.textScore * 100)}%</b></span>
+              <span>{t("reportWrite.image")} <b className="text-slate-600">{Math.round(c.imageScore * 100)}%</b></span>
+              {c.featureSummary != null && <span>{t("reportWrite.average")} {c.featureSummary.mean}</span>}
             </div>
           )}
           <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? '#16a34a' : '#f59e0b'} showInfo={false} style={{ marginTop: 4 }} />
@@ -250,23 +256,23 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
           return (
             <div className="space-y-2 text-xs">
               <div>
-                <span className="text-slate-500">模态:</span> <Tag color="cyan">{detail.modality}</Tag>
-                <span className="text-slate-500 ml-2">部位:</span> <Tag>{detail.bodyPart}</Tag>
+                <span className="text-slate-500">{t("reportWrite.modalityLabel")}</span> <Tag color="cyan">{detail.modality}</Tag>
+                <span className="text-slate-500 ml-2">{t("reportWrite.bodyPartLabel")}</span> <Tag>{detail.bodyPart}</Tag>
                 {detail.gender ? (
-                  <span className="text-slate-500 ml-2">性别/年龄: {detail.gender} / {detail.age}岁</span>
+                  <span className="text-slate-500 ml-2">{t("reportWrite.genderAgeLabel")} {detail.gender} / {detail.age}{t("reportWrite.yearsOld")}</span>
                 ) : null}
                 {imageScore !== null && textScore !== null && (
-                  <span className="text-slate-500 ml-2">文本 {Math.round(textScore * 100)}% · 影像 {Math.round(imageScore * 100)}%</span>
+                  <span className="text-slate-500 ml-2">{t("reportWrite.text")} {Math.round(textScore * 100)}{t("reportWrite.pctImage")} {Math.round(imageScore * 100)}%</span>
                 )}
               </div>
-              <div className="font-semibold text-slate-700">影像所见</div>
+              <div className="font-semibold text-slate-700">{t("reportWrite.findings")}</div>
               <div className="text-slate-700 leading-relaxed">{detail.findings}</div>
-              <div className="font-semibold text-slate-700">诊断意见</div>
+              <div className="font-semibold text-slate-700">{t("reportWrite.impression")}</div>
               <div className="text-slate-700 leading-relaxed">{detail.impression}</div>
               {detail.conclusion && <div><Tag color="purple">{detail.conclusion}</Tag></div>}
               {summary && (
                 <div>
-                  <div className="font-semibold text-slate-700 mt-2">影像特征 (强度直方图)</div>
+                  <div className="font-semibold text-slate-700 mt-2">{t("reportWrite.imageFeatures")}</div>
                   <div className="flex items-end gap-px h-14 mt-1">
                     {summary.histogram.map((v: number, i: number) => {
                       const max = Math.max(...summary.histogram, 1);
@@ -274,14 +280,14 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
                     })}
                   </div>
                   <div className="flex gap-4 text-[10px] text-slate-400 mt-1">
-                    <span>平均 {summary.mean}</span>
+                    <span>{t("reportWrite.average")} {summary.mean}</span>
                     <span>p50 {summary.percentiles[2]}</span>
-                    <span>高密度 {(summary.highDensityRatio * 100).toFixed(1)}%</span>
-                    <span>低密度 {(summary.lowDensityRatio * 100).toFixed(1)}%</span>
+                    <span>{t("reportWrite.highDensity")} {(summary.highDensityRatio * 100).toFixed(1)}%</span>
+                    <span>{t("reportWrite.lowDensity")} {(summary.lowDensityRatio * 100).toFixed(1)}%</span>
                   </div>
                 </div>
               )}
-              <div className="text-slate-400">报告已匿名化</div>
+              <div className="text-slate-400">{t("reportWrite.anonymized")}</div>
             </div>
           );
         })()}
@@ -296,15 +302,15 @@ function ScoreTab({ preScore, source, loading }: { preScore: any; source: 'api' 
       <div className="text-center mb-3">
         <Progress type="circle" percent={preScore.score} size={80} strokeColor={preScore.passed ? '#10b981' : '#f59e0b'} format={(p) => <span className="text-2xl font-bold">{p}</span>} />
         <div className="text-xs text-slate-500 mt-1">
-          {preScore.passed ? '可提交' : '需完善'}
-          <span className="ml-1">{loading ? '(评分中…)' : ''}</span>
+          {preScore.passed ? t("reportWrite.submittable") : t("reportWrite.needsWork")}
+          <span className="ml-1">{loading ? t("reportWrite.scoring2") : ''}</span>
         </div>
-        <Tag color={source === 'api' ? 'green' : 'orange'} className="mt-1" title="reportQualityApi.evaluate 真实评分, 失败回退本地演示">
-          {source === 'api' ? '真实评分' : '演示回退'}
+        <Tag color={source === 'api' ? 'green' : 'orange'} className="mt-1" title={t("reportWrite.scoreSourceNote")}>
+          {source === 'api' ? t("reportWrite.realScore") : t("reportWrite.demoFallback")}
         </Tag>
       </div>
       <Divider className="my-2" />
-      <h5 className="text-xs font-semibold mb-1">评分维度</h5>
+      <h5 className="text-xs font-semibold mb-1">{t("reportWrite.scoreDims")}</h5>
       <div className="space-y-1">
         {(preScore.dimensions ?? []).map((d: any) => (
           <div key={d.key ?? d.name} className="flex items-center justify-between text-xs">
@@ -314,7 +320,7 @@ function ScoreTab({ preScore, source, loading }: { preScore: any; source: 'api' 
         ))}
       </div>
       <Divider className="my-2" />
-      <h5 className="text-xs font-semibold mb-1">检查清单</h5>
+      <h5 className="text-xs font-semibold mb-1">{t("reportWrite.checklist")}</h5>
       <div className="space-y-1">
         {preScore.checklist.map((c: any) => (
           <div key={c.id} className="flex items-center gap-1 text-xs">
@@ -326,7 +332,7 @@ function ScoreTab({ preScore, source, loading }: { preScore: any; source: 'api' 
       {(preScore.suggestions ?? []).length > 0 && (
         <>
           <Divider className="my-2" />
-          <h5 className="text-xs font-semibold mb-1">改进建议</h5>
+          <h5 className="text-xs font-semibold mb-1">{t("reportWrite.improvements")}</h5>
           <div className="space-y-1">
             {(preScore.suggestions ?? []).map((s: string, i: number) => (
               <div key={i} className="text-xs text-amber-700">• {s}</div>
@@ -347,8 +353,8 @@ function DraftsTab({ drafts }: { drafts: any[] }) {
             <Tag color={d.autoSaved ? 'green' : 'default'}>{d.versionLabel}</Tag>
             <span className="text-slate-400">{new Date(d.updatedAt).toLocaleString()}</span>
           </div>
-          <div className="text-slate-700 mt-1">{d.wordCount} 字</div>
-          {d.autoSaved && <Tag color="success" className="text-[10px] mt-1">自动保存</Tag>}
+          <div className="text-slate-700 mt-1">{d.wordCount} {t("reportWrite.wordUnit")}</div>
+          {d.autoSaved && <Tag color="success" className="text-[10px] mt-1">{t("reportWrite.autoSave")}</Tag>}
         </div>
       ))}
     </div>
@@ -360,11 +366,11 @@ function KWTab({ keywords, source = 'mock' }: { keywords: any[]; source?: 'api' 
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-slate-500">共 {keywords.length} 个关键词</span>
+        <span className="text-xs text-slate-500">{t("reportWrite.totalPrefix")} {keywords.length} {t("reportWrite.keywordCount")}</span>
         {source === 'api' ? (
-          <Tag color="green" className="text-[10px]">真实高亮</Tag>
+          <Tag color="green" className="text-[10px]">{t("reportWrite.realHighlight")}</Tag>
         ) : (
-          <Tag color="orange" className="text-[10px]" title="后端无关键词高亮接口, 回退演示数据">演示数据</Tag>
+          <Tag color="orange" className="text-[10px]" title={t("reportWrite.highlightFallback")}>{t("reportWrite.demoData")}</Tag>
         )}
       </div>
       {keywords.map((k: any) => (
@@ -381,13 +387,13 @@ function KWTab({ keywords, source = 'mock' }: { keywords: any[]; source?: 'api' 
 
 // [v3.0.6.11-96 Wave2A P0] 合规 Tab: 用 evaluate 返回维度渲染通过/未通过列表; 失败回退静态数组并标注
 const COMPLIANCE_FALLBACK_ITEMS = [
-  { id: 'c1', label: '患者姓名与检查号匹配', labelEn: 'Patient name matches ID', passed: true },
-  { id: 'c2', label: '检查部位与申请单一致', labelEn: 'Body part matches order', passed: true },
-  { id: 'c3', label: '影像所见覆盖全部检查部位', labelEn: 'Findings cover all body parts', passed: true },
-  { id: 'c4', label: '诊断意见与影像所见逻辑一致', labelEn: 'Impression consistent with findings', passed: true },
-  { id: 'c5', label: '危急值已标注并通知临床', labelEn: 'Critical values annotated & notified', passed: false },
-  { id: 'c6', label: '术语符合 ICD 编码规范', labelEn: 'Terms follow ICD coding', passed: true },
-  { id: 'c7', label: '测量数据与图像一致', labelEn: 'Measurements match images', passed: true },
+  { id: 'c1', label: t("reportWrite.checkPatientMatch"), labelEn: 'Patient name matches ID', passed: true },
+  { id: 'c2', label: t("reportWrite.checkBodyPart"), labelEn: 'Body part matches order', passed: true },
+  { id: 'c3', label: t("reportWrite.checkFindingsCoverage"), labelEn: 'Findings cover all body parts', passed: true },
+  { id: 'c4', label: t("reportWrite.checkImpressionConsistent"), labelEn: 'Impression consistent with findings', passed: true },
+  { id: 'c5', label: t("reportWrite.checkCriticalNotified"), labelEn: 'Critical values annotated & notified', passed: false },
+  { id: 'c6', label: t("reportWrite.checkIcdTerms"), labelEn: 'Terms follow ICD coding', passed: true },
+  { id: 'c7', label: t("reportWrite.checkMeasurements"), labelEn: 'Measurements match images', passed: true },
 ];
 
 function ComplianceTab({ evaluation }: { evaluation: QualityEvaluation | null }) {
@@ -402,11 +408,11 @@ function ComplianceTab({ evaluation }: { evaluation: QualityEvaluation | null })
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-slate-500">共 {items.length} 项质控规则</span>
+        <span className="text-xs text-slate-500">{t("reportWrite.totalPrefix")} {items.length} {t("reportWrite.qcRuleCount")}</span>
         {evaluation ? (
-          <Tag color="green" className="text-[10px]">真实规则</Tag>
+          <Tag color="green" className="text-[10px]">{t("reportWrite.realRules")}</Tag>
         ) : (
-          <Tag color="orange" className="text-[10px]" title="reportQualityApi.evaluate 不可用时回退">演示回退</Tag>
+          <Tag color="orange" className="text-[10px]" title={t("reportWrite.qcFallbackNote")}>{t("reportWrite.demoFallback")}</Tag>
         )}
       </div>
       {items.map((c) => (
@@ -422,14 +428,14 @@ function ComplianceTab({ evaluation }: { evaluation: QualityEvaluation | null })
 function CollabTab() {
   // [v3.0.6.11-96 Wave5A P2] 协作列表为本地演示数据 (useCollaborativeYjs 为真实协同通道, 列表未接 API)
   const collaborators = [
-    { name: '陈医师', role: '报告医师', status: 'online', lastActive: '当前编辑' },
-    { name: '王医师', role: '审核医师', status: 'online', lastActive: '10 分钟前' },
-    { name: '李主任', role: '终审医师', status: 'offline', lastActive: '2 小时前' },
+    { name: '陈医师', role: t("reportWrite.reportDoctor"), status: 'online', lastActive: t("reportWrite.currentlyEditing") },
+    { name: '王医师', role: t("reportWrite.reviewDoctor"), status: 'online', lastActive: t("reportWrite.tenMinAgo") },
+    { name: '李主任', role: t("reportWrite.finalReviewDoctor"), status: 'offline', lastActive: t("reportWrite.twoHoursAgo") },
   ];
   return (
     <div className="space-y-2">
       <div className="flex justify-end">
-        <Tag color="orange" className="text-[10px]" title="协作医生列表为本地示例, 未接真实 API">演示数据（协作列表示例）</Tag>
+        <Tag color="orange" className="text-[10px]" title={t("reportWrite.collabLocalNote")}>{t("reportWrite.collabDemoNote")}</Tag>
       </div>
       {collaborators.map((c) => (
         <div key={c.name} className="flex items-center justify-between p-2 border border-slate-200 rounded text-xs">
@@ -447,9 +453,118 @@ function CollabTab() {
   );
 }
 
+// [v3.0.6.11-103 Wave 12] 常用模板面板: 模板智能匹配 (按检查模态/部位自动推荐) + 收藏夹 + 最近使用, 一键应用
+function TemplateSmartPanel({ templates, loading, favIds, recentIds, modality, bodyPart, onApply, onToggleFav }: {
+  templates: any[];
+  loading: boolean;
+  favIds: string[];
+  recentIds: string[];
+  modality: string;
+  bodyPart: string;
+  onApply: (id: string) => void;
+  onToggleFav: (id: string) => void;
+}) {
+  const recCtx = useMemo(() => {
+    const mod = String(modality ?? '').trim().toUpperCase();
+    const bp = String(bodyPart ?? '').trim();
+    return { mod, bp, has: mod.length > 0 || bp.length > 0 };
+  }, [modality, bodyPart]);
+
+  const recMatchLevel = useCallback((tl: any): number => {
+    if (!recCtx.has) return -1;
+    const tMod = String(tl?.modality ?? tl?.category ?? '').trim().toUpperCase();
+    const tBp = String(tl?.bodyPart ?? '').trim();
+    const m = recCtx.mod && tMod && (tMod === recCtx.mod || tMod.includes(recCtx.mod) || recCtx.mod.includes(tMod));
+    const b = recCtx.bp && tBp && (tBp === recCtx.bp || tBp.includes(recCtx.bp) || recCtx.bp.includes(tBp));
+    if (m && b) return 0;
+    if (m) return 1;
+    if (b) return 2;
+    return -1;
+  }, [recCtx]);
+
+  const recommended = useMemo(() => {
+    const matched = templates.filter((tl: any) => recMatchLevel(tl) >= 0);
+    return matched
+      .sort((a: any, b: any) => recMatchLevel(a) - recMatchLevel(b) || String(a?.name ?? '').localeCompare(String(b?.name ?? ''), 'zh-CN'))
+      .slice(0, 6);
+  }, [templates, recMatchLevel]);
+
+  const favSet = useMemo(() => new Set(favIds), [favIds]);
+  const recentSet = useMemo(() => new Set(recentIds), [recentIds]);
+
+  const favorites = useMemo(() => templates.filter((tl: any) => favSet.has(tl.id)), [templates, favSet]);
+  const recents = useMemo(() => templates.filter((tl: any) => recentSet.has(tl.id) && !favSet.has(tl.id)), [templates, recentSet, favSet]);
+
+  const renderRow = (tl: any, match?: number) => (
+    <div key={`t-${tl.id}`} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
+      onClick={() => onApply(tl.id)} data-testid={`smart-template-${tl.id}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
+          {favSet.has(tl.id) && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
+          {(tl?.templateType ?? 'SECTION') === 'FULL' && <Tag color="purple" className="m-0 text-[10px]">{t("reportWrite.fullText")}</Tag>}
+          {tl.name}
+        </span>
+        <span className="flex items-center gap-1 shrink-0">
+          {match != null && match >= 0 && (
+            <Tag color={match === 0 ? 'volcano' : match === 1 ? 'cyan' : 'geekblue'} className="m-0 text-[10px]">
+              {match === 0 ? t('w12.write.matchExact') : match === 1 ? t('w12.write.matchModality') : t('w12.write.matchBodyPart')}
+            </Tag>
+          )}
+          <Button size="small" type="text" className="p-0 h-auto w-5"
+            icon={<Star className={`w-3 h-3 ${favSet.has(tl.id) ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />}
+            onClick={(e) => { e.stopPropagation(); onToggleFav(tl.id); }}
+            title={favSet.has(tl.id) ? t("reportWrite.unfavorite") : t("reportWrite.favoriteTemplates")} />
+          <Button size="small" type="text" className="p-0 h-auto text-[10px] text-blue-600" onClick={(e) => { e.stopPropagation(); onApply(tl.id); }}>
+            {t('w12.write.applyTemplate')}
+          </Button>
+        </span>
+      </div>
+      <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(tl.body ?? '').slice(0, 60) || t("reportWrite.structuredTemplate")}</div>
+    </div>
+  );
+
+  if (loading) return <div style={{ textAlign: 'center', padding: 20 }}><Spin size="small" /> {t("reportWrite.templateLoading2")}</div>;
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded border border-purple-200 bg-purple-50/60 p-2 space-y-1">
+        <div className="text-[11px] font-semibold text-purple-700 flex items-center gap-1">
+          <Sparkles className="w-3 h-3" /> {t('w12.write.smartTemplate')}
+          <span className="font-normal text-purple-400">（{recCtx.mod || '—'}{recCtx.mod && recCtx.bp ? ' / ' : ''}{recCtx.bp || '—'}）</span>
+        </div>
+        <div className="text-[10px] text-slate-400">{t('w12.write.smartTemplateDesc')}</div>
+        {recommended.length === 0 ? (
+          <div className="text-[11px] text-slate-400 py-2">{t('w12.write.noMatchTemplate')}</div>
+        ) : (
+          <div className="space-y-1">{recommended.map((tl: any) => renderRow(tl, recMatchLevel(tl)))}</div>
+        )}
+      </div>
+
+      <div>
+        <div className="text-[11px] font-semibold text-slate-600 mb-1 flex items-center gap-1">
+          <Star className="w-3 h-3 text-amber-400 fill-amber-400" /> {t('w12.write.favorites')} ({favorites.length})
+        </div>
+        {favorites.length === 0 ? (
+          <div className="text-[11px] text-slate-400 py-1">{t('w12.write.favoritesEmpty')}</div>
+        ) : (
+          <div className="space-y-1">{favorites.map((tl: any) => renderRow(tl))}</div>
+        )}
+      </div>
+
+      <div>
+        <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('w12.write.recent')} ({recents.length})</div>
+        {recents.length === 0 ? (
+          <div className="text-[11px] text-slate-400 py-1">{t('w12.write.recentEmpty')}</div>
+        ) : (
+          <div className="space-y-1">{recents.map((tl: any) => renderRow(tl))}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 主页面 ---------- */
-/* V3 优化专用样式 */
-const V3_STYLES = `
+/* V3 优化专用样式 */const V3_STYLES = `
 .v3-root { min-height: 100vh; background: var(--bg-primary); }
 .v3-root .ant-layout-sider { background: var(--bg-card) !important; }
 .v3-topbar { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
@@ -499,15 +614,15 @@ function buildPrintLayoutHtml(opts: {
   const twoColumns = layout.columns === 2;
   const compact = layout.id === 'layout-3' || layout.id === 'layout-compact';
   const letterhead = withLetterhead
-    ? '<div class="lp-letterhead"><div class="lp-org">汉东省人民医院</div><div class="lp-sub">放射诊断中心</div></div>'
+    ? t("reportWrite.letterheadHtml")
     : '';
   const metaRows = [
-    ['报告编号', opts.reportId],
-    ['患者', `${opts.patientName}`],
-    ['性别/年龄', `${opts.gender} / ${opts.age}`],
-    ['检查', `${opts.modality} · ${opts.bodyPart}`],
-    ['检查号', opts.patientId],
-    ['临床诊断', opts.clinicalDiagnosis],
+    [t("reportWrite.reportNo"), opts.reportId],
+    [t("reportWrite.patient"), `${opts.patientName}`],
+    [t("reportWrite.genderAge"), `${opts.gender} / ${opts.age}`],
+    [t("reportWrite.exam"), `${opts.modality} · ${opts.bodyPart}`],
+    [t("reportWrite.accessionNo"), opts.patientId],
+    [t("reportWrite.clinicalDiagnosis"), opts.clinicalDiagnosis],
   ];
   return `<div class="lp-root">
 <style>
@@ -552,15 +667,15 @@ ${letterhead}
 
 // [v3.0.6.11-100 Wave 6B (D-2)] MIP/VR 截图图注 HTML 构建 (书写页 Modal 插入 + sessionStorage 自动插入共用)
 function buildMipFigureHtml(payload: MipScreenshotPayload, imgCount: number): string {
-  const safeLabel = String(payload.label ?? 'MIP 重建').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
+  const safeLabel = String(payload.label ?? t("reportWrite.mipRecon")).replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
   const figNo = imgCount + 1;
   const sourceInfo = payload.studyUid ? `${payload.studyUid.slice(-8)}` : 'N/A';
-  const dirLabel = payload.direction === 'axial' ? '轴位' : payload.direction === 'sagittal' ? '矢状位' : '冠状位';
+  const dirLabel = payload.direction === 'axial' ? t("reportWrite.axial") : payload.direction === 'sagittal' ? t("reportWrite.sagittal") : t("reportWrite.coronal");
   const thicknessText = payload.kind === 'vr' ? '' : ` · ${dirLabel} ${payload.thickness}mm`;
   return [
     '<figure style="margin:10px 0;text-align:center;position:relative;">',
     `<img src="${payload.imageBase64}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" data-mip-source="${sourceInfo}" data-mip-direction="${payload.direction ?? 'axial'}" />`,
-    `<div style="position:relative;margin-top:4px;"><span style="display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:0 8px;font-size:11px;font-weight:600;">水印: ${safeLabel}${thicknessText} · 源检查 ${sourceInfo} · ${payload.source === 'real' ? '真实DICOM' : '合成'}</span></div>`,
+    `<div style="position:relative;margin-top:4px;"><span style="display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:0 8px;font-size:11px;font-weight:600;">水印: ${safeLabel}${thicknessText} · 源检查 ${sourceInfo} · ${payload.source === 'real' ? t("reportWrite.realDicom") : t("reportWrite.synthetic")}</span></div>`,
     `<figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption>`,
     '</figure>',
   ].join('');
@@ -650,7 +765,7 @@ export default function ReportWritePage() {
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? '长度'), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
+        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? t("reportWrite.length")), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
       }
     } catch { /* storage 不可用则忽略 */ }
   }, []);
@@ -658,30 +773,30 @@ export default function ReportWritePage() {
     try {
       const raw = sessionStorage.getItem('g005_measurements_v1');
       if (!raw) {
-        message.info('影像浏览器暂无测量数据: 可在 DICOM 查看器完成测量(长度/Cobb角/面积等)后回到本页自动带入, 或手动添加');
+        message.info(t("reportWrite.noMeasurementsImport2"));
         return;
       }
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? '长度'), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
+        setMeasureRows(parsed.map((r: any) => ({ type: String(r.type ?? 'line'), typeLabel: String(r.typeLabel ?? r.type ?? t("reportWrite.length")), label: String(r.label ?? ''), value: r.value ?? '', unit: String(r.unit ?? 'mm'), location: String(r.location ?? '') })));
         message.success(`已从影像浏览器导入 ${parsed.length} 条测量数据`);
       } else {
-        message.info('影像浏览器暂无测量数据, 可手动添加测量行');
+        message.info(t("reportWrite.noMeasurementsManual"));
       }
     } catch {
-      message.info('测量数据读取失败, 可手动添加测量行');
+      message.info(t("reportWrite.measurementsLoadFailed"));
     }
   }, []);
   const addMeasureRow = useCallback(() => {
     const typeMeta: Record<string, { label: string; unit: string }> = {
-      line: { label: '长度', unit: 'mm' }, angle: { label: '角度', unit: '°' }, cobb: { label: 'Cobb角', unit: '°' },
-      ellipse: { label: '椭圆面积', unit: 'mm²' }, rectangle: { label: '矩形面积', unit: 'mm²' }, circle: { label: '圆面积', unit: 'mm²' },
-      polygon: { label: '多边形面积', unit: 'mm²' }, ctvalue: { label: 'CT值', unit: 'HU' }, volume: { label: '体积', unit: 'cm³' },
+      line: { label: t("reportWrite.length"), unit: 'mm' }, angle: { label: t("reportWrite.angle"), unit: '°' }, cobb: { label: t("reportWrite.cobbAngle"), unit: '°' },
+      ellipse: { label: t("reportWrite.ellipseArea"), unit: 'mm²' }, rectangle: { label: t("reportWrite.rectArea"), unit: 'mm²' }, circle: { label: t("reportWrite.circleArea"), unit: 'mm²' },
+      polygon: { label: t("reportWrite.polygonArea"), unit: 'mm²' }, ctvalue: { label: t("reportWrite.ctValue"), unit: 'HU' }, volume: { label: t("reportWrite.volume"), unit: 'cm³' },
     };
     const meta = typeMeta[measureDraft.type] ?? typeMeta.line!;
     const val = Number(measureDraft.value);
     if (!Number.isFinite(val) || String(measureDraft.value).trim() === '') {
-      message.warning('请输入测量数值');
+      message.warning(t("reportWrite.measurementValueRequired"));
       return;
     }
     const row: MeasureRow = {
@@ -708,18 +823,32 @@ export default function ReportWritePage() {
       `<tr><td style="${TD_CSS}">${i + 1}</td><td style="${TD_CSS}">${escHtml(r.typeLabel)}</td><td style="${TD_CSS}">${escHtml(r.location || '-')}</td><td style="${TD_CSS}">${escHtml(r.label)}</td><td style="${TD_CSS}">${escHtml(r.value)}</td><td style="${TD_CSS}">${escHtml(r.unit)}</td></tr>`,
     ).join('');
     return [
-      '<h3>影像测量数据</h3>',
+      t("reportWrite.measurementsHtml"),
       `<table style="${TABLE_CSS}"><thead><tr><th style="${TH_CSS}">#</th><th style="${TH_CSS}">测量类型</th><th style="${TH_CSS}">部位</th><th style="${TH_CSS}">描述</th><th style="${TH_CSS}">数值</th><th style="${TH_CSS}">单位</th></tr></thead><tbody>${rows}</tbody></table>`,
     ].join('\n');
   }, [measureRows, escHtml]);
   const handleInsertMeasurement = useCallback(() => {
     if (measureRows.length === 0) {
-      message.info('暂无测量数据: 可从影像浏览器导入或手动添加后生成');
+      message.info(t("reportWrite.noMeasurementsHint"));
       return;
     }
     editorRef.current?.insertHtml(buildMeasureTableHtml());
-    message.success('测量表已插入报告正文 (SR 段落)');
+    message.success(t("reportWrite.measurementsInserted"));
   }, [measureRows, buildMeasureTableHtml]);
+
+  // [v3.0.6.11-103 Wave 12] 一键测量插入: 单条测量行直接插入报告光标处
+  const handleInsertMeasureRow = useCallback((row: MeasureRow, idx: number) => {
+    if (!row) return;
+    const html = [
+      '<p>',
+      `<b>${escHtml(row.typeLabel)}</b>` + (row.location ? ` · ${escHtml(row.location)}` : ''),
+      `: ${escHtml(row.label)} = <b>${escHtml(row.value)} ${escHtml(row.unit)}</b>`,
+      '</p>',
+    ].join('');
+    editorRef.current?.insertHtml(html);
+    message.success(`已插入单条测量: ${row.typeLabel} ${row.value}${row.unit}`);
+    void idx;
+  }, [escHtml]);
 
   const runQualityEvaluate = useCallback(async (opts?: { force?: boolean }) => {
     const rid = reportId ?? (context as any).reportId;
@@ -803,7 +932,7 @@ export default function ReportWritePage() {
   const lastSavedRef = useRef('');
   // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认)
   const [aiUi, setAiUi] = useState<{ open: boolean; clinical: string; findings: string; style: ReportDraftStyle; loading: boolean; error: string | null }>({
-    open: false, clinical: '女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。', findings: '', style: 'standard', loading: false, error: null,
+    open: false, clinical: t("reportWrite.demoComplaint2"), findings: '', style: 'standard', loading: false, error: null,
   });
   const [aiDraft, setAiDraft] = useState<AiReportDraft | null>(null);
   const [aiConfirm, setAiConfirm] = useState(false);
@@ -825,7 +954,7 @@ export default function ReportWritePage() {
       const detail = (e as CustomEvent).detail as { html?: string } | undefined;
       if (!detail?.html) return;
       editorRef.current?.insertHtml(detail.html);
-      message.success('已插入 AI RADS 评分段落');
+      message.success(t("reportWrite.aiRadsInserted"));
     };
     window.addEventListener('report-insert-html', handler);
     try {
@@ -852,7 +981,7 @@ export default function ReportWritePage() {
           window.clearInterval(timer);
           editorRef.current?.insertHtml(html);
           radsPendingRef.current = '';
-          message.success('已插入 AI RADS 评分段落 (跨页补插)');
+          message.success(t("reportWrite.aiRadsInsertedCrossPage"));
         }
       } else {
         stableCount = 0;
@@ -957,11 +1086,11 @@ export default function ReportWritePage() {
         stableCount += 1;
         if (stableCount >= 2) {
           const html = (ed as HTMLElement).innerHTML;
-          const hasFigure = html.includes('data-mip-source') || html.includes(String(payload.label ?? 'MIP 重建'));
+          const hasFigure = html.includes('data-mip-source') || html.includes(String(payload.label ?? t("reportWrite.mipRecon")));
           if (hasFigure) {
             window.clearInterval(timer);
             mipPendingRef.current = '';
-            message.success(`${payload.label ?? 'MIP 截图'}已自动插入报告正文 (来自阅片器)`);
+            message.success(`${payload.label ?? t("reportWrite.mipScreenshot")}已自动插入报告正文 (来自阅片器)`);
           } else if (attempts < 3) {
             attempts += 1;
             const imgCount = (html.match(/<img\b/gi) ?? []).length;
@@ -970,7 +1099,7 @@ export default function ReportWritePage() {
           } else {
             window.clearInterval(timer);
             mipPendingRef.current = '';
-            message.warning('MIP 图注自动插入未完成, 可在报告「关键图像与影像锚定」重新插入');
+            message.warning(t("reportWrite.mipCaptionIncomplete"));
           }
         }
       } else {
@@ -1001,6 +1130,17 @@ export default function ReportWritePage() {
   const [recentTemplateIds, setRecentTemplateIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('report-recent-templates') || '[]') } catch { return [] }
   });
+  // [v3.0.6.11-103 Wave 12] 短语收藏夹 (localStorage)
+  const [favPhraseIds, setFavPhraseIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('report-fav-phrases') || '[]') } catch { return [] }
+  });
+  const toggleFavPhrase = useCallback((id: string) => {
+    setFavPhraseIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      try { localStorage.setItem('report-fav-phrases', JSON.stringify(next)); } catch { /* 忽略 */ }
+      return next;
+    });
+  }, []);
   // [v3.0.6.11-98 Wave2A P1] 当前登录用户 id (模板库「我的模板」筛选/个人模板 Tag)
   const currentUserId = useMemo(() => {
     const mem = getCurrentUser();
@@ -1017,15 +1157,15 @@ export default function ReportWritePage() {
   // [v3.0.6.11-99 Wave 2A 报告批注] 当前登录用户 (id+name) → 批注面板
   const annotationCurrentUser = useMemo(() => {
     const mem = getCurrentUser();
-    if (mem?.id) return { id: mem.id, name: mem.name || '当前用户' };
+    if (mem?.id) return { id: mem.id, name: mem.name || t("reportWrite.currentUser") };
     try {
       const raw = localStorage.getItem('ris_current_user');
       if (raw) {
         const u = JSON.parse(raw);
-        if (u?.id) return { id: String(u.id), name: String(u.fullName ?? u.username ?? '当前用户') };
+        if (u?.id) return { id: String(u.id), name: String(u.fullName ?? u.username ?? t("reportWrite.currentUser")) };
       }
     } catch { /* 忽略 */ }
-    return { id: 'A001', name: '当前用户' };
+    return { id: 'A001', name: t("reportWrite.currentUser") };
   }, []);
   // [W2-2] 短语库
   const [phraseOpen, setPhraseOpen] = useState(false);
@@ -1241,18 +1381,18 @@ export default function ReportWritePage() {
   // [v3.0.6.11-100 Wave 6B (D-5)] 一键填充基础病史: prior-summary → 「既往史」段落 insertHtml
   const handleFillHistory = useCallback(() => {
     if (!priorSummary) {
-      message.info('既往病史摘要尚未加载, 请稍后重试');
+      message.info(t("reportWrite.historyNotLoaded"));
       return;
     }
     const esc = (v: unknown): string => String(v ?? '').replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
     const date = priorSummary.lastReportDate ? new Date(priorSummary.lastReportDate).toLocaleDateString('zh-CN') : '';
     const kws = priorSummary.commonDiagnoses.map((d) => d.keyword).join('、');
     const html = [
-      '<h3>既往病史</h3>',
+      t("reportWrite.historyHtml"),
       `<p>患者${date ? `于 ${date} ` : ''}行影像检查${priorSummary.count > 0 ? ` (既往共 ${priorSummary.count} 份报告)` : ''}${kws ? `, 曾诊断: ${esc(kws)}` : ''}${priorSummary.lastImpression ? `; 最近一次诊断意见: ${esc(priorSummary.lastImpression)}` : ''}。建议结合既往影像对比评估。</p>`,
     ].join('\n');
     editorRef.current?.insertHtml(html);
-    message.success('既往病史摘要已插入报告正文');
+    message.success(t("reportWrite.historyInserted"));
   }, [priorSummary]);
 
   // [W2-2] 加载自由文本模板列表 (templatesApi → mock 兜底)
@@ -1295,7 +1435,7 @@ export default function ReportWritePage() {
           id: s?.id,
           name: s?.name ?? '',
           content: s?.content ?? s?.text ?? '',
-          category: s?.category ?? '通用',
+          category: s?.category ?? t("reportWrite.general"),
           subCategory: s?.subCategory,
           shortcuts: s?.shortcuts,
         })));
@@ -1350,13 +1490,13 @@ export default function ReportWritePage() {
         if (res.data?.reportId && res.data.reportId !== reportId) setReportId(res.data.reportId);
         lastKnownUpdatedAtRef.current = res.data?.updatedTime ?? existing.data?.updatedTime ?? new Date().toISOString();
         lastSavedRef.current = `${plainText}|${context.document.html ?? ''}`;
-        if (!silent) message.success(lockConflict ? '已保存 (检测到并发修改,已覆盖最新版本)' : '报告已保存');
+        if (!silent) message.success(lockConflict ? t("reportWrite.savedWithOverwrite2") : t("reportWrite.reportSaved"));
         return true;
       }
-      if (!silent) message.error(res.error?.message ?? '保存失败,请稍后重试');
+      if (!silent) message.error(res.error?.message ?? t("reportWrite.saveFailed"));
       return false;
     } catch {
-      if (!silent) message.error('保存失败,请检查网络后重试');
+      if (!silent) message.error(t("reportWrite.saveFailedNetwork"));
       return false;
     } finally {
       savingRef.current = false;
@@ -1368,7 +1508,7 @@ export default function ReportWritePage() {
   //   无真实缩略图时插入虚线占位符 (保留影像引用语义, 不显示破图)
   const handleInsertAnchor = useCallback((anchor: any) => {
     const thumb = typeof anchor?.thumbnail === 'string' && anchor.thumbnail.startsWith('data:image/') ? anchor.thumbnail : '';
-    const label = String(anchor?.annotation?.[0]?.label ?? anchor?.id ?? '影像锚点');
+    const label = String(anchor?.annotation?.[0]?.label ?? anchor?.id ?? t("reportWrite.imageAnchor"));
     const safeLabel = String(label).replace(/[<>&"']/g, (ch) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch);
     const existingImgs = (context.document.html?.match(/<img\b/gi) ?? []).length;
     const figNo = existingImgs + 1;
@@ -1376,7 +1516,7 @@ export default function ReportWritePage() {
       ? `<figure style="margin:10px 0;text-align:center;"><img src="${thumb}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" /><figcaption style="font-size:12px;color:#475569;margin-top:4px;">图${figNo}: ${safeLabel}</figcaption></figure>`
       : `<div style="border:2px dashed #0891b2;border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:#0891b2;">[影像锚点 ${safeLabel}] 缩略图待加载, 可在影像浏览器截图后经编辑器"插入图像"上传</div>`;
     editorRef.current?.insertHtml(html);
-    message.success('影像锚点已插入报告正文');
+    message.success(t("reportWrite.anchorInserted"));
   }, [context.document.html]);
 
   // [v3.0.6.11-100 Wave 2B (报告工作站)] MIP 截图联动: Modal 生成 → 水印图注插入编辑器
@@ -1385,13 +1525,13 @@ export default function ReportWritePage() {
   // [v3.0.6.11-100 Wave 2B] MIP 截图插入: 复用 insertHtml 通道, 图中带「MIP 重建」水印 + 源检查信息
   const handleInsertMip = useCallback((payload: MipScreenshotPayload) => {
     if (!payload?.imageBase64) {
-      message.warning('MIP 图像生成失败, 请重试');
+      message.warning(t("reportWrite.mipFailed"));
       return;
     }
     const existingImgs = (context.document.html?.match(/<img\b/gi) ?? []).length;
     editorRef.current?.insertHtml(buildMipFigureHtml(payload, existingImgs));
     setMipModalOpen(false);
-    message.success('MIP 截图已插入报告正文');
+    message.success(t("reportWrite.mipInserted"));
   }, [context.document.html]);
 
   // [v3.0.6.11-100 Wave 2B] 影像标注 → 阅片器定位
@@ -1409,9 +1549,9 @@ export default function ReportWritePage() {
       if (savingRef.current || !reportId) return;
       const snapshot = `${context.document.plainText ?? ''}|${context.document.html ?? ''}`;
       if (snapshot === lastSavedRef.current) return;
-      setAutoSaveTip('自动保存中…');
+      setAutoSaveTip(t("reportWrite.autoSaving2"));
       void doSave(true).then((ok) => {
-        setAutoSaveTip(ok ? `已自动保存 ${new Date().toLocaleTimeString()}` : '自动保存失败');
+        setAutoSaveTip(ok ? `已自动保存 ${new Date().toLocaleTimeString()}` : t("reportWrite.autoSaveFailed"));
       });
     }, 30000);
     return () => clearInterval(timer);
@@ -1430,14 +1570,14 @@ export default function ReportWritePage() {
         })
       );
       if (r.success) {
-        message.success('报告已提交审核');
+        message.success(t("reportWrite.submitted"));
         setShowSubmit(false);
         setTimeout(() => navigate('/report-review'), 1500);
       } else {
-        message.error('提交失败:报告状态不可提交或网络异常,请先保存后重试');
+        message.error(t("reportWrite.submitFailedState"));
       }
     } catch {
-      message.error('提交失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.submitFailedNetwork"));
     } finally {
       setSubmitting(false);
     }
@@ -1458,14 +1598,14 @@ export default function ReportWritePage() {
     try {
       const res = await reportApi.sign(reportId);
       if (res.success) {
-        message.success('报告已签署');
+        message.success(t("reportWrite.signed"));
         setContext((c: any) => ({ ...c, status: 'SIGNED' }));
         setLockConflict(false);
       } else {
-        message.error(res.error?.message ?? '签署失败,请稍后重试');
+        message.error(res.error?.message ?? t("reportWrite.signFailed"));
       }
     } catch {
-      message.error('签署失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.signFailedNetwork"));
     }
   }, [reportId]);
 
@@ -1474,14 +1614,14 @@ export default function ReportWritePage() {
     try {
       const res = await reportApi.publish(reportId);
       if (res.success) {
-        message.success('报告已发布');
+        message.success(t("reportWrite.published"));
         setContext((c: any) => ({ ...c, status: 'PUBLISHED' }));
         setLockConflict(false);
       } else {
-        message.error(res.error?.message ?? '发布失败,请稍后重试');
+        message.error(res.error?.message ?? t("reportWrite.publishFailed"));
       }
     } catch {
-      message.error('发布失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.publishFailedNetwork"));
     }
   }, [reportId]);
 
@@ -1491,16 +1631,16 @@ export default function ReportWritePage() {
     if (!reportId) return;
     setReworking(true);
     try {
-      const res = await reportApi.rework(reportId, `退回重写:${String(context.rejectReason ?? (statusRaw || '审核驳回'))}`);
+      const res = await reportApi.rework(reportId, `退回重写:${String(context.rejectReason ?? (statusRaw || t("reportWrite.reviewRejected")))}`);
       if (res.success) {
-        message.success('报告已退回重写 (WRITING)');
+        message.success(t("reportWrite.returnedToWriting2"));
         setContext((c: any) => ({ ...c, status: res.data?.status ?? res.data?.state ?? 'WRITING', rejectReason: res.data?.rejectReason ?? '' }));
         setLockConflict(false);
       } else {
-        message.error(res.error?.message ?? '退回重写失败,请稍后重试');
+        message.error(res.error?.message ?? t("reportWrite.returnFailed"));
       }
     } catch {
-      message.error('退回重写失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.returnFailedNetwork"));
     } finally {
       setReworking(false);
     }
@@ -1565,7 +1705,7 @@ export default function ReportWritePage() {
     try {
       const res = await reportApi.exportReport(reportId, 'pdf');
       if (!res.success) {
-        message.error(res.error?.message ?? '导出失败,请稍后重试');
+        message.error(res.error?.message ?? t("reportWrite.exportFailed"));
         return;
       }
       const url = res.data?.downloadUrl;
@@ -1580,14 +1720,14 @@ export default function ReportWritePage() {
             a.download = `${reportId}.pdf`;
             a.click();
             URL.revokeObjectURL(a.href);
-            message.success('报告 PDF 已导出');
+            message.success(t("reportWrite.pdfExported"));
             return;
           }
         } catch { /* 后端异步生成时走下方提示 */ }
         console.info('[export] queued:', url);
-        message.success('导出任务已入队,后端生成完成后可下载 PDF');
+        message.success(t("reportWrite.exportQueued"));
       } else {
-        message.success('导出任务已入队');
+        message.success(t("reportWrite.exportQueuedShort"));
       }
     } finally {
       setExporting(false);
@@ -1619,10 +1759,10 @@ export default function ReportWritePage() {
         }
         message.success(`已应用模板「${cached?.name ?? id}」到编辑器`);
       } else {
-        message.info('该模板为结构化模板(无自由文本),请使用下方结构化字段表单填写');
+        message.info(t("reportWrite.structuredTemplateHint2"));
       }
     } catch {
-      message.error('模板加载失败,请重试');
+      message.error(t("reportWrite.templateLoadFailed"));
     }
     // [v3.0.6.11-98 Wave1B P0-2] 依赖 context 供模板变量自动填充
   }, [context]);
@@ -1716,7 +1856,7 @@ export default function ReportWritePage() {
 
   const copyPreviousReport = useCallback(async () => {
     const pid = context.patientId;
-    if (!pid) { message.warning('当前报告缺少患者信息,无法查询既往检查'); return; }
+    if (!pid) { message.warning(t("reportWrite.noPatientForPrior")); return; }
     setPrevCopyLoading(true);
     try {
       const res = await reportApi.list({ take: '50', patientId: pid });
@@ -1729,7 +1869,7 @@ export default function ReportWritePage() {
         const id = String(x?.reportId || x?.id || '');
         return id !== curId && Boolean(x?.findings || x?.impression || x?.conclusion || x?.diagnosis);
       });
-      if (others.length === 0) { message.info('该患者暂无既往检查报告,无法复制'); return; }
+      if (others.length === 0) { message.info(t("reportWrite.noPriorToCopy")); return; }
       const sortByDate = (list: any[]) => [...list].sort((a, b) =>
         String(b?.createdTime ?? b?.examDate ?? b?.studyDate ?? '').localeCompare(String(a?.createdTime ?? a?.examDate ?? a?.studyDate ?? '')));
       const byMod = others.filter((x) => String(x?.modality ?? '') === curModality);
@@ -1739,20 +1879,50 @@ export default function ReportWritePage() {
       setPrevPick({ findings: true, impression: true });
       setPrevCopyOpen(true);
     } catch {
-      message.error('查询既往检查失败,请稍后重试');
+      message.error(t("reportWrite.priorQueryFailed"));
     } finally {
       setPrevCopyLoading(false);
     }
   }, [context.patientId, context.reportId, context.modality, reportId]);
 
+  // [v3.0.6.11-103 Wave 12] 既往对比: 同患者最近一份既往报告 → 打开 diff 对比 Modal
+  const [priorCompareLoading, setPriorCompareLoading] = useState(false);
+  const handlePriorCompare = useCallback(async () => {
+    const pid = context.patientId;
+    if (!pid) { message.warning(t("reportWrite.noPatientForPriorReport")); return; }
+    setPriorCompareLoading(true);
+    try {
+      let arr: any[] = priorSource === 'api' ? priorReports : (context.priorReports ?? []);
+      if (arr.length === 0) {
+        const res = await reportApi.list({ take: '50', patientId: pid });
+        const list = res.success
+          ? (Array.isArray(res.data) ? res.data : ((res.data as { items?: unknown[] })?.items ?? []))
+          : [];
+        arr = (list as any[]).filter((x) => String(x?.reportId || x?.id) !== String(reportId ?? context.reportId ?? ''));
+      }
+      if (arr.length === 0) { message.info(t('w12.write.priorCompareEmpty')); return; }
+      const sortByDate = (list: any[]) => [...list].sort((a, b) =>
+        String(b?.createdTime ?? b?.examDate ?? b?.studyDate ?? '').localeCompare(String(a?.createdTime ?? a?.examDate ?? a?.studyDate ?? '')));
+      const latest = sortByDate(arr)[0];
+      const oldText = latest?.findings ?? latest?.impression ?? '';
+      if (!oldText) { message.info(t('w12.write.priorCompareEmpty')); return; }
+      const label = `${latest.reportId ?? latest.id} (${latest.studyDate ?? latest.createdTime ?? ''})`;
+      setDiffTarget({ oldText, label });
+      message.success(t("reportWrite.priorLoadedForCompare"));
+    } catch {
+      message.error(t("reportWrite.priorLoadFailed"));
+    } finally {
+      setPriorCompareLoading(false);
+    }
+  }, [context.patientId, context.priorReports, context.reportId, priorReports, priorSource, reportId]);
+
   // 插入上例内容: 所见 → 影像所见段, 印象 → 诊断意见段 (externalInsert 光标处)
-  const applyPreviousCopy = useCallback(() => {
-    if (!prevReport) return;
+  const applyPreviousCopy = useCallback(() => {    if (!prevReport) return;
     const parts: string[] = [];
     if (prevPick.findings && prevReport.findings) parts.push(`影像所见:\n${prevReport.findings}`);
     const impression = prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis;
     if (prevPick.impression && impression) parts.push(`诊断意见:\n${impression}`);
-    if (parts.length === 0) { message.info('请至少勾选所见或印象一项'); return; }
+    if (parts.length === 0) { message.info(t("reportWrite.selectFindingOrImpression")); return; }
     setVoiceInsert({ text: parts.join('\n\n'), ts: Date.now() });
     setPrevCopyOpen(false);
     message.success(`已复制上例(${prevReport.modality ?? ''} · ${prevReport.examDate ?? prevReport.createdTime ?? ''})所见/印象到编辑器`);
@@ -1772,12 +1942,14 @@ export default function ReportWritePage() {
   }, [canSign, canPublish, isLocked, inFlight, reportId, context.document.plainText, handleSign, handlePublish, runQualityEvaluate]);
 
   useKeyboardShortcuts([
-    { key: 's', ctrlKey: true, action: () => { void doSave(false); }, description: '保存草稿' },
-    { key: 'Enter', ctrlKey: true, action: handleShortcutSubmit, description: '提交审核' },
-    { key: 'ArrowUp', altKey: true, action: goPrev, description: '上一例' },
-    { key: 'ArrowDown', altKey: true, action: goNext, description: '下一例' },
-    { key: 'F2', action: () => { setSiderVisible(true); setActiveToolsTab('voice'); message.info('F2 语音录入: 已在右侧语音面板打开'); }, description: '语音录入' },
-    { key: 'F5', action: () => { setAiUi((u) => ({ ...u, open: true })); }, description: 'AI 草稿' },
+    { key: 's', ctrlKey: true, action: () => { void doSave(false); }, description: t("reportWrite.saveDraft") },
+    { key: 'Enter', ctrlKey: true, action: handleShortcutSubmit, description: t("reportWrite.submitReview") },
+    // [v3.0.6.11-103 Wave 12] Ctrl+T 打开模板库 (收藏夹/智能匹配)
+    { key: 't', ctrlKey: true, action: () => { setTemplateLibOpen(true); }, description: t('w12.write.shortcutTemplateHint') },
+    { key: 'ArrowUp', altKey: true, action: goPrev, description: t("reportWrite.prevCase") },
+    { key: 'ArrowDown', altKey: true, action: goNext, description: t("reportWrite.nextCase") },
+    { key: 'F2', action: () => { setSiderVisible(true); setActiveToolsTab('voice'); message.info(t("reportWrite.voiceOpened")); }, description: t("reportWrite.voiceInput") },
+    { key: 'F5', action: () => { setAiUi((u) => ({ ...u, open: true })); }, description: t("reportWrite.aiDraft") },
   ]);
 
   // [v3.0.6.11-95 Wave2B P1] 草稿超时提醒: 打开超过 24h 未更新的草稿显示提示条
@@ -1805,7 +1977,7 @@ export default function ReportWritePage() {
         4,
       );
     }
-    message.success('短语已插入编辑器');
+    message.success(t("reportWrite.phraseInserted"));
   }, [context]);
 
   // [W2-2] 影像视口: 跳转完整 DICOM 查看器
@@ -1836,10 +2008,10 @@ export default function ReportWritePage() {
         setAiConfirm(true);
         setAiUi((u) => ({ ...u, open: false, loading: false }));
       } else {
-        setAiUi((u) => ({ ...u, loading: false, error: res.error?.message ?? 'AI 草稿生成失败' }));
+        setAiUi((u) => ({ ...u, loading: false, error: res.error?.message ?? t("reportWrite.aiDraftFailed") }));
       }
     } catch {
-      setAiUi((u) => ({ ...u, loading: false, error: 'AI 草稿生成失败:网络异常,请稍后重试' }));
+      setAiUi((u) => ({ ...u, loading: false, error: t("reportWrite.aiDraftFailedNetwork") }));
     }
   }, [aiUi.clinical, aiUi.findings, aiUi.style, context.reportId, context.patientId, context.modality, context.bodyPart]);
 
@@ -1852,12 +2024,12 @@ export default function ReportWritePage() {
       if (res.success && res.data) {
         setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
         setAiConfirm(false);
-        message.success('已接受 AI 草稿并应用至编辑器');
+        message.success(t("reportWrite.aiDraftAccepted"));
       } else {
-        message.error(res.error?.message ?? '接受草稿失败');
+        message.error(res.error?.message ?? t("reportWrite.acceptFailed"));
       }
     } catch {
-      message.error('接受草稿失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.acceptFailedNetwork"));
     } finally {
       setAiActionLoading(false);
     }
@@ -1872,12 +2044,12 @@ export default function ReportWritePage() {
       if (res.success && res.data) {
         setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
         setAiConfirm(false);
-        message.success('已保存修改并应用至编辑器');
+        message.success(t("reportWrite.modifySaved"));
       } else {
-        message.error(res.error?.message ?? '保存修改失败');
+        message.error(res.error?.message ?? t("reportWrite.modifyFailed"));
       }
     } catch {
-      message.error('保存修改失败:网络异常,请稍后重试');
+      message.error(t("reportWrite.modifyFailedNetwork"));
     } finally {
       setAiActionLoading(false);
     }
@@ -1889,21 +2061,35 @@ export default function ReportWritePage() {
   }, []);
 
   const siderTabs = useMemo(() => [
-    { key: 'ai', label: <Space size={4}><Sparkles className="w-3 h-3" />AI 草稿</Space>, children: null },
-    { key: 'voice', label: <Space size={4}><Mic className="w-3 h-3" />语音</Space>, children: null },
-    { key: 'history', label: <Space size={4}><History className="w-3 h-3" />历史报告</Space>, children: null },
-    { key: 'similar', label: <Space size={4}><Brain className="w-3 h-3" />相似病例</Space>, children: null },
-    { key: 'score', label: <Space size={4}><BarChart3 className="w-3 h-3" />预评分</Space>, children: null },
-    { key: 'drafts', label: <Space size={4}><Save className="w-3 h-3" />草稿</Space>, children: null },
-    { key: 'kw', label: <Space size={4}><TagIcon className="w-3 h-3" />关键词</Space>, children: null },
-    { key: 'compliance', label: <Space size={4}><ListChecks className="w-3 h-3" />合规</Space>, children: null },
-    { key: 'collab', label: <Space size={4}><Eye className="w-3 h-3" />协作</Space>, children: null },
+    { key: 'templates', label: <Space size={4}><BookMarked className="w-3 h-3" />{t('w12.write.templatesTab')}</Space>, children: null },
+    { key: 'ai', label: <Space size={4}><Sparkles className="w-3 h-3" />{t("reportWrite.aiDraft")}</Space>, children: null },
+    { key: 'voice', label: <Space size={4}><Mic className="w-3 h-3" />{t("reportWrite.voice")}</Space>, children: null },
+    { key: 'history', label: <Space size={4}><History className="w-3 h-3" />{t("reportWrite.historyTab")}</Space>, children: null },
+    { key: 'similar', label: <Space size={4}><Brain className="w-3 h-3" />{t("reportWrite.similarCases")}</Space>, children: null },
+    { key: 'score', label: <Space size={4}><BarChart3 className="w-3 h-3" />{t("reportWrite.preScore")}</Space>, children: null },
+    { key: 'drafts', label: <Space size={4}><Save className="w-3 h-3" />{t("reportWrite.draft")}</Space>, children: null },
+    { key: 'kw', label: <Space size={4}><TagIcon className="w-3 h-3" />{t("reportWrite.keywords")}</Space>, children: null },
+    { key: 'compliance', label: <Space size={4}><ListChecks className="w-3 h-3" />{t("reportWrite.compliance")}</Space>, children: null },
+    { key: 'collab', label: <Space size={4}><Eye className="w-3 h-3" />{t("reportWrite.collaboration")}</Space>, children: null },
     // [v3.0.6.11-99 Wave 2A 报告批注] 书写页批注面板 (引用选中文本/定位正文)
-    { key: 'annotations', label: <Space size={4}><MessageSquareText className="w-3 h-3" />批注</Space>, children: null },
+    { key: 'annotations', label: <Space size={4}><MessageSquareText className="w-3 h-3" />{t("reportWrite.annotations")}</Space>, children: null },
   ], []);
 
   const renderActiveTab = () => {
     switch (activeToolsTab) {
+      // [v3.0.6.11-103 Wave 12] 常用模板 Tab: 智能匹配推荐 + 收藏夹 + 最近使用 (一键应用)
+      case 'templates': return (
+        <TemplateSmartPanel
+          templates={templateList}
+          loading={templateLoading}
+          favIds={favTemplateIds}
+          recentIds={recentTemplateIds}
+          modality={context.modality}
+          bodyPart={context.bodyPart}
+          onApply={(id) => { void handleSelectTemplate(String(id)); }}
+          onToggleFav={(id) => { void toggleFavTemplate(String(id)); }}
+        />
+      );
       case 'ai': return <AITab reportId={reportId ?? ''} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
       case 'voice': return <VoiceTab reportId={reportId ?? ''} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
       case 'history': return <HistoryTab priorReports={priorSource === 'api' ? priorReports : context.priorReports} dataSource={priorSource} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} summary={priorSummary} onFillHistory={handleFillHistory} />;
@@ -1937,62 +2123,62 @@ export default function ReportWritePage() {
       <div className="v3-topbar no-print">
         <div className="v3-topbar-left">
           <Button type="text" icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)} />
-          <span className="v3-topbar-title">报告书写</span>
+          <span className="v3-topbar-title">{t("reportWrite.pageTitle")}</span>
           <Tag color="blue">{context.reportId}</Tag>
           <Tag color="purple">{context.modality} - {context.bodyPart}</Tag>
           <Tag color={preScore.passed ? 'success' : 'warning'}>
-            {preScore.passed ? '可提交' : '需完善'}
+            {preScore.passed ? t("reportWrite.submittable") : t("reportWrite.needsWork")}
           </Tag>
           {/* [v3.0.6.11-96 Wave2A P0] 预评分数据源标注: 真实 reportQualityApi.evaluate / 演示回退 */}
-          <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} title="预评分数据源">
-            {preScoreSource === 'api' ? '真实评分' : '演示回退'}
+          <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} title={t("reportWrite.preScoreSource")}>
+            {preScoreSource === 'api' ? t("reportWrite.realScore") : t("reportWrite.demoFallback")}
           </Tag>
           {/* [v3.0.6.11-95 Wave3B P1] 模板库面板: 分类浏览 + 短语分区 + 点击插入光标处 (替代原下拉) */}
-          <Tooltip title="模板库: 分类浏览全文模板与短语, 点击插入光标处">
+          <Tooltip title={t("reportWrite.templateLibraryHint")}>
             <Button
               size="small"
               loading={templateLoading}
               icon={<BookMarked className="w-3.5 h-3.5" />}
               onClick={() => setTemplateLibOpen(true)}
             >
-              模板库
+              {t("reportWrite.templateLibrary")}
             </Button>
           </Tooltip>
           {/* [v3.0.6.11-100 Wave2C P2] 段落树模板引擎: 按当前模态/部位匹配段落模板 → 段落树预览 → 一键填充 */}
-          <Tooltip title="按当前检查模态/部位匹配段落模板, 生成段落树并一键填充编辑器">
+          <Tooltip title={t("reportWrite.templateSectionsHint")}>
             <Button
               size="small"
               icon={<ListTree className="w-3.5 h-3.5" />}
               onClick={() => setSectionEngineOpen(true)}
             >
-              模板段落树
+              {t("reportWrite.sectionTree")}
             </Button>
           </Tooltip>
           {/* [v3.0.6.11-95 Wave3B P1] 患者画像入口 → /patients/:id/360 */}
-          <Tooltip title="打开该患者 360 全景画像">
+          <Tooltip title={t("reportWrite.openPatient360")}>
             <Button
               size="small"
               icon={<Radar className="w-3.5 h-3.5" />}
               onClick={() => {
                 if (context.patientId) navigate(`/patients/${encodeURIComponent(context.patientId)}/360`);
-                else message.warning('当前报告缺少患者信息,无法打开患者画像');
+                else message.warning(t("reportWrite.noPatientProfile"));
               }}
             >
-              患者画像
+              {t("reportWrite.patientProfile")}
             </Button>
           </Tooltip>
           {/* [W2-2] 上下例导航 */}
-          <Tooltip title="上一例">
+          <Tooltip title={t("reportWrite.prevCase")}>
             <Button type="text" size="small" disabled={listIndex <= 0} icon={<ChevronUp className="w-4 h-4" />} onClick={goPrev} />
           </Tooltip>
-          <Tooltip title="下一例">
+          <Tooltip title={t("reportWrite.nextCase")}>
             <Button type="text" size="small" disabled={listIndex >= reportList.length - 1} icon={<ChevronDown className="w-4 h-4" />} onClick={goNext} />
           </Tooltip>
           {reportList.length > 0 && (
             <span className="v3-topbar-stats v3-topbar-hide-mobile">{listIndex + 1} / {reportList.length}</span>
           )}
           {/* [v3.0.6.11-98 Wave1B P0-3] 复制上例: 同患者最近报告(同模态优先)所见/印象 */}
-          <Tooltip title={!context.patientId ? '无既往检查' : '复制该患者上一例检查(同模态优先)的所见/印象到当前报告'}>
+          <Tooltip title={!context.patientId ? t("reportWrite.noPriorExam") : t("reportWrite.copyPriorHint")}>
             <Button
               size="small"
               icon={<Copy className="w-3.5 h-3.5" />}
@@ -2000,61 +2186,73 @@ export default function ReportWritePage() {
               disabled={!context.patientId || isLocked}
               onClick={() => void copyPreviousReport()}
             >
-              复制上例
+              {t("reportWrite.copyPrior")}
             </Button>
           </Tooltip>
-          {isLocked && <Tag icon={<Lock className="w-3 h-3" />} color="volcano">已锁定</Tag>}
+          {/* [v3.0.6.11-103 Wave 12] 既往对比: 同患者最近既往报告一键加载对比 */}
+          <Tooltip title={t('w12.write.priorCompare')}>
+            <Button
+              size="small"
+              icon={<History className="w-3.5 h-3.5" />}
+              loading={priorCompareLoading}
+              disabled={!context.patientId}
+              onClick={() => void handlePriorCompare()}
+            >
+              {t('w12.write.priorCompare')}
+            </Button>
+          </Tooltip>
+          {isLocked && <Tag icon={<Lock className="w-3 h-3" />} color="volcano">{t("reportWrite.locked")}</Tag>}
         </div>
         <div className="v3-topbar-right">
-          <Tooltip title="环境式 AI 生成报告草稿 (所见+结论+建议)">
-            <Button icon={<Sparkles className="w-4 h-4" />} onClick={() => setAiUi((u) => ({ ...u, open: true }))}>AI 草稿</Button>
+          <Tooltip title={t("reportWrite.aiEnvNote2")}>
+            <Button icon={<Sparkles className="w-4 h-4" />} onClick={() => setAiUi((u) => ({ ...u, open: true }))}>{t("reportWrite.aiDraft")}</Button>
           </Tooltip>
-          <Tooltip title="保存草稿">
-            <Button icon={<Save className="w-4 h-4" />} loading={saving} onClick={() => void doSave(false)}>保存</Button>
+          <Tooltip title={t("reportWrite.saveDraft")}>
+            <ActionButton action="save" loading={saving} onClick={() => void doSave(false)}>{t("reportWrite.save")}</ActionButton>
           </Tooltip>
           {/* [W2-2] 打印 / PDF 导出 */}
-          <Tooltip title="打印当前报告内容">
-            <Button icon={<Printer className="w-4 h-4" />} onClick={handlePrint} disabled={!reportId}>打印</Button>
+          <Tooltip title={t("reportWrite.printHint")}>
+            <ActionButton action="print" onClick={handlePrint} disabled={!reportId}>{t("reportWrite.print")}</ActionButton>
           </Tooltip>
-          <Tooltip title="导出为 PDF">
-            <Button icon={<FileDown className="w-4 h-4" />} loading={exporting} onClick={() => void handleExport()} disabled={!reportId}>导出</Button>
+          <Tooltip title={t("reportWrite.exportPdf")}>
+            <ActionButton action="export" loading={exporting} onClick={() => void handleExport()} disabled={!reportId}>{t("reportWrite.export")}</ActionButton>
           </Tooltip>
           {/* [W2-2] 短语库插入 */}
-          <Tooltip title="从短语库选择常用语插入编辑器">
-            <Button icon={<BookMarked className="w-4 h-4" />} onClick={() => setPhraseOpen(true)}>短语库</Button>
+          <Tooltip title={t("reportWrite.phraseLibraryHint")}>
+            <Button icon={<BookMarked className="w-4 h-4" />} onClick={() => setPhraseOpen(true)}>{t("reportWrite.phraseLibrary")}</Button>
           </Tooltip>
           <span className="v3-topbar-stats v3-topbar-hide-mobile">
-            {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
+            {context.document.wordCount} {t("reportWrite.wordsPer")} {Math.round(context.document.writingDurationSec / 60)} {t("reportWrite.minUnit")}
           </span>
           {/* [v3.0.6.11-95 Wave2B P1] 快捷键提示 */}
-          <Tooltip title="Ctrl+S 保存草稿 · Ctrl+Enter 提交 · Alt+↑/↓ 上一例/下一例 · F2 语音录入 · F5 AI 草稿">
+          <Tooltip title={t("reportWrite.shortcuts2")}>
             <Button type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} />
           </Tooltip>
           <span className="v3-topbar-autosave">{autoSaveTip}</span>
           {/* [W2-2] 签署 / 发布入口 (按状态机显示) */}
           {canSign ? (
             <Button type="primary" icon={<BadgeCheck className="w-4 h-4" />} onClick={() => void handleSign()}>
-              签署
+              {t("reportWrite.sign")}
             </Button>
           ) : canPublish ? (
             <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => void handlePublish()}>
-              发布
+              {t("reportWrite.publish")}
             </Button>
           ) : isRejected ? (
             // [v3.0.6.11-95 Wave2A P0] 退回重写闭环: REJECTED → WRITING 后进入可提交态
             <Button type="primary" danger icon={<RefreshCw className="w-4 h-4" />} loading={reworking} onClick={() => void handleRework()}>
-              退回重写
+              {t("reportWrite.returnToRewrite")}
             </Button>
           ) : !isLocked && !inFlight ? (
-            <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => {
+            <ActionButton action="submit" onClick={() => {
               const found = detectConflicts(context.document.plainText);
               setConflicts(found);
               setShowSubmit(true);
             }}>
-              提交审核
-            </Button>
+              {t("reportWrite.submitReview")}
+            </ActionButton>
           ) : null}
-          <Tooltip title={siderVisible ? '收起侧栏' : '展开侧栏'}>
+          <Tooltip title={siderVisible ? t("reportWrite.collapseSidebar") : t("reportWrite.expandSidebar")}>
             <Button type="text" icon={siderVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />} onClick={() => setSiderVisible((v) => !v)} />
           </Tooltip>
         </div>
@@ -2081,7 +2279,7 @@ export default function ReportWritePage() {
               className="no-print"
               icon={<XCircle className="w-4 h-4" />}
               message={`报告已被驳回 (${displayStatus(statusRaw)})${context.rejectReason ? `,驳回原因: ${context.rejectReason}` : ''}`}
-              description="请修改报告内容后点击右上角「退回重写」重新进入书写状态,再提交审核"
+              description={t("reportWrite.rewriteHint")}
             />
           )}
           {lockConflict && (
@@ -2089,7 +2287,7 @@ export default function ReportWritePage() {
               type="warning"
               showIcon
               className="no-print"
-              message="检测到并发修改:该报告已被其他医师更新(本地仍基于旧版本编辑),继续保存将覆盖最新内容"
+              message={t("reportWrite.concurrentEditWarn")}
             />
           )}
           {/* [v3.0.6.11-95 Wave2B P1] 草稿超时提醒 (打开超过 24h 未更新) */}
@@ -2109,25 +2307,34 @@ export default function ReportWritePage() {
               onNotified={(updated) => setCriticalAlert((prev) => (prev?.id === updated.id ? { ...prev, status: updated.status } : prev))}
             />
           )}
-          <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span><Tag color="orange" className="text-[10px]" title="患者/检查无真实数据时保留本地兜底值并标注来源">示例数据</Tag></Space>}>
+          {/* [v3.0.6.11-103 Wave 12] 报告流程状态条: 7 态状态机 + 下一步一键流转 */}
+          <ReportFlowBar
+            status={statusRaw}
+            reportId={reportId}
+            onTransited={(to) => {
+              setContext((c: any) => ({ ...c, status: to }));
+              setLockConflict(false);
+            }}
+          />
+          <Card size="small" className="v3-card no-print" title={<Space><StickyNote className="w-4 h-4" /><span>{t("reportWrite.clinicalInfo")}</span><Tag color="orange" className="text-[10px]" title={t("reportWrite.exampleDataNote")}>{t("reportWrite.exampleData")}</Tag></Space>}>
             <div className="v3-clinical-grid">
-              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}{!context.patientName && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>{(context.gender || '男')} / {(context.age || 58)} 岁{!context.gender && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">检查号</div><div className="v3-clinical-code">{context.patientId}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">{t("reportWrite.patient")}</div><div className="font-semibold">{context.patientName || '张三'}{!context.patientName && <span className="text-[10px] text-orange-500 ml-1">{t("reportWrite.exampleSuffix")}</span>}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">{t("reportWrite.genderAge2")}</div><div>{(context.gender || t("reportWrite.male"))} / {(context.age || 58)} {t("reportWrite.yearsOld")}{!context.gender && <span className="text-[10px] text-orange-500 ml-1">{t("reportWrite.exampleSuffix")}</span>}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">{t("reportWrite.accessionNo")}</div><div className="v3-clinical-code">{context.patientId}</div></div>
               {/* [v3.0.6.11-99 Wave8A P1] 临床信息 fallback 行级来源标注 */}
-              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>{context.clinicalDiagnosis || '右肺占位性病变'}{!context.clinicalDiagnosis && <span className="text-[10px] text-orange-500 ml-1">（示例）</span>}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">{t("reportWrite.clinicalDiagnosis")}</div><div>{context.clinicalDiagnosis || t("reportWrite.demoClinicalDiagnosis")}{!context.clinicalDiagnosis && <span className="text-[10px] text-orange-500 ml-1">{t("reportWrite.exampleSuffix")}</span>}</div></div>
               <div className="v3-clinical-full">
-                <b>报告状态:</b>{' '}
-                {statusRaw ? displayStatus(statusRaw) : '草稿'}<br />
-                <b>主诉:</b>体检发现右肺结节 1 周 <span className="text-[10px] text-orange-500">（示例）</span><br />
-                <b>现病史:</b>患者 1 周前体检发现右肺上叶结节 <span className="text-[10px] text-orange-500">（示例）</span><br />
-                <b>既往史:</b>无肿瘤病史 <span className="text-[10px] text-orange-500">（示例）</span>
+                <b>{t("reportWrite.reportStatusLabel")}</b>{' '}
+                {statusRaw ? displayStatus(statusRaw) : t("reportWrite.draft")}<br />
+                <b>{t("reportWrite.complaintLabel")}</b>{t("reportWrite.demoComplaintShort2")} <span className="text-[10px] text-orange-500">{t("reportWrite.exampleSuffix")}</span><br />
+                <b>{t("reportWrite.presentIllness")}</b>{t("reportWrite.demoPresentIllness")} <span className="text-[10px] text-orange-500">{t("reportWrite.exampleSuffix")}</span><br />
+                <b>{t("reportWrite.pastHistory")}</b>{t("reportWrite.demoPastHistory")} <span className="text-[10px] text-orange-500">{t("reportWrite.exampleSuffix")}</span>
               </div>
             </div>
           </Card>
 
           {/* [W2-2] 内嵌影像视口 (折叠面板: 缩略列表 + 跳转完整查看器) */}
-          <Card size="small" className="v3-card no-print" title={<Space><MonitorPlay className="w-4 h-4 text-purple-500" /><span>影像视口</span></Space>}>
+          <Card size="small" className="v3-card no-print" title={<Space><MonitorPlay className="w-4 h-4 text-purple-500" /><span>{t("reportWrite.imageViewport")}</span></Space>}>
             <Collapse
               size="small"
               items={[{
@@ -2147,7 +2354,7 @@ export default function ReportWritePage() {
                               className="w-36 h-28 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80"
                               onClick={() => openViewer(m.studyUID)}
                             />
-                            <span className="text-xs text-slate-500">{m.modality} · {m.seriesCount} 序列</span>
+                            <span className="text-xs text-slate-500">{m.modality} · {m.seriesCount} {t("reportWrite.series")}</span>
                           </div>
                         ));
                       }
@@ -2156,11 +2363,11 @@ export default function ReportWritePage() {
                           {/* [v3.0.6.11-99 Wave8A P1] 无真实影像数据时保留 mock 缩略图渲染 + 「示例影像」标注 */}
                           <div className="flex flex-col items-center gap-1">
                             <img src="/mock/thumb-ct-001.png" alt="CT-1" loading="lazy" className="w-36 h-28 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onClick={() => openViewer()} />
-                            <span className="text-xs text-slate-500">CT 横断面 <Tag color="orange" className="text-[10px]">示例影像</Tag></span>
+                            <span className="text-xs text-slate-500">{t("reportWrite.ctAxialSeries2")} <Tag color="orange" className="text-[10px]">{t("reportWrite.exampleImage")}</Tag></span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <img src="/mock/thumb-ct-002.png" alt="CT-2" loading="lazy" className="w-36 h-28 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80" onClick={() => openViewer()} />
-                            <span className="text-xs text-slate-500">CT 增强 <Tag color="orange" className="text-[10px]">示例影像</Tag></span>
+                            <span className="text-xs text-slate-500">{t("reportWrite.ctEnhanced")} <Tag color="orange" className="text-[10px]">{t("reportWrite.exampleImage")}</Tag></span>
                           </div>
                         </>
                       );
@@ -2169,7 +2376,7 @@ export default function ReportWritePage() {
                       icon={<ExternalLink className="w-3 h-3" />}
                       onClick={() => openViewer(context.multiModality?.modalities?.[0]?.studyUID)}
                     >
-                      打开完整影像浏览器
+                      {t("reportWrite.openViewer")}
                     </Button>
                   </div>
                 ),
@@ -2178,30 +2385,30 @@ export default function ReportWritePage() {
           </Card>
 
           {/* [G005 v3.0.6.11-99 Wave 4B] 测量入报告: 影像测量结果 (sessionStorage 导入) + 手动添加 → SR 测量表 */}
-          <Card size="small" className="v3-card no-print" title={<Space><Ruler className="w-4 h-4 text-emerald-500" /><span>影像测量</span><Tag color="green">SR 段落</Tag></Space>}
+          <Card size="small" className="v3-card no-print" title={<Space><Ruler className="w-4 h-4 text-emerald-500" /><span>{t("reportWrite.imageMeasurements")}</span><Tag color="green">{t("reportWrite.srSection")}</Tag></Space>}
             extra={<Space>
-              <Button size="small" icon={<Download className="w-3 h-3" />} onClick={importMeasureRows}>从影像浏览器导入</Button>
-              <Button size="small" type="primary" icon={<FileText className="w-3 h-3" />} disabled={measureRows.length === 0} onClick={handleInsertMeasurement}>插入测量表</Button>
+              <Button size="small" icon={<Download className="w-3 h-3" />} onClick={importMeasureRows}>{t("reportWrite.importFromViewer")}</Button>
+              <Button size="small" type="primary" icon={<FileText className="w-3 h-3" />} disabled={measureRows.length === 0} onClick={handleInsertMeasurement}>{t("reportWrite.insertMeasurements")}</Button>
             </Space>}>
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <Select size="small" style={{ width: 110 }} value={measureDraft.type}
                 onChange={(v) => setMeasureDraft((d) => ({ ...d, type: String(v) }))}
                 options={[
-                  { value: 'line', label: '长度 (mm)' }, { value: 'angle', label: '角度 (°)' }, { value: 'cobb', label: 'Cobb角 (°)' },
-                  { value: 'ellipse', label: '椭圆面积' }, { value: 'rectangle', label: '矩形面积' }, { value: 'circle', label: '圆面积' },
-                  { value: 'polygon', label: '多边形面积' }, { value: 'ctvalue', label: 'CT值 (HU)' }, { value: 'volume', label: '体积 (cm³)' },
+                  { value: 'line', label: t("reportWrite.measureLength") }, { value: 'angle', label: t("reportWrite.measureAngle") }, { value: 'cobb', label: t("reportWrite.measureCobb") },
+                  { value: 'ellipse', label: t("reportWrite.ellipseArea") }, { value: 'rectangle', label: t("reportWrite.rectArea") }, { value: 'circle', label: t("reportWrite.circleArea") },
+                  { value: 'polygon', label: t("reportWrite.polygonArea") }, { value: 'ctvalue', label: t("reportWrite.measureCt") }, { value: 'volume', label: t("reportWrite.measureVolume") },
                 ]} />
-              <Input size="small" style={{ width: 110 }} placeholder="部位/位置" value={measureDraft.location}
+              <Input size="small" style={{ width: 110 }} placeholder={t("reportWrite.measureLocation")} value={measureDraft.location}
                 onChange={(e) => setMeasureDraft((d) => ({ ...d, location: e.target.value }))} />
-              <Input size="small" style={{ width: 90 }} placeholder="数值" value={measureDraft.value}
+              <Input size="small" style={{ width: 90 }} placeholder={t("reportWrite.measureValue")} value={measureDraft.value}
                 onChange={(e) => setMeasureDraft((d) => ({ ...d, value: e.target.value }))} />
               <Select size="small" style={{ width: 80 }} value={measureDraft.unit}
                 onChange={(v) => setMeasureDraft((d) => ({ ...d, unit: String(v) }))}
                 options={[{ value: 'mm', label: 'mm' }, { value: '°', label: '°' }, { value: 'mm²', label: 'mm²' }, { value: 'HU', label: 'HU' }, { value: 'cm³', label: 'cm³' }]} />
-              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={addMeasureRow}>添加</Button>
+              <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={addMeasureRow}>{t("reportWrite.add")}</Button>
             </div>
             {measureRows.length === 0 ? (
-              <div className="text-xs text-slate-400 py-2">暂无测量数据 — 在 DICOM 查看器完成测量后点击「从影像浏览器导入」自动带入, 或上方手动添加测量行</div>
+              <div className="text-xs text-slate-400 py-2">{t("reportWrite.noMeasurementsPrompt2")}</div>
             ) : (
               <div className="flex flex-col gap-1 max-h-56 overflow-auto">
                 {measureRows.map((r, i) => (
@@ -2210,6 +2417,12 @@ export default function ReportWritePage() {
                     <span className="text-slate-500 w-24 truncate">{r.location || '-'}</span>
                     <span className="text-slate-700 flex-1 truncate">{r.label}</span>
                     <span className="font-bold text-emerald-600">{r.value} {r.unit}</span>
+                    {/* [v3.0.6.11-103 Wave 12] 一键测量插入: 单条测量直接插入报告文本 */}
+                    <Tooltip title={t('w12.write.insertRowHint')}>
+                      <Button size="small" type="text" icon={<FileText className="w-3 h-3" />} className="text-emerald-600" onClick={() => handleInsertMeasureRow(r, i)}>
+                        {t('w12.write.insertRow')}
+                      </Button>
+                    </Tooltip>
                     <Button size="small" type="text" danger icon={<Trash2 className="w-3 h-3" />} onClick={() => removeMeasureRow(i)} />
                   </div>
                 ))}
@@ -2217,7 +2430,7 @@ export default function ReportWritePage() {
             )}
           </Card>
 
-          <Card size="small" className="v3-card no-print" title={<Space><FileText className="w-4 h-4 text-blue-500" /><span>结构化字段</span><Tag color="blue">RECIST 1.1</Tag></Space>}>
+          <Card size="small" className="v3-card no-print" title={<Space><FileText className="w-4 h-4 text-blue-500" /><span>{t("reportWrite.structuredFields")}</span><Tag color="blue">RECIST 1.1</Tag></Space>}>
             <StructuredFieldForm
               reportId={reportId ?? ''}
               initialTemplateId="recist"
@@ -2226,12 +2439,12 @@ export default function ReportWritePage() {
               /* [v3.0.6.11-98 Wave2B (报告 P1)] 测量表生成 → insertHtml 通道插入编辑器 */
               onGenerateReportSection={(html) => {
                 editorRef.current?.insertHtml(html);
-                message.success('测量表已插入报告正文');
+                message.success(t("reportWrite.measurementsInsertedShort"));
               }}
             />
           </Card>
 
-          <Card size="small" className="v3-card print-area" title={<Space><Type className="w-4 h-4 text-cyan-500" /><span>所见 / 诊断 / 建议</span></Space>}>
+          <Card size="small" className="v3-card print-area" title={<Space><Type className="w-4 h-4 text-cyan-500" /><span>{t("reportWrite.sectionsLabel")}</span></Space>}>
             <ReportRichEditor
               ref={editorRef}
               reportId={reportId ?? ''}
@@ -2246,16 +2459,16 @@ export default function ReportWritePage() {
             />
           </Card>
 
-          <Card size="small" className="v3-card no-print" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}
+          <Card size="small" className="v3-card no-print" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>{t("reportWrite.keyImagesAnchors")}</span><Tag color="purple">{context.anchors.length}</Tag></Space>}
             extra={
               <Button size="small" type="primary" icon={<Camera className="w-3 h-3" />} onClick={() => setMipModalOpen(true)} data-testid="open-mip-modal">
-                插入 MIP 截图
+                {t("reportWrite.insertMip")}
               </Button>
             }>
             <ImageAnchorComponent reportId={reportId ?? ''} onInsertAnchor={handleInsertAnchor} />
           </Card>
 
-          <Card size="small" className="v3-card no-print" title={<Space><PenLine className="w-4 h-4 text-purple-500" /><span>影像标注</span><Tag color="purple">双向同步</Tag></Space>}>
+          <Card size="small" className="v3-card no-print" title={<Space><PenLine className="w-4 h-4 text-purple-500" /><span>{t("reportWrite.imageAnnotations")}</span><Tag color="purple">{t("reportWrite.twoWaySync")}</Tag></Space>}>
             <DicomAnnotationEmbed
               reportId={reportId ?? ''}
               studyUid={searchParams.get('studyUid') ?? undefined}
@@ -2315,7 +2528,7 @@ export default function ReportWritePage() {
 
       {/* 提交确认 Modal */}
       <Modal
-        title={<Space><Send className="w-4 h-4" /><span>提交审核确认</span></Space>}
+        title={<Space><Send className="w-4 h-4" /><span>{t("reportWrite.submitConfirmTitle")}</span></Space>}
         open={showSubmit}
         onCancel={() => setShowSubmit(false)}
         footer={null}
@@ -2329,7 +2542,7 @@ export default function ReportWritePage() {
             className="mb-3"
             title={
               <div>
-                <div className="font-semibold">检测到 {conflicts.length} 项关键词冲突</div>
+                <div className="font-semibold">{t("reportWrite.detected")} {conflicts.length} {t("reportWrite.keywordConflicts")}</div>
                 {conflicts.map((c: any, i: number) => (
                   <div key={i} className="text-xs mt-1">• {c.message}</div>
                 ))}
@@ -2341,11 +2554,11 @@ export default function ReportWritePage() {
           type={preScore.passed ? 'success' : 'warning'}
           showIcon
           className="mb-3"
-          title={preScore.passed ? '所有检查项已通过,可以提交' : `部分检查项未通过 (${PASSED_COUNT}/${preScore.checklist.length})`}
+          title={preScore.passed ? t("reportWrite.allChecksPassed") : `部分检查项未通过 (${PASSED_COUNT}/${preScore.checklist.length})`}
         />
         <div className="space-y-3">
           <div>
-            <div className="text-sm font-semibold mb-1">检查清单 ({PASSED_COUNT}/{preScore.checklist.length})</div>
+            <div className="text-sm font-semibold mb-1">{t("reportWrite.checklistPrefix2")}{PASSED_COUNT}/{preScore.checklist.length})</div>
             <div className="space-y-1">
               {preScore.checklist.map((c: any) => (
                 <div key={c.id} className="flex items-center gap-2 text-xs">
@@ -2358,20 +2571,20 @@ export default function ReportWritePage() {
           <Divider className="my-2" />
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-3 bg-slate-50 rounded text-center">
-              <div className="text-slate-500">预评分</div>
+              <div className="text-slate-500">{t("reportWrite.preScore")}</div>
               <div className="text-lg font-semibold" style={{ color: preScore.passed ? '#10b981' : '#f59e0b' }}>{preScore.score} / 100</div>
-              <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} className="mt-1 text-[10px]" title="预评分数据源">
-                {preScoreSource === 'api' ? '真实评分' : '演示回退'}
+              <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} className="mt-1 text-[10px]" title={t("reportWrite.preScoreSource")}>
+                {preScoreSource === 'api' ? t("reportWrite.realScore") : t("reportWrite.demoFallback")}
               </Tag>
             </div>
             <div className="p-3 bg-slate-50 rounded text-center">
-              <div className="text-slate-500">字数 / 时长</div>
-              <div className="text-lg font-semibold">{context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分</div>
+              <div className="text-slate-500">{t("reportWrite.wordCountDuration")}</div>
+              <div className="text-lg font-semibold">{context.document.wordCount} {t("reportWrite.wordsPer")} {Math.round(context.document.writingDurationSec / 60)} {t("reportWrite.minUnit")}</div>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button onClick={() => setShowSubmit(false)}>取消</Button>
-            <Button type="primary" icon={<Send className="w-3 h-3" />} onClick={handleSubmit} loading={submitting} disabled={conflicts.length > 0}>确认提交</Button>
+            <ActionButton action="cancel" onClick={() => setShowSubmit(false)}>{t("reportWrite.cancel")}</ActionButton>
+            <ActionButton action="submit" onClick={handleSubmit} loading={submitting} disabled={conflicts.length > 0}>{t("reportWrite.confirmSubmit")}</ActionButton>
           </div>
         </div>
       </Modal>
@@ -2420,22 +2633,24 @@ export default function ReportWritePage() {
         phrases={phrases}
         loading={phraseLoading}
         dataSource={phraseSource}
+        favIds={favPhraseIds}
         onClose={() => setPhraseOpen(false)}
         onPick={insertPhrase}
+        onToggleFav={toggleFavPhrase}
       />
       {/* [v3.0.6.11-98 Wave2B (报告 P1)] 打印模板选择 Modal: 标准/带抬头/双栏对比/精简 */}
       <Modal
         open={printOpen}
-        title={<Space><Printer className="w-4 h-4" /><span>选择打印模板</span></Space>}
+        title={<Space><Printer className="w-4 h-4" /><span>{t("reportWrite.selectPrintTemplate")}</span></Space>}
         onCancel={() => setPrintOpen(false)}
         width={520}
         destroyOnHidden
         footer={
           <div className="flex justify-end gap-2">
-            <Button onClick={() => setPrintOpen(false)}>取消</Button>
-            <Button type="primary" icon={<Printer className="w-3 h-3" />} loading={printLoading} disabled={printLayouts.length === 0} onClick={() => { void doPrintWithLayout(printLayoutId); }}>
-              打印
-            </Button>
+            <ActionButton action="cancel" onClick={() => setPrintOpen(false)}>{t("reportWrite.cancel")}</ActionButton>
+            <ActionButton action="print" loading={printLoading} disabled={printLayouts.length === 0} onClick={() => { void doPrintWithLayout(printLayoutId); }}>
+              {t("reportWrite.print")}
+            </ActionButton>
           </div>
         }
       >
@@ -2454,7 +2669,7 @@ export default function ReportWritePage() {
               </div>
             </div>
           ))}
-          <div className="text-[11px] text-slate-400">打印将按所选布局注入打印容器;布局加载失败时回退系统打印</div>
+          <div className="text-[11px] text-slate-400">{t("reportWrite.printLayoutNote")}</div>
         </div>
       </Modal>
       {/* [v3.0.6.11-95 Wave3B P1] 模板库 Modal: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 */}
@@ -2476,6 +2691,31 @@ export default function ReportWritePage() {
         onReplace={(id) => { void handleSelectTemplate(String(id)); }}
         onToggleFav={(id) => { void toggleFavTemplate(String(id)); }}
         onPickPhrase={insertPhrase}
+        // [v3.0.6.11-103 Wave 2A] 后端应用模板: POST /reports/:id/templates-apply (后端合并 append/overwrite)
+        onApplyBackend={(templateId, mode) => {
+          if (!reportId) { message.warning(t("reportWrite.noReportContext")); return; }
+          const tpl = templateListRef.current.find((t) => t.id === templateId);
+          const name = tpl?.name ?? templateId;
+          void (async () => {
+            try {
+              const res = await reportApi.applyTemplate(reportId, templateId, mode);
+              if (res.success) {
+                const applied = res.data?.templateApplied as { name?: string; mode?: string } | undefined;
+                message.success(`模板「${applied?.name ?? name}」已${applied?.mode === 'overwrite' ? t("reportWrite.overwrite") : t("reportWrite.append")}到报告 (${applied?.mode ?? mode})`);
+                // 同步刷新编辑器内容 (后端已合并 findings/htmlContent)
+                const fresh = await reportApi.getById(reportId);
+                if (fresh.success && fresh.data) {
+                  const content = String(fresh.data.htmlContent ?? fresh.data.findings ?? '');
+                  if (content) setEditorSet({ plainText: content, ts: Date.now() });
+                }
+              } else {
+                message.error(res.error?.message ?? t("reportWrite.templateApplyFailed"));
+              }
+            } catch {
+              message.error(t("reportWrite.templateApplyNetwork"));
+            }
+          })();
+        }}
       />
       {/* [v3.0.6.11-100 Wave2C P2] 段落树模板引擎 Modal: 按模态/部位匹配 → 段落树预览 → 一键填充编辑器 */}
       <SectionTemplateEngine
@@ -2486,7 +2726,7 @@ export default function ReportWritePage() {
         onClose={() => setSectionEngineOpen(false)}
         onApply={(text) => {
           setEditorSet({ plainText: text, ts: Date.now() });
-          message.success('段落树已填充编辑器, 请按实际所见修改');
+          message.success(t("reportWrite.sectionTreeFilled"));
         }}
       />
       {/* [v3.0.6.11-98 Wave1B P0-3] 上一例复制预览 Modal: 勾选所见/印象 → 插入编辑器 */}
@@ -2502,47 +2742,47 @@ export default function ReportWritePage() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center gap-2 flex-wrap">
               {prevSameModality ? (
-                <Tag color="green">同模态优先匹配</Tag>
+                <Tag color="green">{t("reportWrite.sameModalityMatch")}</Tag>
               ) : (
-                <Tag color="orange" title="该患者同模态检查暂无已写报告">同模态无匹配,已取最近报告</Tag>
+                <Tag color="orange" title={t("reportWrite.noSameModalityReport")}>{t("reportWrite.latestFallback")}</Tag>
               )}
-              <span className="text-slate-400">检查日期: {prevReport.examDate ?? prevReport.createdTime ?? prevReport.studyDate ?? '—'}</span>
+              <span className="text-slate-400">{t("reportWrite.examDateLabel")} {prevReport.examDate ?? prevReport.createdTime ?? prevReport.studyDate ?? '—'}</span>
             </div>
             <div className="flex items-center gap-4 p-2 border border-slate-200 rounded bg-slate-50">
               <Checkbox
                 checked={prevPick.findings}
                 onChange={(e) => setPrevPick((p) => ({ ...p, findings: e.target.checked }))}
               >
-                影像所见
+                {t("reportWrite.findings")}
               </Checkbox>
               <Checkbox
                 checked={prevPick.impression}
                 onChange={(e) => setPrevPick((p) => ({ ...p, impression: e.target.checked }))}
               >
-                诊断意见
+                {t("reportWrite.impression")}
               </Checkbox>
-              <span className="text-slate-400">勾选后将插入当前编辑器对应段落</span>
+              <span className="text-slate-400">{t("reportWrite.insertToSectionHint")}</span>
             </div>
             {prevPick.findings && (
               <div>
-                <div className="font-semibold text-slate-700 mb-1">影像所见</div>
+                <div className="font-semibold text-slate-700 mb-1">{t("reportWrite.findings")}</div>
                 <div className="border border-slate-200 rounded p-2 bg-white whitespace-pre-wrap max-h-40 overflow-y-auto text-slate-700">
-                  {prevReport.findings || '（无）'}
+                  {prevReport.findings || t("reportWrite.none")}
                 </div>
               </div>
             )}
             {prevPick.impression && (
               <div>
-                <div className="font-semibold text-slate-700 mb-1">诊断意见</div>
+                <div className="font-semibold text-slate-700 mb-1">{t("reportWrite.impression")}</div>
                 <div className="border border-slate-200 rounded p-2 bg-white whitespace-pre-wrap max-h-40 overflow-y-auto text-slate-700">
-                  {prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis ?? '（无）'}
+                  {prevReport.impression ?? prevReport.conclusion ?? prevReport.diagnosis ?? t("reportWrite.none")}
                 </div>
               </div>
             )}
             <div className="flex justify-end gap-2 pt-1">
-              <Button onClick={() => setPrevCopyOpen(false)}>取消</Button>
+              <Button onClick={() => setPrevCopyOpen(false)}>{t("reportWrite.cancel")}</Button>
               <Button type="primary" icon={<Copy className="w-3.5 h-3.5" />} onClick={applyPreviousCopy}>
-                插入所见/印象
+                {t("reportWrite.insertFindingsImpression")}
               </Button>
             </div>
           </div>
@@ -2555,9 +2795,9 @@ export default function ReportWritePage() {
 /* ---------- [v3.0.6.11-61] 环境式 AI 报告草稿: 输入弹窗 + 确认面板 ---------- */
 
 const AI_STYLE_OPTIONS = [
-  { value: 'concise', label: '简洁', desc: '每段仅保留要点' },
-  { value: 'standard', label: '标准', desc: '完整结构化模板' },
-  { value: 'detailed', label: '详细', desc: '模板 + 补充描述' },
+  { value: 'concise', label: t("reportWrite.concise"), desc: t("reportWrite.conciseHint") },
+  { value: 'standard', label: t("reportWrite.standard"), desc: t("reportWrite.standardHint") },
+  { value: 'detailed', label: t("reportWrite.detailed"), desc: t("reportWrite.detailedHint") },
 ];
 
 function AiDraftInputModal({ open, modality, bodyPart, clinical, findings, style, loading, error, onClinical, onFindings, onStyle, onCancel, onGenerate }: {
@@ -2577,41 +2817,41 @@ function AiDraftInputModal({ open, modality, bodyPart, clinical, findings, style
 }) {
   return (
     <Modal
-      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>AI 生成报告草稿</span><Tag color="purple">{modality} - {bodyPart}</Tag></Space>}
+      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>{t("reportWrite.aiGenerateDraft")}</span><Tag color="purple">{modality} - {bodyPart}</Tag></Space>}
       open={open}
       onCancel={onCancel}
       width={560}
       destroyOnHidden
       footer={
         <div className="flex justify-end gap-2">
-          <Button onClick={onCancel}>取消</Button>
+          <Button onClick={onCancel}>{t("reportWrite.cancel")}</Button>
           <Button type="primary" icon={<Sparkles className="w-3 h-3" />} onClick={onGenerate} loading={loading} disabled={loading}>
-            生成草稿
+            {t("reportWrite.generateDraft")}
           </Button>
         </div>
       }
     >
       <div className="space-y-3 pt-2">
-        <Alert type="info" showIcon message="AI 草稿仅供临床参考,最终诊断须由执业医师确认" className="mb-2" />
+        <Alert type="info" showIcon message={t("reportWrite.aiDisclaimer")} className="mb-2" />
         <div>
-          <div className="text-xs font-semibold text-slate-600 mb-1">临床信息</div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">{t("reportWrite.clinicalInfo")}</div>
           <Input.TextArea
             value={clinical}
             onChange={(e) => onClinical(e.target.value)}
-            placeholder="请输入主诉/现病史/既往史等临床信息"
+            placeholder={t("reportWrite.clinicalInfoRequired")}
             rows={3}
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-slate-600 mb-1">发现关键词 (可选)</div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">{t("reportWrite.findingKeywords2")}</div>
           <Input
             value={findings}
             onChange={(e) => onFindings(e.target.value)}
-            placeholder="例: 右肺上叶结节影 / 腰椎退行性变"
+            placeholder={t("reportWrite.keywordsExample2")}
           />
         </div>
         <div>
-          <div className="text-xs font-semibold text-slate-600 mb-1">详细度</div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">{t("reportWrite.detailLevel")}</div>
           <Select
             value={style}
             onChange={onStyle}
@@ -2622,7 +2862,7 @@ function AiDraftInputModal({ open, modality, bodyPart, clinical, findings, style
         {loading && (
           <div className="flex items-center gap-2 text-xs text-purple-600">
             <Spin size="small" />
-            <span>正在按 {modality}-{bodyPart} 模板库生成报告草稿...</span>
+            <span>{t("reportWrite.generatingBy")} {modality}-{bodyPart} {t("reportWrite.generatingFromTemplate")}</span>
           </div>
         )}
         {error && <Alert type="error" showIcon message={error} />}
@@ -2663,48 +2903,48 @@ function AiDraftConfirmModal({ draft, currentText, editMode, editText, actionLoa
           )
         )
       )}
-      {chunks.length === 0 && <span className="text-slate-400">(内容一致)</span>}
+      {chunks.length === 0 && <span className="text-slate-400">{t("reportWrite.contentIdentical")}</span>}
       <span className="hidden">{text}</span>
     </div>
   );
   return (
     <Modal
-      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>AI 草稿确认</span><Tag color="purple">{draft.style}</Tag><Tag color="blue">置信度 {(draft.confidence * 100).toFixed(0)}%</Tag></Space>}
+      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>{t("reportWrite.aiDraftConfirm")}</span><Tag color="purple">{draft.style}</Tag><Tag color="blue">{t("reportWrite.confidence")} {(draft.confidence * 100).toFixed(0)}%</Tag></Space>}
       open
       onCancel={onDiscard}
       width={900}
       destroyOnHidden
       footer={
         <div className="flex justify-between items-center">
-          <span className="text-xs text-slate-400">模型 {draft.modelVersion} · 生成于 {new Date(draft.createdAt).toLocaleString()}</span>
+          <span className="text-xs text-slate-400">{t("reportWrite.model")} {draft.modelVersion} {t("reportWrite.generatedAt")} {new Date(draft.createdAt).toLocaleString()}</span>
           <div className="flex gap-2">
-            <Button onClick={onDiscard} disabled={actionLoading}>放弃</Button>
+            <Button onClick={onDiscard} disabled={actionLoading}>{t("reportWrite.discard")}</Button>
             {!editMode ? (
-              <Button icon={<Edit3 className="w-3 h-3" />} onClick={() => onEditMode(true)} disabled={actionLoading}>修改</Button>
+              <Button icon={<Edit3 className="w-3 h-3" />} onClick={() => onEditMode(true)} disabled={actionLoading}>{t("reportWrite.modify")}</Button>
             ) : (
-              <Button icon={<CheckCircle2 className="w-3 h-3" />} onClick={onModifySave} loading={actionLoading}>保存修改</Button>
+              <Button icon={<CheckCircle2 className="w-3 h-3" />} onClick={onModifySave} loading={actionLoading}>{t("reportWrite.saveChanges")}</Button>
             )}
             <Button type="primary" icon={<CheckCircle2 className="w-3 h-3" />} onClick={onAccept} loading={actionLoading} disabled={actionLoading}>
-              接受并应用到编辑器
+              {t("reportWrite.acceptApply")}
             </Button>
           </div>
         </div>
       }
     >
-      <Alert type="warning" showIcon message="AI 草稿仅供临床参考,接受前请核对所见与诊断的准确性" className="mb-3" />
+      <Alert type="warning" showIcon message={t("reportWrite.aiDraftNote")} className="mb-3" />
       {editMode ? (
         <div className="space-y-2">
-          <div className="text-xs font-semibold text-slate-600">编辑草稿内容 (保存后提交 /ai/report-draft/:id/modify)</div>
+          <div className="text-xs font-semibold text-slate-600">{t("reportWrite.editDraftHint")}</div>
           <Input.TextArea value={editText} onChange={(e) => onEditText(e.target.value)} rows={12} />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <h4 className="text-xs font-semibold text-slate-500 mb-2">当前编辑器内容 (删除高亮)</h4>
+            <h4 className="text-xs font-semibold text-slate-500 mb-2">{t("reportWrite.currentEditorContent2")}</h4>
             {renderDiffPane(false, currentText)}
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-slate-500 mb-2">AI 草稿 (新增高亮)</h4>
+            <h4 className="text-xs font-semibold text-slate-500 mb-2">{t("reportWrite.aiDraftContent")}</h4>
             {renderDiffPane(true, editText || draft.draftText)}
           </div>
         </div>
@@ -2717,7 +2957,7 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
   const chunks = useMemo(() => computeDiff(oldText, newText), [oldText, newText]);
   return (
     <Modal
-      title={<Space><History className="w-4 h-4" /><span>版本对比: {label}</span></Space>}
+      title={<Space><History className="w-4 h-4" /><span>{t("reportWrite.versionCompare")} {label}</span></Space>}
       open
       onCancel={onClose}
       footer={null}
@@ -2726,7 +2966,7 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
     >
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <h4 className="text-xs font-semibold text-slate-500 mb-2">旧版本</h4>
+          <h4 className="text-xs font-semibold text-slate-500 mb-2">{t("reportWrite.oldVersion")}</h4>
           <div className="border border-slate-200 rounded p-3 text-xs max-h-[500px] overflow-y-auto font-mono leading-relaxed">
             {chunks.map((chunk: DiffChunk, i: number) =>
               chunk.type === 'removed' ? (
@@ -2738,7 +2978,7 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
           </div>
         </div>
         <div>
-          <h4 className="text-xs font-semibold text-slate-500 mb-2">新版本</h4>
+          <h4 className="text-xs font-semibold text-slate-500 mb-2">{t("reportWrite.newVersion")}</h4>
           <div className="border border-slate-200 rounded p-3 text-xs max-h-[500px] overflow-y-auto font-mono leading-relaxed">
             {chunks.map((chunk: DiffChunk, i: number) =>
               chunk.type === 'added' ? (
@@ -2755,28 +2995,37 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
 }
 
 /* ---------- [W2-2] 短语库插入 ---------- */
-function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClose, onPick }: {
+function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', favIds = [], onClose, onPick, onToggleFav }: {
   open: boolean;
   phrases: any[];
   loading: boolean;
   /** [v3.0.6.11-96 Wave 2B (E)] 数据源: api=templatesApi.listSnippets 真实 / fallback=演示回退 */
   dataSource?: 'api' | 'fallback';
+  /** [v3.0.6.11-103 Wave 12] 收藏短语 id 列表 (localStorage) */
+  favIds?: string[];
   onClose: () => void;
   onPick: (phrase: any) => void;
+  /** [v3.0.6.11-103 Wave 12] 收藏切换 (回写 localStorage) */
+  onToggleFav?: (id: string) => void;
 }) {
   const [q, setQ] = useState('');
+  // [v3.0.6.11-103 Wave 12] 收藏夹: 只看收藏筛选
+  const [favOnly, setFavOnly] = useState(false);
+  const favSet = useMemo(() => new Set(favIds), [favIds]);
   const filtered = useMemo(() => {
     const kw = q.trim().toLowerCase();
-    if (!kw) return phrases;
-    return phrases.filter((p) => {
+    let list = phrases;
+    if (favOnly) list = list.filter((p) => favSet.has(String(p?.id ?? p?.name ?? '')));
+    if (!kw) return list;
+    return list.filter((p) => {
       const text = String(p?.content || p?.text || '');
       return text.toLowerCase().includes(kw) || String(p?.category ?? '').toLowerCase().includes(kw) || String(p?.subCategory ?? '').toLowerCase().includes(kw);
     });
-  }, [phrases, q]);
+  }, [phrases, q, favOnly, favSet]);
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>短语库</span><Tag color="cyan">{filtered.length} 条</Tag>{dataSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 已回退演示数据">演示回退</Tag>}</Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>{t("reportWrite.phraseLibrary")}</span><Tag color="cyan">{filtered.length} {t("reportWrite.recordUnit")}</Tag>{favIds.length > 0 && <Tag color="amber" className="m-0 text-[10px]">{t("reportWrite.favorite")} {favIds.length}</Tag>}{dataSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsFallback")}>{t("reportWrite.demoFallback")}</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -2784,45 +3033,66 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClos
       destroyOnHidden
     >
       <div className="pt-2 space-y-3">
-        <Input
-          allowClear
-          placeholder="搜索短语 / 分类 (如: 胸部、结节、随访)"
-          prefix={<BookMarked className="w-3 h-3 text-slate-400" />}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            allowClear
+            placeholder={t("reportWrite.searchPhrasePlaceholder")}
+            prefix={<BookMarked className="w-3 h-3 text-slate-400" />}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          {/* [v3.0.6.11-103 Wave 12] 收藏夹: 只看收藏 */}
+          <Checkbox checked={favOnly} onChange={(e) => setFavOnly(e.target.checked)} className="shrink-0 whitespace-nowrap text-xs">
+            {t('w12.write.favPhrasesOnly')}
+          </Checkbox>
+        </div>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> 短语加载中…</div>
+          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> {t("reportWrite.phraseLoading2")}</div>
         ) : filtered.length === 0 ? (
-          <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description="无匹配短语" />
+          <EmptyState type="noresult" description={favOnly ? t('w12.write.favoritesEmpty') : t("reportWrite.noMatchingPhrase")} style={{ padding: '16px 8px' }} />
         ) : (
           <div className="max-h-[420px] overflow-y-auto space-y-2">
-            {filtered.map((p: any, i: number) => (
+            {filtered.map((p: any, i: number) => {
+              const pid = String(p?.id ?? p?.name ?? `p-${i}`);
+              const isFav = favSet.has(pid);
+              return (
               <div
                 key={p?.id ?? i}
                 className="p-2 border border-slate-200 rounded cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors"
                 onClick={() => onPick(p)}
               >
-                <div className="text-xs text-slate-800 leading-relaxed">{p?.content ?? p?.text}</div>
-                <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-                  <Tag className="m-0 text-[10px]">{p?.category ?? '通用'}</Tag>
-                  {p?.subCategory && <Tag color="blue" className="m-0 text-[10px]">{p.subCategory}</Tag>}
-                  {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
-                  {/* [v3.0.6.11-98 Wave1B P0-2] 变量说明 tooltip: 含 {{占位符}} 时提示支持的变量 */}
-                  {(() => {
-                    const vars = collectTemplateVariables(p?.content ?? p?.text ?? '');
-                    return vars.length > 0
-                      ? (
-                        <Tooltip title={variablesTooltipTitle(vars)}>
-                          <Tag color="purple" className="m-0 text-[10px] cursor-help">变量 ×{vars.length}</Tag>
-                        </Tooltip>
-                      )
-                      : null;
-                  })()}
-                  {p?.usageCount != null && <span className="text-[10px] text-slate-400">使用 {p.usageCount} 次</span>}
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-slate-800 leading-relaxed">{p?.content ?? p?.text}</div>
+                    <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                      <Tag className="m-0 text-[10px]">{p?.category ?? t("reportWrite.general")}</Tag>
+                      {p?.subCategory && <Tag color="blue" className="m-0 text-[10px]">{p.subCategory}</Tag>}
+                      {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
+                      {/* [v3.0.6.11-98 Wave1B P0-2] 变量说明 tooltip: 含 {{占位符}} 时提示支持的变量 */}
+                      {(() => {
+                        const vars = collectTemplateVariables(p?.content ?? p?.text ?? '');
+                        return vars.length > 0
+                          ? (
+                            <Tooltip title={variablesTooltipTitle(vars)}>
+                              <Tag color="purple" className="m-0 text-[10px] cursor-help">{t("reportWrite.variableCount")}{vars.length}</Tag>
+                            </Tooltip>
+                          )
+                          : null;
+                      })()}
+                      {p?.usageCount != null && <span className="text-[10px] text-slate-400">{t("reportWrite.use")} {p.usageCount} {t("reportWrite.timesUnit")}</span>}
+                    </div>
+                  </div>
+                  {/* [v3.0.6.11-103 Wave 12] 短语收藏星标 */}
+                  <Button size="small" type="text" className="p-0 h-auto w-5 shrink-0"
+                    icon={<Star className={`w-3.5 h-3.5 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />}
+                    onClick={(e) => { e.stopPropagation(); onToggleFav?.(pid); }}
+                    title={isFav ? t("reportWrite.unfavoritePhrase") : t("reportWrite.favoritePhrase")}
+                    data-testid={`phrase-fav-${pid}`}
+                  />
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -2832,7 +3102,7 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', onClos
 
 /* ---------- [v3.0.6.11-95 Wave3B P1] 模板库: 分类浏览 + 全文模板/短语分区 + 最近使用/收藏 ---------- */
 /* [v3.0.6.11-98 Wave2A P1] 推荐模板 (按当前检查模态/部位自动匹配) + 我的模板筛选 (个人模板库) */
-function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, phraseSource = 'api', realCategories = [], examModality = '', examBodyPart = '', currentUserId = '', favSource = 'api', onClose, onInsert, onReplace, onToggleFav, onPickPhrase }: {
+function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recentIds, phraseSource = 'api', realCategories = [], examModality = '', examBodyPart = '', currentUserId = '', favSource = 'api', onClose, onInsert, onReplace, onToggleFav, onPickPhrase, onApplyBackend }: {
   open: boolean;
   templates: any[];
   phrases: any[];
@@ -2855,6 +3125,8 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   onReplace: (id: string) => void;
   onToggleFav: (id: string) => void;
   onPickPhrase: (p: any) => void;
+  /** [v3.0.6.11-103 Wave 2A] 后端应用模板: POST /reports/:id/templates-apply (append/overwrite) */
+  onApplyBackend?: (templateId: string, mode: 'append' | 'overwrite') => void;
 }) {
   const [catTab, setCatTab] = useState<string>('全部');
   const [q, setQ] = useState('');
@@ -2867,7 +3139,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 
   // [v3.0.6.11-96 Wave3B P1] 分类 Tab: 真实 /templates/categories 优先, 与模板数据派生分类合并 (去重)
   const categories = useMemo(() => {
-    const set = new Set<string>(['全部']);
+    const set = new Set<string>([t("reportWrite.all")]);
     realCategories.forEach((c) => { if (c) set.add(c); });
     templates.forEach((t: any) => { if (t?.category) set.add(String(t.category)); });
     return Array.from(set);
@@ -2934,7 +3206,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
   const phraseGroups = useMemo(() => {
     const groups: Record<string, any[]> = {};
     filteredPhrases.forEach((p) => {
-      const key = p?.category || '通用';
+      const key = p?.category || t("reportWrite.general");
       (groups[key] = groups[key] ?? []).push(p);
     });
     return groups;
@@ -2942,7 +3214,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>模板库</span><Tag color="cyan">{filteredTemplates.length} 模板 · {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title="后端 /templates/snippets 不可用, 短语已回退演示数据">演示回退</Tag>}{favSource === 'api' ? <Tag color="green" title="收藏经 POST /templates/:id/favorite 同步服务端">服务端收藏</Tag> : <Tag color="orange" title="收藏接口不可用, 已回退 localStorage">本地收藏回退</Tag>}</Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>{t("reportWrite.templateLibrary")}</span><Tag color="cyan">{filteredTemplates.length} {t("reportWrite.templateDot")} {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsPhraseFallback")}>{t("reportWrite.demoFallback")}</Tag>}{favSource === 'api' ? <Tag color="green" title={t("reportWrite.favoriteServerNote2")}>{t("reportWrite.serverFavorite")}</Tag> : <Tag color="orange" title={t("reportWrite.favoriteFallbackNote")}>{t("reportWrite.localFavoriteFallback")}</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -2953,43 +3225,43 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
         <Input
           allowClear
           prefix={<SearchX className="w-3 h-3 text-slate-400" />}
-          placeholder="搜索模板 / 短语内容 (如: 胸部、结节、随访)"
+          placeholder={t("reportWrite.searchTemplatePlaceholder")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> 模板加载中…</div>
+          <div style={{ textAlign: 'center', padding: 24 }}><Spin /> {t("reportWrite.templateLoading2")}</div>
         ) : (
           <div className="grid grid-cols-2 gap-3" style={{ minHeight: 380, maxHeight: 560, overflow: 'hidden' }}>
             {/* 左: 全文模板 (分类 Tab + 最近使用/收藏置顶) */}
             <div className="flex flex-col gap-2" style={{ maxHeight: 560, minHeight: 380 }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />全文模板{fullTemplates.length > 0 && <Tag color="purple" className="m-0 text-[10px]">全文 ×{fullTemplates.length}</Tag>}</span>
+                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><FileText className="w-3 h-3" />{t("reportWrite.fullTextTemplates")}{fullTemplates.length > 0 && <Tag color="purple" className="m-0 text-[10px]">{t("reportWrite.fullTextCount")}{fullTemplates.length}</Tag>}</span>
                 <div className="flex items-center gap-2">
                   {/* [v3.0.6.11-100 Wave2C P2] 全文模板插入方式: 追加(光标处) / 覆盖(替换全文) */}
-                  <div className="flex rounded border border-slate-200 overflow-hidden" title="全文模板点击后插入方式">
+                  <div className="flex rounded border border-slate-200 overflow-hidden" title={t("reportWrite.fullTextInsertMode")}>
                     <button type="button"
                       className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 ${insertMode === 'append' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
-                      onClick={() => setInsertMode('append')}>追加</button>
+                      onClick={() => setInsertMode('append')}>{t("reportWrite.append")}</button>
                     <button type="button"
                       className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 border-l border-slate-200 ${insertMode === 'replace' ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
-                      onClick={() => setInsertMode('replace')}>覆盖</button>
+                      onClick={() => setInsertMode('replace')}>{t("reportWrite.overwrite")}</button>
                   </div>
                   {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
                   <div className="flex rounded border border-slate-200 overflow-hidden">
                     <button type="button"
                       className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 ${scopeTab === 'all' ? 'bg-sky-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
-                      onClick={() => setScopeTab('all')}>全部</button>
+                      onClick={() => setScopeTab('all')}>{t("reportWrite.all")}</button>
                     <button type="button"
                       className={`px-2 py-0.5 text-[11px] font-semibold cursor-pointer border-0 border-l border-slate-200 ${scopeTab === 'mine' ? 'bg-sky-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
-                      onClick={() => setScopeTab('mine')}>我的模板</button>
+                      onClick={() => setScopeTab('mine')}>{t("reportWrite.myTemplates")}</button>
                   </div>
-                  <Tag color="blue" className="text-[10px] m-0">{typeTab === 'FULL' ? (insertMode === 'replace' ? '点击覆盖全文' : '点击追加光标处') : '点击插入光标处'}</Tag>
+                  <Tag color="blue" className="text-[10px] m-0">{typeTab === 'FULL' ? (insertMode === 'replace' ? t("reportWrite.clickToOverwrite") : t("reportWrite.clickToAppend")) : t("reportWrite.clickToInsert")}</Tag>
                 </div>
               </div>
               {/* [v3.0.6.11-100 Wave2C P2] 模板类型 Tab: 全部 / 全文模板 / 段落模板 / 短语模板 */}
               <div className="flex gap-1 flex-wrap items-center">
-                {([['all', '全部'], ['FULL', '全文模板'], ['SECTION', '段落模板'], ['PHRASE', '短语模板']] as const).map(([key, label]) => (
+                {([['all', t("reportWrite.all")], ['FULL', t("reportWrite.fullTextTemplates")], ['SECTION', t("reportWrite.sectionTemplates")], ['PHRASE', t("reportWrite.phraseTemplates")]] as const).map(([key, label]) => (
                   <Button key={key} size="small" type={typeTab === key ? 'primary' : 'default'} className="text-[11px]" onClick={() => setTypeTab(key)}>{label}</Button>
                 ))}
               </div>
@@ -2997,13 +3269,13 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
               <div className="rounded border border-purple-200 bg-purple-50/60 p-2 space-y-1">
                 <div className="text-[11px] font-semibold text-purple-700 flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  推荐模板
+                  {t("reportWrite.recommendedTemplates")}
                   {recCtx.has && (
                     <span className="font-normal text-purple-400">（{recCtx.mod || '—'}{recCtx.mod && recCtx.bp ? ' / ' : ''}{recCtx.bp || '—'}）</span>
                   )}
                 </div>
                 {recommended.length === 0 ? (
-                  <div className="text-[11px] text-slate-400">无推荐（按分类浏览）</div>
+                  <div className="text-[11px] text-slate-400">{t("reportWrite.noRecommendations")}</div>
                 ) : (
                   <div className="space-y-1">
                     {recommended.map((t: any) => (
@@ -3025,7 +3297,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
               </div>
               <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
                 {filteredTemplates.length === 0 ? (
-                  <Empty image={<SearchX size={40} style={{opacity:0.4}}/>} description="无匹配模板" />
+                  <EmptyState type="noresult" description={t("reportWrite.noMatchingTemplate")} style={{ padding: '16px 8px' }} />
                 ) : filteredTemplates.map((t: any) => {
                   const isFav = favIdsSet.has(t.id);
                   const isRecent = recentIdsSet.has(t.id);
@@ -3051,6 +3323,10 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                           <Button size="small" type="text" className="p-0 h-auto w-5" icon={<Star className={`w-3 h-3 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />}
                             onClick={(e) => { e.stopPropagation(); onToggleFav(t.id); }} title={isFav ? '取消收藏' : '收藏常用模板'} />
                           <Button size="small" type="text" className="p-0 h-auto text-[10px]" onClick={(e) => { e.stopPropagation(); onReplace(t.id); }} title="全文替换编辑器内容">替换</Button>
+                          {/* [v3.0.6.11-103 Wave 2A] 后端应用模板: POST /reports/:id/templates-apply (合并到报告字段) */}
+                          {onApplyBackend && (
+                            <Button size="small" type="text" className="p-0 h-auto text-[10px] text-purple-600" onClick={(e) => { e.stopPropagation(); onApplyBackend(t.id, (t?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace' ? 'overwrite' : 'append'); }} title="后端合并模板到报告 (append=追加 / overwrite=覆盖)">后端应用</Button>
+                          )}
                         </span>
                       </div>
                       <div className="text-slate-400 text-[11px] mt-0.5 truncate">{String(t.body ?? '').slice(0, 60) || '(结构化模板)'}</div>
@@ -3073,12 +3349,12 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
             {/* 右: 短语库 (按分类分组) */}
             <div className="flex flex-col gap-2" style={{ maxHeight: 560, minHeight: 380 }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><BookMarked className="w-3 h-3" />短语库</span>
-                <Button size="small" type="link" className="text-[11px] p-0 h-auto" onClick={() => onClose()}>返回书写页选择</Button>
+                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1"><BookMarked className="w-3 h-3" />{t("reportWrite.phraseLibrary")}</span>
+                <Button size="small" type="link" className="text-[11px] p-0 h-auto" onClick={() => onClose()}>{t("reportWrite.backToWriting")}</Button>
               </div>
               <div className="flex-1 overflow-y-auto pr-1 space-y-2">
                 {Object.keys(phraseGroups).length === 0 ? (
-                  <Empty image={<SearchX size={40} style={{opacity:0.4}}/>} description="无匹配短语" />
+                  <EmptyState type="noresult" description={t("reportWrite.noMatchingPhrase")} style={{ padding: '16px 8px' }} />
                 ) : Object.entries(phraseGroups).map(([cat, items]) => (
                   <div key={cat}>
                     <div className="text-[11px] font-semibold text-slate-500 mb-1">{cat} ({items.length})</div>
@@ -3087,14 +3363,14 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                         <div key={p?.id ?? i} className="p-1.5 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors" onClick={() => onPickPhrase(p)}>
                           <div className="text-slate-700 line-clamp-2">{p?.content ?? p?.text}</div>
                           <div className="flex items-center gap-1 mt-1">
-                            <Tag className="m-0 text-[10px]">{p?.category ?? '通用'}</Tag>
+                            <Tag className="m-0 text-[10px]">{p?.category ?? t("reportWrite.general")}</Tag>
                             {Array.isArray(p?.modality) && p.modality.length > 0 && <Tag color="cyan" className="m-0 text-[10px]">{p.modality.join('/')}</Tag>}
                             {(() => {
                               const vars = collectTemplateVariables(p?.content ?? p?.text ?? '');
                               return vars.length > 0
                                 ? (
                                   <Tooltip title={variablesTooltipTitle(vars)}>
-                                    <Tag color="purple" className="m-0 text-[10px] cursor-help">变量 ×{vars.length}</Tag>
+                                    <Tag color="purple" className="m-0 text-[10px] cursor-help">{t("reportWrite.variableCount")}{vars.length}</Tag>
                                   </Tooltip>
                                 )
                                 : null;

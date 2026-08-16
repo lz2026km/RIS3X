@@ -11,6 +11,7 @@ import { Card, message } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { ChartContainer } from '../components/charts'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { t } from '../i18n/appI18n'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -115,10 +116,10 @@ const s: Record<string, React.CSSProperties> = {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { style: React.CSSProperties; label: string }> = {
-    '在用': { style: s.badgeGreen, label: '在用' },
-    '空闲': { style: s.badgeBlue, label: '空闲' },
-    '维保中': { style: s.badgeOrange, label: '维保中' },
-    '已报废': { style: s.badgeGray, label: '已报废' },
+    '在用': { style: s.badgeGreen, label: t('equipLifecycle.statusActive') },
+    '空闲': { style: s.badgeBlue, label: t('equipLifecycle.statusIdle') },
+    '维保中': { style: s.badgeOrange, label: t('equipLifecycle.statusMaint') },
+    '已报废': { style: s.badgeGray, label: t('equipLifecycle.statusRetired') },
   }
   const b = map[status] || { style: s.badgeGray, label: status }
   return <span style={{ ...s.badge, ...b.style }}>{b.label}</span>
@@ -215,7 +216,7 @@ export default function EquipmentLifecyclePage() {
   // [G005 Wave2A P1] 保存设备: deviceMgmtApi 真实创建 → 失败回退本地列表
   const handleSaveDevice = async () => {
     if (!deviceForm.name || !deviceForm.model) {
-      message.warning('请填写设备名称与型号')
+      message.warning(t('equipLifecycle.needNameModel'))
       return
     }
     try {
@@ -228,7 +229,7 @@ export default function EquipmentLifecyclePage() {
       })
       if (res.success) {
         await loadLifecycle()
-        message.success(`设备「${deviceForm.name}」已添加`)
+        message.success(t('equipLifecycle.deviceAdded', { name: deviceForm.name }))
         setShowAdd(false)
         setDeviceForm(emptyDeviceForm)
         return
@@ -240,7 +241,7 @@ export default function EquipmentLifecyclePage() {
       status: deviceForm.status, useCount: 0, lastUse: '-', nextMaint: '-', lifeMonth: 0, deptRate: 0,
       totalCost: 0, maintCost: 0, spareCost: 0,
     }, ...prev])
-    message.success(`设备「${deviceForm.name}」已添加 (演示数据)`)
+    message.success(t('equipLifecycle.deviceAddedDemo', { name: deviceForm.name }))
     setShowAdd(false)
     setDeviceForm(emptyDeviceForm)
   }
@@ -252,7 +253,7 @@ export default function EquipmentLifecyclePage() {
       const res = await deviceMgmtApi.updateEquipmentLifecycle(deviceToScrap.id, { status: 'RETIRED', notes: scrapReason })
       if (res.success) {
         await loadLifecycle()
-        message.success(`设备「${deviceToScrap.name}」已确认报废`)
+        message.success(t('equipLifecycle.deviceRetired', { name: deviceToScrap.name }))
         setShowScrap(false)
         setScrapReason('')
         return
@@ -263,7 +264,7 @@ export default function EquipmentLifecyclePage() {
     } else {
       setLocalDevices(prev => prev.map(d => (d.id === deviceToScrap.id ? { ...d, status: '已报废' } : d)))
     }
-    message.success(`设备「${deviceToScrap.name}」已标记报废 (演示数据)`)
+    message.success(t('equipLifecycle.deviceRetiredDemo', { name: deviceToScrap.name }))
     setShowScrap(false)
     setScrapReason('')
   }
@@ -271,7 +272,7 @@ export default function EquipmentLifecyclePage() {
   // [G005 Wave2A P1] 保存维保计划: createMaintenancePlan → 失败回退本地
   const handleSaveMaintPlan = async () => {
     if (!maintPlanForm.deviceName || !maintPlanForm.maintenanceDate) {
-      message.warning('请填写设备名称与计划日期')
+      message.warning(t('equipLifecycle.needNameDate'))
       return
     }
     const dto = {
@@ -286,14 +287,14 @@ export default function EquipmentLifecyclePage() {
       const res = await deviceMgmtApi.createMaintenancePlan(dto)
       if (res.success) {
         await loadMaintPlans()
-        message.success(`维保计划「${maintPlanForm.deviceName}」已创建`)
+        message.success(t('equipLifecycle.planCreated', { name: maintPlanForm.deviceName }))
         setShowMaintPlanModal(false)
         setMaintPlanForm(emptyMaintPlanForm)
         return
       }
     } catch { /* 回退本地 */ }
     setLocalPlans(prev => [{ id: `MP-${Date.now()}`, deviceId: maintPlanForm.deviceName, ...dto, status: 'PENDING' }, ...prev])
-    message.success(`维保计划「${maintPlanForm.deviceName}」已创建 (演示数据)`)
+    message.success(t('equipLifecycle.planCreatedDemo', { name: maintPlanForm.deviceName }))
     setShowMaintPlanModal(false)
     setMaintPlanForm(emptyMaintPlanForm)
   }
@@ -616,7 +617,7 @@ export default function EquipmentLifecyclePage() {
   return (
     <div style={s.root}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <PageHeader title="放射科设备全生命周期管理" style={{ marginBottom: 24 }} />
+        <PageHeader title={t('equipLifecycle.pageTitle')} style={{ marginBottom: 24 }} />
         {/* [G005 Wave4A P1] 数据来源徽标 (按当前 Tab 数据源动态显示, 修复"顶部真实/Tab mock"矛盾) */}
         <span style={{
           fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10, marginBottom: 24,
@@ -626,19 +627,19 @@ export default function EquipmentLifecyclePage() {
             ? '#15803d' : '#92400e'
         }}>
           {(activeTab === '设备列表' ? isApiData : activeTab === '维保计划' ? maintPlansReal : maintRecordsReal)
-            ? '真实数据' : '演示数据'}
+            ? t('equipLifecycle.realData') : t('equipLifecycle.demoData')}
         </span>
       </div>
 
       {/* 标签页 */}
       <div style={s.tabs}>
-        {['设备列表', '维保计划', '维保记录', '深度分析'].map(t => (
+        {[{ key: '设备列表', label: t('equipLifecycle.tabDevices') }, { key: '维保计划', label: t('equipLifecycle.tabMaintPlans') }, { key: '维保记录', label: t('equipLifecycle.tabMaintRecords') }, { key: '深度分析', label: t('equipLifecycle.tabDeepAnalysis') }].map(tab => (
           <div
-            key={t}
-            style={{ ...s.tab, ...(activeTab === t ? s.tabActive : {}) }}
-            onClick={() => setActiveTab(t)}
+            key={tab.key}
+            style={{ ...s.tab, ...(activeTab === tab.key ? s.tabActive : {}) }}
+            onClick={() => setActiveTab(tab.key)}
           >
-            {t}
+            {tab.label}
           </div>
         ))}
       </div>
@@ -648,29 +649,29 @@ export default function EquipmentLifecyclePage() {
           {/* 统计卡片 */}
           <div style={s.statsGrid}>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={s.statLabel}>设备总数</div>
+              <div style={s.statLabel}>{t('equipLifecycle.statTotalDevices')}</div>
               <div style={s.statValue}>{lifecycleRows.length}</div>
-              <div style={s.statSub}>在用 {lifecycleRows.filter(d => d.status === '在用').length} 台</div>
+              <div style={s.statSub}>{t('equipLifecycle.statActiveCount', { n: lifecycleRows.filter(d => d.status === '在用').length })}</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={s.statLabel}>在用设备</div>
+              <div style={s.statLabel}>{t('equipLifecycle.statActive')}</div>
               <div style={{ ...s.statValue, ...s.statGreen }}>{lifecycleRows.filter(d => d.status === '在用').length}</div>
-              <div style={s.statSub}>使用率 78%</div>
+              <div style={s.statSub}>{t('equipLifecycle.statUsageRate')}</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={s.statLabel}>维保中</div>
+              <div style={s.statLabel}>{t('equipLifecycle.statMaint')}</div>
               <div style={{ ...s.statValue, ...s.statOrange }}>{lifecycleRows.filter(d => d.status === '维保中').length}</div>
-              <div style={s.statSub}>含故障处理</div>
+              <div style={s.statSub}>{t('equipLifecycle.statMaintSub')}</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={s.statLabel}>到期预警</div>
+              <div style={s.statLabel}>{t('equipLifecycle.statExpiring')}</div>
               <div style={{ ...s.statValue, ...s.statRed }}>{soonExpire.length}</div>
-              <div style={s.statSub}>30天内维保到期</div>
+              <div style={s.statSub}>{t('equipLifecycle.statExpiringSub')}</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={s.statLabel}>资产总值</div>
-              <div style={s.statValue}>{Math.round(totalValue / 10000)}万</div>
-              <div style={s.statSub}>设备累计折旧</div>
+              <div style={s.statLabel}>{t('equipLifecycle.statAssetValue')}</div>
+              <div style={s.statValue}>{Math.round(totalValue / 10000)}{t('equipLifecycle.tenThousand')}</div>
+              <div style={s.statSub}>{t('equipLifecycle.statDeprecSub')}</div>
             </Card>
           </div>
 
@@ -679,7 +680,7 @@ export default function EquipmentLifecyclePage() {
             <Card bordered={false} style={s.maintAlert} styles={{ body: { padding: 0 } }}>
               <div style={s.alertTitle}>
                 <AlertTriangle size={18} color="#d97706" />
-                维保到期提醒 — {soonExpire.length} 台设备将在30天内到期
+                {t('equipLifecycle.maintAlertTitle', { n: soonExpire.length })}
               </div>
               <div style={s.alertGrid}>
                 {soonExpire.map(d => {
@@ -691,11 +692,11 @@ export default function EquipmentLifecyclePage() {
                       <div>
                         <div style={s.alertName}>{d.name}</div>
                         <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.id} · {d.dept}</div>
-                        <div style={s.alertDate}>还剩 {days} 天</div>
+                        <div style={s.alertDate}>{t('equipLifecycle.daysLeft', { n: days })}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}><Plus size={14} />预约维保</button>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}><ClipboardList size={14} />记录</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}><Plus size={14} />{t('equipLifecycle.bookMaint')}</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}><ClipboardList size={14} />{t('equipLifecycle.recordsBtn')}</button>
                       </div>
                     </div>
                   )
@@ -708,18 +709,18 @@ export default function EquipmentLifecyclePage() {
           <div style={s.toolbar}>
             <div style={s.searchBox}>
               <Search size={16} color="var(--text-secondary)" />
-              <input style={s.searchInput} placeholder="搜索设备名称/型号/编号" value={search} onChange={e => setSearch(e.target.value)} />
+              <input style={s.searchInput} placeholder={t('equipLifecycle.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <select style={s.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              <option value="全部">全部状态</option>
-              <option value="在用">在用</option>
-              <option value="空闲">空闲</option>
-              <option value="维保中">维保中</option>
-              <option value="已报废">已报废</option>
+              <option value="全部">{t('equipLifecycle.filterAllStatus')}</option>
+              <option value="在用">{t('equipLifecycle.statusActive')}</option>
+              <option value="空闲">{t('equipLifecycle.statusIdle')}</option>
+              <option value="维保中">{t('equipLifecycle.statusMaint')}</option>
+              <option value="已报废">{t('equipLifecycle.statusRetired')}</option>
             </select>
             <div style={{ flex: 1 }} />
             <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowAdd(true)}>
-              <Plus size={16} /> 添加设备
+              <Plus size={16} /> {t('equipLifecycle.addDevice')}
             </button>
           </div>
 
@@ -727,14 +728,14 @@ export default function EquipmentLifecyclePage() {
           <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
-                {['设备编号', '设备名称', '型号', '使用科室', '状态', '使用次数', '下次维保', '使用率', '操作'].map(h => (
+                {[t('equipLifecycle.thDeviceId'), t('equipLifecycle.thDeviceName'), t('equipLifecycle.thModel'), t('equipLifecycle.thDept'), t('equipLifecycle.thStatus'), t('equipLifecycle.thUseCount'), t('equipLifecycle.thNextMaint'), t('equipLifecycle.thUsageRate'), t('equipLifecycle.thActions')].map(h => (
                   <th key={h} style={s.th}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={9} style={s.empty}>暂无设备数据</td></tr>
+                <tr><td colSpan={9} style={s.empty}>{t('equipLifecycle.noDevices')}</td></tr>
               )}
               {filtered.map(d => (
                 <tr key={d.id} style={{ background: d.status === '已报废' ? '#f8fafc' : '#fff' }}>
@@ -761,9 +762,9 @@ export default function EquipmentLifecyclePage() {
                   </td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}><Eye size={14} />详情</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}><Eye size={14} />{t('equipLifecycle.detail')}</button>
                       {d.status !== '已报废' && (
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setDeviceToScrap(d); setShowScrap(true) }}>报废</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setDeviceToScrap(d); setShowScrap(true) }}>{t('equipLifecycle.retire')}</button>
                       )}
                     </div>
                   </td>
@@ -778,33 +779,33 @@ export default function EquipmentLifecyclePage() {
         <div>
           <div style={s.toolbar}>
             <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowMaintPlanModal(true)}>
-              <Plus size={16} /> 新建维保计划
+              <Plus size={16} /> {t('equipLifecycle.newMaintPlan')}
             </button>
             {!maintPlansReal && (
-              <span style={{ ...s.badge, ...s.badgeOrange }}>演示数据 (未接维保计划接口)</span>
+              <span style={{ ...s.badge, ...s.badgeOrange }}>{t('equipLifecycle.demoMaintPlanBadge')}</span>
             )}
           </div>
           <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }}>
             <div style={s.alertTitle}>
               <Clock size={18} color="#2563eb" />
-              未来90天维保日历
+              {t('equipLifecycle.maintCalendarTitle')}
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
               {maintPlansReal
-                ? `共 ${planRows.length} 条维保计划 (来自设备维保服务)`
-                : `2026年5月—7月维保计划（共 ${mockDevices.filter(d => d.status !== '已报废').length} 台设备需维保）`}
+                ? t('equipLifecycle.maintPlansCountReal', { n: planRows.length })
+                : t('equipLifecycle.maintPlansCountMock', { n: mockDevices.filter(d => d.status !== '已报废').length })}
             </div>
             <div style={{ overflowX: "auto" }}><table style={s.table}>
               <thead>
                 <tr>
-                  {['设备名称', '型号', '维保类型', '计划日期', '距今天数', '服务商', '费用', '状态', '操作'].map(h => (
+                  {[t('equipLifecycle.thPlanName'), t('equipLifecycle.thPlanModel'), t('equipLifecycle.thPlanType'), t('equipLifecycle.thPlanDate'), t('equipLifecycle.thDaysLeft'), t('equipLifecycle.thVendor'), t('equipLifecycle.thCost'), t('equipLifecycle.thPlanStatus'), t('equipLifecycle.thActions')].map(h => (
                     <th key={h} style={s.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {planRows.length === 0 && (
-                  <tr><td colSpan={9} style={s.empty}>暂无维保计划，可点击"新建维保计划"创建</td></tr>
+                  <tr><td colSpan={9} style={s.empty}>{t('equipLifecycle.noMaintPlans')}</td></tr>
                 )}
                 {planRows.map((m, i) => (
                   <tr key={m.id ?? i}>
@@ -814,7 +815,7 @@ export default function EquipmentLifecyclePage() {
                     <td style={s.td}>{m.date}</td>
                     <td style={s.td}>
                       <span style={{ color: m.days <= 7 ? '#dc2626' : m.days <= 30 ? '#d97706' : '#334155', fontWeight: m.days <= 7 ? 700 : 400 }}>
-                        {m.days <= 7 ? `⚠ ${m.days}天后` : `${m.days}天后`}
+                        {m.days <= 7 ? t('equipLifecycle.daysAfterWarn', { n: m.days }) : t('equipLifecycle.daysAfter', { n: m.days })}
                       </span>
                     </td>
                     <td style={s.td}>{m.vendor || '-'}</td>
@@ -825,11 +826,11 @@ export default function EquipmentLifecyclePage() {
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />确认</button>
+                          onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />{t('equipLifecycle.confirm')}</button>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />编辑</button>
+                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />{t('equipLifecycle.edit')}</button>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px', color: '#dc2626' }}
-                          onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />删除</button>
+                          onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />{t('equipLifecycle.delete')}</button>
                       </div>
                     </td>
                   </tr>
@@ -844,23 +845,23 @@ export default function EquipmentLifecyclePage() {
         <div>
           <div style={s.toolbar}>
             <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowAdd(true)}>
-              <Plus size={16} /> 记录维保
+              <Plus size={16} /> {t('equipLifecycle.recordMaint')}
             </button>
             {!maintRecordsReal && (
-              <span style={{ ...s.badge, ...s.badgeOrange }}>演示数据 (未接维保记录接口)</span>
+              <span style={{ ...s.badge, ...s.badgeOrange }}>{t('equipLifecycle.demoMaintRecordBadge')}</span>
             )}
           </div>
           <div style={{ overflowX: "auto" }}><table style={s.table}>
             <thead>
               <tr>
-                {['日期', '设备编号', '设备名称', '维保类型', '费用', '服务商', '结果', '操作'].map(h => (
+                {[t('equipLifecycle.thRecordDate'), t('equipLifecycle.thRecordDeviceId'), t('equipLifecycle.thRecordDeviceName'), t('equipLifecycle.thRecordType'), t('equipLifecycle.thRecordCost'), t('equipLifecycle.thRecordVendor'), t('equipLifecycle.thRecordResult'), t('equipLifecycle.thActions')].map(h => (
                   <th key={h} style={s.th}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {recordRows.length === 0 && (
-                <tr><td colSpan={8} style={s.empty}>暂无维保记录</td></tr>
+                <tr><td colSpan={8} style={s.empty}>{t('equipLifecycle.noMaintRecords')}</td></tr>
               )}
               {recordRows.map((r, i) => {
                 const dev = mockDevices.find(d => d.id === r.device)
@@ -878,7 +879,7 @@ export default function EquipmentLifecyclePage() {
                       </span>
                     </td>
                     <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}><Eye size={14} />详情</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}><Eye size={14} />{t('equipLifecycle.detail')}</button>
                     </td>
                   </tr>
                 )
@@ -887,13 +888,13 @@ export default function EquipmentLifecyclePage() {
           </table></div>
           {/* 成本汇总 */}
           <Card bordered={false} style={{ marginTop: 24, background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} styles={{ body: { padding: 0 } }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>维保成本汇总</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>{t('equipLifecycle.costSummaryTitle')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
               {[
-                { label: '累计维保费用', value: `¥${recordRows.filter(r => Number(r.cost) > 0).reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
-                { label: '累计配件费用', value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
-                { label: '设备总价值', value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
-                { label: '维保费用占设备比', value: `${totalValue > 0 ? Math.round(recordRows.reduce((s, r) => s + Number(r.cost), 0) / totalValue * 100) : 0}%`, color: '#d97706' },
+                { label: t('equipLifecycle.costTotalMaint'), value: `¥${recordRows.filter(r => Number(r.cost) > 0).reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: t('equipLifecycle.costTotalSpare'), value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: t('equipLifecycle.costTotalValue'), value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
+                { label: t('equipLifecycle.costMaintRatio'), value: `${totalValue > 0 ? Math.round(recordRows.reduce((s, r) => s + Number(r.cost), 0) / totalValue * 100) : 0}%`, color: '#d97706' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' as const }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
@@ -909,22 +910,22 @@ export default function EquipmentLifecyclePage() {
         <>
           {/* 数据源徽标 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12, padding: '8px 14px', borderRadius: 8, background: oeeReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: oeeReal ? '#15803d' : '#92400e', border: `1px solid ${oeeReal ? '#bbf7d0' : '#fde68a'}` }} data-testid="equipment-deep-source">
-            {oeeLoading ? 'OEE 数据加载中...' : oeeReal
-              ? '数据源: oeeApi (/oee/list + /oee/trend) + deviceMgmtApi 真实接口'
-              : '数据源: 演示回退 (oeeApi 不可用, 基于生命周期数据派生)'}
-            <span style={{ marginLeft: 'auto', opacity: 0.75 }}>更新于 {new Date().toLocaleTimeString('zh-CN')}</span>
+            {oeeLoading ? t('equipLifecycle.oeeLoading') : oeeReal
+              ? t('equipLifecycle.oeeSourceReal')
+              : t('equipLifecycle.oeeSourceFallback')}
+            <span style={{ marginLeft: 'auto', opacity: 0.75 }}>{t('equipLifecycle.updatedAt', { time: new Date().toLocaleTimeString('zh-CN') })}</span>
           </div>
 
           {/* E4. 设备使用率趋势 (OEE) */}
           <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Monitor size={16} /> 设备使用率趋势 (OEE)
+              <Monitor size={16} /> {t('equipLifecycle.oeeTitle')}
               <select style={{ ...s.select, marginLeft: 'auto', padding: '4px 10px', fontSize: 13 }} value={oeeSelectedDevice} onChange={e => setOeeSelectedDevice(e.target.value)}>
                 {oeeList.map((d: any) => <option key={d.id} value={d.id}>{d.name} ({d.id})</option>)}
               </select>
             </div>
             {oeeChartData.length === 0 ? (
-              <div style={s.empty}>暂无 OEE 数据</div>
+              <div style={s.empty}>{t('equipLifecycle.noOee')}</div>
             ) : (
               <div>
                 <ChartContainer height={260} state="ready">
@@ -935,9 +936,9 @@ export default function EquipmentLifecyclePage() {
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <Line type="monotone" dataKey="OEE" stroke="#1e40af" strokeWidth={2.2} dot={false} />
-                    <Line type="monotone" dataKey="可用性" stroke="#059669" strokeWidth={1.6} dot={false} />
-                    <Line type="monotone" dataKey="性能" stroke="#d97706" strokeWidth={1.6} dot={false} />
-                    <Line type="monotone" dataKey="质量" stroke="#7c3aed" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="可用性" name={t('equipLifecycle.oeeAvailability')} stroke="#059669" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="性能" name={t('equipLifecycle.oeePerformance')} stroke="#d97706" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="质量" name={t('equipLifecycle.oeeQuality')} stroke="#7c3aed" strokeWidth={1.6} dot={false} />
                   </LineChart>
                 </ChartContainer>
                 {/* OEE 排行条 */}
@@ -962,16 +963,16 @@ export default function EquipmentLifecyclePage() {
           {/* E1. 设备状态时间线 */}
           <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Clock size={16} /> 设备状态时间线 (购置→在用→维护→报废)
-              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>共 {lifecycleTimeline.length} 台设备</span>
+              <Clock size={16} /> {t('equipLifecycle.timelineTitle')}
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('equipLifecycle.timelineCount', { n: lifecycleTimeline.length })}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {lifecycleTimeline.slice(0, 8).map((d: any) => {
                 const phases = [
-                  { label: '购置', date: d.purchaseDate, done: true, color: '#1e40af' },
-                  { label: '在用', date: d.purchaseDate, done: !d.isRetired, color: '#059669' },
-                  { label: '维保', date: d.nextMaint, done: d.isMaint || true, color: '#d97706', highlight: d.isMaint },
-                  { label: '报废', date: d.retireAt ?? '—', done: d.isRetired, color: '#94a3b8' },
+                  { label: t('equipLifecycle.phasePurchase'), date: d.purchaseDate, done: true, color: '#1e40af' },
+                  { label: t('equipLifecycle.phaseActive'), date: d.purchaseDate, done: !d.isRetired, color: '#059669' },
+                  { label: t('equipLifecycle.phaseMaint'), date: d.nextMaint, done: d.isMaint || true, color: '#d97706', highlight: d.isMaint },
+                  { label: t('equipLifecycle.phaseRetired'), date: d.retireAt ?? '—', done: d.isRetired, color: '#94a3b8' },
                 ]
                 return (
                   <div key={d.id} style={{ padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
@@ -1004,9 +1005,9 @@ export default function EquipmentLifecyclePage() {
                       ))}
                     </div>
                     <div style={{ display: 'flex', gap: 14, marginTop: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
-                      <span>已使用 <b style={{ color: 'var(--text-primary)' }}>{d.useCount}</b> 次</span>
-                      <span>维保 <b style={{ color: '#d97706' }}>{d.maintCount}</b> 次</span>
-                      <span>下次维保 <b style={{ color: d.daysLeft < 0 ? '#dc2626' : '#d97706' }}>{d.nextMaint}</b></span>
+                      <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.usedCount', { n: d.useCount }) }} />
+                      <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.maintCount', { n: d.maintCount }) }} />
+                      <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.nextMaintLabel', { date: d.nextMaint }) }} />
                     </div>
                   </div>
                 )
@@ -1017,14 +1018,14 @@ export default function EquipmentLifecyclePage() {
           {/* E3. 维保到期预警面板 */}
           <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={16} /> 维保到期预警
-              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>预警 {maintWarnings.total} 台</span>
+              <AlertTriangle size={16} /> {t('equipLifecycle.maintWarnTitle')}
+              <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('equipLifecycle.warnCount', { n: maintWarnings.total })}</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
-                { key: 'overdue', label: '已过期', color: '#dc2626', bg: 'var(--color-error-bg)', items: maintWarnings.overdue },
-                { key: 'soon7', label: '7天内到期', color: '#d97706', bg: 'var(--color-warning-bg)', items: maintWarnings.soon7 },
-                { key: 'soon30', label: '30天内到期', color: '#2563eb', bg: 'var(--color-info-bg)', items: maintWarnings.soon30 },
+                { key: 'overdue', label: t('equipLifecycle.warnOverdue'), color: '#dc2626', bg: 'var(--color-error-bg)', items: maintWarnings.overdue },
+                { key: 'soon7', label: t('equipLifecycle.warn7d'), color: '#d97706', bg: 'var(--color-warning-bg)', items: maintWarnings.soon7 },
+                { key: 'soon30', label: t('equipLifecycle.warn30d'), color: '#2563eb', bg: 'var(--color-info-bg)', items: maintWarnings.soon30 },
               ].map(g => (
                 <div key={g.key} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -1032,17 +1033,17 @@ export default function EquipmentLifecyclePage() {
                     <b style={{ fontSize: 16, color: g.color }}>{g.items.length}</b>
                   </div>
                   {g.items.length === 0 ? (
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>无</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('equipLifecycle.none')}</div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {g.items.slice(0, 4).map((d: any) => (
                         <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
                           <span style={{ fontWeight: 600, color: 'var(--color-primary-800)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</span>
                           <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.nextMaint}</span>
-                          <b style={{ color: g.color, fontSize: 12 }}>{Math.abs(d.daysLeft)}天</b>
+                          <b style={{ color: g.color, fontSize: 12 }}>{t('equipLifecycle.daysShort', { n: Math.abs(d.daysLeft) })}</b>
                         </div>
                       ))}
-                      {g.items.length > 4 && <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>…等 {g.items.length} 台</div>}
+                      {g.items.length > 4 && <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('equipLifecycle.andMore', { n: g.items.length })}</div>}
                     </div>
                   )}
                 </div>
@@ -1053,18 +1054,18 @@ export default function EquipmentLifecyclePage() {
           {/* E2. 费用分析卡 */}
           <Card bordered={false} style={{ ...s.statCard, marginTop: 20 }} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <DollarSign size={16} /> 费用分析 (购置 / 维护 / 折旧)
+              <DollarSign size={16} /> {t('equipLifecycle.costAnalysisTitle')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {[
-                { label: '设备购置总值', value: costAnalysis.totals.purchase, color: '#1e40af', unit: '¥' },
-                { label: '累计维护费用', value: costAnalysis.totals.maint, color: '#d97706', unit: '¥' },
-                { label: '年折旧额 (8%)', value: costAnalysis.totals.depreciation, color: '#7c3aed', unit: '¥' },
+                { label: t('equipLifecycle.costPurchase'), value: costAnalysis.totals.purchase, color: '#1e40af', unit: '¥' },
+                { label: t('equipLifecycle.costMaint'), value: costAnalysis.totals.maint, color: '#d97706', unit: '¥' },
+                { label: t('equipLifecycle.costDeprec'), value: costAnalysis.totals.depreciation, color: '#7c3aed', unit: '¥' },
               ].map(c => (
                 <div key={c.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', textAlign: 'center' }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{c.label}</div>
                   <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>
-                    {c.unit}{(c.value / 10000).toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400 }}>万</span>
+                    {c.unit}{(c.value / 10000).toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400 }}>{t('equipLifecycle.tenThousand')}</span>
                   </div>
                 </div>
               ))}
@@ -1073,12 +1074,12 @@ export default function EquipmentLifecyclePage() {
               <table style={s.table}>
                 <thead>
                   <tr>
-                    <th style={s.th}>模态</th>
-                    <th style={s.th}>购置总值</th>
-                    <th style={s.th}>维护费用</th>
-                    <th style={s.th}>年折旧</th>
-                    <th style={s.th}>维护/购置比</th>
-                    <th style={{ ...s.th, width: 180 }}>占比</th>
+                    <th style={s.th}>{t('equipLifecycle.thModality')}</th>
+                    <th style={s.th}>{t('equipLifecycle.thPurchaseTotal')}</th>
+                    <th style={s.th}>{t('equipLifecycle.thMaintTotal')}</th>
+                    <th style={s.th}>{t('equipLifecycle.thDeprec')}</th>
+                    <th style={s.th}>{t('equipLifecycle.thMaintRatio')}</th>
+                    <th style={{ ...s.th, width: 180 }}>{t('equipLifecycle.thShare')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1111,7 +1112,7 @@ export default function EquipmentLifecyclePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: 16, marginTop: 20 }}>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Monitor size={15} /> 状态构成
+                <Monitor size={15} /> {t('equipLifecycle.statusComposition')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {statusBreakdown.map(st => (
@@ -1125,17 +1126,17 @@ export default function EquipmentLifecyclePage() {
                 ))}
               </div>
               <div style={{ marginTop: 10, display: 'flex', gap: 10, fontSize: 11, color: 'var(--text-secondary)' }}>
-                <span>在用率: <b style={{ color: '#16a34a' }}>{lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '在用').length / lifecycleRows.length) * 100) : 0}%</b></span>
-                <span>维保占比: <b style={{ color: '#d97706' }}>{lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '维保中').length / lifecycleRows.length) * 100) : 0}%</b></span>
+                <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.activeRate', { n: lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '在用').length / lifecycleRows.length) * 100) : 0 }) }} />
+                <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.maintShare', { n: lifecycleRows.length > 0 ? Math.round((lifecycleRows.filter((d: any) => d.status === '维保中').length / lifecycleRows.length) * 100) : 0 }) }} />
               </div>
             </Card>
 
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Clock size={15} /> 设备年龄分布 (购置年份)
+                <Clock size={15} /> {t('equipLifecycle.ageDistTitle')}
               </div>
               {ageDistribution.length === 0 ? (
-                <div style={s.empty}>暂无数据</div>
+                <div style={s.empty}>{t('equipLifecycle.noData')}</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {ageDistribution.map(a => (
@@ -1150,38 +1151,38 @@ export default function EquipmentLifecyclePage() {
                 </div>
               )}
               <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                平均机龄: <b style={{ color: 'var(--text-primary)' }}>{lifecycleRows.length > 0 ? (lifecycleRows.reduce((s: number, d: any) => s + (d.lifeMonth || 36), 0) / lifecycleRows.length / 12).toFixed(1) : '-'} 年</b>
-                <br />折旧政策: 直线法 8%/年
+                <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.avgAge', { n: lifecycleRows.length > 0 ? (lifecycleRows.reduce((s: number, d: any) => s + (d.lifeMonth || 36), 0) / lifecycleRows.length / 12).toFixed(1) : '-' }) }} />
+                <br />{t('equipLifecycle.deprecPolicy')}
               </div>
             </Card>
 
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Wrench size={15} /> 维保费用月度趋势
+                <Wrench size={15} /> {t('equipLifecycle.maintCostTrendTitle')}
               </div>
               {maintCostTrend.length === 0 ? (
-                <div style={s.empty}>暂无数据</div>
+                <div style={s.empty}>{t('equipLifecycle.noData')}</div>
               ) : (
                 <ChartContainer height={150} state="ready">
                   <LineChart data={maintCostTrend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
                     <XAxis dataKey="month" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                    <Tooltip formatter={(v: any) => [`¥${Number(v).toLocaleString()}`, '维保费用']} />
+                    <Tooltip formatter={(v: any) => [`¥${Number(v).toLocaleString()}`, t('equipLifecycle.maintCost')]} />
                     <Line type="monotone" dataKey="cost" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
                   </LineChart>
                 </ChartContainer>
               )}
               <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-                <span>累计: ¥{maintCostTrend.reduce((s, m) => s + m.cost, 0).toLocaleString()}</span>
-                <span>月度峰值: ¥{Math.max(...maintCostTrend.map(m => m.cost), 0).toLocaleString()}</span>
+                <span>{t('equipLifecycle.cumulative', { n: maintCostTrend.reduce((s, m) => s + m.cost, 0).toLocaleString() })}</span>
+                <span>{t('equipLifecycle.peak', { n: Math.max(...maintCostTrend.map(m => m.cost), 0).toLocaleString() })}</span>
               </div>
             </Card>
           </div>
 
           {/* 口径说明 */}
           <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            <b style={{ color: '#1e40af' }}>口径说明:</b> 时间线节点依据设备状态自动渲染 (报废设备显示报废节点); 折旧按直线法 8%/年估算; OEE = 可用性 × 性能 × 质量; 维保预警按下次维保日期分级 (已过期 / 7天内 / 30天内)。真实接口不可用时自动回退演示数据并在顶部标注。
+            <span dangerouslySetInnerHTML={{ __html: t('equipLifecycle.notes') }} />
           </div>
         </>
       )}
@@ -1191,19 +1192,19 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setSelectedDevice(null)}>
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={s.modalTitle}>设备详情 — {selectedDevice.name}</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.deviceDetailTitle', { name: selectedDevice.name })}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedDevice(null)}><X size={18} /></button>
             </div>
             <div style={s.detailGrid}>
               {[
-                { label: '设备编号', value: selectedDevice.id },
-                { label: '设备名称', value: selectedDevice.name },
-                { label: '型号', value: selectedDevice.model },
-                { label: '序列号', value: selectedDevice.serial },
-                { label: '厂商', value: selectedDevice.vendor },
-                { label: '使用科室', value: selectedDevice.dept },
-                { label: '购置日期', value: selectedDevice.purchaseDate },
-                { label: '设备状态', value: selectedDevice.status },
+                { label: t('equipLifecycle.detailDeviceId'), value: selectedDevice.id },
+                { label: t('equipLifecycle.detailDeviceName'), value: selectedDevice.name },
+                { label: t('equipLifecycle.detailModel'), value: selectedDevice.model },
+                { label: t('equipLifecycle.detailSerial'), value: selectedDevice.serial },
+                { label: t('equipLifecycle.detailVendor'), value: selectedDevice.vendor },
+                { label: t('equipLifecycle.detailDept'), value: selectedDevice.dept },
+                { label: t('equipLifecycle.detailPurchaseDate'), value: selectedDevice.purchaseDate },
+                { label: t('equipLifecycle.detailStatus'), value: selectedDevice.status },
               ].map(item => (
                 <div key={item.label} style={s.detailItem}>
                   <div style={s.detailLabel}>{item.label}</div>
@@ -1211,30 +1212,30 @@ export default function EquipmentLifecyclePage() {
                 </div>
               ))}
             </div>
-            <div style={s.sectionTitle}>使用情况</div>
+            <div style={s.sectionTitle}>{t('equipLifecycle.usageSection')}</div>
             <div style={s.detailGrid}>
               {[
-                { label: '累计使用次数', value: selectedDevice.useCount > 0 ? `${selectedDevice.useCount.toLocaleString()} 次` : '无统计数据' },
-                { label: '最近使用日期', value: selectedDevice.lastUse },
-                { label: '使用率', value: `${selectedDevice.deptRate}%` },
-                { label: '剩余寿命', value: `${selectedDevice.lifeMonth} 个月` },
+                { label: t('equipLifecycle.detailUseCount'), value: selectedDevice.useCount > 0 ? t('equipLifecycle.detailUseCountValue', { n: selectedDevice.useCount.toLocaleString() }) : t('equipLifecycle.detailNoStats') },
+                { label: t('equipLifecycle.detailLastUse'), value: selectedDevice.lastUse },
+                { label: t('equipLifecycle.detailUsageRate'), value: `${selectedDevice.deptRate}%` },
+                { label: t('equipLifecycle.detailLifeMonth'), value: t('equipLifecycle.detailLifeMonthValue', { n: selectedDevice.lifeMonth }) },
               ].map(item => (
                 <div key={item.label} style={s.detailItem}>
                   <div style={s.detailLabel}>{item.label}</div>
                   <div style={s.detailValue}>{item.value}</div>
-                  {item.label === '使用率' && (
+                  {item.label === t('equipLifecycle.detailUsageRate') && (
                     <ProgressBar value={selectedDevice.deptRate} color={selectedDevice.deptRate >= 80 ? '#16a34a' : selectedDevice.deptRate >= 50 ? '#d97706' : '#94a3b8'} />
                   )}
                 </div>
               ))}
             </div>
-            <div style={s.sectionTitle}>成本分析</div>
+            <div style={s.sectionTitle}>{t('equipLifecycle.costSection')}</div>
             <div style={{ ...s.detailGrid, gridTemplateColumns: '1fr' }}>
               {[
-                { label: '设备采购价值', value: `¥${selectedDevice.totalCost.toLocaleString()}` },
-                { label: '累计维保费用', value: `¥${selectedDevice.maintCost.toLocaleString()}` },
-                { label: '累计配件费用', value: `¥${selectedDevice.spareCost.toLocaleString()}` },
-                { label: '综合维护成本', value: `¥${(selectedDevice.maintCost + selectedDevice.spareCost).toLocaleString()}`, highlight: true },
+                { label: t('equipLifecycle.detailPurchaseValue'), value: `¥${selectedDevice.totalCost.toLocaleString()}` },
+                { label: t('equipLifecycle.detailMaintCost'), value: `¥${selectedDevice.maintCost.toLocaleString()}` },
+                { label: t('equipLifecycle.detailSpareCost'), value: `¥${selectedDevice.spareCost.toLocaleString()}` },
+                { label: t('equipLifecycle.detailTotalCost'), value: `¥${(selectedDevice.maintCost + selectedDevice.spareCost).toLocaleString()}`, highlight: true },
               ].map(item => (
                 <div key={item.label} style={{ ...s.detailItem, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={s.detailLabel}>{item.label}</div>
@@ -1251,14 +1252,14 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setShowAdd(false)}>
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={s.modalTitle}>添加新设备</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.addDeviceTitle')}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowAdd(false)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: '设备名称', key: 'name' as const, placeholder: '请输入设备名称' },
-                { label: '设备型号', key: 'model' as const, placeholder: '请输入设备型号' },
-                { label: '使用科室', key: 'dept' as const, placeholder: '请输入使用科室' },
+                { label: t('equipLifecycle.formName'), key: 'name' as const, placeholder: t('equipLifecycle.formNamePlaceholder') },
+                { label: t('equipLifecycle.formModel'), key: 'model' as const, placeholder: t('equipLifecycle.formModelPlaceholder') },
+                { label: t('equipLifecycle.formDept'), key: 'dept' as const, placeholder: t('equipLifecycle.formDeptPlaceholder') },
               ].map(field => (
                 <div key={field.key} style={s.detailItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
@@ -1266,21 +1267,21 @@ export default function EquipmentLifecyclePage() {
                 </div>
               ))}
               <div style={s.detailItem}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>检查模态</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.formModality')}</div>
                 <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.modality} onChange={e => setDeviceForm({ ...deviceForm, modality: e.target.value })}>
                   {['CT', 'MR', 'DR', 'DSA', 'MG', 'US', 'PET'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
               <div style={s.detailItem}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>设备状态</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.formStatus')}</div>
                 <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.status} onChange={e => setDeviceForm({ ...deviceForm, status: e.target.value })}>
                   {['在用', '空闲', '维保中'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowAdd(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void handleSaveDevice()}><Save size={14} />保存设备</button>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowAdd(false)}>{t('equipLifecycle.cancel')}</button>
+              <button style={{ ...s.btn, ...s.btnSuccess, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void handleSaveDevice()}><Save size={14} />{t('equipLifecycle.saveDevice')}</button>
             </div>
           </div>
         </div>
@@ -1292,22 +1293,22 @@ export default function EquipmentLifecyclePage() {
           <div style={{ ...s.modalContent, width: 480 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
               <AlertTriangle size={28} color="#dc2626" />
-              <div style={s.modalTitle}>确认报废设备</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.confirmRetireTitle')}</div>
             </div>
             <div style={{ fontSize: 15, color: 'var(--text-primary)', marginBottom: 20 }}>
-              确定要报废以下设备吗？报废后设备将从在用列表移除。<br />
+              {t('equipLifecycle.confirmRetireMsg')}<br />
               <strong>{deviceToScrap.name}</strong>（{deviceToScrap.id}）
             </div>
             <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 12 }}>
-              报废后设备将进入待处理状态，相关维保记录将保留存档。
+              {t('equipLifecycle.retireNote')}
             </div>
             <div style={s.detailItem}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>报废原因</div>
-              <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={scrapReason} onChange={e => setScrapReason(e.target.value)} placeholder="请输入报废原因 (如: 设备老化, 维修成本过高)" />
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.retireReason')}</div>
+              <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={scrapReason} onChange={e => setScrapReason(e.target.value)} placeholder={t('equipLifecycle.retireReasonPlaceholder')} />
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowScrap(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnDanger }} onClick={() => void handleConfirmScrap()}>确认报废</button>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowScrap(false)}>{t('equipLifecycle.cancel')}</button>
+              <button style={{ ...s.btn, ...s.btnDanger }} onClick={() => void handleConfirmScrap()}>{t('equipLifecycle.confirmRetire')}</button>
             </div>
           </div>
         </div>
@@ -1318,17 +1319,17 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setShowMaintPlanModal(false)}>
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={s.modalTitle}>新建维保计划</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.newPlanTitle')}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowMaintPlanModal(false)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: '设备名称', key: 'deviceName' as const, placeholder: '请选择设备' },
-                { label: '维保类型', key: 'type' as const, placeholder: '常规保养/故障维修/配件更换' },
-                { label: '计划日期', key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
-                { label: '服务商', key: 'assignee' as const, placeholder: '请输入服务商名称' },
-                { label: '预估费用', key: 'estimatedCost' as const, placeholder: '请输入预估费用（元）' },
-                { label: '负责人', key: 'owner' as const, placeholder: '请输入负责人姓名' },
+                { label: t('equipLifecycle.planDeviceName'), key: 'deviceName' as const, placeholder: t('equipLifecycle.planDevicePlaceholder') },
+                { label: t('equipLifecycle.planType'), key: 'type' as const, placeholder: t('equipLifecycle.planTypePlaceholder') },
+                { label: t('equipLifecycle.planDate'), key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
+                { label: t('equipLifecycle.planAssignee'), key: 'assignee' as const, placeholder: t('equipLifecycle.planAssigneePlaceholder') },
+                { label: t('equipLifecycle.planCost'), key: 'estimatedCost' as const, placeholder: t('equipLifecycle.planCostPlaceholder') },
+                { label: t('equipLifecycle.planOwner'), key: 'owner' as const, placeholder: t('equipLifecycle.planOwnerPlaceholder') },
               ].map(field => (
                 <div key={field.label} style={s.detailItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
@@ -1344,13 +1345,13 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ marginTop: 8 }}>
               <div style={s.detailItem}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>备注说明</div>
-                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={maintPlanForm.content} onChange={e => setMaintPlanForm({ ...maintPlanForm, content: e.target.value })} placeholder="请输入备注说明" />
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.remarks')}</div>
+                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={maintPlanForm.content} onChange={e => setMaintPlanForm({ ...maintPlanForm, content: e.target.value })} placeholder={t('equipLifecycle.remarksPlaceholder')} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowMaintPlanModal(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void handleSaveMaintPlan()}><Save size={14} />保存计划</button>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowMaintPlanModal(false)}>{t('equipLifecycle.cancel')}</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void handleSaveMaintPlan()}><Save size={14} />{t('equipLifecycle.savePlan')}</button>
             </div>
           </div>
         </div>
@@ -1361,16 +1362,16 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setMaintEditForm(null)}>
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={s.modalTitle}>编辑维保计划 — {maintEditForm.deviceName}</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.editPlanTitle', { name: maintEditForm.deviceName })}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setMaintEditForm(null)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: '设备名称', key: 'deviceName' as const, placeholder: '请输入设备名称' },
-                { label: '维保类型', key: 'type' as const, placeholder: '常规保养/故障维修/配件更换' },
-                { label: '计划日期', key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
-                { label: '服务商', key: 'assignee' as const, placeholder: '请输入服务商名称' },
-                { label: '预估费用', key: 'estimatedCost' as const, placeholder: '请输入预估费用（元）' },
+                { label: t('equipLifecycle.planDeviceName'), key: 'deviceName' as const, placeholder: t('equipLifecycle.formNamePlaceholder') },
+                { label: t('equipLifecycle.planType'), key: 'type' as const, placeholder: t('equipLifecycle.planTypePlaceholder') },
+                { label: t('equipLifecycle.planDate'), key: 'maintenanceDate' as const, placeholder: 'YYYY-MM-DD' },
+                { label: t('equipLifecycle.planAssignee'), key: 'assignee' as const, placeholder: t('equipLifecycle.planAssigneePlaceholder') },
+                { label: t('equipLifecycle.planCost'), key: 'estimatedCost' as const, placeholder: t('equipLifecycle.planCostPlaceholder') },
               ].map(field => (
                 <div key={field.key} style={s.detailItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
@@ -1387,8 +1388,8 @@ export default function EquipmentLifecyclePage() {
               ))}
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setMaintEditForm(null)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void saveMaintPlanEdit()}><Save size={14} />保存修改</button>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setMaintEditForm(null)}>{t('equipLifecycle.cancel')}</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => void saveMaintPlanEdit()}><Save size={14} />{t('equipLifecycle.saveChanges')}</button>
             </div>
           </div>
         </div>
@@ -1399,18 +1400,18 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setSelectedMaintRecord(null)}>
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={s.modalTitle}>维保记录详情</div>
+              <div style={s.modalTitle}>{t('equipLifecycle.maintRecordDetail')}</div>
               <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedMaintRecord(null)}><X size={18} /></button>
             </div>
             <div style={s.detailGrid}>
               {[
-                { label: '维保日期', value: selectedMaintRecord.date },
-                { label: '设备编号', value: selectedMaintRecord.device },
-                { label: '设备名称', value: selectedDevice?.name || selectedMaintRecord.device },
-                { label: '维保类型', value: selectedMaintRecord.type },
-                { label: '服务商', value: selectedMaintRecord.vendor },
-                { label: '维保费用', value: selectedMaintRecord.cost > 0 ? `¥${selectedMaintRecord.cost.toLocaleString()}` : '免费' },
-                { label: '维保结果', value: selectedMaintRecord.result },
+                { label: t('equipLifecycle.detailMaintDate'), value: selectedMaintRecord.date },
+                { label: t('equipLifecycle.detailMaintDeviceId'), value: selectedMaintRecord.device },
+                { label: t('equipLifecycle.detailMaintDeviceName'), value: selectedDevice?.name || selectedMaintRecord.device },
+                { label: t('equipLifecycle.detailMaintType'), value: selectedMaintRecord.type },
+                { label: t('equipLifecycle.detailMaintVendor'), value: selectedMaintRecord.vendor },
+                { label: t('equipLifecycle.detailRecordCost'), value: selectedMaintRecord.cost > 0 ? `¥${selectedMaintRecord.cost.toLocaleString()}` : t('equipLifecycle.free') },
+                { label: t('equipLifecycle.detailMaintResult'), value: selectedMaintRecord.result },
               ].map(item => (
                 <div key={item.label} style={s.detailItem}>
                   <div style={s.detailLabel}>{item.label}</div>
@@ -1419,7 +1420,7 @@ export default function EquipmentLifecyclePage() {
               ))}
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
-              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setSelectedMaintRecord(null)}>关闭</button>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setSelectedMaintRecord(null)}>{t('equipLifecycle.close')}</button>
             </div>
           </div>
         </div>

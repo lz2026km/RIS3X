@@ -41,6 +41,11 @@ const ZH: Record<string, unknown> = {
   subtitle: '全切片图像金字塔浏览 · 矩形/圆形/多边形标注 · 病例信息',
   slideList: '切片列表',
   refresh: '刷新',
+  caseList: '病例列表',
+  caseFilterHint: '点击病例可按患者过滤切片 (GET /pathology/cases)',
+  clearFilter: '清除过滤',
+  filterActive: '过滤中:',
+  slideCount: '切片',
   patient: '患者',
   slideId: '切片 ID',
   stain: '染色',
@@ -117,6 +122,11 @@ const EN: Record<string, unknown> = {
   subtitle: 'Pyramid slide browsing · Rect/Circle/Polygon annotation · Case info',
   slideList: 'Slides',
   refresh: 'Refresh',
+  caseList: 'Cases',
+  caseFilterHint: 'Click a case to filter slides by patient (GET /pathology/cases)',
+  clearFilter: 'Clear Filter',
+  filterActive: 'Filtering:',
+  slideCount: 'slides',
   patient: 'Patient',
   slideId: 'Slide ID',
   stain: 'Stain',
@@ -648,6 +658,10 @@ const WsiViewerPage: React.FC = () => {
   const [detail, setDetail] = useState<PathologySlideDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [backendOffline, setBackendOffline] = useState(false)
+  // [v3.0.6.11-103 Wave 2B] 病例列表 (GET /pathology/cases) + 患者过滤
+  const [cases, setCases] = useState<PathologyCaseSummary[]>([])
+  const [casesLoading, setCasesLoading] = useState(false)
+  const [caseFilterPatientId, setCaseFilterPatientId] = useState<string | undefined>(undefined)
   const [view, setView] = useState<ViewState>({ cx: 0, cy: 0, zoom: 1 })
   const [tool, setTool] = useState<Tool>('pan')
   const [annotations, setAnnotations] = useState<PathologyAnnotation[]>([])
@@ -683,12 +697,13 @@ const WsiViewerPage: React.FC = () => {
   const loadSlides = useCallback(async () => {
     setLoading(true)
     if (isMock) {
-      setSlides(demoSlides())
+      const list = demoSlides()
+      setSlides(caseFilterPatientId ? list.filter(s => s.patientId === caseFilterPatientId) : list)
       setBackendOffline(true)
       setLoading(false)
       return
     }
-    const res = await wsiApi.listSlides()
+    const res = await wsiApi.listSlides(caseFilterPatientId ? { patientId: caseFilterPatientId } : undefined)
     if (res.success && Array.isArray(res.data) && res.data.length > 0) {
       setSlides(res.data)
       setBackendOffline(false)
@@ -697,11 +712,49 @@ const WsiViewerPage: React.FC = () => {
       setBackendOffline(true)
     }
     setLoading(false)
-  }, [isMock])
+  }, [isMock, caseFilterPatientId])
 
   useEffect(() => {
     void loadSlides()
   }, [loadSlides])
+
+  // [v3.0.6.11-103 Wave 2B] 病例列表 (GET /pathology/cases) + 按患者过滤切片
+  const loadCases = useCallback(async () => {
+    setCasesLoading(true)
+    if (isMock) {
+      const seen = new Map<string, PathologyCaseSummary>()
+      for (const s of DEMO_SEED) {
+        const existing = seen.get(s.patientId)
+        const c = demoCase(s)
+        if (existing) {
+          seen.set(s.patientId, { ...existing, slideCount: existing.slideCount + 1 })
+        } else {
+          seen.set(s.patientId, c)
+        }
+      }
+      setCases([...seen.values()])
+      setCasesLoading(false)
+      return
+    }
+    const res = await wsiApi.listCases()
+    if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      setCases(res.data)
+      setBackendOffline(false)
+    } else {
+      setCases([])
+    }
+    setCasesLoading(false)
+  }, [isMock])
+
+  useEffect(() => {
+    void loadCases()
+  }, [loadCases])
+
+  const selectCase = useCallback((patientId: string) => {
+    setCaseFilterPatientId((prev) => (prev === patientId ? undefined : patientId))
+    setDetail(null)
+    setAnnotations([])
+  }, [])
 
   // ── 选择切片 → 详情 + 标注 ──
   const selectSlide = useCallback(async (id: string) => {
@@ -1199,6 +1252,59 @@ const WsiViewerPage: React.FC = () => {
 
         <Col xs={24} lg={6} xl={5}>
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            {/* [v3.0.6.11-103 Wave 2B] 病例列表 (GET /pathology/cases) */}
+            <Card
+              size="small"
+              title={
+                <Space size={6}>
+                  <Text strong>{S('caseList')}</Text>
+                  {caseFilterPatientId && <Tag color="blue">{S('filterActive')} {caseFilterPatientId}</Tag>}
+                </Space>
+              }
+              extra={caseFilterPatientId ? (
+                <Button size="small" type="link" onClick={() => { setCaseFilterPatientId(undefined); setDetail(null) }}>{S('clearFilter')}</Button>
+              ) : undefined}
+              styles={{ body: { maxHeight: 200, overflow: 'auto', padding: 8 } }}
+            >
+              {casesLoading ? (
+                <div style={{ textAlign: 'center', padding: 16 }}>
+                  <Spin size="small" />
+                </div>
+              ) : cases.length > 0 ? (
+                <Space direction="vertical" style={{ width: '100%' }} size={4}>
+                  {cases.map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => selectCase(c.patientId)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter') selectCase(c.patientId) }}
+                      style={{
+                        padding: '6px 8px',
+                        borderRadius: 6,
+                        cursor: 'pointer',
+                        border: caseFilterPatientId === c.patientId ? '1px solid #722ed1' : '1px solid transparent',
+                        background: caseFilterPatientId === c.patientId ? 'rgba(114,46,209,0.06)' : 'transparent',
+                      }}
+                    >
+                      <div style={{ fontSize: 12, fontWeight: 600 }}>
+                        {c.patientName} <span style={{ color: '#8c8c8c', fontWeight: 400 }}>{c.patientId}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#8c8c8c' }}>
+                        {c.specimen} · {S('slideCount')} {c.slideCount}
+                      </div>
+                      <Tag color={c.status === 'reported' ? 'green' : c.status === 'reviewed' ? 'blue' : 'orange'} style={{ marginTop: 2 }}>
+                        {SMap('status', c.status)}
+                      </Tag>
+                    </div>
+                  ))}
+                </Space>
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={S('noSlide')} />
+              )}
+              <div style={{ fontSize: 10, color: '#b0b7c3', marginTop: 6 }}>{S('caseFilterHint')}</div>
+            </Card>
+
             <Card size="small" title={<Text strong>{S('slideList')}</Text>} styles={{ body: { maxHeight: 380, overflow: 'auto', padding: 8 } }}>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: 16 }}>

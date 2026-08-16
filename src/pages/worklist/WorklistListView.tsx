@@ -1,4 +1,7 @@
-import { ProTable, type ProColumn } from "../../components/data/ProTable";
+// [v3.0.6.11-103 Wave 6] 表格统一: ProTable → DataTable (斑马纹/行高/列头/分页统一)
+import { DataTable } from "../../components/common/DataTable";
+import type { ProColumn } from "../../components/data/ProTable";
+import type { TableColumnsType } from "antd";
 import {
   initialModalityDevices,
   initialExamRooms,
@@ -561,13 +564,11 @@ export function ListView({
   }, [baseColumns, hiddenColumns]);
 
   return (
-    <ProTable<RadiologyExam>
-      columns={columns}
+    <DataTable<RadiologyExam>
+      columns={columns as unknown as TableColumnsType<RadiologyExam>}
       dataSource={listPagination.pageData}
       rowKey="id"
       loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
-      showToolbar={false}
-      size="small"
       sticky
       pagination={listPagination.pagination}
       scroll={{ x: 1800, y: "calc(100vh - 400px)" }}

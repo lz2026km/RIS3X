@@ -108,10 +108,7 @@ const PatientReportPortalPage = lazy(
 );
 const CASignaturePage = lazy(() => import("../pages/CASignaturePage"));
 const BlockchainProofPage = lazy(() => import("../pages/BlockchainProofPage"));
-const AppointmentManagementPage = lazy(
-  () => import("../pages/AppointmentManagementPage"),
-);
-const DeviceFaultPage = lazy(() => import("../pages/DeviceFaultPage"));
+// [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage/DeviceFaultPage 已嵌入目标页, 旧路由 redirect (见 routes 下方)
 const AIQCPage = lazy(() => import("../pages/AIQCPage"));
 const AIStructuredReportPage = lazy(
   () => import("../pages/AIStructuredReportPage"),
@@ -240,10 +237,11 @@ const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
 const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
 // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏
 const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
-// [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
-const TechSchedulePage = lazy(() => import("../pages/ops/TechSchedulePage"));
+// [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理 -> [v3.0.6.11-103 Wave 10] 已合并入 /schedule (SchedulePage Tab), 旧路由 redirect
 // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
 const TechOpsPage = lazy(() => import("../pages/tech/TechOpsPage"));
+// [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通 (今日检查/房间状态/重拍/交接/紧急插队)
+const TechWorkbenchPage = lazy(() => import("../pages/tech/TechWorkbenchPage"));
 // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (运营组)
 const TechnicianKpiDashboardPage = lazy(() => import("../pages/tech/TechnicianKpiDashboardPage"));
 // [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
@@ -301,9 +299,13 @@ const DepartmentQualityPage = lazy(
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const ForbiddenPage = lazy(() => import("../pages/ForbiddenPage"));
 const ReviewCenterPage = lazy(() => import("../pages/ReviewCenterPage"));
-const QualityControlPage = lazy(() => import("../pages/QualityControlPage"));
+// [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage 已嵌入 QCPage Tab, 旧路由 /quality-control redirect → /qc
 const NlpCheckPage = lazy(() => import("../pages/report/NlpCheckPage"));
 const AsrPage = lazy(() => import("../pages/report/AsrPage"));
+// [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
+const StructuredReportV3Page = lazy(() => import("../pages/report/StructuredReportV3Page"));
+const AsrDictationPage = lazy(() => import("../pages/report/AsrDictationPage"));
+const AutoCodingPage = lazy(() => import("../pages/report/AutoCodingPage"));
 // [v3.0.6.11-100 Wave 4A] 自定义报表独立完整版 / 语音工作站 / 移动审批
 const CustomReportPage = lazy(() => import("../pages/report/CustomReportPage"));
 const VoiceWorkstationPage = lazy(() => import("../pages/voice/VoiceWorkstationPage"));
@@ -328,10 +330,7 @@ const WorkflowDesignerPage = lazy(
 const RoutingRulePage = lazy(() => import("../pages/RoutingRulePage"));
 const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
 const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
-// [v3.0.6.8-27] 新增质控页面
-const RadiologyQCDashboardPage = lazy(
-  () => import("../pages/qc/RadiologyQCDashboardPage"),
-);
+// [v3.0.6.8-27] 新增质控页面; [v3.0.6.11-103 Wave 10] RadiologyQCDashboardPage 已嵌入 QCPage Tab, 旧路由 /qc-dashboard redirect → /qc
 const ImageQualityControlPage = lazy(
   () => import("../pages/qc/ImageQualityControlPage"),
 );
@@ -608,6 +607,16 @@ const EyeKpiDashboardPage = lazy(
   () => import("../pages/eye/EyeKpiDashboardPage"),
 );
 const TeachLecturePage = lazy(() => import("../pages/teach/TeachLecturePage"));
+// [G005 v3.0.6.11-103 Wave 18] PACS 对标新增 (第二批): 教学病例库 + 科研数据导出中心 + 设备调度甘特图 V2
+const TeachingCaseLibraryPage = lazy(
+  () => import("../pages/teach/TeachingCaseLibraryPage"),
+);
+const ResearchExportCenterPage = lazy(
+  () => import("../pages/research/ResearchExportCenterPage"),
+);
+const DeviceScheduleGanttPage = lazy(
+  () => import("../pages/device/DeviceScheduleGanttPage"),
+);
 const RadPathTrackerPage = lazy(
   () => import("../pages/radpath/RadPathTrackerPage"),
 );
@@ -638,6 +647,10 @@ const CriticalAlertPage = lazy(
 );
 const AutoCollectionPage = lazy(
   () => import("../pages/operations/AutoCollectionPage"),
+);
+// [v3.0.6.11-103 Wave 4B] 急诊通道管理
+const EmergencyChannelPage = lazy(
+  () => import("../pages/operations/EmergencyChannelPage"),
 );
 const DeptDashboardPageV2 = lazy(
   () => import("../pages/department/DeptDashboardPage"),
@@ -746,6 +759,12 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/exam/:id": roleMap["/exams"] ?? ALL_ROLES,
   "/template-designer/:id": roleMap["/template-designer"] ?? ALL_ROLES,
   "/research": ["医生", "主任", "管理员"],
+  // [G005 v3.0.6.11-103 Wave 18] 科研数据导出中心
+  "/research/export-center": ["医生", "主任", "管理员"],
+  // [G005 v3.0.6.11-103 Wave 18] 教学病例库 (TeachingCaseService 后端 Roles: DOCTOR/TECHNICIAN/ADMIN/DIRECTOR)
+  "/teach/case-library": ["医生", "主任", "技师", "管理员"],
+  // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2
+  "/ops/device-gantt": ["主任", "管理员", "技师"],
   "/director-dashboard": ["主任", "管理员"],
   "/mammo/operations": ["主任", "管理员"],
   "/mammo/quality": ["主任", "管理员"],
@@ -899,6 +918,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system/tenant-config": ["管理员"],
   "/system/compliance": ["管理员", "主任"],
   "/system/files": ["管理员", "主任"], // [W1-A v3.0.6.11-79] 文件管理
+  // [v3.0.6.11-103 Wave 4B] 急诊通道管理 (后端 Roles: ADMIN/DIRECTOR/DOCTOR)
+  "/emergency-channel": ["管理员", "主任", "医生"],
   "/dicom/radiomics": ["医生", "主任", "管理员"],
   "/dicom/lesion-tracking": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-99 Wave 4A] 病灶追踪
   "/dicom/compress": ["医生", "技师", "主任", "管理员"],
@@ -982,6 +1003,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/tech/rotation": ["主任", "管理员", "技师"],
   // [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
   "/tech/overview": ["主任", "管理员", "技师"],
+  // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通
+  "/tech/workbench": ["主任", "管理员", "技师"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -1095,9 +1118,11 @@ export const routes: RouteObject[] = [
   wrapped("/blockchain-proof", React.createElement(BlockchainProofPage)),
   wrapped(
     "/appointment-management",
-    React.createElement(AppointmentManagementPage),
+    // [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage 嵌入 AppointmentPage (预约管理视图)
+    React.createElement(Navigate, { to: "/appointments", replace: true }),
   ),
-  wrapped("/device-fault", React.createElement(DeviceFaultPage)),
+  // [v3.0.6.11-103 Wave 10] 重复页合并: DeviceFaultPage 嵌入 DevicePage (设备故障 Tab)
+  wrapped("/device-fault", React.createElement(Navigate, { to: "/devices", replace: true })),
   wrapped("/ai-qc", React.createElement(AIQCPage)),
   wrapped("/ai-structured-report", React.createElement(AIStructuredReportPage)),
   wrapped("/ai-medical-device", React.createElement(AIMedicalDevicePage)),
@@ -1115,6 +1140,8 @@ export const routes: RouteObject[] = [
   wrapped("/director-dashboard", React.createElement(DirectorDashboardPage)),
   wrapped("/green-it", React.createElement(GreenITPage)),
   wrapped("/research", React.createElement(ResearchPage)),
+  // [G005 v3.0.6.11-103 Wave 18] 科研数据导出中心 (数据集构建/字段选择/导出任务/统计)
+  wrapped("/research/export-center", React.createElement(ResearchExportCenterPage)),
   wrapped("/nuclear-stats", React.createElement(NuclearStatsPage)),
   wrapped("/system/dicom-print", React.createElement(DicomPrintPage)),
   wrapped("/system/files", React.createElement(FileManagementPage)), // [W1-A v3.0.6.11-79] 文件管理
@@ -1168,12 +1195,14 @@ export const routes: RouteObject[] = [
   wrapped("/cardiac/operations", React.createElement(CvOperationsPage)),
   wrapped("/cardiac/qc", React.createElement(CvQcPage)),
   wrapped("/ops/devices", React.createElement(DeviceOpsPage)),
+  // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽调整/冲突检测)
+  wrapped("/ops/device-gantt", React.createElement(DeviceScheduleGanttPage)),
   wrapped("/ops/hr", React.createElement(HrOperationsPage)),
   wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
   // [v3.0.6.11-88] Wave6A 科室 KPI 墙屏 (大屏看板)
   wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
-  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
-  wrapped("/ops/tech-schedule", React.createElement(TechSchedulePage)),
+  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理 -> [v3.0.6.11-103 Wave 10] 已合并入 /schedule (SchedulePage 技师排班 Tab)
+  wrapped("/ops/tech-schedule", React.createElement(Navigate, { to: "/schedule", replace: true })),
   // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2
   wrapped("/ops/tech-ops", React.createElement(TechOpsPage)),
   // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
@@ -1182,6 +1211,8 @@ export const routes: RouteObject[] = [
   wrapped("/tech/rotation", React.createElement(TechRotationPage)),
   // [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
   wrapped("/tech/overview", React.createElement(TechOverviewPage)),
+  // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通
+  wrapped("/tech/workbench", React.createElement(TechWorkbenchPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1246,7 +1277,8 @@ export const routes: RouteObject[] = [
   wrapped("/mobile/push", React.createElement(MobilePushPage)),
   wrapped("/quality/department", React.createElement(DepartmentQualityPage)),
   wrapped("/review-center", React.createElement(ReviewCenterPage)),
-  wrapped("/quality-control", React.createElement(QualityControlPage)),
+  // [v3.0.6.11-103 Wave 10] 重复页合并: QualityControlPage 嵌入 QCPage (质控管理 Tab), 旧路由 redirect
+  wrapped("/quality-control", React.createElement(Navigate, { to: "/qc", replace: true })),
   wrapped(
     "/critical-value-center",
     React.createElement(CriticalValueCenterPage),
@@ -1410,7 +1442,8 @@ export const routes: RouteObject[] = [
   ),
   wrapped("/analytics/tat-dashboard", React.createElement(TatDashboardPage)),
   // [v3.0.6.8-27] 放射科质控总看板 + 影像质控 + 医生档案
-  wrapped("/qc-dashboard", React.createElement(RadiologyQCDashboardPage)),
+  // [v3.0.6.11-103 Wave 10] 重复页合并: RadiologyQCDashboardPage 嵌入 QCPage (放射质控总览 Tab), 旧路由 redirect
+  wrapped("/qc-dashboard", React.createElement(Navigate, { to: "/qc", replace: true })),
   wrapped("/qc-image", React.createElement(ImageQualityControlPage)),
   wrapped(
     "/qc-radiologist-annual",
@@ -1434,6 +1467,8 @@ export const routes: RouteObject[] = [
   wrapped("/triage/worklist", React.createElement(TriagePage)),
   wrapped("/triage/dashboard", React.createElement(TriageDashboardPage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
+  // [G005 v3.0.6.11-103 Wave 18] 教学病例库 (病例收藏/分类/分享评论/考试模式)
+  wrapped("/teach/case-library", React.createElement(TeachingCaseLibraryPage)),
   wrapped(
     "/system/audit",
     React.createElement(lazy(() => import("../pages/AuditPage"))),
@@ -1468,6 +1503,10 @@ export const routes: RouteObject[] = [
   wrapped("/nlp/spellcheck", React.createElement(NlpCheckPage)),
   wrapped("/asr/transcribe", React.createElement(AsrPage)),
   wrapped("/snomed/encode", React.createElement(SnomedPage)),
+  // [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
+  wrapped("/report/v4/structured", React.createElement(StructuredReportV3Page)),
+  wrapped("/asr/dictation", React.createElement(AsrDictationPage)),
+  wrapped("/snomed/auto-coding", React.createElement(AutoCodingPage)),
   wrapped("/snomed/encoder", React.createElement(SnomedEncoderPage)),
   wrapped("/cds/rule-config", React.createElement(RuleConfigPanel)),
   wrapped("/rdsr", React.createElement(RdsrPage)),
@@ -1541,6 +1580,8 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-79] W2-A 危急值接收端门户
   wrapped("/critical-value-receiver", React.createElement(ReceiverPortalPage)),
   wrapped("/auto-collection", React.createElement(AutoCollectionPage)),
+  // [v3.0.6.11-103 Wave 4B] 急诊通道管理
+  wrapped("/emergency-channel", React.createElement(EmergencyChannelPage)),
   wrapped("/dept-dashboard", React.createElement(DeptDashboardPageV2)),
   wrapped("/remote-reading", React.createElement(RemoteReadingPage)),
   wrapped("/pacs-admin", React.createElement(PacsAdminPage)),

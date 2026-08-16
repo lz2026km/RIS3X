@@ -71,6 +71,36 @@ const AutoSmsSchema = z
   })
   .optional()
 
+// [v3.0.6.11-103 Wave 13] 危急值 5 步流程请求体
+const NotifyStepSchema = z
+  .object({
+    method: z.enum(['phone', 'sms']).optional(),
+    phone: z.string().max(32).optional(),
+    recipient: z.string().max(64).optional(),
+  })
+  .optional()
+
+const ConfirmStepSchema = z
+  .object({
+    receiver: z.string().max(64).optional(),
+    comment: z.string().max(500).optional(),
+  })
+  .optional()
+
+const TreatStepSchema = z
+  .object({
+    treatment: z.string().max(1000).optional(),
+    orders: z.string().max(1000).optional(),
+  })
+  .optional()
+
+const CloseStepSchema = z
+  .object({
+    summary: z.string().max(1000).optional(),
+    closedBy: z.string().max(64).optional(),
+  })
+  .optional()
+
 function parseListQuery(query: Record<string, unknown>): z.infer<typeof ListQuerySchema> {
   const parsed = ListQuerySchema.safeParse(query)
   return parsed.success ? parsed.data : {}
@@ -136,6 +166,39 @@ export class CriticalAlertController {
     @Body(new ZodValidationPipe(EscalateSchema)) body?: z.infer<typeof EscalateSchema>,
   ) {
     return this.service.escalate(id, body?.assignee)
+  }
+
+  // ===== [v3.0.6.11-103 Wave 13] 危急值 5 步流程 (触发→通知→确认→处置→记录) =====
+  @Post('alerts/:id/notify')
+  notify(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(NotifyStepSchema)) body?: z.infer<typeof NotifyStepSchema>,
+  ) {
+    return this.service.notify(id, body ?? {})
+  }
+
+  @Post('alerts/:id/confirm')
+  confirm(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ConfirmStepSchema)) body?: z.infer<typeof ConfirmStepSchema>,
+  ) {
+    return this.service.confirm(id, body ?? {})
+  }
+
+  @Post('alerts/:id/treat')
+  treat(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(TreatStepSchema)) body?: z.infer<typeof TreatStepSchema>,
+  ) {
+    return this.service.treat(id, body ?? {})
+  }
+
+  @Post('alerts/:id/close')
+  close(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(CloseStepSchema)) body?: z.infer<typeof CloseStepSchema>,
+  ) {
+    return this.service.close(id, body ?? {})
   }
 
   // ===== [G005 Wave 2A] 电话/短信网关 =====

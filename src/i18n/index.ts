@@ -39,6 +39,8 @@ export const NAMESPACES = [
   "template",
   "review",
   "collab",
+  // [G005 Wave 1A] 会诊模块 (ConsultationPage 登记/查询)
+  "consultation",
   "ai",
   "dicom",
   "worklist",
@@ -101,6 +103,12 @@ export const NAMESPACES = [
   "dicomSr",
   "dicom4d",
   "dlDenoise",
+  // [v3.0.6.11-103 Wave 4B] 急诊通道管理
+  "v3emergency",
+  // [G005 v3.0.6.11-103 Wave 18] PACS 对标新增 (第二批)
+  "v3teachCase",
+  "v3researchExport",
+  "v3deviceGantt",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

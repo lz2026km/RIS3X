@@ -32,8 +32,10 @@ import {
   RotateCcw,
   BarChart3,
   Layers,
+  Plus,
 } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   planning: { color: "default", label: "规划中" },
@@ -58,6 +60,10 @@ export const DentalImplant3DPage: React.FC = () => {
   // [G005 Wave1B] 种植体登记库: dentalApi.listImplants / updateImplant (GET/PUT /dental/implants)
   const [implants, setImplants] = useState<any[]>([]);
   const [implantModal, setImplantModal] = useState<{ open: boolean; data: any; saving: boolean }>({ open: false, data: null, saving: false });
+  // [G005 W3-B] 种植体登记: POST /dental/implants (createImplant)
+  const [createImplantOpen, setCreateImplantOpen] = useState(false);
+  const [createImplantForm, setCreateImplantForm] = useState({ toothNumber: 36, implantBrand: "Straumann", implantModel: "BLT-RC-4.1x10", diameter: 4.1, length: 10, status: "PLANNED" });
+  const [createImplantSaving, setCreateImplantSaving] = useState(false);
   const [selBrand, setSelBrand] = useState("straumann");
   const [selModel, setSelModel] = useState("BLT-RC-4.1x10");
   // [G005 Wave1A P1] 规划编辑 (updateImplantModel / updateImplantPlacement)
@@ -116,8 +122,7 @@ export const DentalImplant3DPage: React.FC = () => {
   }, []);
 
   // [G005 Wave1B] 更新种植体登记: PUT /dental/implants/:id (updateImplant)
-  const handleUpdateImplant = async () => {
-    const d = implantModal.data;
+  const handleUpdateImplant = async () => {    const d = implantModal.data;
     if (!d?.id) return;
     setImplantModal(prev => ({ ...prev, saving: true }));
     try {
@@ -141,6 +146,29 @@ export const DentalImplant3DPage: React.FC = () => {
     }
   };
 
+  // [G005 W3-B] 种植体登记: POST /dental/implants (createImplant)
+  const handleCreateImplant = async () => {
+    setCreateImplantSaving(true);
+    try {
+      const res = await dentalApi.createImplant({
+        ...createImplantForm,
+        patientId: selPatient || `P${Date.now()}`,
+      });
+      if (res.success && res.data) {
+        message.success(`种植体 ${res.data.id ?? ''} 已登记`);
+        setCreateImplantOpen(false);
+        const list = await dentalApi.listImplants();
+        if (Array.isArray(list)) setImplants(list);
+      } else {
+        message.error(res.error?.message ?? '登记失败');
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? '登记失败');
+    } finally {
+      setCreateImplantSaving(false);
+    }
+  };
+
   useEffect(() => {
     dentalApi
       .getImplantModels(selBrand)
@@ -160,6 +188,14 @@ export const DentalImplant3DPage: React.FC = () => {
     setSelBrand(plan.brand);
     setPlanEdit({ entryX: plan.entryPoint?.x ?? 150, entryY: plan.entryPoint?.y ?? 120, angle: plan.angleMesioDistal ?? 0 });
     try {
+      // [G005 W3-B] 规划详情刷新: GET /dental/implant/plan-3d/:id (getImplantPlan3d)
+      const detail = await dentalApi.getImplantPlan3d(plan.id);
+      if (detail.success && detail.data) {
+        const merged = { ...plan, ...detail.data };
+        setCurrent(merged);
+        setSelBrand(merged.brand);
+        setPlanEdit({ entryX: merged.entryPoint?.x ?? 150, entryY: merged.entryPoint?.y ?? 120, angle: merged.angleMesioDistal ?? 0 });
+      }
       const ms = await dentalApi.getImplantModels(plan.brand);
       if (Array.isArray(ms)) {
         setModels(ms);
@@ -471,7 +507,8 @@ export const DentalImplant3DPage: React.FC = () => {
               </Form>
             </Card>
             {/* [G005 Wave1B] 种植体登记库 (dentalApi.listImplants / updateImplant) */}
-            <Card title={<Space><Tag color="cyan">种植体登记</Tag>{implants.length} 条</Space>} size="small" style={{ marginTop: 12 }}>
+            <Card title={<Space><Tag color="cyan">种植体登记</Tag>{implants.length} 条</Space>} size="small" style={{ marginTop: 12 }}
+              extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setCreateImplantOpen(true)}>{t("w3b.implantRegister")}</Button>}>
               <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                 {implants.map((im: any) => (
                   <div key={im.id} style={{ padding: '8px 4px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
@@ -564,6 +601,48 @@ export const DentalImplant3DPage: React.FC = () => {
               </Form.Item>
             </Form>
           )}
+        </Modal>
+
+        {/* [G005 W3-B] 种植体登记 Modal: createImplant (POST /dental/implants) */}
+        <Modal
+          title={t("w3b.implantRegisterTitle")}
+          open={createImplantOpen}
+          onCancel={() => setCreateImplantOpen(false)}
+          onOk={() => void handleCreateImplant()}
+          confirmLoading={createImplantSaving}
+          width={440}
+        >
+          <Form layout="vertical" size="small" style={{ marginTop: 8 }}>
+            <Form.Item label={t("w3b.implantTooth")}> <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>(FDI)</span>
+              <InputNumber min={11} max={48} value={createImplantForm.toothNumber} style={{ width: '100%' }}
+                onChange={(v) => setCreateImplantForm({ ...createImplantForm, toothNumber: v ?? 36 })} />
+            </Form.Item>
+            <Form.Item label={t("w3b.implantBrand")}>
+              <Input value={createImplantForm.implantBrand} onChange={(e) => setCreateImplantForm({ ...createImplantForm, implantBrand: e.target.value })} />
+            </Form.Item>
+            <Form.Item label={t("w3b.implantModel")}>
+              <Input value={createImplantForm.implantModel} onChange={(e) => setCreateImplantForm({ ...createImplantForm, implantModel: e.target.value })} />
+            </Form.Item>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item label="直径 (mm)">
+                  <InputNumber min={2.5} max={7} step={0.1} value={createImplantForm.diameter} style={{ width: '100%' }}
+                    onChange={(v) => setCreateImplantForm({ ...createImplantForm, diameter: v ?? 4.1 })} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="长度 (mm)">
+                  <InputNumber min={6} max={18} step={0.5} value={createImplantForm.length} style={{ width: '100%' }}
+                    onChange={(v) => setCreateImplantForm({ ...createImplantForm, length: v ?? 10 })} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item label="状态">
+              <Select value={createImplantForm.status} style={{ width: '100%' }}
+                onChange={(v) => setCreateImplantForm({ ...createImplantForm, status: v })}
+                options={['PLANNED', 'SURGERY_DONE', 'FINALIZED', 'REMOVED'].map(s => ({ value: s, label: s }))} />
+            </Form.Item>
+          </Form>
         </Modal>
       </div>
     );

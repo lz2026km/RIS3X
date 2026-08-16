@@ -1,0 +1,33 @@
+{
+  "registration": {
+    "title": "Consultation Register & Query",
+    "create": "New Consultation",
+    "pending": "Pending Consultations",
+    "byPatient": "By Patient",
+    "byDoctor": "By Doctor",
+    "patientIdPlaceholder": "Enter patient ID",
+    "doctorIdPlaceholder": "Enter doctor ID",
+    "search": "Search",
+    "noResult": "No consultations found",
+    "pendingEmpty": "No pending consultations",
+    "pendingCount": "Pending",
+    "createTitle": "Create Consultation",
+    "patientName": "Patient Name",
+    "modality": "Modality",
+    "bodyPart": "Body Part",
+    "consultationType": "Consultation Type",
+    "requestingDepartment": "Requesting Dept.",
+    "consultedDepartment": "Consulted Dept.",
+    "requestReason": "Request Reason",
+    "priority": "Priority",
+    "submit": "Submit",
+    "createSuccess": "Consultation created",
+    "createFailed": "Create failed",
+    "edit": "Edit Consultation",
+    "editTitle": "Edit Consultation",
+    "updateSuccess": "Consultation updated",
+    "updateFailed": "Update failed",
+    "results": "Results",
+    "resultCount": "{{count}} result(s)"
+  }
+}

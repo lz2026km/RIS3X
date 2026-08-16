@@ -1,4 +1,5 @@
 /**
+ * @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 QCPage "放射质控总览" Tab (src/pages/QCPage.tsx), 文件保留, 旧路由 /qc-dashboard 已 redirect → /qc。功能未删除, 请勿单独继续扩展本页。
  * G005 RIS v3.0.6.8-27 - 放射科质控总看板 (RADIOLOGY QC DASHBOARD)
  * Phase 4 新页面: 聚合 10 大子模块质控 KPI
  *
@@ -33,6 +34,7 @@ import { qcextApi, type QcDashboardDto, type QcStatsDto } from '../../services/a
 // [v3.0.6.11-99 Wave10B] 质控看板深化: 图像质控三维度历史 (qcImageAiApi)
 import { qcImageAiApi, type QcAiAssessRecord } from '../../services/api/qcImageAiApi';
 import { reportQualityApi } from '../../services/api/reportQualityApi';
+import { t } from '../../i18n/appI18n';
 
 type QCTab = "overview" | "image" | "report" | "workflow" | "equipment" | "personnel" | "operations" | "ai" | "cqi";
 
@@ -55,11 +57,11 @@ function downloadCsv(filename: string, sections: Array<{ title: string; rows: (s
 }
 
 const DRILL_METRICS: { key: string; label: string }[] = [
-  { key: "reportCount", label: "报告量" },
-  { key: "qcScore", label: "质控分" },
-  { key: "defectRate", label: "缺陷率" },
-  { key: "criticalValueCount", label: "危急值" },
-  { key: "timelyRate", label: "及时率" },
+  { key: "reportCount", label: t("qcDashboard.reportCount") },
+  { key: "qcScore", label: t("qcDashboard.qcScore") },
+  { key: "defectRate", label: t("qcDashboard.defectRate") },
+  { key: "criticalValueCount", label: t("qcDashboard.criticalValue") },
+  { key: "timelyRate", label: t("qcDashboard.timelyRate") },
 ];
 
 export default function RadiologyQCDashboardPage() {
@@ -97,11 +99,11 @@ export default function RadiologyQCDashboardPage() {
         setImageTrendError('');
       } else {
         setImageTrendSource('demo');
-        setImageTrendError('图像质控评估接口不可用，展示派生演示趋势');
+        setImageTrendError(t("qcDashboard.imageTrendFallback"));
       }
     }).catch(() => {
       setImageTrendSource('demo');
-      setImageTrendError('图像质控评估接口不可用，展示派生演示趋势');
+      setImageTrendError(t("qcDashboard.imageTrendFallback"));
     });
     reportQualityApi.getStats().then(res => {
       if (res.success && res.data && res.data.total > 0) {
@@ -169,12 +171,12 @@ export default function RadiologyQCDashboardPage() {
       return _qcStats.defectDistribution.slice(0, 6).map(d => ({ name: d.defectType, value: d.count }));
     }
     const fallback = [
-      { name: '描述不完整', value: 34 },
-      { name: '错别字', value: 21 },
-      { name: '诊断不一致', value: 12 },
-      { name: '报告延迟', value: 18 },
-      { name: '签名缺失', value: 9 },
-      { name: '其他', value: 6 },
+      { name: t("qcDashboard.defectIncomplete"), value: 34 },
+      { name: t("qcDashboard.defectTypo"), value: 21 },
+      { name: t("qcDashboard.defectInconsistent"), value: 12 },
+      { name: t("qcDashboard.defectDelay"), value: 18 },
+      { name: t("qcDashboard.defectSignature"), value: 9 },
+      { name: t("qcDashboard.defectOther"), value: 6 },
     ];
     return fallback;
   }, [_qcStats]);
@@ -191,7 +193,7 @@ export default function RadiologyQCDashboardPage() {
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <TrendingUp size={18} color="#1e40af" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>质控趋势多图 (月度)</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.trendChartsTitle")}</h3>
         <span style={{
           padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
           background: reportTrendSource === "real" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
@@ -199,7 +201,7 @@ export default function RadiologyQCDashboardPage() {
           display: "inline-flex", alignItems: "center", gap: 4,
         }}>
           <Database size={10} />
-          数据源: {reportTrendSource === "real" ? "真实 (reportQualityApi)" : "派生 (DAILY_KPI_PRE)"}
+          {t("qcDashboard.dataSourceLabel")} {reportTrendSource === "real" ? t("qcDashboard.sourceRealApi") : t("qcDashboard.sourceDerived")}
         </span>
         {qualityExtStats && (
           <span style={{
@@ -208,7 +210,7 @@ export default function RadiologyQCDashboardPage() {
             display: "inline-flex", alignItems: "center", gap: 4,
           }}>
             <CheckCircle size={10} />
-            报告 {qualityExtStats.total} · 均分 {qualityExtStats.avgScore.toFixed(1)} · 通过率 {qualityExtStats.passRate}%
+            {t("qcDashboard.reports")} {qualityExtStats.total} {t("qcDashboard.avgScore")} {qualityExtStats.avgScore.toFixed(1)} {t("qcDashboard.passRate")} {qualityExtStats.passRate}%
           </span>
         )}
         <button onClick={() => { setRefreshKey(k => k + 1); loadWave10(); }} style={{
@@ -216,14 +218,14 @@ export default function RadiologyQCDashboardPage() {
           border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#475569',
           display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          <RefreshCw size={12} /> 刷新
+          <RefreshCw size={12} /> {t("qcDashboard.refresh")}
         </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* 月度质量分 + 闭环率 组合图 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>月度质量分 / 整改闭环率</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.monthlyScoreClosure")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={qcTrendMonthly}>
@@ -242,7 +244,7 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 月度缺陷率 + 缺陷分布 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>月度缺陷率 / 缺陷类型分布</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.monthlyDefectDist")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={qcTrendMonthly}>
@@ -272,7 +274,7 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 月度检查量/报告量 面积图 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>检查量 / 报告量月度走势</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.monthlyTrend")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyStats}>
@@ -300,7 +302,7 @@ export default function RadiologyQCDashboardPage() {
 
         {/* 月均 TAT 柱状 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>平均报告 TAT (分钟)</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.avgTatMin")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyStats}>
@@ -313,8 +315,8 @@ export default function RadiologyQCDashboardPage() {
             </ResponsiveContainer>
           </div>
           <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>
-            峰值 <strong>{Math.max(...monthlyStats.map(m => m.avgTAT))}</strong> 分钟 · 均值{' '}
-            <strong>{Math.round(monthlyStats.reduce((s, m) => s + m.avgTAT, 0) / Math.max(1, monthlyStats.length))}</strong> 分钟
+            {t("qcDashboard.peak")} <strong>{Math.max(...monthlyStats.map(m => m.avgTAT))}</strong> {t("qcDashboard.minAvg")}{' '}
+            <strong>{Math.round(monthlyStats.reduce((s, m) => s + m.avgTAT, 0) / Math.max(1, monthlyStats.length))}</strong> {t("qcDashboard.minutes")}
           </div>
         </div>
       </div>
@@ -329,16 +331,16 @@ export default function RadiologyQCDashboardPage() {
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <Layers size={18} color="#7c3aed" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>科室维度对比</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.deptCompare")}</h3>
         <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>
-          按亚专科聚合 (DOCTOR_MASTER.subspecialty)
+          {t("qcDashboard.deptCompareSub")}
         </span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>质量指标雷达 (报告量/质控分/及时率 归一化)</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.deptRadarSub")}</div>
           {deptRadarData.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>暂无科室数据</div>
+            <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t("qcDashboard.noDeptData")}</div>
           ) : (
             <div style={{ height: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -357,7 +359,7 @@ export default function RadiologyQCDashboardPage() {
           )}
         </div>
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>各科室缺陷率条形对比</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10 }}>{t("qcDashboard.deptDefectBars")}</div>
           <div style={{ height: 240, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
             {drillDeptRows.slice(0, 6).map(r => (
               <div key={r.dept}>
@@ -377,7 +379,7 @@ export default function RadiologyQCDashboardPage() {
               </div>
             ))}
             {drillDeptRows.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无科室数据</div>
+              <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t("qcDashboard.noDeptData")}</div>
             )}
           </div>
         </div>
@@ -386,7 +388,7 @@ export default function RadiologyQCDashboardPage() {
         <table style={{ width: '100%', fontSize: 12 }}>
           <thead>
             <tr style={{ background: 'var(--bg-card)' }}>
-              {['科室', '医生数', '报告量', '缺陷率(%)', '质控分', '危急值'].map(h => (
+              {[t("qcDashboard.dept"), t("qcDashboard.doctorCount"), t("qcDashboard.reportCount"), t("qcDashboard.defectRatePct"), t("qcDashboard.qcScore"), t("qcDashboard.criticalValue")].map(h => (
                 <th key={h} style={{ padding: 8, textAlign: 'left', fontWeight: 600, color: '#475569' }}>{h}</th>
               ))}
             </tr>
@@ -413,9 +415,9 @@ export default function RadiologyQCDashboardPage() {
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <Award size={18} color="#f59e0b" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>报告质量医生榜 (TOP / BOTTOM)</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.doctorRankTitle")}</h3>
         <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>
-          按质控分排序 (DOCTOR_PERFORMANCE_PRE 聚合)
+          {t("qcDashboard.doctorRankSub")}
         </span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -426,7 +428,7 @@ export default function RadiologyQCDashboardPage() {
             background: 'linear-gradient(90deg, #059669, #10b981)',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            <Medal size={14} /> 质控 TOP 5
+            <Medal size={14} /> {t("qcDashboard.top5")}
           </div>
           {doctorRankBoards.top.map((r, i) => (
             <div key={r.doctorId} style={{
@@ -445,7 +447,7 @@ export default function RadiologyQCDashboardPage() {
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.title} · 报告 {r.reportCount} · 缺陷率 {r.defectRate}%</div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.title} {t("qcDashboard.dashReports")} {r.reportCount} {t("qcDashboard.dashDefectRate")} {r.defectRate}%</div>
               </div>
               <span style={{
                 fontSize: 16, fontWeight: 800,
@@ -470,7 +472,7 @@ export default function RadiologyQCDashboardPage() {
             background: 'linear-gradient(90deg, #b91c1c, #ef4444)',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            <ThumbsDown size={14} /> 需改进 BOTTOM 5
+            <ThumbsDown size={14} /> {t("qcDashboard.bottom5")}
           </div>
           {doctorRankBoards.bottom.map((r, i) => (
             <div key={r.doctorId} style={{
@@ -489,7 +491,7 @@ export default function RadiologyQCDashboardPage() {
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.title} · 报告 {r.reportCount} · 缺陷率 {r.defectRate}%</div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.title} {t("qcDashboard.dashReports")} {r.reportCount} {t("qcDashboard.dashDefectRate")} {r.defectRate}%</div>
               </div>
               <span style={{ fontSize: 16, fontWeight: 800, color: r.qcScore < 80 ? '#dc2626' : '#d97706' }}>
                 {r.qcScore}
@@ -504,7 +506,7 @@ export default function RadiologyQCDashboardPage() {
             </div>
           ))}
           {doctorRankBoards.bottom.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>暂无数据</div>
+            <div style={{ textAlign: 'center', padding: 30, color: '#94a3b8', fontSize: 12 }}>{t("qcDashboard.noData")}</div>
           )}
         </div>
       </div>
@@ -516,7 +518,7 @@ export default function RadiologyQCDashboardPage() {
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <Camera size={18} color="#3b82f6" />
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>图像质控三维度趋势 (AI 自动评估)</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.imageDimTrend")}</h3>
         <span style={{
           padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
           background: imageTrendSource === "real" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
@@ -524,7 +526,7 @@ export default function RadiologyQCDashboardPage() {
           display: "inline-flex", alignItems: "center", gap: 4,
         }}>
           <Database size={10} />
-          数据源: {imageTrendSource === "real" ? `真实 (${assessRecords.length} 条评估记录)` : "派生演示"}
+          {t("qcDashboard.dataSourceLabel")} {imageTrendSource === "real" ? `真实 (${assessRecords.length} 条评估记录)` : t("qcDashboard.derivedDemo")}
         </span>
       </div>
       <div style={{ height: 240 }}>
@@ -572,12 +574,12 @@ export default function RadiologyQCDashboardPage() {
   const renderAiQcAndDevices = () => {
     // AI 质控月度趋势 (qcImageAiApi.getStats byDate → 折线)
     const aiTrend = [
-      { month: '2月', 准确率: 88.5, 召回率: 82.1, 误报率: 6.8 },
-      { month: '3月', 准确率: 90.2, 召回率: 84.5, 误报率: 5.9 },
-      { month: '4月', 准确率: 91.6, 召回率: 85.8, 误报率: 5.2 },
-      { month: '5月', 准确率: 92.4, 召回率: 87.2, 误报率: 4.6 },
-      { month: '6月', 准确率: 93.1, 召回率: 88.4, 误报率: 4.1 },
-      { month: '7月', 准确率: 93.8, 召回率: 89.3, 误报率: 3.7 },
+      { month: t("qcDashboard.feb"), 准确率: 88.5, 召回率: 82.1, 误报率: 6.8 },
+      { month: t("qcDashboard.mar"), 准确率: 90.2, 召回率: 84.5, 误报率: 5.9 },
+      { month: t("qcDashboard.apr"), 准确率: 91.6, 召回率: 85.8, 误报率: 5.2 },
+      { month: t("qcDashboard.may"), 准确率: 92.4, 召回率: 87.2, 误报率: 4.6 },
+      { month: t("qcDashboard.jun"), 准确率: 93.1, 召回率: 88.4, 误报率: 4.1 },
+      { month: t("qcDashboard.jul"), 准确率: 93.8, 召回率: 89.3, 误报率: 3.7 },
     ]
     // 设备月扫描 TOP (DEVICE_MASTER)
     const deviceTop = [...DEVICE_MASTER].sort((a, b) => b.monthlyScans - a.monthlyScans).slice(0, 6)
@@ -588,9 +590,9 @@ export default function RadiologyQCDashboardPage() {
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Sparkles size={18} color="#7c3aed" />
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>AI 质控月度趋势</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.aiQcMonthly")}</h3>
             <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e", marginLeft: 'auto' }}>
-              演示数据 (qcImageAiApi 统计参考)
+              {t("qcDashboard.aiQcDemoSub")}
             </span>
           </div>
           <div style={{ height: 210 }}>
@@ -620,9 +622,9 @@ export default function RadiologyQCDashboardPage() {
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Monitor size={18} color="#3b82f6" />
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>设备月扫描量 TOP 6</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.deviceScanTop6")}</h3>
             <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e", marginLeft: 'auto' }}>
-              DEVICE_MASTER 本地
+              {t("qcDashboard.deviceLocal")}
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -656,21 +658,21 @@ export default function RadiologyQCDashboardPage() {
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <FileText size={18} color="#10b981" />
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>报告质量维度分解 (科室均值)</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.reportDimBreakdown")}</h3>
             <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e", marginLeft: 'auto' }}>
-              由质控分与缺陷分布派生
+              {t("qcDashboard.reportDimSub")}
             </span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {[
-              { dim: '格式规范', desc: '模板完整性/术语规范/签名字段', score: 94.2, delta: '+1.8', color: '#10b981' },
-              { dim: '诊断准确', desc: '描述-结论一致性/关键病灶检出', score: 91.7, delta: '+2.3', color: '#3b82f6' },
-              { dim: '及时高效', desc: 'TAT 达标/危急值响应时长', score: 88.9, delta: '+0.6', color: '#f59e0b' },
+              { dim: t("qcDashboard.dimFormat"), desc: t("qcDashboard.dimFormatDesc"), score: 94.2, delta: '+1.8', color: '#10b981' },
+              { dim: t("qcDashboard.dimAccuracy"), desc: t("qcDashboard.dimAccuracyDesc"), score: 91.7, delta: '+2.3', color: '#3b82f6' },
+              { dim: t("qcDashboard.dimTimely"), desc: t("qcDashboard.dimTimelyDesc"), score: 88.9, delta: '+0.6', color: '#f59e0b' },
             ].map(item => (
               <div key={item.dim} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>{item.dim}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: item.color }}>{item.score}分</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: item.color }}>{item.score}{t("qcDashboard.points")}</span>
                 </div>
                 <div style={{ height: 10, background: 'var(--content-bg)', borderRadius: 5, overflow: 'hidden', marginBottom: 8 }}>
                   <div style={{
@@ -679,7 +681,7 @@ export default function RadiologyQCDashboardPage() {
                   }} />
                 </div>
                 <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.desc}</div>
-                <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: '#059669' }}>环比 {item.delta}</div>
+                <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: '#059669' }}>{t("qcDashboard.mom")} {item.delta}</div>
               </div>
             ))}
           </div>
@@ -871,7 +873,7 @@ export default function RadiologyQCDashboardPage() {
     const map = new Map<string, any>();
     DOCTOR_PERFORMANCE_PRE.forEach((p) => {
       const doc = DOCTOR_MASTER.find((d) => d.id === p.doctorId);
-      const dept = doc?.subspecialty || "其他";
+      const dept = doc?.subspecialty || t("qcDashboard.defectOther");
       const cur = map.get(dept) || { dept, doctors: new Set<string>(), reportCount: 0, defectCount: 0, qcScore: 0, criticalValueCount: 0, count: 0 };
       cur.doctors.add(p.doctorId);
       cur.reportCount += p.reportCount;
@@ -915,36 +917,36 @@ export default function RadiologyQCDashboardPage() {
   // [v3.0.6.11-91] 月度报告: KPI 汇总 + 30 天趋势 + 医生绩效 → CSV
   const handleExportMonthly = () => {
     const s = overviewStats;
-    downloadCsv("放射科月度质控报告.csv", [
+    downloadCsv(t("qcDashboard.csvMonthlyName"), [
       {
-        title: "月度质控 KPI 汇总",
+        title: t("qcDashboard.csvMonthlyTitle"),
         rows: [
-          ["指标", "数值"],
-          ["本月检查量", s.totalExams],
-          ["本月报告量", s.totalReports],
-          ["危急值事件", s.totalCritical],
-          ["双签任务", s.totalCosign],
-          ["平均报告 TAT(分)", s.avgTAT],
-          ["质控平均分", s.qcAvg],
-          ["缺陷数", s.totalDefect],
-          ["运行设备", s.deviceRun],
-          ["维护设备", s.deviceMaint],
-          ["在岗医师", s.doctorActive],
-          ["质控医师", s.qcDoctors],
-          ["数据源", s.dataSource === "real" ? "真实数据" : "演示数据"],
+          [t("qcDashboard.metric"), t("qcDashboard.value")],
+          [t("qcDashboard.monthlyExams"), s.totalExams],
+          [t("qcDashboard.monthlyReports"), s.totalReports],
+          [t("qcDashboard.criticalEvents"), s.totalCritical],
+          [t("qcDashboard.doubleSignTasks"), s.totalCosign],
+          [t("qcDashboard.avgTatMinLabel"), s.avgTAT],
+          [t("qcDashboard.avgQcScore"), s.qcAvg],
+          [t("qcDashboard.defectCount"), s.totalDefect],
+          [t("qcDashboard.devicesRunning"), s.deviceRun],
+          [t("qcDashboard.devicesMaintenance"), s.deviceMaint],
+          [t("qcDashboard.doctorsOnDuty"), s.doctorActive],
+          [t("qcDashboard.qcDoctors"), s.qcDoctors],
+          [t("qcDashboard.dataSource"), s.dataSource === "real" ? t("qcDashboard.realData") : t("qcDashboard.demoData")],
         ],
       },
       {
-        title: "30 天 KPI 趋势",
+        title: t("qcDashboard.kpiTrend30"),
         rows: [
-          ["日期", "检查量", "报告量", "危急值", "双签", "平均TAT(分)", "质控分", "缺陷数"],
+          [t("qcDashboard.date"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.qcScore"), t("qcDashboard.defectCount")],
           ...DAILY_KPI_PRE.slice(-30).map((d) => [d.date, d.examCount, d.reportCount, d.criticalCount, d.cosignCount, d.avgTAT, d.qcAvgScore, d.defectCount]),
         ],
       },
       {
-        title: "医生绩效 TOP10",
+        title: t("qcDashboard.doctorTop10"),
         rows: [
-          ["排名", "医生", "职称", "报告数", "缺陷数", "缺陷率(%)", "质量分", "等级"],
+          [t("qcDashboard.rank"), t("qcDashboard.doctor"), t("qcDashboard.title"), t("qcDashboard.reportNum"), t("qcDashboard.defectCount"), t("qcDashboard.defectRatePct"), "质量分", t("qcDashboard.grade")],
           ...personnelQC.topPerformers.map((p, i) => [i + 1, p.doctorName, p.title, p.reportCount, p.defectCount, p.defectRate, p.qcScore, p.grade]),
         ],
       },
@@ -953,18 +955,18 @@ export default function RadiologyQCDashboardPage() {
 
   // [v3.0.6.11-91] 季度报告: 季度 KPI + 月度明细 → CSV
   const handleExportQuarterly = () => {
-    downloadCsv("放射科季度质控报告.csv", [
+    downloadCsv(t("qcDashboard.csvQuarterName"), [
       {
-        title: "季度质控 KPI 汇总",
+        title: t("qcDashboard.csvQuarterTitle"),
         rows: [
-          ["季度", "检查量", "报告量", "危急值", "双签", "平均TAT(分)", "质控平均分", "缺陷数"],
+          [t("qcDashboard.quarter"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.avgQcScore"), t("qcDashboard.defectCount")],
           ...quarterlyStats.map((q) => [q.quarter, q.examCount, q.reportCount, q.criticalCount, q.cosignCount, q.avgTAT, q.qcAvg, q.defectCount]),
         ],
       },
       {
-        title: "月度明细",
+        title: t("qcDashboard.monthlyDetail"),
         rows: [
-          ["月份", "检查量", "报告量", "危急值", "双签", "平均TAT(分)", "质控分", "缺陷数"],
+          [t("qcDashboard.month"), "检查量", t("qcDashboard.reportCount"), t("qcDashboard.criticalValue"), t("qcDashboard.doubleSign"), t("qcDashboard.avgTatShort"), t("qcDashboard.qcScore"), t("qcDashboard.defectCount")],
           ...monthlyStats.map((r) => [r.month, r.examCount, r.reportCount, r.criticalCount, r.cosignCount, r.avgTAT, r.qcAvgScore, r.defectCount]),
         ],
       },
@@ -982,23 +984,23 @@ export default function RadiologyQCDashboardPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
         icon={<ShieldCheck size={20} color="#1e40af" />}
-        title="放射科质控总看板"
-        subtitle="聚合 10 大子模块质控 KPI · 实时监控 · 数据驱动改进"
+        title={t("qcDashboard.pageTitle")}
+        subtitle={t("qcDashboard.pageSubtitle")}
         actions={
           <ExportButton
             data={DAILY_KPI_PRE}
-            filename="放射科质控总览"
-            label="导出月报"
-            ariaLabel="导出质控总览月报"
+            filename={t("qcDashboard.exportFilename")}
+            label={t("qcDashboard.exportMonthly")}
+            ariaLabel={t("qcDashboard.exportMonthlyAria")}
           />
         }
       />
       <StickyActionBar
         actions={[
-          { key: "refresh", label: "刷新数据", onClick: () => setRefreshKey(k => k + 1), type: "default", ariaLabel: "刷新质控数据" },
-          { key: "export-monthly", label: "月度报告", onClick: handleExportMonthly, type: "default", ariaLabel: "导出月度报告" },
-          { key: "export-quarterly", label: "季度报告", onClick: handleExportQuarterly, type: "default", ariaLabel: "导出季度报告" },
-          { key: "drill-down", label: showDrill ? "关闭下钻" : "下钻分析", onClick: () => setShowDrill((v) => !v), type: "primary", ariaLabel: "下钻分析" },
+          { key: "refresh", label: t("qcDashboard.refreshData"), onClick: () => setRefreshKey(k => k + 1), type: "default", ariaLabel: t("qcDashboard.refreshDataAria") },
+          { key: "export-monthly", label: t("qcDashboard.monthlyReport"), onClick: handleExportMonthly, type: "default", ariaLabel: t("qcDashboard.exportMonthlyReport") },
+          { key: "export-quarterly", label: t("qcDashboard.quarterlyReport"), onClick: handleExportQuarterly, type: "default", ariaLabel: t("qcDashboard.exportQuarterlyReport") },
+          { key: "drill-down", label: showDrill ? t("qcDashboard.closeDrill") : t("qcDashboard.drillAnalysis"), onClick: () => setShowDrill((v) => !v), type: "primary", ariaLabel: t("qcDashboard.drillAnalysis") },
         ]}
         theme="primary"
       />
@@ -1006,8 +1008,8 @@ export default function RadiologyQCDashboardPage() {
       <div style={{ padding: 24 }}>
         {/* 时间范围选择 */}
         <div style={{ marginBottom: 16, display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 14, color: "#64748b" }}>时间范围:</span>
-          {["今日", "本周", "本月", "本季度", "本年度"].map((r) => (
+          <span style={{ fontSize: 14, color: "#64748b" }}>{t("qcDashboard.timeRange")}</span>
+          {[t("qcDashboard.today"), t("qcDashboard.thisWeek"), "本月", t("qcDashboard.thisQuarter"), t("qcDashboard.thisYear")].map((r) => (
             <button
               key={r}
               onClick={() => setDateRange(r)}
@@ -1040,66 +1042,66 @@ export default function RadiologyQCDashboardPage() {
             gap: 6,
           }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: overviewStats.dataSource === "real" ? "#059669" : "#d97706", display: "inline-block" }} />
-            {overviewStats.dataSource === "real" ? "真实数据源" : "本地数据"}
+            {overviewStats.dataSource === "real" ? t("qcDashboard.realSource") : t("qcDashboard.localData")}
           </span>
           {overviewStats.dataSource === "real" && overviewStats.period && (
-            <span style={{ color: "#64748b" }}>统计周期: {overviewStats.period} · 合格率 {overviewStats.passedRate}% · 甲级率 {overviewStats.excellentRate}%</span>
+            <span style={{ color: "#64748b" }}>{t("qcDashboard.statPeriod")} {overviewStats.period} {t("qcDashboard.dashPassRate")} {overviewStats.passedRate}{t("qcDashboard.pctGradeA")} {overviewStats.excellentRate}%</span>
           )}
         </div>
 
         {/* 核心 KPI 大卡片 (点击下钻) */}
         <StatCardGrid columns={6} gap={12}>
           <StatCard
-            label="本月检查量"
+            label={t("qcDashboard.monthlyExams")}
             value={overviewStats.totalExams.toLocaleString()}
             icon={<Activity size={20} />}
             color="#1e40af"
             subValue={`日均 ${Math.round(overviewStats.totalExams / 30).toLocaleString()} 例`}
             onClick={() => openDrill("reportCount")}
-            ariaLabel="下钻: 本月检查量"
+            ariaLabel={t("qcDashboard.drillExamsAria")}
           />
           <StatCard
-            label="本月报告"
+            label={t("qcDashboard.monthlyReportsShort")}
             value={overviewStats.totalReports.toLocaleString()}
             icon={<FileText size={20} />}
             color="#10b981"
             subValue={`报告率 ${((overviewStats.totalReports / Math.max(overviewStats.totalExams, 1)) * 100).toFixed(1)}%`}
             onClick={() => openDrill("reportCount")}
-            ariaLabel="下钻: 本月报告"
+            ariaLabel={t("qcDashboard.drillReportsAria")}
           />
           <StatCard
-            label="危急值事件"
+            label={t("qcDashboard.criticalEvents")}
             value={overviewStats.totalCritical.toString()}
             icon={<AlertOctagon size={20} />}
             color="#dc2626"
-            subValue="平均 10 分钟内通知"
+            subValue={t("qcDashboard.critNotify10min")}
             onClick={() => openDrill("criticalValueCount")}
-            ariaLabel="下钻: 危急值事件"
+            ariaLabel={t("qcDashboard.drillCriticalAria")}
           />
           <StatCard
-            label="双签任务"
+            label={t("qcDashboard.doubleSignTasks")}
             value={overviewStats.totalCosign.toString()}
             icon={<GitBranch size={20} />}
             color="#f59e0b"
-            subValue="SLA 达标率 94%"
+            subValue={t("qcDashboard.slaRate94")}
           />
           <StatCard
-            label="平均报告 TAT"
+            label={t("qcDashboard.avgReportTat")}
             value={`${overviewStats.avgTAT} 分`}
             icon={<Clock size={20} />}
             color="#7c3aed"
-            subValue="较上月 ↓ 5%"
+            subValue={t("qcDashboard.momDown5")}
           />
           <StatCard
-            label="质控平均分"
+            label={t("qcDashboard.avgQcScore")}
             value={overviewStats.qcAvg}
             icon={<Award size={20} />}
             color="#059669"
-            subValue="甲级率 76%"
+            subValue={t("qcDashboard.gradeARate76")}
             trend="up"
             trendValue="+2.3"
             onClick={() => openDrill("qcScore")}
-            ariaLabel="下钻: 质控平均分"
+            ariaLabel={t("qcDashboard.drillScoreAria")}
           />
         </StatCardGrid>
 
@@ -1107,8 +1109,8 @@ export default function RadiologyQCDashboardPage() {
         {showDrill && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>下钻分析</h3>
-              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>本地数据 (由本地绩效数据派生)</span>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.drillAnalysis")}</h3>
+              <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t("qcDashboard.localDerived")}</span>
               <div style={{ display: "flex", gap: 6 }}>
                 {DRILL_METRICS.map((m) => (
                   <button
@@ -1141,7 +1143,7 @@ export default function RadiologyQCDashboardPage() {
                     color: drillDimension === "doctor" ? "#fff" : "#7c3aed",
                   }}
                 >
-                  {drillDimension === "doctor" ? "医生维度" : "科室维度"}
+                  {drillDimension === "doctor" ? t("qcDashboard.dimDoctor") : t("qcDashboard.dimDept")}
                 </button>
               </div>
             </div>
@@ -1150,7 +1152,7 @@ export default function RadiologyQCDashboardPage() {
                 <table style={{ width: "100%", fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: "var(--bg-card)" }}>
-                      {["排名", "医生", "职称", "报告量", "缺陷率(%)", "质控分", "危急值", "及时率(%)", "等级"].map((h) => (
+                      {[t("qcDashboard.rank"), t("qcDashboard.doctor"), t("qcDashboard.title"), t("qcDashboard.reportCount"), t("qcDashboard.defectRatePct"), t("qcDashboard.qcScore"), t("qcDashboard.criticalValue"), t("qcDashboard.timelyRatePct"), t("qcDashboard.grade")].map((h) => (
                         <th key={h} style={{ padding: 8, textAlign: "left", fontWeight: 600, color: "#475569" }}>{h}</th>
                       ))}
                     </tr>
@@ -1177,7 +1179,7 @@ export default function RadiologyQCDashboardPage() {
                 <table style={{ width: "100%", fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: "var(--bg-card)" }}>
-                      {["科室", "医生数", "报告量", "缺陷率(%)", "质控分", "危急值"].map((h) => (
+                      {[t("qcDashboard.dept"), t("qcDashboard.doctorCount"), t("qcDashboard.reportCount"), t("qcDashboard.defectRatePct"), t("qcDashboard.qcScore"), t("qcDashboard.criticalValue")].map((h) => (
                         <th key={h} style={{ padding: 8, textAlign: "left", fontWeight: 600, color: "#475569" }}>{h}</th>
                       ))}
                     </tr>
@@ -1203,15 +1205,15 @@ export default function RadiologyQCDashboardPage() {
         {/* Tab 切换 */}
         <div style={{ marginTop: 24, display: "flex", gap: 6, background: "var(--bg-card)", padding: 8, borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           {([
-            ["overview", "总览", Layers],
-            ["image", "影像质控", Camera],
-            ["report", "报告质控", FileText],
-            ["workflow", "流程质控", Clock],
-            ["equipment", "设备质控", Monitor],
-            ["personnel", "人员质控", Users],
-            ["operations", "运营质控", BarChart3],
-            ["ai", "AI 质控", Sparkles],
-            ["cqi", "CQI 改进", Target],
+            ["overview", t("qcDashboard.tabOverview"), Layers],
+            ["image", t("qcDashboard.tabImage"), Camera],
+            ["report", t("qcDashboard.tabReport"), FileText],
+            ["workflow", t("qcDashboard.tabWorkflow"), Clock],
+            ["equipment", t("qcDashboard.tabEquipment"), Monitor],
+            ["personnel", t("qcDashboard.tabPersonnel"), Users],
+            ["operations", t("qcDashboard.tabOperations"), BarChart3],
+            ["ai", t("qcDashboard.tabAi"), Sparkles],
+            ["cqi", t("qcDashboard.tabCqi"), Target],
           ] as [QCTab, string, any][]).map(([key, label, Icon]) => (
             <button
               key={key}
@@ -1244,42 +1246,42 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Camera size={18} color="#3b82f6" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>影像质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabImage")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "var(--color-info-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{imageQC.gradeA}</div>
-                  <div style={{ fontSize: 12, color: "#1e40af", marginTop: 4 }}>A 级设备</div>
+                  <div style={{ fontSize: 12, color: "#1e40af", marginTop: 4 }}>{t("qcDashboard.gradeADevices")}</div>
                 </div>
                 <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#92400e" }}>{imageQC.gradeB + imageQC.gradeC}</div>
-                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 4 }}>B+C 级</div>
+                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 4 }}>{t("qcDashboard.gradeBC")}</div>
                 </div>
                 <div style={{ background: "var(--color-error-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#991b1b" }}>{imageQC.gradeD}</div>
-                  <div style={{ fontSize: 12, color: "#991b1b", marginTop: 4 }}>D 级 (需关注)</div>
+                  <div style={{ fontSize: 12, color: "#991b1b", marginTop: 4 }}>{t("qcDashboard.gradeD")}</div>
                 </div>
                 <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#065f46" }}>{imageQC.doseCompliant}</div>
-                  <div style={{ fontSize: 12, color: "#065f46", marginTop: 4 }}>剂量合规</div>
+                  <div style={{ fontSize: 12, color: "#065f46", marginTop: 4 }}>{t("qcDashboard.doseCompliance")}</div>
                 </div>
               </div>
               <button onClick={() => setActiveTab("image")} style={{ marginTop: 12, width: "100%", padding: "8px 0", background: "var(--color-info-bg)", color: "#1e40af", border: "1px solid var(--color-info-border)", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                详情 →
+                {t("qcDashboard.details")}
               </button>
             </div>
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <FileText size={18} color="#10b981" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>报告质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabReport")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
                 {[
-                  { label: "甲", count: reportQC.a, color: "#10b981" },
-                  { label: "乙", count: reportQC.b, color: "#3b82f6" },
-                  { label: "丙", count: reportQC.c, color: "#f59e0b" },
-                  { label: "丁", count: reportQC.d, color: "#dc2626" },
+                  { label: t("qcDashboard.gradeA"), count: reportQC.a, color: "#10b981" },
+                  { label: t("qcDashboard.gradeB"), count: reportQC.b, color: "#3b82f6" },
+                  { label: t("qcDashboard.gradeC"), count: reportQC.c, color: "#f59e0b" },
+                  { label: t("qcDashboard.gradeD2"), count: reportQC.d, color: "#dc2626" },
                 ].map((g) => (
                   <div key={g.label} style={{ background: g.color + "15", borderRadius: 8, padding: 12, textAlign: "center", border: `1px solid ${g.color}` }}>
                     <div style={{ fontSize: 28, fontWeight: 700, color: g.color }}>{g.count}</div>
@@ -1288,47 +1290,47 @@ export default function RadiologyQCDashboardPage() {
                 ))}
               </div>
               <div style={{ marginTop: 12, padding: "8px 12px", background: "var(--color-error-bg)", borderRadius: 6, fontSize: 12, color: "#991b1b" }}>
-                <strong>缺陷率:</strong> {reportQC.defectRate}% (本月 {reportQC.totalDefect} 个缺陷 / {reportQC.totalReport} 份报告)
+                <strong>{t("qcDashboard.defectRateLabel")}</strong> {reportQC.defectRate}{t("qcDashboard.pctThisMonth")} {reportQC.totalDefect} {t("qcDashboard.defectsOf")} {reportQC.totalReport} {t("qcDashboard.reportsCount")}
               </div>
             </div>
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Monitor size={18} color="#7c3aed" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>设备质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabEquipment")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: "#64748b" }}>运行中</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{t("qcDashboard.statusRunning")}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{equipmentQC.running}</div>
                 </div>
                 <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: "#64748b" }}>维护/故障</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{t("qcDashboard.maintFault")}</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{equipmentQC.maintenance + equipmentQC.fault}</div>
                 </div>
               </div>
               <div style={{ marginTop: 8, fontSize: 11, color: "#64748b" }}>
-                月扫描合计 <strong>{equipmentQC.totalMonthlyScans.toLocaleString()}</strong> 例 · 平均每台 <strong>{equipmentQC.avgUtil}</strong> 例/月
+                {t("qcDashboard.monthlyScanTotal")} <strong>{equipmentQC.totalMonthlyScans.toLocaleString()}</strong> {t("qcDashboard.casesAvgPerDevice")} <strong>{equipmentQC.avgUtil}</strong> {t("qcDashboard.casesPerMonth")}
               </div>
             </div>
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Users size={18} color="#f59e0b" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>人员质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabPersonnel")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                 <div style={{ textAlign: "center", padding: 8 }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{personnelQC.doctorCount}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>医师</div>
+                  <div style={{ fontSize: 11, color: "#64748b" }}>{t("qcDashboard.physician")}</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 8 }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#10b981" }}>{personnelQC.techCount}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>技师</div>
+                  <div style={{ fontSize: 11, color: "#64748b" }}>{t("qcDashboard.technician")}</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 8 }}>
                   <div style={{ fontSize: 28, fontWeight: 700, color: "#f59e0b" }}>{personnelQC.nurseCount}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>护士</div>
+                  <div style={{ fontSize: 11, color: "#64748b" }}>{t("qcDashboard.nurse")}</div>
                 </div>
               </div>
             </div>
@@ -1336,8 +1338,8 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: "1 / -1" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <TrendingUp size={18} color="#1e40af" />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>30 天 KPI 时序</h3>
-                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>本地数据</span>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.kpiTimeline30")}</h3>
+                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t("qcDashboard.localData")}</span>
               </div>
               <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 4, padding: "0 8px" }}>
                 {DAILY_KPI_PRE.slice(-30).map((d, i) => (
@@ -1348,7 +1350,7 @@ export default function RadiologyQCDashboardPage() {
                 ))}
               </div>
               <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>
-                日均 <strong>{(DAILY_KPI_PRE.reduce((s, d) => s + d.examCount, 0) / 30).toFixed(0)}</strong> 例 · 峰值 <strong>{Math.max(...DAILY_KPI_PRE.map((d) => d.examCount))}</strong> 例/日
+                {t("qcDashboard.dailyAvg")} <strong>{(DAILY_KPI_PRE.reduce((s, d) => s + d.examCount, 0) / 30).toFixed(0)}</strong> {t("qcDashboard.casesPeak")} <strong>{Math.max(...DAILY_KPI_PRE.map((d) => d.examCount))}</strong> {t("qcDashboard.casesPerDay")}
               </div>
             </div>
           </div>
@@ -1357,11 +1359,11 @@ export default function RadiologyQCDashboardPage() {
         {/* 影像质控 Tab */}
         {activeTab === "image" && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>影像质控 - 设备等级分布 (ACR 标准)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("qcDashboard.imageDeviceGrade")}</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "var(--bg-card)" }}>
-                  {["设备", "型号", "厂家", "等级", "剂量合规率", "月扫描", "状态"].map((h) => (
+                  {[t("qcDashboard.device"), t("qcDashboard.model"), t("qcDashboard.manufacturer"), t("qcDashboard.grade"), t("qcDashboard.doseComplianceRate"), t("qcDashboard.monthlyScans"), t("qcDashboard.status")].map((h) => (
                     <th key={h} style={{ padding: 8, textAlign: "left", fontWeight: 600, color: "#475569" }}>{h}</th>
                   ))}
                 </tr>
@@ -1390,11 +1392,11 @@ export default function RadiologyQCDashboardPage() {
         {/* 报告质控 Tab */}
         {activeTab === "report" && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>报告质控 - 医生绩效 (本月)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("qcDashboard.reportDoctorPerf")}</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "var(--bg-card)" }}>
-                  {["排名", "医生", "职称", "报告数", "缺陷数", "缺陷率", "质量分", "等级"].map((h) => (
+                  {[t("qcDashboard.rank"), t("qcDashboard.doctor"), t("qcDashboard.title"), t("qcDashboard.reportNum"), t("qcDashboard.defectCount"), t("qcDashboard.defectRate"), "质量分", t("qcDashboard.grade")].map((h) => (
                     <th key={h} style={{ padding: 8, textAlign: "left", fontWeight: 600, color: "#475569" }}>{h}</th>
                   ))}
                 </tr>
@@ -1422,67 +1424,67 @@ export default function RadiologyQCDashboardPage() {
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 40, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <CheckCircle size={48} color="#10b981" style={{ margin: "0 auto 12px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{activeTab === "workflow" ? "流程质控" : activeTab === "equipment" ? "设备质控" : activeTab === "personnel" ? "人员质控" : activeTab === "operations" ? "运营质控" : activeTab === "ai" ? "AI 质控" : "CQI 持续改进"}</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{activeTab === "workflow" ? t("qcDashboard.tabWorkflow") : activeTab === "equipment" ? t("qcDashboard.tabEquipment") : activeTab === "personnel" ? t("qcDashboard.tabPersonnel") : activeTab === "operations" ? t("qcDashboard.tabOperations") : activeTab === "ai" ? t("qcDashboard.tabAi") : t("qcDashboard.cqiImprovement")}</h3>
               {(activeTab === "ai" || activeTab === "cqi") && (
-                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>演示数据 (硬编码示例)</span>
+                <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t("qcDashboard.hardcodedDemo")}</span>
               )}
             </div>
-            <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>详细数据已加载 (共 {DAILY_KPI_PRE.length} 天 / {personnelQC.topPerformers.length} 名医生 / {DEVICE_MASTER.length} 台设备)</p>
+            <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>{t("qcDashboard.detailLoaded")} {DAILY_KPI_PRE.length} {t("qcDashboard.daysOf")} {personnelQC.topPerformers.length} {t("qcDashboard.doctorsOf")} {DEVICE_MASTER.length} {t("qcDashboard.devicesOf")}</p>
             <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, maxWidth: 800, margin: "16px auto 0" }}>
               {activeTab === "ai" ? (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#1e40af" }}>AI 准确率</div>
+                    <div style={{ fontSize: 12, color: "#1e40af" }}>{t("qcDashboard.aiAccuracy")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{(aiQC.accuracy * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#16a34a" }}>精确率</div>
+                    <div style={{ fontSize: 12, color: "#16a34a" }}>{t("qcDashboard.aiPrecision")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{(aiQC.precision * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#d97706" }}>召回率</div>
+                    <div style={{ fontSize: 12, color: "#d97706" }}>{t("qcDashboard.aiRecall")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{(aiQC.recall * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-error-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#dc2626" }}>误报率</div>
+                    <div style={{ fontSize: 12, color: "#dc2626" }}>{t("qcDashboard.aiFalsePositive")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#dc2626" }}>{(aiQC.fpRate * 100).toFixed(0)}%</div>
                   </div>
                 </>
               ) : activeTab === "cqi" ? (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#1e40af" }}>进行中 PDCA</div>
+                    <div style={{ fontSize: 12, color: "#1e40af" }}>{t("qcDashboard.pdcaActive")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{cqi.activePDCA}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#16a34a" }}>已完成</div>
+                    <div style={{ fontSize: 12, color: "#16a34a" }}>{t("qcDashboard.completed")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{cqi.completedPDCA}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#d97706" }}>改进率</div>
+                    <div style={{ fontSize: 12, color: "#d97706" }}>{t("qcDashboard.improvementRate")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{(cqi.improvementRate * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#7c3aed" }}>总项目</div>
+                    <div style={{ fontSize: 12, color: "#7c3aed" }}>{t("qcDashboard.totalProjects")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#7c3aed" }}>{cqi.activePDCA + cqi.completedPDCA}</div>
                   </div>
                 </>
               ) : (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#1e40af" }}>SLA 达标率</div>
+                    <div style={{ fontSize: 12, color: "#1e40af" }}>{t("qcDashboard.slaRate")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{workflowQC.slaMet}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#16a34a" }}>运行设备</div>
+                    <div style={{ fontSize: 12, color: "#16a34a" }}>{t("qcDashboard.devicesRunning")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{equipmentQC.running}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#d97706" }}>平均利用率</div>
+                    <div style={{ fontSize: 12, color: "#d97706" }}>{t("qcDashboard.avgUtilization")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{equipmentQC.avgUtil}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, color: "#7c3aed" }}>总医师</div>
+                    <div style={{ fontSize: 12, color: "#7c3aed" }}>{t("qcDashboard.totalDoctors")}</div>
                     <div style={{ fontSize: 28, fontWeight: 700, color: "#7c3aed" }}>{personnelQC.doctorCount}</div>
                   </div>
                 </>

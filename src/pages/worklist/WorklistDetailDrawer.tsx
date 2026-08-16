@@ -19,7 +19,7 @@ export interface DetailDrawerProps {
   onCancelExam?: (exam: RadiologyExam) => void;
   // [G005 Wave1A W9] 状态流转 (worklistApi checkin/start/complete/cancel) 成功后的刷新回调
   onStatusChanged?: () => void;
-  initialTab?: "info" | "images" | "history" | "log";
+  initialTab?: "info" | "images" | "history" | "log" | "timeline";
 }
 
 export function DetailDrawer({

@@ -32,6 +32,9 @@ describe('FollowUpService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    report: {
+      findUnique: jest.fn(),
+    },
   }
 
   beforeAll(async () => {
@@ -140,5 +143,93 @@ describe('FollowUpService', () => {
     expect(prisma.followUpPlan.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: { not: 'COMPLETED' } }) }),
     )
+  })
+
+  // [v3.0.6.11-103 Wave 13] 随访自动触发强化: 报告手动补建 + 到期提醒队列
+  describe('随访自动触发强化 (Wave 13)', () => {
+    beforeEach(() => jest.clearAllMocks())
+
+    it('from-report: 报告命中关键词规则 → 创建随访计划 (手动补建不受模式限制)', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({
+        id: 'RPT-1',
+        patientId: 'p1',
+        examId: 'E-1',
+        impression: '右肺上叶磨玻璃影, 建议随访复查',
+        conclusion: '肺结节随访',
+        findings: '',
+        patient: { id: 'p1', name: '张三' },
+      })
+      mockPrisma.followUpPlan.findMany.mockResolvedValue([])
+      mockPrisma.followUpPlan.create.mockImplementation(({ data }: any) => Promise.resolve({ ...row, ...data }))
+      const result = await svc.fromReport({ reportId: 'RPT-1', reason: '报告发布后手动补建' })
+      expect(result.created).toBeGreaterThan(0)
+      expect(result.matched).toContain('磨玻璃')
+      expect(mockPrisma.followUpPlan.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ reportId: 'RPT-1', patientId: 'p1', reminderEnabled: true }) }),
+      )
+    })
+
+    it('from-report: 无关键词命中 → created 0 不创建', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({
+        id: 'RPT-2',
+        patientId: 'p1',
+        examId: null,
+        impression: '未见明显异常',
+        conclusion: '',
+        findings: '',
+        patient: { id: 'p1', name: '李四' },
+      })
+      const result = await svc.fromReport({ reportId: 'RPT-2' })
+      expect(result.created).toBe(0)
+      expect(result.matched).toHaveLength(0)
+      expect(mockPrisma.followUpPlan.create).not.toHaveBeenCalled()
+    })
+
+    it('from-report: 报告不存在 → NotFoundException', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue(null)
+      await expect(svc.fromReport({ reportId: 'nope' })).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('createFollowUpFromReport: 同报告同模板已有计划 → 去重跳过 (防重发重复创建)', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue(null)
+      mockPrisma.followUpPlan.findMany.mockResolvedValue([{ id: 'f-exist', templateId: 'tpl-nodule' }])
+      mockPrisma.followUpPlan.create.mockResolvedValue({ ...row })
+      const res = await svc.createFollowUpFromReport({
+        reportId: 'RPT-3',
+        patientId: 'p1',
+        patientName: '王五',
+        planDate: '2026-08-16',
+        matches: [
+          { rule: { id: 'FTR-001', keyword: '肺结节', label: '肺结节', description: '', templateId: 'tpl-nodule', templateName: '', intervals: [90, 180, 360], hint: '', active: true }, matchedText: '肺结节' },
+        ],
+      })
+      expect(res.created).toBe(0)
+      expect(res.skipped).toContain('肺结节')
+      expect(mockPrisma.followUpPlan.create).not.toHaveBeenCalled()
+    })
+
+    it('reminder-queue: 分组 逾期/今日到期/未来 并仅含启用提醒的计划', async () => {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const overdueRow = { ...row, id: 'f-over', nextDate: new Date(today.getTime() - 86400000) }
+      const todayRow = { ...row, id: 'f-today', nextDate: new Date(today.getTime() + 3600000) }
+      const soonRow = { ...row, id: 'f-soon', nextDate: new Date(today.getTime() + 3 * 86400000) }
+      const farRow = { ...row, id: 'f-far', nextDate: new Date(today.getTime() + 30 * 86400000) }
+      mockPrisma.followUpPlan.findMany.mockResolvedValue([overdueRow, todayRow, soonRow, farRow])
+      const result = await svc.reminderQueue(7)
+      expect(result.total).toBe(4)
+      expect(result.overdue).toBe(1)
+      expect(result.dueToday).toBe(1)
+      expect(result.upcoming).toBe(2)
+      expect(result.queueType).toBe('OVERDUE')
+      expect(mockPrisma.followUpPlan.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            reminderEnabled: true,
+            status: { notIn: ['COMPLETED', 'MISSED', 'CANCELLED'] },
+          }),
+        }),
+      )
+    })
   })
 })

@@ -1,4 +1,5 @@
 /**
+ * @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 QCPage "质控管理(评分/危急值/缺陷)" Tab (src/pages/QCPage.tsx), 文件保留, 旧路由 /quality-control 已 redirect → /qc。功能未删除, 请勿单独继续扩展本页。
  * G005 RIS v3.0.5.1 - QualityControlPage 质控管理
  * [v3.0.6.11-81] W2-B: 报告评分数据接 reportApi.list + reportQualityApi (真实端点, 失败回退演示数据)
  */

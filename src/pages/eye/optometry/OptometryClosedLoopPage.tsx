@@ -29,11 +29,15 @@ import {
   Plus,
   GraduationCap,
   Heart,
+  Database,
+  Search,
+  FileText,
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
 import { eyeApi } from "../../../services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 export const OptometryClosedLoopPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("screening");
@@ -161,6 +165,92 @@ export const OptometryClosedLoopPage: React.FC = () => {
       message.error(e.message);
     }
   };
+
+  // [v3.0.6.11-103 Wave 3A] 验光档案 (refraction / ok-lens / vision-record / orders)
+  const [refractionRecords, setRefractionRecords] = useState<any[]>([]);
+  const [okLensRecords, setOkLensRecords] = useState<any[]>([]);
+  const [visionSeq, setVisionSeq] = useState<any>(null);
+  const [orderId, setOrderId] = useState("OKO-SEED-001");
+  const [orderDetail, setOrderDetail] = useState<any>(null);
+  // 创建验光记录表单
+  const [refReSphere, setRefReSphere] = useState(-2.0);
+  const [refReCylinder, setRefReCylinder] = useState(-0.5);
+  const [refReAxis, setRefReAxis] = useState(180);
+  const [refLeSphere, setRefLeSphere] = useState(-2.25);
+  const [refLeCylinder, setRefLeCylinder] = useState(-0.75);
+  const [refLeAxis, setRefLeAxis] = useState(175);
+
+  const loadOptometryRecords = async () => {
+    try {
+      const [refRes, okRes, vRes] = await Promise.all([
+        eyeApi.listRefractionRecords({ patientId }),
+        eyeApi.listOkLens({ patientId }),
+        eyeApi.getOptometryVisionRecord(patientId),
+      ]);
+      if (refRes.success) {
+        const list = Array.isArray((refRes.data as any)?.data)
+          ? (refRes.data as any).data
+          : Array.isArray(refRes.data)
+            ? refRes.data
+            : [];
+        setRefractionRecords(list);
+      }
+      if (okRes.success) {
+        const list = Array.isArray((okRes.data as any)?.data)
+          ? (okRes.data as any).data
+          : Array.isArray(okRes.data)
+            ? okRes.data
+            : [];
+        setOkLensRecords(list);
+      }
+      if (vRes.success) setVisionSeq(vRes.data);
+    } catch (e) {
+      console.warn("[F03] loadOptometryRecords Error:", (e as Error)?.message);
+    }
+  };
+
+  useEffect(() => {
+    void loadOptometryRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleCreateRefraction = async () => {
+    try {
+      const res = await eyeApi.createRefractionRecord({
+        patientId,
+        reSphere: refReSphere,
+        reCylinder: refReCylinder,
+        reAxis: refReAxis,
+        leSphere: refLeSphere,
+        leCylinder: refLeCylinder,
+        leAxis: refLeAxis,
+        prescriptionType: "眼镜",
+      });
+      if (res.success) {
+        message.success("验光处方已保存");
+        void loadOptometryRecords();
+      }
+    } catch (e: any) {
+      message.error(e.message);
+    }
+  };
+
+  const handleOrderDetail = async () => {
+    if (!orderId.trim()) return;
+    try {
+      const res = await eyeApi.getOptometryOrder(orderId.trim());
+      if (res.success) {
+        setOrderDetail(res.data);
+        message.success("订单详情已加载");
+      }
+    } catch (e: any) {
+      setOrderDetail(null);
+      message.error((e as Error)?.message ?? "订单不存在");
+    }
+  };
+
+  const { pageData: refPage, pagination: refPagination } = usePagination(refractionRecords, 6);
+  const { pageData: okLensPage, pagination: okLensPagination } = usePagination(okLensRecords, 6);
 
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
@@ -580,6 +670,224 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         <div>成本: ¥{defocusOrder.cost.total}</div>
                         <div>预计到货: {defocusOrder.estimatedDelivery}</div>
                       </Card>
+                    )}
+                  </Card>
+                </Col>
+              </Row>
+            ),
+          },
+
+          // [v3.0.6.11-103 Wave 3A] 验光档案: 屈光记录/OK镜档案/视力序列/订单详情
+          {
+            key: "records",
+            label: (
+              <span>
+                <Database size={14} /> {t("eye.optometry.records")}
+              </span>
+            ),
+            children: (
+              <Row gutter={16}>
+                <Col span={10}>
+                  <Card
+                    title={t("eye.optometry.createRefraction")}
+                    size="small"
+                    extra={
+                      <Button
+                        icon={<RefreshCw size={12} />}
+                        onClick={() => void loadOptometryRecords()}
+                      >
+                        {t("eye.common.refresh")}
+                      </Button>
+                    }
+                  >
+                    <Form layout="vertical" size="small">
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          marginBottom: 8,
+                          fontWeight: 600,
+                        }}
+                      >
+                        OD 右眼
+                      </div>
+                      <Row gutter={8}>
+                        <Col span={8}>
+                          <Form.Item label="球镜 (DS)">
+                            <InputNumber value={refReSphere} onChange={(v) => setRefReSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item label="柱镜 (DC)">
+                            <InputNumber value={refReCylinder} onChange={(v) => setRefReCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item label="轴位 (°)">
+                            <InputNumber value={refReAxis} onChange={(v) => setRefReAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          marginBottom: 8,
+                          fontWeight: 600,
+                        }}
+                      >
+                        OS 左眼
+                      </div>
+                      <Row gutter={8}>
+                        <Col span={8}>
+                          <Form.Item label="球镜 (DS)">
+                            <InputNumber value={refLeSphere} onChange={(v) => setRefLeSphere(v || 0)} step={0.25} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item label="柱镜 (DC)">
+                            <InputNumber value={refLeCylinder} onChange={(v) => setRefLeCylinder(v || 0)} step={0.25} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item label="轴位 (°)">
+                            <InputNumber value={refLeAxis} onChange={(v) => setRefLeAxis(v || 0)} min={0} max={180} style={{ width: "100%" }} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Button
+                        type="primary"
+                        block
+                        icon={<Save size={14} />}
+                        onClick={handleCreateRefraction}
+                      >
+                        {t("eye.optometry.saveRefraction")}
+                      </Button>
+                    </Form>
+                  </Card>
+
+                  <Card
+                    title={t("eye.optometry.orderDetail")}
+                    size="small"
+                    style={{ marginTop: 16 }}
+                  >
+                    <Space.Compact style={{ width: "100%" }}>
+                      <Input
+                        prefix={<Search size={12} />}
+                        placeholder="订单 ID"
+                        value={orderId}
+                        onChange={(e) => setOrderId(e.target.value)}
+                      />
+                      <Button type="primary" onClick={handleOrderDetail}>
+                        {t("eye.common.search")}
+                      </Button>
+                    </Space.Compact>
+                    {orderDetail && (
+                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                        <Tag color={orderDetail.type === "ortho-k" ? "blue" : "purple"}>
+                          {orderDetail.type === "ortho-k" ? "OK 镜订单" : "离焦镜订单"}
+                        </Tag>
+                        <div>品牌: {orderDetail.brand}</div>
+                        <div>患者: {orderDetail.patientName ?? orderDetail.patientId}</div>
+                        <div>预计到货: {orderDetail.estimatedDelivery}</div>
+                        <div>成本: ¥{orderDetail.cost?.total}</div>
+                        {orderDetail.lensType && <div>镜片: {orderDetail.lensType}</div>}
+                        {orderDetail.parameters?.baseCurve && (
+                          <div>基弧 (BC): {orderDetail.parameters.baseCurve} mm</div>
+                        )}
+                        <Divider style={{ margin: "4px 0" }} />
+                        <div style={{ color: "var(--text-secondary)" }}>
+                          {orderDetail.followupSchedule
+                            ? `随访计划: ${orderDetail.followupSchedule.join(" / ")}`
+                            : `订购于 ${String(orderDetail.orderedAt ?? "").slice(0, 19).replace("T", " ")}`}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                </Col>
+
+                <Col span={14}>
+                  <Card
+                    title={t("eye.optometry.refractionList")}
+                    size="small"
+                    extra={<Tag color="blue">{refractionRecords.length}</Tag>}
+                    style={{ marginBottom: 16 }}
+                  >
+                    <Table
+                      size="small"
+                      rowKey={(r: any) => r.refractionId ?? r.id}
+                      dataSource={refPage}
+                      pagination={refPagination}
+                      columns={[
+                        { title: "日期", dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
+                        { title: "患者", dataIndex: "patientName" },
+                        {
+                          title: "OD",
+                          render: (_, r: any) =>
+                            `${r.rightEye?.sphere} S / ${r.rightEye?.cylinder} C ×${r.rightEye?.axis}`,
+                        },
+                        {
+                          title: "OS",
+                          render: (_, r: any) =>
+                            `${r.leftEye?.sphere} S / ${r.leftEye?.cylinder} C ×${r.leftEye?.axis}`,
+                        },
+                        { title: "类型", dataIndex: "prescriptionType", render: (v: string) => <Tag>{v}</Tag> },
+                      ]}
+                      scroll={{ x: "max-content" }}
+                    />
+                  </Card>
+
+                  <Card
+                    title={t("eye.optometry.okLensList")}
+                    size="small"
+                    extra={<Tag color="blue">{okLensRecords.length}</Tag>}
+                    style={{ marginBottom: 16 }}
+                  >
+                    <Table
+                      size="small"
+                      rowKey={(r: any) => r.okLensId ?? r.id}
+                      dataSource={okLensPage}
+                      pagination={okLensPagination}
+                      columns={[
+                        { title: "日期", dataIndex: "prescribedAt", render: (v: string) => String(v ?? "").slice(0, 10) },
+                        { title: "患者", dataIndex: "patientName" },
+                        { title: "BC (mm)", render: (_, r: any) => r.design?.baseCurve },
+                        { title: "目标减少 (D)", render: (_, r: any) => r.design?.targetReduction },
+                        { title: "品牌", render: (_, r: any) => r.design?.brand },
+                      ]}
+                      scroll={{ x: "max-content" }}
+                    />
+                  </Card>
+
+                  <Card
+                    title={t("eye.optometry.visionSeq")}
+                    size="small"
+                    extra={
+                      <Button icon={<RefreshCw size={12} />} onClick={() => void loadOptometryRecords()}>
+                        {t("eye.common.refresh")}
+                      </Button>
+                    }
+                  >
+                    {visionSeq?.history?.length ? (
+                      <Table
+                        size="small"
+                        rowKey="date"
+                        dataSource={visionSeq.history}
+                        pagination={false}
+                        columns={[
+                          { title: "日期", dataIndex: "date" },
+                          { title: "OD (DS)", render: (_, r: any) => r.rightEye?.sphere },
+                          { title: "OD 散光", render: (_, r: any) => `${r.rightEye?.cylinder} C ×${r.rightEye?.axis}` },
+                          { title: "OS (DS)", render: (_, r: any) => r.leftEye?.sphere },
+                          { title: "OS 散光", render: (_, r: any) => `${r.leftEye?.cylinder} C ×${r.leftEye?.axis}` },
+                        ]}
+                        scroll={{ x: "max-content" }}
+                      />
+                    ) : (
+                      <Empty
+                        image={<Inbox size={48} style={{ opacity: 0.4 }} />}
+                        description={`${t("eye.optometry.visionSeq")}: ${t("eye.common.noData")}`}
+                      />
                     )}
                   </Card>
                 </Col>

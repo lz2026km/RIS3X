@@ -267,10 +267,9 @@ export const eyeApi = {
     api.get(`${EYE_API}/report/templates${buildQuery(params)}`),
 
   // ===== Subspecialty =====
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 亚专科检查记录 CRUD (SubspecialtyExamsPage 检查记录 UI 在用)
   getSubspecialtyRecords: (sub: string, params?: Record<string, any>) =>
     api.get(`${EYE_API}/subspecialty/${sub}/records${buildQuery(params)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   createSubspecialtyRecord: (sub: string, data: any) =>
     api.post(`${EYE_API}/subspecialty/${sub}/records`, data),
   // [G005 Wave1A P0] 亚专科检查动作 (SubspecialtyExamsPage 真实化, 后端 eye-subspecialty 模块)
@@ -287,13 +286,13 @@ export const eyeApi = {
   cataractLensOpacity: (data: any) =>
     api.post(`${EYE_API}/subspecialty/cataract/lens-opacity`, data),
   // 屈光手术处方 (GET=最近记录 / POST=开具)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] RefractivePage 加载最近处方 UI 在用
   getRefractivePrescription: () =>
     api.get(`${EYE_API}/subspecialty/refractive/prescription`),
   refractivePrescription: (data: any) =>
     api.post(`${EYE_API}/subspecialty/refractive/prescription`, data),
   // 低视力助视器处方 (GET=最近记录 / POST=开具)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] LowVisionPage 加载最近处方 UI 在用
   getLowVisionPrescription: () =>
     api.get(`${EYE_API}/low-vision/prescription`),
 
@@ -309,7 +308,7 @@ export const eyeApi = {
     api.post(`${EYE_API}/edu/cases/${encodeURIComponent(caseId)}/annotate`, data),
   listEduAnnotationProjects: () =>
     api.get(`${EYE_API}/edu/annotation-projects`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 创建标注项目 (CaseLibraryPage 标注项目 tab 在用)
   createEduAnnotationProject: (data: any) =>
     api.post(`${EYE_API}/edu/annotation-projects`, data),
   eduCohort: (data: any) =>
@@ -364,21 +363,19 @@ export const eyeApi = {
   createTeleConsult: (data: any) => api.post<any>(`${EYE_API}/tele/consult`, data),
   listTeleSessions: (params?: Record<string, any>) =>
     api.get<any>(`${EYE_API}/tele/sessions${buildQuery(params)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 会话详情/结束 (TeleConsultPage 远程阅片 tab)
   getTeleSession: (sessionId: string) =>
     api.get<any>(`${EYE_API}/tele/session/${encodeURIComponent(sessionId)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   endTeleSession: (sessionId: string) =>
     api.delete<any>(`${EYE_API}/tele/session/${encodeURIComponent(sessionId)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 流状态列表 (TeleConsultPage 远程阅片 tab)
   listTeleStreams: (params?: Record<string, any>) =>
     api.get<any>(`${EYE_API}/tele/streams${buildQuery(params)}`),
   listTeleConsults: (params?: Record<string, any>) =>
     api.get<any>(`${EYE_API}/tele/consults${buildQuery(params)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 会诊详情/答复 (TeleConsultPage 远程阅片 tab)
   getTeleConsult: (consultId: string) =>
     api.get<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}`),
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
   answerTeleConsult: (consultId: string, data: any) =>
     api.post<any>(`${EYE_API}/tele/consult/${encodeURIComponent(consultId)}/answer`, data),
   getTeleStats: () => api.get<any>(`${EYE_API}/tele/stats`),
@@ -386,8 +383,9 @@ export const eyeApi = {
   // ===== [G005 Wave1B] 像素级图像处理 pixel (RealDicomViewerPage, MSW eyePixelModule 对齐) =====
   getPixelInstance: (instanceId: string) =>
     api.get<any>(`${EYE_API}/pixel/instance/${encodeURIComponent(instanceId)}`),
-  getPixelHistogram: (instanceId: string) =>
-    api.get<any>(`${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}`),
+  // [v3.0.6.11-103 Wave 3A] 可选 frame 查询参数 (后端 GET /eye/pixel/histogram/:instanceId?frame=)
+  getPixelHistogram: (instanceId: string, frame?: number) =>
+    api.get<any>(`${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}${frame ? `?frame=${frame}` : ""}`),
   getPixelColormap: (modality: string) =>
     api.get<any>(`${EYE_API}/pixel/colormap/${encodeURIComponent(modality)}`),
   // [G005 Wave 4B] 全部 colormap 目录 (EyePixelPage, 后端 GET /eye/pixel/colormaps)
@@ -416,19 +414,22 @@ export const eyeApi = {
   defocusOrder: (data: any) =>
     api.post(`${EYE_API}/optometry/defocus-order`, data),
   // 屈光检查记录 (与 vision-records 兼容)
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 验光档案 UI 在用 (OptometryClosedLoopPage)
   listRefractionRecords: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/optometry/refraction${buildQuery(params)}`),
   createRefractionRecord: (data: any) =>
     api.post(`${EYE_API}/optometry/refraction`, data),
   // OK 镜档案
-  /** @deprecated v3.0.6.11-100 unused — 无页面引用，仅供 API 兼容保留 */
+  // [v3.0.6.11-103 Wave 3A] 验光档案 UI 在用 (OptometryClosedLoopPage)
   listOkLens: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/optometry/ok-lens${buildQuery(params)}`),
   createOkLens: (data: any) => api.post(`${EYE_API}/optometry/ok-lens`, data),
   // 视力记录序列
   getOptometryVisionRecord: (patientId: string) =>
     api.get(`${EYE_API}/optometry/vision-record/${encodeURIComponent(patientId)}`),
+  // [v3.0.6.11-103 Wave 3A] 视光订单详情 (后端 GET /eye/optometry/orders/:id)
+  getOptometryOrder: (id: string) =>
+    api.get(`${EYE_API}/optometry/orders/${encodeURIComponent(id)}`),
   // 低视力助视器处方 POST (原有, 保留兼容); GET 见 Subspecialty 区块
   lowVisionPrescription: (data: any) =>
     api.post(`${EYE_API}/low-vision/prescription`, data),

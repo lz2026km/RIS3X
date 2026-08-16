@@ -8,6 +8,7 @@ import {
   Button,
   Select,
   Input,
+  InputNumber,
   Form,
   Row,
   Col,
@@ -36,9 +37,11 @@ import {
   GraduationCap,
   Filter,
   Microscope,
+  FolderPlus,
 } from "lucide-react";
 // [G005 Wave1A P0] /eye/edu/* 真实后端 (eye-edu 模块), MSW 仅 dev 兜底
 import { eyeApi } from "../../../services/api/eyeApi";
+import { t } from "../../../i18n/appI18n";
 
 const MODALITY_LABELS_DICT: Record<string, string> = {
   fundus: "眼底照相",
@@ -88,6 +91,10 @@ export const CaseLibraryPage: React.FC = () => {
   // 新增病例
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  // [v3.0.6.11-103 Wave 3A] 创建标注项目 (后端 POST /eye/edu/annotation-projects)
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [creatingProject, setCreatingProject] = useState(false);
+  const [newProject, setNewProject] = useState({ name: "", total: 100, completed: 0 });
   // [G005 Wave1A P0] 后端可用性标注: 失败时回退本地 + 展示标记
   const [backendDown, setBackendDown] = useState(false);
   const [newCase, setNewCase] = useState({
@@ -277,6 +284,30 @@ export const CaseLibraryPage: React.FC = () => {
     } catch (e: any) {
       setBackendDown(true);
       message.error(e.message);
+    }
+  };
+
+  // [v3.0.6.11-103 Wave 3A] 创建标注项目
+  const handleCreateProject = async () => {
+    if (!newProject.name.trim()) {
+      message.warning("请填写项目名称");
+      return;
+    }
+    setCreatingProject(true);
+    try {
+      const res = await eyeApi.createEduAnnotationProject(newProject);
+      if (res.success) {
+        message.success("标注项目已创建");
+        setProjects((prev) => [res.data, ...prev]);
+        setShowProjectModal(false);
+        setNewProject({ name: "", total: 100, completed: 0 });
+      } else {
+        message.warning("创建接口不可用");
+      }
+    } catch (e: any) {
+      message.error(e.message);
+    } finally {
+      setCreatingProject(false);
     }
   };
 
@@ -663,32 +694,42 @@ export const CaseLibraryPage: React.FC = () => {
             key: "projects",
             label: (
               <span>
-                <Microscope size={14} /> 标注项目
+                <Microscope size={14} /> {t("eye.edu.projects")}
               </span>
             ),
             children: (
-              <Row gutter={[16, 16]}>
-                {projects.map((p) => (
-                  <Col span={8} key={p.projectId}>
-                    <Card size="small" title={p.name}>
-                      <Progress
-                        percent={Math.round((p.completed / p.total) * 100)}
-                      />
-                      <div
-                        style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}
-                      >
-                        {p.completed} / {p.total} 标注
-                      </div>
-                      <Tag
-                        color={p.status === "completed" ? "green" : "blue"}
-                        style={{ marginTop: 4 }}
-                      >
-                        {p.status === "completed" ? "已完成" : "进行中"}
-                      </Tag>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
+              <>
+                <Button
+                  type="primary"
+                  icon={<FolderPlus size={14} />}
+                  style={{ marginBottom: 12 }}
+                  onClick={() => setShowProjectModal(true)}
+                >
+                  {t("eye.edu.createProject")}
+                </Button>
+                <Row gutter={[16, 16]}>
+                  {projects.map((p) => (
+                    <Col span={8} key={p.projectId}>
+                      <Card size="small" title={p.name}>
+                        <Progress
+                          percent={Math.round((p.completed / p.total) * 100)}
+                        />
+                        <div
+                          style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8 }}
+                        >
+                          {p.completed} / {p.total} 标注
+                        </div>
+                        <Tag
+                          color={p.status === "completed" ? "green" : "blue"}
+                          style={{ marginTop: 4 }}
+                        >
+                          {p.status === "completed" ? "已完成" : "进行中"}
+                        </Tag>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </>
             ),
           },
         ]}
@@ -736,6 +777,36 @@ export const CaseLibraryPage: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+        </Form>
+      </Modal>
+
+      {/* [v3.0.6.11-103 Wave 3A] 创建标注项目 */}
+      <Modal
+        title={t("eye.edu.createProject")}
+        open={showProjectModal}
+        onCancel={() => setShowProjectModal(false)}
+        onOk={() => void handleCreateProject()}
+        confirmLoading={creatingProject}
+        okText={t("eye.common.confirm")}
+        width={420}
+      >
+        <Form layout="vertical" size="small">
+          <Form.Item label={t("eye.edu.projectName")} required>
+            <Input
+              value={newProject.name}
+              onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+              placeholder="如 DR 微动脉瘤标注"
+            />
+          </Form.Item>
+          <Form.Item label={t("eye.edu.projectTotal")}>
+            <InputNumber
+              value={newProject.total}
+              onChange={(v) => setNewProject({ ...newProject, total: v || 0 })}
+              min={1}
+              max={10000}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
         </Form>
       </Modal>
     </div>

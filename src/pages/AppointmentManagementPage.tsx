@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 AppointmentPage "预约管理" 视图 (src/pages/AppointmentPage.tsx), 文件保留, 旧路由 /appointment-management 已 redirect → /appointments。功能未删除, 请勿单独继续扩展本页。
 // 影像预约管理系统 - 患者影像检查预约管理
 // 功能：预约列表、改约/取消、冲突检测、预约统计
 import { useState, useMemo, useCallback, useEffect } from 'react'

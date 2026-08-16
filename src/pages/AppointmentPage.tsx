@@ -42,7 +42,10 @@ import {
 } from "../utils/orderStateAdapter";
 import AppointmentCalendar from "./AppointmentCalendar";
 import AppointmentForm from "./AppointmentForm";
+// [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage (冲突检测/统计/管理) 嵌入为 AppointmentPage "预约管理" 视图, 旧路由 /appointment-management redirect → /appointments
+import AppointmentManagementPage from "./AppointmentManagementPage";
 import { formatDateObj } from '../utils/date';
+import { ActionButton } from "../components/common/ActionButton";
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -413,9 +416,10 @@ export default function AppointmentPage() {
     monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
     return monday;
   });
-  const [viewMode, setViewMode] = useState<"calendar" | "list" | "reminders">(
-    "calendar",
-  );
+  // [v3.0.6.11-103 Wave 10] 重复页合并: + "management" 视图 (嵌入 AppointmentManagementPage)
+  const [viewMode, setViewMode] = useState<
+    "calendar" | "list" | "reminders" | "management"
+  >("calendar");
   const [selectedDevice, setSelectedDevice] = useState<string>("all");
   const [listFilterDate] = useState<string>("");
   const [listFilterStatus] = useState<string>("all");
@@ -1071,34 +1075,54 @@ const borderGray = "var(--border-color)";
             >
               <Settings size={13} /> 预约规则
             </button>
+            {/* [v3.0.6.11-103 Wave 10] 重复页合并: 预约管理视图 (嵌入 AppointmentManagementPage) */}
             <button
+              onClick={() => {
+                setViewMode(viewMode === "management" ? "calendar" : "management");
+                setShowForm(false);
+                setShowRules(false);
+              }}
+              style={{
+                padding: "7px 14px",
+                background: viewMode === "management" ? primaryBlue : whiteBg,
+                color: viewMode === "management" ? "#fff" : primaryBlue,
+                border: `1px solid ${primaryBlue}`,
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <BarChart3 size={13} /> 预约管理
+            </button>
+            <ActionButton
+              action={showForm ? "cancel" : "create"}
               onClick={() => {
                 setShowForm(!showForm);
                 setShowRules(false);
               }}
               style={{
-                padding: "7px 16px",
                 background: "#d97706",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
+                borderColor: "#d97706",
                 boxShadow: "0 2px 4px rgba(217,119,6,0.3)",
               }}
             >
-              <Plus size={14} /> {showForm ? "取消新建" : "新建预约"}
-            </button>
+              {showForm ? "取消新建" : "新建预约"}
+            </ActionButton>
           </div>
         </div>
       </div>
 
       {/* ====== 主体内容 ====== */}
       <div style={{ maxWidth: 1600, margin: "0 auto", padding: "16px 24px" }}>
+        {/* [v3.0.6.11-103 Wave 10] 重复页合并: 预约管理视图 = 嵌入 AppointmentManagementPage */}
+        {viewMode === "management" ? (
+          <AppointmentManagementPage />
+        ) : (
+          <>
         {/* 统计卡片 */}
         <div
           style={{
@@ -2373,6 +2397,8 @@ const borderGray = "var(--border-color)";
             )}
           </div>
         </div>
+          </>
+        )}
       </div>
 
       {/* ====== 预约详情弹窗 ====== */}

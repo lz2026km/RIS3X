@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
 import { Eye, RotateCcw, Layers, Crosshair, Download, Box } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
+import { t } from '../../i18n/appI18n';
 
 export const DentalVolumeViewerPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
@@ -18,11 +19,27 @@ export const DentalVolumeViewerPage: React.FC = () => {
   const [tab, setTab] = useState('vr');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showCurved, setShowCurved] = useState(false);
+  // [G005 W3-B] 体数据详情 + 牙弓曲线路径 (getVolumeStudy / getVolumeCurvePath)
+  const [curvePath, setCurvePath] = useState<any>(null);
+  const [curveLoading, setCurveLoading] = useState(false);
 
   useEffect(() => {
     dentalApi.listVolumeStudies().then(d=>{if(d.success)setStudies(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
     dentalApi.listVolumePresets().then(d=>{if(d.success)setPresets(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
   }, []);
+
+  const handleSelect = (s: any) => {
+    setCurrent(s);
+    setSliceIdx(Math.floor((s.slices||400)/2));
+    setMode('viewer');
+    setCurvePath(null);
+    // [G005 W3-B] 详情刷新: GET /dental/volume/studies/:id (getVolumeStudy) + 曲线路径
+    dentalApi.getVolumeStudy(s.id).then((d) => { if (d.success && d.data) setCurrent((prev: any) => ({ ...prev, ...d.data })); }).catch(() => {});
+    setCurveLoading(true);
+    dentalApi.getVolumeCurvePath(s.id).then((d) => { if (d.success && d.data) setCurvePath(d.data); })
+      .catch((err) => { console.error('[F04]', err); })
+      .finally(() => setCurveLoading(false));
+  };
 
   const handleExportMesh = (format: 'stl' | 'obj') => {
     const ext = format === 'stl' ? 'stl' : 'obj';
@@ -44,8 +61,6 @@ export const DentalVolumeViewerPage: React.FC = () => {
     a.remove();
     URL.revokeObjectURL(url);
   };
-
-  const handleSelect = (s: any) => { setCurrent(s); setSliceIdx(Math.floor((s.slices||400)/2)); setMode('viewer'); };
 
   // Render MPR canvases
   useEffect(() => {
@@ -185,20 +200,38 @@ export const DentalVolumeViewerPage: React.FC = () => {
               </Card>
             </>},
             {key:'curved', label:'曲断参数', children:<>
-              <Card size="small" title="牙弓路径">
+              <Card size="small" title={<Space><Crosshair size={14}/>{t("w3b.volumeCurvePath")} {curvePath ? <Tag color="green">后端 /dental/volume/studies/:id/curve-path</Tag> : null}</Space>}>
+                {curveLoading ? (
+                  <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>加载曲线路径中...</div>
+                ) : (
+                <>
                 <div style={{height:200,background:'#0a0a1a',borderRadius:6,padding:8}}>
+                  {/* [G005 W3-B] curve-path 真实数据 (points) 绘制; 无数据回退模拟牙弓 */}
                   <svg viewBox="-60 -10 120 60" width="100%" height="180">
-                    <path d="M-55,28 Q-40,10 0,5 Q40,10 55,28" stroke="#2563eb" strokeWidth="2" fill="none" />
-                    {[-55,-45,-35,-25,-15,-5,5,15,25,35,45,55].map((x,i)=>(
-                      <circle key={i} cx={x} cy={i<6?28-Math.abs(x)*0.3+5:28-Math.abs(x)*0.3+5} r={2} fill="#52c41a" />
-                    ))}
+                    {Array.isArray(curvePath?.points) && curvePath.points.length > 0 ? (
+                      <>
+                        <path d={curvePath.points.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')} stroke="#2563eb" strokeWidth="2" fill="none" />
+                        {curvePath.points.map((p: any, i: number) => (
+                          <circle key={i} cx={p.x} cy={p.y} r={2} fill="#52c41a" />
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        <path d="M-55,28 Q-40,10 0,5 Q40,10 55,28" stroke="#2563eb" strokeWidth="2" fill="none" />
+                        {[-55,-45,-35,-25,-15,-5,5,15,25,35,45,55].map((x,i)=>(
+                          <circle key={i} cx={x} cy={i<6?28-Math.abs(x)*0.3+5:28-Math.abs(x)*0.3+5} r={2} fill="#52c41a" />
+                        ))}
+                      </>
+                    )}
                   </svg>
                 </div>
                 <Space wrap style={{marginTop:8}}>
-                  <Tag color="blue">点数: 25</Tag>
-                  <Tag color="green">展开长度: 152mm</Tag>
-                  <Tag>间距: 0.5mm</Tag>
+                  <Tag color="blue">点数: {curvePath?.points?.length ?? 25}</Tag>
+                  <Tag color="green">展开长度: {curvePath?.lengthMm ?? 152}mm</Tag>
+                  {curvePath?.spacingMm != null && <Tag>间距: {curvePath.spacingMm}mm</Tag>}
                 </Space>
+                </>
+                )}
               </Card>
               <Card size="small" title="输出参数" style={{marginTop:8}}>
                 <Row gutter={8}>

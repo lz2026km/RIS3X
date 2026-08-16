@@ -1,14 +1,79 @@
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表 + 接触镜 + 低视力
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
-import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save } from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio, Table } from 'antd';
+import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save, History } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 // [v3.0.6.11-88 Round10] 接触镜验配走 API 层 (后端 POST /eye/contact-lens/fitting)
 import { eyeApi } from '../../../services/api/eyeApi'
-import React, { useState } from 'react';
+import { t } from '../../../i18n/appI18n'
+import React, { useState, useEffect } from 'react';
 
 const {  } = Input;
+
+// [v3.0.6.11-103 Wave 3A] 亚专科检查记录历史 (后端 GET /eye/subspecialty/:sub/records)
+const SubRecordHistory: React.FC<{
+  sub: string;
+  patientId: string;
+  refreshKey: number;
+}> = ({ sub, patientId, refreshKey }) => {
+  const [records, setRecords] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await eyeApi.getSubspecialtyRecords(sub, { patientId });
+        if (!cancelled && res.success) {
+          const list = Array.isArray((res.data as any)?.data)
+            ? (res.data as any).data
+            : Array.isArray(res.data)
+              ? res.data
+              : [];
+          setRecords(list);
+        }
+      } catch (e) {
+        console.warn('[F03] SubRecordHistory Error:', (e as Error)?.message);
+      } finally {
+        if (!cancelled) setLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [sub, patientId, refreshKey]);
+  return (
+    <Card
+      title={
+        <Space>
+          <History size={14} />
+          {t('eye.sub.records')}
+          <Tag color="blue">{records.length}</Tag>
+        </Space>
+      }
+      size="small"
+      style={{ marginTop: 16 }}
+    >
+      {!loaded ? (
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>加载中…</div>
+      ) : records.length === 0 ? (
+        <Empty description={t('eye.common.noData')} image={<Inbox size={40} style={{ opacity: 0.4 }} />} />
+      ) : (
+        <Table
+          size="small"
+          rowKey={(r: any) => r.id}
+          dataSource={records.slice(0, 5)}
+          pagination={false}
+          columns={[
+            { title: '患者', dataIndex: 'patientName', render: (v: string) => v || '-' },
+            { title: '诊断', dataIndex: 'diagnosis' },
+            { title: '日期', dataIndex: 'examDate' },
+            { title: '关键值', render: (_, r: any) => (r.findings ? JSON.stringify(Object.fromEntries(Object.entries(r.findings).filter(([k]) => !['method', 'note', 'modality', 'bodyPart'].includes(k)))) : '-') },
+          ]}
+          scroll={{ x: 'max-content' }}
+        />
+      )}
+    </Card>
+  );
+};
 
 // 5 专科 + 接触镜 + 低视力 = 7 页面 (PR 4 新增)
 
@@ -19,12 +84,14 @@ export const StrabismusPage: React.FC = () => {
   const [torsion, setTorsion] = useState(0);
   const [patientId, setPatientId] = useState('P000001');
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
 
   const handleSubmit = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端 eye-subspecialty 模块真实实现)
       const res = await eyeApi.strabismusSynoptophore({ patientId, eye, horizontalPrism: horiz, verticalPrism: vert, torsion });
-      if (res.success) { setResult(res.data); message.success('同视机检查完成'); }
+      if (res.success) { setResult(res.data); setHistVer(v => v + 1); message.success('同视机检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -91,6 +158,8 @@ export const StrabismusPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="strabismus" patientId={patientId} refreshKey={histVer} />
     </div>
   );
 };
@@ -101,12 +170,14 @@ export const NeuroOphthalmologyPage: React.FC = () => {
   const [p100Lat, setP100Lat] = useState(105);
   const [p100Amp, setP100Amp] = useState(8.5);
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
 
   const handleColor = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
       const res = await eyeApi.neuroColorVision({ patientId: 'P000001', test, errors, eye: 'OD' });
-      if (res.success) { setResult({ ...(res.data as any), type: 'color' }); message.success('色觉检查完成'); }
+      if (res.success) { setResult({ ...(res.data as any), type: 'color' }); setHistVer(v => v + 1); message.success('色觉检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -114,7 +185,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
       const res = await eyeApi.neuroPvep({ patientId: 'P000001', eye: 'OD', p100Latency: p100Lat, p100Amplitude: p100Amp });
-      if (res.success) { setResult({ ...(res.data as any), type: 'pvep' }); message.success('PVEP 检查完成'); }
+      if (res.success) { setResult({ ...(res.data as any), type: 'pvep' }); setHistVer(v => v + 1); message.success('PVEP 检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -173,6 +244,8 @@ export const NeuroOphthalmologyPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="neuro" patientId="P000001" refreshKey={histVer} />
     </div>
   );
 };
@@ -182,11 +255,13 @@ export const OcularOncologyPage: React.FC = () => {
   const [os, setOs] = useState(15);
   const [ref, setRef] = useState(12);
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
   const handleSubmit = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
       const res = await eyeApi.oncologyExophthalmometry({ patientId: 'P000001', odValue: od, osValue: os, reference: ref });
-      if (res.success) { setResult(res.data); message.success('眼突计检查完成'); }
+      if (res.success) { setResult(res.data); setHistVer(v => v + 1); message.success('眼突计检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -224,6 +299,8 @@ export const OcularOncologyPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="oncology" patientId="P000001" refreshKey={histVer} />
     </div>
   );
 };
@@ -233,11 +310,13 @@ export const CorneaPage: React.FC = () => {
   const [pachy, setPachy] = useState(540);
   const [bad, setBad] = useState(1.2);
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
   const handleSubmit = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
       const res = await eyeApi.corneaPentacam({ patientId: 'P000001', eye: 'OD', kmax, thinnestPachy: pachy, pachyMin: pachy, pachyMinX: 0, pachyMinY: -0.5 });
-      if (res.success) { setResult(res.data); message.success('Pentacam + BAD 检查完成'); }
+      if (res.success) { setResult(res.data); setHistVer(v => v + 1); message.success('Pentacam + BAD 检查完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -275,6 +354,8 @@ export const CorneaPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="cornea" patientId="P000001" refreshKey={histVer} />
     </div>
   );
 };
@@ -357,6 +438,13 @@ export const LowVisionPage: React.FC = () => {
       if (res.success) { setResult(res.data); message.success('低视力处方已开具'); }
     } catch (e: any) { message.error(e.message); }
   };
+  // [v3.0.6.11-103 Wave 3A] 加载最近处方 (后端 GET /eye/low-vision/prescription)
+  const loadLatest = async () => {
+    try {
+      const res = await eyeApi.getLowVisionPrescription();
+      if (res.success) { setResult(res.data); message.success('已加载最近处方'); }
+    } catch (e: any) { message.error(e.message); }
+  };
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
@@ -407,6 +495,10 @@ export const LowVisionPage: React.FC = () => {
               </Row>
             ) : <Empty description="暂无数据" image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
+          {/* [v3.0.6.11-103 Wave 3A] 加载最近处方 */}
+          <Button style={{ marginTop: 8 }} icon={<Save size={12} />} onClick={loadLatest}>
+            {t('eye.sub.loadLatest')}
+          </Button>
         </Col>
       </Row>
     </div>
@@ -420,11 +512,13 @@ export const CataractPage: React.FC = () => {
   const [pscGrade, setPscGrade] = useState(0);
   const [va, setVa] = useState('0.3');
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
   const handleSubmit = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
       const res = await eyeApi.cataractLensOpacity({ patientId: 'P000001', eye: 'OD', nuclearGrade, corticalGrade, pscGrade, bestCorrectedVA: va });
-      if (res.success) { setResult(res.data); message.success('晶状体混浊分级完成'); }
+      if (res.success) { setResult(res.data); setHistVer(v => v + 1); message.success('晶状体混浊分级完成'); }
     } catch (e: any) { message.error(e.message); }
   };
   const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
@@ -465,6 +559,8 @@ export const CataractPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="cataract" patientId="P000001" refreshKey={histVer} />
     </div>
   );
 };
@@ -477,6 +573,8 @@ export const RefractivePage: React.FC = () => {
   const [cylinderOS, setCylinderOS] = useState(-0.5);
   const [axisOS, setAxisOS] = useState(170);
   const [result, setResult] = useState<any>(null);
+  // [v3.0.6.11-103 Wave 3A] 检查记录历史刷新
+  const [histVer, setHistVer] = useState(0);
   const handleSubmit = async () => {
     try {
       // [G005 Wave1A P0] raw fetch → eyeApi (后端真实实现)
@@ -485,7 +583,14 @@ export const RefractivePage: React.FC = () => {
         rightEye: { sphere: sphereOD, cylinder: cylinderOD, axis: axisOD },
         leftEye: { sphere: sphereOS, cylinder: cylinderOS, axis: axisOS },
       });
-      if (res.success) { setResult(res.data); message.success('屈光处方完成'); }
+      if (res.success) { setResult(res.data); setHistVer(v => v + 1); message.success('屈光处方完成'); }
+    } catch (e: any) { message.error(e.message); }
+  };
+  // [v3.0.6.11-103 Wave 3A] 加载最近处方 (后端 GET /eye/subspecialty/refractive/prescription)
+  const loadLatest = async () => {
+    try {
+      const res = await eyeApi.getRefractivePrescription();
+      if (res.success) { setResult(res.data); message.success('已加载最近处方'); }
     } catch (e: any) { message.error(e.message); }
   };
   return (
@@ -550,8 +655,14 @@ export const RefractivePage: React.FC = () => {
               </Row>
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="点击开具处方" />}
           </Card>
+          {/* [v3.0.6.11-103 Wave 3A] 加载最近处方 */}
+          <Button style={{ marginTop: 8 }} icon={<Save size={12} />} onClick={loadLatest}>
+            {t('eye.sub.loadLatest')}
+          </Button>
         </Col>
       </Row>
+      {/* [v3.0.6.11-103 Wave 3A] 检查记录历史 */}
+      <SubRecordHistory sub="refractive" patientId="P000001" refreshKey={histVer} />
     </div>
   );
 };

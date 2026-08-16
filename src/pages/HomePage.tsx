@@ -16,9 +16,8 @@ import {
   ShieldAlert, AlertCircle, ListChecks,
   LayoutDashboard, Settings,
   DollarSign,
-  ArrowUpRight, ArrowDownRight,
   Image, BookOpen, Eye, Timer, ImageIcon,
-  Clock3, UserCheck, ClipboardList, CheckSquare,
+  UserCheck, ClipboardList, CheckSquare,
   // [v3.0.6.11-99 Wave10B] 首页深化: 工作清单/科室动态/快捷增强/趋势细化/绩效卡/数据源徽标
   Megaphone, Users, UserPlus, Target, CalendarRange,
   Stethoscope, Crosshair, ClipboardPlus, Sparkles, Award,
@@ -45,8 +44,16 @@ import { worklistApi } from '../services/api/worklistApi'
 import { deptApi, type DeptAnnouncement, type OnCallSchedule } from '../services/api/deptApi'
 import { criticalApi } from '../services/api/criticalApi'
 import { PageContainer } from '../components/common/PageContainer'
+import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
+// [v3.0.6.11-103 Wave 5] 放射专业主题组件接入
+import { PageHeader } from '../components/common/PageHeader'
+import { StatCard as KpiCard, EmptyState } from '../components/common'
+import {
+  IconScanning, IconPending, IconNormal, IconCritical,
+  IconDr, IconXRayBeam, IconReview, IconRadiationSign,
+} from '../components/icons/radiologyIcons'
 
 // ============================================================
 // 样式常量
@@ -135,30 +142,9 @@ const badgeStyle: React.CSSProperties = {
   gap: 4,
 }
 
-// 悬浮效果辅助函数
-const getHoverStyle = (): React.CSSProperties => ({
-  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-  transform: 'translateY(-3px)',
-})
-
-const getDefaultStyle = (): React.CSSProperties => ({
-  boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
-  transform: 'translateY(0)',
-})
-
 // ============================================================
 // 类型定义
 // ============================================================
-interface StatCardProps {
-  label: string
-  value: string | number
-  sub?: string
-  icon: React.ReactNode
-  color: string
-  bg: string
-  trend?: number
-}
-
 interface QuickActionProps {
   icon: React.ReactNode
   label: string
@@ -167,76 +153,6 @@ interface QuickActionProps {
   badge?: string
   badgeColor?: string
   onClick?: () => void
-}
-
-// ============================================================
-// 子组件：统计卡片
-// ============================================================
-const StatCard: React.FC<StatCardProps> = ({ label, value, sub, icon, color, bg, trend }) => {
-  const [hovered, setHovered] = useState(false)
-
-  return (
-    <div
-      style={{
-        ...cardStyle,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        cursor: 'pointer',
-        transition: 'all 0.25s ease',
-        ...(hovered ? getHoverStyle() : getDefaultStyle()),
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4, fontWeight: 500 }}>
-          {label}
-        </div>
-        <div style={{
-          fontSize: 28,
-          fontWeight: 700,
-          color: COLORS.primary,
-          lineHeight: 1.2,
-          letterSpacing: '-0.5px',
-        }}>
-          {value}
-        </div>
-        {sub && (
-          <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>
-            {sub}
-          </div>
-        )}
-        {trend !== undefined && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            marginTop: 4,
-            fontSize: 12,
-            fontWeight: 600,
-            color: trend >= 0 ? COLORS.success : COLORS.danger,
-          }}>
-            {trend >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-            {Math.abs(trend)}%
-          </div>
-        )}
-      </div>
-      <div style={{
-        width: 52,
-        height: 52,
-        borderRadius: 12,
-        background: bg,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: color,
-        flexShrink: 0,
-      }}>
-        {icon}
-      </div>
-    </div>
-  )
 }
 
 // ============================================================
@@ -321,16 +237,16 @@ const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
   const getStatusConfig = () => {
     switch (status) {
       case '使用中':
-        return { color: '#3b82f6', bg: '#3b82f622', label: '使用中' }
+        return { color: '#3b82f6', bg: '#3b82f622', label: t('homePage.stInUse') }
       case '空闲':
-        return { color: '#22c55e', bg: '#22c55e22', label: '空闲' }
+        return { color: '#22c55e', bg: '#22c55e22', label: t('homePage.stIdle') }
       case '维护中':
       case '维修中':
-        return { color: '#f59e0b', bg: '#f59e0b22', label: '维护中' }
+        return { color: '#f59e0b', bg: '#f59e0b22', label: t('homePage.stMaint') }
       case '故障':
-        return { color: '#ef4444', bg: '#ef444422', label: '故障' }
+        return { color: '#ef4444', bg: '#ef444422', label: t('homePage.stFault') }
       default:
-        return { color: '#94a3b8', bg: '#94a3b824', label: '未知' }
+        return { color: '#94a3b8', bg: '#94a3b824', label: t('homePage.stUnknown') }
     }
   }
 
@@ -493,10 +409,10 @@ const HomePage: FC = () => {
 
   // 区块16: 数据源徽标汇总
   const dataSourceBadges = [
-    { key: 'work', label: '工作清单', real: workSource === 'real' },
-    { key: 'dept', label: '科室动态', real: deptSource === 'real' },
-    { key: 'trend', label: '模态趋势', real: trendSource === 'real' },
-    { key: 'perf', label: '个人绩效', real: perfSource === 'real' },
+    { key: 'work', label: t('homePage.srcWork'), real: workSource === 'real' },
+    { key: 'dept', label: t('homePage.srcDept'), real: deptSource === 'real' },
+    { key: 'trend', label: t('homePage.srcTrend'), real: trendSource === 'real' },
+    { key: 'perf', label: t('homePage.srcPerf'), real: perfSource === 'real' },
   ]
 
   const fetchStats = async () => {
@@ -516,7 +432,7 @@ const HomePage: FC = () => {
       }))
       setLoadError(null)
     } else {
-      if (!loadError) setLoadError('API 不可用,使用本地统计数据')
+      if (!loadError) setLoadError(t('homePage.apiUnavailable'))
     }
   }
 
@@ -599,9 +515,9 @@ const HomePage: FC = () => {
       }))
       setWorkSource(anyReal ? 'real' : 'demo')
       if (anyReal) setMyTodoError(null)
-      else if (!myTodoError) setMyTodoError('工作清单接口不可用，回退本地 store 数据')
+      else if (!myTodoError) setMyTodoError(t('homePage.workListErr'))
     } catch (err) {
-      setMyTodoError(`工作清单加载失败: ${(err as Error)?.message ?? '网络错误'}（回退本地数据）`)
+      setMyTodoError(t('homePage.workListLoadErr', { msg: (err as Error)?.message ?? '网络错误' }))
       setWorkSource('demo')
     } finally {
       setMyTodoLoading(false)
@@ -644,9 +560,9 @@ const HomePage: FC = () => {
       }
       setDeptSource(anyReal ? 'real' : 'demo')
       if (anyReal) setDeptError(null)
-      else if (!deptError) setDeptError('科室动态接口不可用，展示演示公告')
+      else if (!deptError) setDeptError(t('homePage.deptErr'))
     } catch (err) {
-      setDeptError(`科室动态加载失败: ${(err as Error)?.message ?? '网络错误'}（回退演示数据）`)
+      setDeptError(t('homePage.deptLoadErr', { msg: (err as Error)?.message ?? '网络错误' }))
       setDeptSource('demo')
     } finally {
       setDeptLoading(false)
@@ -699,9 +615,9 @@ const HomePage: FC = () => {
       }
       setModalStackData(MODAL_STACK_FALLBACK.map(r => ({ ...r })))
       setTrendSource('demo')
-      if (!trendError) setTrendError('检查量趋势接口不可用，展示演示数据')
+      if (!trendError) setTrendError(t('homePage.trendErr'))
     } catch (err) {
-      setTrendError(`趋势加载失败: ${(err as Error)?.message ?? '网络错误'}`)
+      setTrendError(t('homePage.trendLoadErr', { msg: (err as Error)?.message ?? '网络错误' }))
       setTrendSource('demo')
     } finally {
       setTrendLoading(false)
@@ -766,9 +682,9 @@ const HomePage: FC = () => {
         return
       }
       setPerfSource('demo')
-      if (!perfError) setPerfError('个人绩效接口不可用，展示本地估算')
+      if (!perfError) setPerfError(t('homePage.perfErr'))
     } catch (err) {
-      setPerfError(`绩效加载失败: ${(err as Error)?.message ?? '网络错误'}`)
+      setPerfError(t('homePage.perfLoadErr', { msg: (err as Error)?.message ?? '网络错误' }))
       setPerfSource('demo')
     } finally {
       setPerfLoading(false)
@@ -836,15 +752,15 @@ const HomePage: FC = () => {
   ])
 
   const qualityData = [
-    { name: '优秀', value: 85, color: '#22c55e' },
-    { name: '良好', value: 12, color: '#3b82f6' },
-    { name: '合格', value: 3, color: '#f59e0b' },
+    { name: t('homePage.qualityExcellent'), value: 85, color: '#22c55e' },
+    { name: t('homePage.qualityGood'), value: 12, color: '#3b82f6' },
+    { name: t('homePage.qualityPass'), value: 3, color: '#f59e0b' },
   ]
 
   const revenueData = [
-    { period: '今日', value: 285000, target: 300000 },
-    { period: '本周', value: 1680000, target: 1800000 },
-    { period: '本月', value: 8960000, target: 9500000 },
+    { period: t('homePage.periodToday'), value: 285000, target: 300000 },
+    { period: t('homePage.periodWeek'), value: 1680000, target: 1800000 },
+    { period: t('homePage.periodMonth'), value: 8960000, target: 9500000 },
   ]
 
   const revenueTrendData = [
@@ -949,7 +865,7 @@ const HomePage: FC = () => {
             }}>
               <span>{HOSPITAL_NAME}</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
-              <span>放射科</span>
+              <span>{t('homePage.deptName')}</span>
             </div>
           </div>
         </div>
@@ -962,7 +878,7 @@ const HomePage: FC = () => {
             color: COLORS.white,
             marginBottom: 4,
           }}>
-             您好，{currentUser?.name ?? '用户'}{currentUser?.title ? ` ${currentUser.title}` : ''}
+              {t('homePage.greeting', { name: currentUser?.name ?? '用户', title: currentUser?.title ? ` ${currentUser.title}` : '' })}
           </div>
           <div style={{
             fontSize: 14,
@@ -1017,7 +933,7 @@ const HomePage: FC = () => {
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
-              危急值待处理
+              {t('homePage.criticalPending')}
             </div>
           </div>
           <div style={{
@@ -1040,7 +956,7 @@ const HomePage: FC = () => {
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
-              待处理检查
+              {t('homePage.pendingExams')}
             </div>
           </div>
           <div style={{
@@ -1063,7 +979,7 @@ const HomePage: FC = () => {
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
-              设备使用中
+              {t('homePage.devicesInUse')}
             </div>
           </div>
         </div>
@@ -1104,7 +1020,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.examsCompleted}</div>
-            <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日检查完成</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.todayExamsDone')}</div>
           </div>
         </div>
         <div style={{ width: 1, height: 32, background: COLORS.border }} />
@@ -1127,7 +1043,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.reportsWritten}</div>
-            <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日书写报告</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.todayReportsWritten')}</div>
           </div>
         </div>
         <div style={{ width: 1, height: 32, background: COLORS.border }} />
@@ -1150,7 +1066,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.pendingReviews}</div>
-            <div style={{ fontSize: 12, color: COLORS.textMuted }}>待审核报告</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.pendingReviews')}</div>
           </div>
         </div>
       </div>
@@ -1169,13 +1085,13 @@ const HomePage: FC = () => {
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
           <LayoutDashboard size={18} color={COLORS.primary} />
-          快捷入口
+          {t('homePage.quickActions')}
         </span>
         <span style={{
           fontSize: 12,
           color: COLORS.textMuted,
         }}>
-          常用功能一触即达
+          {t('homePage.quickActionsHint')}
         </span>
       </div>
 
@@ -1186,7 +1102,7 @@ const HomePage: FC = () => {
       }}>
         <QuickActionButton
           icon={<ListChecks size={24} />}
-          label="检查工作列表"
+          label={t('homePage.qaWorklist')}
           color={MODALITY_COLORS['CT']!}
           bg="#3b82f622"
           badge="12"
@@ -1195,7 +1111,7 @@ const HomePage: FC = () => {
         />
         <QuickActionButton
           icon={<FileText size={24} />}
-          label="书写报告"
+          label={t('homePage.qaWriteReport')}
           color={MODALITY_COLORS['MR']!}
           bg="#8b5cf622"
           badge="8"
@@ -1204,7 +1120,7 @@ const HomePage: FC = () => {
         />
         <QuickActionButton
           icon={<ShieldAlert size={24} />}
-          label="危急值管理"
+          label={t('homePage.qaCriticalValue')}
           color={COLORS.danger}
           bg={COLORS.dangerBg}
           badge={String(criticalPending.length)}
@@ -1213,35 +1129,35 @@ const HomePage: FC = () => {
         />
         <QuickActionButton
           icon={<BarChart3 size={24} />}
-          label="统计分析"
+          label={t('homePage.qaStatistics')}
           color={COLORS.success}
           bg={COLORS.successBg}
           onClick={() => navigate('/statistics')}
         />
         <QuickActionButton
           icon={<Monitor size={24} />}
-          label="设备状态"
+          label={t('homePage.qaDeviceStatus')}
           color={MODALITY_COLORS['DR']!}
           bg={COLORS.warningBg}
           onClick={() => navigate('/devices')}
         />
         <QuickActionButton
           icon={<CalendarClock size={24} />}
-          label="预约管理"
+          label={t('homePage.qaAppointment')}
           color={MODALITY_COLORS['DSA']!}
           bg="#f59e0b22"
           onClick={() => navigate('/appointments')}
         />
         <QuickActionButton
           icon={<BookOpen size={24} />}
-          label="报告管理"
+          label={t('homePage.qaReports')}
           color={MODALITY_COLORS['MG']!}
           bg="#ec489922"
           onClick={() => navigate('/reports')}
         />
         <QuickActionButton
           icon={<Image size={24} />}
-          label="影像查看"
+          label={t('homePage.qaViewer')}
           color={COLORS.info}
           bg={COLORS.infoBg}
           onClick={() => navigate('/dicom-viewer')}
@@ -1260,67 +1176,82 @@ const HomePage: FC = () => {
       gap: 16,
       marginBottom: 24,
     }}>
-      <StatCard
-        label="今晨检查"
+      <KpiCard
+        title={t('homePage.kpiMorningExams')}
         value={stats.today.exams}
-        sub={`较昨日 +${Math.round(stats.today.exams * 0.08)}`}
-        icon={<Scan size={24} />}
+        sub={t('homePage.kpiVsYesterday', { count: Math.round(stats.today.exams * 0.08) })}
+        icon={<IconScanning size={24} />}
         color={MODALITY_COLORS['CT']!}
-        bg="#3b82f622"
-        trend={8}
+        iconBg="#3b82f622"
+        gradient
+        trend={{ value: 8, direction: 'up' }}
+        onClick={() => navigate('/worklist')}
       />
-      <StatCard
-        label="待报告"
+      <KpiCard
+        title={t('homePage.kpiPendingReports')}
         value={stats.today.pending}
-        sub={`占今日 ${Math.round(stats.today.pending / stats.today.exams * 100)}%`}
-        icon={<Clock3 size={24} />}
+        sub={t('homePage.kpiTodayShare', { count: Math.round(stats.today.pending / stats.today.exams * 100) })}
+        icon={<IconPending size={24} />}
         color={MODALITY_COLORS['MR']!}
-        bg="#8b5cf622"
-        trend={-3}
+        iconBg="#8b5cf622"
+        gradient
+        trend={{ value: 3, direction: 'down' }}
+        onClick={() => navigate('/worklist')}
       />
-      <StatCard
-        label="已报告"
+      <KpiCard
+        title={t('homePage.kpiReported')}
         value={stats.today.reports}
-        sub={`完成率 ${Math.round(stats.today.reports / stats.today.exams * 100)}%`}
-        icon={<CheckCircle size={24} />}
+        sub={t('homePage.kpiCompletion', { count: Math.round(stats.today.reports / stats.today.exams * 100) })}
+        icon={<IconNormal size={24} />}
         color={COLORS.success}
-        bg={COLORS.successBg}
-        trend={12}
+        iconBg={COLORS.successBg}
+        gradient
+        trend={{ value: 12, direction: 'up' }}
+        onClick={() => navigate('/reports')}
       />
-      <StatCard
-        label="危急值"
+      <KpiCard
+        title={t('homePage.kpiCritical')}
         value={stats.today.critical}
-        sub={`待处理 ${criticalPending.length} 例`}
-        icon={<AlertTriangle size={24} />}
+        sub={t('homePage.kpiCriticalPending', { count: criticalPending.length })}
+        icon={<IconCritical size={24} />}
         color={COLORS.danger}
-        bg={COLORS.dangerBg}
+        iconBg={COLORS.dangerBg}
+        gradient
+        onClick={() => navigate('/critical-value')}
       />
-      <StatCard
-        label="设备使用率"
+      <KpiCard
+        title={t('homePage.kpiDeviceUtil')}
         value={`${Math.round(deviceInUse / devices.length * 100)}%`}
-        sub={`使用中 ${deviceInUse} 台 / 共 ${devices.length} 台`}
-        icon={<Activity size={24} />}
+        sub={t('homePage.kpiDeviceDetail', { inUse: deviceInUse, total: devices.length })}
+        icon={<IconDr size={24} />}
         color={MODALITY_COLORS['DR']!}
-        bg={COLORS.warningBg}
-        trend={5}
+        iconBg={COLORS.warningBg}
+        gradient
+        trend={{ value: 5, direction: 'up' }}
+        onClick={() => navigate('/devices')}
       />
-      <StatCard
-        label="今日收入"
+      <KpiCard
+        title={t('homePage.kpiRevenue')}
         value={`¥${(285000 / 10000).toFixed(1)}万`}
-        sub={`目标 ¥30万`}
-        icon={<TrendingUp size={24} />}
+        sub={t('homePage.kpiRevenueTarget')}
+        icon={<IconXRayBeam size={24} />}
         color={COLORS.success}
-        bg={COLORS.successBg}
-        trend={-5}
+        iconBg={COLORS.successBg}
+        gradient
+        trend={{ value: 5, direction: 'down' }}
+        onClick={() => navigate('/statistics')}
       />
-      <StatCard
-        label="平均报告完成时间 (TAT)"
-        value="45min"
-        sub="较昨日 -8min"
-        icon={<Timer size={24} />}
+      <KpiCard
+        title={t('homePage.kpiTat')}
+        value="45"
+        suffix="min"
+        sub={t('homePage.kpiTatDelta')}
+        icon={<IconReview size={24} />}
         color={COLORS.purple}
-        bg={COLORS.purpleBg}
-        trend={-8}
+        iconBg={COLORS.purpleBg}
+        gradient
+        trend={{ value: 8, direction: 'down' }}
+        onClick={() => navigate('/reports')}
       />
     </div>
   )
@@ -1340,7 +1271,7 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <TrendingUp size={16} color={COLORS.primary} />
-            今日检查量实时趋势
+            {t('homePage.trendToday')}
           </span>
           <div style={{ display: 'flex', gap: 12 }}>
             <span style={{
@@ -1356,7 +1287,7 @@ const HomePage: FC = () => {
                 borderRadius: 2,
                 background: COLORS.info,
               }} />
-              今日
+              {t('homePage.today')}
             </span>
             <span style={{
               display: 'flex',
@@ -1371,7 +1302,7 @@ const HomePage: FC = () => {
                 borderRadius: 2,
                 background: COLORS.textLight,
               }} />
-              昨日
+              {t('homePage.yesterday')}
             </span>
           </div>
         </div>
@@ -1395,7 +1326,7 @@ const HomePage: FC = () => {
                 color: 'var(--text-primary)',
                 fontSize: 12,
               }}
-              formatter={(value: number) => [`${value} 例`, '']}
+              formatter={(value: number) => [t('homePage.examCases', { count: value }), '']}
             />
             <Line
               type="monotone"
@@ -1404,7 +1335,7 @@ const HomePage: FC = () => {
               strokeWidth={2.5}
               dot={{ fill: 'var(--color-primary-500)', strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: 'var(--color-primary-500)' }}
-              name="今日"
+              name={t('homePage.today')}
             />
             <Line
               type="monotone"
@@ -1413,7 +1344,7 @@ const HomePage: FC = () => {
               strokeWidth={2}
               strokeDasharray="5 5"
               dot={false}
-              name="昨日"
+              name={t('homePage.yesterday')}
             />
           </LineChart>
         </ChartContainer>
@@ -1424,14 +1355,14 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <BarChart3 size={16} color={COLORS.primary} />
-            本周检查量统计（按设备类型）
+            {t('homePage.weekStats')}
           </span>
           <span style={{
             ...badgeStyle,
             background: COLORS.infoBg,
             color: COLORS.info,
           }}>
-            本周 {stats.week.exams} 例
+            {t('homePage.weekExams', { count: stats.week.exams })}
           </span>
         </div>
         <ChartContainer height={220}>
@@ -1477,7 +1408,7 @@ const HomePage: FC = () => {
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
           <Monitor size={16} color={COLORS.primary} />
-          设备状态监控
+          {t('homePage.deviceMonitor')}
         </span>
         <div style={{ display: 'flex', gap: 12 }}>
           <span style={{
@@ -1491,7 +1422,7 @@ const HomePage: FC = () => {
               borderRadius: '50%',
               background: '#3b82f6',
             }} />
-            使用中 {deviceInUse}
+            {t('homePage.inUseCount', { count: deviceInUse })}
           </span>
           <span style={{
             ...badgeStyle,
@@ -1504,7 +1435,7 @@ const HomePage: FC = () => {
               borderRadius: '50%',
               background: '#22c55e',
             }} />
-            空闲 {deviceIdle}
+            {t('homePage.idleCount', { count: deviceIdle })}
           </span>
           <span style={{
             ...badgeStyle,
@@ -1517,7 +1448,7 @@ const HomePage: FC = () => {
               borderRadius: '50%',
               background: '#f59e0b',
             }} />
-            维护 {deviceMaintenance}
+            {t('homePage.maintCount', { count: deviceMaintenance })}
           </span>
         </div>
       </div>
@@ -1560,7 +1491,7 @@ const HomePage: FC = () => {
               fontSize: 12,
               color: COLORS.textMuted,
             }}>
-              使用中
+              {t('homePage.stInUse')}
             </div>
           </div>
         </div>
@@ -1596,7 +1527,7 @@ const HomePage: FC = () => {
               fontSize: 12,
               color: COLORS.textMuted,
             }}>
-              空闲
+              {t('homePage.stIdle')}
             </div>
           </div>
         </div>
@@ -1632,7 +1563,7 @@ const HomePage: FC = () => {
               fontSize: 12,
               color: COLORS.textMuted,
             }}>
-              维护中
+              {t('homePage.stMaint')}
             </div>
           </div>
         </div>
@@ -1691,7 +1622,7 @@ const HomePage: FC = () => {
                   <>
                     <span>|</span>
                     <span style={{ color: COLORS.info }}>
-                      当前: {initialExamRooms.find(r => r.deviceId === device.id)?.currentPatient || '-'}
+                      {t('homePage.currentPatient', { patient: initialExamRooms.find(r => r.deviceId === device.id)?.currentPatient || '-' })}
                     </span>
                   </>
                 )}
@@ -1712,7 +1643,7 @@ const HomePage: FC = () => {
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
           <ClipboardList size={16} color={COLORS.primary} />
-          今日待处理检查
+          {t('homePage.pendingExamTitle')}
         </span>
         <div style={{ display: 'flex', gap: 8 }}>
           <span style={{
@@ -1720,14 +1651,14 @@ const HomePage: FC = () => {
             background: COLORS.dangerBg,
             color: COLORS.danger,
           }}>
-            紧急 {pendingExams.filter(e => e.priority === '紧急' || e.priority === '危重').length}
+            {t('homePage.urgentCount', { count: pendingExams.filter(e => e.priority === '紧急' || e.priority === '危重').length })}
           </span>
           <span style={{
             ...badgeStyle,
             background: COLORS.infoBg,
             color: COLORS.info,
           }}>
-            共 {pendingExams.length} 项
+            {t('homePage.totalCount', { count: pendingExams.length })}
           </span>
         </div>
       </div>
@@ -1800,7 +1731,7 @@ const HomePage: FC = () => {
                   ? COLORS.danger
                   : COLORS.textMuted
                 }}>
-                  {exam.clinicalDiagnosis || '待定'}
+                  {exam.clinicalDiagnosis || t('homePage.pending')}
                 </span>
               </div>
             </div>
@@ -1893,7 +1824,7 @@ const HomePage: FC = () => {
           color: COLORS.danger,
         }}>
           <ShieldAlert size={18} color={COLORS.danger} />
-          危急值预警
+          {t('homePage.criticalPanel')}
           <span style={{
             ...badgeStyle,
             background: COLORS.danger,
@@ -1902,7 +1833,7 @@ const HomePage: FC = () => {
             fontSize: 12,
             padding: '2px 8px',
           }}>
-            {criticalPending.length} 待处理
+            {t('homePage.criticalPendingBadge', { count: criticalPending.length })}
           </span>
         </span>
         <span style={{
@@ -1913,7 +1844,7 @@ const HomePage: FC = () => {
           gap: 4,
         }}>
           <Timer size={12} />
-          请及时处理
+          {t('homePage.processPrompt')}
         </span>
       </div>
 
@@ -1924,9 +1855,9 @@ const HomePage: FC = () => {
           color: COLORS.success,
         }}>
           <CheckCircle size={48} style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 14, fontWeight: 600 }}>暂无待处理危急值</div>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{t('homePage.noCritical')}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>
-            所有危急值已处理完毕
+            {t('homePage.allCriticalDone')}
           </div>
         </div>
       ) : (
@@ -2034,10 +1965,10 @@ const HomePage: FC = () => {
                 paddingLeft: 8,
               }}>
                 <span>
-                  报告医生: {cv.reportedByName} · {cv.reportedTime}
+                  {t('homePage.reportDoctor', { name: cv.reportedByName, time: cv.reportedTime })}
                 </span>
                 <span style={{ color: COLORS.danger }}>
-                  接收: {cv.receivingDoctorName} · {cv.receivingTime}
+                  {t('homePage.receivedBy', { name: cv.receivingDoctorName, time: cv.receivingTime })}
                 </span>
               </div>
             </div>
@@ -2071,7 +2002,7 @@ const HomePage: FC = () => {
           }}
         >
           <Eye size={14} />
-          查看全部危急值
+          {t('homePage.viewAllCritical')}
         </button>
         <button
           onClick={() => navigate('/critical-value?action=process')}
@@ -2090,7 +2021,7 @@ const HomePage: FC = () => {
           }}
         >
           <CheckSquare size={14} />
-          处理危急值
+          {t('homePage.processCritical')}
         </button>
       </div>
     </div>
@@ -2124,7 +2055,7 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <UserCheck size={16} color={COLORS.primary} />
-            今日医生排班
+            {t('homePage.todaySchedule')}
           </span>
           <span style={{
             fontSize: 12,
@@ -2152,7 +2083,7 @@ const HomePage: FC = () => {
                 fontWeight: 700,
                 color: 'var(--color-warning)',
               }}>
-                上午班 (08:00-12:00)
+                {t('homePage.morningShift')}
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2182,7 +2113,7 @@ const HomePage: FC = () => {
                       fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
-                      {doctorMap[schedule.doctorId]?.title || '医生'}
+                      {doctorMap[schedule.doctorId]?.title || t('homePage.doctorTitle')}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -2205,7 +2136,7 @@ const HomePage: FC = () => {
                     background: COLORS.successBg,
                     color: COLORS.success,
                   }}>
-                    上班
+                    {t('homePage.onDuty')}
                   </span>
                 </div>
               ))}
@@ -2229,7 +2160,7 @@ const HomePage: FC = () => {
                 fontWeight: 700,
                 color: 'var(--color-accent)',
               }}>
-                下午班 (14:00-18:00)
+                {t('homePage.afternoonShift')}
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2259,7 +2190,7 @@ const HomePage: FC = () => {
                       fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
-                      {doctorMap[schedule.doctorId]?.title || '医生'}
+                      {doctorMap[schedule.doctorId]?.title || t('homePage.doctorTitle')}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -2282,7 +2213,7 @@ const HomePage: FC = () => {
                     background: COLORS.successBg,
                     color: COLORS.success,
                   }}>
-                    上班
+                    {t('homePage.onDuty')}
                   </span>
                 </div>
               ))}
@@ -2308,14 +2239,14 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <ImageIcon size={16} color={COLORS.primary} />
-            影像质量统计
+            {t('homePage.imageQuality')}
           </span>
           <span style={{
             ...badgeStyle,
             background: COLORS.successBg,
             color: COLORS.success,
           }}>
-            优良率 {excellentRate}%
+            {t('homePage.excellentRateBadge', { count: excellentRate })}
           </span>
         </div>
 
@@ -2326,7 +2257,7 @@ const HomePage: FC = () => {
         }}>
           {/* 饼图 */}
           <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0 }}>
-            <ChartContainer height={160} state={qualityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无质量数据">
+            <ChartContainer height={160} state={qualityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('homePage.noQualityData')}>
               <PieChart>
                 <Pie
                   data={qualityData}
@@ -2371,7 +2302,7 @@ const HomePage: FC = () => {
                 fontSize: 12,
                 color: COLORS.textMuted,
               }}>
-                优良率
+                {t('homePage.excellentRate')}
               </div>
             </div>
           </div>
@@ -2447,7 +2378,7 @@ const HomePage: FC = () => {
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
           <DollarSign size={16} color={COLORS.primary} />
-          收入统计
+          {t('homePage.revenueStats')}
         </span>
         <div style={{ display: 'flex', gap: 8 }}>
           {revenueData.map((item) => (
@@ -2506,7 +2437,7 @@ const HomePage: FC = () => {
               fontSize: 12,
               color: COLORS.textLight,
             }}>
-              目标 ¥{(item.target / 10000).toFixed(0)}万
+              {t('homePage.targetAmount', { count: (item.target / 10000).toFixed(0) })}
             </div>
             <div style={{
               marginTop: 8,
@@ -2535,9 +2466,9 @@ const HomePage: FC = () => {
         color: COLORS.textMuted,
         marginBottom: 12,
       }}>
-        本周收入趋势
+        {t('homePage.weekRevenueTrend')}
       </div>
-      <ChartContainer height={200} state={revenueTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无收入趋势数据">
+      <ChartContainer height={200} state={revenueTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('homePage.noRevenueData')}>
         <AreaChart data={revenueTrendData}>
           <defs>
             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -2557,7 +2488,7 @@ const HomePage: FC = () => {
             tickFormatter={(value) => `¥${(value / 10000).toFixed(1)}万`}
           />
           <Tooltip
-            formatter={(value: number) => [`¥${value.toLocaleString()}`, '收入']}
+            formatter={(value: number) => [`¥${value.toLocaleString()}`, t('homePage.revenue')]}
             contentStyle={{
               borderRadius: 8,
               border: `1px solid ${COLORS.border}`,
@@ -2572,7 +2503,7 @@ const HomePage: FC = () => {
             stroke={COLORS.success}
             strokeWidth={2.5}
             fill="url(#revenueGradient)"
-            name="收入"
+            name={t('homePage.revenue')}
           />
         </AreaChart>
       </ChartContainer>
@@ -2587,29 +2518,29 @@ const HomePage: FC = () => {
     const todoCols = [
       {
         key: 'pendingReports',
-        title: '待报告',
+        title: t('homePage.todoPendingReports'),
         icon: <ClipboardList size={16} />,
         color: COLORS.info,
         bg: COLORS.infoBg,
-        items: myTodos.pendingReports.map((t, i) => ({ id: `pr-${i}`, title: t.patientName, sub: t.examItem, time: (t.createdAt ?? '').slice(11, 16) || '—', badge: t.priority === '紧急' || t.priority === '危重' ? '紧急' : undefined, badgeColor: COLORS.danger })),
+        items: myTodos.pendingReports.map((td, i) => ({ id: `pr-${i}`, title: td.patientName, sub: td.examItem, time: (td.createdAt ?? '').slice(11, 16) || '—', badge: td.priority === '紧急' || td.priority === '危重' ? t('homePage.urgentBadge') : undefined, badgeColor: COLORS.danger })),
         href: '/write-report',
       },
       {
         key: 'pendingReviews',
-        title: '待审核',
+        title: t('homePage.todoPendingReviews'),
         icon: <FileCheck2 size={16} />,
         color: COLORS.purple,
         bg: COLORS.purpleBg,
-        items: myTodos.pendingReviews.map((t, i) => ({ id: `rv-${i}`, title: t.patientName, sub: t.examItem, time: (t.createdAt ?? '').slice(11, 16) || '—', badge: t.state === 'CO_SIGN_REVIEW' ? '双签' : undefined, badgeColor: COLORS.warning })),
+        items: myTodos.pendingReviews.map((td, i) => ({ id: `rv-${i}`, title: td.patientName, sub: td.examItem, time: (td.createdAt ?? '').slice(11, 16) || '—', badge: td.state === 'CO_SIGN_REVIEW' ? t('homePage.cosignBadge') : undefined, badgeColor: COLORS.warning })),
         href: '/review-center',
       },
       {
         key: 'pendingCriticals',
-        title: '待处置危急值',
+        title: t('homePage.todoPendingCriticals'),
         icon: <ShieldAlert size={16} />,
         color: COLORS.danger,
         bg: COLORS.dangerBg,
-        items: myTodos.pendingCriticals.map((t, i) => ({ id: `cv-${i}`, title: t.patientName, sub: t.finding || '危急发现', time: (t.triggeredAt ?? '').slice(11, 16) || '—', badge: t.severity === '危急' ? '危急' : '警告', badgeColor: t.severity === '危急' ? COLORS.danger : COLORS.warning })),
+        items: myTodos.pendingCriticals.map((td, i) => ({ id: `cv-${i}`, title: td.patientName, sub: td.finding || t('homePage.criticalFinding'), time: (td.triggeredAt ?? '').slice(11, 16) || '—', badge: td.severity === '危急' ? t('homePage.criticalBadge') : t('homePage.warningBadge'), badgeColor: td.severity === '危急' ? COLORS.danger : COLORS.warning })),
         href: '/critical-value',
       },
     ]
@@ -2618,17 +2549,17 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <ListChecks size={18} color={COLORS.primary} />
-            今日工作清单
+            {t('homePage.workListTitle')}
             <span style={{
               ...badgeStyle,
               background: workSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: workSource === 'real' ? COLORS.success : COLORS.warning,
               marginLeft: 4,
             }}>
-              {workSource === 'real' ? 'API 实时' : '本地回退'}
+              {workSource === 'real' ? t('homePage.apiReal') : t('homePage.localFallback')}
             </span>
             {myTodoLoading && (
-              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>{t('homePage.syncing')}</span>
             )}
           </span>
           <button
@@ -2639,7 +2570,7 @@ const HomePage: FC = () => {
               color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
             }}
           >
-            <RefreshCcw size={12} /> 刷新
+            <RefreshCcw size={12} /> {t('homePage.refresh')}
           </button>
         </div>
 
@@ -2672,13 +2603,11 @@ const HomePage: FC = () => {
               </div>
               <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label={`${col.title}列表`}>
                 {col.items.length === 0 ? (
-                  <div style={{
-                    textAlign: 'center', padding: '24px 0', color: COLORS.success,
-                    fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                  }}>
-                    <CheckCircle size={28} />
-                    暂无{col.title}
-                  </div>
+                  <EmptyState
+                    type="nodata"
+                    description={t('homePage.noTodoItems', { title: col.title })}
+                    style={{ padding: '12px 0', gap: 4 }}
+                  />
                 ) : col.items.slice(0, 6).map((item) => (
                   <div
                     key={item.id}
@@ -2734,28 +2663,28 @@ const HomePage: FC = () => {
   // ============================================================
   const renderDeptNews = () => {
     const CATEGORY_LABEL: Record<string, string> = {
-      notice: '通知', meeting: '会议', policy: '制度', urgent: '紧急', other: '其他',
+      notice: t('homePage.catNotice'), meeting: t('homePage.catMeeting'), policy: t('homePage.catPolicy'), urgent: t('homePage.catUrgent'), other: t('homePage.catOther'),
     }
     const CATEGORY_COLOR: Record<string, string> = {
       notice: COLORS.info, meeting: COLORS.purple, policy: COLORS.success, urgent: COLORS.danger, other: COLORS.textMuted,
     }
-    const SHIFT_LABEL: Record<string, string> = { DAY: '白班', NIGHT: '夜班', WEEKEND: '周末班' }
+    const SHIFT_LABEL: Record<string, string> = { DAY: t('homePage.shiftDay'), NIGHT: t('homePage.shiftNight'), WEEKEND: t('homePage.shiftWeekend') }
     return (
       <div style={cardStyle}>
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <Megaphone size={18} color={COLORS.primary} />
-            科室动态
+            {t('homePage.deptNews')}
             <span style={{
               ...badgeStyle,
               background: deptSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: deptSource === 'real' ? COLORS.success : COLORS.warning,
               marginLeft: 4,
             }}>
-              {deptSource === 'real' ? 'API 实时' : '本地回退'}
+              {deptSource === 'real' ? t('homePage.apiReal') : t('homePage.localFallback')}
             </span>
             {deptLoading && (
-              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>{t('homePage.syncing')}</span>
             )}
           </span>
           <span style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -2767,7 +2696,7 @@ const HomePage: FC = () => {
           {/* 左侧: 科室公告 */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Users size={14} color={COLORS.info} /> 科室公告
+              <Users size={14} color={COLORS.info} /> {t('homePage.deptAnnouncements')}
             </div>
             <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="科室公告列表">
               {deptAnnouncements.length === 0 ? (
@@ -2776,7 +2705,7 @@ const HomePage: FC = () => {
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                 }}>
                   <Megaphone size={30} />
-                  暂无进行中的公告
+                  {t('homePage.noAnnouncements')}
                 </div>
               ) : deptAnnouncements.slice(0, 5).map(a => (
                 <div key={a.id} style={{
@@ -2812,7 +2741,7 @@ const HomePage: FC = () => {
           {/* 右侧: 今日值班 */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <CalendarClock size={14} color={COLORS.warning} /> 今日值班
+              <CalendarClock size={14} color={COLORS.warning} /> {t('homePage.todayOnCall')}
             </div>
             <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label="今日值班列表">
               {todayOnCall.length === 0 ? (
@@ -2821,7 +2750,7 @@ const HomePage: FC = () => {
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                 }}>
                   <CalendarClock size={30} />
-                  今日无值班安排
+                  {t('homePage.noOnCall')}
                 </div>
               ) : todayOnCall.map(s => (
                 <div key={s.id} style={{
@@ -2840,7 +2769,7 @@ const HomePage: FC = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{s.doctorName}</div>
-                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.role || '值班医师'}</div>
+                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.role || t('homePage.onCallDoctor')}</div>
                   </div>
                   <span style={{
                     ...badgeStyle, fontSize: 11,
@@ -2869,23 +2798,23 @@ const HomePage: FC = () => {
   // ============================================================
   const renderQuickActionsEnhanced = () => {
     const moreActions = [
-      { icon: <Calendar size={20} />, label: '预约排期', color: '#3b82f6', bg: '#3b82f622', href: '/appointments' },
-      { icon: <UserPlus size={20} />, label: '检查登记', color: '#8b5cf6', bg: '#8b5cf622', href: '/exams' },
-      { icon: <Target size={20} />, label: '质控看板', color: '#10b981', bg: '#10b98122', href: '/qc' },
-      { icon: <CalendarRange size={20} />, label: '排班管理', color: '#f59e0b', bg: '#f59e0b22', href: '/schedule' },
-      { icon: <Stethoscope size={20} />, label: '随访管理', color: '#ec4899', bg: '#ec489922', href: '/follow-up' },
-      { icon: <Crosshair size={20} />, label: '病灶追踪', color: '#06b6d4', bg: '#06b6d422', href: '/patients' },
-      { icon: <ClipboardPlus size={20} />, label: '报告模板', color: '#6366f1', bg: '#6366f122', href: '/templates' },
-      { icon: <BookOpen size={20} />, label: '典型病例', color: '#a855f7', bg: '#a855f722', href: '/typical-cases' },
+      { icon: <Calendar size={20} />, label: t('homePage.actAppointment'), color: '#3b82f6', bg: '#3b82f622', href: '/appointments' },
+      { icon: <UserPlus size={20} />, label: t('homePage.actRegister'), color: '#8b5cf6', bg: '#8b5cf622', href: '/exams' },
+      { icon: <Target size={20} />, label: t('homePage.actQc'), color: '#10b981', bg: '#10b98122', href: '/qc' },
+      { icon: <CalendarRange size={20} />, label: t('homePage.actSchedule'), color: '#f59e0b', bg: '#f59e0b22', href: '/schedule' },
+      { icon: <Stethoscope size={20} />, label: t('homePage.actFollowUp'), color: '#ec4899', bg: '#ec489922', href: '/follow-up' },
+      { icon: <Crosshair size={20} />, label: t('homePage.actLesion'), color: '#06b6d4', bg: '#06b6d422', href: '/patients' },
+      { icon: <ClipboardPlus size={20} />, label: t('homePage.actTemplate'), color: '#6366f1', bg: '#6366f122', href: '/templates' },
+      { icon: <BookOpen size={20} />, label: t('homePage.actCases'), color: '#a855f7', bg: '#a855f722', href: '/typical-cases' },
     ]
     return (
       <div style={{ ...cardStyle, marginBottom: 24, padding: 16 }}>
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <LayoutDashboard size={16} color={COLORS.primary} />
-            更多功能入口
+            {t('homePage.moreActions')}
           </span>
-          <span style={{ fontSize: 12, color: COLORS.textMuted }}>预约 / 登记 / 质控 / 排班 / 随访 / 病灶追踪</span>
+          <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.moreActionsHint')}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 10 }}>
           {moreActions.map(a => (
@@ -2917,7 +2846,7 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <BarChart3 size={16} color={COLORS.primary} />
-            近 7 日检查量趋势（按模态）
+            {t('homePage.modalTrendTitle')}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{
@@ -2925,10 +2854,10 @@ const HomePage: FC = () => {
               background: trendSource === 'real' ? COLORS.successBg : COLORS.warningBg,
               color: trendSource === 'real' ? COLORS.success : COLORS.warning,
             }}>
-              {trendSource === 'real' ? 'API 实时' : '本地回退'}
+              {trendSource === 'real' ? t('homePage.apiReal') : t('homePage.localFallback')}
             </span>
             {trendLoading && (
-              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>{t('homePage.syncing')}</span>
             )}
             <button
               onClick={() => void loadModalTrend()}
@@ -2943,7 +2872,7 @@ const HomePage: FC = () => {
           </div>
         </div>
 
-        <ChartContainer height={240} state={modalStackData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
+        <ChartContainer height={240} state={modalStackData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('homePage.noTrendData')}>
           <BarChart data={modalStackData as unknown as Array<Record<string, unknown>>}>
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis dataKey="day" tick={{ fontSize: 12, fill: COLORS.textMuted }} axisLine={{ stroke: COLORS.border }} />
@@ -2958,7 +2887,7 @@ const HomePage: FC = () => {
             {keys.map(k => (
               <Bar key={k} dataKey={k} name={k} stackId="modal" fill={MODALITY_COLORS[k] ?? '#94a3b8'} radius={[0, 0, 0, 0]} />
             ))}
-            <Bar dataKey="合计" name="合计" fill="transparent" stroke="var(--color-primary-500)" strokeWidth={2} stackId="none" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="合计" name={t('homePage.totalLabel')} fill="transparent" stroke="var(--color-primary-500)" strokeWidth={2} stackId="none" radius={[0, 0, 0, 0]} />
           </BarChart>
         </ChartContainer>
 
@@ -3001,7 +2930,7 @@ const HomePage: FC = () => {
   const renderPerfCard = () => {
     const perfItems = [
       {
-        label: '今日完成报告',
+        label: t('homePage.perfTodayReports'),
         value: String(perfCard.todayReports),
         unit: '份',
         icon: <FileText size={22} />,
@@ -3009,7 +2938,7 @@ const HomePage: FC = () => {
         bg: COLORS.purpleBg,
       },
       {
-        label: 'RVU 预估',
+        label: t('homePage.perfRvu'),
         value: String(perfCard.rvu),
         unit: '点',
         icon: <Sparkles size={22} />,
@@ -3017,7 +2946,7 @@ const HomePage: FC = () => {
         bg: COLORS.warningBg,
       },
       {
-        label: '质控得分',
+        label: t('homePage.perfQuality'),
         value: perfCard.qualityScore > 0 ? String(perfCard.qualityScore) : '—',
         unit: '',
         icon: <Award size={22} />,
@@ -3025,7 +2954,7 @@ const HomePage: FC = () => {
         bg: COLORS.successBg,
       },
       {
-        label: '平均 TAT',
+        label: t('homePage.perfAvgTat'),
         value: perfCard.timelinessMin > 0 ? String(perfCard.timelinessMin) : '—',
         unit: '分',
         icon: <Timer size={22} />,
@@ -3038,7 +2967,7 @@ const HomePage: FC = () => {
         <div style={headerStyle}>
           <span style={cardTitleStyle}>
             <Gauge size={16} color={COLORS.primary} />
-            个人绩效
+            {t('homePage.perfTitle')}
             <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 4 }}>
               {perfCard.doctorName}
             </span>
@@ -3048,10 +2977,10 @@ const HomePage: FC = () => {
               color: perfSource === 'real' ? COLORS.success : COLORS.warning,
               marginLeft: 4,
             }}>
-              {perfSource === 'real' ? 'API 实时' : '本地估算'}
+              {perfSource === 'real' ? t('homePage.apiReal') : t('homePage.localEstimate')}
             </span>
             {perfLoading && (
-              <span style={{ fontSize: 11, color: COLORS.textLight }}>同步中…</span>
+              <span style={{ fontSize: 11, color: COLORS.textLight }}>{t('homePage.syncing')}</span>
             )}
           </span>
           <button
@@ -3062,7 +2991,7 @@ const HomePage: FC = () => {
               color: COLORS.textMuted, borderRadius: 6, padding: '4px 10px', fontSize: 12,
             }}
           >
-            <RefreshCcw size={12} /> 刷新
+            <RefreshCcw size={12} /> {t('homePage.refresh')}
           </button>
         </div>
 
@@ -3108,7 +3037,7 @@ const HomePage: FC = () => {
       border: `1px solid ${COLORS.border}`, flexWrap: 'wrap',
     }}>
       <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Database size={13} color={COLORS.info} /> 数据源
+        <Database size={13} color={COLORS.info} /> {t('homePage.dataSource')}
       </span>
       {dataSourceBadges.map(b => (
         <span key={b.key} style={{
@@ -3121,7 +3050,7 @@ const HomePage: FC = () => {
             width: 6, height: 6, borderRadius: '50%',
             background: b.real ? COLORS.success : COLORS.warning,
           }} />
-          {b.label}: {b.real ? '真实' : '演示'}
+          {b.label}: {b.real ? t('homePage.badgeReal') : t('homePage.badgeDemo')}
         </span>
       ))}
       <span style={{ fontSize: 11, color: COLORS.textLight, marginLeft: 'auto' }}>
@@ -3139,12 +3068,21 @@ const HomePage: FC = () => {
       maxWidth="standard"
       testId="home-page"
     >
-      {loading && <LoadingBanner message="正在从 API 加载统计数据..." />}
+      {/* [v3.0.6.11-103 Wave 5] 页面头: 面包屑 + 标题图标 + 子标题 */}
+      <PageHeader
+        variant="flex"
+        icon={<IconRadiationSign size={24} color={COLORS.primary} />}
+        title={t('homePage.pageTitle')}
+        subtitle={`${HOSPITAL_NAME} · ${t('homePage.deptName')} · ${dateString}`}
+        breadcrumb={[{ label: t('homePage.breadcrumbHome') }]}
+        style={{ marginBottom: 16 }}
+      />
+      {loading && <LoadingBanner message={t('homePage.loadingStats')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {loadError && !loading && (
         <div style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 8 }}>
           <AlertTriangle size={14} />
-          <span><b>演示数据</b>：统计接口不可用，当前首页 KPI / 工作量 / 设备状态等区块展示 mockBackend store 兜底数据（initialData + mockBackend），仅用于演示。</span>
+          <span><b>演示数据</b>：{t('homePage.demoNotice')}</span>
         </div>
       )}
       {/* CSS动画 */}
@@ -3223,7 +3161,7 @@ const HomePage: FC = () => {
         fontSize: 12,
         color: COLORS.textLight,
       }}>
-        {HOSPITAL_NAME} · 放射科信息管理系统 · 数据更新于 {BUILD_DATE}
+        {t('homePage.footer', { hospital: HOSPITAL_NAME, date: BUILD_DATE })}
       </div>
     </PageContainer>
   )

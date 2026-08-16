@@ -18,6 +18,8 @@ import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExp
 import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
 import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
 import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
+// [v3.0.6.11-103 Wave 2A] 导出中心 V2 (report-export-center-v2 后端 10 端点全量 UI)
+import ReportExportCenterPanelV2 from '@components/report/v3/ReportExportCenterPanelV2';
 import { Tabs, Badge, message, Empty, Spin } from 'antd';
 import {
   Download,
@@ -69,7 +71,7 @@ export default function ReportExportPage() {
   const [exportProgress, setExportProgress] = useState(0);
   const [exportElapsedMs, setExportElapsedMs] = useState<number | null>(null);
   const [filterFormat, setFilterFormat] = useState<string>('all');
-  const [view, setView] = useState<'classic' | 'v3'>('v3');
+  const [view, setView] = useState<'classic' | 'v3' | 'v2'>('v3');
   const [bulkOpen, setBulkOpen] = useState(false);
   const [pptxOpen, setPptxOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
@@ -238,7 +240,7 @@ export default function ReportExportPage() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Tabs
             activeKey={view}
-            onChange={(k) => setView(k as 'classic' | 'v3')}
+            onChange={(k) => setView(k as 'classic' | 'v3' | 'v2')}
             tabBarExtraContent={
               <Badge
                 count={EXPORT_TEMPLATES.length}
@@ -247,6 +249,7 @@ export default function ReportExportPage() {
               />
             }
             items={[
+              { key: 'v2', label: <span><Layers className="w-3 h-3 inline mr-1" />导出中心 V2</span> },
               { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.INTEGRATION 增强</span> },
               { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
             ]}
@@ -272,7 +275,12 @@ export default function ReportExportPage() {
         </div>
       </div>
 
-      {view === 'v3' ? (
+      {view === 'v2' ? (
+        // [v3.0.6.11-103 Wave 2A] 导出中心 V2: report-export-center-v2 10 端点全量 UI (报告注册表/任务/批量/历史/统计)
+        <div style={{ marginTop: 12 }}>
+          <ReportExportCenterPanelV2 />
+        </div>
+      ) : view === 'v3' ? (
         <div style={{ marginTop: 12 }}>
           <Tabs
             defaultActiveKey="cda"

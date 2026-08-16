@@ -81,12 +81,16 @@ const PRIOR_SUMMARY_DIAG_KEYWORDS = [
   '动脉瘤', '结石', '肝硬化', '骨质疏松', '骨折', '囊肿',
 ]
 
+// [v3.0.6.11-103 Wave 13] 报告状态机门禁 (流程质量门禁):
+//   主链: WRITING→SUBMITTED→INITIAL_REVIEW→FINAL_REVIEW/CO_SIGN_REVIEW→REVIEWED→SIGNING→SIGNED→PUBLISHED→ARCHIVED
+//   退回: REJECTED→WRITING; 升级: ESCALATED→REVIEWED/REJECTED
+//   禁止跳级: WRITING 必须先 SUBMITTED 才能进审; SUBMITTED/INITIAL_REVIEW 不可直达 REVIEWED (防跳转)
 export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
   PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'],
   ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
-  WRITING: ['SUBMITTED', 'INITIAL_REVIEW', 'REJECTED'],
-  SUBMITTED: ['INITIAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
-  INITIAL_REVIEW: ['FINAL_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
+  WRITING: ['SUBMITTED', 'REJECTED'],
+  SUBMITTED: ['INITIAL_REVIEW', 'REJECTED', 'ESCALATED'],
+  INITIAL_REVIEW: ['FINAL_REVIEW', 'CO_SIGN_REVIEW', 'REJECTED', 'ESCALATED'],
   FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED', 'ESCALATED'],
   CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED', 'ESCALATED'],
   REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED', 'ESCALATED'],
@@ -185,10 +189,11 @@ export class ReportsService {
   }
 
   // ══════════════════════════════════════════════════════════════════════
-  // [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发 (SUBMITTED 后置钩子)
+  // [v3.0.6.11-100 Wave2C (报告工作站 P3)] 报告→随访自动触发 (PUBLISHED 后置钩子)
   // 根据 impression/findings/conclusion 关键词匹配 followup-trigger-rules:
   //   mode=auto → 调 followup.service 自动创建随访计划 + auditLog 审计
   //   mode=hint (默认) → 不自动创建, 前端书写页「建议随访」卡片提示 (仅提示)
+  // [v3.0.6.11-103 Wave 13] 触发点强化: SUBMITTED → PUBLISHED (报告发布后按规则自动创建)
   // ══════════════════════════════════════════════════════════════════════
   private async maybeTriggerFollowUp(report: Report, actorId: string): Promise<void> {
     if (!this.followUp) return
@@ -459,8 +464,9 @@ export class ReportsService {
     }).then(async (dto) => {
       // W4-2: 报告状态变化 → 工作列表实时刷新; 签署/发布额外推送 notify
       this.gateway.emitWorklistRefresh()
-      // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发: SUBMITTED 后置钩子 (auto 模式自动创建, 失败不阻塞)
-      if (to === 'SUBMITTED') {
+      // [v3.0.6.11-100 Wave2C P3] 报告→随访自动触发 (auto 模式自动创建, 失败不阻塞)
+      // [v3.0.6.11-103 Wave 13] 触发点从 SUBMITTED 强化为 PUBLISHED: 报告发布后按规则自动创建随访计划
+      if (to === 'PUBLISHED') {
         await this.maybeTriggerFollowUp(report, actorId)
       }
       if (to === 'SIGNED' || to === 'PUBLISHED') {

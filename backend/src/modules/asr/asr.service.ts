@@ -1,5 +1,203 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
+
+// ── [v3.0.6.11-103 Wave 17] 听写会话 V2 ────────────────────────────────────────
+
+export type DictationSectionKey = 'findings' | 'impression' | 'recommendation' | 'conclusion'
+
+export type DictationHotwordCategory = '解剖' | '影像' | '疾病' | '单位' | '操作'
+
+export interface DictationHotword {
+  id: string
+  term: string
+  category: DictationHotwordCategory
+  priority: number
+  builtin: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DictationCommandEvent {
+  phrase: string
+  action: 'next_section' | 'save' | 'submit' | 'pause' | 'resume' | 'start'
+  at: number
+}
+
+export interface DictationSection {
+  key: DictationSectionKey
+  text: string
+}
+
+export interface DictationChunkResult {
+  sessionId: string
+  text: string
+  sections: DictationSection[]
+  commands: DictationCommandEvent[]
+  hotwordHits: { term: string; count: number }[]
+  confidence: number
+  engine: 'mock-dictation'
+}
+
+export interface DictationSession {
+  id: string
+  reportId: string
+  doctorId: string
+  lang: string
+  status: 'dictating' | 'paused' | 'completed' | 'error'
+  startedAt: string
+  endedAt: string | null
+  text: string
+  sections: DictationSection[]
+  commands: DictationCommandEvent[]
+  durationSec: number
+}
+
+export interface StartDictationDto {
+  reportId?: string
+  doctorId?: string
+  lang?: string
+}
+
+export interface DictationHotwordInput {
+  term: string
+  category?: DictationHotwordCategory
+  priority?: number
+}
+
+const DICTATION_SECTION_LABELS: Record<DictationSectionKey, string> = {
+  findings: '所见',
+  impression: '印象',
+  recommendation: '建议',
+  conclusion: '结论',
+}
+
+// 放射专用术语热词 seed (听写时优先识别): 解剖/影像/疾病/单位/操作
+const BUILTIN_HOTWORDS: Array<[term: string, category: DictationHotwordCategory, priority: number]> = [
+  ['双肺纹理', '解剖', 3], ['右肺上叶', '解剖', 3], ['左肺上叶', '解剖', 3], ['右肺下叶', '解剖', 3],
+  ['肺野', '解剖', 2], ['肺门', '解剖', 2], ['纵隔', '解剖', 2], ['膈面', '解剖', 2], ['肋膈角', '解剖', 3],
+  ['心影', '解剖', 2], ['主动脉弓', '解剖', 2], ['肺动脉', '解剖', 2], ['支气管', '解剖', 2],
+  ['肝脏', '解剖', 2], ['胆囊', '解剖', 2], ['胰腺', '解剖', 2], ['脾脏', '解剖', 2], ['双肾', '解剖', 2],
+  ['门静脉', '解剖', 2], ['胆总管', '解剖', 2], ['椎体', '解剖', 2], ['椎间盘', '解剖', 2],
+  ['侧脑室', '解剖', 2], ['脑干', '解剖', 2], ['蝶鞍', '解剖', 2], ['甲状腺', '解剖', 2],
+  ['磨玻璃影', '影像', 3], ['磨玻璃结节', '影像', 3], ['实变影', '影像', 3], ['结节影', '影像', 3],
+  ['钙化灶', '影像', 3], ['条索影', '影像', 2], ['斑片状影', '影像', 2], ['胸腔积液', '影像', 3],
+  ['肺不张', '影像', 3], ['肺气肿', '影像', 3], ['毛刺征', '影像', 3], ['分叶征', '影像', 3],
+  ['胸膜牵拉', '影像', 3], ['低回声', '影像', 2], ['无回声', '影像', 2], ['高信号', '影像', 2],
+  ['低信号', '影像', 2], ['弥散受限', '影像', 2], ['明显强化', '影像', 2], ['增强扫描', '影像', 2],
+  ['肺结节', '疾病', 3], ['肺占位', '疾病', 3], ['肺炎', '疾病', 2], ['肺结核', '疾病', 2],
+  ['肺栓塞', '疾病', 3], ['气胸', '疾病', 3], ['肝囊肿', '疾病', 2], ['肝硬化', '疾病', 2],
+  ['脂肪肝', '疾病', 2], ['胆囊结石', '疾病', 2], ['肾囊肿', '疾病', 2], ['肾结石', '疾病', 2],
+  ['脑梗死', '疾病', 3], ['脑出血', '疾病', 3], ['动脉瘤', '疾病', 3], ['骨折', '疾病', 2],
+  ['骨质疏松', '疾病', 2], ['椎间盘突出', '疾病', 2], ['甲状腺结节', '疾病', 2],
+  ['毫米', '单位', 2], ['厘米', '单位', 2], ['造影剂', '操作', 3], ['穿刺活检', '操作', 2],
+]
+
+// 语音命令词: 命中即从正文剥离并触发对应操作
+const DICTATION_COMMANDS: Array<{ phrase: string; action: DictationCommandEvent['action'] }> = [
+  { phrase: '下一段', action: 'next_section' },
+  { phrase: '下一节', action: 'next_section' },
+  { phrase: '保存报告', action: 'save' },
+  { phrase: '保存', action: 'save' },
+  { phrase: '提交报告', action: 'submit' },
+  { phrase: '提交', action: 'submit' },
+  { phrase: '暂停听写', action: 'pause' },
+  { phrase: '暂停', action: 'pause' },
+  { phrase: '继续听写', action: 'resume' },
+  { phrase: '继续', action: 'resume' },
+  { phrase: '开始听写', action: 'start' },
+  { phrase: '开始', action: 'start' },
+]
+
+const DICTATION_MAX_SESSIONS = 100
+const DICTATION_MAX_HOTWORDS = 500
+
+export function createEmptyDictationSections(): DictationSection[] {
+  return (Object.keys(DICTATION_SECTION_LABELS) as DictationSectionKey[]).map((key) => ({ key, text: '' }))
+}
+
+/**
+ * 确定性 mock 识别: 输入文本 → 自动标点 + 分段(所见/印象/建议/结论) + 热词命中 + 命令词解析。
+ * 无随机数、无外部依赖, 同一输入恒得同一输出。
+ */
+export function recognizeDictationChunk(
+  input: string,
+  hotwords: DictationHotword[],
+  currentSection: DictationSectionKey = 'findings',
+): { text: string; sections: DictationSection[]; commands: DictationCommandEvent[]; hotwordHits: Array<{ term: string; count: number }> } {
+  const text = (input ?? '').trim()
+  const sections = createEmptyDictationSections()
+  const commands: DictationCommandEvent[] = []
+  if (!text) return { text: '', sections, commands, hotwordHits: [] }
+
+  let cursor = 0
+  const consumed = new Array<boolean>(text.length).fill(false)
+
+  // 1) 命令词解析 (最长短语优先)
+  const orderedCommands = [...DICTATION_COMMANDS].sort((a, b) => b.phrase.length - a.phrase.length)
+  for (const cmd of orderedCommands) {
+    let from = 0
+    while (true) {
+      const idx = text.indexOf(cmd.phrase, from)
+      if (idx === -1) break
+      if (!consumed.slice(idx, idx + cmd.phrase.length).some(Boolean)) {
+        for (let i = idx; i < idx + cmd.phrase.length; i++) consumed[i] = true
+        commands.push({ phrase: cmd.phrase, action: cmd.action, at: idx })
+      }
+      from = idx + cmd.phrase.length
+    }
+  }
+  commands.sort((a, b) => a.at - b.at)
+
+  // 2) 剥离命令词后按句切分
+  const clean = [...text].map((ch, i) => (consumed[i] ? ' ' : ch)).join('').replace(/\s+/g, ' ').trim()
+  if (!clean) return { text: '', sections, commands, hotwordHits: [] }
+
+  // 3) 自动标点 + 分段
+  let sectionKey: DictationSectionKey = currentSection
+  const sentences = clean.split(/(?<=[。！？；;])|(?<=。)|(?<=！)|(?<=？)|(?<=；)|(?<=;)/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+  for (let raw of sentences) {
+    // 段标记: 【所见】/所见: 等 → 切换目标区
+    for (const key of Object.keys(DICTATION_SECTION_LABELS) as DictationSectionKey[]) {
+      const label = DICTATION_SECTION_LABELS[key]
+      const marker = new RegExp(`^【${label}】|^${label}[：:]|^${label}$`)
+      if (marker.test(raw)) {
+        sectionKey = key
+        raw = raw.replace(marker, '').trim()
+        if (!raw) continue
+      }
+    }
+    // 句内插入标点: 无结尾标点且足够长 → 句号; 过长无停顿 → 逗号
+    if (raw.length > 0 && !/[。！？；;，,]$/.test(raw)) {
+      raw = raw.length >= 8 ? `${raw}。` : `${raw}，`
+    }
+    if (!raw) continue
+    const current = sections.find((s) => s.key === sectionKey)
+    if (current) current.text = current.text ? `${current.text}${raw}` : raw
+  }
+
+  // 4) 热词命中 (最长优先, 去重计数)
+  const orderedHotwords = [...hotwords].sort((a, b) => b.priority - a.priority || b.term.length - a.term.length)
+  const hotwordHits: Array<{ term: string; count: number }> = []
+  const seen = new Set<string>()
+  for (const hw of orderedHotwords) {
+    if (seen.has(hw.term)) continue
+    const count = clean.split(hw.term).length - 1
+    if (count > 0) {
+      seen.add(hw.term)
+      hotwordHits.push({ term: hw.term, count })
+    }
+  }
+
+  const joined = sections.map((s) => s.text).filter(Boolean).join('')
+  return { text: joined, sections, commands, hotwordHits }
+}
+
+export function dictationConfidence(hotwordHits: Array<{ term: string; count: number }>, commandCount: number): number {
+  const unique = hotwordHits.length
+  return Math.min(0.99, +(0.88 + unique * 0.04 + commandCount * 0.02).toFixed(2))
+}
 
 export interface TranscribeRequest {
   audioBase64?: string
@@ -69,6 +267,143 @@ export class AsrService {
   async feedback(req: FeedbackRequest): Promise<{ success: boolean }> {
     this.feedbackStore.set(req.transcriptionId, req)
     return { success: true }
+  }
+
+  // ── [v3.0.6.11-103 Wave 17] 听写会话 V2 ──────────────────────────────────
+
+  private readonly sessions: Map<string, DictationSession> = new Map()
+  private readonly hotwords: DictationHotword[] = BUILTIN_HOTWORDS.map(([term, category, priority]) => ({
+    id: uuid(),
+    term,
+    category,
+    priority,
+    builtin: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }))
+
+  listDictationHotwords(): DictationHotword[] {
+    return [...this.hotwords].sort((a, b) => b.priority - a.priority || a.term.localeCompare(b.term, 'zh-CN'))
+  }
+
+  createDictationHotword(input: DictationHotwordInput): DictationHotword {
+    const term = (input.term ?? '').trim()
+    if (!term) throw new BadRequestException('热词不能为空')
+    if (term.length > 64) throw new BadRequestException('热词长度不能超过 64')
+    if (this.hotwords.some((h) => h.term === term)) throw new BadRequestException(`热词已存在: ${term}`)
+    if (this.hotwords.length >= DICTATION_MAX_HOTWORDS) throw new BadRequestException('热词数量已达上限')
+    const entry: DictationHotword = {
+      id: uuid(),
+      term,
+      category: input.category ?? '影像',
+      priority: input.priority ?? 1,
+      builtin: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    this.hotwords.push(entry)
+    return entry
+  }
+
+  updateDictationHotword(id: string, input: Partial<DictationHotwordInput>): DictationHotword {
+    const entry = this.hotwords.find((h) => h.id === id)
+    if (!entry) throw new NotFoundException(`热词不存在: ${id}`)
+    if (input.term !== undefined) {
+      const term = input.term.trim()
+      if (!term) throw new BadRequestException('热词不能为空')
+      if (term.length > 64) throw new BadRequestException('热词长度不能超过 64')
+      if (this.hotwords.some((h) => h.id !== id && h.term === term)) {
+        throw new BadRequestException(`热词已存在: ${term}`)
+      }
+      entry.term = term
+    }
+    if (input.category !== undefined) entry.category = input.category
+    if (input.priority !== undefined) {
+      if (!Number.isInteger(input.priority) || input.priority < 0 || input.priority > 10) {
+        throw new BadRequestException('priority 需为 0-10 整数')
+      }
+      entry.priority = input.priority
+    }
+    entry.updatedAt = new Date().toISOString()
+    return { ...entry }
+  }
+
+  deleteDictationHotword(id: string): { success: boolean; deletedId: string } {
+    const index = this.hotwords.findIndex((h) => h.id === id)
+    if (index === -1) throw new NotFoundException(`热词不存在: ${id}`)
+    const [removed] = this.hotwords.splice(index, 1)
+    return { success: true, deletedId: removed?.id ?? id }
+  }
+
+  startDictationSession(dto: StartDictationDto): DictationSession {
+    const id = uuid()
+    const session: DictationSession = {
+      id,
+      reportId: (dto.reportId ?? '').trim() || '未关联报告',
+      doctorId: (dto.doctorId ?? '').trim() || 'D1001',
+      lang: (dto.lang ?? '').trim() || 'zh-CN',
+      status: 'dictating',
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      text: '',
+      sections: createEmptyDictationSections(),
+      commands: [],
+      durationSec: 0,
+    }
+    this.sessions.set(id, session)
+    if (this.sessions.size > DICTATION_MAX_SESSIONS) {
+      const oldest = this.sessions.keys().next().value as string | undefined
+      if (oldest) this.sessions.delete(oldest)
+    }
+    return { ...session }
+  }
+
+  getDictationSession(id: string): DictationSession {
+    const session = this.sessions.get(id)
+    if (!session) throw new NotFoundException(`听写会话不存在: ${id}`)
+    return { ...session, sections: session.sections.map((s) => ({ ...s })) }
+  }
+
+  appendDictationChunk(id: string, input: string): DictationChunkResult {
+    const session = this.sessions.get(id)
+    if (!session) throw new NotFoundException(`听写会话不存在: ${id}`)
+    if (session.status === 'completed') throw new BadRequestException('会话已结束, 不能继续追加')
+    session.status = 'dictating'
+    const currentKey = this.currentSectionKey(session)
+    const result = recognizeDictationChunk(input ?? '', this.hotwords, currentKey)
+    session.commands.push(...result.commands)
+    for (const section of result.sections) {
+      const target = session.sections.find((s) => s.key === section.key)
+      if (target && section.text) {
+        target.text = target.text ? `${target.text}${section.text}` : section.text
+      }
+    }
+    session.text = session.sections.map((s) => s.text).filter(Boolean).join('')
+    return {
+      sessionId: session.id,
+      text: result.text,
+      sections: session.sections.map((s) => ({ ...s })),
+      commands: result.commands,
+      hotwordHits: result.hotwordHits,
+      confidence: dictationConfidence(result.hotwordHits, result.commands.length),
+      engine: 'mock-dictation',
+    }
+  }
+
+  endDictationSession(id: string): DictationSession {
+    const session = this.sessions.get(id)
+    if (!session) throw new NotFoundException(`听写会话不存在: ${id}`)
+    if (session.status === 'completed') return { ...session, sections: session.sections.map((s) => ({ ...s })) }
+    session.status = 'completed'
+    session.endedAt = new Date().toISOString()
+    const started = new Date(session.startedAt).getTime()
+    session.durationSec = Math.max(1, Math.round((new Date(session.endedAt).getTime() - started) / 1000))
+    return { ...session, sections: session.sections.map((s) => ({ ...s })) }
+  }
+
+  private currentSectionKey(session: DictationSession): DictationSectionKey {
+    const lastNonEmpty = [...session.sections].reverse().find((s) => s.text.length > 0)
+    return (lastNonEmpty?.key as DictationSectionKey) ?? 'findings'
   }
 
   /**

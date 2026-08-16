@@ -21,6 +21,9 @@ const dateKey = () => {
 
 const nowMin = () => new Date().getHours() * 60 + new Date().getMinutes()
 
+/** 固定工作参考时间 (09:00), 保证测试在任意时刻都能找到"未来的繁忙块" */
+const refMin = () => 9 * 60
+
 describe('TechOpsService', () => {
   describe('1. 设备利用率历史', () => {
     it('返回 30 天序列 + 统计 + 设备对比 (DB 不可用回退种子)', async () => {
@@ -98,8 +101,8 @@ describe('TechOpsService', () => {
 
     it('冲突检测: 插入到繁忙时段 → 返回调整方案 (顺延/启用备用设备)', () => {
       const service = new TechOpsService(makePrisma())
-      const schedule = buildTodaySchedule(dateKey(), nowMin())
-      const busy = schedule.get('DEV-CT1')?.find((e) => e.startMin > nowMin() + 5)
+      const schedule = buildTodaySchedule(dateKey(), refMin())
+      const busy = schedule.get('DEV-CT1')?.find((e) => e.startMin > refMin() + 5)
       expect(busy).toBeTruthy()
       const res = service.insert({ deviceId: 'DEV-CT1', startMin: busy!.startMin, durationMin: 15, patientName: '测试急诊', examItem: '头颅CT平扫', modality: 'CT' })
       expect(res.success).toBe(false)
@@ -112,8 +115,8 @@ describe('TechOpsService', () => {
 
     it('force 强制插入: 记录冲突并生成调整, 记录可查询', () => {
       const service = new TechOpsService(makePrisma())
-      const schedule = buildTodaySchedule(dateKey(), nowMin())
-      const busy = schedule.get('DEV-MR1')?.find((e) => e.startMin > nowMin() + 5)
+      const schedule = buildTodaySchedule(dateKey(), refMin())
+      const busy = schedule.get('DEV-MR1')?.find((e) => e.startMin > refMin() + 5)
       expect(busy).toBeTruthy()
       const res = service.insert({ deviceId: 'DEV-MR1', startMin: busy!.startMin, durationMin: 20, patientName: '急诊患者', modality: 'MR', priority: 'STAT', force: true })
       expect(res.success).toBe(true)
@@ -130,7 +133,7 @@ describe('TechOpsService', () => {
 
     it('空闲时段插入: 无冲突, 直接成功', () => {
       const service = new TechOpsService(makePrisma())
-      const schedule = buildTodaySchedule(dateKey(), nowMin())
+      const schedule = buildTodaySchedule(dateKey(), refMin())
       const free = service.suggestSlots({ deviceId: 'DEV-MG1', durationMin: 10 }).find((s) => s.strategy === 'NEXT_FREE')
       expect(free).toBeTruthy()
       expect(free!.conflictCount).toBe(0)

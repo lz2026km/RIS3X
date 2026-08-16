@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
-import { auditApi as auditAggApi } from '../services/api/auditApi'
-import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin } from 'antd'
+import { auditApi as auditAggApi, type AuditOverviewDto, type AuditUserActivityDto, type AuditTrendPoint, type AuditHighRiskDto, type AuditHighRiskActionDto } from '../services/api/auditApi'
+import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { PageHeader } from '../components/common/PageHeader'
-import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons'
+import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined, WarningOutlined, LineChartOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
 import { Search } from 'lucide-react'
 
 export default function AuditPage() {
@@ -20,6 +20,11 @@ export default function AuditPage() {
   const [detail, setDetail] = useState<AuditLogDto | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
+  // [Wave 4B] 扩展端点: overview / user-activity / action-trend / high-risk
+  const [overview, setOverview] = useState<AuditOverviewDto | null>(null)
+  const [userActivity, setUserActivity] = useState<AuditUserActivityDto[]>([])
+  const [trend, setTrend] = useState<AuditTrendPoint[]>([])
+  const [highRisk, setHighRisk] = useState<AuditHighRiskDto | null>(null)
 
   const fetchLogs = async (requestedPage?: number) => {
     const targetPage = requestedPage ?? page
@@ -46,6 +51,26 @@ export default function AuditPage() {
     } catch { /* 回退: 不展示分布 */ }
   }
 
+  // [Wave 4B] 审计总览/用户活跃/操作趋势/高危操作 (后端 /audit/overview|user-activity|action-trend|high-risk)
+  const fetchExtended = async () => {
+    try {
+      const ov = await auditAggApi.getOverview()
+      if (ov.success && ov.data) setOverview(ov.data)
+    } catch { /* 回退: 不展示 */ }
+    try {
+      const ua = await auditAggApi.getUserActivity(10)
+      if (ua.success && Array.isArray(ua.data)) setUserActivity(ua.data)
+    } catch { /* 回退: 不展示 */ }
+    try {
+      const tr = await auditAggApi.getActionTrend(30)
+      if (tr.success && Array.isArray(tr.data)) setTrend(tr.data)
+    } catch { /* 回退: 不展示 */ }
+    try {
+      const hr = await auditAggApi.getHighRisk()
+      if (hr.success && hr.data) setHighRisk(hr.data)
+    } catch { /* 回退: 不展示 */ }
+  }
+
   // [W2-C] 审计记录详情: 操作者/资源/请求/响应/时间
   const handleViewDetail = async (id: string) => {
     setDetailOpen(true)
@@ -67,7 +92,7 @@ export default function AuditPage() {
     }
   }
 
-  useEffect(() => { fetchLogs(1); fetchStats() }, [])
+  useEffect(() => { fetchLogs(1); fetchStats(); fetchExtended() }, [])
 
   const columns: ProColumn<AuditLogDto>[] = [
     { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
@@ -110,7 +135,7 @@ export default function AuditPage() {
 <PageHeader variant="flex" icon={<AuditOutlined />} title="审计日志" style={{ marginBottom: 0 }} />
             <Space>
               <Button icon={<DownloadOutlined />} onClick={handleExport}>导出</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats() }}>刷新</Button>
+              <Button icon={<ReloadOutlined />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended() }}>刷新</Button>
             </Space>
           </Row>
           <Tabs items={[
@@ -118,28 +143,112 @@ export default function AuditPage() {
               key: 'overview',
               label: <span><BarChartOutlined /> 统计概览</span>,
               children: stats ? (
-                <Row gutter={16}>
-                  <Col span={6}><Card size="small"><Statistic title="总日志数" value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="24h 内" value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="活跃用户" value="-" prefix={<UserOutlined />} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="安全事件" value="0" styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
-                  {byAction && Object.keys(byAction).length > 0 && (
-                    <Col span={24} style={{ marginTop: 12 }}>
-                      <Card size="small" title="按操作类型分布 (Top)">
-                        <Space wrap size={[8, 8]}>
-                          {Object.entries(byAction)
-                            .sort((a, b) => b[1] - a[1])
-                            .slice(0, 8)
-                            .map(([action, count]) => (
-                              <Tag key={action} color={action === 'LOGIN' || action === 'EXPORT' || action === 'PRINT' ? 'blue' : 'default'} style={{ fontSize: 12, padding: '2px 10px' }}>
-                                {action}: <b>{count}</b>
-                              </Tag>
-                            ))}
-                        </Space>
+                <>
+                  <Row gutter={16}>
+                    <Col span={4}><Card size="small"><Statistic title="总日志数" value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title="24h 内" value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
+                    {/* [Wave 4B] 后端 GET /audit/overview 真实数据 */}
+                    <Col span={4}><Card size="small"><Statistic title="今日操作" value={overview?.todayOperations ?? '-'} prefix={<LineChartOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title="活跃用户" value={overview?.activeUsers ?? '-'} prefix={<UserOutlined />} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title="高危操作" value={overview?.highRiskCount ?? '-'} prefix={<WarningOutlined />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
+                    <Col span={4}><Card size="small"><Statistic title="成功率" value={overview ? `${overview.successRate}%` : '-'} prefix={<SafetyCertificateOutlined />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
+                    {overview?.seeded === true && (
+                      <Col span={24} style={{ marginTop: 4 }}>
+                        <Tag color="gold" style={{ fontSize: 11 }}>种子数据（后端不可用回退）</Tag>
+                      </Col>
+                    )}
+                    {byAction && Object.keys(byAction).length > 0 && (
+                      <Col span={24} style={{ marginTop: 12 }}>
+                        <Card size="small" title="按操作类型分布 (Top)">
+                          <Space wrap size={[8, 8]}>
+                            {Object.entries(byAction)
+                              .sort((a, b) => b[1] - a[1])
+                              .slice(0, 8)
+                              .map(([action, count]) => (
+                                <Tag key={action} color={action === 'LOGIN' || action === 'EXPORT' || action === 'PRINT' ? 'blue' : 'default'} style={{ fontSize: 12, padding: '2px 10px' }}>
+                                  {action}: <b>{count}</b>
+                                </Tag>
+                              ))}
+                          </Space>
+                        </Card>
+                      </Col>
+                    )}
+                  </Row>
+                  {/* [Wave 4B] 近 30 日操作趋势 (GET /audit/action-trend) */}
+                  {trend.length > 0 && (
+                    <Card size="small" title={<span><LineChartOutlined /> 近 30 日操作趋势</span>} style={{ marginTop: 12 }}>
+                      <Row gutter={[8, 8]}>
+                        {trend.slice(-14).map((p) => {
+                          const max = Math.max(...trend.map((t) => t.total), 1)
+                          return (
+                            <Col key={p.date} span={Math.floor(24 / Math.min(trend.slice(-14).length, 14))}>
+                              <div style={{ textAlign: 'center' }}>
+                                <Tooltip title={`${p.label} 总操作 ${p.total} · 高危 ${p.highRisk} · 失败 ${p.failed}`}>
+                                  <div>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.label}</div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', height: 64 }}>
+                                      <div style={{ width: 14, height: `${Math.max((p.total / max) * 100, 3)}%`, minHeight: 3, background: p.failed > 0 ? '#fa8c16' : '#1677ff', borderRadius: 3 }} />
+                                    </div>
+                                    <div style={{ fontSize: 10, color: '#999' }}>{p.total}</div>
+                                  </div>
+                                </Tooltip>
+                              </div>
+                            </Col>
+                          )
+                        })}
+                      </Row>
+                    </Card>
+                  )}
+                  <Row gutter={16} style={{ marginTop: 12 }}>
+                    {/* [Wave 4B] 用户活跃排行 (GET /audit/user-activity) */}
+                    <Col span={12}>
+                      <Card size="small" title={<span><UserOutlined /> 用户活跃排行</span>}>
+                        {userActivity.length === 0 ? (
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>暂无数据</div>
+                        ) : (
+                          <List
+                            size="small"
+                            dataSource={userActivity.slice(0, 10)}
+                            renderItem={(u, i) => (
+                              <List.Item>
+                                <Space>
+                                  <Tag color={i === 0 ? 'gold' : i < 3 ? 'blue' : 'default'}>{i + 1}</Tag>
+                                  <b>{u.userName ?? u.userId}</b>
+                                  <span style={{ fontSize: 12, color: '#999' }}>{u.count} 次</span>
+                                  <Progress percent={u.successRate} size="small" style={{ width: 90 }} format={(p) => `${p}%`} />
+                                </Space>
+                                <span style={{ fontSize: 11, color: '#999' }}>最近 {new Date(u.lastActive).toLocaleString('zh-CN')}</span>
+                              </List.Item>
+                            )}
+                          />
+                        )}
                       </Card>
                     </Col>
-                  )}
-                </Row>
+                    {/* [Wave 4B] 高危操作清单 (GET /audit/high-risk) */}
+                    <Col span={12}>
+                      <Card size="small" title={<span><WarningOutlined /> 高危操作清单</span>} extra={highRisk ? <Tag color="red">共 {highRisk.total} 次</Tag> : null}>
+                        {!highRisk || highRisk.actions.length === 0 ? (
+                          <div style={{ color: '#999', fontSize: 12, textAlign: 'center', padding: 16 }}>暂无高危操作</div>
+                        ) : (
+                          <ProTable<AuditHighRiskActionDto>
+                            dataSource={highRisk.actions.slice(0, 10)}
+                            columns={[
+                              { title: '操作', dataIndex: 'action', key: 'action', render: (v) => <Tag color="red" style={{ fontFamily: 'monospace' }}>{String(v)}</Tag> },
+                              { title: '分类', dataIndex: 'patternZh', key: 'pattern', width: 90, render: (v) => <Tag>{String(v)}</Tag> },
+                              { title: '次数', dataIndex: 'count', key: 'count', width: 70, sorter: (a, b) => a.count - b.count },
+                              { title: '最近时间', dataIndex: 'lastAt', key: 'lastAt', width: 150, render: (v) => v ? new Date(String(v)).toLocaleString('zh-CN') : '-' },
+                              { title: '涉及用户', dataIndex: 'recentUsers', key: 'users', render: (v) => Array.isArray(v) ? (v as string[]).slice(0, 3).join('、') : '-' },
+                            ]}
+                            rowKey="action"
+                            pagination={false}
+                            size="small"
+                            showToolbar={false}
+                          />
+                        )}
+                      </Card>
+                    </Col>
+                  </Row>
+                </>
               ) : <Card size="small"><Statistic title="加载中..." value="-" /></Card>,
             },
             {

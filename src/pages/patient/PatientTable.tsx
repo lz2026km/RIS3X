@@ -1,6 +1,9 @@
 
-import { ChevronLeft, ChevronRight, CheckSquare, Square, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckSquare, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle, Trash2 } from 'lucide-react';
 import { Popconfirm } from 'antd';
+import type { TableColumnsType } from 'antd';
+// [v3.0.6.11-103 Wave 6] 表格统一: 自定义 table → DataTable (斑马纹/行高/列头/分页统一)
+import { DataTable } from "../../components/common/DataTable";
 import type { Patient } from "../../types";
 import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
@@ -194,22 +197,7 @@ export function PatientTable({
   onSelectPatient,
   onToast,
 }: PatientTableProps) {
-  const allSelected =
-    paginatedPatients.length > 0 &&
-    paginatedPatients.every((p) => selectedPatientIds.has(p.id));
-
-  const toggleSelectPatient = (id: string) => {
-    const newSet = new Set(selectedPatientIds);
-    if (newSet.has(id)) newSet.delete(id);
-    else newSet.add(id);
-    onSelectionChange(newSet);
-  };
-
-  const toggleSelectAll = () => {
-    if (allSelected) onSelectionChange(new Set());
-    else onSelectionChange(new Set(paginatedPatients.map((p) => p.id)));
-  };
-
+  // [v3.0.6.11-103 Wave 6] 全选/行选已由 DataTable rowSelection 接管 (antd 复选框)
   const handleBulkExport = () => {
     const selected = patients.filter((p) => selectedPatientIds.has(p.id));
     const csvContent = [
@@ -260,6 +248,287 @@ export function PatientTable({
     });
     onSelectionChange(new Set());
   };
+
+  // [v3.0.6.11-103 Wave 6] 统一列配置 (DataTable), 复用原自定义表格单元格渲染
+  const columns: TableColumnsType<Patient> = [
+    {
+      title: "患者ID",
+      dataIndex: "id",
+      key: "id",
+      width: 110,
+      render: (value) => (
+        <span style={{ fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      title: "姓名",
+      dataIndex: "name",
+      key: "name",
+      width: 130,
+      render: (_value, p) => {
+        getPatientExams(p.id, exams);
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                fontWeight: 700,
+                color: p.gender === "男" ? "#1e40af" : "#be185d",
+                flexShrink: 0,
+              }}
+            >
+              {p.name.slice(0, 1)}
+            </div>
+            <span style={{ fontWeight: 600, color: "#1e40af" }}>{p.name}</span>
+          </div>
+        );
+      },
+    },
+    {
+      title: "性别",
+      dataIndex: "gender",
+      key: "gender",
+      width: 70,
+      align: "center",
+      render: (value) => (
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 4,
+            fontSize: 12,
+            fontWeight: 600,
+            background: value === "男" ? "#dbeafe" : "#fce7f3",
+            color: value === "男" ? "#1e40af" : "#be185d",
+          }}
+        >
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      title: "年龄",
+      dataIndex: "age",
+      key: "age",
+      width: 70,
+      align: "right",
+      render: (value) => (
+        <span style={{ color: "#334155", fontWeight: 500 }}>{String(value)}岁</span>
+      ),
+    },
+    {
+      title: "身份证",
+      dataIndex: "idCard",
+      key: "idCard",
+      width: 180,
+      render: (value) => (
+        <span style={{ fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      title: "联系电话",
+      dataIndex: "phone",
+      key: "phone",
+      width: 130,
+      render: (value) => <span style={{ color: "#334155" }}>{String(value)}</span>,
+    },
+    {
+      title: "患者类型",
+      dataIndex: "patientType",
+      key: "patientType",
+      width: 90,
+      align: "center",
+      render: (value) => (
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 4,
+            fontSize: 12,
+            fontWeight: 600,
+            background: "var(--bg-primary)",
+            color: "#475569",
+          }}
+        >
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      title: "建档日期",
+      dataIndex: "registrationDate",
+      key: "registrationDate",
+      width: 110,
+      render: (value) => (
+        <span style={{ color: "#64748b", fontSize: 12 }}>{String(value)}</span>
+      ),
+    },
+    {
+      title: "检查次数",
+      dataIndex: "totalExamCount",
+      key: "totalExamCount",
+      width: 90,
+      align: "right",
+      render: (value) => (
+        <span style={{ fontWeight: 700, color: "#1e40af" }}>
+          {(Number(value) || 0).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      title: "最近检查",
+      dataIndex: "lastExamDate",
+      key: "lastExamDate",
+      width: 110,
+      render: (value) => (
+        <span style={{ color: "#64748b", fontSize: 12 }}>{String(value || "-")}</span>
+      ),
+    },
+    {
+      title: "操作",
+      dataIndex: "id",
+      key: "actions",
+      width: 300,
+      fixed: "right",
+      align: "center",
+      render: (_value, p) => (
+        <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewPatient(p);
+            }}
+            aria-label={`查看 ${p.name}`}
+            style={{
+              padding: "6px 10px",
+              background: "#eff6ff",
+              color: "#2563eb",
+              border: "none",
+              borderRadius: 4,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <Eye size={14} />
+            查看
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditPatient(p);
+            }}
+            aria-label={`编辑 ${p.name}`}
+            style={{
+              padding: "6px 10px",
+              background: "#f0fdf4",
+              color: "#16a34a",
+              border: "none",
+              borderRadius: 4,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <Edit2 size={14} />
+            编辑
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            aria-label={`新增检查 ${p.name}`}
+            style={{
+              padding: "6px 10px",
+              background: "#fef3c7",
+              color: "#d97706",
+              border: "none",
+              borderRadius: 4,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <PlusCircle size={14} />
+            检查
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            aria-label={`查看报告 ${p.name}`}
+            style={{
+              padding: "6px 10px",
+              background: "#f5f3ff",
+              color: "#7c3aed",
+              border: "none",
+              borderRadius: 4,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <FileText size={14} />
+            报告
+          </button>
+          {onDeletePatient && (
+            <Popconfirm
+              title="删除该患者?"
+              description={`确定删除患者 "${p.name}" 吗？关联数据将一并处理。`}
+              okText="删除"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+              onConfirm={() => onDeletePatient(p)}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                aria-label={`删除患者 ${p.name}`}
+                style={{
+                  padding: "6px 10px",
+                  background: "#fef2f2",
+                  color: "#dc2626",
+                  border: "none",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <Trash2 size={14} />
+                删除
+              </button>
+            </Popconfirm>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -430,464 +699,38 @@ export function PatientTable({
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
       >
-        <div
-          style={{
-            overflowX: "auto",
-            overflowY: "auto",
-            maxHeight: "calc(100vh - 320px)",
+        <DataTable<Patient>
+          columns={columns}
+          dataSource={paginatedPatients}
+          rowKey="id"
+          pagination={false}
+          scroll={{ x: 1150, y: "calc(100vh - 320px)" }}
+          rowSelection={{
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: [...selectedPatientIds],
+            onChange: (keys) => onSelectionChange(new Set(keys.map(String))),
           }}
-        >
-          <div style={{ overflowX: "auto" }}><table
-            style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: 0,
-              fontSize: 12,
-              minWidth: 1150,
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background: "var(--bg-primary)",
-                  borderBottom: "1px solid #e2e8f0",
-                }}
-              >
-                <th
-                  scope="col"
-                  aria-label="选择"
-                  style={{
-                    padding: "12px 10px",
-                    width: 40,
-                    textAlign: "center",
-                    position: "sticky",
-                    top: 0,
-                    background: "var(--bg-primary)",
-                    zIndex: 1,
-                  }}
-                >
-                  <div
-                    onClick={toggleSelectAll}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={allSelected ? "取消全选" : "全选"}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        toggleSelectAll();
-                      }
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: allSelected ? "#1e40af" : "#cbd5e1",
-                    }}
-                  >
-                    {allSelected ? (
-                      <CheckSquare size={16} />
-                    ) : (
-                      <Square size={16} />
-                    )}
-                  </div>
-                </th>
-                {[
-                  { key: "id", label: "患者ID", align: "left" as const },
-                  { key: "name", label: "姓名", align: "left" as const },
-                  { key: "gender", label: "性别", align: "center" as const },
-                  { key: "age", label: "年龄", align: "right" as const },
-                  { key: "idCard", label: "身份证", align: "left" as const },
-                  { key: "phone", label: "联系电话", align: "left" as const },
-                  {
-                    key: "patientType",
-                    label: "患者类型",
-                    align: "center" as const,
-                  },
-                  {
-                    key: "registrationDate",
-                    label: "建档日期",
-                    align: "left" as const,
-                  },
-                  {
-                    key: "totalExamCount",
-                    label: "检查次数",
-                    align: "right" as const,
-                  },
-                  {
-                    key: "lastExamDate",
-                    label: "最近检查",
-                    align: "left" as const,
-                  },
-                  { key: "actions", label: "操作", align: "center" as const },
-                ].map((h) => (
-                  <th
-                    key={h.key}
-                    scope="col"
-                    style={{
-                      padding: "12px 14px",
-                      textAlign: h.align,
-                      fontWeight: 700,
-                      color: "#475569",
-                      fontSize: 12,
-                      whiteSpace: "nowrap",
-                      position: "sticky",
-                      top: 0,
-                      background: "var(--bg-primary)",
-                      zIndex: 1,
-                    }}
-                  >
-                    {h.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedPatients.map((p, idx) => {getPatientExams(p.id, exams);
-                const isSelected = selectedPatientIds.has(p.id);
-                return (
-                  <tr
-                    key={p.id}
-                    style={{
-                      borderBottom: "1px solid #f1f5f9",
-                      cursor: "pointer",
-                      background: isSelected
-                        ? "#f0f7ff"
-                        : idx % 2 === 0
-                          ? "var(--bg-card)"
-                          : "var(--bg-primary)",
-                    }}
-                    onClick={() => onSelectPatient(p)}
-                    onMouseEnter={(e) => {
-                      if (!isSelected)
-                        (
-                          e.currentTarget as HTMLTableRowElement
-                        ).style.background = "#f0f7ff";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected)
-                        (
-                          e.currentTarget as HTMLTableRowElement
-                        ).style.background = idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)";
-                    }}
-                  >
-                    <td style={{ padding: "10px 10px", textAlign: "center" }}>
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSelectPatient(p.id);
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`选择 ${p.name}`}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleSelectPatient(p.id);
-                          }
-                        }}
-                        style={{
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: isSelected ? "#1e40af" : "#cbd5e1",
-                        }}
-                      >
-                        {isSelected ? (
-                          <CheckSquare size={16} />
-                        ) : (
-                          <Square size={16} />
-                        )}
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        fontFamily: "monospace",
-                        fontSize: 12,
-                        color: "#64748b",
-                      }}
-                    >
-                      {p.id}
-                    </td>
-                    <td style={{ padding: "10px 14px" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: "50%",
-                            background:
-                              p.gender === "男" ? "#dbeafe" : "#fce7f3",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: p.gender === "男" ? "#1e40af" : "#be185d",
-                          }}
-                        >
-                          {p.name.slice(0, 1)}
-                        </div>
-                        <span style={{ fontWeight: 600, color: "#1e40af" }}>
-                          {p.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
-                          color: p.gender === "男" ? "#1e40af" : "#be185d",
-                        }}
-                      >
-                        {p.gender}
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        textAlign: "right",
-                        color: "#334155",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {p.age}岁
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        fontFamily: "monospace",
-                        fontSize: 12,
-                        color: "#64748b",
-                      }}
-                    >
-                      {p.idCard}
-                    </td>
-                    <td style={{ padding: "10px 14px", color: "#334155" }}>
-                      {p.phone}
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: "var(--bg-primary)",
-                          color: "#475569",
-                        }}
-                      >
-                        {p.patientType}
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        color: "#64748b",
-                        fontSize: 12,
-                      }}
-                    >
-                      {p.registrationDate}
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        textAlign: "right",
-                        fontWeight: 700,
-                        color: "#1e40af",
-                      }}
-                    >
-                      {(p.totalExamCount || 0).toLocaleString()}
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        color: "#64748b",
-                        fontSize: 12,
-                      }}
-                    >
-                      {p.lastExamDate || "-"}
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 4,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewPatient(p);
-                          }}
-                          aria-label={`查看 ${p.name}`}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#eff6ff",
-                            color: "#2563eb",
-                            border: "none",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <Eye size={14} />
-                          查看
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEditPatient(p);
-                          }}
-                          aria-label={`编辑 ${p.name}`}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#f0fdf4",
-                            color: "#16a34a",
-                            border: "none",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <Edit2 size={14} />
-                          编辑
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          aria-label={`新增检查 ${p.name}`}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#fef3c7",
-                            color: "#d97706",
-                            border: "none",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <PlusCircle size={14} />
-                          检查
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          aria-label={`查看报告 ${p.name}`}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#f5f3ff",
-                            color: "#7c3aed",
-                            border: "none",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <FileText size={14} />
-                          报告
-                        </button>
-                        {/* [Wave1B P2] 删除患者: patientApi.delete (Popconfirm danger) */}
-                        {onDeletePatient && (
-                          <Popconfirm
-                            title="删除该患者?"
-                            description={`确定删除患者 "${p.name}" 吗？关联数据将一并处理。`}
-                            okText="删除"
-                            cancelText="取消"
-                            okButtonProps={{ danger: true }}
-                            onConfirm={() => onDeletePatient(p)}
-                          >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                              aria-label={`删除患者 ${p.name}`}
-                              style={{
-                                padding: "6px 10px",
-                                background: "#fef2f2",
-                                color: "#dc2626",
-                                border: "none",
-                                borderRadius: 4,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 4,
-                              }}
-                            >
-                              <Trash2 size={14} />
-                              删除
-                            </button>
-                          </Popconfirm>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              {paginatedPatients.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={12}
-                    style={{
-                      padding: "40px 14px",
-                      textAlign: "center",
-                      color: "#94a3b8",
-                    }}
-                  >
-                    <div
-                      role="status"
-                      aria-live="polite"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <Search size={32} color="#cbd5e1" aria-hidden />
-                      <div style={{ fontSize: 13 }}>未找到匹配的患者记录</div>
-                      <div style={{ fontSize: 12 }}>暂无数据</div>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table></div>
-        </div>
+          onRow={(p) => ({
+            onClick: () => onSelectPatient(p),
+            style: { cursor: "pointer" },
+          })}
+          emptyText={
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <Search size={32} color="#cbd5e1" aria-hidden />
+              <div style={{ fontSize: 13 }}>未找到匹配的患者记录</div>
+              <div style={{ fontSize: 12 }}>暂无数据</div>
+            </div>
+          }
+        />
 
         <Pagination
           currentPage={currentPage}

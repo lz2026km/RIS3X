@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
   ShieldCheck, Zap, CheckCircle, Download, FileCheck2, Edit3, MessageSquareText,
-  Users, Archive,
+  Users, Archive, Target, Link2,
 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline } from '../../components/report'
@@ -18,6 +18,7 @@ import ReportAnnotationPanel from '../../components/report/ReportAnnotationPanel
 // [v3.0.6.11-99 Wave7B] 离线报告包: 检测本地离线副本
 import { offlineStorage } from '../../services/pwa/offlineStorage'
 import { useNavigate } from 'react-router-dom'
+import { t } from '../../i18n/appI18n'
 
 const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
@@ -90,7 +91,7 @@ export interface ReportDetailDrawerProps {
 }
 
 export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onCreateFollowUp, onSupplement, onRectify, onRedistribute, onEscalate, onWrite, onOpen360, onOfflineSave, onCommittee, onCreateLesionTracking }: ReportDetailDrawerProps) {
-  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations' | 'critical'>('content')
+  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline' | 'annotations' | 'critical' | 'lesions' | 'related'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
@@ -105,6 +106,10 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
   const [criticalLoading, setCriticalLoading] = useState(false)
   // [G005 Wave 8] 报告冷归档策略 (轻量展示)
   const [archivePolicy, setArchivePolicy] = useState<{ enabled?: boolean; archiveAfterDays?: number; targetTier?: string; deleteSourceAfterDays?: number | null; archivedCount?: number } | null>(null)
+  // [v3.0.6.11-103 Wave 2A] 冷归档策略编辑: PUT /reports/archive-policy
+  const [policyEditOpen, setPolicyEditOpen] = useState(false)
+  const [policySaving, setPolicySaving] = useState(false)
+  const [policyForm, setPolicyForm] = useState<{ enabled: boolean; archiveAfterDays: number; targetTier: 'archive' | 'cold'; deleteSourceAfterDays: number | null }>({ enabled: true, archiveAfterDays: 30, targetTier: 'archive', deleteSourceAfterDays: null })
 
   useEffect(() => {
     if (report) { setTab('content'); setShowHistory(false); setTimelineTrail(null); setTimelineLoading(false) }
@@ -168,6 +173,77 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
     void reportApi.getArchivePolicy().then(res => {
       if (!cancelled && res.success && res.data) setArchivePolicy(res.data as never)
     }).catch(() => { if (!cancelled) setArchivePolicy(null) })
+    return () => { cancelled = true }
+  }, [report, tab])
+
+  // [v3.0.6.11-103 Wave 2A] 打开策略编辑: 回填当前策略 → PUT /reports/archive-policy
+  const openPolicyEdit = () => {
+    setPolicyForm({
+      enabled: archivePolicy?.enabled ?? true,
+      archiveAfterDays: archivePolicy?.archiveAfterDays ?? 30,
+      targetTier: (archivePolicy?.targetTier === 'cold' ? 'cold' : 'archive'),
+      deleteSourceAfterDays: archivePolicy?.deleteSourceAfterDays ?? null,
+    })
+    setPolicyEditOpen(true)
+  }
+
+  const savePolicy = async () => {
+    setPolicySaving(true)
+    try {
+      const res = await reportApi.updateArchivePolicy({
+        enabled: policyForm.enabled,
+        archiveAfterDays: policyForm.archiveAfterDays,
+        targetTier: policyForm.targetTier,
+        deleteSourceAfterDays: policyForm.deleteSourceAfterDays,
+      })
+      if (res.success && res.data) {
+        setArchivePolicy(res.data as never)
+        setPolicyEditOpen(false)
+      } else {
+        alert(res.error?.message ?? '归档策略保存失败')
+      }
+    } catch {
+      alert('归档策略保存失败: 网络异常')
+    } finally {
+      setPolicySaving(false)
+    }
+  }
+
+  // [v3.0.6.11-103 Wave 2A] 报告关联病灶列表: GET /reports/:id/lesions
+  const [lesionItems, setLesionItems] = useState<Array<Record<string, unknown>>>([])
+  const [lesionLoading, setLesionLoading] = useState(false)
+  useEffect(() => {
+    if (!report || tab !== 'lesions') return
+    let cancelled = false
+    setLesionLoading(true)
+    void reportApi.getReportLesions(report.id).then(res => {
+      if (cancelled) return
+      const d = res.data as unknown
+      const items = Array.isArray(d) ? d : (d as { items?: unknown[] } | null)?.items
+      setLesionItems(Array.isArray(items) ? (items as Array<Record<string, unknown>>) : [])
+    }).catch(() => { if (!cancelled) setLesionItems([]) })
+      .finally(() => { if (!cancelled) setLesionLoading(false) })
+    return () => { cancelled = true }
+  }, [report, tab])
+
+  // [v3.0.6.11-103 Wave 2A] 报告关联信息: GET /reports/:id/related (检查/患者/既往报告/随访/危急值)
+  const [relatedData, setRelatedData] = useState<{
+    patient: { id: string; name: string; gender?: string; birthDate?: string; phone?: string } | null
+    exam: { id: string; accessionNumber?: string; modality?: string; bodyPart?: string; state?: string } | null
+    previousReports: Array<{ id: string; state?: string; findings?: string; conclusion?: string; createdAt?: string; isCritical?: boolean }>
+    followUpPlans: Array<{ id: string; planDate?: string; nextDate?: string; status?: string; note?: string }>
+    criticalValues: Array<{ id: string; description?: string; severity?: string; state?: string; createdAt?: string; linkedByReport?: boolean }>
+  } | null>(null)
+  const [relatedLoading, setRelatedLoading] = useState(false)
+  useEffect(() => {
+    if (!report || tab !== 'related') return
+    let cancelled = false
+    setRelatedLoading(true)
+    void reportApi.getRelated(report.id).then(res => {
+      if (cancelled) return
+      setRelatedData(res.success && res.data ? res.data as never : null)
+    }).catch(() => { if (!cancelled) setRelatedData(null) })
+      .finally(() => { if (!cancelled) setRelatedLoading(false) })
     return () => { cancelled = true }
   }, [report, tab])
 
@@ -249,6 +325,10 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             { key: 'annotations', label: '批注', icon: <MessageSquareText size={13} /> },
             // [G005 Wave 8] 报告→危急值反向引用: 关联危急值区块
             { key: 'critical', label: '危急值', icon: <Zap size={13} /> },
+            // [v3.0.6.11-103 Wave 2A] 报告关联病灶 (GET /reports/:id/lesions)
+            { key: 'lesions', label: t('reportDetail.tabLesions'), icon: <Target size={13} /> },
+            // [v3.0.6.11-103 Wave 2A] 报告关联信息 (GET /reports/:id/related)
+            { key: 'related', label: t('reportDetail.tabRelated'), icon: <Link2 size={13} /> },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key as any)}
               style={{
@@ -292,6 +372,10 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                       可归档 (发布态)
                     </span>
                   )}
+                  {/* [v3.0.6.11-103 Wave 2A] 策略编辑: PUT /reports/archive-policy */}
+                  <button onClick={openPolicyEdit} style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 10px', borderRadius: 5, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#1e40af', fontWeight: 600, cursor: 'pointer' }} data-testid="edit-archive-policy">
+                    {t('reportDetail.archivePolicyEdit')}
+                  </button>
                 </div>
               )}
               {timelineLoading ? (
@@ -456,6 +540,149 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </div>
           )}
 
+          {tab === 'lesions' && (
+            <div>
+              {/* [v3.0.6.11-103 Wave 2A] 报告关联病灶列表 (GET /reports/:id/lesions) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <Target size={15} style={{ color: '#7c3aed' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.lesionsTitle')}</span>
+                <span style={{ fontSize: 12, color: GRAY }}>按报告反查 ({lesionItems.length} 条)</span>
+              </div>
+              {lesionLoading ? (
+                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>病灶列表加载中…</div>
+              ) : lesionItems.length === 0 ? (
+                <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
+                  <Target size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
+                  <div>{t('reportDetail.lesionsEmpty')}</div>
+                  <div style={{ fontSize: 11, marginTop: 4 }}>可通过「创建病灶追踪」从报告文本提取病灶关键词建档。</div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {lesionItems.map((l, i) => {
+                    const name = String(l?.name ?? l?.lesionName ?? l?.site ?? `病灶 #${i + 1}`)
+                    const type = String(l?.lesionType ?? l?.type ?? '')
+                    const size = String(l?.size ?? l?.maxDiameter ?? l?.diameter ?? '')
+                    const status = String(l?.status ?? l?.followupStatus ?? '')
+                    const note = String(l?.note ?? l?.description ?? '')
+                    return (
+                      <div key={String(l?.id ?? i)} style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <Target size={13} style={{ color: '#7c3aed', flexShrink: 0 }} />
+                          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{name}</span>
+                          {type && <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: 'rgba(124,58,237,0.1)', color: '#7c3aed', fontWeight: 600 }}>{type}</span>}
+                          {status && <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: 'var(--color-info-bg)', color: 'var(--color-info)', fontWeight: 600, marginLeft: 'auto' }}>{status}</span>}
+                        </div>
+                        <div style={{ fontSize: 12, color: GRAY, lineHeight: 1.6 }}>
+                          {size && <span style={{ marginRight: 12 }}>大小: <strong style={{ color: 'var(--text-primary)' }}>{size}</strong></span>}
+                          {note && <span>备注: {note}</span>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'related' && (
+            <div>
+              {/* [v3.0.6.11-103 Wave 2A] 报告关联信息 (GET /reports/:id/related: 检查/患者/既往报告/随访/危急值) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <Link2 size={15} style={{ color: '#0891b2' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.relatedTitle')}</span>
+                <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.relatedSub')}</span>
+              </div>
+              {relatedLoading ? (
+                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>关联信息加载中…</div>
+              ) : !relatedData ? (
+                <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
+                  <Link2 size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
+                  <div>{t('reportDetail.relatedEmpty')}</div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {(relatedData.patient || relatedData.exam) && (
+                    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#0891b2', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <User size={12} /> {t('reportDetail.patientExam')}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, fontSize: 12 }}>
+                        {relatedData.patient && (
+                          <>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>患者</div><div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{relatedData.patient.name || '-'} {relatedData.patient.gender ? `(${relatedData.patient.gender})` : ''}</div></div>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>生日</div><div style={{ color: 'var(--text-secondary)' }}>{relatedData.patient.birthDate ? new Date(relatedData.patient.birthDate).toLocaleDateString('zh-CN') : '-'}</div></div>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>电话</div><div style={{ color: 'var(--text-secondary)' }}>{relatedData.patient.phone || '-'}</div></div>
+                          </>
+                        )}
+                        {relatedData.exam && (
+                          <>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>检查号</div><div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{relatedData.exam.accessionNumber || relatedData.exam.id}</div></div>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>模态/部位</div><div style={{ color: 'var(--text-secondary)' }}>{relatedData.exam.modality || '-'}{relatedData.exam.bodyPart ? ` · ${relatedData.exam.bodyPart}` : ''}</div></div>
+                            <div><div style={{ color: GRAY, marginBottom: 2 }}>检查状态</div><div style={{ color: 'var(--text-secondary)' }}>{relatedData.exam.state || '-'}</div></div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {relatedData.previousReports.length > 0 && (
+                    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#0891b2', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <History size={12} /> {t('reportDetail.previousReports')} ({relatedData.previousReports.length})
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {relatedData.previousReports.map((p) => (
+                          <div key={p.id} style={{ padding: '8px 10px', borderRadius: 6, background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', fontSize: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.id}</span>
+                              {p.state && <span style={{ fontSize: 11, color: GRAY }}>{p.state}</span>}
+                              {p.isCritical && <span style={{ fontSize: 11, padding: '0 5px', borderRadius: 3, background: 'var(--color-error-bg)', color: 'var(--color-error)', fontWeight: 700 }}>危急</span>}
+                              {p.createdAt && <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>{new Date(p.createdAt).toLocaleDateString('zh-CN')}</span>}
+                            </div>
+                            <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, maxHeight: 40, overflow: 'hidden' }}>
+                              {(p.conclusion || p.findings || '(无内容)')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {relatedData.followUpPlans.length > 0 && (
+                    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#0891b2', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Calendar size={12} /> {t('reportDetail.followUpPlans')} ({relatedData.followUpPlans.length})
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {relatedData.followUpPlans.map((f) => (
+                          <div key={f.id} style={{ padding: '8px 10px', borderRadius: 6, background: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            {f.nextDate && <span>下次随访: <strong>{new Date(f.nextDate).toLocaleDateString('zh-CN')}</strong></span>}
+                            {f.status && <span style={{ color: GRAY }}>状态: {f.status}</span>}
+                            {f.note && <span style={{ color: 'var(--text-secondary)' }}>{f.note}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {relatedData.criticalValues.length > 0 && (
+                    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: DANGER, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Zap size={12} /> {t('reportDetail.criticalValues')} ({relatedData.criticalValues.length})
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {relatedData.criticalValues.map((c) => (
+                          <div key={c.id} style={{ padding: '8px 10px', borderRadius: 6, background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, color: DANGER }}>级别: {c.severity ?? '-'}</span>
+                            <span style={{ color: 'var(--text-secondary)' }}>{c.description || '(未填写描述)'}</span>
+                            <span style={{ color: GRAY, marginLeft: 'auto' }}>{c.state ?? '-'}{c.createdAt ? ` · ${new Date(c.createdAt).toLocaleDateString('zh-CN')}` : ''}{c.linkedByReport ? ' · 报告转入' : ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {tab === 'print' && (
             <div style={{ textAlign: 'center', padding: 40 }}>
               <Printer size={48} style={{ color: '#cbd5e1', marginBottom: 16 }} />
@@ -586,6 +813,47 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           onCancel={() => { setShowMfa(false); setPendingReviewReport(null); }}
           operation="report.approve"
         />
+      )}
+
+      {/* [v3.0.6.11-103 Wave 2A] 冷归档策略编辑 Modal: PUT /reports/archive-policy */}
+      {policyEditOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setPolicyEditOpen(false)}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 440, maxWidth: '100%', padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Archive size={16} style={{ color: '#1e40af' }} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{t('reportDetail.archivePolicyTitle')}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <input type="checkbox" checked={policyForm.enabled} onChange={(e) => setPolicyForm(f => ({ ...f, enabled: e.target.checked }))} />
+                {t('reportDetail.archiveEnabled')}
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveDays')}</span>
+                <input type="number" min={1} max={36500} value={policyForm.archiveAfterDays} onChange={(e) => setPolicyForm(f => ({ ...f, archiveAfterDays: Number(e.target.value) || 1 }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
+                <span style={{ color: '#94a3b8' }}>天</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveTier')}</span>
+                <select value={policyForm.targetTier} onChange={(e) => setPolicyForm(f => ({ ...f, targetTier: e.target.value as 'archive' | 'cold' }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' }}>
+                  <option value="archive">archive (近线归档)</option>
+                  <option value="cold">cold (冷归档)</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveDeleteDays')}</span>
+                <input type="number" min={0} value={policyForm.deleteSourceAfterDays ?? 0} onChange={(e) => setPolicyForm(f => ({ ...f, deleteSourceAfterDays: Number(e.target.value) > 0 ? Number(e.target.value) : null }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
+                <span style={{ color: '#94a3b8' }}>天后 (0=不删)</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+              <button onClick={() => setPolicyEditOpen(false)} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>{t('reportDetail.cancel')}</button>
+              <button onClick={() => void savePolicy()} disabled={policySaving} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} data-testid="save-archive-policy">
+                {policySaving ? t('reportDetail.archiveSaving') : t('reportDetail.archiveSave')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,6 +1,8 @@
 /**
- * G005 放射RIS系统 v3.0.6.8-23c - PageHeader
- * Stage 2 - Agent A6: 标题工具栏统一
+ * G005 放射RIS系统 v3.0.6.11-103 Wave 5 - PageHeader
+ * 放射专业主题升级:
+ *   - 面包屑 (breadcrumb) + 返回按钮 (showBack/onBack) + 标题图标 (icon)
+ *   - 右侧操作区插槽 (actions) — 全可选, 不破坏既有 props 兼容
  *
  * 收敛原 4 种变体:
  *   - banner  大渐变 Banner (DicomPrintPage 等)
@@ -8,11 +10,19 @@
  *   - inline  极简 inline (EyeRisPage / EyeWorkspace 等)
  *   - minimal 无 actions 时
  */
+import { Fragment } from "react";
+import { ChevronLeft } from "lucide-react";
 import type { ReactNode, CSSProperties } from "react";
 
 export type PageHeaderVariant = "banner" | "flex" | "inline" | "minimal";
 export type PageHeaderSize = "md" | "lg";
 export type PageHeaderAlign = "left" | "center" | "right";
+
+export interface PageHeaderCrumb {
+  label: ReactNode;
+  /** 可点击面包屑 (否则为静态文本) */
+  onClick?: () => void;
+}
 
 export interface PageHeaderProps {
   title: ReactNode;
@@ -36,6 +46,14 @@ export interface PageHeaderProps {
   as?: "h1" | "h2" | "h3";
   /** 标签 (用于 a11y / 测试) */
   ariaLabel?: string;
+  /** [Wave5] 面包屑 (首页 / 模块 / 当前页) */
+  breadcrumb?: PageHeaderCrumb[];
+  /** [Wave5] 显示返回按钮 */
+  showBack?: boolean;
+  /** [Wave5] 返回按钮回调 (默认 window.history.back) */
+  onBack?: () => void;
+  /** [Wave5] 返回按钮 aria-label */
+  backLabel?: string;
 }
 
 /** 标题字号映射 (统一 700 字重) */
@@ -58,10 +76,97 @@ export function PageHeader({
   testId,
   as: As = "h1",
   ariaLabel,
+  breadcrumb,
+  showBack,
+  onBack,
+  backLabel = "返回上一页",
 }: PageHeaderProps) {
   const headingFont = HEADING_FONT[size];
   const justifyAlign: CSSProperties["justifyContent"] =
     align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
+
+  const handleBack = () => {
+    if (onBack) onBack();
+    else if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+  };
+
+  const backButton = showBack && (
+    <button
+      type="button"
+      aria-label={backLabel}
+      onClick={handleBack}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        border: "1px solid var(--border-color, #e2e8f0)",
+        background: "var(--bg-card, #ffffff)",
+        color: "var(--text-secondary, #475569)",
+        cursor: "pointer",
+        flexShrink: 0,
+        transition: "background 0.15s, color 0.15s",
+      }}
+    >
+      <ChevronLeft size={16} />
+    </button>
+  );
+
+  const renderBreadcrumb = (color?: string) =>
+    breadcrumb && breadcrumb.length > 0 ? (
+      <nav
+        aria-label="面包屑"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          fontSize: 12,
+          flexWrap: "wrap",
+          marginBottom: 6,
+          color: color ?? "var(--text-muted, #94a3b8)",
+        }}
+      >
+        {breadcrumb.map((item, i) => {
+          const isLast = i === breadcrumb.length - 1;
+          return (
+            <Fragment key={i}>
+              {i > 0 && <span style={{ opacity: 0.45 }}>/</span>}
+              {item.onClick ? (
+                <button
+                  type="button"
+                  onClick={item.onClick}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: 0,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: isLast ? 600 : 400,
+                    opacity: isLast ? 1 : 0.75,
+                    color: color ?? "var(--text-secondary, #475569)",
+                    textDecoration: "none",
+                  }}
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <span
+                  style={{
+                    fontWeight: isLast ? 600 : 400,
+                    opacity: isLast ? 1 : 0.75,
+                  }}
+                >
+                  {item.label}
+                </span>
+              )}
+            </Fragment>
+          );
+        })}
+      </nav>
+    ) : null;
+
   if (variant === "banner") {
     const bg = bannerBg ?? "linear-gradient(135deg, #1e40af, #2563eb)";
     return (
@@ -80,6 +185,10 @@ export function PageHeader({
           ...style,
         }}
       >
+        {renderBreadcrumb("rgba(255,255,255,0.8)")}
+        {backButton && (
+          <div style={{ marginLeft: breadcrumb ? 0 : -8 }}>{backButton}</div>
+        )}
         {icon && (
           <div
             style={{
@@ -130,9 +239,12 @@ export function PageHeader({
           alignItems: "center",
           gap: 12,
           marginBottom: 16,
+          flexWrap: "wrap",
           ...style,
         }}
       >
+        {renderBreadcrumb()}
+        {backButton}
         {icon}
         <As
           style={{
@@ -181,35 +293,46 @@ export function PageHeader({
         ...style,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, justifyContent: justifyAlign }}>
-        {icon}
-        <div style={{ minWidth: 0 }}>
-          <As
-            style={{
-              margin: 0,
-              fontSize: headingFont,
-              fontWeight: 700,
-              color: "var(--color-primary-900, #1e40af)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            {title}
-          </As>
-          {subtitle && (
-            <p
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0,
+          justifyContent: justifyAlign,
+        }}
+      >
+        {renderBreadcrumb()}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          {backButton}
+          {icon}
+          <div style={{ minWidth: 0 }}>
+            <As
               style={{
-                margin: "4px 0 0",
-                fontSize: 13,
-                color: "var(--color-gray-500, #64748b)",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                flexWrap: "wrap",
+                margin: 0,
+                fontSize: headingFont,
+                fontWeight: 700,
+                color: "var(--color-primary-900, #1e40af)",
+                letterSpacing: "-0.01em",
               }}
             >
-              {subtitle}
-            </p>
-          )}
+              {title}
+            </As>
+            {subtitle && (
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: 13,
+                  color: "var(--color-gray-500, #64748b)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  flexWrap: "wrap",
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
       </div>
       {actions && (

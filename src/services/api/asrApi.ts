@@ -15,6 +15,66 @@ export interface FeedbackRequest {
   originalText: string
 }
 
+// ── [v3.0.6.11-103 Wave 17] 听写工作台 V2 ────────────────────────────────────
+
+export type DictationSectionKey = 'findings' | 'impression' | 'recommendation' | 'conclusion'
+
+export type DictationHotwordCategory = '解剖' | '影像' | '疾病' | '单位' | '操作'
+
+export interface DictationHotword {
+  id: string
+  term: string
+  category: DictationHotwordCategory
+  priority: number
+  builtin: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DictationCommandEvent {
+  phrase: string
+  action: 'next_section' | 'save' | 'submit' | 'pause' | 'resume' | 'start'
+  at: number
+}
+
+export interface DictationSection {
+  key: DictationSectionKey
+  text: string
+}
+
+export interface DictationSession {
+  id: string
+  reportId: string
+  doctorId: string
+  lang: string
+  status: 'dictating' | 'paused' | 'completed' | 'error'
+  startedAt: string
+  endedAt: string | null
+  text: string
+  sections: DictationSection[]
+  commands: DictationCommandEvent[]
+  durationSec: number
+}
+
+export interface DictationChunkResult {
+  sessionId: string
+  text: string
+  sections: DictationSection[]
+  commands: DictationCommandEvent[]
+  hotwordHits: { term: string; count: number }[]
+  confidence: number
+  engine: 'mock-dictation'
+}
+
+// 统一解包: 失败抛错, 调用方 try/catch 降级
+async function unwrap<T>(promise: Promise<{ success: boolean; data: T; error?: { message?: string } | null }>): Promise<T> {
+  const res = await promise
+  if (!res.success) {
+    throw new Error(res.error?.message ?? '请求失败')
+  }
+  return res.data
+}
+
 const FALLBACK_RESPONSES = [
   '双肺纹理清晰，肺野透亮度正常，未见明确实变影及结节影。心影大小正常，纵隔无增宽，膈面光滑，肋膈角锐利。',
   '肝脏形态大小正常，包膜光滑，实质回声均匀，血管纹理清晰，门静脉主干内径约1.0cm。胆囊大小正常，壁薄光滑，腔内透亮。',
@@ -66,4 +126,32 @@ export const asrApi = {
 
   feedback: (data: FeedbackRequest) =>
     api.post<{ success: boolean }>('/asr/feedback', data),
+
+  // ── [v3.0.6.11-103 Wave 17] 听写工作台 V2 ──────────────────────────────
+
+  startDictation: (data?: { reportId?: string; doctorId?: string; lang?: string }) =>
+    unwrap(api.post<DictationSession>('/asr/dictation/session', data ?? {})),
+
+  getDictationSession: (sessionId: string) =>
+    unwrap(api.get<DictationSession>(`/asr/dictation/session/${sessionId}`)),
+
+  appendDictation: (sessionId: string, text: string) =>
+    unwrap(api.post<DictationChunkResult>(`/asr/dictation/session/${sessionId}/append`, { text })),
+
+  endDictation: (sessionId: string) =>
+    unwrap(api.post<DictationSession>(`/asr/dictation/session/${sessionId}/end`, {})),
+
+  listDictationHotwords: async (): Promise<DictationHotword[]> => {
+    const res = await api.getList<DictationHotword>('/asr/dictation/hotwords')
+    return res.success ? res.data.data : []
+  },
+
+  createDictationHotword: (data: { term: string; category?: DictationHotwordCategory; priority?: number }) =>
+    unwrap(api.post<DictationHotword>('/asr/dictation/hotwords', data)),
+
+  updateDictationHotword: (id: string, data: Partial<{ term: string; category: DictationHotwordCategory; priority: number }>) =>
+    unwrap(api.patch<DictationHotword>(`/asr/dictation/hotwords/${id}`, data)),
+
+  deleteDictationHotword: (id: string) =>
+    unwrap(api.delete<{ success: boolean; deletedId: string }>(`/asr/dictation/hotwords/${id}`)),
 }

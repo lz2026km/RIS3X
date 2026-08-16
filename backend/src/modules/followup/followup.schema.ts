@@ -51,6 +51,12 @@ export const FromExamFollowUpSchema = z.object({
   note: z.string().optional(),
 })
 
+// [v3.0.6.11-103 Wave 13] 随访自动触发强化: 报告手动补建 (报告发布后/人工触发, 关键词规则匹配)
+export const FromReportFollowUpSchema = z.object({
+  reportId: z.string().min(1),
+  reason: z.string().optional(),
+})
+
 // [v3.0.6.11-99 Wave3B] 模板应用到患者
 export const ApplyTemplateSchema = z.object({
   patientId: z.string().min(1),

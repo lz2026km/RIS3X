@@ -1,18 +1,33 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Row, Col, Statistic } from 'antd'
-import { Cpu, Rocket, StopCircle, Trash2, RefreshCw, Plus } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { Card, Table, Tag, Space, Modal, Form, Input, Select, message, Empty, Tooltip, Typography } from 'antd'
+import { Cpu, Rocket, StopCircle, PackageX } from 'lucide-react'
+import { t } from '../../i18n/appI18n'
 import { aiMarketplaceApi, type AiModel } from '../../services/api/aiMarketplaceApi'
+import { ActionButton } from '../../components/common/ActionButton'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 
+const { Text } = Typography
 const { confirm } = Modal
 
 const statusColors: Record<string, string> = { running: 'green', stopped: 'orange', error: 'red' }
-const statusLabels: Record<string, string> = { running: '运行中', stopped: '已停止', error: '异常' }
+
+const statusLabel = (s: string): string =>
+  s === 'running' ? t('w8.aiMarketplace.statusRunning') : s === 'stopped' ? t('w8.aiMarketplace.statusStopped') : t('w8.aiMarketplace.statusError')
+
+/** [W8] 确定性 seed 回退: API 不可用时展示内置演示模型 */
+const SEED_MODELS: AiModel[] = [
+  { id: 'seed-lung-nodule', name: 'Lung Nodule Detection', version: '2.3.1', modality: 'CT', description: '肺结节检出与分类 (Lung-RADS)', status: 'running', deployedAt: '2026-07-02', accuracy: 0.947 },
+  { id: 'seed-fracture', name: 'Fracture Assist', version: '1.8.0', modality: 'DX', description: '四肢骨折辅助检出', status: 'running', deployedAt: '2026-06-18', accuracy: 0.921 },
+  { id: 'seed-cardiac', name: 'Cardiac CTA', version: '3.0.2', modality: 'CT', description: '冠脉狭窄自动测量 (CAD-RADS)', status: 'stopped', deployedAt: '2026-05-30', accuracy: 0.903 },
+  { id: 'seed-denoise', name: 'Deep Denoise', version: '1.4.0', modality: 'CT', description: '低剂量图像降噪增强', status: 'error', deployedAt: '2026-04-11', accuracy: 0.885 },
+]
 
 const AiMarketplacePage: React.FC = () => {
-  const {  } = useTranslation('ai')
   const [models, setModels] = useState<AiModel[]>([])
   const [loading, setLoading] = useState(false)
+  const [dataSource, setDataSource] = useState<'api' | 'seed'>('api')
+  const [keyword, setKeyword] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
   const [deployOpen, setDeployOpen] = useState(false)
   const [form] = Form.useForm()
 
@@ -20,10 +35,20 @@ const AiMarketplacePage: React.FC = () => {
     setLoading(true)
     try {
       const res = await aiMarketplaceApi.listModels()
-      if (res.success && Array.isArray(res.data)) {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setModels(res.data)
+        setDataSource('api')
+      } else {
+        setModels(SEED_MODELS)
+        setDataSource('seed')
+        message.info(t('w8.aiMarketplace.seedFallback'))
       }
-    } catch (err) { console.error('[AiMarketplace] fetchModels failed:', err); message.warning('模型列表加载失败') } finally {
+    } catch (err) {
+      console.error('[AiMarketplace] fetchModels failed:', err)
+      setModels(SEED_MODELS)
+      setDataSource('seed')
+      message.warning(t('w8.aiMarketplace.loadFailed'))
+    } finally {
       setLoading(false)
     }
   }, [])
@@ -46,13 +71,13 @@ const AiMarketplacePage: React.FC = () => {
         setModels(prev => [res.data, ...prev])
         setDeployOpen(false)
         form.resetFields()
-        message.success('模型部署成功')
+        message.success(t('w8.aiMarketplace.deployedMsg'))
       } else {
-        message.error(res.error?.message || '部署失败')
+        message.error(res.error?.message || t('w8.aiMarketplace.deployFailed'))
       }
     } catch (err: any) {
       if (err?.errorFields) return
-      message.error('部署请求失败')
+      message.error(t('w8.aiMarketplace.deployFailed'))
     } finally {
       setLoading(false)
     }
@@ -60,60 +85,119 @@ const AiMarketplacePage: React.FC = () => {
 
   const handleRemove = (id: string) => {
     confirm({
-      title: '确认卸载此模型？',
+      title: t('w8.aiMarketplace.confirmUnload'),
       onOk: async () => {
         try {
           const res = await aiMarketplaceApi.removeModel(id)
           if (res.success) {
             setModels(prev => prev.filter(m => m.id !== id))
-            message.success('模型已卸载')
+            message.success(t('w8.aiMarketplace.removedMsg'))
           } else {
-            message.error(res.error?.message || '卸载失败')
+            message.error(res.error?.message || t('w8.aiMarketplace.removeFailed'))
           }
-        } catch (err) { console.error('[AiMarketplace] removeModel failed:', err); message.error('卸载请求失败') }
+        } catch (err) {
+          console.error('[AiMarketplace] removeModel failed:', err)
+          message.error(t('w8.aiMarketplace.removeFailed'))
+        }
       }
     })
   }
 
+  const filtered = useMemo(() => {
+    const kw = keyword.trim().toLowerCase()
+    return models.filter(m => {
+      if (statusFilter !== 'all' && m.status !== statusFilter) return false
+      if (!kw) return true
+      return m.name.toLowerCase().includes(kw) || (m.description || '').toLowerCase().includes(kw)
+    })
+  }, [models, keyword, statusFilter])
+
   const running = models.filter(m => m.status === 'running').length
-  const avgAcc = models.filter(m => m.accuracy).reduce((s, m) => s + (m.accuracy || 0), 0) / (models.filter(m => m.accuracy).length || 1)
+  const errorCount = models.filter(m => m.status === 'error').length
+  const accModels = models.filter(m => m.accuracy)
+  const avgAcc = accModels.length > 0 ? (accModels.reduce((s, m) => s + (m.accuracy || 0), 0) / accModels.length) * 100 : 0
 
   const columns = [
-    { title: '模型名称', dataIndex: 'name', key: 'name' },
-    { title: '版本', dataIndex: 'version', key: 'version' },
-    { title: '模态', dataIndex: 'modality', key: 'modality' },
-    { title: '描述', dataIndex: 'description', key: 'description' },
-    { title: '准确率', dataIndex: 'accuracy', key: 'accuracy', render: (v: number) => v ? `${(v * 100).toFixed(0)}%` : '-' },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag> },
-    { title: '操作', key: 'action', render: (_: unknown, r: AiModel) => <Space><Button size="small" danger icon={<Trash2 size={14} />} onClick={() => handleRemove(r.id)}>卸载</Button></Space> },
+    { title: t('w8.aiMarketplace.colName'), dataIndex: 'name', key: 'name', render: (v: string) => <Text strong>{v}</Text> },
+    { title: t('w8.aiMarketplace.colVersion'), dataIndex: 'version', key: 'version', width: 90 },
+    { title: t('w8.aiMarketplace.colModality'), dataIndex: 'modality', key: 'modality', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
+    { title: t('w8.aiMarketplace.colDescription'), dataIndex: 'description', key: 'description', ellipsis: true },
+    { title: t('w8.aiMarketplace.colAccuracy'), dataIndex: 'accuracy', key: 'accuracy', width: 100, render: (v: number) => v ? `${(v * 100).toFixed(0)}%` : '-' },
+    { title: t('w8.aiMarketplace.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (s: string) => <Tag color={statusColors[s]}>{statusLabel(s)}</Tag> },
+    { title: t('w8.aiMarketplace.colDeployedAt'), dataIndex: 'deployedAt', key: 'deployedAt', width: 110 },
+    { title: t('w8.aiMarketplace.colActions'), key: 'action', width: 90, render: (_: unknown, r: AiModel) => (
+      <Tooltip title={t('w8.aiMarketplace.unload')}>
+        <ActionButton action="delete" size="compact" icon={<StopCircle size={14} />} onClick={() => handleRemove(r.id)}>{t('w8.aiMarketplace.unload')}</ActionButton>
+      </Tooltip>
+    ) },
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>AI 模型市场</span>
+    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }} align="center">
+        <Cpu size={22} color="#2563eb" />
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.aiMarketplace.title')}</div>
+          <Text type="secondary" style={{ fontSize: 12 }}>{t('w8.aiMarketplace.subtitle')}</Text>
+        </div>
+        <Tag color={dataSource === 'api' ? 'green' : 'orange'}>{dataSource === 'api' ? 'API' : 'Seed'}</Tag>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="模型总数" value={models.length} prefix={<Cpu size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="运行中" value={running} styles={{ content: {  color: '#52c41a'  } }} prefix={<Rocket size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="平均准确率" value={`${(avgAcc * 100).toFixed(1)}%`} prefix={<RefreshCw size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="异常" value={models.filter(m => m.status === 'error').length} styles={{ content: {  color: '#ff4d4f'  } }} prefix={<StopCircle size={16} />} /></Card></Col>
-      </Row>
+
+      <StatCardGrid style={{ marginBottom: 16 }} minWidth={220}>
+        <StatCard title={t('w8.aiMarketplace.kpiTotal')} value={models.length} icon={<Cpu size={18} />} color="primary" />
+        <StatCard title={t('w8.aiMarketplace.kpiRunning')} value={running} icon={<Rocket size={18} />} color="success" sub={dataSource === 'seed' ? t('w8.aiMarketplace.seedFallback') : undefined} />
+        <StatCard title={t('w8.aiMarketplace.kpiAvgAccuracy')} value={avgAcc.toFixed(1)} suffix="%" icon={<StopCircle size={18} />} color="warning" />
+        <StatCard title={t('w8.aiMarketplace.kpiError')} value={errorCount} icon={<PackageX size={18} />} color="error" />
+      </StatCardGrid>
+
       <Card
-        extra={<Button type="primary" icon={<Plus size={14} />} onClick={() => setDeployOpen(true)}>部署模型</Button>}
+        extra={
+          <Space>
+            <ActionButton action="refresh" loading={loading} onClick={fetchModels}>{t('w8.aiMarketplace.refresh')}</ActionButton>
+            <ActionButton action="create" onClick={() => setDeployOpen(true)}>{t('w8.aiMarketplace.deploy')}</ActionButton>
+          </Space>
+        }
         loading={loading}
       >
-        <Table rowKey="id" dataSource={models} columns={columns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+        <Space style={{ marginBottom: 12 }} wrap>
+          <Input.Search
+            allowClear
+            placeholder={t('w8.aiMarketplace.searchPlaceholder')}
+            style={{ width: 260 }}
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+          />
+          <Select
+            value={statusFilter}
+            onChange={setStatusFilter}
+            style={{ width: 140 }}
+            options={[
+              { value: 'all', label: t('w8.aiMarketplace.statusAll') },
+              { value: 'running', label: t('w8.aiMarketplace.statusRunning') },
+              { value: 'stopped', label: t('w8.aiMarketplace.statusStopped') },
+              { value: 'error', label: t('w8.aiMarketplace.statusError') },
+            ]}
+          />
+        </Space>
+        <Table
+          rowKey="id"
+          dataSource={filtered}
+          columns={columns}
+          size="small"
+          scroll={{ x: 'max-content' }}
+          pagination={{ pageSize: 6, showSizeChanger: false, showTotal: (total) => `${t('w8.aiMarketplace.kpiTotal')}: ${total}` }}
+          locale={{ emptyText: <Empty description={t('w8.aiMarketplace.empty')} /> }}
+        />
       </Card>
-      <Modal title="部署新模型" open={deployOpen} onOk={handleDeploy} onCancel={() => setDeployOpen(false)}>
+
+      <Modal title={t('w8.aiMarketplace.deployTitle')} open={deployOpen} onOk={handleDeploy} onCancel={() => setDeployOpen(false)} confirmLoading={loading}>
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="模型名称" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="version" label="版本" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="modality" label="模态" rules={[{ required: true }]}>
+          <Form.Item name="name" label={t('w8.aiMarketplace.formName')} rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="version" label={t('w8.aiMarketplace.formVersion')} rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="modality" label={t('w8.aiMarketplace.formModality')} rules={[{ required: true }]}>
             <Select options={[{ value: 'CT', label: 'CT' }, { value: 'MR', label: 'MR' }, { value: 'DX', label: 'DX' }, { value: 'MG', label: 'MG' }, { value: 'US', label: 'US' }]} />
           </Form.Item>
-          <Form.Item name="description" label="描述"><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="description" label={t('w8.aiMarketplace.formDescription')}><Input.TextArea rows={3} /></Form.Item>
         </Form>
       </Modal>
     </div>

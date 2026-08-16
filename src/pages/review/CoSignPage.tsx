@@ -18,6 +18,7 @@ import {
   Switch,
   Popconfirm,
   Alert,
+  Tabs,
 } from "antd";
 import {
   Users,
@@ -31,13 +32,16 @@ import {
   Settings2,
   Plus,
   Trash2,
+  History,
 } from "lucide-react";
 import {
   coSignApi,
   type CoSignItem,
   type CoSignStats,
   type CoSignRule,
+  type CoSignHistoryEntry,
 } from "../../services/api/cosignApi";
+import { useTranslation } from "react-i18next";
 
 const statusColor: Record<string, string> = {
   pending: "orange",
@@ -56,6 +60,7 @@ const thresholdLabel: Record<string, string> = {
 };
 
 const CoSignPage: React.FC = () => {
+  const { t } = useTranslation("v3cosign");
   const [items, setItems] = useState<CoSignItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<CoSignStats | null>(null);
@@ -66,6 +71,11 @@ const CoSignPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   // [W2-C] 受控分页
   const [itemPage, setItemPage] = useState(1);
+  // [G005 Wave1A] 双签历史 (GET /cosign/history)
+  const [activePanel, setActivePanel] = useState("pending");
+  const [history, setHistory] = useState<CoSignHistoryEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
   // [Wave1B P2] 会签规则: 列表 / 新建 / 删除 (coSignApi.getRules·createRule·deleteRule)
   const [rules, setRules] = useState<CoSignRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
@@ -156,6 +166,34 @@ const CoSignPage: React.FC = () => {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
   }, []);
+
+  // [G005 Wave1A] 双签历史 (GET /cosign/history)
+  const fetchHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await coSignApi.getHistory();
+      if (res.success) setHistory(res.data?.data ?? []);
+      else setHistory([]);
+    } catch {
+      setHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  // [G005 Wave1A] 详情: GET /cosign/pending/:id 拉取最新数据
+  const openDetail = async (item: CoSignItem) => {
+    setSelectedItem(item);
+    setShowDetail(true);
+    try {
+      const res = await coSignApi.getPendingDetail(item.id);
+      if (res.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+        setSelectedItem(res.data.data[0] as unknown as CoSignItem);
+      }
+    } catch {
+      /* 详情接口不可用, 保持列表数据 */
+    }
+  };
 
   useEffect(() => {
     fetchPending();
@@ -265,10 +303,7 @@ const CoSignPage: React.FC = () => {
         <Button
           size="small"
           icon={<Eye size={14} />}
-          onClick={() => {
-            setSelectedItem(r);
-            setShowDetail(true);
-          }}
+          onClick={() => void openDetail(r)}
         >
           详情
         </Button>
@@ -353,6 +388,7 @@ const CoSignPage: React.FC = () => {
               onClick={() => {
                 fetchPending();
                 fetchStats();
+                void fetchHistory();
               }}
             >
               刷新
@@ -360,14 +396,90 @@ const CoSignPage: React.FC = () => {
           </Space>
         }
       >
-        <Table
-          dataSource={items}
-          columns={columns}
-          rowKey="id"
-          loading={loading}
-          pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-          size="small"
-        scroll={{ x: 'max-content' }}
+        <Tabs
+          activeKey={activePanel}
+          onChange={(key) => {
+            setActivePanel(key);
+            if (key === "history") void fetchHistory();
+          }}
+          items={[
+            {
+              key: "pending",
+              label: (
+                <Space size={4}>
+                  <Clock size={14} />
+                  待双签
+                </Space>
+              ),
+              children: (
+                <Table
+                  dataSource={items}
+                  columns={columns}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (tt) => `共 ${tt} 条` }}
+                  size="small"
+                  scroll={{ x: "max-content" }}
+                />
+              ),
+            },
+            {
+              key: "history",
+              label: (
+                <Space size={4}>
+                  <History size={14} />
+                  {t("historyTitle")}
+                </Space>
+              ),
+              children: (
+                <Table
+                  dataSource={history}
+                  rowKey="id"
+                  loading={historyLoading}
+                  pagination={{ current: historyPage, pageSize: 10, total: history.length, onChange: setHistoryPage, showSizeChanger: false, showTotal: (tt) => `共 ${tt} 条` }}
+                  size="small"
+                  scroll={{ x: "max-content" }}
+                  locale={{ emptyText: t("historyEmpty") }}
+                  columns={[
+                    {
+                      title: t("historyReportId"),
+                      dataIndex: "reportId",
+                      key: "reportId",
+                      render: (id: string) => <span style={{ fontFamily: "monospace" }}>{id || "—"}</span>,
+                    },
+                    {
+                      title: t("historyAction"),
+                      dataIndex: "action",
+                      key: "action",
+                      render: (a: string) => (
+                        <Tag color={a === "APPROVE" ? "green" : a === "REJECT" ? "red" : "default"}>
+                          {a === "APPROVE" ? t("actionApprove") : a === "REJECT" ? t("actionReject") : a}
+                        </Tag>
+                      ),
+                    },
+                    {
+                      title: t("historyActor"),
+                      dataIndex: "actor",
+                      key: "actor",
+                      render: (a: string) => (
+                        <Space size={4}>
+                          <User size={12} />
+                          {a || "—"}
+                        </Space>
+                      ),
+                    },
+                    {
+                      title: t("historyTimestamp"),
+                      dataIndex: "timestamp",
+                      key: "timestamp",
+                      render: (ts: string) => (ts ? new Date(ts).toLocaleString() : "—"),
+                    },
+                    { title: t("historyDetail"), dataIndex: "detail", key: "detail", ellipsis: true },
+                  ]}
+                />
+              ),
+            },
+          ]}
         />
       </Card>
       <Modal
@@ -406,6 +518,17 @@ const CoSignPage: React.FC = () => {
           )
         }
         width={600}
+        extra={
+          selectedItem && (
+            <Button
+              size="small"
+              icon={<RefreshCw size={12} />}
+              onClick={() => void openDetail(selectedItem)}
+            >
+              {t("detailRefresh")}
+            </Button>
+          )
+        }
       >
         {selectedItem && (
           <Descriptions bordered column={2} size="small">
@@ -426,6 +549,9 @@ const CoSignPage: React.FC = () => {
             </Descriptions.Item>
             <Descriptions.Item label="等待时间">
               {selectedItem.waitingHours}h
+            </Descriptions.Item>
+            <Descriptions.Item label={t("detailClinicalInfo")} span={2}>
+              {selectedItem.clinicalInfo || "—"}
             </Descriptions.Item>
           </Descriptions>
         )}

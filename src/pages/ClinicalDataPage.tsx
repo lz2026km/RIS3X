@@ -41,6 +41,7 @@ import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import { patientApi, examApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import type { Patient } from '../types'
+import { t } from '../i18n/appI18n'
 
 // ==================== 类型定义 ====================
 type TabKey = 'patient360' | 'sync' | 'quality' | 'search'
@@ -722,9 +723,9 @@ const TimelineIcon = ({ type }: { type: TimelineEvent['type'] }) => {
 
 const ConnectionStatusIndicator = ({ status }: { status: SystemConnectionStatus['status'] }) => {
   const config: Record<SystemConnectionStatus['status'], { color: string; bg: string; label: string }> = {
-    'online': { color: COLORS.success, bg: COLORS.successLight, label: '在线' },
-    'offline': { color: COLORS.danger, bg: COLORS.dangerLight, label: '离线' },
-    'degraded': { color: COLORS.warning, bg: COLORS.warningLight, label: '性能下降' },
+    'online': { color: COLORS.success, bg: COLORS.successLight, label: t('clinicalData.statusOnline') },
+    'offline': { color: COLORS.danger, bg: COLORS.dangerLight, label: t('clinicalData.statusOffline') },
+    'degraded': { color: COLORS.warning, bg: COLORS.warningLight, label: t('clinicalData.statusDegraded') },
   }
   const c = config[status]
   return (
@@ -836,7 +837,7 @@ const Patient360View = () => {
           </div>
           <div>
             <div style={styles.statValue}>{patientStats.totalPatients}</div>
-            <div style={styles.statLabel}>患者总数</div>
+            <div style={styles.statLabel}>{t('clinicalData.totalPatients')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.success, COLORS.successLight)}>
@@ -845,7 +846,7 @@ const Patient360View = () => {
           </div>
           <div>
             <div style={styles.statValue}>{patientStats.activePatients}</div>
-            <div style={styles.statLabel}>活跃患者(30天内)</div>
+            <div style={styles.statLabel}>{t('clinicalData.activePatients')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.secondary, COLORS.cyanLight)}>
@@ -854,7 +855,7 @@ const Patient360View = () => {
           </div>
           <div>
             <div style={styles.statValue}>{patientStats.newThisMonth}</div>
-            <div style={styles.statLabel}>本月新增</div>
+            <div style={styles.statLabel}>{t('clinicalData.newThisMonth')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.danger, COLORS.dangerLight)}>
@@ -863,7 +864,7 @@ const Patient360View = () => {
           </div>
           <div>
             <div style={styles.statValue}>{patientStats.criticalCases}</div>
-            <div style={styles.statLabel}>危急病例</div>
+            <div style={styles.statLabel}>{t('clinicalData.criticalCases')}</div>
           </div>
         </div>
       </div>
@@ -873,7 +874,7 @@ const Patient360View = () => {
         <div style={styles.card}>
           <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
             <User size={18} color={COLORS.primary} />
-            患者列表
+            {t('clinicalData.patientList')}
             {/* [G005 Wave4A P1] 数据源徽标 */}
             <span style={{
               marginLeft: 'auto',
@@ -882,7 +883,7 @@ const Patient360View = () => {
                 patientsMode === 'real' ? COLORS.successLight : COLORS.warningLight
               ),
             }}>
-              {patientsMode === 'real' ? '真实数据' : '演示数据'}
+              {patientsMode === 'real' ? t('clinicalData.realData') : t('clinicalData.demoData')}
             </span>
           </div>
           
@@ -890,7 +891,7 @@ const Patient360View = () => {
           <div style={styles.searchBar}>
             <input
               style={styles.searchInput}
-              placeholder="搜索患者姓名/ID/电话..."
+              placeholder={t('clinicalData.searchPatientPlaceholder')}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -899,11 +900,11 @@ const Patient360View = () => {
               value={patientTypeFilter}
               onChange={e => setPatientTypeFilter(e.target.value)}
             >
-              <option value="全部">全部类型</option>
-              <option value="门诊">门诊</option>
-              <option value="住院">住院</option>
-              <option value="体检">体检</option>
-              <option value="急诊">急诊</option>
+              <option value="全部">{t('clinicalData.allTypes')}</option>
+              <option value="门诊">{t('clinicalData.outpatient')}</option>
+              <option value="住院">{t('clinicalData.inpatient')}</option>
+              <option value="体检">{t('clinicalData.physicalExam')}</option>
+              <option value="急诊">{t('clinicalData.emergency')}</option>
             </select>
           </div>
           
@@ -933,7 +934,7 @@ const Patient360View = () => {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, marginBottom: '4px' }}>{patient.name}</div>
                       <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-                        ID: {patient.id} | {patient.patientType} | {pData.totalVisits}次就诊
+                        ID: {patient.id} | {patient.patientType} | {t('clinicalData.visitsCount', { count: pData.totalVisits })}
                       </div>
                     </div>
                     <ChevronRight size={16} color={COLORS.textMuted} />
@@ -949,7 +950,7 @@ const Patient360View = () => {
           <div style={styles.card}>
             <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
               <Eye size={18} color={COLORS.primary} />
-              CDR患者360视图
+              {t('clinicalData.patient360View')}
               <span style={{ marginLeft: '8px', fontSize: '12px', color: COLORS.textMuted }}>
                 {patientData.name} - {patientData.patientId}
               </span>
@@ -964,23 +965,23 @@ const Patient360View = () => {
             {/* 关键指标卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
               <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>最近血压</div>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.latestBp')}</div>
                 <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.danger }}>{latestVitals?.bp || '--'}</div>
                 <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>mmHg</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.pinkLight, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>最近心率</div>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.latestHr')}</div>
                 <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.pink }}>{latestVitals?.hr || '--'}</div>
                 <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>bpm</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.cyanLight, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>体重</div>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.weight')}</div>
                 <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.cyan }}>{latestVitals?.weight || '--'}</div>
                 <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>kg</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>过敏史</div>
-                <div style={{ fontSize: '14px', fontWeight: 600, color: COLORS.warning }}>{patientData.allergyHistory.length}项</div>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.allergyHistory')}</div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: COLORS.warning }}>{t('clinicalData.allergyCount', { count: patientData.allergyHistory.length })}</div>
                 <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{patientData.allergyHistory.join(', ')}</div>
               </div>
             </div>
@@ -988,26 +989,26 @@ const Patient360View = () => {
             {/* 患者概览 */}
             <div style={{ ...styles.grid2, marginBottom: '16px' }}>
               <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>姓名</div>
+                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.name')}</div>
                 <div style={{ fontWeight: 600 }}>{patientData.name}</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>性别/年龄</div>
-                <div style={{ fontWeight: 600 }}>{patientData.gender} / {patientData.age}岁</div>
+                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.genderAge')}</div>
+                <div style={{ fontWeight: 600 }}>{patientData.gender} / {t('clinicalData.yearsOld', { age: patientData.age })}</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>联系电话</div>
+                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.phone')}</div>
                 <div style={{ fontWeight: 600 }}>{patientData.phone}</div>
               </div>
               <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>患者类型</div>
+                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.patientType')}</div>
                 <div style={{ fontWeight: 600 }}>{patientData.patientType}</div>
               </div>
             </div>
             
             {/* 数据来源标签 */}
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '8px' }}>数据来源</div>
+              <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '8px' }}>{t('clinicalData.dataSources')}</div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {['HIS', 'LIS', 'RIS', 'PACS', 'EMR'].map(src => (
                   <div key={src} style={{
@@ -1041,12 +1042,12 @@ const Patient360View = () => {
               marginBottom: '16px',
             }}>
               {[
-                { key: 'overview', label: '总览' },
-                { key: 'timeline', label: '临床时间线' },
-                { key: 'exams', label: '检查' },
-                { key: 'diagnoses', label: '诊断' },
-                { key: 'vitals', label: '生命体征' },
-                { key: 'medications', label: '用药' },
+                { key: 'overview', label: t('clinicalData.overview') },
+                { key: 'timeline', label: t('clinicalData.clinicalTimeline') },
+                { key: 'exams', label: t('clinicalData.exams') },
+                { key: 'diagnoses', label: t('clinicalData.diagnoses') },
+                { key: 'vitals', label: t('clinicalData.vitals') },
+                { key: 'medications', label: t('clinicalData.medications') },
               ].map(tab => (
                 <button
                   key={tab.key}
@@ -1073,7 +1074,7 @@ const Patient360View = () => {
                 <div style={{ marginBottom: '16px' }}>
                   <div style={{ fontWeight: 600, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <AlertTriangle size={14} color={COLORS.warning} />
-                    过敏史
+                    {t('clinicalData.allergyHistory')}
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {patientData.allergyHistory.map(a => (
@@ -1082,7 +1083,7 @@ const Patient360View = () => {
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, marginBottom: '8px' }}>最近诊断</div>
+                  <div style={{ fontWeight: 600, marginBottom: '8px' }}>{t('clinicalData.recentDiagnoses')}</div>
                   {patientData.diagnoses.slice(0, 2).map((d, i) => (
                     <div key={i} style={{
                       padding: '10px',
@@ -1108,7 +1109,7 @@ const Patient360View = () => {
               <div>
                 <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '13px', color: COLORS.textMuted }}>
-                    共 {timelineEvents.length} 条临床事件
+                    {t('clinicalData.timelineCount', { count: timelineEvents.length })}
                   </div>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <button
@@ -1123,7 +1124,7 @@ const Patient360View = () => {
                         color: timelineView === 'vertical' ? '#fff' : COLORS.textMuted,
                       }}
                     >
-                      纵向
+                      {t('clinicalData.vertical')}
                     </button>
                     <button
                       onClick={() => setTimelineView('horizontal')}
@@ -1137,7 +1138,7 @@ const Patient360View = () => {
                         color: timelineView === 'horizontal' ? '#fff' : COLORS.textMuted,
                       }}
                     >
-                      横向
+                      {t('clinicalData.horizontal')}
                     </button>
                   </div>
                 </div>
@@ -1205,7 +1206,7 @@ const Patient360View = () => {
                       <span style={{ fontWeight: 600 }}>{exam.examType}</span>
                       <span style={styles.badge(COLORS.secondary, COLORS.cyanLight)}>{exam.modality}</span>
                     </div>
-                    <div style={{ fontSize: '12px', color: COLORS.textMuted }}>检查日期: {exam.date}</div>
+                    <div style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('clinicalData.examDate', { date: exam.date })}</div>
                     <div style={{ fontSize: '13px', marginTop: '6px' }}>{exam.result}</div>
                   </div>
                 ))}
@@ -1235,10 +1236,10 @@ const Patient360View = () => {
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.th}>日期</th>
-                      <th style={styles.th}>血压</th>
-                      <th style={styles.th}>心率</th>
-                      <th style={styles.th}>体温</th>
+                      <th style={styles.th}>{t('clinicalData.thDate')}</th>
+                      <th style={styles.th}>{t('clinicalData.thBp')}</th>
+                      <th style={styles.th}>{t('clinicalData.thHr')}</th>
+                      <th style={styles.th}>{t('clinicalData.thTemp')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1266,7 +1267,7 @@ const Patient360View = () => {
                   }}>
                     <div style={{ fontWeight: 600, marginBottom: '4px' }}>{m.name}</div>
                     <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-                      {m.dosage} | {m.frequency} | 开始: {m.startDate}
+                      {m.dosage} | {m.frequency} | {t('clinicalData.medStart', { date: m.startDate })}
                     </div>
                   </div>
                 ))}
@@ -1367,7 +1368,7 @@ const CrossSystemSync = () => {
           </div>
           <div>
             <div style={styles.statValue}>{syncStats.total}</div>
-            <div style={styles.statLabel}>同步记录总数</div>
+            <div style={styles.statLabel}>{t('clinicalData.syncTotal')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.success, COLORS.successLight)}>
@@ -1376,7 +1377,7 @@ const CrossSystemSync = () => {
           </div>
           <div>
             <div style={styles.statValue}>{syncStats.synced}</div>
-            <div style={styles.statLabel}>已同步</div>
+            <div style={styles.statLabel}>{t('clinicalData.synced')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.danger, COLORS.dangerLight)}>
@@ -1385,7 +1386,7 @@ const CrossSystemSync = () => {
           </div>
           <div>
             <div style={styles.statValue}>{syncStats.failed}</div>
-            <div style={styles.statLabel}>同步失败</div>
+            <div style={styles.statLabel}>{t('clinicalData.syncFailed')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.secondary, COLORS.cyanLight)}>
@@ -1394,7 +1395,7 @@ const CrossSystemSync = () => {
           </div>
           <div>
             <div style={styles.statValue}>{syncStats.rate}%</div>
-            <div style={styles.statLabel}>同步成功率</div>
+            <div style={styles.statLabel}>{t('clinicalData.syncRate')}</div>
           </div>
         </div>
       </div>
@@ -1403,9 +1404,9 @@ const CrossSystemSync = () => {
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
           <Server size={18} color={COLORS.primary} />
-          跨系统数据同步监控
+          {t('clinicalData.syncMonitor')}
           {/* [G005 Wave4A P1] 演示数据徽标 (本区块为本地模拟同步, 未接真实集成) */}
-          <span style={styles.badge(COLORS.warning, COLORS.warningLight)}>演示数据</span>
+          <span style={styles.badge(COLORS.warning, COLORS.warningLight)}>{t('clinicalData.demoData')}</span>
           {hasAlerts && (
             <span style={{
               marginLeft: '12px',
@@ -1420,11 +1421,11 @@ const CrossSystemSync = () => {
               gap: '4px',
             }}>
               <AlertTriangle size={14} />
-              {systemConnections.filter(s => s.status !== 'online').length} 个异常
+              {t('clinicalData.abnormalCount', { count: systemConnections.filter(s => s.status !== 'online').length })}
             </span>
           )}
           <span style={{ marginLeft: 'auto', fontSize: '12px', color: COLORS.textMuted }}>
-            最后刷新: {lastSyncTime}
+            {t('clinicalData.lastRefresh', { time: lastSyncTime })}
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               style={{
@@ -1438,7 +1439,7 @@ const CrossSystemSync = () => {
                 color: autoRefresh ? COLORS.success : COLORS.textMuted,
               }}
             >
-              {autoRefresh ? '自动刷新中' : '已暂停'}
+              {autoRefresh ? t('clinicalData.autoRefreshing') : t('clinicalData.paused')}
             </button>
           </span>
         </div>
@@ -1446,25 +1447,25 @@ const CrossSystemSync = () => {
         {/* 连接状态总览 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ padding: '12px', backgroundColor: COLORS.successLight, borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>在线系统</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.onlineSystems')}</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
-            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>/{systemConnections.length} 个</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.ofTotal', { count: systemConnections.length })}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>性能下降</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.degradedSystems')}</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
-            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需关注</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.needAttention')}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>离线系统</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.offlineSystems')}</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
-            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需处理</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.needAction')}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: 'var(--color-info-bg)', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>同步记录</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.syncRecords')}</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
             <div style={{ fontSize: '10px', color: connectionStats.totalErrors > 0 ? COLORS.danger : COLORS.textMuted, marginTop: '2px' }}>
-              {connectionStats.totalErrors} 个错误
+              {t('clinicalData.errorCount', { count: connectionStats.totalErrors })}
             </div>
           </div>
         </div>
@@ -1496,13 +1497,13 @@ const CrossSystemSync = () => {
                 <ConnectionStatusIndicator status={sys.status} />
               </div>
               <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px', textAlign: 'center' }}>
-                最后同步: {sys.lastSyncTime}
+                {t('clinicalData.lastSync', { time: sys.lastSyncTime })}
               </div>
               <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px', textAlign: 'center' }}>
-                {sys.recordCount.toLocaleString()} 条记录
+                {t('clinicalData.recordCount', { count: sys.recordCount.toLocaleString() })}
                 {sys.errorCount > 0 && (
                   <span style={{ color: COLORS.danger, marginLeft: '4px' }}>
-                    | {sys.errorCount} 错误
+                    {t('clinicalData.errorSuffix', { count: sys.errorCount })}
                   </span>
                 )}
               </div>
@@ -1528,19 +1529,19 @@ const CrossSystemSync = () => {
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
           <Network size={18} color={COLORS.primary} />
-          同步记录
-          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>演示数据</span>
+          {t('clinicalData.syncRecords')}
+          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>{t('clinicalData.demoData')}</span>
         </div>
         
         <div style={styles.searchBar}>
           <input
             style={styles.searchInput}
-            placeholder="搜索患者姓名/ID..."
+            placeholder={t('clinicalData.searchPatientIdPlaceholder')}
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
           <select style={styles.select} value={systemFilter} onChange={e => setSystemFilter(e.target.value)}>
-            <option value="全部">全部系统</option>
+            <option value="全部">{t('clinicalData.allSystems')}</option>
             <option value="HIS">HIS</option>
             <option value="PACS">PACS</option>
             <option value="EMR">EMR</option>
@@ -1548,27 +1549,27 @@ const CrossSystemSync = () => {
             <option value="RIS">RIS</option>
           </select>
           <select style={styles.select} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="全部">全部状态</option>
-            <option value="已同步">已同步</option>
-            <option value="同步中">同步中</option>
-            <option value="失败">失败</option>
-            <option value="待同步">待同步</option>
+            <option value="全部">{t('clinicalData.allStatus')}</option>
+            <option value="已同步">{t('clinicalData.synced')}</option>
+            <option value="同步中">{t('clinicalData.syncing')}</option>
+            <option value="失败">{t('clinicalData.failed')}</option>
+            <option value="待同步">{t('clinicalData.pending')}</option>
           </select>
           <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadSyncRecords()}>
             <RefreshCw size={14} />
-            刷新
+            {t('clinicalData.refresh')}
           </button>
         </div>
         
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>系统</th>
-              <th style={styles.th}>数据类型</th>
-              <th style={styles.th}>患者</th>
-              <th style={styles.th}>同步时间</th>
-              <th style={styles.th}>状态</th>
-              <th style={styles.th}>操作</th>
+              <th style={styles.th}>{t('clinicalData.thSystem')}</th>
+              <th style={styles.th}>{t('clinicalData.thDataType')}</th>
+              <th style={styles.th}>{t('clinicalData.thPatient')}</th>
+              <th style={styles.th}>{t('clinicalData.thSyncTime')}</th>
+              <th style={styles.th}>{t('clinicalData.thStatus')}</th>
+              <th style={styles.th}>{t('clinicalData.thAction')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1599,7 +1600,7 @@ const CrossSystemSync = () => {
                     <button style={styles.btn(COLORS.primary)} onClick={async (evt) => {
                       const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                       const orig = btn.innerHTML;
-                      btn.innerHTML = '⏳ 重试中';
+                      btn.innerHTML = t('clinicalData.retrying');
                       btn.disabled = true;
                       await new Promise(r => setTimeout(r, 1500));
                       setSyncRecords(prev => {
@@ -1607,18 +1608,18 @@ const CrossSystemSync = () => {
                         try { localStorage.setItem('g005_clinical_sync_records', JSON.stringify(next)) } catch { }
                         return next
                       })
-                      btn.innerHTML = '✅ 已重试';
+                      btn.innerHTML = t('clinicalData.retried');
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
                       <RefreshCw size={14} />
-                      重试
+                      {t('clinicalData.retry')}
                     </button>
                   )}
                   {record.status === '同步中' && (
                     <button style={styles.btnOutline(COLORS.warning)} onClick={async (evt) => {
                       const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                       const orig = btn.innerHTML;
-                      btn.innerHTML = '⏳ 暂停中';
+                      btn.innerHTML = t('clinicalData.pausing');
                       btn.disabled = true;
                       await new Promise(r => setTimeout(r, 1500));
                       setSyncRecords(prev => {
@@ -1626,11 +1627,11 @@ const CrossSystemSync = () => {
                         try { localStorage.setItem('g005_clinical_sync_records', JSON.stringify(next)) } catch { }
                         return next
                       })
-                      btn.innerHTML = '✅ 已暂停';
+                      btn.innerHTML = t('clinicalData.pausedDone');
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
                       <Pause size={14} />
-                      暂停
+                      {t('clinicalData.pause')}
                     </button>
                   )}
                 </td>
@@ -1757,7 +1758,7 @@ const DataQualityMonitor = () => {
                   <span style={{ fontSize: '28px', fontWeight: 700, color: colors.color }}>
                     {dim.score}
                   </span>
-                  <span style={{ fontSize: '14px', color: COLORS.textMuted }}>分</span>
+                  <span style={{ fontSize: '14px', color: COLORS.textMuted }}>{t('clinicalData.scoreUnit')}</span>
                 </div>
               </div>
               
@@ -1798,7 +1799,7 @@ const DataQualityMonitor = () => {
               <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <TrendIcon trend={dim.trend} />
                 <span style={{ fontSize: '11px', color: COLORS.textMuted }}>
-                  {dim.trend === 'up' ? '上升趋势' : dim.trend === 'down' ? '下降趋势' : '保持稳定'}
+                  {dim.trend === 'up' ? t('clinicalData.trendUp') : dim.trend === 'down' ? t('clinicalData.trendDown') : t('clinicalData.trendStable')}
                 </span>
               </div>
             </div>
@@ -1814,7 +1815,7 @@ const DataQualityMonitor = () => {
           </div>
           <div>
             <div style={styles.statValue}>{overallScore}</div>
-            <div style={styles.statLabel}>综合质量评分</div>
+            <div style={styles.statLabel}>{t('clinicalData.overallScore')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.success, COLORS.successLight)}>
@@ -1823,7 +1824,7 @@ const DataQualityMonitor = () => {
           </div>
           <div>
             <div style={styles.statValue}>{levelCounts.excellent}</div>
-            <div style={styles.statLabel}>优秀指标</div>
+            <div style={styles.statLabel}>{t('clinicalData.excellentMetrics')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.warning, COLORS.warningLight)}>
@@ -1832,7 +1833,7 @@ const DataQualityMonitor = () => {
           </div>
           <div>
             <div style={styles.statValue}>{qualityMetrics.reduce((sum, m) => sum + m.issueCount, 0)}</div>
-            <div style={styles.statLabel}>待处理问题</div>
+            <div style={styles.statLabel}>{t('clinicalData.pendingIssues')}</div>
           </div>
         </div>
         <div style={styles.statCard(COLORS.danger, COLORS.dangerLight)}>
@@ -1841,7 +1842,7 @@ const DataQualityMonitor = () => {
           </div>
           <div>
             <div style={styles.statValue}>{levelCounts.poor}</div>
-            <div style={styles.statLabel}>需改进指标</div>
+            <div style={styles.statLabel}>{t('clinicalData.improveMetrics')}</div>
           </div>
         </div>
       </div>
@@ -1852,7 +1853,7 @@ const DataQualityMonitor = () => {
         <div style={styles.card}>
           <div style={styles.cardTitle}>
             <PieChartIcon size={18} color={COLORS.primary} />
-            质量等级分布
+            {t('clinicalData.qualityDistribution')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <div style={{ width: 180, height: 180, flexShrink: 0 }}>
@@ -1880,7 +1881,7 @@ const DataQualityMonitor = () => {
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: item.color }} />
                   <span style={{ fontSize: '13px', width: '30px' }}>{item.name}</span>
-                  <span style={{ fontSize: '13px', color: COLORS.textMuted }}>{item.value}项</span>
+                  <span style={{ fontSize: '13px', color: COLORS.textMuted }}>{t('clinicalData.itemsCount', { count: item.value })}</span>
                 </div>
               ))}
             </div>
@@ -1891,14 +1892,14 @@ const DataQualityMonitor = () => {
         <div style={styles.card}>
           <div style={styles.cardTitle}>
             <BarChart2 size={18} color={COLORS.primary} />
-            类别质量对比
+            {t('clinicalData.categoryComparison')}
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <RadarChart data={radarData}>
               <PolarGrid stroke={COLORS.border} />
               <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 12 }} />
-              <Radar name="质量评分" dataKey="score" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.4} />
+              <Radar name={t('clinicalData.qualityScore')} dataKey="score" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.4} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
@@ -1908,7 +1909,7 @@ const DataQualityMonitor = () => {
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
           <ActivityIcon size={18} color={COLORS.primary} />
-          各类别质量概况
+          {t('clinicalData.categoryOverview')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
           {categoryStats.map(cat => (
@@ -1923,7 +1924,7 @@ const DataQualityMonitor = () => {
                 {cat.avgScore}
               </div>
               <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>
-                {cat.issueCount} 个问题
+                {t('clinicalData.issueCountSuffix', { count: cat.issueCount })}
               </div>
               <div style={{ marginTop: '8px' }}>
                 <div style={{ ...styles.progress(100, ''), height: '4px' }}>
@@ -1939,42 +1940,42 @@ const DataQualityMonitor = () => {
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
           <LineChart size={18} color={COLORS.primary} />
-          质量指标明细
-          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>演示数据</span>
+          {t('clinicalData.metricDetails')}
+          <span style={{ marginLeft: 'auto', ...styles.badge(COLORS.warning, COLORS.warningLight) }}>{t('clinicalData.demoData')}</span>
         </div>
         
         <div style={styles.searchBar}>
           <select style={styles.select} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-            <option value="全部">全部类别</option>
-            <option value="数据完整性">数据完整性</option>
-            <option value="数据准确性">数据准确性</option>
-            <option value="数据时效性">数据时效性</option>
-            <option value="数据一致性">数据一致性</option>
-            <option value="数据标准化">数据标准化</option>
+            <option value="全部">{t('clinicalData.allCategories')}</option>
+            <option value="数据完整性">{t('clinicalData.catCompleteness')}</option>
+            <option value="数据准确性">{t('clinicalData.catAccuracy')}</option>
+            <option value="数据时效性">{t('clinicalData.catTimeliness')}</option>
+            <option value="数据一致性">{t('clinicalData.catConsistency')}</option>
+            <option value="数据标准化">{t('clinicalData.catStandardization')}</option>
           </select>
           <select style={styles.select} value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
-            <option value="全部">全部等级</option>
-            <option value="优">优</option>
-            <option value="良">良</option>
-            <option value="中">中</option>
-            <option value="差">差</option>
+            <option value="全部">{t('clinicalData.allLevels')}</option>
+            <option value="优">{t('clinicalData.qualityExcellent')}</option>
+            <option value="良">{t('clinicalData.qualityGood')}</option>
+            <option value="中">{t('clinicalData.qualityMedium')}</option>
+            <option value="差">{t('clinicalData.qualityPoor')}</option>
           </select>
           <button style={styles.btnOutline(COLORS.primary)} onClick={() => loadQualityMetrics()}>
             <RefreshCw size={14} />
-            刷新
+            {t('clinicalData.refresh')}
           </button>
         </div>
         
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>类别</th>
-              <th style={styles.th}>指标名称</th>
-              <th style={styles.th}>评分</th>
-              <th style={styles.th}>等级</th>
-              <th style={styles.th}>趋势</th>
-              <th style={styles.th}>问题数</th>
-              <th style={styles.th}>质量趋势</th>
+              <th style={styles.th}>{t('clinicalData.thCategory')}</th>
+              <th style={styles.th}>{t('clinicalData.thMetric')}</th>
+              <th style={styles.th}>{t('clinicalData.thScore')}</th>
+              <th style={styles.th}>{t('clinicalData.thLevel')}</th>
+              <th style={styles.th}>{t('clinicalData.thTrend')}</th>
+              <th style={styles.th}>{t('clinicalData.thIssues')}</th>
+              <th style={styles.th}>{t('clinicalData.thQualityTrend')}</th>
             </tr>
           </thead>
           <tbody>
@@ -2068,9 +2069,9 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
           <Search size={18} color={COLORS.primary} />
-          CDR数据检索
+          {t('clinicalData.cdrSearch')}
           <span style={{ marginLeft: '8px', fontSize: '12px', color: COLORS.textMuted }}>
-            通过患者ID/姓名快速检索临床数据中心
+            {t('clinicalData.cdrSearchDesc')}
           </span>
         </div>
         
@@ -2092,7 +2093,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
               fontSize: '15px',
               height: '48px',
             }}
-            placeholder="输入患者ID、姓名或电话进行搜索..."
+            placeholder={t('clinicalData.searchPlaceholder')}
             value={searchQuery}
             onChange={e => handleSearch(e.target.value)}
             onKeyDown={e => {
@@ -2128,7 +2129,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             color: COLORS.warning,
             marginBottom: '16px',
           }}>
-            请输入至少2个字符进行搜索
+            {t('clinicalData.minChars')}
           </div>
         )}
         
@@ -2142,7 +2143,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             color: COLORS.textMuted,
           }}>
             <RefreshCw size={20} className="animate-spin" style={{ marginRight: '8px' }} />
-            搜索中...
+            {t('clinicalData.searching')}
           </div>
         )}
       </div>
@@ -2152,7 +2153,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
         <div style={styles.card}>
           <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
             <FileText size={18} color={COLORS.primary} />
-            搜索结果
+            {t('clinicalData.searchResults')}
             <span style={{
               marginLeft: '8px',
               padding: '2px 8px',
@@ -2161,7 +2162,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
               color: '#fff',
               fontSize: '11px',
             }}>
-              {searchResults.length} 条
+              {t('clinicalData.resultCount', { count: searchResults.length })}
             </span>
           </div>
           
@@ -2193,13 +2194,13 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                       <span style={{ fontWeight: 600, fontSize: '14px' }}>{result.name}</span>
                       <span style={{ fontSize: '12px', color: COLORS.textMuted }}>
-                        {result.gender} | {result.age}岁
+                        {result.gender} | {t('clinicalData.yearsOld', { age: result.age })}
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: COLORS.textMuted }}>
                       <span>ID: {result.patientId}</span>
                       <span>|</span>
-                      <span>最近就诊: {result.lastVisit}</span>
+                      <span>{t('clinicalData.lastVisit', { date: result.lastVisit })}</span>
                       <span>|</span>
                       <span style={{
                         padding: '2px 6px',
@@ -2207,7 +2208,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                         borderRadius: '4px',
                         color: result.matchType === 'id' ? COLORS.primary : COLORS.success,
                       }}>
-                        {result.matchType === 'id' ? 'ID匹配' : '姓名匹配'}: {result.matchValue}
+                        {result.matchType === 'id' ? t('clinicalData.idMatch') : t('clinicalData.nameMatch')}: {result.matchValue}
                       </span>
                     </div>
                   </div>
@@ -2226,7 +2227,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                     }}
                   >
                     <Eye size={14} />
-                    查看详情
+                    {t('clinicalData.viewDetail')}
                   </button>
                 </div>
               </div>
@@ -2244,8 +2245,8 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             color: COLORS.textMuted,
           }}>
             <Search size={40} style={{ marginBottom: '12px', opacity: 0.5 }} />
-            <div style={{ fontSize: '14px', marginBottom: '4px' }}>未找到匹配结果</div>
-            <div style={{ fontSize: '12px' }}>请尝试其他搜索关键词</div>
+            <div style={{ fontSize: '14px', marginBottom: '4px' }}>{t('clinicalData.noResults')}</div>
+            <div style={{ fontSize: '12px' }}>{t('clinicalData.tryOtherKeywords')}</div>
           </div>
         </div>
       )}
@@ -2256,7 +2257,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div style={{ ...styles.cardTitle, marginBottom: 0 }}>
               <Clock size={18} color={COLORS.primary} />
-              最近搜索
+              {t('clinicalData.recentSearches')}
             </div>
             <button
               style={{
@@ -2268,7 +2269,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
               }}
               onClick={clearRecentSearches}
             >
-              清除
+              {t('clinicalData.clear')}
             </button>
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -2299,22 +2300,22 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
           <Bell size={18} color={COLORS.primary} />
-          搜索提示
+          {t('clinicalData.searchTips')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
           <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>支持搜索方式</div>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>{t('clinicalData.searchMethods')}</div>
             <div style={{ fontSize: '11px', color: COLORS.textMuted }}>
-              • 患者ID精确搜索<br/>
-              • 患者姓名模糊搜索<br/>
-              • 电话号码搜索
+              {t('clinicalData.searchById')}<br/>
+              {t('clinicalData.searchByName')}<br/>
+              {t('clinicalData.searchByPhone')}
             </div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>数据来源说明</div>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>{t('clinicalData.dataSourceDesc')}</div>
             <div style={{ fontSize: '11px', color: COLORS.textMuted }}>
-              检索范围包含 HIS/LIS/RIS/<br/>
-              PACS/EMR 五大系统数据
+              {t('clinicalData.searchScopeLine1')}<br/>
+              {t('clinicalData.searchScopeLine2')}
             </div>
           </div>
         </div>
@@ -2338,7 +2339,7 @@ export default function ClinicalDataPage() {
       if (res.success) {
         setLoadError(null)
       } else {
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError(t('clinicalData.apiError'))
       }
       setLoading(false)
     })()
@@ -2347,17 +2348,17 @@ export default function ClinicalDataPage() {
 
   return (
     <div data-testid="clinical-data-page" style={styles.pageContainer}>
-      {loading && <LoadingBanner message="正在从 API 加载临床数据..." />}
+      {loading && <LoadingBanner message={t('clinicalData.loadingMsg')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
       <div style={styles.header}>
         <div>
           <div style={styles.headerTitle}>
             <Database size={24} />
-            临床数据中心
+            {t('clinicalData.title')}
           </div>
           <div style={styles.headerSubtitle}>
-            患者360视图 · 跨系统数据同步 · 数据质量监控 · CDR检索
+            {t('clinicalData.subtitle')}
           </div>
         </div>
         <div style={styles.headerActions}>
@@ -2370,11 +2371,11 @@ export default function ClinicalDataPage() {
             const reminders: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_reminders') || '{"enabled":false}') } catch { return { enabled: false } } })();
             reminders.enabled = !reminders.enabled;
             localStorage.setItem('g005_clinical_reminders', JSON.stringify(reminders));
-            btn.innerHTML = reminders.enabled ? '✅ 提醒已开启' : '🔔 提醒已关闭';
+            btn.innerHTML = reminders.enabled ? t('clinicalData.reminderOn') : t('clinicalData.reminderOff');
             setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
           }}>
             <Bell size={16} />
-            提醒
+            {t('clinicalData.reminder')}
           </button>
           <button style={styles.headerBtn} onClick={async (evt) => {
             const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
@@ -2384,11 +2385,11 @@ export default function ClinicalDataPage() {
             await new Promise(r => setTimeout(r, 1500));
             const settings: any = (() => { try { return JSON.parse(localStorage.getItem('g005_clinical_settings') || '{}') } catch { return {} } })();
             localStorage.setItem('g005_clinical_settings', JSON.stringify({ ...settings, lastOpened: new Date().toISOString() }));
-            btn.innerHTML = '✅ 已打开设置';
+            btn.innerHTML = t('clinicalData.settingsOpened');
             setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
           }}>
             <Settings size={16} />
-            设置
+            {t('clinicalData.settings')}
           </button>
         </div>
       </div>
@@ -2402,28 +2403,28 @@ export default function ClinicalDataPage() {
             onClick={() => setActiveTab('patient360')}
           >
             <User size={16} />
-            患者360视图
+            {t('clinicalData.tabPatient360')}
           </button>
           <button
             style={styles.tab(activeTab === 'sync')}
             onClick={() => setActiveTab('sync')}
           >
             <SyncIcon size={16} />
-            跨系统同步
+            {t('clinicalData.tabSync')}
           </button>
           <button
             style={styles.tab(activeTab === 'quality')}
             onClick={() => setActiveTab('quality')}
           >
             <ShieldCheck size={16} />
-            数据质量
+            {t('clinicalData.tabQuality')}
           </button>
           <button
             style={styles.tab(activeTab === 'search')}
             onClick={() => setActiveTab('search')}
           >
             <Search size={16} />
-            CDR检索
+            {t('clinicalData.tabCdrSearch')}
           </button>
         </div>
         

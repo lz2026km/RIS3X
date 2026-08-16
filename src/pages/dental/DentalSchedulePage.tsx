@@ -2,8 +2,9 @@
 // 对标: 领健·牙医管家
 import dayjs from 'dayjs';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
-import { Calendar, User, Armchair, Plus, CheckCircle2 } from 'lucide-react';
+import { t } from '@/i18n/appI18n';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented, Descriptions, Spin } from 'antd';
+import { Calendar, User, Armchair, Plus, CheckCircle2, Eye } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
 import { usePagination } from '@/hooks/usePagination';
@@ -39,6 +40,26 @@ export const DentalSchedulePage: React.FC = () => {
   // [G005 Wave1B] 历史 PSR 记录: dentalApi.listPsrRecords (GET /dental/chart/:patientId/psr)
   const [psrHistory, setPsrHistory] = useState<any[]>([]);
   const [psrLoading, setPsrLoading] = useState(false);
+  // [G005 W3-B] 排班单条预约详情: GET /dental/schedule/appointments/:id (getScheduleAppointment)
+  const [apptDetail, setApptDetail] = useState<any>(null);
+  const [apptDetailLoading, setApptDetailLoading] = useState(false);
+
+  const handleShowApptDetail = async (id: string) => {
+    setApptDetailLoading(true);
+    try {
+      const res = await dentalApi.getScheduleAppointment(id);
+      if (res.success && res.data) {
+        setApptDetail(res.data);
+      } else {
+        message.warning(res.error?.message ?? '详情加载失败');
+        setApptDetail(appts.find((a) => a.id === id) ?? null);
+      }
+    } catch {
+      setApptDetail(appts.find((a) => a.id === id) ?? null);
+    } finally {
+      setApptDetailLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -167,6 +188,7 @@ export const DentalSchedulePage: React.FC = () => {
                 {title:'操作',render:(_,r:any)=><Space>
                   <Button size="small" icon={<CheckCircle2 size={10}/>} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'in-progress')}>到诊</Button>
                   <Button size="small" icon={null} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'cancelled')}>取消</Button>
+                  <Button size="small" icon={<Eye size={10}/>} onClick={()=>void handleShowApptDetail(r.id)}>{t("w3b.detail")}</Button>
                 </Space>},
               ]} 
             scroll={{ x: 'max-content' }}/>
@@ -269,6 +291,29 @@ export const DentalSchedulePage: React.FC = () => {
             <Select options={APPT_TYPES} />
           </Form.Item>
         </Form>
+      </Modal>
+      {/* [G005 W3-B] 排班单条预约详情 Modal: getScheduleAppointment (GET /dental/schedule/appointments/:id) */}
+      <Modal
+        title={`${t("w3b.scheduleDetail")} - ${apptDetail?.patientName ?? ''}`}
+        open={!!apptDetail}
+        onCancel={() => setApptDetail(null)}
+        footer={<Button onClick={() => setApptDetail(null)}>{t("w3b.close")}</Button>}
+        width={520}
+      >
+        <Spin spinning={apptDetailLoading}>
+          {apptDetail && (
+            <Descriptions bordered size="small" column={2}>
+              <Descriptions.Item label="患者" span={2}>{apptDetail.patientName} ({apptDetail.patientId || apptDetail.patient?.id || '-'})</Descriptions.Item>
+              <Descriptions.Item label="日期">{apptDetail.date || apptDetail.appointmentDate || '-'}</Descriptions.Item>
+              <Descriptions.Item label="时间">{apptDetail.time || '-'}</Descriptions.Item>
+              <Descriptions.Item label="牙椅">{apptDetail.chairName || apptDetail.chair?.name || '-'}</Descriptions.Item>
+              <Descriptions.Item label="医生">{apptDetail.dentist || '-'}</Descriptions.Item>
+              <Descriptions.Item label="类型">{apptDetail.type || '-'}</Descriptions.Item>
+              <Descriptions.Item label="状态"><Badge status={apptDetail.status === 'completed' ? 'success' : apptDetail.status === 'in-progress' ? 'processing' : apptDetail.status === 'no-show' ? 'error' : 'default'} text={DENTAL_APPT_STATUS_LABELS_DICT[apptDetail.status ?? ''] || apptDetail.status || '-'} /></Descriptions.Item>
+              <Descriptions.Item label="备注" span={2}>{apptDetail.note || apptDetail.notes || '-'}</Descriptions.Item>
+            </Descriptions>
+          )}
+        </Spin>
       </Modal>
     </div>
   );

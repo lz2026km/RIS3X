@@ -8,8 +8,9 @@ import {
   Film, Volume2, VolumeX, SkipBack, SkipForward
 } from 'lucide-react'
 import { initialConsultations, initialRadiologyExams, initialPatients } from '../data/initialData'
-import { consultationApi } from '../services/api'
+import { consultationApi, type ConsultationDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { useTranslation } from 'react-i18next'
 
 const PRIMARY = '#1e40af'
 const ACCENT = '#3b82f6'
@@ -133,7 +134,8 @@ function formatTime(seconds: number): string {
 }
 
 export default function ConsultationPage() {
-  const [activeTab, setActiveTab] = useState<'会诊列表' | '录音录像会诊'>('会诊列表')
+  const { t } = useTranslation('consultation')
+  const [activeTab, setActiveTab] = useState<'会诊列表' | '录音录像会诊' | '登记与查询'>('会诊列表')
   const [filter, setFilter] = useState<string>('全部')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<string>(initialConsultations[0]?.id || '')
@@ -194,6 +196,145 @@ export default function ConsultationPage() {
       if (res.success && res.data) setConsultStats(res.data)
     }).catch(() => { /* 后端不可用 → 本地计算 */ })
   }, [])
+
+  // [G005 Wave1A] 登记与查询: create / pending / by-patient / by-doctor / update
+  const [regSection, setRegSection] = useState<'create' | 'pending' | 'query'>('create')
+  const [pendingConsults, setPendingConsults] = useState<ConsultationDto[]>([])
+  const [pendingLoading, setPendingLoading] = useState(false)
+  const [queryByPatientId, setQueryByPatientId] = useState('')
+  const [queryByDoctorId, setQueryByDoctorId] = useState('')
+  const [queryResults, setQueryResults] = useState<ConsultationDto[]>([])
+  const [queryResultType, setQueryResultType] = useState<'patient' | 'doctor' | null>(null)
+  const [queryLoading, setQueryLoading] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    patientName: '',
+    modality: 'CT',
+    bodyPart: '',
+    consultationType: '疑难病例',
+    requestingDepartment: '',
+    consultedDepartment: '',
+    requestReason: '',
+    priority: 'normal',
+  })
+  const [creating, setCreating] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editForm, setEditForm] = useState<Partial<ConsultationDto>>({})
+  const [updating, setUpdating] = useState(false)
+
+  const loadPending = async () => {
+    setPendingLoading(true)
+    try {
+      const res = await consultationApi.getPending()
+      if (res.success && Array.isArray(res.data)) setPendingConsults(res.data as ConsultationDto[])
+      else setPendingConsults([])
+    } catch {
+      setPendingConsults([])
+    } finally {
+      setPendingLoading(false)
+    }
+  }
+
+  const handleCreateConsultation = async () => {
+    if (!createForm.patientName.trim()) {
+      showToast('请输入患者姓名', 'info')
+      return
+    }
+    setCreating(true)
+    try {
+      const res = await consultationApi.create({ ...createForm, bodyPart: createForm.bodyPart.trim() || '头部', requestReason: createForm.requestReason.trim() || '请专家会诊' })
+      if (res.success) {
+        showToast(t('registration.createSuccess'), 'success')
+        setCreateForm({ ...createForm, patientName: '', bodyPart: '', requestingDepartment: '', consultedDepartment: '', requestReason: '' })
+        void consultationApi.list().then(r => {
+          if (r.success && Array.isArray(r.data) && r.data.length > 0) setConsultations(r.data as unknown as typeof initialConsultations)
+        })
+      } else {
+        showToast(res.error?.message ?? t('registration.createFailed'), 'info')
+      }
+    } catch {
+      showToast(t('registration.createFailed'), 'info')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleQueryByPatient = async () => {
+    const id = queryByPatientId.trim()
+    if (!id) { showToast('请输入患者 ID', 'info'); return }
+    setQueryLoading(true)
+    setQueryResultType('patient')
+    try {
+      const res = await consultationApi.getByPatient(id)
+      if (res.success && Array.isArray(res.data)) setQueryResults(res.data as ConsultationDto[])
+      else setQueryResults([])
+    } catch {
+      setQueryResults([])
+    } finally {
+      setQueryLoading(false)
+    }
+  }
+
+  const handleQueryByDoctor = async () => {
+    const id = queryByDoctorId.trim()
+    if (!id) { showToast('请输入医生 ID', 'info'); return }
+    setQueryLoading(true)
+    setQueryResultType('doctor')
+    try {
+      const res = await consultationApi.getByDoctor(id)
+      if (res.success && Array.isArray(res.data)) setQueryResults(res.data as ConsultationDto[])
+      else setQueryResults([])
+    } catch {
+      setQueryResults([])
+    } finally {
+      setQueryLoading(false)
+    }
+  }
+
+  const openEditModal = () => {
+    if (!selected) return
+    setEditForm({
+      patientName: selected.patientName,
+      modality: selected.modality,
+      bodyPart: selected.bodyPart,
+      consultationType: selected.consultationType,
+      requestingDepartment: selected.requestingDepartment,
+      consultedDepartment: selected.consultedDepartment,
+      requestReason: selected.requestReason,
+      priority: selected.priority,
+    })
+    setShowEditModal(true)
+  }
+
+  const handleUpdateConsultation = async () => {
+    if (!selected) return
+    setUpdating(true)
+    try {
+      const res = await consultationApi.update(selected.id, editForm)
+      if (res.success) {
+        setConsultations(prev => prev.map(c => c.id === selected.id ? { ...c, ...editForm } : c))
+        setShowEditModal(false)
+        showToast(t('registration.updateSuccess'), 'success')
+      } else {
+        showToast(res.error?.message ?? t('registration.updateFailed'), 'info')
+      }
+    } catch {
+      showToast(t('registration.updateFailed'), 'info')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const renderRegResultRow = (c: ConsultationDto) => (
+    <div key={c.id} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--bg-card)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
+        <div style={{ fontSize: 12, color: GRAY }}>{c.modality} · {c.bodyPart} · {c.consultationType || c.type}</div>
+      </div>
+      <span style={{ padding: '2px 10px', background: STATUS_CONFIG[c.status]?.bg ?? '#f1f5f9', color: STATUS_CONFIG[c.status]?.color ?? GRAY, borderRadius: 10, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
+        {STATUS_CONFIG[c.status]?.label ?? c.status}
+      </span>
+    </div>
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -597,6 +738,25 @@ export default function ConsultationPage() {
             fontWeight: 700,
           }}>{mockRecordingArchives.length}</span>
         </button>
+        <button
+          onClick={() => setActiveTab('登记与查询')}
+          style={{
+            padding: '10px 24px',
+            borderRadius: 8,
+            border: activeTab === '登记与查询' ? 'none' : `1px solid ${BORDER}`,
+            background: activeTab === '登记与查询' ? PRIMARY : 'var(--bg-card)',
+            color: activeTab === '登记与查询' ? WHITE : GRAY,
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Users size={16} />
+          {t('registration.title')}
+        </button>
       </div>
 
       {/* 会诊列表 Tab */}
@@ -805,6 +965,10 @@ export default function ConsultationPage() {
                         </button>
                         <button onClick={handlePrint} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                           <Printer size={13} />打印会诊单
+                        </button>
+                        {/* [G005 Wave1A] 编辑会诊 (PUT /consultations/:id) */}
+                        <button onClick={openEditModal} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Edit3 size={13} />{t('registration.edit')}
                         </button>
                       </div>
                     </div>
@@ -1533,6 +1697,151 @@ export default function ConsultationPage() {
         </div>
       )}
 
+      {/* 登记与查询 Tab [G005 Wave1A]: create / pending / by-patient / by-doctor */}
+      {activeTab === '登记与查询' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {([
+              { key: 'create', label: t('registration.create'), color: ACCENT },
+              { key: 'pending', label: t('registration.pending'), color: WARNING },
+              { key: 'query', label: t('registration.results'), color: SUCCESS },
+            ] as const).map(s => (
+              <button
+                key={s.key}
+                onClick={() => {
+                  setRegSection(s.key)
+                  if (s.key === 'pending') void loadPending()
+                }}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: 8,
+                  border: regSection === s.key ? 'none' : `1px solid ${BORDER}`,
+                  background: regSection === s.key ? s.color : 'var(--bg-card)',
+                  color: regSection === s.key ? WHITE : GRAY,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {regSection === 'create' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <FileText size={16} color={ACCENT} />{t('registration.createTitle')}
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+                {([
+                  { label: t('registration.patientName'), key: 'patientName', placeholder: '如: 张三' },
+                  { label: t('registration.modality'), key: 'modality', placeholder: '如: CT' },
+                  { label: t('registration.bodyPart'), key: 'bodyPart', placeholder: '如: 头颅' },
+                  { label: t('registration.consultationType'), key: 'consultationType', placeholder: '疑难病例/MDT/远程会诊/二次意见' },
+                  { label: t('registration.requestingDepartment'), key: 'requestingDepartment', placeholder: '如: 神经内科' },
+                  { label: t('registration.consultedDepartment'), key: 'consultedDepartment', placeholder: '如: 放射科' },
+                  { label: t('registration.priority'), key: 'priority', placeholder: 'normal/urgent/stat' },
+                  { label: t('registration.requestReason'), key: 'requestReason', placeholder: '会诊目的简述' },
+                ] as const).map(f => (
+                  <div key={f.key}>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{f.label}</label>
+                    <input
+                      value={(createForm as Record<string, string>)[f.key]}
+                      onChange={e => setCreateForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                      placeholder={f.placeholder}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                <button onClick={() => void handleCreateConsultation()} disabled={creating} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: creating ? 0.6 : 1 }}>
+                  <Send size={14} />{creating ? '提交中...' : t('registration.submit')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {regSection === 'pending' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Clock size={16} color={WARNING} />{t('registration.pending')}
+                  <span style={{ background: '#fef3c7', color: WARNING, borderRadius: 10, padding: '2px 8px', fontSize: 12 }}>{t('registration.pendingCount')}: {pendingConsults.length}</span>
+                </h3>
+                <button onClick={() => void loadPending()} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <RefreshCw size={13} />刷新
+                </button>
+              </div>
+              {pendingLoading ? (
+                <LoadingBanner message="正在加载待会诊列表..." />
+              ) : pendingConsults.length === 0 ? (
+                <div style={{ padding: 36, textAlign: 'center', color: GRAY }}>
+                  <CheckCircle size={32} style={{ marginBottom: 8, opacity: 0.4 }} />
+                  <div style={{ fontSize: 13 }}>{t('registration.pendingEmpty')}</div>
+                </div>
+              ) : (
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden' }}>
+                  {pendingConsults.map(c => renderRegResultRow(c))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {regSection === 'query' && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Search size={16} color={SUCCESS} />{t('registration.title')}
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('registration.byPatient')}</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      value={queryByPatientId}
+                      onChange={e => setQueryByPatientId(e.target.value)}
+                      placeholder={t('registration.patientIdPlaceholder')}
+                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none' }}
+                    />
+                    <button onClick={() => void handleQueryByPatient()} disabled={queryLoading} style={{ padding: '8px 18px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: queryLoading ? 0.6 : 1 }}>
+                      {t('registration.search')}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('registration.byDoctor')}</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      value={queryByDoctorId}
+                      onChange={e => setQueryByDoctorId(e.target.value)}
+                      placeholder={t('registration.doctorIdPlaceholder')}
+                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none' }}
+                    />
+                    <button onClick={() => void handleQueryByDoctor()} disabled={queryLoading} style={{ padding: '8px 18px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: queryLoading ? 0.6 : 1 }}>
+                      {t('registration.search')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {queryResultType && (
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ padding: '8px 14px', background: LIGHT_BG, fontSize: 12, fontWeight: 700, color: ACCENT, borderBottom: `1px solid ${BORDER}` }}>
+                    {t('registration.results')} · {queryResultType === 'patient' ? t('registration.byPatient') : t('registration.byDoctor')} · {t('registration.resultCount', { count: queryResults.length })}
+                  </div>
+                  {queryResults.length === 0 ? (
+                    <div style={{ padding: 32, textAlign: 'center', color: GRAY, fontSize: 13 }}>{t('registration.noResult')}</div>
+                  ) : queryResults.map(c => renderRegResultRow(c))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Rating Modal */}
       {showRatingModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1917,6 +2226,57 @@ export default function ConsultationPage() {
               </button>
               <button onClick={() => void handleInvite()} disabled={invitingId === selected.id} style={{ padding: '8px 20px', background: '#8b5cf6', color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: invitingId === selected.id ? 0.6 : 1 }}>
                 {invitingId === selected.id ? '邀请中...' : '发送邀请'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [G005 Wave1A] Edit Consultation Modal (PUT /consultations/:id) */}
+      {showEditModal && selected && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 24, width: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('registration.editTitle')} #{selected.id}</h3>
+              <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {([
+                { label: t('registration.patientName'), key: 'patientName' as const },
+                { label: t('registration.modality'), key: 'modality' as const },
+                { label: t('registration.bodyPart'), key: 'bodyPart' as const },
+                { label: t('registration.consultationType'), key: 'consultationType' as const },
+                { label: t('registration.requestingDepartment'), key: 'requestingDepartment' as const },
+                { label: t('registration.consultedDepartment'), key: 'consultedDepartment' as const },
+                { label: t('registration.priority'), key: 'priority' as const },
+              ]).map(f => (
+                <div key={f.key}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{f.label}</label>
+                  <input
+                    value={editForm[f.key] ?? ''}
+                    onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+              ))}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('registration.requestReason')}</label>
+                <textarea
+                  value={editForm.requestReason ?? ''}
+                  onChange={e => setEditForm(prev => ({ ...prev, requestReason: e.target.value }))}
+                  rows={3}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+              <button onClick={() => setShowEditModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                取消
+              </button>
+              <button onClick={() => void handleUpdateConsultation()} disabled={updating} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: updating ? 0.6 : 1 }}>
+                {updating ? '保存中...' : t('registration.submit')}
               </button>
             </div>
           </div>

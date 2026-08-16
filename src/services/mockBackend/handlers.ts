@@ -49,7 +49,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
 // [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
-import { asrHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
+import { asrHandlers, dictationHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
 // [Wave 6A v3.0.6.11-99] 语音工作站端点 (医学词库/会话/转写校正/纠正反馈/统计)
 import { voiceWorkstationHandlers } from './voiceWorkstationHandlers';
 import { doseHandlers } from './doseHandlers';
@@ -5354,6 +5354,7 @@ export const handlers = [
   ...neuroHandlers, // [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
   ...mobileHandlers, // [v3.0.6.11-75] 移动端 API (today-summary/worklist/critical-values/reports/device-token)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
+  ...dictationHandlers, // [v3.0.6.11-103 Wave 17] 听写工作台 V2 (/asr/dictation/*)
   ...voiceWorkstationHandlers, // [Wave 6A v3.0.6.11-99] 语音工作站 (词库/会话/转写校正/纠正反馈/统计)
   ...olapHandlers,
   ...customReportHandlers, // [v3.0.6.11-99 Wave 5A] 自定义报表 (custom-report)

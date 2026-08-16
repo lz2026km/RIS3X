@@ -88,6 +88,67 @@ export interface ListObjectsParams {
   search?: string
 }
 
+// ================= [W10E-3] 扩展端点类型 (总览/趋势/分层/校验/重复分析) =================
+
+export interface VnaOverview {
+  totalObjects: number
+  totalSizeBytes: number
+  dicomCount: number
+  nonDicomCount: number
+  wormLockedCount: number
+  studyCount: number
+  byTier: Array<{ tier: VnaLifecycleTier; count: number; sizeBytes: number; percent: number }>
+  last30dNewObjects: number
+  growthRate: number
+  storageSource: 'database' | 'memory'
+  seeded: boolean
+}
+
+export interface VnaStorageTrendPoint {
+  date: string
+  label: string
+  newObjects: number
+  addedBytes: number
+  totalSizeBytes: number
+  seeded: boolean
+}
+
+export interface VnaTierStat {
+  tier: VnaLifecycleTier
+  tierZh: string
+  count: number
+  sizeBytes: number
+  percent: number
+  documents: number
+  images: number
+}
+
+export interface VnaVerification {
+  object: VnaObject
+  verifiedAt: string
+  checksum: string
+  sizeBytes: number
+  expectedSizeBytes: number
+  sizeMatch: boolean
+  status: 'integrity-ok' | 'size-mismatch' | 'content-missing'
+}
+
+export interface DuplicateGroup {
+  name: string
+  size: number
+  count: number
+  wastedBytes: number
+  objectIds: string[]
+  createdAt: string
+}
+
+export interface DuplicateAnalysis {
+  totalDuplicates: number
+  wastedBytes: number
+  groups: DuplicateGroup[]
+  seeded: boolean
+}
+
 export const vnaApi = {
   getObjects: (params: ListObjectsParams = {}) => {
     const qs = new URLSearchParams()
@@ -148,4 +209,22 @@ export const vnaApi = {
 
   getLifecycleEvents: (limit = 100) =>
     api.get<LifecycleEvent[]>(`/vna/lifecycle-events?limit=${limit}`),
+
+  // ================= [W10E-3] 扩展端点 (backend vna.controller) =================
+
+  // GET /vna/overview — 归档总览 (对象数/容量/分层分布/近30日增长率)
+  getOverview: () => api.get<VnaOverview>('/vna/overview'),
+
+  // GET /vna/storage-trend?days= — 存储增长趋势 (默认 30 日, 累计容量)
+  getStorageTrend: (days = 30) =>
+    api.get<VnaStorageTrendPoint[]>(`/vna/storage-trend?days=${days}`),
+
+  // GET /vna/by-tier — 分层统计 (hot/warm/cold: 数量/容量/类型)
+  getByTier: () => api.get<VnaTierStat[]>('/vna/by-tier'),
+
+  // POST /vna/objects/:id/verify — 对象完整性校验 (SHA-256 摘要 + 尺寸比对)
+  verifyObject: (id: string) => api.post<VnaVerification>(`/vna/objects/${id}/verify`, {}),
+
+  // GET /vna/duplicate-analysis — 重复对象分析 (按 名称+尺寸 分组, 计算浪费容量)
+  getDuplicateAnalysis: () => api.get<DuplicateAnalysis>('/vna/duplicate-analysis'),
 }

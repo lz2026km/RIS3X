@@ -17,6 +17,9 @@ import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
 import { formatDateObj } from '../utils/date';
+import { t } from '../i18n/appI18n'
+// [v3.0.6.11-103 Wave 10] 重复页合并: TechSchedulePage (技师排班/工作量/人员/设备) 嵌入为 SchedulePage 新 Tab, 旧路由 /ops/tech-schedule redirect → /schedule
+import TechSchedulePage from './ops/TechSchedulePage'
 
 // ============================================================
 // 样式常量 (WIN10风格)
@@ -174,11 +177,11 @@ interface CostTrend {
 
 // 班次类型配置
 const SHIFT_CONFIG: Record<ShiftType, { label: string; color: string; bg: string; icon: React.ReactNode; time: string }> = {
-  morning: { label: '上午班', color: '#f59e0b', bg: '#f59e0b22', icon: <Sun size={14} />, time: '08:00-12:00' },
-  afternoon: { label: '下午班', color: '#3b82f6', bg: '#3b82f622', icon: <Sunset size={14} />, time: '14:00-18:00' },
-  night: { label: '夜班', color: '#3b82f6', bg: '#3b82f622', icon: <Moon size={14} />, time: '18:00-次日08:00' },
-  fullday: { label: '全天班', color: '#059669', bg: '#22c55e22', icon: <Clock size={14} />, time: '08:00-18:00' },
-  off: { label: '休息', color: 'var(--text-secondary)', bg: 'var(--bg-deep)', icon: <Coffee size={14} />, time: '休息' },
+  morning: { label: t('schedulePage.shiftMorning'), color: '#f59e0b', bg: '#f59e0b22', icon: <Sun size={14} />, time: '08:00-12:00' },
+  afternoon: { label: t('schedulePage.shiftAfternoon'), color: '#3b82f6', bg: '#3b82f622', icon: <Sunset size={14} />, time: '14:00-18:00' },
+  night: { label: t('schedulePage.shiftNight'), color: '#3b82f6', bg: '#3b82f622', icon: <Moon size={14} />, time: '18:00-次日08:00' },
+  fullday: { label: t('schedulePage.shiftFullDay'), color: '#059669', bg: '#22c55e22', icon: <Clock size={14} />, time: '08:00-18:00' },
+  off: { label: t('schedulePage.shiftOff'), color: 'var(--text-secondary)', bg: 'var(--bg-deep)', icon: <Coffee size={14} />, time: t('schedulePage.shiftOffTime') },
 }
 
 // 设备类型配置
@@ -626,7 +629,7 @@ function WeekNavigator({ weekStart, onPrev, onNext, onToday }: {
         <ChevronRight size={16} />
       </button>
       <button onClick={onToday} style={{ ...btnStyle(C.textMid), fontSize: 12 }}>
-        今天
+        {t('schedulePage.today')}
       </button>
     </div>
   )
@@ -665,13 +668,13 @@ export default function SchedulePage() {
       if (devRes.success || userRes.success) {
         setLoadError(null)
       } else {
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError(t('schedulePage.apiUnavailable'))
       }
       setLoading(false)
     })()
     return () => { cancelled = true }
   }, [])
-  const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats' | 'auto' | 'templates' | 'leave' | 'compliance' | 'cost'>('schedule')
+  const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats' | 'auto' | 'templates' | 'leave' | 'compliance' | 'cost' | 'tech'>('schedule')
   const [selectedModality, setSelectedModality] = useState<string>('all')
   const [selectedStaff, setSelectedStaff] = useState<string>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -736,7 +739,7 @@ export default function SchedulePage() {
   useEffect(() => { return () => { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
   const handleExport = useCallback(() => {
     setShowExportModal(true); setExportProgress(0)
-    const headers = ['人员', '职称', '日期', '星期', '班次', '班次时间', '设备', '状态']
+    const headers = [t('schedulePage.csvStaff'), t('schedulePage.csvTitle'), t('schedulePage.csvDate'), t('schedulePage.csvWeekday'), t('schedulePage.csvShift'), t('schedulePage.csvShiftTime'), t('schedulePage.csvModality'), t('schedulePage.csvStatus')]
     const rows = allSchedules.map(s => [
       s.staffName,
       STAFF_LIST.find(x => x.id === s.staffId)?.title || s.role || '',
@@ -745,7 +748,7 @@ export default function SchedulePage() {
       SHIFT_CONFIG[s.shift]?.label || s.shift,
       SHIFT_CONFIG[s.shift]?.time || '',
       s.modality,
-      s.status === 'confirmed' ? '已确认' : s.status,
+      s.status === 'confirmed' ? t('schedulePage.statusConfirmed') : s.status,
     ])
     const csv = [headers, ...rows]
       .map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
@@ -807,7 +810,7 @@ export default function SchedulePage() {
     const target = STAFF_LIST.find(s => s.id === swapForm.targetId)
     
     if (!requester || !target) {
-      setSwapError('请选择换班人员')
+      setSwapError(t('schedulePage.warnSelectStaff'))
       return
     }
     
@@ -962,7 +965,7 @@ export default function SchedulePage() {
       })
     })
     setAllSchedules(newSchedules)
-    setAutoResult(`已应用模板: ${tpl.name} (影响 ${tpl.pattern.length} 个班次)`)
+    setAutoResult(t('schedulePage.templateApplied', { name: tpl.name, count: tpl.pattern.length }) as unknown as AutoScheduleCandidate[][])
   }
 
   // ============================================================
@@ -1075,7 +1078,7 @@ export default function SchedulePage() {
 
   return (
     <div data-testid="schedule-page" style={{ minHeight: '100vh', background: C.bg, padding: 20 }}>
-      {loading && <LoadingBanner message="正在从 API 加载排班数据..." />}
+      {loading && <LoadingBanner message={t('schedulePage.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
       <div style={{
@@ -1090,13 +1093,13 @@ export default function SchedulePage() {
             <CalendarClock size={28} style={{ color: C.primary }} />
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                科室排班管理
+                {t('schedulePage.title')}
                 <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
-                  演示数据（排班表本地生成，员工/设备来自真实接口）
+                  {t('schedulePage.demoBadge')}
                 </span>
               </h1>
               <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 0' }}>
-                技师/医师班次管理、节假日配置、代班换班
+                {t('schedulePage.subtitle')}
               </p>
             </div>
           </div>
@@ -1104,15 +1107,15 @@ export default function SchedulePage() {
           <div style={{ display: 'flex', gap: 10 }}>
             <button style={btnStyle(C.primary)} onClick={() => setShowSwapModal(true)}>
               <ArrowRightLeft size={16} />
-              申请换班
+              {t('schedulePage.applySwap')}
             </button>
             <button style={btnStyle(C.accent)} onClick={() => setShowHolidayModal(true)}>
               <Calendar size={16} />
-              节假日配置
+              {t('schedulePage.holidayConfig')}
             </button>
             <button style={btnStyle(C.textMid)} onClick={handleExport}>
               <Download size={16} />
-              导出排班
+              {t('schedulePage.exportSchedule')}
             </button>
           </div>
         </div>
@@ -1127,58 +1130,65 @@ export default function SchedulePage() {
       }}>
         <div style={{ display: 'flex', gap: 0 }}>
           <TabBtn 
-            label="排班表" 
+            label={t('schedulePage.tabSchedule')} 
             active={activeTab === 'schedule'} 
             onClick={() => setActiveTab('schedule')}
             icon={<Calendar size={16} />}
           />
           <TabBtn 
-            label="节假日" 
+            label={t('schedulePage.tabHoliday')} 
             active={activeTab === 'holiday'} 
             onClick={() => setActiveTab('holiday')}
             icon={<Settings size={16} />}
           />
           <TabBtn 
-            label="换班申请" 
+            label={t('schedulePage.tabSwap')} 
             active={activeTab === 'swap'} 
             onClick={() => setActiveTab('swap')}
             icon={<ArrowRightLeft size={16} />}
           />
           <TabBtn 
-            label="排班统计" 
+            label={t('schedulePage.tabStats')} 
             active={activeTab === 'stats'} 
             onClick={() => setActiveTab('stats')}
             icon={<BarChart3 size={16} />}
           />
           <TabBtn 
-            label="智能排班" 
+            label={t('schedulePage.tabAuto')} 
             active={activeTab === 'auto'} 
             onClick={() => setActiveTab('auto')}
             icon={<Zap size={16} />}
           />
           <TabBtn 
-            label="班次模板" 
+            label={t('schedulePage.tabTemplates')} 
             active={activeTab === 'templates'} 
             onClick={() => setActiveTab('templates')}
             icon={<CalendarDays size={16} />}
           />
           <TabBtn 
-            label="请假管理" 
+            label={t('schedulePage.tabLeave')} 
             active={activeTab === 'leave'} 
             onClick={() => setActiveTab('leave')}
             icon={<UserPlus size={16} />}
           />
           <TabBtn 
-            label="合规检查" 
+            label={t('schedulePage.tabCompliance')} 
             active={activeTab === 'compliance'} 
             onClick={() => setActiveTab('compliance')}
             icon={<Shield size={16} />}
           />
           <TabBtn 
-            label="成本分析" 
+            label={t('schedulePage.tabCost')} 
             active={activeTab === 'cost'} 
             onClick={() => setActiveTab('cost')}
             icon={<TrendingUp size={16} />}
+          />
+          {/* [v3.0.6.11-103 Wave 10] 重复页合并: 技师排班 (嵌入 TechSchedulePage) */}
+          <TabBtn 
+            label={t('schedulePage.tabTech')} 
+            active={activeTab === 'tech'} 
+            onClick={() => setActiveTab('tech')}
+            icon={<CalendarClock size={16} />}
           />
         </div>
       </div>
@@ -1221,7 +1231,7 @@ export default function SchedulePage() {
                   }} />
                   <input
                     type="text"
-                    placeholder="搜索人员姓名"
+                    placeholder={t('schedulePage.searchStaffPlaceholder')}
                     value={searchKeyword}
                     onChange={e => setSearchKeyword(e.target.value)}
                     style={{
@@ -1248,7 +1258,7 @@ export default function SchedulePage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <option value="all">全部设备</option>
+                  <option value="all">{t('schedulePage.allModalities')}</option>
                   {MODALITY_LIST.map(m => (
                     <option key={m} value={m}>{MODALITY_CONFIG[m]?.label || m}</option>
                   ))}
@@ -1267,7 +1277,7 @@ export default function SchedulePage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <option value="all">全部人员</option>
+                  <option value="all">{t('schedulePage.allStaff')}</option>
                   {STAFF_LIST.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -1292,7 +1302,7 @@ export default function SchedulePage() {
                       color: C.textDark,
                       width: 120,
                     }}>
-                      人员
+                      {t('schedulePage.thStaff')}
                     </th>
                     {weekDates.map((date, i) => {
                       const dateType = getDateType(date)
@@ -1314,7 +1324,7 @@ export default function SchedulePage() {
                           <div>{formatDateCht(date)}</div>
                           <div style={{ fontSize: 12, fontWeight: 400, marginTop: 2 }}>
                             {dateType.isHoliday && `(${dateType.holidayName})`}
-                            {dateType.isAdjustment && '(上班)'}
+                            {dateType.isAdjustment && t('schedulePage.workdayHint')}
                           </div>
                         </th>
                       )
@@ -1375,7 +1385,7 @@ export default function SchedulePage() {
               gap: 20,
               flexWrap: 'wrap',
             }}>
-              <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>班次图例：</span>
+              <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{t('schedulePage.shiftLegend')}</span>
               {Object.entries(SHIFT_CONFIG).map(([key, config]) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{
@@ -1402,11 +1412,11 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                节假日配置
+                {t('schedulePage.holidayTitle')}
               </h3>
               <button style={btnStyle(C.primary)} onClick={() => setShowHolidayModal(true)}>
                 <Plus size={16} />
-                添加节假日
+                {t('schedulePage.addHoliday')}
               </button>
             </div>
             
@@ -1433,7 +1443,7 @@ export default function SchedulePage() {
                     borderRadius: '50%',
                     background: C.danger,
                   }} />
-                  法定节假日
+                  {t('schedulePage.legalHolidays')}
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {holidays.filter(h => h.type === 'legal').map(h => (
@@ -1466,7 +1476,7 @@ export default function SchedulePage() {
                   ))}
                   {holidays.filter(h => h.type === 'legal').length === 0 && (
                     <div style={{ color: C.textLight, fontSize: 13, padding: 12, textAlign: 'center' }}>
-                      暂无法定节假日配置
+                      {t('schedulePage.noLegalHolidays')}
                     </div>
                   )}
                 </div>
@@ -1494,7 +1504,7 @@ export default function SchedulePage() {
                     borderRadius: '50%',
                     background: C.success,
                   }} />
-                  调休工作日
+                  {t('schedulePage.adjustmentWorkdays')}
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {holidays.filter(h => h.type === 'adjustment').map(h => (
@@ -1527,7 +1537,7 @@ export default function SchedulePage() {
                   ))}
                   {holidays.filter(h => h.type === 'adjustment').length === 0 && (
                     <div style={{ color: C.textLight, fontSize: 13, padding: 12, textAlign: 'center' }}>
-                      暂无调休工作日配置
+                      {t('schedulePage.noAdjustments')}
                     </div>
                   )}
                 </div>
@@ -1543,12 +1553,12 @@ export default function SchedulePage() {
               border: `1px solid ${C.info}30`,
             }}>
               <h5 style={{ fontSize: 13, fontWeight: 600, color: C.info, margin: '0 0 8px 0' }}>
-                配置说明
+                {t('schedulePage.configNote')}
               </h5>
               <ul style={{ fontSize: 12, color: C.textMid, margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
-                <li>法定节假日：系统自动标记为休息日，不安排常规班次</li>
-                <li>调休工作日：周末但需要上班的日期，系统自动安排班次</li>
-                <li>节假日配置会影响排班表的显示效果</li>
+                <li>{t('schedulePage.noteLegal')}</li>
+                <li>{t('schedulePage.noteAdjustment')}</li>
+                <li>{t('schedulePage.noteEffect')}</li>
               </ul>
             </div>
           </div>
@@ -1559,21 +1569,21 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                代班换班申请
+                {t('schedulePage.swapTitle')}
               </h3>
               <button style={btnStyle(C.primary)} onClick={() => setShowSwapModal(true)}>
                 <Plus size={16} />
-                新申请
+                {t('schedulePage.newRequest')}
               </button>
             </div>
             
             {/* 换班统计卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
               {[
-                { label: '全部申请', value: swapRequests.length, color: C.primary },
-                { label: '待审批', value: swapRequests.filter(r => r.status === 'pending').length, color: C.warning },
-                { label: '已同意', value: swapRequests.filter(r => r.status === 'approved').length, color: C.success },
-                { label: '已拒绝', value: swapRequests.filter(r => r.status === 'rejected').length, color: C.danger },
+                { label: t('schedulePage.allRequests'), value: swapRequests.length, color: C.primary },
+                { label: t('schedulePage.pendingApproval'), value: swapRequests.filter(r => r.status === 'pending').length, color: C.warning },
+                { label: t('schedulePage.approved'), value: swapRequests.filter(r => r.status === 'approved').length, color: C.success },
+                { label: t('schedulePage.rejected'), value: swapRequests.filter(r => r.status === 'rejected').length, color: C.danger },
               ].map(stat => (
                 <div key={stat.label} style={{
                   padding: 16,
@@ -1628,13 +1638,13 @@ export default function SchedulePage() {
                       
                       {request.reason && (
                         <div style={{ marginTop: 8, fontSize: 12, color: C.textMid }}>
-                          原因：{request.reason}
+                           {t('schedulePage.reasonPrefix', { reason: request.reason })}
                         </div>
                       )}
                       
                       <div style={{ marginTop: 8, fontSize: 12, color: C.textLight }}>
-                        申请时间：{request.requestDate}
-                        {request.approveDate && ` | 审批时间：${request.approveDate}（${request.approverName}）`}
+                        {t('schedulePage.applyTime', { time: request.requestDate })}
+                        {request.approveDate && t('schedulePage.approveTime', { time: request.approveDate, name: request.approverName })}
                       </div>
                     </div>
                     
@@ -1649,7 +1659,7 @@ export default function SchedulePage() {
                           }}
                         >
                           <Check size={14} />
-                          同意
+                          {t('schedulePage.approve')}
                         </button>
                         <button 
                           onClick={() => handleSwapApprove(request.id, false)}
@@ -1660,7 +1670,7 @@ export default function SchedulePage() {
                           }}
                         >
                           <X size={14} />
-                          拒绝
+                          {t('schedulePage.deny')}
                         </button>
                       </div>
                     )}
@@ -1675,7 +1685,7 @@ export default function SchedulePage() {
                   color: C.textLight,
                   fontSize: 14,
                 }}>
-                  暂无换班申请记录
+                  {t('schedulePage.noSwapRequests')}
                 </div>
               )}
             </div>
@@ -1686,16 +1696,16 @@ export default function SchedulePage() {
         {activeTab === 'stats' && (
           <div>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: '0 0 20px 0' }}>
-              排班统计
+              {t('schedulePage.statsTitle')}
             </h3>
             
             {/* 统计卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
               {[
-                { label: '本周总班次', value: allSchedules.length, icon: <Calendar size={20} />, color: C.primary },
-                { label: '出勤人次', value: allSchedules.filter(s => s.shift !== 'off').length, icon: <CheckCircle size={20} />, color: C.success },
-                { label: '休息人次', value: allSchedules.filter(s => s.shift === 'off').length, icon: <Coffee size={20} />, color: C.warning },
-                { label: '换班申请', value: swapRequests.length, icon: <ArrowRightLeft size={20} />, color: C.accent },
+                { label: t('schedulePage.totalShifts'), value: allSchedules.length, icon: <Calendar size={20} />, color: C.primary },
+                { label: t('schedulePage.attendanceCount'), value: allSchedules.filter(s => s.shift !== 'off').length, icon: <CheckCircle size={20} />, color: C.success },
+                { label: t('schedulePage.restCount'), value: allSchedules.filter(s => s.shift === 'off').length, icon: <Coffee size={20} />, color: C.warning },
+                { label: t('schedulePage.swapCount'), value: swapRequests.length, icon: <ArrowRightLeft size={20} />, color: C.accent },
               ].map(stat => (
                 <div key={stat.label} style={{
                   padding: 16,
@@ -1735,7 +1745,7 @@ export default function SchedulePage() {
                 border: `1px solid ${C.border}`,
               }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>
-                  个人出勤统计
+                  {t('schedulePage.staffStats')}
                 </h4>
                 <div style={{ maxHeight: 300, overflowY: 'auto' }}>
                   {stats.staffStats.map((stat, idx) => (
@@ -1774,7 +1784,7 @@ export default function SchedulePage() {
                           borderRadius: 4,
                           fontSize: 12,
                         }}>
-                          出勤 {stat.totalShifts} 天
+                          {t('schedulePage.attendanceDays', { count: stat.totalShifts })}
                         </span>
                       </div>
                     </div>
@@ -1790,9 +1800,9 @@ export default function SchedulePage() {
                 border: `1px solid ${C.border}`,
               }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>
-                  班次分布
+                  {t('schedulePage.shiftDistribution')}
                 </h4>
-                <ChartContainer height={260} state={stats.shiftDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无班次分布数据">
+                <ChartContainer height={260} state={stats.shiftDistribution.length === 0 ? 'empty' : 'ready'} emptyDescription={t('schedulePage.noDistributionData')}>
                   <RePieChart>
                     <Pie
                       data={stats.shiftDistribution}
@@ -1822,7 +1832,7 @@ export default function SchedulePage() {
                 gridColumn: 'span 2',
               }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>
-                  设备排班分布
+                  {t('schedulePage.modalityDist')}
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
                   {stats.modalityUtilization.map(mod => (
@@ -1849,7 +1859,7 @@ export default function SchedulePage() {
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{mod.label}</div>
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
-                        {mod.count} 人次
+                        {t('schedulePage.personTimes', { count: mod.count })}
                       </div>
                     </div>
                   ))}
@@ -1864,7 +1874,7 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                智能排班（技能匹配）
+                {t('schedulePage.autoTitle')}
               </h3>
               <button
                 onClick={runAutoSchedule}
@@ -1875,21 +1885,21 @@ export default function SchedulePage() {
                 }}
               >
                 <Zap size={16} />
-                {autoRunning ? '排班中...' : '生成优化排班'}
+                {autoRunning ? t('schedulePage.scheduling') : t('schedulePage.generateAuto')}
               </button>
             </div>
 
             {/* 技能矩阵 */}
             <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
-              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>员工技能矩阵</h4>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.skillMatrix')}</h4>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {STAFF_LIST.slice(0, 10).map(s => (
                   <div key={s.id} style={{ padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
-                      {(STAFF_SKILLS[s.id] || []).join(' · ') || '无认证'}
+                      {(STAFF_SKILLS[s.id] || []).join(' · ') || t('schedulePage.noCert')}
                     </div>
-                    <div style={{ fontSize: 12, color: C.success, marginTop: 2 }}>{(STAFF_SKILLS[s.id]?.length || 0) * 20} 技能分</div>
+                    <div style={{ fontSize: 12, color: C.success, marginTop: 2 }}>{t('schedulePage.skillPoints', { count: (STAFF_SKILLS[s.id]?.length || 0) * 20 })}</div>
                   </div>
                 ))}
               </div>
@@ -1899,7 +1909,7 @@ export default function SchedulePage() {
             {autoRunning && (
               <div style={{ textAlign: 'center', padding: 40, color: C.textMid }}>
                 <RefreshCw size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: 12 }} />
-                <div>正在运行排班算法...</div>
+                <div>{t('schedulePage.runningAlgorithm')}</div>
               </div>
             )}
             {autoResult && !autoRunning && (
@@ -1907,7 +1917,7 @@ export default function SchedulePage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                   <thead>
                     <tr style={{ background: C.bgLight }}>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>人员</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thStaff')}</th>
                       {weekDates.map((d, i) => (
                         <th key={i} style={{ padding: '10px 8px', textAlign: 'center', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark, minWidth: 100 }}>
                           {formatDateCht(d)}
@@ -1920,7 +1930,7 @@ export default function SchedulePage() {
                       <tr key={cand.staffId} style={{ background: si % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
                         <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                           <div style={{ fontWeight: 500, color: C.textDark }}>{cand.staffName}</div>
-                          <div style={{ fontSize: 12, color: C.textLight }}>评分 {cand.skillScore.toFixed(0)}</div>
+                          <div style={{ fontSize: 12, color: C.textLight }}>{t('schedulePage.scoreLabel', { score: cand.skillScore.toFixed(0) })}</div>
                         </td>
                         {autoResult.map((day, di) => {
                           const dayCand = day[si]
@@ -1934,7 +1944,7 @@ export default function SchedulePage() {
                                   )}
                                 </div>
                               ) : (
-                                <span style={{ color: C.textLight, fontSize: 12 }}>休息</span>
+                                <span style={{ color: C.textLight, fontSize: 12 }}>{t('schedulePage.rest')}</span>
                               )}
                             </td>
                           )
@@ -1953,11 +1963,11 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                班次模板管理
+                {t('schedulePage.templatesTitle')}
               </h3>
               <button style={btnStyle(C.primary)} onClick={() => setShowTemplateModal(true)}>
                 <Plus size={16} />
-                新建模板
+                {t('schedulePage.newTemplate')}
               </button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
@@ -1969,16 +1979,16 @@ export default function SchedulePage() {
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{tpl.description}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 12 }} title="应用到当前周">
+                      <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 12 }} title={t('schedulePage.applyToWeek')}>
                         <CalendarDays size={14} />
                       </button>
-                      <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 12 }} title="删除">
+                      <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 12 }} title={t('schedulePage.deleteTitle')}>
                         <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
                   <div style={{ fontSize: 12, color: C.textLight }}>
-                    创建于 {tpl.createdAt} · {tpl.pattern.length} 个班次
+                    {t('schedulePage.createdAt', { date: tpl.createdAt, count: tpl.pattern.length })}
                   </div>
                   <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {tpl.pattern.slice(0, 6).map((p, i) => {
@@ -2001,25 +2011,25 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                请假管理
+                {t('schedulePage.leaveTitle')}
               </h3>
               <button style={btnStyle(C.primary)} onClick={() => setShowLeaveModal(true)}>
                 <Plus size={16} />
-                新请假申请
+                {t('schedulePage.newLeave')}
               </button>
             </div>
 
             {/* 余额概览 */}
             <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
-              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>请假余额</h4>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.leaveBalance')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                 {leaveBalances.slice(0, 8).map(lb => (
                   <div key={lb.staffId} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
-                      <span>年假 {lb.annualUsed}/{lb.annualTotal}</span>
-                      <span>病假 {lb.sickUsed}/{lb.sickTotal}</span>
-                      <span>事假 {lb.personalUsed}/{lb.personalTotal}</span>
+                      <span>{t('schedulePage.annualLeave')} {lb.annualUsed}/{lb.annualTotal}</span>
+                      <span>{t('schedulePage.sickLeave')} {lb.sickUsed}/{lb.sickTotal}</span>
+                      <span>{t('schedulePage.personalLeave')} {lb.personalUsed}/{lb.personalTotal}</span>
                     </div>
                   </div>
                 ))}
@@ -2029,7 +2039,7 @@ export default function SchedulePage() {
             {/* 请假列表 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {leaveRequests.map(lr => {
-                const statusCfg = { pending: { label: '待审批', color: C.warning, bg: C.warningLight }, approved: { label: '已批准', color: C.success, bg: C.successLight }, rejected: { label: '已驳回', color: C.danger, bg: C.dangerLight } }[lr.status]
+                const statusCfg = { pending: { label: t('schedulePage.leavePending'), color: C.warning, bg: C.warningLight }, approved: { label: t('schedulePage.leaveApproved'), color: C.success, bg: C.successLight }, rejected: { label: t('schedulePage.leaveRejected'), color: C.danger, bg: C.dangerLight } }[lr.status]
                 return (
                   <div key={lr.id} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -2037,27 +2047,27 @@ export default function SchedulePage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                           <span style={{ fontWeight: 600, color: C.textDark }}>{lr.staffName}</span>
                           <span style={{ padding: '2px 8px', background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12 }}>
-                            {lr.type === 'annual' ? '年假' : lr.type === 'sick' ? '病假' : '事假'}
+                            {lr.type === 'annual' ? t('schedulePage.annualLeave') : lr.type === 'sick' ? t('schedulePage.sickLeave') : t('schedulePage.personalLeave')}
                           </span>
                           <span style={{ padding: '2px 8px', background: statusCfg.bg, color: statusCfg.color, borderRadius: 4, fontSize: 12 }}>
                             {statusCfg.label}
                           </span>
                         </div>
                         <div style={{ fontSize: 13, color: C.textMid }}>
-                          {lr.startDate} ~ {lr.endDate}（{lr.days}天）
+                          {t('schedulePage.leaveDays', { start: lr.startDate, end: lr.endDate, count: lr.days })}
                         </div>
-                        {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>原因：{lr.reason}</div>}
+                        {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('schedulePage.leaveReason', { reason: lr.reason })}</div>}
                         <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
-                          申请时间：{lr.applyDate}{lr.approveDate && ` | 审批：${lr.approveDate}（${lr.approverName}）`}
+                          {t('schedulePage.leaveApplyTime', { time: lr.applyDate })}{lr.approveDate && t('schedulePage.leaveApproveTime', { time: lr.approveDate, name: lr.approverName })}
                         </div>
                       </div>
                       {lr.status === 'pending' && (
                         <div style={{ display: 'flex', gap: 8 }}>
                           <button onClick={() => handleLeaveApprove(lr.id)} style={{ ...btnStyle(C.success), padding: '6px 12px', fontSize: 12 }}>
-                            <Check size={14} />批准
+                            <Check size={14} />{t('schedulePage.approveLeave')}
                           </button>
                           <button onClick={() => handleLeaveReject(lr.id)} style={{ ...btnStyle(C.danger), padding: '6px 12px', fontSize: 12 }}>
-                            <X size={14} />驳回
+                            <X size={14} />{t('schedulePage.rejectLeave')}
                           </button>
                         </div>
                       )}
@@ -2074,11 +2084,11 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                劳动法合规检查
+                {t('schedulePage.complianceTitle')}
               </h3>
               <button style={btnStyle(complianceResult ? C.accent : C.primary)} onClick={runComplianceCheck}>
                 <Shield size={16} />
-                {complianceResult ? '重新检查' : '运行检查'}
+                {complianceResult ? t('schedulePage.recheck') : t('schedulePage.runCheck')}
               </button>
             </div>
 
@@ -2094,29 +2104,29 @@ export default function SchedulePage() {
                     {complianceResult.score}%
                   </div>
                   <div style={{ fontSize: 14, color: C.textMid, marginTop: 8 }}>
-                    合规评分
-                    {complianceResult.score >= 80 ? '（良好）' : complianceResult.score >= 50 ? '（需改进）' : '（不合格）'}
+                    {t('schedulePage.complianceScore')}
+                    {complianceResult.score >= 80 ? t('schedulePage.scoreGood') : complianceResult.score >= 50 ? t('schedulePage.scoreImprove') : t('schedulePage.scoreFail')}
                   </div>
                   <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
-                    发现 {complianceResult.violations} 项违规
+                    {t('schedulePage.violationsFound', { count: complianceResult.violations })}
                   </div>
                 </div>
 
                 {/* 违规详情 */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
                   {[
-                    { title: '连续工作超限', data: complianceResult.maxConsecutiveAlerts, icon: <AlertCircle size={16} />, color: C.danger },
-                    { title: '休息不足违规', data: complianceResult.restPeriodViolations, icon: <Coffee size={16} />, color: C.warning },
-                    { title: '加班风险预警', data: complianceResult.overtimeAlerts, icon: <TrendingUp size={16} />, color: C.info },
+                    { title: t('schedulePage.violMaxConsecutive'), data: complianceResult.maxConsecutiveAlerts, icon: <AlertCircle size={16} />, color: C.danger },
+                    { title: t('schedulePage.violRestPeriod'), data: complianceResult.restPeriodViolations, icon: <Coffee size={16} />, color: C.warning },
+                    { title: t('schedulePage.violOvertime'), data: complianceResult.overtimeAlerts, icon: <TrendingUp size={16} />, color: C.info },
                   ].map(section => (
                     <div key={section.title} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
                       <h4 style={{ fontSize: 14, fontWeight: 600, color: section.color, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
                         {section.icon}
                         {section.title}
-                        <span style={{ fontSize: 12, color: C.textLight, fontWeight: 400 }}>（{section.data.length}项）</span>
+                        <span style={{ fontSize: 12, color: C.textLight, fontWeight: 400 }}>{t('schedulePage.violCount', { count: section.data.length })}</span>
                       </h4>
                       {section.data.length === 0 ? (
-                        <div style={{ fontSize: 12, color: C.success, fontStyle: 'italic' }}>未发现违规</div>
+                        <div style={{ fontSize: 12, color: C.success, fontStyle: 'italic' }}>{t('schedulePage.noViolations')}</div>
                       ) : (
                         section.data.slice(0, 5).map((v, i) => (
                           <div key={i} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4, marginBottom: 4, fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
@@ -2132,7 +2142,7 @@ export default function SchedulePage() {
             ) : (
               <div style={{ textAlign: 'center', padding: 60, color: C.textLight }}>
                 <Shield size={48} style={{ marginBottom: 12, opacity: 0.3 }} />
-                <div style={{ fontSize: 14 }}>点击"运行检查"进行合规审计</div>
+                <div style={{ fontSize: 14 }}>{t('schedulePage.complianceHint')}</div>
               </div>
             )}
           </div>
@@ -2143,21 +2153,21 @@ export default function SchedulePage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                排班成本分析
+                {t('schedulePage.costTitle')}
               </h3>
               <button style={btnStyle(C.primary)} onClick={calculateCosts}>
                 <DollarSign size={16} />
-                计算当前成本
+                {t('schedulePage.calcCost')}
               </button>
             </div>
 
             {/* 成本卡片 */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
               {[
-                { label: '总人力成本', value: `¥${(costData.reduce((s, c) => s + c.totalCost, 0) / 10000).toFixed(2)}万`, color: C.primary, icon: DollarSign },
-                { label: '加班成本占比', value: costData.length > 0 ? `${((costData.reduce((s, c) => s + c.overtimeCost, 0) / costData.reduce((s, c) => s + c.totalCost, 1)) * 100).toFixed(1)}%` : '-', color: C.warning, icon: TrendingUp },
-                { label: '平均班次成本', value: costData.length > 0 ? `¥${Math.round(costData.reduce((s, c) => s + c.totalCost, 0) / costData.length)}` : '-', color: C.info, icon: Clock },
-                { label: '月度趋势', value: `${costTrend.length}个月`, color: C.accent, icon: Calendar },
+                { label: t('schedulePage.totalLaborCost'), value: `¥${(costData.reduce((s, c) => s + c.totalCost, 0) / 10000).toFixed(2)}万`, color: C.primary, icon: DollarSign },
+                { label: t('schedulePage.overtimeShare'), value: costData.length > 0 ? `${((costData.reduce((s, c) => s + c.overtimeCost, 0) / costData.reduce((s, c) => s + c.totalCost, 1)) * 100).toFixed(1)}%` : '-', color: C.warning, icon: TrendingUp },
+                { label: t('schedulePage.avgShiftCost'), value: costData.length > 0 ? `¥${Math.round(costData.reduce((s, c) => s + c.totalCost, 0) / costData.length)}` : '-', color: C.info, icon: Clock },
+                { label: t('schedulePage.monthlyTrend'), value: `${costTrend.length}个月`, color: C.accent, icon: Calendar },
               ].map(stat => (
                 <div key={stat.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 8, background: stat.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
@@ -2174,17 +2184,17 @@ export default function SchedulePage() {
             {/* 月度成本趋势图 */}
             {costTrend.length > 0 && (
               <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
-                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>月度人力成本趋势（单位：元）</h4>
-                <ChartContainer height={280} state={costTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无成本趋势数据">
+                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>{t('schedulePage.costTrendTitle')}</h4>
+                <ChartContainer height={280} state={costTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t('schedulePage.noCostData')}>
                   <BarChart data={costTrend}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip formatter={(v: number) => `¥${v.toLocaleString()}`} />
                     <Legend />
-                    <Bar dataKey="regular" name="常规成本" fill={C.primary} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="overtime" name="加班成本" fill={C.warning} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="differential" name="班次补贴" fill={C.accent} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="regular" name={t('schedulePage.costRegular')} fill={C.primary} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="overtime" name={t('schedulePage.costOvertime')} fill={C.warning} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="differential" name={t('schedulePage.costDifferential')} fill={C.accent} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
               </div>
@@ -2193,18 +2203,18 @@ export default function SchedulePage() {
             {/* 个人成本明细 */}
             {costData.length > 0 && (
               <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
-                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>个人成本明细</h4>
+                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.costDetail')}</h4>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
                       <tr style={{ background: 'var(--bg-card)' }}>
-                        <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>姓名</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>常规时数</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>加班时数</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>常规成本</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>加班成本</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>班次补贴</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>合计</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thName')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thRegularHours')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thOvertimeHours')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thRegularCost')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thOvertimeCost')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thDifferential')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thTotal')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2226,6 +2236,9 @@ export default function SchedulePage() {
             )}
           </div>
         )}
+
+        {/* [v3.0.6.11-103 Wave 10] 重复页合并: 技师排班视图 = 嵌入 TechSchedulePage */}
+        {activeTab === 'tech' && <TechSchedulePage />}
       </div>
       
       {/* ========== 换班申请弹窗 ========== */}
@@ -2252,7 +2265,7 @@ export default function SchedulePage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                申请换班
+                {t('schedulePage.applySwap')}
               </h3>
               <button onClick={() => setShowSwapModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
@@ -2264,7 +2277,7 @@ export default function SchedulePage() {
               {/* 申请人 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  申请人
+                  {t('schedulePage.requester')}
                 </label>
                 <select
                   value={swapForm.requesterId}
@@ -2288,7 +2301,7 @@ export default function SchedulePage() {
               {/* 申请人班次日期 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  申请人班次日期
+                  {t('schedulePage.requesterDate')}
                 </label>
                 <input
                   type="date"
@@ -2308,7 +2321,7 @@ export default function SchedulePage() {
               {/* 申请人班次类型 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  申请人班次
+                  {t('schedulePage.requesterShift')}
                 </label>
                 <select
                   value={swapForm.requesterShift}
@@ -2335,7 +2348,7 @@ export default function SchedulePage() {
               {/* 被换班人 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  被换班人
+                  {t('schedulePage.targetStaff')}
                 </label>
                 <select
                   value={swapForm.targetId}
@@ -2349,7 +2362,7 @@ export default function SchedulePage() {
                     outline: 'none',
                   }}
                 >
-                  <option value="">选择被换班人</option>
+                  <option value="">{t('schedulePage.selectTarget')}</option>
                   {STAFF_LIST.filter(s => s.id !== swapForm.requesterId).map(s => (
                     <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
                   ))}
@@ -2359,7 +2372,7 @@ export default function SchedulePage() {
               {/* 被换班人班次日期 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  被换班人班次日期
+                  {t('schedulePage.targetDate')}
                 </label>
                 <input
                   type="date"
@@ -2379,7 +2392,7 @@ export default function SchedulePage() {
               {/* 被换班人班次类型 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  被换班人班次
+                  {t('schedulePage.targetShift')}
                 </label>
                 <select
                   value={swapForm.targetShift}
@@ -2402,12 +2415,12 @@ export default function SchedulePage() {
               {/* 换班原因 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  换班原因
+                  {t('schedulePage.swapReason')}
                 </label>
                 <textarea
                   value={swapForm.reason}
                   onChange={e => setSwapForm({ ...swapForm, reason: e.target.value })}
-                  placeholder="请输入换班原因..."
+                  placeholder={t('schedulePage.placeholderSwapReason')}
                   rows={3}
                   style={{
                     width: '100%',
@@ -2434,7 +2447,7 @@ export default function SchedulePage() {
                     fontSize: 13,
                   }}
                 >
-                  取消
+                  {t('schedulePage.cancel')}
                 </button>
                 <button 
                   onClick={handleSwapSubmit}
@@ -2449,7 +2462,7 @@ export default function SchedulePage() {
                     fontWeight: 500,
                   }}
                 >
-                  提交申请
+                  {t('schedulePage.submitRequest')}
                 </button>
               </div>
             </div>
@@ -2479,7 +2492,7 @@ export default function SchedulePage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
-                添加节假日
+                {t('schedulePage.addHoliday')}
               </h3>
               <button onClick={() => setShowHolidayModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
@@ -2489,7 +2502,7 @@ export default function SchedulePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  日期
+                  {t('schedulePage.holidayDate')}
                 </label>
                 <input
                   type="date"
@@ -2508,13 +2521,13 @@ export default function SchedulePage() {
               
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  名称
+                  {t('schedulePage.holidayName')}
                 </label>
                 <input
                   type="text"
                   value={holidayForm.name}
                   onChange={e => setHolidayForm({ ...holidayForm, name: e.target.value })}
-                  placeholder="如：劳动节、春节"
+                  placeholder={t('schedulePage.placeholderHolidayName')}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -2528,7 +2541,7 @@ export default function SchedulePage() {
               
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
-                  类型
+                  {t('schedulePage.holidayType')}
                 </label>
                 <select
                   value={holidayForm.type}
@@ -2542,8 +2555,8 @@ export default function SchedulePage() {
                     outline: 'none',
                   }}
                 >
-                  <option value="legal">法定节假日</option>
-                  <option value="adjustment">调休工作日</option>
+                  <option value="legal">{t('schedulePage.legalHolidays')}</option>
+                  <option value="adjustment">{t('schedulePage.adjustmentWorkdays')}</option>
                 </select>
               </div>
               
@@ -2560,7 +2573,7 @@ export default function SchedulePage() {
                     fontSize: 13,
                   }}
                 >
-                  取消
+                  {t('schedulePage.cancel')}
                 </button>
                 <button 
                   onClick={handleHolidaySubmit}
@@ -2575,7 +2588,7 @@ export default function SchedulePage() {
                     fontWeight: 500,
                   }}
                 >
-                  保存
+                  {t('schedulePage.save')}
                 </button>
               </div>
             </div>
@@ -2591,28 +2604,28 @@ export default function SchedulePage() {
         }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新建班次模板</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newTemplateTitle')}</h3>
               <button onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>模板名称</label>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateName')}</label>
                 <input type="text" value={templateForm.name} onChange={e => setTemplateForm({ ...templateForm, name: e.target.value })}
-                  placeholder="如：白班模板、夜班模板" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                  placeholder={t('schedulePage.placeholderTemplateName')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>描述</label>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateDesc')}</label>
                 <input type="text" value={templateForm.description} onChange={e => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  placeholder="模板用途说明" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                  placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
               </div>
               <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>
-                保存后可在模板列表应用至当前周排班
+                {t('schedulePage.templateHint')}
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
-                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />保存模板</button>
+                <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
+                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />{t('schedulePage.saveTemplate')}</button>
               </div>
             </div>
           </div>
@@ -2627,52 +2640,52 @@ export default function SchedulePage() {
         }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新请假申请</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newLeave')}</h3>
               <button onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>申请人</label>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveApplicant')}</label>
                 <select value={leaveForm.staffId} onChange={e => setLeaveForm({ ...leaveForm, staffId: e.target.value })}
                   style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
-                  <option value="">选择申请人</option>
+                  <option value="">{t('schedulePage.selectRequester')}</option>
                   {STAFF_LIST.map(s => (
                     <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>请假类型</label>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveType')}</label>
                 <select value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value as 'annual' | 'sick' | 'personal' })}
                   style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
-                  <option value="annual">年假</option>
-                  <option value="sick">病假</option>
-                  <option value="personal">事假</option>
+                  <option value="annual">{t('schedulePage.annualLeave')}</option>
+                  <option value="sick">{t('schedulePage.sickLeave')}</option>
+                  <option value="personal">{t('schedulePage.personalLeave')}</option>
                 </select>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>开始日期</label>
+                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
                   <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
                     style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>结束日期</label>
+                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveEndDate')}</label>
                   <input type="date" value={leaveForm.endDate} onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
                     style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>请假原因</label>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveReasonLabel')}</label>
                 <textarea value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })}
-                  placeholder="请输入请假原因..." rows={3}
+                  placeholder={t('schedulePage.placeholderLeaveReason')} rows={3}
                   style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
-                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />提交申请</button>
+                <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
+                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('schedulePage.submitRequest')}</button>
               </div>
             </div>
           </div>
@@ -2684,22 +2697,22 @@ export default function SchedulePage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>导出排班</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.exportTitle')}</h3>
               <button onClick={() => setShowExportModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
             <div style={{ fontSize: 13, color: C.textMid, marginBottom: 12 }}>
-              {exportProgress < 100 ? `正在生成周排班 CSV (${allSchedules.length} 条记录)...` : '导出完成, CSV 文件已下载。'}
+              {exportProgress < 100 ? t('schedulePage.exportProgressMsg', { count: allSchedules.length }) : t('schedulePage.exportDoneMsg')}
             </div>
             <div style={{ height: 8, background: C.bgLight, borderRadius: 4, overflow: 'hidden', marginBottom: 20 }}>
               <div style={{ width: `${exportProgress}%`, height: '100%', background: C.primary, borderRadius: 4, transition: 'width 0.15s ease-out' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               {exportProgress >= 100 ? (
-                <button onClick={() => setShowExportModal(false)} style={btnStyle(C.primary)}>关闭</button>
+                <button onClick={() => setShowExportModal(false)} style={btnStyle(C.primary)}>{t('schedulePage.close')}</button>
               ) : (
-                <button onClick={() => setShowExportModal(false)} style={{ padding: '6px 10px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13 }}>取消</button>
+                <button onClick={() => setShowExportModal(false)} style={{ padding: '6px 10px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
               )}
             </div>
           </div>

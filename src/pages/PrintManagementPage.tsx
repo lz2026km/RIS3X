@@ -15,6 +15,7 @@ import { VirtualTable } from '../components/common/VirtualTable'
 import { PageHeader } from '../components/common/PageHeader'
 // [G005 2B] 原生表格 slice 分页 (DICOM 任务队列 / 成本分析)
 import { usePagination } from '../hooks/usePagination'
+import { t } from '../i18n/appI18n';
 
 // ============================================================
 // 样式常量 - WIN10风格
@@ -43,11 +44,11 @@ const C = {
 
 // 打印机列表数据
 const PRINTERS = [
-  { id: 'P001', name: '柯尼卡 DICOM 打印机 1', type: 'network', status: 'online', location: 'CT检查室1', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
-  { id: 'P002', name: '柯尼卡 DICOM 打印机 2', type: 'network', status: 'online', location: 'MR检查室', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
-  { id: 'P003', name: '富士 DICOM 打印机', type: 'network', status: 'online', location: 'DR检查室', filmSpec: '10x12', defaultCopies: 1, dpi: 600 },
-  { id: 'P004', name: '本地报告打印机', type: 'local', status: 'online', location: '登记台', filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
-  { id: 'P005', name: '激光报告打印机', type: 'local', status: 'offline', location: '诊断室1', filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
+  { id: 'P001', name: t("printMgmt.printerKonica1"), type: 'network', status: 'online', location: t("printMgmt.roomCt1"), filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
+  { id: 'P002', name: t("printMgmt.printerKonica2"), type: 'network', status: 'online', location: t("printMgmt.roomMr"), filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
+  { id: 'P003', name: t("printMgmt.printerFuji"), type: 'network', status: 'online', location: t("printMgmt.roomDr"), filmSpec: '10x12', defaultCopies: 1, dpi: 600 },
+  { id: 'P004', name: t("printMgmt.printerLocal"), type: 'local', status: 'online', location: t("printMgmt.roomRegistration"), filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
+  { id: 'P005', name: t("printMgmt.printerLaser"), type: 'local', status: 'offline', location: t("printMgmt.roomDiag1"), filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
 ]
 
 // 胶片规格配置
@@ -61,42 +62,42 @@ const FILM_SPECS = [
 
 // DICOM打印参数预设
 const DICOM_PRESETS = [
-  { id: 'DP001', name: '标准DICOM打印', orientation: 'PORTRAIT', mediumType: 'BLUE FILM', filmDestination: 'MAGAZINE', trimming: 'NO' },
-  { id: 'DP002', name: '高对比度打印', orientation: 'LANDSCAPE', mediumType: 'CLEAR FILM', filmDestination: 'PROCESSOR', trimming: 'YES' },
-  { id: 'DP003', name: '乳腺打印', orientation: 'PORTRAIT', mediumType: 'MAMMO BLUE', filmDestination: 'MAGAZINE', trimming: 'NO' },
+  { id: 'DP001', name: t("printMgmt.stdDicomPrint"), orientation: 'PORTRAIT', mediumType: 'BLUE FILM', filmDestination: 'MAGAZINE', trimming: 'NO' },
+  { id: 'DP002', name: t("printMgmt.highContrastPrint"), orientation: 'LANDSCAPE', mediumType: 'CLEAR FILM', filmDestination: 'PROCESSOR', trimming: 'YES' },
+  { id: 'DP003', name: t("printMgmt.mammoPrint"), orientation: 'PORTRAIT', mediumType: 'MAMMO BLUE', filmDestination: 'MAGAZINE', trimming: 'NO' },
 ]
 
 const MEDIUM_TYPE_LABELS: Record<string, string> = {
-  'BLUE FILM': '蓝基胶片',
-  'CLEAR FILM': '透明胶片',
-  'MAMMO BLUE': '乳腺蓝片',
+  'BLUE FILM': t("printMgmt.blueBaseFilm"),
+  'CLEAR FILM': t("printMgmt.clearFilm"),
+  'MAMMO BLUE': t("printMgmt.mammoBlueFilm"),
 }
 
 // 报告打印模板
 const REPORT_TEMPLATES = [
-  { id: 'RT001', name: '标准CT报告', type: 'CT', copies: 1, includeImages: true, includeLogo: true },
-  { id: 'RT002', name: '标准MR报告', type: 'MR', copies: 1, includeImages: true, includeLogo: true },
-  { id: 'RT003', name: 'DR简明报告', type: 'DR', copies: 1, includeImages: false, includeLogo: true },
-  { id: 'RT004', name: '介入手术报告', type: '介入', copies: 2, includeImages: true, includeLogo: true },
-  { id: 'RT005', name: '急诊报告', type: '急诊', copies: 2, includeImages: true, includeLogo: false },
+  { id: 'RT001', name: t("printMgmt.stdCtReport"), type: 'CT', copies: 1, includeImages: true, includeLogo: true },
+  { id: 'RT002', name: t("printMgmt.stdMrReport"), type: 'MR', copies: 1, includeImages: true, includeLogo: true },
+  { id: 'RT003', name: t("printMgmt.drBriefReport"), type: 'DR', copies: 1, includeImages: false, includeLogo: true },
+  { id: 'RT004', name: t("printMgmt.interventionReport"), type: t("printMgmt.intervention"), copies: 2, includeImages: true, includeLogo: true },
+  { id: 'RT005', name: t("printMgmt.emergencyReport"), type: t("printMgmt.emergency"), copies: 2, includeImages: true, includeLogo: false },
 ]
 
 // 打印队列数据
 const PRINT_QUEUE = [
-  { id: 'PQ001', patientId: 'P20260501001', patientName: '张三', modality: 'CT', studyDesc: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'printing', printer: 'P001', requestTime: '2026-05-02 10:30:00', progress: 65 },
-  { id: 'PQ002', patientId: 'P20260501002', patientName: '李四', modality: 'MR', studyDesc: '头颅MR平扫', filmSpec: '14x14', copies: 1, status: 'queued', printer: 'P002', requestTime: '2026-05-02 10:25:00', progress: 0 },
-  { id: 'PQ003', patientId: 'P20260501003', patientName: '王五', modality: 'DR', studyDesc: '胸部DR正侧位', filmSpec: '10x12', copies: 2, status: 'queued', printer: 'P001', requestTime: '2026-05-02 10:20:00', progress: 0 },
-  { id: 'PQ004', patientId: 'P20260501004', patientName: '赵六', modality: 'CT', studyDesc: '腹部CT增强', filmSpec: '14x17', copies: 1, status: 'completed', printer: 'P001', requestTime: '2026-05-02 09:45:00', progress: 100 },
-  { id: 'PQ005', patientId: 'P20260501005', patientName: '钱七', modality: 'CT', studyDesc: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'error', printer: 'P002', requestTime: '2026-05-02 09:30:00', progress: 30, errorMsg: '打印机缺纸' },
+  { id: 'PQ001', patientId: 'P20260501001', patientName: '张三', modality: 'CT', studyDesc: t("printMgmt.examChestCt"), filmSpec: '14x17', copies: 1, status: 'printing', printer: 'P001', requestTime: '2026-05-02 10:30:00', progress: 65 },
+  { id: 'PQ002', patientId: 'P20260501002', patientName: '李四', modality: 'MR', studyDesc: t("printMgmt.examHeadMr"), filmSpec: '14x14', copies: 1, status: 'queued', printer: 'P002', requestTime: '2026-05-02 10:25:00', progress: 0 },
+  { id: 'PQ003', patientId: 'P20260501003', patientName: '王五', modality: 'DR', studyDesc: t("printMgmt.examChestDr"), filmSpec: '10x12', copies: 2, status: 'queued', printer: 'P001', requestTime: '2026-05-02 10:20:00', progress: 0 },
+  { id: 'PQ004', patientId: 'P20260501004', patientName: '赵六', modality: 'CT', studyDesc: t("printMgmt.examAbdCtEnhance"), filmSpec: '14x17', copies: 1, status: 'completed', printer: 'P001', requestTime: '2026-05-02 09:45:00', progress: 100 },
+  { id: 'PQ005', patientId: 'P20260501005', patientName: '钱七', modality: 'CT', studyDesc: t("printMgmt.examChestCt"), filmSpec: '14x17', copies: 1, status: 'error', printer: 'P002', requestTime: '2026-05-02 09:30:00', progress: 30, errorMsg: t("printMgmt.printerOutOfPaper") },
 ]
 
 // 打印记录数据
 const PRINT_HISTORY = [
-  { id: 'PH001', patientId: 'P20260501004', patientName: '赵六', modality: 'CT', studyDesc: '腹部CT增强', filmSpec: '14x17', copies: 1, pages: 2, printer: '柯尼卡 DICOM 打印机 1', operator: '李医生', printTime: '2026-05-02 09:50:00', status: 'success', cost: 25.0 },
-  { id: 'PH002', patientId: 'P20260501006', patientName: '孙八', modality: 'MR', studyDesc: '腰椎MR平扫', filmSpec: '14x17', copies: 1, pages: 4, printer: '柯尼卡 DICOM 打印机 2', operator: '王医生', printTime: '2026-05-02 09:35:00', status: 'success', cost: 50.0 },
-  { id: 'PH003', patientId: 'P20260501007', patientName: '周九', modality: 'DR', studyDesc: '胸部DR正位', filmSpec: '10x12', copies: 1, pages: 1, printer: '富士 DICOM 打印机', operator: '李医生', printTime: '2026-05-02 09:20:00', status: 'success', cost: 12.5 },
-  { id: 'PH004', patientId: 'P20260501008', patientName: '吴十', modality: 'CT', studyDesc: '头颅CT平扫', filmSpec: '14x17', copies: 1, pages: 2, printer: '柯尼卡 DICOM 打印机 1', operator: '张医生', printTime: '2026-05-02 08:55:00', status: 'success', cost: 25.0 },
-  { id: 'PH005', patientId: 'P20260501009', patientName: '郑十一', modality: 'CT', studyDesc: '肺部CT低剂量', filmSpec: '14x17', copies: 1, pages: 2, printer: '柯尼卡 DICOM 打印机 1', operator: '李医生', printTime: '2026-05-02 08:40:00', status: 'success', cost: 25.0 },
+  { id: 'PH001', patientId: 'P20260501004', patientName: '赵六', modality: 'CT', studyDesc: t("printMgmt.examAbdCtEnhance"), filmSpec: '14x17', copies: 1, pages: 2, printer: t("printMgmt.printerKonica1"), operator: '李医生', printTime: '2026-05-02 09:50:00', status: 'success', cost: 25.0 },
+  { id: 'PH002', patientId: 'P20260501006', patientName: '孙八', modality: 'MR', studyDesc: t("printMgmt.examLumbarMr"), filmSpec: '14x17', copies: 1, pages: 4, printer: t("printMgmt.printerKonica2"), operator: '王医生', printTime: '2026-05-02 09:35:00', status: 'success', cost: 50.0 },
+  { id: 'PH003', patientId: 'P20260501007', patientName: '周九', modality: 'DR', studyDesc: t("printMgmt.examChestDrAP"), filmSpec: '10x12', copies: 1, pages: 1, printer: t("printMgmt.printerFuji"), operator: '李医生', printTime: '2026-05-02 09:20:00', status: 'success', cost: 12.5 },
+  { id: 'PH004', patientId: 'P20260501008', patientName: '吴十', modality: 'CT', studyDesc: t("printMgmt.examHeadCt"), filmSpec: '14x17', copies: 1, pages: 2, printer: t("printMgmt.printerKonica1"), operator: '张医生', printTime: '2026-05-02 08:55:00', status: 'success', cost: 25.0 },
+  { id: 'PH005', patientId: 'P20260501009', patientName: '郑十一', modality: 'CT', studyDesc: t("printMgmt.examLungCtLowDose"), filmSpec: '14x17', copies: 1, pages: 2, printer: t("printMgmt.printerKonica1"), operator: '李医生', printTime: '2026-05-02 08:40:00', status: 'success', cost: 25.0 },
 ]
 
 // 胶片使用量统计数据
@@ -121,10 +122,10 @@ const DEVICE_PRINT_STATS = [
 
 // 耗材成本分析
 const CONSUMABLE_COSTS = [
-  { name: '14×17胶片', unit: '张', price: 12.5, used: 341, total: 4262.5 },
-  { name: '10×12胶片', unit: '张', price: 10.0, used: 167, total: 1670 },
-  { name: '8×10胶片', unit: '张', price: 8.0, used: 64, total: 512 },
-  { name: 'A4纸(报告)', unit: '张', price: 0.3, used: 520, total: 156 },
+  { name: t("printMgmt.film14x17"), unit: t("printMgmt.sheetsUnit"), price: 12.5, used: 341, total: 4262.5 },
+  { name: t("printMgmt.film10x12"), unit: t("printMgmt.sheetsUnit"), price: 10.0, used: 167, total: 1670 },
+  { name: t("printMgmt.film8x10"), unit: t("printMgmt.sheetsUnit"), price: 8.0, used: 64, total: 512 },
+  { name: t("printMgmt.a4Paper"), unit: t("printMgmt.sheetsUnit"), price: 0.3, used: 520, total: 156 },
 ]
 
 // 打印效率统计
@@ -146,33 +147,33 @@ const EFFICIENCY_STATS = [
 
 // DICOM打印服务器配置
 const DICOM_SERVERS = [
-  { id: 'DCS001', name: 'DICOM打印服务器主', ip: '192.168.1.100', port: 11112, status: 'online', aet: 'PRINT_SERVER', description: '主打印服务器' },
-  { id: 'DCS002', name: 'DICOM打印服务器备', ip: '192.168.1.101', port: 11112, status: 'online', aet: 'PRINT_SERVER_BAK', description: '备份打印服务器' },
+  { id: 'DCS001', name: t("printMgmt.serverPrimary"), ip: '192.168.1.100', port: 11112, status: 'online', aet: 'PRINT_SERVER', description: t("printMgmt.primaryPrintServer") },
+  { id: 'DCS002', name: t("printMgmt.serverBackup"), ip: '192.168.1.101', port: 11112, status: 'online', aet: 'PRINT_SERVER_BAK', description: t("printMgmt.backupPrintServer") },
 ]
 
 // DICOM打印机列表
 const DICOM_PRINTERS = [
-  { id: 'DP001', name: '柯尼卡 DICOM 打印机 #1', serverId: 'DCS001', status: 'online', location: 'CT检查室1', filmsToday: 45 },
-  { id: 'DP002', name: '柯尼卡 DICOM 打印机 #2', serverId: 'DCS001', status: 'online', location: 'MR检查室', filmsToday: 38 },
-  { id: 'DP003', name: '富士 DICOM 打印机', serverId: 'DCS001', status: 'online', location: 'DR检查室', filmsToday: 62 },
-  { id: 'DP004', name: 'GE DICOM 打印机', serverId: 'DCS002', status: 'offline', location: '普放检查室', filmsToday: 0 },
-  { id: 'DP005', name: '飞利浦 DICOM 打印机', serverId: 'DCS002', status: 'online', location: 'ICU', filmsToday: 28 },
+  { id: 'DP001', name: t("printMgmt.printerKonicaHash1"), serverId: 'DCS001', status: 'online', location: t("printMgmt.roomCt1"), filmsToday: 45 },
+  { id: 'DP002', name: t("printMgmt.printerKonicaHash2"), serverId: 'DCS001', status: 'online', location: t("printMgmt.roomMr"), filmsToday: 38 },
+  { id: 'DP003', name: t("printMgmt.printerFuji"), serverId: 'DCS001', status: 'online', location: t("printMgmt.roomDr"), filmsToday: 62 },
+  { id: 'DP004', name: t("printMgmt.printerGe"), serverId: 'DCS002', status: 'offline', location: t("printMgmt.roomPlainFilm"), filmsToday: 0 },
+  { id: 'DP005', name: t("printMgmt.printerPhilips"), serverId: 'DCS002', status: 'online', location: 'ICU', filmsToday: 28 },
 ]
 
 // 胶片规格选项
 const FILM_SPEC_OPTIONS = [
-  { value: '14x17', label: '14×17英寸 (35×43cm)' },
-  { value: '10x12', label: '10×12英寸 (25×30cm)' },
-  { value: '8x10', label: '8×10英寸 (20×25cm)' },
-  { value: 'A4_LANDSCAPE', label: 'A4横向' },
-  { value: 'CUSTOM', label: '自定义' },
+  { value: '14x17', label: t("printMgmt.size14x17Cm") },
+  { value: '10x12', label: t("printMgmt.size10x12Cm") },
+  { value: '8x10', label: t("printMgmt.size8x10Cm") },
+  { value: 'A4_LANDSCAPE', label: t("printMgmt.a4Landscape") },
+  { value: 'CUSTOM', label: t("printMgmt.custom") },
 ]
 
 // 介质类型选项
 const MEDIUM_TYPES = [
-  { value: 'BLUE_FILM', label: '蓝基胶片' },
-  { value: 'CLEAR_FILM', label: '透明胶片' },
-  { value: 'PAPER', label: '纸质' },
+  { value: 'BLUE_FILM', label: t("printMgmt.blueBaseFilm") },
+  { value: 'CLEAR_FILM', label: t("printMgmt.clearFilm") },
+  { value: 'PAPER', label: t("printMgmt.paper") },
 ]
 
 // DICOM打印队列表格 - 20条虚构数据
@@ -190,43 +191,43 @@ const DICOM_PRINT_TASKS: Array<{
   printer: string;
   mediumType: string;
 }> = [
-  { id: 'DPT001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 08:30:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 08:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
-  { id: 'DPT003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: '胸部DR正侧位', filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 08:20:00', completeTime: null, printer: '富士', mediumType: '蓝基胶片' },
-  { id: 'DPT004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: '腹部CT增强', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 08:00:00', completeTime: '2026-05-03 08:05:23', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14×17', copies: 1, status: 'failed', submitTime: '2026-05-03 07:55:00', completeTime: '2026-05-03 08:00:10', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT006', patientId: 'P20260502006', patientName: '周丽华', modality: 'MR', studyType: '腰椎MR平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:50:00', completeTime: '2026-05-03 07:56:45', printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
-  { id: 'DPT007', patientId: 'P20260502007', patientName: '吴敏', modality: 'DR', studyType: '膝关节DR', filmSpec: '8×10', copies: 1, status: 'queued', submitTime: '2026-05-03 07:45:00', completeTime: null, printer: '富士', mediumType: '透明胶片' },
-  { id: 'DPT008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: '头颅CT平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:30:00', completeTime: '2026-05-03 07:35:18', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: '肩关节MR', filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 07:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
-  { id: 'DPT010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: '肺部CT低剂量', filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 07:20:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT011', patientId: 'P20260502011', patientName: '林淑珍', modality: 'DR', studyType: '胸部DR正位', filmSpec: '10×12', copies: 1, status: 'completed', submitTime: '2026-05-03 07:15:00', completeTime: '2026-05-03 07:20:33', printer: '富士', mediumType: '蓝基胶片' },
-  { id: 'DPT012', patientId: 'P20260502012', patientName: '徐志远', modality: 'CT', studyType: '腹部CT平扫', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 07:10:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT013', patientId: 'P20260502013', patientName: '马晓丽', modality: 'MR', studyType: '盆腔MR平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:00:00', completeTime: '2026-05-03 07:08:52', printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
-  { id: 'DPT014', patientId: 'P20260502014', patientName: '朱强', modality: 'DR', studyType: '腕关节DR', filmSpec: '8×10', copies: 1, status: 'failed', submitTime: '2026-05-03 06:55:00', completeTime: '2026-05-03 06:58:20', printer: '富士', mediumType: '纸质' },
-  { id: 'DPT015', patientId: 'P20260502015', patientName: '胡文静', modality: 'CT', studyType: '颈部CT平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 06:50:00', completeTime: '2026-05-03 06:55:41', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT016', patientId: 'P20260502016', patientName: '郭永强', modality: 'MR', studyType: '膝关节MR', filmSpec: '10×12', copies: 1, status: 'queued', submitTime: '2026-05-03 06:45:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
-  { id: 'DPT017', patientId: 'P20260502017', patientName: '林志豪', modality: 'CT', studyType: '心脏CTA', filmSpec: '14×17', copies: 2, status: 'printing', submitTime: '2026-05-03 06:40:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '透明胶片' },
-  { id: 'DPT018', patientId: 'P20260502018', patientName: '张美玲', modality: 'DR', studyType: '腰椎DR正侧位', filmSpec: '10×12', copies: 2, status: 'completed', submitTime: '2026-05-03 06:35:00', completeTime: '2026-05-03 06:42:15', printer: '富士', mediumType: '蓝基胶片' },
-  { id: 'DPT019', patientId: 'P20260502019', patientName: '李志鹏', modality: 'CT', studyType: '胰腺CT增强', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:30:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
-  { id: 'DPT020', patientId: 'P20260502020', patientName: '赵雅琴', modality: 'MR', studyType: '乳腺MR动态增强', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
+  { id: 'DPT001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: t("printMgmt.examChestCt"), filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 08:30:00', completeTime: null, printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: t("printMgmt.examHeadMr"), filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 08:25:00', completeTime: null, printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: t("printMgmt.examChestDr"), filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 08:20:00', completeTime: null, printer: t("printMgmt.fuji"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: t("printMgmt.examAbdCtEnhance"), filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 08:00:00', completeTime: '2026-05-03 08:05:23', printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: t("printMgmt.examChestCt"), filmSpec: '14×17', copies: 1, status: 'failed', submitTime: '2026-05-03 07:55:00', completeTime: '2026-05-03 08:00:10', printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT006', patientId: 'P20260502006', patientName: '周丽华', modality: 'MR', studyType: t("printMgmt.examLumbarMr"), filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:50:00', completeTime: '2026-05-03 07:56:45', printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT007', patientId: 'P20260502007', patientName: '吴敏', modality: 'DR', studyType: t("printMgmt.examKneeDr"), filmSpec: '8×10', copies: 1, status: 'queued', submitTime: '2026-05-03 07:45:00', completeTime: null, printer: t("printMgmt.fuji"), mediumType: t("printMgmt.clearFilm") },
+  { id: 'DPT008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: t("printMgmt.examHeadCt"), filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:30:00', completeTime: '2026-05-03 07:35:18', printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: t("printMgmt.examShoulderMr"), filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 07:25:00', completeTime: null, printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.clearFilm") },
+  { id: 'DPT010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: t("printMgmt.examLungCtLowDose"), filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 07:20:00', completeTime: null, printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT011', patientId: 'P20260502011', patientName: '林淑珍', modality: 'DR', studyType: t("printMgmt.examChestDrAP"), filmSpec: '10×12', copies: 1, status: 'completed', submitTime: '2026-05-03 07:15:00', completeTime: '2026-05-03 07:20:33', printer: t("printMgmt.fuji"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT012', patientId: 'P20260502012', patientName: '徐志远', modality: 'CT', studyType: t("printMgmt.examAbdCt"), filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 07:10:00', completeTime: null, printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT013', patientId: 'P20260502013', patientName: '马晓丽', modality: 'MR', studyType: t("printMgmt.examPelvisMr"), filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:00:00', completeTime: '2026-05-03 07:08:52', printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT014', patientId: 'P20260502014', patientName: '朱强', modality: 'DR', studyType: t("printMgmt.examWristDr"), filmSpec: '8×10', copies: 1, status: 'failed', submitTime: '2026-05-03 06:55:00', completeTime: '2026-05-03 06:58:20', printer: t("printMgmt.fuji"), mediumType: t("printMgmt.paper") },
+  { id: 'DPT015', patientId: 'P20260502015', patientName: '胡文静', modality: 'CT', studyType: t("printMgmt.examNeckCt"), filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 06:50:00', completeTime: '2026-05-03 06:55:41', printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT016', patientId: 'P20260502016', patientName: '郭永强', modality: 'MR', studyType: t("printMgmt.examKneeMr"), filmSpec: '10×12', copies: 1, status: 'queued', submitTime: '2026-05-03 06:45:00', completeTime: null, printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.clearFilm") },
+  { id: 'DPT017', patientId: 'P20260502017', patientName: '林志豪', modality: 'CT', studyType: t("printMgmt.examCardiacCta"), filmSpec: '14×17', copies: 2, status: 'printing', submitTime: '2026-05-03 06:40:00', completeTime: null, printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.clearFilm") },
+  { id: 'DPT018', patientId: 'P20260502018', patientName: '张美玲', modality: 'DR', studyType: t("printMgmt.examLumbarDr"), filmSpec: '10×12', copies: 2, status: 'completed', submitTime: '2026-05-03 06:35:00', completeTime: '2026-05-03 06:42:15', printer: t("printMgmt.fuji"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT019', patientId: 'P20260502019', patientName: '李志鹏', modality: 'CT', studyType: t("printMgmt.examPancreasCt"), filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:30:00', completeTime: null, printer: t("printMgmt.konicaShort1"), mediumType: t("printMgmt.blueBaseFilm") },
+  { id: 'DPT020', patientId: 'P20260502020', patientName: '赵雅琴', modality: 'MR', studyType: t("printMgmt.examBreastMr"), filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:25:00', completeTime: null, printer: t("printMgmt.konicaShort2"), mediumType: t("printMgmt.clearFilm") },
 ]
 
 // 打印计费配置 - 各规格单价
 const FILM_PRICE_CONFIG: Array<{ spec: string; pricePerSheet: number; unit: string }> = [
-  { spec: '14×17英寸', pricePerSheet: 25.0, unit: '元/张' },
-  { spec: '10×12英寸', pricePerSheet: 20.0, unit: '元/张' },
-  { spec: '8×10英寸', pricePerSheet: 15.0, unit: '元/张' },
-  { spec: 'A4横向', pricePerSheet: 5.0, unit: '元/张' },
-  { spec: '自定义', pricePerSheet: 30.0, unit: '元/张' },
+  { spec: t("printMgmt.size14x17"), pricePerSheet: 25.0, unit: t("printMgmt.yuanPerSheet") },
+  { spec: t("printMgmt.size10x12"), pricePerSheet: 20.0, unit: t("printMgmt.yuanPerSheet") },
+  { spec: t("printMgmt.size8x10"), pricePerSheet: 15.0, unit: t("printMgmt.yuanPerSheet") },
+  { spec: t("printMgmt.a4Landscape"), pricePerSheet: 5.0, unit: t("printMgmt.yuanPerSheet") },
+  { spec: t("printMgmt.custom"), pricePerSheet: 30.0, unit: t("printMgmt.yuanPerSheet") },
 ]
 
 // 科室计费统计数据
 const DEPARTMENT_BILLING: Array<{ dept: string; patientCount: number; filmCount: number; amount: number }> = [
-  { dept: 'CT室', patientCount: 156, filmCount: 312, amount: 7800.0 },
-  { dept: 'MR室', patientCount: 98, filmCount: 294, amount: 7350.0 },
-  { dept: 'DR室', patientCount: 210, filmCount: 315, amount: 6300.0 },
-  { dept: '普放室', patientCount: 85, filmCount: 102, amount: 2040.0 },
+  { dept: t("printMgmt.roomCt"), patientCount: 156, filmCount: 312, amount: 7800.0 },
+  { dept: t("printMgmt.roomMr2"), patientCount: 98, filmCount: 294, amount: 7350.0 },
+  { dept: t("printMgmt.roomDr2"), patientCount: 210, filmCount: 315, amount: 6300.0 },
+  { dept: t("printMgmt.roomPlain"), patientCount: 85, filmCount: 102, amount: 2040.0 },
   { dept: 'ICU', patientCount: 28, filmCount: 56, amount: 1400.0 },
 ]
 
@@ -245,47 +246,47 @@ const COST_REPORT: Array<{ date: string; filmCost: number; paperCost: number; in
 // 打印布局模板数据
 // ============================================================
 const PRINT_LAYOUT_TEMPLATES = [
-  { id: 'LT001', name: '4合1标准', cols: 2, rows: 2, total: 4, orientation: 'PORTRAIT', preset: true, thumbnail: '4in1' },
-  { id: 'LT002', name: '6合1紧凑', cols: 3, rows: 2, total: 6, orientation: 'LANDSCAPE', preset: true, thumbnail: '6in1' },
-  { id: 'LT003', name: '8合1密集', cols: 4, rows: 2, total: 8, orientation: 'PORTRAIT', preset: true, thumbnail: '8in1' },
-  { id: 'LT004', name: '2合1宽幅', cols: 2, rows: 1, total: 2, orientation: 'LANDSCAPE', preset: true, thumbnail: '2in1' },
-  { id: 'LT005', name: '自定义布局', cols: 3, rows: 3, total: 9, orientation: 'PORTRAIT', preset: false, thumbnail: 'custom' },
+  { id: 'LT001', name: t("printMgmt.layout4in1Std"), cols: 2, rows: 2, total: 4, orientation: 'PORTRAIT', preset: true, thumbnail: '4in1' },
+  { id: 'LT002', name: t("printMgmt.layout6in1Compact"), cols: 3, rows: 2, total: 6, orientation: 'LANDSCAPE', preset: true, thumbnail: '6in1' },
+  { id: 'LT003', name: t("printMgmt.layout8in1Dense"), cols: 4, rows: 2, total: 8, orientation: 'PORTRAIT', preset: true, thumbnail: '8in1' },
+  { id: 'LT004', name: t("printMgmt.layout2in1Wide"), cols: 2, rows: 1, total: 2, orientation: 'LANDSCAPE', preset: true, thumbnail: '2in1' },
+  { id: 'LT005', name: t("printMgmt.customLayout"), cols: 3, rows: 3, total: 9, orientation: 'PORTRAIT', preset: false, thumbnail: 'custom' },
 ]
 
 // 科室打印配额数据
 const DEPT_PRINT_QUOTAS = [
-  { dept: 'CT室', monthlyQuota: 2000, current: 1450, budget: 50000, spent: 36250, status: 'normal', alertThreshold: 80 },
-  { dept: 'MR室', monthlyQuota: 1500, current: 1120, budget: 45000, spent: 33600, status: 'normal', alertThreshold: 80 },
-  { dept: 'DR室', monthlyQuota: 2500, current: 2100, budget: 30000, spent: 26250, status: 'warning', alertThreshold: 80 },
-  { dept: '普放室', monthlyQuota: 800, current: 520, budget: 12000, spent: 7800, status: 'normal', alertThreshold: 80 },
+  { dept: t("printMgmt.roomCt"), monthlyQuota: 2000, current: 1450, budget: 50000, spent: 36250, status: 'normal', alertThreshold: 80 },
+  { dept: t("printMgmt.roomMr2"), monthlyQuota: 1500, current: 1120, budget: 45000, spent: 33600, status: 'normal', alertThreshold: 80 },
+  { dept: t("printMgmt.roomDr2"), monthlyQuota: 2500, current: 2100, budget: 30000, spent: 26250, status: 'warning', alertThreshold: 80 },
+  { dept: t("printMgmt.roomPlain"), monthlyQuota: 800, current: 520, budget: 12000, spent: 7800, status: 'normal', alertThreshold: 80 },
   { dept: 'ICU', monthlyQuota: 300, current: 280, budget: 7500, spent: 7000, status: 'critical', alertThreshold: 80 },
-  { dept: '急诊', monthlyQuota: 600, current: 590, budget: 15000, spent: 14750, status: 'critical', alertThreshold: 80 },
+  { dept: t("printMgmt.emergency"), monthlyQuota: 600, current: 590, budget: 15000, spent: 14750, status: 'critical', alertThreshold: 80 },
 ]
 
 // 配额增加请求历史
 const QUOTA_REQUESTS = [
-  { id: 'QR001', dept: 'DR室', requestedAmount: 500, reason: '体检旺季，胶片用量增加30%', status: 'approved', requestDate: '2026-04-25', approvedDate: '2026-04-26' },
-  { id: 'QR002', dept: 'ICU', requestedAmount: 200, reason: 'ICU床位扩容，预计胶片需求增加', status: 'pending', requestDate: '2026-04-28', approvedDate: null },
-  { id: 'QR003', dept: '急诊', requestedAmount: 300, reason: '急诊量持续增长，胶片已不足', status: 'pending', requestDate: '2026-04-29', approvedDate: null },
+  { id: 'QR001', dept: t("printMgmt.roomDr2"), requestedAmount: 500, reason: t("printMgmt.noteCheckupSeason"), status: 'approved', requestDate: '2026-04-25', approvedDate: '2026-04-26' },
+  { id: 'QR002', dept: 'ICU', requestedAmount: 200, reason: t("printMgmt.noteIcuExpansion"), status: 'pending', requestDate: '2026-04-28', approvedDate: null },
+  { id: 'QR003', dept: t("printMgmt.emergency"), requestedAmount: 300, reason: t("printMgmt.noteEmergencyGrowth"), status: 'pending', requestDate: '2026-04-29', approvedDate: null },
 ]
 
 // 每月成本趋势数据
 const MONTHLY_COST_TREND = [
-  { month: '1月', ct: 4800, mr: 5200, dr: 3200, other: 1800, total: 15000 },
-  { month: '2月', ct: 4200, mr: 4800, dr: 2800, other: 1500, total: 13300 },
-  { month: '3月', ct: 5100, mr: 5500, dr: 3500, other: 2000, total: 16100 },
-  { month: '4月', ct: 5300, mr: 5800, dr: 3700, other: 2200, total: 17000 },
-  { month: '5月', ct: 4900, mr: 5400, dr: 3400, other: 1900, total: 15600 },
-  { month: '6月', ct: 5500, mr: 6000, dr: 3800, other: 2300, total: 17600 },
+  { month: t("printMgmt.jan"), ct: 4800, mr: 5200, dr: 3200, other: 1800, total: 15000 },
+  { month: t("printMgmt.feb"), ct: 4200, mr: 4800, dr: 2800, other: 1500, total: 13300 },
+  { month: t("printMgmt.mar"), ct: 5100, mr: 5500, dr: 3500, other: 2000, total: 16100 },
+  { month: t("printMgmt.apr"), ct: 5300, mr: 5800, dr: 3700, other: 2200, total: 17000 },
+  { month: t("printMgmt.may"), ct: 4900, mr: 5400, dr: 3400, other: 1900, total: 15600 },
+  { month: t("printMgmt.jun"), ct: 5500, mr: 6000, dr: 3800, other: 2300, total: 17600 },
 ]
 
 // 打印机成本数据
 const PRINTER_COST_DATA = [
-  { printer: '柯尼卡#1', films: 420, costPerPrint: 12.5, totalCost: 5250, deptCost: { CT: 2800, MR: 1200, DR: 1250 } },
-  { printer: '柯尼卡#2', films: 380, costPerPrint: 12.5, totalCost: 4750, deptCost: { CT: 800, MR: 3500, DR: 450 } },
-  { printer: '富士', films: 310, costPerPrint: 10.0, totalCost: 3100, deptCost: { CT: 500, MR: 300, DR: 2300 } },
+  { printer: t("printMgmt.konicaHash1"), films: 420, costPerPrint: 12.5, totalCost: 5250, deptCost: { CT: 2800, MR: 1200, DR: 1250 } },
+  { printer: t("printMgmt.konicaHash2"), films: 380, costPerPrint: 12.5, totalCost: 4750, deptCost: { CT: 800, MR: 3500, DR: 450 } },
+  { printer: t("printMgmt.fuji"), films: 310, costPerPrint: 10.0, totalCost: 3100, deptCost: { CT: 500, MR: 300, DR: 2300 } },
   { printer: 'GE', films: 180, costPerPrint: 15.0, totalCost: 2700, deptCost: { CT: 1800, MR: 0, DR: 900 } },
-  { printer: '飞利浦', films: 250, costPerPrint: 12.5, totalCost: 3125, deptCost: { CT: 1200, MR: 925, DR: 1000 } },
+  { printer: t("printMgmt.philips"), films: 250, costPerPrint: 12.5, totalCost: 3125, deptCost: { CT: 1200, MR: 925, DR: 1000 } },
 ]
 
 // ============================================================
@@ -309,14 +310,14 @@ const getStatusColor = (status: string): string => {
 // 获取状态文本
 const getStatusText = (status: string): string => {
   switch (status) {
-    case 'online': return '在线'
-    case 'offline': return '离线'
-    case 'printing': return '打印中'
-    case 'queued': return '排队中'
-    case 'completed': return '已完成'
-    case 'failed': return '失败'
-    case 'error': return '错误'
-    default: return '未知'
+    case 'online': return t("printMgmt.online")
+    case 'offline': return t("printMgmt.offline")
+    case 'printing': return t("printMgmt.printing")
+    case 'queued': return t("printMgmt.queued")
+    case 'completed': return t("printMgmt.completed")
+    case 'failed': return t("printMgmt.failed")
+    case 'error': return t("printMgmt.error")
+    default: return t("printMgmt.unknown")
   }
 }
 
@@ -571,7 +572,7 @@ export default function PrintManagementPage() {
 
   // [v3.0.6.11-98 Wave3B P1] 额度申请 Modal (科室/张数/用途 → localStorage 记录 + 标注)
   const [quotaModalOpen, setQuotaModalOpen] = useState<boolean>(false)
-  const [quotaForm, setQuotaForm] = useState({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? 'CT室', requestedAmount: 100, reason: '' })
+  const [quotaForm, setQuotaForm] = useState({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? t("printMgmt.roomCt"), requestedAmount: 100, reason: '' })
   const [quotaSaving, setQuotaSaving] = useState<boolean>(false)
   const [quotaRequests, setQuotaRequests] = useState<any[]>(QUOTA_REQUESTS)
 
@@ -579,20 +580,20 @@ export default function PrintManagementPage() {
     setSavingCustomTemplate(true)
     try {
       const res = await templatesApi.create({
-        name: `自定义 ${customCols}×${customRows} ${customOrientation === 'PORTRAIT' ? '纵向' : '横向'}`,
+        name: `自定义 ${customCols}×${customRows} ${customOrientation === 'PORTRAIT' ? t("printMgmt.portrait") : t("printMgmt.landscape")}`,
         category: 'print-layout',
-        bodyPart: '通用',
+        bodyPart: t("printMgmt.general"),
         body: JSON.stringify({ cols: customCols, rows: customRows, orientation: customOrientation, type: 'print-layout' }),
         createdById: 'current-user',
-        tags: ['打印布局'],
+        tags: [t("printMgmt.printLayout")],
       })
       if (res.success) {
         displayToast(`自定义模板「${res.data.name}」已保存`, 'success')
       } else {
-        displayToast(res.error?.message ?? '模板保存失败', 'error')
+        displayToast(res.error?.message ?? t("printMgmt.templateSaveFailed"), 'error')
       }
     } catch {
-      displayToast('模板保存失败，请稍后重试', 'error')
+      displayToast(t("printMgmt.templateSaveFailedRetry"), 'error')
     } finally {
       setSavingCustomTemplate(false)
     }
@@ -642,7 +643,7 @@ export default function PrintManagementPage() {
         if (devicesRes.success && Array.isArray(devicesRes.data) && devicesRes.data.length > 0) {
           setPrinters(devicesRes.data.map((d: any) => ({
             id: d.id,
-            name: d.name || (d.brand && d.model ? `${d.brand} ${d.model}` : '') || d.code || d.id || '打印机',
+            name: d.name || (d.brand && d.model ? `${d.brand} ${d.model}` : '') || d.code || d.id || t("printMgmt.printer"),
             type: d.modality === 'DR' || d.modality === 'CR' ? 'local' : 'network',
             status: (d.status === '维护中' || d.status === '故障' || d.status === 'MAINTENANCE' || d.status === 'BROKEN' || d.status === 'OFFLINE') ? 'offline' : 'online',
             location: d.room ?? d.roomId ?? '',
@@ -694,9 +695,9 @@ export default function PrintManagementPage() {
           ok = true
         }
         if (ok) { setDataSource('api'); setDataError(null) }
-        else setDataError('打印 API 不可用，当前展示演示数据')
+        else setDataError(t("printMgmt.apiUnavailable"))
       } catch {
-        if (!cancelled) setDataError('打印数据加载失败，当前展示演示数据')
+        if (!cancelled) setDataError(t("printMgmt.loadFailedDemo"))
       } finally {
         if (!cancelled) setDataLoading(false)
       }
@@ -756,10 +757,10 @@ export default function PrintManagementPage() {
         displayToast(`已重新提交打印任务: ${res.data?.id ?? taskId}`, 'success')
         handleRefreshQueue()
       } else {
-        displayToast(res.error?.message ?? '重新打印失败', 'error')
+        displayToast(res.error?.message ?? t("printMgmt.reprintFailed"), 'error')
       }
     } catch {
-      displayToast('重新打印失败，请稍后重试', 'error')
+      displayToast(t("printMgmt.reprintFailedRetry"), 'error')
     } finally {
       setReprintingId('')
     }
@@ -812,7 +813,7 @@ export default function PrintManagementPage() {
   // [G005 Wave2A P0] 保存打印机 → createPrinter/updatePrinter 真实调用 → 刷新列表
   const handleSavePrinter = async () => {
     if (!printerForm.name?.trim()) {
-      displayToast('请填写打印机名称', 'error')
+      displayToast(t("printMgmt.printerNameRequired"), 'error')
       return
     }
     setSavingPrinter(true)
@@ -848,10 +849,10 @@ export default function PrintManagementPage() {
         setShowPrinterModal(false)
         void refreshPrintersApi()
       } else {
-        displayToast(res.error?.message ?? '打印机保存失败', 'error')
+        displayToast(res.error?.message ?? t("printMgmt.printerSaveFailed"), 'error')
       }
     } catch {
-      displayToast('打印机保存失败，请稍后重试', 'error')
+      displayToast(t("printMgmt.printerSaveFailedRetry"), 'error')
     } finally {
       setSavingPrinter(false)
     }
@@ -868,10 +869,10 @@ export default function PrintManagementPage() {
         setPrintersApi(prev => prev.filter((p: any) => p.id !== printer.id))
         displayToast(`打印机「${printer.name}」已删除`, 'success')
       } else {
-        displayToast(res.error?.message ?? '打印机删除失败', 'error')
+        displayToast(res.error?.message ?? t("printMgmt.printerDeleteFailed"), 'error')
       }
     } catch {
-      displayToast('打印机删除失败，请稍后重试', 'error')
+      displayToast(t("printMgmt.printerDeleteFailedRetry"), 'error')
     } finally {
       setDeletingPrinterId('')
     }
@@ -886,7 +887,7 @@ export default function PrintManagementPage() {
 
   const handleSaveDicomPreset = (): void => {
     if (!presetForm.name?.trim()) {
-      displayToast('预设名称不能为空', 'error')
+      displayToast(t("printMgmt.presetNameRequired"), 'error')
       return
     }
     const updated = dicomPresets.map(p => p.id === presetForm.id ? { ...p, ...presetForm } : p)
@@ -965,14 +966,14 @@ export default function PrintManagementPage() {
   const handlePrintReport = async (): Promise<void> => {
     setConfirmModal({
       show: true,
-      title: '确认打印',
-      message: '确定要立即打印此报告吗？',
-      confirmText: '打印',
-      cancelText: '取消',
+      title: t("printMgmt.confirmPrint"),
+      message: t("printMgmt.confirmPrintMsg"),
+      confirmText: t("printMgmt.print"),
+      cancelText: t("printMgmt.cancel"),
       type: 'primary',
       onConfirm: async () => {
         await api.post('/print/jobs', { reportId: 'current', printerId: 'p1', filmSize: '14x17', copies: 1 })
-        displayToast('报告已开始打印', 'success')
+        displayToast(t("printMgmt.printStarted"), 'success')
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
     })
@@ -981,10 +982,10 @@ export default function PrintManagementPage() {
   // [G005 Wave2A P1] 下载PDF → 用当前任务数据真实生成 HTML/文本报告 Blob 下载
   const handleDownloadPdf = (): void => {
     const item = previewItem ?? printQueue[0] ?? printHistory[0]
-    const patientName = item?.patientName ?? '未知患者'
+    const patientName = item?.patientName ?? t("printMgmt.unknownPatient")
     const taskId = item?.id ?? 'REPORT-1'
     const modality = item?.modality ?? 'CT'
-    const studyDesc = item?.studyDesc ?? item?.studyType ?? '影像报告'
+    const studyDesc = item?.studyDesc ?? item?.studyType ?? t("printMgmt.imageReport")
     const filmSpec = item?.filmSpec ?? '14x17'
     const copies = item?.copies ?? 1
     const now = new Date()
@@ -1026,7 +1027,7 @@ export default function PrintManagementPage() {
 
   // 刷新队列
   const handleRefreshQueue = (): void => {
-    displayToast(dataSource === 'api' ? '已从服务端刷新打印队列' : '打印队列已刷新（演示数据）', 'success')
+    displayToast(dataSource === 'api' ? t("printMgmt.queueRefreshedServer") : t("printMgmt.queueRefreshedDemo"), 'success')
     void (async () => {
       const [queueRes, historyRes] = await Promise.all([printApi.listQueue(), printApi.listHistory()])
       if (queueRes.success && Array.isArray(queueRes.data)) {
@@ -1068,17 +1069,17 @@ export default function PrintManagementPage() {
   // 暂停/恢复队列
   const handleTogglePauseQueue = (): void => {
     setQueuePaused(!queuePaused)
-    displayToast(queuePaused ? '打印队列已恢复' : '打印队列已暂停', 'success')
+    displayToast(queuePaused ? t("printMgmt.queueResumed") : t("printMgmt.queuePaused"), 'success')
   }
 
   // [G005 Wave2A P1] 立即打印胶片任务 → printApi.createJob 真实创建
   const handlePrintFilmNow = async (item: any): Promise<void> => {
     setConfirmModal({
       show: true,
-      title: '确认立即打印',
+      title: t("printMgmt.confirmPrintNow"),
       message: `确定要立即打印 ${item.patientName} 的胶片任务吗？`,
-      confirmText: '打印',
-      cancelText: '取消',
+      confirmText: t("printMgmt.print"),
+      cancelText: t("printMgmt.cancel"),
       type: 'primary',
       onConfirm: async () => {
         try {
@@ -1094,10 +1095,10 @@ export default function PrintManagementPage() {
             displayToast(`已开始打印: ${item.patientName}（${res.data?.id ?? ''}）`, 'success')
             handleRefreshQueue()
           } else {
-            displayToast(res.error?.message ?? '打印任务创建失败', 'error')
+            displayToast(res.error?.message ?? t("printMgmt.taskCreateFailed"), 'error')
           }
         } catch {
-          displayToast('打印任务创建失败，请稍后重试', 'error')
+          displayToast(t("printMgmt.taskCreateFailedRetry"), 'error')
         }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -1109,10 +1110,10 @@ export default function PrintManagementPage() {
     if (previewItem) {
       setConfirmModal({
         show: true,
-        title: '确认重新打印',
+        title: t("printMgmt.confirmReprint"),
         message: `确定要重新打印 ${previewItem.patientName} 的胶片吗？`,
-        confirmText: '重新打印',
-        cancelText: '取消',
+        confirmText: t("printMgmt.reprint"),
+        cancelText: t("printMgmt.cancel"),
         type: 'primary',
         onConfirm: async () => {
           if (previewItem.id) await handleReprintJob(previewItem.id)
@@ -1128,10 +1129,10 @@ export default function PrintManagementPage() {
     const task = dicomTasks.find((t: any) => t.id === taskId)
     setConfirmModal({
       show: true,
-      title: '确认立即打印',
+      title: t("printMgmt.confirmPrintNow"),
       message: `确定要立即打印任务 ${taskId} 吗？`,
-      confirmText: '打印',
-      cancelText: '取消',
+      confirmText: t("printMgmt.print"),
+      cancelText: t("printMgmt.cancel"),
       type: 'primary',
       onConfirm: async () => {
         try {
@@ -1148,10 +1149,10 @@ export default function PrintManagementPage() {
             displayToast(`已开始打印任务: ${res.data?.id ?? taskId}`, 'success')
             handleRefreshQueue()
           } else {
-            displayToast(res.error?.message ?? '打印任务创建失败', 'error')
+            displayToast(res.error?.message ?? t("printMgmt.taskCreateFailed"), 'error')
           }
         } catch {
-          displayToast('打印任务创建失败，请稍后重试', 'error')
+          displayToast(t("printMgmt.taskCreateFailedRetry"), 'error')
         }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -1162,10 +1163,10 @@ export default function PrintManagementPage() {
   const handleCancelTask = (taskId: string): void => {
     setConfirmModal({
       show: true,
-      title: '确认取消任务',
+      title: t("printMgmt.confirmCancelTask"),
       message: `确定要取消任务 ${taskId} 吗？此操作无法撤销。`,
-      confirmText: '取消任务',
-      cancelText: '返回',
+      confirmText: t("printMgmt.cancelTask"),
+      cancelText: t("printMgmt.back"),
       type: 'danger',
       onConfirm: async () => {
         try {
@@ -1175,10 +1176,10 @@ export default function PrintManagementPage() {
             setDicomTasks(prev => prev.filter((t: any) => t.id !== taskId))
             setPrintQueue(prev => prev.filter((t: any) => t.id !== taskId))
           } else {
-            displayToast(res.error?.message ?? '取消任务失败', 'error')
+            displayToast(res.error?.message ?? t("printMgmt.cancelTaskFailed"), 'error')
           }
         } catch {
-          displayToast('取消任务失败，请稍后重试', 'error')
+          displayToast(t("printMgmt.cancelTaskFailedRetry"), 'error')
         }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -1189,10 +1190,10 @@ export default function PrintManagementPage() {
   const handleRetryTask = (taskId: string): void => {
     setConfirmModal({
       show: true,
-      title: '确认重试任务',
+      title: t("printMgmt.confirmRetryTask"),
       message: `确定要重试任务 ${taskId} 吗？`,
-      confirmText: '重试',
-      cancelText: '取消',
+      confirmText: t("printMgmt.retry"),
+      cancelText: t("printMgmt.cancel"),
       type: 'primary',
       onConfirm: async () => {
         try {
@@ -1202,10 +1203,10 @@ export default function PrintManagementPage() {
             setDicomTasks(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined, completeTime: null } : t))
             setPrintQueue(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined } : t))
           } else {
-            displayToast(res.error?.message ?? '重试任务失败', 'error')
+            displayToast(res.error?.message ?? t("printMgmt.retryTaskFailed"), 'error')
           }
         } catch {
-          displayToast('重试任务失败，请稍后重试', 'error')
+          displayToast(t("printMgmt.retryTaskFailedRetry"), 'error')
         }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -1221,10 +1222,10 @@ export default function PrintManagementPage() {
     if (selectedQueueItems.length === 0) return
     setConfirmModal({
       show: true,
-      title: '确认批量打印',
+      title: t("printMgmt.confirmBatchPrint"),
       message: `确定要批量打印选中的 ${selectedQueueItems.length} 份报告吗？`,
-      confirmText: '批量打印',
-      cancelText: '取消',
+      confirmText: t("printMgmt.batchPrint"),
+      cancelText: t("printMgmt.cancel"),
       type: 'primary',
       onConfirm: async () => {
         let ok = 0
@@ -1252,7 +1253,7 @@ export default function PrintManagementPage() {
           setSelectedQueueItems([])
           handleRefreshQueue()
         } else {
-          displayToast('批量打印全部失败，请检查打印服务', 'error')
+          displayToast(t("printMgmt.batchPrintFailed"), 'error')
         }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -1273,14 +1274,14 @@ export default function PrintManagementPage() {
     ctx.fillStyle = '#ffffff'
     ctx.font = 'bold 24px "Microsoft YaHei", sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText('胶片打印预览 · 4合1 布局', canvas.width / 2, 38)
+    ctx.fillText(t("printMgmt.filmPreview4in1"), canvas.width / 2, 38)
     // [v3.0.6.11-99 Wave8A P1] 预览标签取自当前队列/历史真实任务 (无任务时通用占位 + 标注)
     const previewSources = [previewItem, ...printQueue, ...printHistory]
       .filter((it): it is NonNullable<typeof it> => !!it)
       .slice(0, 4)
     const labels = previewSources.length > 0
-      ? previewSources.map((it) => (it as any).studyDesc ?? (it as any).studyType ?? `${(it as any).modality ?? '影像'} 检查`)
-      : ['胸部正位', '胸部侧位', '腹部CT', '头颅MR']
+      ? previewSources.map((it) => (it as any).studyDesc ?? (it as any).studyType ?? `${(it as any).modality ?? t("printMgmt.images")} 检查`)
+      : [t("printMgmt.imageChestAP"), t("printMgmt.imageChestLat"), t("printMgmt.imageAbdCt"), t("printMgmt.imageHeadMr")]
     const cellW = 280
     const cellH = 340
     labels.forEach((label, i) => {
@@ -1301,10 +1302,10 @@ export default function PrintManagementPage() {
     })
     ctx.fillStyle = '#94a3b8'
     ctx.font = '13px "Microsoft YaHei", sans-serif'
-    ctx.fillText(`${new Date().toLocaleString('zh-CN')} · ${customCols}x${customRows} 布局 · ${previewSources.length > 0 ? '标签来源: 当前打印队列' : '标签为通用占位(队列无任务, 待接入序列数据)'}`, canvas.width / 2, 776)
+    ctx.fillText(`${new Date().toLocaleString('zh-CN')} · ${customCols}x${customRows} 布局 · ${previewSources.length > 0 ? t("printMgmt.labelSourceQueue") : t("printMgmt.labelPlaceholderNote")}`, canvas.width / 2, 776)
     canvas.toBlob((blob) => {
       if (!blob) {
-        displayToast('预览图导出失败', 'error')
+        displayToast(t("printMgmt.previewExportFailed"), 'error')
         return
       }
       const url = URL.createObjectURL(blob)
@@ -1315,18 +1316,18 @@ export default function PrintManagementPage() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      displayToast('胶片布局预览图已导出下载', 'success')
+      displayToast(t("printMgmt.previewExported"), 'success')
     }, 'image/png')
   }
 
   // [v3.0.6.11-98 Wave3B P1] 新建打印额度申请: 表单 → localStorage 记录 + 列表插入 (标注: 待后端审批流)
   const handleSubmitQuotaRequest = (): void => {
     if (!quotaForm.dept || quotaForm.requestedAmount <= 0) {
-      displayToast('请选择科室并填写申请张数', 'error')
+      displayToast(t("printMgmt.quotaSelectDeptAndCount"), 'error')
       return
     }
     if (!quotaForm.reason.trim()) {
-      displayToast('请填写申请用途', 'error')
+      displayToast(t("printMgmt.quotaPurposeRequired"), 'error')
       return
     }
     setQuotaSaving(true)
@@ -1347,7 +1348,7 @@ export default function PrintManagementPage() {
       } catch { /* localStorage 不可用不阻断 */ }
       setQuotaRequests(prev => [record, ...prev])
       setQuotaModalOpen(false)
-      setQuotaForm({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? 'CT室', requestedAmount: 100, reason: '' })
+      setQuotaForm({ dept: DEPT_PRINT_QUOTAS[0]?.dept ?? t("printMgmt.roomCt"), requestedAmount: 100, reason: '' })
       setQuotaSaving(false)
       displayToast(`额度申请已提交：${record.dept} +${record.requestedAmount} 张（本地记录, 待后端审批流）`, 'success')
     }, 400)
@@ -1357,9 +1358,9 @@ export default function PrintManagementPage() {
   const renderPrintConfig = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印机列表 */}
-      <Card title="打印机列表" icon={<Printer size={16} />}>
+      <Card title={t("printMgmt.printerList")} icon={<Printer size={16} />}>
         <div style={{ marginBottom: 12 }}>
-          <SearchBar value={searchKeyword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchKeyword(e.target.value)} placeholder="搜索打印机..." />
+          <SearchBar value={searchKeyword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchKeyword(e.target.value)} placeholder={t("printMgmt.searchPrinterPlaceholder")} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
           {printers.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase())).map(printer => (
@@ -1379,7 +1380,7 @@ export default function PrintManagementPage() {
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>
                   <span style={{ marginRight: 12 }}>{printer.location}</span>
-                  <span>默认: {printer.defaultCopies}份</span>
+                  <span>{t("printMgmt.defaultLabel")} {printer.defaultCopies}{t("printMgmt.copiesUnit")}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1387,7 +1388,7 @@ export default function PrintManagementPage() {
                 <button
                   onClick={(e) => { e.stopPropagation(); void handleDeletePrinter(printer) }}
                   disabled={deletingPrinterId === printer.id}
-                  title="删除打印机"
+                  title={t("printMgmt.deletePrinter")}
                   style={{
                     padding: '2px 6px', border: 'none', borderRadius: 4, cursor: 'pointer',
                     background: 'transparent', color: deletingPrinterId === printer.id ? C.textLight : C.danger
@@ -1407,12 +1408,12 @@ export default function PrintManagementPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
         >
-          <Plus size={14} /> 添加打印机
+          <Plus size={14} /> {t("printMgmt.addPrinter2")}
         </button>
       </Card>
 
       {/* 胶片规格配置 */}
-      <Card title="胶片规格配置" icon={<Film size={16} />}>
+      <Card title={t("printMgmt.filmSpecConfig")} icon={<Film size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filmSpecs.map(spec => (
             <div
@@ -1428,12 +1429,12 @@ export default function PrintManagementPage() {
                   <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{spec.name}</span>
                   {spec.default && (
                     <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 10, background: C.primary, color: C.white }}>
-                      默认
+                      {t("printMgmt.default")}
                     </span>
                   )}
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>
-                  尺寸: {spec.size} | 分辨率: {spec.dpi}
+                  {t("printMgmt.sizeLabel")} {spec.size} {t("printMgmt.resolutionLabel")} {spec.dpi}
                 </div>
               </div>
               <button
@@ -1445,7 +1446,7 @@ export default function PrintManagementPage() {
                   fontSize: 12, cursor: 'pointer'
                 }}
               >
-                {spec.code === defaultFilmSpec ? '已默认' : '设为默认'}
+                {spec.code === defaultFilmSpec ? t("printMgmt.isDefault") : t("printMgmt.setDefault")}
               </button>
             </div>
           ))}
@@ -1453,10 +1454,10 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 默认打印设置 */}
-      <Card title="默认打印设置" icon={<Settings size={16} />}>
+      <Card title={t("printMgmt.defaultPrintSettings")} icon={<Settings size={16} />}>
         <div style={{ display: 'flex', gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>默认打印份数</label>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.defaultCopies")}</label>
             <select
               value={defaultCopies}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultCopies(Number(e.target.value))}
@@ -1465,11 +1466,11 @@ export default function PrintManagementPage() {
                 borderRadius: 4, fontSize: 13, outline: 'none'
               }}
             >
-              {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} 份</option>)}
+              {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} {t("printMgmt.copiesUnit")}</option>)}
             </select>
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>默认胶片规格</label>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.defaultFilmSpec")}</label>
             <select
               value={defaultFilmSpec}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultFilmSpec(e.target.value)}
@@ -1485,7 +1486,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* DICOM打印参数 */}
-      <Card title="DICOM打印参数" icon={<Database size={16} />}>
+      <Card title={t("printMgmt.dicomPrintParams")} icon={<Database size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {dicomPresets.map(preset => (
             <div
@@ -1503,10 +1504,10 @@ export default function PrintManagementPage() {
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {[
-                  { label: '方向', value: preset.orientation },
-                  { label: '介质', value: MEDIUM_TYPE_LABELS[preset.mediumType] ?? preset.mediumType },
-                  { label: '输出', value: preset.filmDestination },
-                  { label: '裁剪', value: preset.trimming },
+                  { label: t("printMgmt.orientation"), value: preset.orientation },
+                  { label: t("printMgmt.medium"), value: MEDIUM_TYPE_LABELS[preset.mediumType] ?? preset.mediumType },
+                  { label: t("printMgmt.output"), value: preset.filmDestination },
+                  { label: t("printMgmt.crop"), value: preset.trimming },
                 ].map(p => (
                   <span key={p.label} style={{ fontSize: 12, padding: '2px 6px', background: C.bg, borderRadius: 3, color: C.textMid }}>
                     {p.label}: {p.value}
@@ -1524,7 +1525,7 @@ export default function PrintManagementPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
         >
-          <Cog size={14} /> 编辑DICOM预设
+          <Cog size={14} /> {t("printMgmt.editDicomPreset")}
         </button>
       </Card>
     </div>
@@ -1534,7 +1535,7 @@ export default function PrintManagementPage() {
   const renderReportPrint = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 报告打印模板 */}
-      <Card title="报告打印模板" icon={<ScrollText size={16} />}>
+      <Card title={t("printMgmt.reportPrintTemplate")} icon={<ScrollText size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {reportTemplates.map(template => (
             <div
@@ -1555,9 +1556,9 @@ export default function PrintManagementPage() {
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 8 }}>
-                  <span>默认 {template.copies} 份</span>
-                  {template.includeImages && <span>含图像</span>}
-                  {template.includeLogo && <span>含Logo</span>}
+                  <span>{t("printMgmt.default")} {template.copies} {t("printMgmt.copiesUnit")}</span>
+                  {template.includeImages && <span>{t("printMgmt.includeImage")}</span>}
+                  {template.includeLogo && <span>{t("printMgmt.includeLogo")}</span>}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -1579,20 +1580,20 @@ export default function PrintManagementPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
         >
-          <Plus size={14} /> 新建模板
+          <Plus size={14} /> {t("printMgmt.newTemplate")}
         </button>
       </Card>
 
       {/* 打印预览 */}
-      <Card title="打印预览" icon={<Eye size={16} />}>
+      <Card title={t("printMgmt.printPreview")} icon={<Eye size={16} />}>
         <div style={{
           background: C.bg, borderRadius: 4, padding: 16, minHeight: 300,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
         }}>
           <FileText size={48} color={C.textLight} style={{ marginBottom: 12 }} />
-          <p style={{ fontSize: 13, color: C.textMid, margin: 0 }}>选择报告进行预览</p>
+          <p style={{ fontSize: 13, color: C.textMid, margin: 0 }}>{t("printMgmt.selectReportToPreview")}</p>
           <p style={{ fontSize: 12, color: C.textLight, margin: '8px 0 0 0' }}>
-            支持实时预览报告排版和图像布局
+            {t("printMgmt.previewHint")}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -1601,37 +1602,37 @@ export default function PrintManagementPage() {
             background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}>
-            <Printer size={14} /> 立即打印
+            <Printer size={14} /> {t("printMgmt.printNow")}
           </button>
           <button onClick={handleDownloadPdf} style={{
             flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
             background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}>
-            <Download size={14} /> 下载PDF
+            <Download size={14} /> {t("printMgmt.downloadPdf")}
           </button>
         </div>
       </Card>
 
       {/* 批量打印 */}
-      <Card title="批量打印" icon={<Copy size={16} />}>
+      <Card title={t("printMgmt.batchPrint")} icon={<Copy size={16} />}>
         <div style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 13, color: C.textMid }}>
-              已选择 <span style={{ color: C.primary, fontWeight: 600 }}>{selectedQueueItems.length}</span> 份报告
+              {t("printMgmt.selected")} <span style={{ color: C.primary, fontWeight: 600 }}>{selectedQueueItems.length}</span> {t("printMgmt.reportsUnit")}
             </span>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => setSelectedQueueItems(printHistory.map((_: any, i: number) => `batch-${i}`))}
                 style={{ fontSize: 12, color: C.accent, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                全选
+                {t("printMgmt.selectAll")}
               </button>
               <button
                 onClick={() => setSelectedQueueItems([])}
                 style={{ fontSize: 12, color: C.textMid, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                清空
+                {t("printMgmt.clear")}
               </button>
             </div>
           </div>
@@ -1671,16 +1672,16 @@ export default function PrintManagementPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}
         >
-          <Printer size={14} /> 批量打印 ({selectedQueueItems.length})
+          <Printer size={14} /> {t("printMgmt.batchPrintPrefix")}{selectedQueueItems.length})
         </button>
       </Card>
 
       {/* 打印记录 */}
-      <Card title="打印记录" icon={<FileBarChart size={16} />}>
+      <Card title={t("printMgmt.printHistory")} icon={<FileBarChart size={16} />}>
         <VirtualTable
           columns={[
             {
-              title: '患者',
+              title: t("printMgmt.patient"),
               dataIndex: 'patientName',
               key: 'patientName',
               render: (_: unknown, record) => (
@@ -1691,7 +1692,7 @@ export default function PrintManagementPage() {
               ),
             },
             {
-              title: '检查',
+              title: t("printMgmt.exam"),
               dataIndex: 'modality',
               key: 'modality',
               render: (_: unknown, record) => (
@@ -1704,8 +1705,8 @@ export default function PrintManagementPage() {
                 </div>
               ),
             },
-            { title: '时间', dataIndex: 'printTime', key: 'printTime', width: 90, render: (v: string) => <span style={{ color: C.textMid }}>{v.slice(11)}</span> },
-            { title: '费用', dataIndex: 'cost', key: 'cost', width: 90, render: (v: number) => <span style={{ color: C.success, fontWeight: 500 }}>¥{v.toFixed(1)}</span> },
+            { title: t("printMgmt.time"), dataIndex: 'printTime', key: 'printTime', width: 90, render: (v: string) => <span style={{ color: C.textMid }}>{v.slice(11)}</span> },
+            { title: t("printMgmt.cost"), dataIndex: 'cost', key: 'cost', width: 90, render: (v: number) => <span style={{ color: C.success, fontWeight: 500 }}>¥{v.toFixed(1)}</span> },
           ]}
           dataSource={printHistory}
           rowKey="id"
@@ -1720,7 +1721,7 @@ export default function PrintManagementPage() {
   const renderFilmPrintManagement = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 胶片打印队列 */}
-      <Card title="胶片打印队列" icon={<Layers size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.filmPrintQueue")} icon={<Layers size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={handleRefreshQueue} style={{
@@ -1728,17 +1729,17 @@ export default function PrintManagementPage() {
               background: C.primary, color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
             }}>
               <RefreshCw size={14} />
-              刷新
+              {t("printMgmt.refresh")}
             </button>
             <button onClick={handleTogglePauseQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: `1px solid ${C.border}`, fontSize: 12,
               background: 'var(--bg-card)', color: C.textMid, cursor: 'pointer'
             }}>
-              {queuePaused ? '恢复全部' : '暂停全部'}
+              {queuePaused ? t("printMgmt.resumeAll") : t("printMgmt.pauseAll")}
             </button>
           </div>
           <span style={{ fontSize: 12, color: C.textMid }}>
-            队列: <span style={{ color: C.primary }}>{printQueue.length}</span> 项
+            {t("printMgmt.queueLabel")} <span style={{ color: C.primary }}>{printQueue.length}</span> {t("printMgmt.itemUnit")}
           </span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1760,13 +1761,13 @@ export default function PrintManagementPage() {
                   <StatusBadge status={item.status} />
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid, marginBottom: 6 }}>
-                  {item.studyDesc} | 规格: {item.filmSpec} | 份数: {item.copies}
+                  {item.studyDesc} {t("printMgmt.specLabel")} {item.filmSpec} {t("printMgmt.copiesLabel")} {item.copies}
                 </div>
                 {item.status === 'printing' && (
                   <ProgressBar progress={item.progress} />
                 )}
                 {item.status === 'error' && (
-                  <div style={{ fontSize: 12, color: C.danger }}>错误: {item.errorMsg}</div>
+                  <div style={{ fontSize: 12, color: C.danger }}>{t("printMgmt.errorLabel")} {item.errorMsg}</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -1788,18 +1789,18 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印状态追踪 */}
-      <Card title="打印状态追踪" icon={<Activity size={16} />}>
+      <Card title={t("printMgmt.printStatusTrack")} icon={<Activity size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { label: '在线打印机', value: activePrinters, total: printers.length, color: C.success },
-            { label: '排队任务', value: printQueue.filter(q => q.status === 'queued').length, total: printQueue.length, color: C.warning },
-            { label: '正在打印', value: printQueue.filter(q => q.status === 'printing').length, total: printQueue.length, color: C.info },
-            { label: '今日完成', value: todayPrints, total: 0, color: C.primary },
+            { label: t("printMgmt.onlinePrinters"), value: activePrinters, total: printers.length, color: C.success },
+            { label: t("printMgmt.queuedTasks"), value: printQueue.filter(q => q.status === 'queued').length, total: printQueue.length, color: C.warning },
+            { label: t("printMgmt.printingNow"), value: printQueue.filter(q => q.status === 'printing').length, total: printQueue.length, color: C.info },
+            { label: t("printMgmt.doneToday"), value: todayPrints, total: 0, color: C.primary },
           ].map(stat => (
             <div key={stat.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 13, color: C.textDark }}>{stat.label}</div>
-                {stat.total > 0 && <div style={{ fontSize: 12, color: C.textLight }}>总共 {stat.total} 项</div>}
+                {stat.total > 0 && <div style={{ fontSize: 12, color: C.textLight }}>{t("printMgmt.total")} {stat.total} {t("printMgmt.itemUnit")}</div>}
               </div>
               <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
             </div>
@@ -1808,16 +1809,16 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印费用统计 */}
-      <Card title="打印费用统计" icon={<DollarSign size={16} />}>
+      <Card title={t("printMgmt.costStats")} icon={<DollarSign size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ textAlign: 'center', padding: 16, background: `${C.success}10`, borderRadius: 8 }}>
-            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>今日费用</div>
+            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.todayCost")}</div>
             <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>¥{todayCost.toFixed(1)}</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {[
-              { label: '打印张数', value: todayFilms, unit: '张' },
-              { label: '平均费用', value: todayFilms > 0 ? (todayCost / todayFilms).toFixed(1) : '0', unit: '元/张' },
+              { label: t("printMgmt.sheetsPrinted"), value: todayFilms, unit: t("printMgmt.sheetsUnit") },
+              { label: t("printMgmt.avgCost"), value: todayFilms > 0 ? (todayCost / todayFilms).toFixed(1) : '0', unit: t("printMgmt.yuanPerSheet") },
             ].map(item => (
               <div key={item.label} style={{ textAlign: 'center', padding: 10, background: C.bg, borderRadius: 4 }}>
                 <div style={{ fontSize: 12, color: C.textMid }}>{item.label}</div>
@@ -1829,9 +1830,9 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 胶片使用量统计 */}
-      <Card title="胶片使用量统计" icon={<BarChart2 size={16} />}>
+      <Card title={t("printMgmt.filmUsageStats")} icon={<BarChart2 size={16} />}>
         <div style={{ height: 180 }}>
-          <ChartContainer height={180} state={filmUsageStats.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无胶片使用数据">
+          <ChartContainer height={180} state={filmUsageStats.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noFilmUsageData")}>
             <ReBarChart data={filmUsageStats.slice(-7)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -1862,7 +1863,7 @@ export default function PrintManagementPage() {
   const renderDicomPrintQueue = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印服务器配置面板 */}
-      <Card title="打印服务器配置" icon={<Server size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.printServerConfig")} icon={<Server size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
           {DICOM_SERVERS.map(server => (
             <div
@@ -1881,15 +1882,15 @@ export default function PrintManagementPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                 <div>
-                  <span style={{ color: C.textLight }}>服务器名称: </span>
+                  <span style={{ color: C.textLight }}>{t("printMgmt.serverNameLabel")} </span>
                   <span style={{ color: C.textDark }}>{server.aet}</span>
                 </div>
                 <div>
-                  <span style={{ color: C.textLight }}>IP/端口: </span>
+                  <span style={{ color: C.textLight }}>{t("printMgmt.ipPortLabel")} </span>
                   <span style={{ color: C.textDark }}>{server.ip}:{server.port}</span>
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
-                  <span style={{ color: C.textLight }}>描述: </span>
+                  <span style={{ color: C.textLight }}>{t("printMgmt.descLabel")} </span>
                   <span style={{ color: C.textDark }}>{server.description}</span>
                 </div>
               </div>
@@ -1899,7 +1900,7 @@ export default function PrintManagementPage() {
 
         {/* DICOM打印机列表 */}
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>DICOM打印机列表 {printersApi.length > 0 && <span style={{ fontSize: 11, color: C.success }}>(printApi.listPrinters 实时)</span>}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t("printMgmt.dicomPrinterList")} {printersApi.length > 0 && <span style={{ fontSize: 11, color: C.success }}>{t("printMgmt.listPrintersLive")}</span>}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
             {scpPrinters.map(printer => (
               <div
@@ -1920,7 +1921,7 @@ export default function PrintManagementPage() {
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{printer.location}</div>
                 <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
-                  今日: <span style={{ color: C.primary }}>{printer.filmsToday}</span> 张
+                  {t("printMgmt.todayLabel")} <span style={{ color: C.primary }}>{printer.filmsToday}</span> {t("printMgmt.sheetsUnit")}
                 </div>
               </div>
             ))}
@@ -1929,10 +1930,10 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 胶片规格选择 */}
-      <Card title="胶片规格选择" icon={<Film size={16} />}>
+      <Card title={t("printMgmt.filmSpecSelect")} icon={<Film size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>胶片规格</label>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.filmSpecCol")}</label>
             <select
               value={selectedFilmSpec}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedFilmSpec(e.target.value)}
@@ -1950,12 +1951,12 @@ export default function PrintManagementPage() {
           {selectedFilmSpec === 'CUSTOM' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>宽度(cm)</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.widthCm")}</label>
                 <input
                   type="text"
                   value={customFilmWidth}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomFilmWidth(e.target.value)}
-                  placeholder="例: 35"
+                  placeholder={t("printMgmt.widthExample2")}
                   style={{
                     width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
                     borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
@@ -1963,12 +1964,12 @@ export default function PrintManagementPage() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>高度(cm)</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.heightCm")}</label>
                 <input
                   type="text"
                   value={customFilmHeight}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomFilmHeight(e.target.value)}
-                  placeholder="例: 43"
+                  placeholder={t("printMgmt.heightExample2")}
                   style={{
                     width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
                     borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
@@ -1979,7 +1980,7 @@ export default function PrintManagementPage() {
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>介质类型</label>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.mediumType")}</label>
             <select
               value={selectedMediumType}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMediumType(e.target.value)}
@@ -1995,7 +1996,7 @@ export default function PrintManagementPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>打印份数</label>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("printMgmt.printCopies")}</label>
             <select
               value={printCopies}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPrintCopies(Number(e.target.value))}
@@ -2005,7 +2006,7 @@ export default function PrintManagementPage() {
               }}
             >
               {[1, 2, 3, 4, 5].map(n => (
-                <option key={n} value={n}>{n} 份</option>
+                <option key={n} value={n}>{n} {t("printMgmt.copiesUnit")}</option>
               ))}
             </select>
           </div>
@@ -2013,13 +2014,13 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印状态统计 */}
-      <Card title="DICOM打印状态" icon={<Activity size={16} />}>
+      <Card title={t("printMgmt.dicomPrintStatus")} icon={<Activity size={16} />}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
           {[
-            { label: '排队中', value: dicomQueuedCount, color: C.warning },
-            { label: '打印中', value: dicomPrintingCount, color: C.info },
-            { label: '已完成', value: dicomCompletedCount, color: C.success },
-            { label: '失败', value: dicomFailedCount, color: C.danger },
+            { label: t("printMgmt.queued"), value: dicomQueuedCount, color: C.warning },
+            { label: t("printMgmt.printing"), value: dicomPrintingCount, color: C.info },
+            { label: t("printMgmt.completed"), value: dicomCompletedCount, color: C.success },
+            { label: t("printMgmt.failed"), value: dicomFailedCount, color: C.danger },
           ].map(stat => (
             <div
               key={stat.label}
@@ -2035,19 +2036,19 @@ export default function PrintManagementPage() {
         </div>
         <div style={{ marginTop: 12, padding: 10, background: C.bg, borderRadius: 4 }}>
           <div style={{ fontSize: 12, color: C.textMid }}>
-            今日总任务: <span style={{ color: C.primary, fontWeight: 600 }}>{dicomTasks.length}</span> 项
-            {' · '}服务端打印队列 (排队/打印中): <span style={{ color: C.info, fontWeight: 600 }}>{serverQueues}</span> 项
+            {t("printMgmt.todayTotalLabel")} <span style={{ color: C.primary, fontWeight: 600 }}>{dicomTasks.length}</span> {t("printMgmt.itemUnit")}
+            {' · '}{t("printMgmt.serverQueueLabel")} <span style={{ color: C.info, fontWeight: 600 }}>{serverQueues}</span> {t("printMgmt.itemUnit")}
           </div>
         </div>
       </Card>
 
       {/* 打印队列表格 */}
-      <Card title="DICOM打印队列" icon={<FileSpreadsheet size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.dicomPrintQueue")} icon={<FileSpreadsheet size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <SearchBar
             value={dicomQueueSearch}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDicomQueueSearch(e.target.value)}
-            placeholder="搜索患者姓名/ID/检查类型..."
+            placeholder={t("printMgmt.searchQueuePlaceholder")}
           />
           <div style={{ display: 'flex', gap: 8, marginLeft: 12 }}>
             <button
@@ -2058,7 +2059,7 @@ export default function PrintManagementPage() {
                 display: 'flex', alignItems: 'center', gap: 4
               }}
             >
-              <RefreshCw size={14} /> 刷新
+              <RefreshCw size={14} /> {t("printMgmt.refresh")}
             </button>
           </div>
         </div>
@@ -2067,7 +2068,7 @@ export default function PrintManagementPage() {
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
             <thead>
               <tr style={{ background: C.bg }}>
-                {['任务ID', '患者姓名', '检查类型', '胶片规格', '份数', '状态', '提交时间', '完成时间', '操作'].map(header => (
+                {[t("printMgmt.taskId"), t("printMgmt.patientName"), t("printMgmt.examType"), t("printMgmt.filmSpecCol"), t("printMgmt.copies"), t("printMgmt.status"), t("printMgmt.submittedAt"), t("printMgmt.completedAt"), t("printMgmt.actions")].map(header => (
                   <th
                     key={header}
                     style={{
@@ -2118,7 +2119,7 @@ export default function PrintManagementPage() {
                             background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer'
                           }}
                         >
-                          立即打印
+                          {t("printMgmt.printNow")}
                         </button>
                       )}
                       {task.status === 'failed' && (
@@ -2129,7 +2130,7 @@ export default function PrintManagementPage() {
                             background: C.warning, color: C.white, fontSize: 12, cursor: 'pointer'
                           }}
                         >
-                          重试
+                          {t("printMgmt.retry")}
                         </button>
                       )}
                       {(task.status === 'queued' || task.status === 'failed') && (
@@ -2140,14 +2141,14 @@ export default function PrintManagementPage() {
                             background: 'var(--bg-card)', color: C.danger, fontSize: 12, cursor: 'pointer'
                           }}
                         >
-                          取消
+                          {t("printMgmt.cancel")}
                         </button>
                       )}
                       {task.status === 'printing' && (
-                        <span style={{ fontSize: 12, color: C.info }}>打印中...</span>
+                        <span style={{ fontSize: 12, color: C.info }}>{t("printMgmt.printingDots")}</span>
                       )}
                       {task.status === 'completed' && (
-                        <span style={{ fontSize: 12, color: C.success }}>已完成</span>
+                        <span style={{ fontSize: 12, color: C.success }}>{t("printMgmt.completed")}</span>
                       )}
                       {(task.status === 'completed' || task.status === 'failed') && (
                         <button
@@ -2158,7 +2159,7 @@ export default function PrintManagementPage() {
                             background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer'
                           }}
                         >
-                          {reprintingId === task.id ? '重印中...' : '重新打印'}
+                          {reprintingId === task.id ? t("printMgmt.reprinting") : t("printMgmt.reprint")}
                         </button>
                       )}
                       <button
@@ -2168,7 +2169,7 @@ export default function PrintManagementPage() {
                           background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
                         }}
                       >
-                        详情
+                        {t("printMgmt.detail")}
                       </button>
                     </div>
                   </td>
@@ -2180,24 +2181,24 @@ export default function PrintManagementPage() {
         {/* [G005 2B] 原生表格分页控制 */}
         {dicomQueuePagination.total > dicomQueuePagination.pageSize && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
-            <span>共 {dicomQueuePagination.total} 条</span>
+            <span>{t("printMgmt.totalPrefix")} {dicomQueuePagination.total} {t("printMgmt.itemsUnit")}</span>
             <button
               onClick={() => dicomQueuePagination.onChange(Math.max(1, dicomQueuePagination.current - 1), dicomQueuePagination.pageSize)}
               disabled={dicomQueuePagination.current <= 1}
               style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
-            >上一页</button>
+            >{t("printMgmt.prevPage")}</button>
             <span>{dicomQueuePagination.current}/{Math.max(1, Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize))}</span>
             <button
               onClick={() => dicomQueuePagination.onChange(Math.min(Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize), dicomQueuePagination.current + 1), dicomQueuePagination.pageSize)}
               disabled={dicomQueuePagination.current >= Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize)}
               style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
-            >下一页</button>
+            >{t("printMgmt.nextPage")}</button>
           </div>
         )}
       </Card>
 
       {/* 打印计费 - 各规格单价 */}
-      <Card title="各规格单价（元/张）" icon={<Receipt size={16} />}>
+      <Card title={t("printMgmt.specUnitPrice")} icon={<Receipt size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {FILM_PRICE_CONFIG.map(item => (
             <div
@@ -2215,7 +2216,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印计费 - 科室计费统计 */}
-      <Card title="科室计费统计" icon={<Building2 size={16} />}>
+      <Card title={t("printMgmt.deptBillingStats")} icon={<Building2 size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {DEPARTMENT_BILLING.map(dept => (
             <div
@@ -2229,8 +2230,8 @@ export default function PrintManagementPage() {
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.success }}>¥{dept.amount.toFixed(1)}</span>
               </div>
               <div style={{ display: 'flex', gap: 16, fontSize: 12, color: C.textMid }}>
-                <span>患者: {dept.patientCount}</span>
-                <span>胶片: {dept.filmCount}张</span>
+                <span>{t("printMgmt.patientLabel")} {dept.patientCount}</span>
+                <span>{t("printMgmt.filmLabel")} {dept.filmCount}{t("printMgmt.sheetsUnit")}</span>
               </div>
               <div style={{ marginTop: 6, height: 4, background: C.bg, borderRadius: 2 }}>
                 <div
@@ -2248,9 +2249,9 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印计费 - 打印成本报表 */}
-      <Card title="打印成本报表" icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.costReport")} icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200, marginBottom: 12 }}>
-          <ChartContainer height={200} state={costReport.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印成本数据">
+          <ChartContainer height={200} state={costReport.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noCostData")}>
             <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2287,7 +2288,7 @@ export default function PrintManagementPage() {
   const renderPrintSCP = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印机状态看板 */}
-      <Card title={`打印机状态看板${printersApi.length > 0 ? ' (printApi.listPrinters 实时)' : ''}`} icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={`打印机状态看板${printersApi.length > 0 ? t("printMgmt.listPrintersLive2") : ''}`} icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
           {scpPrinters.map(p => (
             <div key={p.id} style={{
@@ -2301,14 +2302,14 @@ export default function PrintManagementPage() {
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{p.name}</div>
               <div style={{ fontSize: 12.5, color: C.textLight, marginBottom: 4 }}>{p.location}</div>
               <StatusBadge status={p.status} />
-              <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>今日: {p.filmsToday}张</div>
+              <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t("printMgmt.todayLabel")} {p.filmsToday}{t("printMgmt.sheetsUnit")}</div>
             </div>
           ))}
         </div>
       </Card>
 
       {/* 打印任务队列（按优先级） */}
-      <Card title="打印任务队列（按优先级）" icon={<ClipboardList size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.taskQueueByPriority")} icon={<ClipboardList size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {dicomTasks.filter(t => t.status === 'printing' || t.status === 'queued').slice(0, 8).map((task, idx) => (
             <div key={task.id} style={{
@@ -2329,7 +2330,7 @@ export default function PrintManagementPage() {
                   <StatusBadge status={task.status} />
                 </div>
                 <div style={{ fontSize: 12.5, color: C.textLight }}>
-                  {task.studyType} · {task.filmSpec} · {task.copies}份 · {task.submitTime}
+                  {task.studyType} · {task.filmSpec} · {task.copies}{t("printMgmt.copiesDot")} {task.submitTime}
                 </div>
               </div>
               <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'monospace' }}>{task.printer}</span>
@@ -2339,7 +2340,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 胶片/纸张规格配置 */}
-      <Card title="胶片/纸张规格配置" icon={<Film size={16} />}>
+      <Card title={t("printMgmt.filmPaperConfig")} icon={<Film size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {FILM_SPEC_OPTIONS.map(opt => (
             <div key={opt.value} style={{
@@ -2357,7 +2358,7 @@ export default function PrintManagementPage() {
                   fontSize: 12, cursor: 'pointer'
                 }}
               >
-                {selectedFilmSpec === opt.value ? '已选' : '选择'}
+                {selectedFilmSpec === opt.value ? t("printMgmt.selectedShort") : t("printMgmt.select")}
               </button>
             </div>
           ))}
@@ -2365,7 +2366,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 介质类型配置 */}
-      <Card title="介质类型配置" icon={<SlidersHorizontal size={16} />}>
+      <Card title={t("printMgmt.mediumTypeConfig")} icon={<SlidersHorizontal size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {MEDIUM_TYPES.map(mt => (
             <div key={mt.value} style={{
@@ -2376,7 +2377,7 @@ export default function PrintManagementPage() {
               <span style={{ fontSize: 12, color: C.textDark }}>{mt.label}</span>
               <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
                 <input type="radio" name="medium" defaultChecked={mt.value === 'BLUE_FILM'} style={{ accentColor: C.primary }} />
-                默认
+                {t("printMgmt.default")}
               </label>
             </div>
           ))}
@@ -2391,12 +2392,12 @@ export default function PrintManagementPage() {
   const renderCostTracking = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印机成本分析 */}
-      <Card title="每台打印机成本分析" icon={<CreditCard size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.costByPrinter")} icon={<CreditCard size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: C.bg }}>
-                {['打印机', '胶片用量', '单张成本', '总成本', 'CT室', 'MR室', 'DR室'].map(h => (
+                {[t("printMgmt.printer"), t("printMgmt.filmUsage"), t("printMgmt.perSheetCost"), t("printMgmt.totalCost"), t("printMgmt.roomCt"), t("printMgmt.roomMr2"), t("printMgmt.roomDr2")].map(h => (
                   <th key={h} style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid, fontWeight: 500 }}>{h}</th>
                 ))}
               </tr>
@@ -2419,26 +2420,26 @@ export default function PrintManagementPage() {
         {/* [G005 2B] 原生表格分页控制 */}
         {printerCostPagination.total > printerCostPagination.pageSize && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
-            <span>共 {printerCostPagination.total} 条</span>
+            <span>{t("printMgmt.totalPrefix")} {printerCostPagination.total} {t("printMgmt.itemsUnit")}</span>
             <button
               onClick={() => printerCostPagination.onChange(Math.max(1, printerCostPagination.current - 1), printerCostPagination.pageSize)}
               disabled={printerCostPagination.current <= 1}
               style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
-            >上一页</button>
+            >{t("printMgmt.prevPage")}</button>
             <span>{printerCostPagination.current}/{Math.max(1, Math.ceil(printerCostPagination.total / printerCostPagination.pageSize))}</span>
             <button
               onClick={() => printerCostPagination.onChange(Math.min(Math.ceil(printerCostPagination.total / printerCostPagination.pageSize), printerCostPagination.current + 1), printerCostPagination.pageSize)}
               disabled={printerCostPagination.current >= Math.ceil(printerCostPagination.total / printerCostPagination.pageSize)}
               style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
-            >下一页</button>
+            >{t("printMgmt.nextPage")}</button>
           </div>
         )}
       </Card>
 
       {/* 月度成本趋势 */}
-      <Card title="月度成本趋势" icon={<TrendingUp size={16} />}>
+      <Card title={t("printMgmt.monthlyCostTrend")} icon={<TrendingUp size={16} />}>
         <div style={{ height: 200 }}>
-          <ChartContainer height={200} state={MONTHLY_COST_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度成本数据">
+          <ChartContainer height={200} state={MONTHLY_COST_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noMonthlyCost")}>
             <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2461,7 +2462,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 科室成本分配 */}
-      <Card title="科室成本分配" icon={<Building2 size={16} />}>
+      <Card title={t("printMgmt.costByDept")} icon={<Building2 size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {DEPARTMENT_BILLING.map(d => (
             <div key={d.dept}>
@@ -2472,7 +2473,7 @@ export default function PrintManagementPage() {
               <div style={{ height: 6, background: C.bg, borderRadius: 3 }}>
                 <div style={{ height: '100%', width: `${(d.amount / 8000) * 100}%`, borderRadius: 3, background: [C.primary, C.accent, '#8b5cf6', C.warning, C.danger][DEPARTMENT_BILLING.indexOf(d) % 5] }} />
               </div>
-              <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{d.filmCount}张胶片 · {d.patientCount}位患者</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{d.filmCount}{t("printMgmt.filmsDot")} {d.patientCount}{t("printMgmt.patientsUnit")}</div>
             </div>
           ))}
         </div>
@@ -2486,7 +2487,7 @@ export default function PrintManagementPage() {
   const renderLayoutTemplates = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 预设布局 */}
-      <Card title="预设布局模板" icon={<LayoutGrid size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.presetLayouts")} icon={<LayoutGrid size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           {PRINT_LAYOUT_TEMPLATES.filter(t => t.preset).map(template => (
             <div key={template.id} style={{
@@ -2527,7 +2528,7 @@ export default function PrintManagementPage() {
               <div style={{ padding: '8px 10px' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{template.name}</div>
                 <div style={{ fontSize: 12.5, color: C.textLight }}>
-                  {template.cols}×{template.rows} · {template.orientation === 'PORTRAIT' ? '纵向' : '横向'}
+                  {template.cols}×{template.rows} · {template.orientation === 'PORTRAIT' ? t("printMgmt.portrait") : t("printMgmt.landscape")}
                 </div>
               </div>
             </div>
@@ -2536,11 +2537,11 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 自定义布局构建器 */}
-      <Card title="自定义布局构建器" icon={<Settings size={16} />}>
+      <Card title={t("printMgmt.customLayoutBuilder")} icon={<Settings size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>列数</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.columns")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
@@ -2549,7 +2550,7 @@ export default function PrintManagementPage() {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>行数</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.rows")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
@@ -2559,7 +2560,7 @@ export default function PrintManagementPage() {
             </div>
           </div>
           <div>
-            <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>方向</label>
+            <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.orientation")}</label>
             <div style={{ display: 'flex', gap: 8 }}>
               {['PORTRAIT', 'LANDSCAPE'].map(dir => (
                 <button key={dir} onClick={() => setCustomOrientation(dir)} style={{
@@ -2568,7 +2569,7 @@ export default function PrintManagementPage() {
                   color: customOrientation === dir ? '#fff' : C.textMid,
                   fontSize: 12, fontWeight: 600, cursor: 'pointer'
                 }}>
-                  {dir === 'PORTRAIT' ? '纵向' : '横向'}
+                  {dir === 'PORTRAIT' ? t("printMgmt.portrait") : t("printMgmt.landscape")}
                 </button>
               ))}
             </div>
@@ -2598,13 +2599,13 @@ export default function PrintManagementPage() {
             width: '100%', padding: '8px 12px', border: 'none', borderRadius: 6,
             background: savingCustomTemplate ? C.border : C.primary, color: savingCustomTemplate ? C.textMid : '#fff', fontSize: 12, fontWeight: 600, cursor: savingCustomTemplate ? 'wait' : 'pointer'
           }}>
-            {savingCustomTemplate ? '保存中...' : '保存为自定义模板'}
+            {savingCustomTemplate ? t("printMgmt.saving") : t("printMgmt.saveAsCustomTemplate")}
           </button>
         </div>
       </Card>
 
       {/* 预览缩略图 */}
-      <Card title="打印预览" icon={<Eye size={16} />}>
+      <Card title={t("printMgmt.printPreview")} icon={<Eye size={16} />}>
         <div style={{
           background: 'var(--bg-card)', borderRadius: 6, padding: 20,
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
@@ -2615,7 +2616,7 @@ export default function PrintManagementPage() {
             display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)',
             gap: 2, padding: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
           }}>
-            {['胸部正位', '胸部侧位', '腹部CT', '头颅MR'].map((label, i) => (
+            {[t("printMgmt.imageChestAP"), t("printMgmt.imageChestLat"), t("printMgmt.imageAbdCt"), t("printMgmt.imageHeadMr")].map((label, i) => (
               <div key={i} style={{
                 background: 'var(--bg-card)', borderRadius: 2, padding: 4,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -2626,13 +2627,13 @@ export default function PrintManagementPage() {
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: C.textLight }}>4合1 布局预览</div>
+          <div style={{ fontSize: 12, color: C.textLight }}>{t("printMgmt.layout4in1Preview")}</div>
           <button onClick={handleDownloadPreview} style={{
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
             background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
             <Download size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-            导出预览图
+            {t("printMgmt.exportPreview")}
           </button>
         </div>
       </Card>
@@ -2645,7 +2646,7 @@ export default function PrintManagementPage() {
   const renderQuotaManagement = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 科室配额状态 */}
-      <Card title="科室配额状态" icon={<ShieldAlert size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.deptQuotaStatus")} icon={<ShieldAlert size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {DEPT_PRINT_QUOTAS.map(d => {
             const pct = Math.round((d.current / d.monthlyQuota) * 100)
@@ -2662,7 +2663,7 @@ export default function PrintManagementPage() {
                   {d.status === 'normal' && <CheckCircle size={14} color={C.success} />}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: C.textMid }}>{d.current} / {d.monthlyQuota} 张</span>
+                  <span style={{ fontSize: 12, color: C.textMid }}>{d.current} / {d.monthlyQuota} {t("printMgmt.sheetsUnit")}</span>
                   <span style={{
                     fontSize: 12, fontWeight: 700,
                     color: pct >= d.alertThreshold ? (pct >= 95 ? C.danger : C.warning) : C.success
@@ -2677,13 +2678,13 @@ export default function PrintManagementPage() {
                   }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: C.textLight }}>
-                  <span>预算: ¥{d.budget.toLocaleString()}</span>
-                  <span>已花费: ¥{d.spent.toLocaleString()}</span>
+                  <span>{t("printMgmt.budgetYuan")}{d.budget.toLocaleString()}</span>
+                  <span>{t("printMgmt.spentYuan")}{d.spent.toLocaleString()}</span>
                 </div>
                 {d.status === 'critical' && (
                   <div style={{ marginTop: 6 }}>
                     <span style={{ fontSize: 12, color: C.danger }}>
-                      配额即将用尽，请申请增加或控制用量
+                      {t("printMgmt.quotaAlmostExhausted")}
                     </span>
                   </div>
                 )}
@@ -2694,7 +2695,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 月度预算追踪 */}
-      <Card title="月度预算追踪" icon={<CreditCard size={16} />}>
+      <Card title={t("printMgmt.monthlyBudgetTrack")} icon={<CreditCard size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {DEPT_PRINT_QUOTAS.slice(0, 4).map(d => {
             const budgetPct = Math.round((d.spent / d.budget) * 100)
@@ -2719,7 +2720,7 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 请求增加配额 */}
-      <Card title="增加配额申请" icon={<Plus size={16} />}>
+      <Card title={t("printMgmt.quotaIncreaseRequest")} icon={<Plus size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {quotaRequests.map(req => (
             <div key={req.id} style={{
@@ -2733,13 +2734,13 @@ export default function PrintManagementPage() {
                   background: req.status === 'approved' ? `${C.success}15` : `${C.warning}15`,
                   color: req.status === 'approved' ? C.success : C.warning
                 }}>
-                  {req.status === 'approved' ? '已批准' : '待审批'}
+                  {req.status === 'approved' ? t("printMgmt.approved") : t("printMgmt.pendingApproval")}
                 </span>
               </div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>申请增加 <strong>{req.requestedAmount}</strong> 张</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>{t("printMgmt.requestMore")} <strong>{req.requestedAmount}</strong> {t("printMgmt.sheetsUnit")}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{req.reason}</div>
               <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>
-                {req.requestDate} · {req.approvedDate || '审批中'}
+                {req.requestDate} · {req.approvedDate || t("printMgmt.underReview")}
               </div>
             </div>
           ))}
@@ -2749,7 +2750,7 @@ export default function PrintManagementPage() {
             fontSize: 12, fontWeight: 600, cursor: 'pointer'
           }}>
             <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-            发起增加配额申请
+            {t("printMgmt.startQuotaRequest")}
           </button>
         </div>
       </Card>
@@ -2760,31 +2761,31 @@ export default function PrintManagementPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Plus size={16} /> 新建打印额度申请
+                <Plus size={16} /> {t("printMgmt.newQuotaRequest")}
               </div>
               <button onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请科室 *</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestDeptRequired")}</label>
                 <select value={quotaForm.dept} onChange={e => setQuotaForm({ ...quotaForm, dept: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, background: 'var(--bg-card)' }}>
-                  {DEPT_PRINT_QUOTAS.map(d => <option key={d.dept} value={d.dept}>{d.dept}（月配额 {d.monthlyQuota} 张 / 已用 {d.current} 张）</option>)}
+                  {DEPT_PRINT_QUOTAS.map(d => <option key={d.dept} value={d.dept}>{d.dept}{t("printMgmt.monthlyQuotaPrefix")} {d.monthlyQuota} {t("printMgmt.quotaUsedLabel")} {d.current} {t("printMgmt.sheetsSuffix")}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请增加张数 *</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestCountRequired")}</label>
                 <input type="number" min={1} value={quotaForm.requestedAmount} onChange={e => setQuotaForm({ ...quotaForm, requestedAmount: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>申请用途 *</label>
-                <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder="如 体检旺季，胶片用量增加30%" style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestPurposeRequired")}</label>
+                <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder={t("printMgmt.purposeExample")} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
-                提交后记录到本地（标注: 后端审批流 /print/quota 待接入），状态为「待审批」。
+                {t("printMgmt.quotaSubmitNote2")}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setQuotaModalOpen(false)} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-                <button onClick={handleSubmitQuotaRequest} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: C.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: quotaSaving ? 'wait' : 'pointer' }}>{quotaSaving ? '提交中...' : '提交申请'}</button>
+                <button onClick={() => setQuotaModalOpen(false)} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t("printMgmt.cancel")}</button>
+                <button onClick={handleSubmitQuotaRequest} disabled={quotaSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: C.accent, color: '#fff', fontSize: 13, fontWeight: 600, cursor: quotaSaving ? 'wait' : 'pointer' }}>{quotaSaving ? t("printMgmt.submitting") : t("printMgmt.submitRequest")}</button>
               </div>
             </div>
           </div>
@@ -2792,12 +2793,12 @@ export default function PrintManagementPage() {
       )}
 
       {/* 配额使用预警 */}
-      <Card title="配额预警规则" icon={<AlertTriangle size={16} />}>
+      <Card title={t("printMgmt.quotaAlertRules")} icon={<AlertTriangle size={16} />}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
-            { level: '绿色', threshold: '< 80%', desc: '用量正常', color: C.success },
-            { level: '黄色', threshold: '80% - 95%', desc: '接近上限，提醒科室控制用量', color: C.warning },
-            { level: '红色', threshold: '≥ 95%', desc: '立即预警，自动通知主管部门', color: C.danger },
+            { level: t("printMgmt.green"), threshold: '< 80%', desc: t("printMgmt.usageNormal"), color: C.success },
+            { level: t("printMgmt.yellow"), threshold: '80% - 95%', desc: t("printMgmt.nearLimit"), color: C.warning },
+            { level: t("printMgmt.red"), threshold: '≥ 95%', desc: t("printMgmt.alertNow"), color: C.danger },
           ].map(rule => (
             <div key={rule.level} style={{
               display: 'flex', alignItems: 'center', gap: 10,
@@ -2818,7 +2819,7 @@ export default function PrintManagementPage() {
           ))}
         </div>
         <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--bg-card)', borderRadius: 6, fontSize: 12.5, color: C.textMid }}>
-          超配额自动切换为审批模式，需科室主任审批后方可继续打印
+          {t("printMgmt.overQuotaNote")}
         </div>
       </Card>
     </div>
@@ -2830,9 +2831,9 @@ export default function PrintManagementPage() {
   const renderPrintStatistics = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印量趋势 */}
-      <Card title="打印量趋势" icon={<TrendingUp size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={t("printMgmt.printVolumeTrend")} icon={<TrendingUp size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200 }}>
-          <ChartContainer height={200} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印趋势数据">
+          <ChartContainer height={200} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noTrendData")}>
             <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2848,9 +2849,9 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 各设备打印量 */}
-      <Card title="各设备打印量" icon={<Monitor size={16} />}>
+      <Card title={t("printMgmt.printByDevice")} icon={<Monitor size={16} />}>
         <div style={{ height: 200 }}>
-          <ChartContainer height={200} state={devicePrintStats.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备打印数据">
+          <ChartContainer height={200} state={devicePrintStats.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noDevicePrintData")}>
             <ReBarChart data={devicePrintStats} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2866,10 +2867,10 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 耗材成本分析 */}
-      <Card title="耗材成本分析" icon={<Box size={16} />}>
+      <Card title={t("printMgmt.consumableCostAnalysis")} icon={<Box size={16} />}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ height: 200, flex: 1 }}>
-            <ChartContainer height={200} state={filmDistData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无胶片分布数据">
+            <ChartContainer height={200} state={filmDistData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noFilmDistData")}>
               <RePieChart>
                 <Pie
                   data={filmDistData}
@@ -2887,7 +2888,7 @@ export default function PrintManagementPage() {
                 </Pie>
                 <Tooltip
                   contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
-                  formatter={(value: number) => [`${value} 张`, '使用量']}
+                  formatter={(value: number) => [`${value} 张`, t("printMgmt.usage")]}
                 />
               </RePieChart>
             </ChartContainer>
@@ -2907,9 +2908,9 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 打印效率统计 */}
-      <Card title="打印效率统计" icon={<Timer size={16} />}>
+      <Card title={t("printMgmt.efficiencyStats")} icon={<Timer size={16} />}>
         <div style={{ height: 200 }}>
-          <ChartContainer height={200} state={EFFICIENCY_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无打印效率数据">
+          <ChartContainer height={200} state={EFFICIENCY_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noEfficiencyData")}>
             <LineChart data={EFFICIENCY_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="hour" tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2919,7 +2920,7 @@ export default function PrintManagementPage() {
                 labelStyle={{ color: C.textDark }}
                 formatter={(value: number, name: string) => [
                   name === 'avgTime' ? `${value}秒` : `${value}份`,
-                  name === 'avgTime' ? '平均耗时' : '完成数'
+                  name === 'avgTime' ? t("printMgmt.avgDuration") : t("printMgmt.completedCount")
                 ]}
               />
               <Line type="monotone" dataKey="avgTime" name="平均耗时" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
@@ -2930,9 +2931,9 @@ export default function PrintManagementPage() {
       </Card>
 
       {/* 设备打印占比 */}
-      <Card title="设备打印占比" icon={<PieChart size={16} />}>
+      <Card title={t("printMgmt.printShareByDevice")} icon={<PieChart size={16} />}>
         <div style={{ height: 200 }}>
-          <ChartContainer height={200} state={deviceDistData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备占比数据">
+          <ChartContainer height={200} state={deviceDistData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noDeviceShareData")}>
             <RePieChart>
               <Pie
                 data={deviceDistData}
@@ -2967,15 +2968,15 @@ export default function PrintManagementPage() {
   const renderPrinterModal = () => {
     if (!showPrinterModal) return null
     const fields = [
-      { label: '打印机名称', key: 'name', type: 'input' },
-      { label: '位置', key: 'location', type: 'input' },
-      { label: '类型', key: 'type', type: 'select', options: ['network', 'local'] },
-      { label: '默认胶片规格', key: 'filmSpec', type: 'select', options: ['14x17', '10x12', '8x10'] },
-      { label: '默认打印份数', key: 'defaultCopies', type: 'select', options: [1, 2, 3] },
-      { label: '分辨率(DPI)', key: 'dpi', type: 'select', options: [300, 600, 1200] },
-      { label: 'AE标题(AET)', key: 'aet', type: 'input' },
-      { label: '主机地址(Host)', key: 'host', type: 'input' },
-      { label: '端口(Port)', key: 'port', type: 'input' },
+      { label: t("printMgmt.printerName"), key: 'name', type: 'input' },
+      { label: t("printMgmt.location"), key: 'location', type: 'input' },
+      { label: t("printMgmt.type"), key: 'type', type: 'select', options: ['network', 'local'] },
+      { label: t("printMgmt.defaultFilmSpec"), key: 'filmSpec', type: 'select', options: ['14x17', '10x12', '8x10'] },
+      { label: t("printMgmt.defaultCopies"), key: 'defaultCopies', type: 'select', options: [1, 2, 3] },
+      { label: t("printMgmt.resolutionDpi"), key: 'dpi', type: 'select', options: [300, 600, 1200] },
+      { label: t("printMgmt.aeTitle"), key: 'aet', type: 'input' },
+      { label: t("printMgmt.hostAddress"), key: 'host', type: 'input' },
+      { label: t("printMgmt.port"), key: 'port', type: 'input' },
     ]
     const setField = (key: string, value: any) => setPrinterForm((f: any) => ({ ...f, [key]: value }))
     return (
@@ -2990,7 +2991,7 @@ export default function PrintManagementPage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
-              {selectedPrinter ? '编辑打印机' : '添加打印机'}
+              {selectedPrinter ? t("printMgmt.editPrinter") : t("printMgmt.addPrinter2")}
             </span>
             <button onClick={() => setShowPrinterModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
@@ -3020,7 +3021,7 @@ export default function PrintManagementPage() {
                     }}
                   >
                     {(field.options ?? []).map((opt: any) => (
-                      <option key={opt} value={opt}>{field.key === 'type' ? (opt === 'network' ? '网络打印机' : '本地打印机') : opt}</option>
+                      <option key={opt} value={opt}>{field.key === 'type' ? (opt === 'network' ? t("printMgmt.networkPrinter") : t("printMgmt.localPrinter")) : opt}</option>
                     ))}
                   </select>
                 )}
@@ -3035,7 +3036,7 @@ export default function PrintManagementPage() {
                 background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer'
               }}
             >
-              取消
+              {t("printMgmt.cancel")}
             </button>
             <button
               onClick={() => void handleSavePrinter()}
@@ -3045,7 +3046,7 @@ export default function PrintManagementPage() {
                 background: C.primary, color: C.white, fontSize: 13, cursor: savingPrinter ? 'not-allowed' : 'pointer'
               }}
             >
-              {savingPrinter ? '保存中...' : '保存'}
+              {savingPrinter ? t("printMgmt.saving") : t("printMgmt.save")}
             </button>
           </div>
         </div>
@@ -3058,12 +3059,12 @@ export default function PrintManagementPage() {
     if (!presetEditOpen) return null
     const setF = (key: string, value: any) => setPresetForm((f: any) => ({ ...f, [key]: value }))
     const rows: Array<{ label: string; key: string; type: 'input' | 'select'; options?: string[] }> = [
-      { label: '预设名称', key: 'name', type: 'input' },
-      { label: '胶片尺寸', key: 'filmSize', type: 'select', options: ['14x17', '10x12', '8x10', '14x14', '11x14'] },
-      { label: '方向', key: 'orientation', type: 'select', options: ['PORTRAIT', 'LANDSCAPE'] },
-      { label: '介质类型', key: 'mediumType', type: 'select', options: ['BLUE FILM', 'CLEAR FILM', 'MAMMO BLUE'] },
-      { label: '胶片输出', key: 'filmDestination', type: 'select', options: ['MAGAZINE', 'PROCESSOR'] },
-      { label: '裁剪', key: 'trimming', type: 'select', options: ['NO', 'YES'] },
+      { label: t("printMgmt.presetName"), key: 'name', type: 'input' },
+      { label: t("printMgmt.filmSize"), key: 'filmSize', type: 'select', options: ['14x17', '10x12', '8x10', '14x14', '11x14'] },
+      { label: t("printMgmt.orientation"), key: 'orientation', type: 'select', options: ['PORTRAIT', 'LANDSCAPE'] },
+      { label: t("printMgmt.mediumType"), key: 'mediumType', type: 'select', options: ['BLUE FILM', 'CLEAR FILM', 'MAMMO BLUE'] },
+      { label: t("printMgmt.filmOutput"), key: 'filmDestination', type: 'select', options: ['MAGAZINE', 'PROCESSOR'] },
+      { label: t("printMgmt.crop"), key: 'trimming', type: 'select', options: ['NO', 'YES'] },
     ]
     return (
       <div style={{
@@ -3072,7 +3073,7 @@ export default function PrintManagementPage() {
       }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 440, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>编辑DICOM预设</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.editDicomPreset")}</span>
             <button onClick={() => setPresetEditOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
@@ -3105,13 +3106,13 @@ export default function PrintManagementPage() {
               onClick={() => setPresetEditOpen(false)}
               style={{ flex: 1, padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}
             >
-              取消
+              {t("printMgmt.cancel")}
             </button>
             <button
               onClick={handleSaveDicomPreset}
               style={{ flex: 1, padding: '10px 12px', border: 'none', borderRadius: 4, background: C.accent, color: C.white, fontSize: 13, cursor: 'pointer' }}
             >
-              保存
+              {t("printMgmt.save")}
             </button>
           </div>
         </div>
@@ -3126,10 +3127,10 @@ export default function PrintManagementPage() {
     const cols = 2
     const cells = Math.max(1, tpl.copies ?? 1) * 2
     const legend = [
-      { label: '胶片尺寸', value: '14×17 英寸 (35×43cm)' },
-      { label: '布局', value: `${cols} 列 × ${Math.ceil(cells / cols)} 行` },
-      { label: '图像区', value: '含图像 2×2 矩阵 (示例)' },
-      { label: '文字区', value: '患者信息/检查信息/标记' },
+      { label: t("printMgmt.filmSize"), value: t("printMgmt.size14x17Cm2") },
+      { label: t("printMgmt.layout"), value: `${cols} 列 × ${Math.ceil(cells / cols)} 行` },
+      { label: t("printMgmt.imageArea"), value: t("printMgmt.imageMatrixExample") },
+      { label: t("printMgmt.textArea"), value: t("printMgmt.textContent") },
     ]
     return (
       <div style={{
@@ -3138,7 +3139,7 @@ export default function PrintManagementPage() {
       }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 620, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>模板预览 — {tpl.name}</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.templatePreviewDash")} {tpl.name}</span>
             <button onClick={() => setTemplatePreviewOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
@@ -3161,18 +3162,18 @@ export default function PrintManagementPage() {
                 ))}
               </div>
               <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
-                {tpl.name} · {tpl.copies} 份 · {tpl.includeLogo ? '含Logo' : '无Logo'}
+                {tpl.name} · {tpl.copies} {t("printMgmt.copiesDot")} {tpl.includeLogo ? t("printMgmt.includeLogo") : t("printMgmt.noLogo")}
               </div>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>胶片布局说明</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>{t("printMgmt.filmLayoutNote")}</div>
               {legend.map(l => (
                 <div key={l.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.textMid }}>{l.label}</span>
                   <span style={{ color: C.textDark, fontWeight: 500 }}>{l.value}</span>
                 </div>
               ))}
-              <div style={{ fontSize: 12, color: C.textLight, marginTop: 10 }}>预览为排版示意，实际打印以 DICOM 打印服务输出为准。</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 10 }}>{t("printMgmt.layoutNoteBody")}</div>
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
@@ -3180,7 +3181,7 @@ export default function PrintManagementPage() {
               onClick={() => setTemplatePreviewOpen(false)}
               style={{ padding: '10px 24px', border: 'none', borderRadius: 4, background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer' }}
             >
-              关闭
+              {t("printMgmt.close")}
             </button>
           </div>
         </div>
@@ -3202,7 +3203,7 @@ export default function PrintManagementPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>胶片打印预览</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.filmPrintPreview")}</span>
             <button onClick={() => setShowPreviewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
@@ -3213,12 +3214,12 @@ export default function PrintManagementPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
               {[
-                { label: '患者姓名', value: previewItem.patientName },
-                { label: '患者ID', value: previewItem.patientId },
-                { label: '检查项目', value: previewItem.studyDesc },
-                { label: '设备类型', value: previewItem.modality },
-                { label: '胶片规格', value: previewItem.filmSpec },
-                { label: '打印份数', value: `${previewItem.copies} 份` },
+                { label: t("printMgmt.patientName"), value: previewItem.patientName },
+                { label: t("printMgmt.patientId"), value: previewItem.patientId },
+                { label: t("printMgmt.examItem"), value: previewItem.studyDesc },
+                { label: t("printMgmt.deviceType"), value: previewItem.modality },
+                { label: t("printMgmt.filmSpecCol"), value: previewItem.filmSpec },
+                { label: t("printMgmt.printCopies"), value: `${previewItem.copies} 份` },
               ].map(item => (
                 <div key={item.label} style={{ padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 4 }}>
                   <div style={{ fontSize: 12, color: C.textLight, marginBottom: 2 }}>{item.label}</div>
@@ -3229,7 +3230,7 @@ export default function PrintManagementPage() {
             {previewItem.status === 'printing' && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-                  <span style={{ color: C.textMid }}>打印进度</span>
+                  <span style={{ color: C.textMid }}>{t("printMgmt.printProgress")}</span>
                   <span style={{ color: C.primary }}>{previewItem.progress}%</span>
                 </div>
                 <ProgressBar progress={previewItem.progress} />
@@ -3244,7 +3245,7 @@ export default function PrintManagementPage() {
                 background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer'
               }}
             >
-              关闭
+              {t("printMgmt.close")}
             </button>
             <button
               onClick={handleReprint}
@@ -3254,7 +3255,7 @@ export default function PrintManagementPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
               }}
             >
-              <Printer size={14} /> 重新打印
+              <Printer size={14} /> {t("printMgmt.reprint")}
             </button>
           </div>
         </div>
@@ -3351,7 +3352,7 @@ export default function PrintManagementPage() {
                 cursor: 'pointer'
               }}
             >
-              {confirmModal.cancelText || '取消'}
+              {confirmModal.cancelText || t("printMgmt.cancel")}
             </button>
             <button
               onClick={confirmModal.onConfirm}
@@ -3366,7 +3367,7 @@ export default function PrintManagementPage() {
                 cursor: 'pointer'
               }}
             >
-              {confirmModal.confirmText || '确定'}
+              {confirmModal.confirmText || t("printMgmt.ok")}
             </button>
           </div>
         </div>
@@ -3403,7 +3404,7 @@ export default function PrintManagementPage() {
             marginBottom: 16
           }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
-              {isNewTemplate ? '新建模板' : '编辑模板'}
+              {isNewTemplate ? t("printMgmt.newTemplate") : t("printMgmt.editTemplate")}
             </span>
             <button
               onClick={() => setShowTemplateEditModal(false)}
@@ -3415,13 +3416,13 @@ export default function PrintManagementPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
               <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
-                模板名称
+                {t("printMgmt.templateName")}
               </label>
               <input
                 type="text"
                 value={editingTemplate?.name || ''}
                 onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
-                placeholder="请输入模板名称"
+                placeholder={t("printMgmt.templateNamePlaceholder")}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -3435,7 +3436,7 @@ export default function PrintManagementPage() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
-                报告类型
+                {t("printMgmt.reportType")}
               </label>
               <select
                 value={editingTemplate?.type || 'CT'}
@@ -3453,13 +3454,13 @@ export default function PrintManagementPage() {
                 <option value="CT">CT</option>
                 <option value="MR">MR</option>
                 <option value="DR">DR</option>
-                <option value="介入">介入</option>
-                <option value="急诊">急诊</option>
+                <option value="介入">{t("printMgmt.intervention")}</option>
+                <option value="急诊">{t("printMgmt.emergency")}</option>
               </select>
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
-                默认份数
+                {t("printMgmt.defaultCopies2")}
               </label>
               <select
                 value={editingTemplate?.copies || 1}
@@ -3475,7 +3476,7 @@ export default function PrintManagementPage() {
                 }}
               >
                 {[1, 2, 3, 4, 5].map(n => (
-                  <option key={n} value={n}>{n} 份</option>
+                  <option key={n} value={n}>{n} {t("printMgmt.copiesUnit")}</option>
                 ))}
               </select>
             </div>
@@ -3494,11 +3495,11 @@ export default function PrintManagementPage() {
                 cursor: 'pointer'
               }}
             >
-              取消
+              {t("printMgmt.cancel")}
             </button>
             <button
               onClick={() => {
-                displayToast(isNewTemplate ? '模板已创建' : '模板已保存', 'success')
+                displayToast(isNewTemplate ? t("printMgmt.templateCreated") : t("printMgmt.templateSaved"), 'success')
                 setShowTemplateEditModal(false)
               }}
               style={{
@@ -3512,7 +3513,7 @@ export default function PrintManagementPage() {
                 cursor: 'pointer'
               }}
             >
-              保存
+              {t("printMgmt.save")}
             </button>
           </div>
         </div>
@@ -3525,15 +3526,15 @@ export default function PrintManagementPage() {
   // ============================================================
 
   const sections: Tab[] = [
-    { id: 'printConfig', label: '打印配置', icon: <Settings size={14} /> },
-    { id: 'reportPrint', label: '图文报告', icon: <FileText size={14} /> },
+    { id: 'printConfig', label: t("printMgmt.printConfig"), icon: <Settings size={14} /> },
+    { id: 'reportPrint', label: t("printMgmt.imageTextReport"), icon: <FileText size={14} /> },
     { id: 'filmPrint', label: '胶片打印', icon: <Film size={14} /> },
-    { id: 'dicPrint', label: 'DICOM打印队列', icon: <Database size={14} /> },
-    { id: 'printSCP', label: '打印SCP', icon: <Server size={14} /> },
-    { id: 'costTracking', label: '成本追踪', icon: <CreditCard size={14} /> },
-    { id: 'layouts', label: '布局模板', icon: <LayoutGrid size={14} /> },
-    { id: 'quota', label: '配额管理', icon: <ShieldAlert size={14} /> },
-    { id: 'statistics', label: '打印统计', icon: <BarChart size={14} /> },
+    { id: 'dicPrint', label: t("printMgmt.dicomPrintQueue"), icon: <Database size={14} /> },
+    { id: 'printSCP', label: t("printMgmt.printScp"), icon: <Server size={14} /> },
+    { id: 'costTracking', label: t("printMgmt.costTracking"), icon: <CreditCard size={14} /> },
+    { id: 'layouts', label: t("printMgmt.layoutTemplates"), icon: <LayoutGrid size={14} /> },
+    { id: 'quota', label: t("printMgmt.quotaManagement"), icon: <ShieldAlert size={14} /> },
+    { id: 'statistics', label: t("printMgmt.printStats"), icon: <BarChart size={14} /> },
   ]
 
   return (
@@ -3543,8 +3544,8 @@ export default function PrintManagementPage() {
         as="h1"
         size="md"
         icon={<Printer size={24} color={C.primary} />}
-        title="胶片打印管理"
-        subtitle={<span style={{ fontSize: 13, color: C.textMid }}>管理打印设备、胶片规格、打印队列和统计分析</span>}
+        title={t("printMgmt.pageTitle")}
+        subtitle={<span style={{ fontSize: 13, color: C.textMid }}>{t("printMgmt.pageSubtitle")}</span>}
         style={{ marginBottom: 16 }}
       />
 
@@ -3556,7 +3557,7 @@ export default function PrintManagementPage() {
         border: `1px solid ${dataError ? '#fecaca' : '#bbf7d0'}`
       }}>
         {dataLoading
-          ? <span style={{ fontSize: 12, color: C.textMid }}>正在加载打印数据...</span>
+          ? <span style={{ fontSize: 12, color: C.textMid }}>{t("printMgmt.loading")}</span>
           : (
             <>
               <span style={{
@@ -3565,12 +3566,12 @@ export default function PrintManagementPage() {
                 background: dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                 color: dataSource === 'api' ? '#15803d' : '#a16207'
               }}>
-                {dataSource === 'api' ? '真实数据' : '演示数据'}
+                {dataSource === 'api' ? t("printMgmt.realData") : t("printMgmt.demoData")}
               </span>
               <span style={{ fontSize: 12, color: dataError ? '#dc2626' : '#4b5563' }}>
                 {dataError
                   ? dataError
-                  : '打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值'}
+                  : t("printMgmt.dataSourceNote2")}
               </span>
             </>
           )}
@@ -3579,10 +3580,10 @@ export default function PrintManagementPage() {
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
         {[
-          { label: '今日打印', value: todayPrints, unit: '份', icon: <Printer size={20} />, color: C.primary },
-          { label: '使用胶片', value: todayFilms, unit: '张', icon: <Film size={20} />, color: C.accent },
-          { label: '今日费用', value: `¥${todayCost.toFixed(0)}`, unit: '', icon: <DollarSign size={20} />, color: C.success },
-          { label: '在线打印机', value: activePrinters, unit: `/ ${printers.length}`, icon: <Network size={20} />, color: C.warning },
+          { label: t("printMgmt.todayPrints"), value: todayPrints, unit: t("printMgmt.copiesUnit"), icon: <Printer size={20} />, color: C.primary },
+          { label: t("printMgmt.filmsUsed"), value: todayFilms, unit: t("printMgmt.sheetsUnit"), icon: <Film size={20} />, color: C.accent },
+          { label: t("printMgmt.todayCost"), value: `¥${todayCost.toFixed(0)}`, unit: '', icon: <DollarSign size={20} />, color: C.success },
+          { label: t("printMgmt.onlinePrinters"), value: activePrinters, unit: `/ ${printers.length}`, icon: <Network size={20} />, color: C.warning },
         ].map(stat => (
           <div
             key={stat.label}
@@ -3637,25 +3638,25 @@ export default function PrintManagementPage() {
             style={{ width: 520, maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
           >
             <div style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Monitor size={16} color={C.primary} /> 打印任务详情 - {taskDetail.id}
+              <Monitor size={16} color={C.primary} /> {t("printMgmt.taskDetailPrefix")} {taskDetail.id}
             </div>
             {taskDetailLoading ? (
-              <div style={{ textAlign: 'center', padding: 24, color: C.textLight, fontSize: 12 }}>加载详情中...</div>
+              <div style={{ textAlign: 'center', padding: 24, color: C.textLight, fontSize: 12 }}>{t("printMgmt.loadingDetail")}</div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: 13 }}>
                 {[
-                  ['任务 ID', taskDetail.id],
-                  ['患者', `${taskDetail.patientName ?? ''} ${taskDetail.patientId ? `(${taskDetail.patientId})` : ''}`],
-                  ['检查类型', taskDetail.modality ?? '-'],
-                  ['影像类型', taskDetail.studyType ?? taskDetail.studyDesc ?? '-'],
-                  ['胶片规格', taskDetail.filmSpec ?? '-'],
-                  ['份数', taskDetail.copies ?? 1],
-                  ['打印机', taskDetail.printer ?? '-'],
-                  ['状态', taskDetail.status ?? '-'],
-                  ['提交时间', taskDetail.submitTime ?? '-'],
-                  ['完成时间', taskDetail.completeTime ?? '-'],
-                  ['进度', taskDetail.progress != null ? `${taskDetail.progress}%` : '-'],
-                  ['错误信息', taskDetail.errorMsg ?? '-'],
+                  [t("printMgmt.taskId2"), taskDetail.id],
+                  [t("printMgmt.patient"), `${taskDetail.patientName ?? ''} ${taskDetail.patientId ? `(${taskDetail.patientId})` : ''}`],
+                  [t("printMgmt.examType"), taskDetail.modality ?? '-'],
+                  [t("printMgmt.imageType"), taskDetail.studyType ?? taskDetail.studyDesc ?? '-'],
+                  [t("printMgmt.filmSpecCol"), taskDetail.filmSpec ?? '-'],
+                  [t("printMgmt.copies"), taskDetail.copies ?? 1],
+                  [t("printMgmt.printer"), taskDetail.printer ?? '-'],
+                  [t("printMgmt.status"), taskDetail.status ?? '-'],
+                  [t("printMgmt.submittedAt"), taskDetail.submitTime ?? '-'],
+                  [t("printMgmt.completedAt"), taskDetail.completeTime ?? '-'],
+                  [t("printMgmt.progress"), taskDetail.progress != null ? `${taskDetail.progress}%` : '-'],
+                  [t("printMgmt.errorMessage"), taskDetail.errorMsg ?? '-'],
                 ].map(([label, value]) => (
                   <div key={String(label)}>
                     <div style={{ fontSize: 12, color: C.textLight, marginBottom: 2 }}>{label}</div>
@@ -3665,7 +3666,7 @@ export default function PrintManagementPage() {
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-              <button onClick={() => setTaskDetail(null)} style={{ padding: '6px 16px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>关闭</button>
+              <button onClick={() => setTaskDetail(null)} style={{ padding: '6px 16px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>{t("printMgmt.close")}</button>
             </div>
           </div>
         </div>

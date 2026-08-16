@@ -14,5 +14,16 @@
   "tempAuth": "临时授权",
   "batch": "批量签",
   "history": "双签历史",
-  "slaMonitor": "SLA 监控"
+  "slaMonitor": "SLA 监控",
+  "historyTitle": "双签历史",
+  "historyEmpty": "暂无双签记录",
+  "historyReportId": "报告 ID",
+  "historyAction": "动作",
+  "historyActor": "操作人",
+  "historyTimestamp": "时间",
+  "historyDetail": "备注",
+  "actionApprove": "通过",
+  "actionReject": "拒绝",
+  "detailRefresh": "刷新详情",
+  "detailClinicalInfo": "临床信息/印象"
 }

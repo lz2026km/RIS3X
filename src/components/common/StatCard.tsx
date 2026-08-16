@@ -1,9 +1,12 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-100 Wave 5A - StatCard
- * UI 组件化: 统一 KPI 卡片视觉
+ * G005 放射RIS系统 v3.0.6.11-103 Wave 5 - StatCard
+ * 放射专业主题升级:
+ *   - 渐变背景 (gradient / gradientFrom / gradientTo, 全可选)
+ *   - 趋势指示 up/down/flat (trend.direction 扩展 flat)
+ *   - 图标 + 点击跳转 (onClick) 保持既有用法
  *
  * 统一规范:
- *   - bg-card + radius 12 + shadow-sm
+ *   - bg-card + radius 8 + shadow-sm
  *   - 图标圆底 + 大数值 (26/700) + tabular-nums
  *   - color 支持语义预设: primary/success/warning/error/info (或自定义色值)
  *
@@ -16,7 +19,7 @@ export type StatCardColor = "primary" | "success" | "warning" | "error" | "info"
 
 export interface StatCardTrend {
   value: number | string;
-  direction?: "up" | "down";
+  direction?: "up" | "down" | "flat";
   /** 兼容旧字段 */
   isUp?: boolean;
 }
@@ -35,7 +38,7 @@ export interface StatCardProps {
   iconBg?: string;
   /** 副标题 (小字) */
   sub?: ReactNode;
-  /** 趋势 { value, direction: up|down } */
+  /** 趋势 { value, direction: up|down|flat } */
   trend?: StatCardTrend;
   /** 边框 (默认有) */
   bordered?: boolean;
@@ -45,6 +48,12 @@ export interface StatCardProps {
   onClick?: (e: MouseEvent<HTMLDivElement>) => void;
   /** 风格预设 (默认 default) */
   size?: "sm" | "md" | "lg";
+  /** [Wave5] 渐变背景 (135deg 从语义色淡化) */
+  gradient?: boolean;
+  /** [Wave5] 渐变起始色 (默认语义色 12% 透明度) */
+  gradientFrom?: string;
+  /** [Wave5] 渐变结束色 (默认透明) */
+  gradientTo?: string;
   style?: CSSProperties;
   className?: string;
   testId?: string;
@@ -66,6 +75,23 @@ const COLOR_PRESET: Record<StatCardColor, { fg: string; bg: string }> = {
   info: { fg: "var(--color-info-600, #0891b2)", bg: "var(--color-info-50, #ecfeff)" },
 };
 
+/** 渐变底色 (预设对应的实际 hex, 用于生成淡化渐变) */
+const PRESET_HEX: Record<StatCardColor, string> = {
+  primary: "#2563eb",
+  success: "#16a34a",
+  warning: "#d97706",
+  error: "#dc2626",
+  info: "#0891b2",
+};
+
+/** #rrggbb → 8 位 hex + alpha */
+function withAlpha(hex: string, alpha: number): string {
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return `${hex}${Math.round(alpha * 255).toString(16).padStart(2, "0")}`;
+  }
+  return hex;
+}
+
 export function StatCard({
   title,
   value,
@@ -80,6 +106,9 @@ export function StatCard({
   variant = "default",
   onClick,
   size = "md",
+  gradient = false,
+  gradientFrom,
+  gradientTo,
   style,
   className,
   testId,
@@ -90,15 +119,17 @@ export function StatCard({
   const fgColor = preset ? preset.fg : color;
   const fallbackBg = preset ? preset.bg : `${color}1A`;
 
-  const isUp = trend?.direction !== "down" && trend?.isUp !== false;
-  const trendColor =
-    trend && (trend.direction === "down" || trend.isUp === false)
+  const isFlat = trend?.direction === "flat";
+  const isUp = trend?.direction !== "down" && trend?.direction !== "flat" && trend?.isUp !== false;
+  const trendColor = isFlat
+    ? "var(--text-muted, #94a3b8)"
+    : trend && (trend.direction === "down" || trend.isUp === false)
       ? "var(--color-error-600, #dc2626)"
       : "var(--color-success-600, #059669)";
 
   const baseStyle: CSSProperties = {
     background: "var(--bg-card)",
-    borderRadius: 12,
+    borderRadius: 8,
     padding: sizeCfg.padding,
     boxSizing: "border-box",
     transition: "box-shadow 0.2s, transform 0.2s",
@@ -124,6 +155,15 @@ export function StatCard({
     },
   }[variant];
 
+  // 渐变背景: 135deg 语义色淡化 → 透明, 叠加在卡片底色上
+  let background: CSSProperties["background"] = undefined;
+  if (gradient && variant !== "ghost") {
+    const baseHex = preset ? PRESET_HEX[color as StatCardColor] : color;
+    const from = gradientFrom ?? withAlpha(baseHex, 0.12);
+    const to = gradientTo ?? "transparent";
+    background = `linear-gradient(135deg, ${from} 0%, ${to} 100%), var(--bg-card, #ffffff)`;
+  }
+
   return (
     <div
       data-testid={testId}
@@ -142,7 +182,7 @@ export function StatCard({
           : undefined
       }
       className={className}
-      style={{ ...baseStyle, ...variantStyle, ...style }}
+      style={{ ...baseStyle, ...variantStyle, background: background ?? baseStyle.background, ...style }}
     >
       <div
         style={{
@@ -219,7 +259,7 @@ export function StatCard({
                 color: trendColor,
               }}
             >
-              <span>{isUp ? "↑" : "↓"}</span>
+              <span>{isFlat ? "→" : isUp ? "↑" : "↓"}</span>
               <span>{Math.abs(Number(trend.value))}{typeof trend.value === "number" ? "%" : ""}</span>
             </div>
           )}

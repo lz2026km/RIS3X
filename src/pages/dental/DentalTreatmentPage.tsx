@@ -22,6 +22,8 @@ export const DentalTreatmentPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const [detailItem, setDetailItem] = useState<any>(null);
+  // [G005 W3-B] 详情加载态 (GET /dental/treatments/:id)
+  const [detailLoading, setDetailLoading] = useState(false);
   // [G005 Wave1A P1] 治疗类型字典: dentalApi.listTreatmentTypes (GET /dental/treatments/types, 后端真实)
   const [treatmentTypes, setTreatmentTypes] = useState<any[]>([]);
 
@@ -111,6 +113,24 @@ export const DentalTreatmentPage: React.FC = () => {
     }
   };
 
+  // [G005 W3-B] 治疗详情: GET /dental/treatments/:id (dentalApi.getTreatment 真实端点)
+  const handleShowDetail = async (id: string) => {
+    setDetailLoading(true);
+    try {
+      const res = await dentalApi.getTreatment(id);
+      if (res.success && res.data) {
+        setDetailItem(res.data);
+      } else {
+        message.warning(res.error?.message ?? '详情加载失败，展示列表数据');
+        setDetailItem((items.find((it) => it.id === id) as any) ?? null);
+      }
+    } catch {
+      setDetailItem((items.find((it) => it.id === id) as any) ?? null);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const handleComplete = async (id: string) => {
     const res = await dentalApi.completeTreatment(id);
     if (res.success) {
@@ -141,7 +161,7 @@ export const DentalTreatmentPage: React.FC = () => {
               <Button size="small" type="primary" icon={<CheckCircle2 size={12} />}>完成</Button>
             </Popconfirm>
           )}
-          <Button size="small" onClick={() => setDetailItem(r)}>详情</Button>
+          <Button size="small" onClick={() => void handleShowDetail(r.id)}>详情</Button>
         </Space>
       );
     }},
@@ -238,6 +258,7 @@ export const DentalTreatmentPage: React.FC = () => {
         width={520}
       >
         {detailItem && (
+          <Spin spinning={detailLoading}>
           <Descriptions bordered size="small" column={2}>
             <Descriptions.Item label="患者" span={2}>{detailItem.patientName} ({detailItem.patientId || '-'})</Descriptions.Item>
             <Descriptions.Item label="牙位">{detailItem.toothNo ? `#${detailItem.toothNo}` : '-'}</Descriptions.Item>
@@ -249,6 +270,7 @@ export const DentalTreatmentPage: React.FC = () => {
             <Descriptions.Item label="创建时间" span={2}>{detailItem.createdAt ? new Date(detailItem.createdAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
             <Descriptions.Item label="完成时间" span={2}>{detailItem.completedAt ? new Date(detailItem.completedAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
           </Descriptions>
+          </Spin>
         )}
       </Modal>
     </DentalPageLayout>

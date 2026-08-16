@@ -33,6 +33,9 @@ export const ConsentEducationPage: React.FC = () => {
   const [materialForm] = Form.useForm();
   // [G005 2B] 附件不再丢弃: 收集 File 对象 + base64 (后端 createMaterial 不支持 FormData → base64 存 content + 文件名摘要回退)
   const [materialFile, setMaterialFile] = useState<{ name: string; size: number; base64: string } | null>(null);
+  // [Wave 4B] 记录编辑 (PATCH /records/:id): 状态(拒绝/签署) + 见证人
+  const [editingConsent, setEditingConsent] = useState<ConsentRecord | null>(null);
+  const [consentEditForm] = Form.useForm();
   const { pageData: consentPageData, pagination: consentPagination } = usePagination(consents, 6);
 
   // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
@@ -125,6 +128,46 @@ export const ConsentEducationPage: React.FC = () => {
       message.success('签署完成');
     } else {
       message.error(res.error?.message ?? '签署失败');
+    }
+  };
+
+  // [Wave 4B] 查看同意书详情: 优先真实 GET /records/:id, 失败回退行数据
+  const viewConsentDetail = async (r: ConsentRecord) => {
+    setViewConsent(r);
+    try {
+      const res = await consentEducationApi.getRecord(r.id);
+      if (res.success && res.data) setViewConsent(res.data);
+    } catch { /* 详情接口不可用, 使用行数据 */ }
+  };
+
+  // [Wave 4B] 查看宣教材料详情: 优先真实 GET /education-materials/:id, 失败回退行数据
+  const viewMaterialDetail = async (m: EducationMaterialDto) => {
+    setViewMaterial(m);
+    try {
+      const res = await consentEducationApi.getEducationMaterial(m.id);
+      if (res.success && res.data) setViewMaterial(res.data);
+    } catch { /* 详情接口不可用, 使用行数据 */ }
+  };
+
+  // [Wave 4B] 编辑同意记录: PATCH /records/:id (状态/见证人)
+  const openEditConsent = (r: ConsentRecord) => {
+    setEditingConsent(r);
+    consentEditForm.setFieldsValue({ status: r.status, witness: r.witness ?? '' });
+  };
+
+  const submitEditConsent = async () => {
+    if (!editingConsent) return;
+    const values = await consentEditForm.validateFields();
+    const res = await consentEducationApi.updateRecord(editingConsent.id, {
+      status: values.status,
+      witness: values.witness || null,
+    });
+    if (res.success) {
+      setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witness: values.witness || null } : c));
+      message.success('同意记录已更新');
+      setEditingConsent(null);
+    } else {
+      message.error(res.error?.message ?? '更新失败');
     }
   };
 
@@ -236,7 +279,9 @@ export const ConsentEducationPage: React.FC = () => {
                 render: (_, r: ConsentRecord) => (
                   <Space>
                     {r.status === 'pending' && <Button size="small" type="primary" onClick={() => void signConsent(r)}>立即签署</Button>}
-                    <Button size="small" icon={<Eye size={10} />} onClick={() => setViewConsent(r)}>查看</Button>
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewConsentDetail(r)}>查看</Button>
+                    {/* [Wave 4B] 记录编辑: PATCH /records/:id (拒绝/见证人) */}
+                    <Button size="small" onClick={() => openEditConsent(r)}>编辑</Button>
                     <Button size="small" icon={<Download size={10} />} onClick={() => downloadPdf(r)}>PDF</Button>
                   </Space>
                 ),
@@ -270,11 +315,11 @@ export const ConsentEducationPage: React.FC = () => {
             { title: '页数', dataIndex: 'pages' },
             { title: '浏览', dataIndex: 'views' },
             { title: '格式', dataIndex: 'format' },
-            {
-              title: '操作',
-              render: (_, r: EducationMaterialDto) => (
-                <Space>
-                  <Button size="small" icon={<Eye size={10} />} onClick={() => setViewMaterial(r)}>查看</Button>
+              {
+                title: '操作',
+                render: (_, r: EducationMaterialDto) => (
+                  <Space>
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => void viewMaterialDetail(r)}>查看</Button>
                   <Button size="small" onClick={() => openEditMaterial(r)}>编辑</Button>
                   {sentMaterials.has(r.id)
                     ? <Tag color="green">已发送</Tag>
@@ -297,6 +342,17 @@ export const ConsentEducationPage: React.FC = () => {
           </Form.Item>
           <Form.Item name="procedure" label="诊疗操作" rules={[{ required: true, message: '请输入操作内容' }]}>
             <Input placeholder="如：胸部 CT 增强扫描" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={`编辑同意记录 - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText="保存">
+        <Form form={consentEditForm} layout="vertical">
+          <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
+            <Select options={[{ value: 'pending', label: '待签署' }, { value: 'signed', label: '已签署' }, { value: 'refused', label: '已拒绝' }]} />
+          </Form.Item>
+          <Form.Item name="witness" label="见证人">
+            <Input placeholder="如：Dr. System" />
           </Form.Item>
         </Form>
       </Modal>

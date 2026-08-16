@@ -1,9 +1,10 @@
 ﻿import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { DeviceService, type CreateDeviceDto, type UpdateDeviceDto } from './device.service'
+import { DeviceScheduleService } from './device-schedule.service'
 
 const CreateDeviceSchema = z.object({
   code: z.string().min(1).max(32),
@@ -28,13 +29,36 @@ const MaintenanceLogSchema = z.object({
   note: z.string().max(500).optional(),
 })
 
+// [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 Schemas
+const CreateBlockSchema = z.object({
+  deviceId: z.string().min(1),
+  type: z.enum(['EXAM', 'MAINTENANCE']),
+  title: z.string().min(1).max(200),
+  start: z.string().min(1),
+  end: z.string().min(1),
+  examId: z.string().optional(),
+  examNo: z.string().optional(),
+  patientName: z.string().optional(),
+  priority: z.string().optional(),
+})
+
+const UpdateBlockSchema = z.object({
+  start: z.string().min(1).optional(),
+  end: z.string().min(1).optional(),
+  title: z.string().min(1).max(200).optional(),
+  type: z.enum(['EXAM', 'MAINTENANCE']).optional(),
+})
+
 @ApiTags('devices')
 @ApiBearerAuth()
 // [v3.0.6.11-100 Wave 1B] 技师工作站维护提醒接入 → 开放 TECHNICIAN
 @Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
 @Controller('devices')
 export class DeviceController {
-  constructor(private readonly service: DeviceService) {}
+  constructor(
+    private readonly service: DeviceService,
+    private readonly schedule: DeviceScheduleService,
+  ) {}
 
   @Get()
   list(
@@ -55,6 +79,51 @@ export class DeviceController {
   @Get('maintenance-due')
   maintenanceDue(@Query('cycleHours') cycleHours?: string) {
     return this.service.getMaintenanceDue(Number(cycleHours ?? 2000))
+  }
+
+  // ════════════ [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 ════════════
+  // ⚠️ 静态路径 (schedule/conflicts) 必须在 GET /devices/:id 之前注册
+
+  @Get('schedule/conflicts')
+  @ApiOperation({ summary: '冲突检测列表 (重叠 + 建议调整)' })
+  scheduleConflicts(@Query('weekStart') weekStart?: string) {
+    return this.schedule.getConflicts(weekStart)
+  }
+
+  @Get('schedule/stats')
+  @ApiOperation({ summary: '设备调度统计 (利用率/维护/空闲)' })
+  scheduleStats(@Query('weekStart') weekStart?: string) {
+    return this.schedule.getStats(weekStart)
+  }
+
+  @Get('schedule')
+  @ApiOperation({ summary: '设备调度周视图 (甘特图 V2)' })
+  scheduleWeek(@Query('weekStart') weekStart?: string) {
+    return this.schedule.getWeekView(weekStart)
+  }
+
+  @Post('schedule/blocks')
+  @ApiOperation({ summary: '创建排程块 (检查/维护)' })
+  createScheduleBlock(@Body(new ZodValidationPipe(CreateBlockSchema)) body: z.infer<typeof CreateBlockSchema>) {
+    return this.schedule.createBlock(body)
+  }
+
+  @Patch('schedule/blocks/:id')
+  @ApiOperation({ summary: '拖拽更新排程块时间 (带冲突检测)' })
+  updateScheduleBlock(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateBlockSchema)) body: z.infer<typeof UpdateBlockSchema>) {
+    return this.schedule.updateBlock(id, body)
+  }
+
+  @Delete('schedule/blocks/:id')
+  @ApiOperation({ summary: '删除排程块' })
+  deleteScheduleBlock(@Param('id') id: string) {
+    return this.schedule.deleteBlock(id)
+  }
+
+  @Get('schedule/blocks/:id/suggest')
+  @ApiOperation({ summary: '冲突块的建议调整位置' })
+  suggestScheduleBlock(@Param('id') id: string) {
+    return this.schedule.suggestMove(id)
   }
 
   @Get(':id')

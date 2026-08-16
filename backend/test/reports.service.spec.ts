@@ -246,7 +246,7 @@ describe('ReportsService', () => {
     })
 
     it('REVIEWED writes reviewedAt and reviewerId', async () => {
-      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'SUBMITTED' })
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'FINAL_REVIEW' })
       txMock.report.update.mockResolvedValue({ ...mockReport, state: 'REVIEWED', reviewedAt: new Date(), reviewerId: 'r1' })
       const result = await svc.transition('r1', 'REVIEWED' as any, 'r1')
       expect(txMock.report.update).toHaveBeenCalledWith(
@@ -317,15 +317,16 @@ describe('ReportsService', () => {
   })
 
   // [v3.0.6.11-95 Wave3B P1] 批量状态流转 (POST /reports/batch-transition)
+  // [v3.0.6.11-103 Wave 13] 流程质量门禁: WRITING 必须先 SUBMITTED 才能进审, 批量提交仅 SUBMITTED → INITIAL_REVIEW
   describe('batchTransition', () => {
     beforeEach(() => {
       mockPrisma.report.findMany.mockResolvedValue([
-        { id: 'r1', state: 'WRITING' },
-        { id: 'r2', state: 'WRITING' },
+        { id: 'r1', state: 'SUBMITTED' },
+        { id: 'r2', state: 'SUBMITTED' },
       ])
       // transition() 内部按 id 二次查报告, mock 需返回与批次行一致的状态
       mockPrisma.report.findUnique.mockImplementation(({ where }: any) =>
-        Promise.resolve({ ...mockReport, id: where?.id ?? 'r1', state: 'WRITING' }))
+        Promise.resolve({ ...mockReport, id: where?.id ?? 'r1', state: 'SUBMITTED' }))
       txMock.report.update.mockResolvedValue({ ...mockReport, state: 'INITIAL_REVIEW' })
     })
 
@@ -341,7 +342,7 @@ describe('ReportsService', () => {
 
     it('collects per-id failures without blocking others (illegal transition)', async () => {
       mockPrisma.report.findMany.mockResolvedValue([
-        { id: 'r1', state: 'WRITING' },
+        { id: 'r1', state: 'SUBMITTED' },
         { id: 'r2', state: 'PUBLISHED' },
       ])
       const res = await svc.batchTransition(['r1', 'r2'], 'INITIAL_REVIEW' as any, 'd1')
@@ -359,7 +360,7 @@ describe('ReportsService', () => {
     })
 
     it('reports missing ids as failed', async () => {
-      mockPrisma.report.findMany.mockResolvedValue([{ id: 'r1', state: 'WRITING' }])
+      mockPrisma.report.findMany.mockResolvedValue([{ id: 'r1', state: 'SUBMITTED' }])
       const res = await svc.batchTransition(['r1', 'gone'], 'INITIAL_REVIEW' as any, 'd1')
       expect(res.succeeded).toHaveLength(1)
       expect(res.failed).toEqual([{ id: 'gone', message: '报告不存在' }])

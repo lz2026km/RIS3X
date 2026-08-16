@@ -1,9 +1,13 @@
 // [v3.0.6.8-63] EMR 病历模板管理 + ICD-11 编码
 // [W2-A] 模板接入 templatesApi 实时数据; ICD-11 无独立词典端点 → 标注演示数据
+// [v3.0.6.11-103 Wave 9] KPI 统计 + 刷新按钮 + i18n
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, List } from 'antd';
 import { Plus, Edit3, Copy, FileText } from 'lucide-react';
 import { templatesApi } from '../../services/api/templatesApi';
+import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common/StatCard';
+import { ActionButton } from '../../components/common/ActionButton';
 
 const {  } = Input;
 
@@ -97,13 +101,13 @@ export const EmrTemplatesPage: React.FC = () => {
   }, [searchCode]);
 
   // 打开编辑模板 Modal 并回填
-  const openTemplateModal = (type: 'create'|'edit', t?: any) => {
-    setTemplateModal({ type, data: t || {} });
-    if (type === 'edit' && t) {
+  const openTemplateModal = (type: 'create'|'edit', tpl?: any) => {
+    setTemplateModal({ type, data: tpl || {} });
+    if (type === 'edit' && tpl) {
       form.setFieldsValue({
-        name: t.name,
-        category: t.category,
-        sections: t.sections.map((s: any) => s.title).join(','),
+        name: tpl.name,
+        category: tpl.category,
+        sections: tpl.sections.map((s: any) => s.title).join(','),
       });
     } else {
       form.setFieldsValue({ name: '', category: 'Dental', sections: '' });
@@ -138,9 +142,9 @@ export const EmrTemplatesPage: React.FC = () => {
   };
 
   // 复制模板
-  const handleDuplicate = (t: any) => {
-    setTemplates(prev => [...prev, { ...t, id: `tpl-${Date.now()}`, name: `${t.name} (副本)`, usageCount: 0 }]);
-    message.success(`已复制模板: ${t.name}`);
+  const handleDuplicate = (tpl: any) => {
+    setTemplates(prev => [...prev, { ...tpl, id: `tpl-${Date.now()}`, name: `${tpl.name} (副本)`, usageCount: 0 }]);
+    message.success(`已复制模板: ${tpl.name}`);
   };
 
   // 添加到诊断（本地诊断列表）
@@ -150,52 +154,64 @@ export const EmrTemplatesPage: React.FC = () => {
     message.success(`已添加到诊断: ${r.code} ${r.name}`);
   };
 
+  const dentalTplCount = templates.filter((tpl: any) => tpl.category === 'Dental').length;
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 16 }} wrap>
         <FileText size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>EMR 病历模板 + ICD-11 编码</span>
-        <Tag color="cyan">v3.0.6.8-63</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9.emrTpl.title')}</span>
+        <Tag color="cyan">v3.0.6.11-103</Tag>
         <Tag color={dataSource === 'api' ? 'green' : 'orange'}>
-          {loading ? '加载中...' : dataSource === 'api' ? '模板: templatesApi 实时' : '模板: 演示数据'}
+          {loading ? t('w9.emrTpl.loading') : dataSource === 'api' ? t('w9.emrTpl.apiTag') : t('w9.emrTpl.demoTag')}
         </Tag>
         {apiError && <Tag color="red">{apiError}</Tag>}
+        <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void loadTemplates()}>
+          {t('w9.common.refresh')}
+        </ActionButton>
       </Space>
+
+      <StatCardGrid style={{ marginBottom: 16 }}>
+        <StatCard title={t('w9.emrTpl.statsTemplates')} value={templates.length} icon={<FileText size={18} />} color="primary" />
+        <StatCard title={t('w9.emrTpl.statsDental')} value={dentalTplCount} icon={<FileText size={18} />} color="warning" />
+        <StatCard title={t('w9.emrTpl.statsIcd')} value={icdResults.length} icon={<Plus size={18} />} color="info" />
+        <StatCard title={t('w9.emrTpl.statsDiagnoses')} value={diagnoses.length} icon={<Edit3 size={18} />} color="success" />
+      </StatCardGrid>
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
-          { key:'templates', label:'病历模板', children:
-            <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={()=>openTemplateModal('create')}>新建模板</Button>} title={`病历模板 (${templates.length})`}>
-              <List dataSource={templates} renderItem={(t:any) => (
+          { key:'templates', label:t('w9.emrTpl.tabTemplates'), children:
+            <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={()=>openTemplateModal('create')}>{t('w9.emrTpl.create')}</Button>} title={`${t('w9.emrTpl.tabTemplates')} (${templates.length})`}>
+              <List dataSource={templates} renderItem={(tpl:any) => (
                 <List.Item actions={[
-                  <Button size="small" icon={<Edit3 size={12}/>} onClick={()=>openTemplateModal('edit', t)}>编辑</Button>,
-                  <Button size="small" icon={<Copy size={12}/>} onClick={()=>handleDuplicate(t)}>复制</Button>,
+                  <Button size="small" icon={<Edit3 size={12}/>} onClick={()=>openTemplateModal('edit', tpl)}>{t('w9.emrTpl.edit')}</Button>,
+                  <Button size="small" icon={<Copy size={12}/>} onClick={()=>handleDuplicate(tpl)}>{t('w9.emrTpl.duplicate')}</Button>,
                 ]}>
                   <List.Item.Meta
-                    title={<Space><Tag color="blue">{CATEGORY_LABELS[t.category] ?? t.category}</Tag>{t.name}<Tag>使用 {t.usageCount} 次</Tag></Space>}
-                    description={<span style={{fontSize:12,color:'#666'}}>{t.sections.map((s:any)=><Tag key={s.title} color={s.required?'red':'default'} style={{margin:2}}>{s.title}</Tag>)}</span>}
+                    title={<Space><Tag color="blue">{CATEGORY_LABELS[tpl.category] ?? tpl.category}</Tag>{tpl.name}<Tag>{t('w9.emrTpl.usage')} {tpl.usageCount}</Tag></Space>}
+                    description={<span style={{fontSize:12,color:'#666'}}>{tpl.sections.map((s:any)=><Tag key={s.title} color={s.required?'red':'default'} style={{margin:2}}>{s.title}</Tag>)}</span>}
                   />
                 </List.Item>
               )} />
             </Card>
           },
-          { key:'icd11', label:'ICD-11 编码', children:
+          { key:'icd11', label:t('w9.emrTpl.tabIcd'), children:
             <Card size="small" extra={
               <Space>
-                <Input.Search size="small" value={searchCode} onChange={e=>setSearchCode(e.target.value)} placeholder="搜索编码/名称" style={{width:250}} />
-                {diagnoses.length > 0 && <Tag color="green">已添加诊断 {diagnoses.length}</Tag>}
-                <Tag color="orange">演示数据 (无词典 API)</Tag>
+                <Input.Search size="small" value={searchCode} onChange={e=>setSearchCode(e.target.value)} placeholder={t('w9.emrTpl.searchIcd')} style={{width:250}} />
+                {diagnoses.length > 0 && <Tag color="green">{t('w9.emrTpl.statsDiagnoses')} {diagnoses.length}</Tag>}
+                <Tag color="orange">{t('w9.emrTpl.demoTag')}</Tag>
               </Space>
-            } title={`ICD-11 ${icdResults.length} 条`}>
+            } title={`${t('w9.emrTpl.tabIcd')} ${icdResults.length}`}>
               <Table dataSource={icdResults} rowKey="code" pagination={false}
                 columns={[
                   {title:'编码',dataIndex:'code',render:(c)=><Tag color="blue">{c}</Tag>},
                   {title:'名称',dataIndex:'name'},
-                  {title:'分类',dataIndex:'category',render:(c)=><Tag>{c}</Tag>},
-                  {title:'操作',render:(_,r)=><Button size="small" icon={<Plus size={10}/>} onClick={()=>handleAddDiagnosis(r)}>添加到诊断</Button>},
+                  {title:t('w9.emrTpl.category'),dataIndex:'category',render:(c)=><Tag>{c}</Tag>},
+                  {title:t('w9.common.actions'),render:(_,r)=><Button size="small" icon={<Plus size={10}/>} onClick={()=>handleAddDiagnosis(r)}>{t('w9.emrTpl.addDiagnosis')}</Button>},
                 ]} scroll={{ x: 'max-content' }} />
               {diagnoses.length > 0 && (
-                <Card size="small" style={{ marginTop: 12 }} title={`已添加的诊断 (${diagnoses.length})`}>
+                <Card size="small" style={{ marginTop: 12 }} title={`${t('w9.emrTpl.statsDiagnoses')} (${diagnoses.length})`}>
                   <Space wrap>
                     {diagnoses.map(d => (
                       <Tag key={d.code} color="green" closable onClose={()=>setDiagnoses(prev=>prev.filter(x=>x.code!==d.code))}>{d.code} {d.name}</Tag>
@@ -207,11 +223,11 @@ export const EmrTemplatesPage: React.FC = () => {
           },
         ]}
       />
-      <Modal title={templateModal?.type === 'create' ? '新建模板' : '编辑模板'} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={500}>
+      <Modal title={templateModal?.type === 'create' ? t('w9.emrTpl.create') : t('w9.emrTpl.edit')} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={500}>
         <Form form={form} layout="vertical" size="small" style={{ marginTop: 12 }}>
-          <Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请填写模板名称' }]}><Input /></Form.Item>
-          <Form.Item name="category" label="分类"><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:CATEGORY_LABELS[c] ?? c}))} /></Form.Item>
-          <Form.Item name="sections" label="章节 (逗号分隔)"><Input placeholder="主诉,现病史,检查所见,诊断,治疗计划" /></Form.Item>
+          <Form.Item name="name" label={t('w9.emrTpl.templateName')} rules={[{ required: true, message: t('w9.emrTpl.templateName') }]}><Input /></Form.Item>
+          <Form.Item name="category" label={t('w9.emrTpl.category')}><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:CATEGORY_LABELS[c] ?? c}))} /></Form.Item>
+          <Form.Item name="sections" label={t('w9.emrTpl.sections')}><Input placeholder="主诉,现病史,检查所见,诊断,治疗计划" /></Form.Item>
         </Form>
       </Modal>
     </div>

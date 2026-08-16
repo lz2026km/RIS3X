@@ -7,6 +7,9 @@ import { DOCTOR_MASTER, DEVICE_MASTER } from '../data/master';
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE, DAILY_KPI_PRE,
 } from '../data/_generators';
+// [v3.0.6.11-103 Wave 6] 仪表盘卡片化组件
+import { KpiCard, KpiCardGrid, DashboardCard, TrendChart, ProgressRing, SkeletonKpi } from '../components/dashboard';
+import { Wrench, Trophy, Coins, Gauge, FileText, AlertOctagon, CheckCircle2, DollarSign, Scan, Activity, LineChart as LineChartIcon } from 'lucide-react';
 
 // ============================================================
 // [v3.0.6.8-28] 医生数据 - 来源: DOCTOR_PERFORMANCE_PRE 当前月聚合 (top 10 by reportCount)
@@ -528,9 +531,9 @@ const DirectorDashboardPage: React.FC = () => {
 
   // 渲染Tab1: 工作量排名
   const renderWorkloadTab = () => (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <div style={styles.sectionTitle}>🥇 医生工作量排名</div>
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
+      <DashboardCard title="医生工作量排名" icon={<Trophy size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
@@ -587,10 +590,9 @@ const DirectorDashboardPage: React.FC = () => {
             })}
           </tbody>
         </table></div>
-      </div>
+      </DashboardCard>
 
-      <div>
-        <div style={styles.sectionTitle}>🔧 技师工作量排名</div>
+      <DashboardCard title="技师工作量排名" icon={<Wrench size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
@@ -635,37 +637,39 @@ const DirectorDashboardPage: React.FC = () => {
             })}
           </tbody>
         </table></div>
-      </div>
+      </DashboardCard>
     </div>
   );
 
   // 渲染Tab2: 设备效率看板
   const renderEquipmentTab = () => (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <div style={styles.sectionTitle}>📊 设备使用率柱状图</div>
-        <div style={styles.chartContainer}>
-          {devices.map((device) => (
-            <div key={device.id} style={{ flex: 1, textAlign: 'center' as const }}>
-              <div style={styles.chartBar(device.utilization, utilizationColor(device.utilization))}>
-                <div style={{
-                  position: 'absolute',
-                  top: '-24px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: utilizationColor(device.utilization),
-                }}>
-                  {device.utilization}%
-                </div>
-              </div>
-              <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-                {device.name.length > 10 ? device.name.substring(0, 8) + '..' : device.name}
-              </div>
-            </div>
-          ))}
-        </div>
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* [v3.0.6.11-103 Wave 6] 设备使用率 → TrendChart 柱状 + ProgressRing 平均 */}
+      <DashboardCard
+        title="设备使用率柱状图"
+        icon={<Gauge size={14} />}
+        extra={
+          devices.length > 0 ? (
+            <ProgressRing
+              percent={Math.round(devices.reduce((s: number, d: any) => s + Number(d.utilization ?? 0), 0) / devices.length)}
+              size={56}
+              strokeWidth={6}
+              subLabel="平均"
+            />
+          ) : undefined
+        }
+      >
+        <TrendChart
+          type="bar"
+          data={devices.map((d) => ({
+            name: d.name.length > 8 ? d.name.substring(0, 7) + '..' : d.name,
+            value: d.utilization,
+          }))}
+          xKey="name"
+          series={[{ key: 'value', name: '使用率', color: '#3b82f6' }]}
+          height={220}
+          percent
+        />
         <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '12px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '2px' }}></span>
@@ -680,11 +684,10 @@ const DirectorDashboardPage: React.FC = () => {
             偏低 (&lt;70%)
           </span>
         </div>
-      </div>
+      </DashboardCard>
 
       <div style={styles.grid2Col}>
-        <div>
-          <div style={styles.sectionTitle}>📅 设备预约满员率排名</div>
+        <DashboardCard title="设备预约满员率排名" icon={<CheckCircle2 size={14} />} bodyPadding={0}>
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
@@ -720,10 +723,9 @@ const DirectorDashboardPage: React.FC = () => {
               ))}
             </tbody>
           </table></div>
-        </div>
+        </DashboardCard>
 
-        <div>
-          <div style={styles.sectionTitle}>⚠️ 设备故障率统计</div>
+        <DashboardCard title="设备故障率统计" icon={<AlertOctagon size={14} />} bodyPadding={0}>
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr>
@@ -756,16 +758,16 @@ const DirectorDashboardPage: React.FC = () => {
               ))}
             </tbody>
           </table></div>
-        </div>
+        </DashboardCard>
       </div>
     </div>
   );
 
   // 渲染Tab3: 质控评分榜
   const renderQualityTab = () => (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <div style={styles.sectionTitle}>🏆 医生报告质量评分排名</div>
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* [v3.0.6.11-103 Wave 6] DashboardCard 卡片化 */}
+      <DashboardCard title="医生报告质量评分排名" icon={<Trophy size={14} />} bodyPadding={0}>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr>
@@ -841,10 +843,9 @@ const DirectorDashboardPage: React.FC = () => {
               })}
           </tbody>
         </table></div>
-      </div>
+      </DashboardCard>
 
-      <div>
-        <div style={styles.sectionTitle}>⚠️ 质控问题统计（本月）</div>
+      <DashboardCard title="质控问题统计（本月）" icon={<AlertOctagon size={14} />}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
           {qcIssues.map((issue) => (
             <div key={issue.type} style={{
@@ -870,71 +871,28 @@ const DirectorDashboardPage: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </DashboardCard>
     </div>
   );
 
   // 渲染Tab4: 收入与成本
   const renderRevenueTab = () => {
-    const maxRevenue = Math.max(...dailyRevenue.map(d => d.revenue));
     return (
-      <div>
-        <div style={{ marginBottom: '24px' }}>
-          <div style={styles.sectionTitle}>📈 每日收入折线图（近30天 · 按 400元/例 估算）</div>
-          <div style={styles.lineChart}>
-            <svg width="100%" height="200" viewBox="0 0 900 200" preserveAspectRatio="xMidYMid meet">
-              {/* 网格线 */}
-              {[0, 1, 2, 3, 4].map(i => (
-                <line
-                  key={i}
-                  x1="0"
-                  y1={i * 50}
-                  x2="900"
-                  y2={i * 50}
-                  stroke="#e2e8f0"
-                  strokeWidth="1"
-                />
-              ))}
-              {/* 数据线 */}
-              <polyline
-                fill="none"
-                stroke="#1e40af"
-                strokeWidth="2"
-                points={dailyRevenue.map((d, i) => {
-                  const x = (i / (dailyRevenue.length - 1)) * 900;
-                  const y = 200 - (d.revenue / maxRevenue) * 180;
-                  return `${x},${y}`;
-                }).join(' ')}
-              />
-              {/* 数据点 */}
-              {dailyRevenue.map((d, i) => {
-                const x = (i / (dailyRevenue.length - 1)) * 900;
-                const y = 200 - (d.revenue / maxRevenue) * 180;
-                return (
-                  <circle
-                    key={i}
-                    cx={x}
-                    cy={y}
-                    r="3"
-                    fill="#1e40af"
-                    stroke="#ffffff"
-                    strokeWidth="1"
-                  />
-                );
-              })}
-            </svg>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-              <span>第1天</span>
-              <span>第10天</span>
-              <span>第20天</span>
-              <span>第30天</span>
-            </div>
-          </div>
-        </div>
+      <div style={{ display: 'grid', gap: 16 }}>
+        {/* [v3.0.6.11-103 Wave 6] 每日收入折线图 → TrendChart */}
+        <DashboardCard title="每日收入折线图（近30天 · 按 400元/例 估算）" icon={<LineChartIcon size={14} />}>
+          <TrendChart
+            type="line"
+            data={dailyRevenue.map(d => ({ day: `D${d.day}`, revenue: d.revenue }))}
+            xKey="day"
+            series={[{ key: 'revenue', name: '收入', color: '#1e40af' }]}
+            height={200}
+            yTickFormatter={(v) => `¥${(v / 10000).toFixed(0)}万`}
+          />
+        </DashboardCard>
 
         <div style={styles.grid2Col}>
-          <div>
-            <div style={styles.sectionTitle}>💰 检查项目收入分布</div>
+          <DashboardCard title="检查项目收入分布" icon={<Coins size={14} />}>
             <div style={styles.pieChartContainer}>
               {examRevenue.map((item, idx) => (
                 <div key={item.name} style={styles.pieItem}>
@@ -949,10 +907,9 @@ const DirectorDashboardPage: React.FC = () => {
             <div style={{ marginTop: '16px', textAlign: 'center' as const, fontSize: '14px', color: 'var(--text-secondary)' }}>
               总收入: <span style={{ fontWeight: '700', color: '#1e40af' }}>¥{(examRevenue.reduce((a, b) => a + b.amount, 0) / 10000).toFixed(0)}万元</span>
             </div>
-          </div>
+          </DashboardCard>
 
-          <div>
-            <div style={styles.sectionTitle}>🏥 卫材成本统计</div>
+          <DashboardCard title="卫材成本统计" icon={<DollarSign size={14} />}>
             <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ display: 'grid', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
@@ -981,13 +938,26 @@ const DirectorDashboardPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </DashboardCard>
         </div>
       </div>
     );
   };
 
-  if (loading) return <div role="status" data-testid="director-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
+  if (loading) {
+    // [v3.0.6.11-103 Wave 6] 骨架屏加载态
+    return (
+      <div role="status" data-testid="director-loading" style={{ padding: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+          {Array.from({ length: 6 }, (_, i) => <SkeletonKpi key={i} testId={`director-kpi-skeleton-${i}`} />)}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ height: 280, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div style={{ height: 280, borderRadius: 12, background: 'var(--skeleton-bg, #e2e8f0)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        </div>
+      </div>
+    );
+  }
   if (!dataAvailable) {
     return (
       <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -1041,16 +1011,24 @@ const DirectorDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* 顶部统计卡片 */}
-      <div style={styles.statsGrid}>
-        {todayStats.map((stat, idx) => (
-          <div key={idx} style={styles.statCard}>
-            <div style={styles.statLabel}>{stat.label}</div>
-            <div style={{ ...styles.statValue, color: stat.color || '#1e40af' }}>{stat.value}</div>
-            {stat.subValue && <div style={styles.statSub}>{stat.subValue}</div>}
-          </div>
-        ))}
-      </div>
+      {/* 顶部 KPI 卡行 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
+      <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
+        {todayStats.map((stat, idx) => {
+          const color = stat.color === '#22c55e' ? 'success' : stat.color === '#f59e0b' ? 'warning' : stat.color === '#1e40af' ? 'primary' : 'primary';
+          const icons = [<Scan size={20} key="i" />, <FileText size={20} key="i" />, <AlertOctagon size={20} key="i" />, <CheckCircle2 size={20} key="i" />, <Gauge size={20} key="i" />, <DollarSign size={20} key="i" />];
+          return (
+            <KpiCard
+              key={idx}
+              title={stat.label}
+              value={stat.value}
+              icon={icons[idx] ?? <Activity size={20} />}
+              color={color}
+              sub={stat.subValue}
+              testId={`director-kpi-${idx}`}
+            />
+          );
+        })}
+      </KpiCardGrid>
 
       {/* Tab容器 */}
       <div style={styles.tabContainer}>

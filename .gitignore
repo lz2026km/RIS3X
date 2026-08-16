@@ -103,3 +103,5 @@ e2e/screenshots-*/
 e2e/.click-all-88-results/
 test-results/
 playwright-report/
+
+backend/dicom-compress-blobs/

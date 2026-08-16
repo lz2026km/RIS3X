@@ -2,6 +2,7 @@
 // 对标: Sidexis Ceph + Dolphin Imaging + Planmeca Romexis Ceph
 // [G005 Wave1B] 6 处裸 fetch → dentalApi (后端 /dental/ceph/* + /dental/ortho/arch-analysis 真实实现)
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 import {
   Card,
   Space,
@@ -16,6 +17,9 @@ import {
   Badge,
   Tooltip,
   Table,
+  Modal,
+  Input,
+  InputNumber,
 } from "antd";
 import {
   Crosshair,
@@ -85,6 +89,9 @@ export const DentalCephPage: React.FC = () => {
     setMode("analysis");
     setBusy(true);
     try {
+      // [G005 W3-B] 详情刷新: GET /dental/ceph/studies/:id (getCephStudy)
+      const studyRes = await dentalApi.getCephStudy(s.id);
+      if (studyRes.success && studyRes.data) setCurrent({ ...s, ...studyRes.data });
       const lm = await dentalApi.getCephLandmarks();
       const ld = lm;
       if (ld.success) setLandmarks(ld.data || {});
@@ -97,6 +104,43 @@ export const DentalCephPage: React.FC = () => {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
     setBusy(false);
+  };
+
+  // [G005 W3-B] 新建头影检查: POST /dental/ceph/studies (createCephStudy)
+  const [createModal, setCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [cephForm, setCephForm] = useState({
+    patientName: "",
+    age: 12,
+    gender: "M",
+    analysisType: "steiner",
+    acquisitionDate: new Date().toISOString().slice(0, 10),
+  });
+  const handleCreateStudy = async () => {
+    if (!cephForm.patientName.trim()) {
+      message.warning("请输入患者姓名");
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await dentalApi.createCephStudy({
+        ...cephForm,
+        patientId: `C${Date.now()}`,
+        status: "pending",
+      });
+      if (res.success && res.data) {
+        message.success("头影检查已登记");
+        setCreateModal(false);
+        setCephForm({ ...cephForm, patientName: "" });
+        await fetchStudies();
+      } else {
+        message.error(res.error?.message ?? "登记失败");
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? "登记失败");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleRunAnalysis = async () => {
@@ -247,6 +291,8 @@ export const DentalCephPage: React.FC = () => {
           <Tag color="purple">Dolphin 对标</Tag>
           {/* [G005 Wave1B] /dental/ceph/* + /dental/ortho/arch-analysis 后端真实实现, dentalApi 封装 */}
           <Tag color="green">真实后端 /dental/ceph/*</Tag>
+          {/* [G005 W3-B] 新建头影检查: POST /dental/ceph/studies (createCephStudy) */}
+          <Button size="small" type="primary" onClick={() => setCreateModal(true)}>{t("w3b.cephCreate")}</Button>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
@@ -312,6 +358,43 @@ export const DentalCephPage: React.FC = () => {
             </Col>
           ))}
         </Row>
+        {/* [G005 W3-B] 新建头影检查 Modal: createCephStudy (POST /dental/ceph/studies) */}
+        <Modal
+          title={t("w3b.cephNewStudy")}
+          open={createModal}
+          onCancel={() => setCreateModal(false)}
+          onOk={() => void handleCreateStudy()}
+          confirmLoading={creating}
+          width={460}
+        >
+          <Row gutter={12} style={{ marginTop: 8 }}>
+            <Col span={12}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>{t("w3b.patientName")}</div>
+              <Input
+                value={cephForm.patientName}
+                onChange={(e) => setCephForm({ ...cephForm, patientName: e.target.value })}
+                placeholder="请输入患者姓名"
+              />
+            </Col>
+            <Col span={6}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>年龄</div>
+              <InputNumber min={3} max={90} style={{ width: "100%" }} value={cephForm.age}
+                onChange={(v) => setCephForm({ ...cephForm, age: v ?? 12 })} />
+            </Col>
+            <Col span={6}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>性别</div>
+              <Select style={{ width: "100%" }} value={cephForm.gender}
+                onChange={(v) => setCephForm({ ...cephForm, gender: v })}
+                options={[{ value: "M", label: "男" }, { value: "F", label: "女" }]} />
+            </Col>
+            <Col span={24} style={{ marginTop: 8 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>分析类型</div>
+              <Select style={{ width: "100%" }} value={cephForm.analysisType}
+                onChange={(v) => setCephForm({ ...cephForm, analysisType: v })}
+                options={ANALYSIS_TYPES} />
+            </Col>
+          </Row>
+        </Modal>
       </div>
     );
   }

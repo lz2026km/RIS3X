@@ -1,0 +1,33 @@
+{
+  "registration": {
+    "title": "会诊登记与查询",
+    "create": "新建会诊",
+    "pending": "待会诊列表",
+    "byPatient": "按患者查询",
+    "byDoctor": "按医生查询",
+    "patientIdPlaceholder": "输入患者 ID",
+    "doctorIdPlaceholder": "输入医生 ID",
+    "search": "查询",
+    "noResult": "未找到会诊记录",
+    "pendingEmpty": "暂无待会诊记录",
+    "pendingCount": "待处理",
+    "createTitle": "新建会诊登记",
+    "patientName": "患者姓名",
+    "modality": "设备类型",
+    "bodyPart": "检查部位",
+    "consultationType": "会诊类型",
+    "requestingDepartment": "申请科室",
+    "consultedDepartment": "接收科室",
+    "requestReason": "会诊目的",
+    "priority": "优先级",
+    "submit": "提交",
+    "createSuccess": "会诊已创建",
+    "createFailed": "创建失败",
+    "edit": "编辑会诊",
+    "editTitle": "编辑会诊信息",
+    "updateSuccess": "会诊信息已更新",
+    "updateFailed": "更新失败",
+    "results": "查询结果",
+    "resultCount": "共 {{count}} 条"
+  }
+}

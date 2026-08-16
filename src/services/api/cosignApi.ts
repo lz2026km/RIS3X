@@ -46,6 +46,17 @@ export interface CreateCoSignRuleDto {
   requireCoSign?: boolean
 }
 
+// [G005 Wave 1A] 双签历史记录 (GET /cosign/history, 来源 auditLog resource=cosign)
+export interface CoSignHistoryEntry {
+  id: string
+  reportId: string
+  action: string
+  actor: string
+  actorId: string
+  timestamp: string
+  detail: string
+}
+
 interface SystemConfigRow {
   id: string
   key: string
@@ -79,11 +90,19 @@ export const coSignApi = {
   getPending: () =>
     api.get<CoSignItem[]>('/cosign/pending'),
 
+  // [G005 Wave 1A] 双签详情 (GET /cosign/pending/:id, 后端返回 { data: PendingRow[] })
+  getPendingDetail: (id: string) =>
+    api.get<{ data: CoSignItem[] }>(`/cosign/pending/${encodeURIComponent(id)}`),
+
   approve: (id: string, data: { note?: string }) =>
     api.post<{ success: boolean }>(`/cosign/pending/${id}/approve`, data),
 
   reject: (id: string, data: { reason: string }) =>
     api.post<{ success: boolean }>(`/cosign/pending/${id}/reject`, data),
+
+  // [G005 Wave 1A] 双签历史 (GET /cosign/history)
+  getHistory: () =>
+    api.get<{ data: CoSignHistoryEntry[] }>('/cosign/history'),
 
   // [v3.0.6.11-92] W2-B P2: getHistory 0 引用已删 (cosignService.getHistory 为本地 service)
   getStats: () =>

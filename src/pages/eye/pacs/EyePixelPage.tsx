@@ -256,7 +256,8 @@ const EyePixelPage: React.FC = () => {
   const handleHistogram = async () => {
     setHistLoading(true);
     try {
-      const res = await eyeApi.getPixelHistogram(instanceId);
+      // [v3.0.6.11-103 Wave 3A] 透传 frame 查询参数 (后端 GET /eye/pixel/histogram/:instanceId?frame=)
+      const res = await eyeApi.getPixelHistogram(instanceId, frameIdx + 1);
       if (res.success && res.data) {
         setHistogram(res.data);
         setSource("api");

@@ -14,5 +14,16 @@
   "tempAuth": "Temporary Auth",
   "batch": "Batch Cosign",
   "history": "Cosign History",
-  "slaMonitor": "SLA Monitor"
+  "slaMonitor": "SLA Monitor",
+  "historyTitle": "Cosign History",
+  "historyEmpty": "No cosign history",
+  "historyReportId": "Report ID",
+  "historyAction": "Action",
+  "historyActor": "Actor",
+  "historyTimestamp": "Time",
+  "historyDetail": "Note",
+  "actionApprove": "Approved",
+  "actionReject": "Rejected",
+  "detailRefresh": "Refresh Detail",
+  "detailClinicalInfo": "Clinical Info / Impression"
 }

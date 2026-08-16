@@ -20,9 +20,11 @@ import {
 import { initialModalityDevices, initialExamRooms } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
 import { deviceApi, deviceMgmtApi } from '../services/api'
+import { t } from '../i18n/appI18n'
 import { ChartContainer } from '../components/charts'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { PageHeader } from '../components/common/PageHeader'
+import { ActionButton } from '../components/common/ActionButton'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
 import type { DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
 import {
@@ -31,6 +33,8 @@ import {
   DeviceDetailPanel, MaintenanceHistoryTable, MaintenancePlanTable,
 } from './device'
 import type { DeviceData } from './device'
+// [v3.0.6.11-103 Wave 10] 重复页合并: DeviceFaultPage (故障登记/维修进度/统计) 嵌入为 DevicePage 新 Tab, 旧路由 /device-fault redirect → /devices
+import DeviceFaultPage from './DeviceFaultPage'
 
 
 // ==================== 按钮反馈Hook ====================
@@ -44,14 +48,14 @@ const useButtonFeedback = () => {
     }
   }
 
-  const withFeedback = async (operation: () => void, successMsg = '✓ 成功') => {
-    showFeedback('loading', '处理中...')
+  const withFeedback = async (operation: () => void, successMsg = t('devicePage.successMark')) => {
+    showFeedback('loading', t('devicePage.processing'))
     try {
       await simulateApiCall(null, { delay: 1500 })
       operation()
       showFeedback('success', successMsg)
     } catch {
-      showFeedback('error', '✗ 失败')
+      showFeedback('error', t('devicePage.failMark'))
     }
   }
 
@@ -332,7 +336,7 @@ function AETitleConfigPanel() {
           border: `1px solid ${C.border}`, maxHeight: 520, overflowY: 'auto'
         }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Shield size={14} style={{ color: C.accent }} /> 应用实体名列表（{aeConfigs.length}）
+            <Shield size={14} style={{ color: C.accent }} /> {t('devicePage.aeListTitle', { count: aeConfigs.length })}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {aeConfigs.map(ae => (
@@ -354,8 +358,8 @@ function AETitleConfigPanel() {
                       }} />
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleSave(ae.id)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: C.success, color: '#fff', fontSize: 12, cursor: 'pointer' }}>保存</button>
-                      <button onClick={() => setEditingId(null)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer' }}>取消</button>
+                      <ActionButton action="save" size="compact" onClick={() => handleSave(ae.id)}>{t('devicePage.save')}</ActionButton>
+                      <ActionButton action="cancel" size="compact" onClick={() => setEditingId(null)}>{t('devicePage.cancel')}</ActionButton>
                     </div>
                   </div>
                 ) : (
@@ -367,22 +371,22 @@ function AETitleConfigPanel() {
                           padding: '1px 6px', borderRadius: 6, fontSize: 12, fontWeight: 700,
                           background: ae.status === 'online' ? `${C.success}15` : `${C.danger}15`,
                           color: ae.status === 'online' ? C.success : C.danger
-                        }}>{ae.status === 'online' ? '在线' : '离线'}</span>
+                        }}>{ae.status === 'online' ? t('devicePage.online') : t('devicePage.offline')}</span>
                       </div>
-                      <button onClick={() => handleEdit(ae)} style={{ padding: '2px 6px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', color: C.textLight, fontSize: 12 }}>编辑</button>
+                      <ActionButton action="edit" variant="text" size="compact" onClick={() => handleEdit(ae)}>{t('devicePage.edit')}</ActionButton>
                     </div>
                     <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'monospace' }}>{ae.aeTitle}</div>
-                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} · 最后C-ECHO: {ae.lastCecho}</div>
+                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} {t('devicePage.lastCecho', { time: ae.lastCecho })}</div>
                     <div style={{ marginTop: 6 }}>
                       {cechoResults[ae.id] === 'idle' || !cechoResults[ae.id] ? (
                         <button onClick={() => handleCecho(ae)} style={{
                           padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
                           background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer'
-                        }}>C-ECHO 测试</button>
+                        }}>{t('devicePage.cechoTest')}</button>
                       ) : cechoResults[ae.id] === 'testing' ? (
-                        <span style={{ fontSize: 12, color: C.warning }}>⏳ 测试中...</span>
+                        <span style={{ fontSize: 12, color: C.warning }}>{t('devicePage.testing')}</span>
                       ) : (
-                        <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>✓ C-ECHO 成功（模拟）</span>
+                        <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>{t('devicePage.cechoSuccess')}</span>
                       )}
                     </div>
                   </>
@@ -398,14 +402,14 @@ function AETitleConfigPanel() {
           border: `1px solid ${C.border}`
         }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Settings2 size={14} style={{ color: C.accent }} /> 应用实体名配置概览
+            <Settings2 size={14} style={{ color: C.accent }} /> {t('devicePage.aeOverview')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
             {[
-              { label: '在线设备', value: aeConfigs.filter((a: any) => a.status === 'online').length, color: C.success },
-              { label: '离线设备', value: aeConfigs.filter((a: any) => a.status === 'offline').length, color: C.danger },
-              { label: '默认端口', value: '104', color: C.info },
-              { label: 'DICOM协议', value: 'SCU/SCP', color: C.accent },
+              { label: t('devicePage.aeOnline'), value: aeConfigs.filter((a: any) => a.status === 'online').length, color: C.success },
+              { label: t('devicePage.aeOffline'), value: aeConfigs.filter((a: any) => a.status === 'offline').length, color: C.danger },
+              { label: t('devicePage.aeDefaultPort'), value: '104', color: C.info },
+              { label: t('devicePage.aeProtocol'), value: 'SCU/SCP', color: C.accent },
             ].map(item => (
               <div key={item.label} style={{
                 background: `${item.color}0d`, borderRadius: 8, padding: '10px 12px',
@@ -416,13 +420,13 @@ function AETitleConfigPanel() {
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>常见故障排查</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t('devicePage.commonTroubleshoot')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
-              'C-ECHO失败：检查网络连通性',
-              '关联失败：确认应用实体名唯一性',
-              '传输超时：调整PDV大小',
-              '连接拒绝：检查端口号/ACL',
+              t('devicePage.hintCecho'),
+              t('devicePage.hintAssoc'),
+              t('devicePage.hintTimeout'),
+              t('devicePage.hintReject'),
             ].map((hint, i) => (
               <div key={i} style={{ fontSize: 12.5, color: C.textMid, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertCircle size={10} color={C.warning} /> {hint}
@@ -453,9 +457,9 @@ function QATestPlannerPanel() {
       {/* Sub tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
         {[
-          { id: 'plans', label: '测试计划', icon: <FileText size={14} /> },
-          { id: 'calendar', label: '测试日历', icon: <CalendarDays size={14} /> },
-          { id: 'compliance', label: '合格率统计', icon: <Activity size={14} /> },
+          { id: 'plans', label: t('devicePage.qaTabPlans'), icon: <FileText size={14} /> },
+          { id: 'calendar', label: t('devicePage.qaTabCalendar'), icon: <CalendarDays size={14} /> },
+          { id: 'compliance', label: t('devicePage.qaTabCompliance'), icon: <Activity size={14} /> },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveQATab(tab.id as any)} style={{
             display: 'flex', alignItems: 'center', gap: 4,
@@ -473,13 +477,13 @@ function QATestPlannerPanel() {
       {activeQATab === 'plans' && (
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Activity size={14} style={{ color: C.accent }} /> QA/QC 测试计划列表
+            <Activity size={14} style={{ color: C.accent }} /> {t('devicePage.qaPlansTitle')}
           </div>
           <div style={{ overflowX: 'auto' }}>
             <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
               <thead>
                 <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                  {['设备', '测试项目', '频率', '上次结果', '上次日期', '下次日期', '7次趋势'].map(h => (
+                  {[t('devicePage.qaThDevice'), t('devicePage.qaThTest'), t('devicePage.qaThFreq'), t('devicePage.qaThLastResult'), t('devicePage.qaThLastDate'), t('devicePage.qaThNextDate'), t('devicePage.qaThTrend')].map(h => (
                     <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                   ))}
                 </tr>
@@ -521,10 +525,10 @@ function QATestPlannerPanel() {
       {activeQATab === 'calendar' && (
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CalendarDays size={14} style={{ color: C.warning }} /> QA/QC 测试日历
+            <CalendarDays size={14} style={{ color: C.warning }} /> {t('devicePage.qaCalendarTitle')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-            {['一', '二', '三', '四', '五', '六', '日'].map(d => (
+            {[t('devicePage.qaDayMon'), t('devicePage.qaDayTue'), t('devicePage.qaDayWed'), t('devicePage.qaDayThu'), t('devicePage.qaDayFri'), t('devicePage.qaDaySat'), t('devicePage.qaDaySun')].map(d => (
               <div key={d} style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.textLight, padding: 4 }}>{d}</div>
             ))}
             {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
@@ -559,9 +563,9 @@ function QATestPlannerPanel() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Activity size={14} style={{ color: C.accent }} /> 设备合格率
+              <Activity size={14} style={{ color: C.accent }} /> {t('devicePage.qaDeviceRate')}
             </div>
-            <ChartContainer height={200} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无合规数据">
+            <ChartContainer height={200} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.qaNoData')}>
               <RePieChart>
                 <Pie
                   data={complianceData} cx="50%" cy="50%"
@@ -576,7 +580,7 @@ function QATestPlannerPanel() {
           </div>
           <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Activity size={14} style={{ color: C.accent }} /> 合格率详情
+              <Activity size={14} style={{ color: C.accent }} /> {t('devicePage.qaRateDetail')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {complianceData.map(d => (
@@ -592,7 +596,7 @@ function QATestPlannerPanel() {
               ))}
             </div>
             <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
-              <span style={{ fontSize: 12.5, color: C.textMid }}>总体合格率: <strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
+              <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.qaOverallRate')}<strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
             </div>
           </div>
         </div>
@@ -648,7 +652,7 @@ export default function DevicePage() {
         setDeviceStats(res.data)
         setLoadError(null)
       } else {
-        setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
+        setLoadError(res.error?.message ?? t('devicePage.apiUnavailable'))
       }
       setLoading(false)
     })()
@@ -729,14 +733,16 @@ export default function DevicePage() {
   useEffect(() => { void loadMaintenancePlans() }, [])
 
   const TABS = [
-    { label: '设备状态总览', icon: <Monitor size={14} /> },
-    { label: '设备列表', icon: <BarChart2 size={14} /> },
-    { label: '设备详情', icon: <Activity size={14} /> },
-    { label: '维保管理', icon: <Wrench size={14} /> },
-    { label: '效能分析', icon: <TrendingUp size={14} /> },
-    { label: '效益分析', icon: <DollarSign size={14} /> },
-    { label: 'AE配置', icon: <Shield size={14} /> },
-    { label: '质控计划', icon: <Activity size={14} /> },
+    { label: t('devicePage.tabOverview'), icon: <Monitor size={14} /> },
+    { label: t('devicePage.tabList'), icon: <BarChart2 size={14} /> },
+    { label: t('devicePage.tabDetail'), icon: <Activity size={14} /> },
+    { label: t('devicePage.tabMaint'), icon: <Wrench size={14} /> },
+    { label: t('devicePage.tabEfficiency'), icon: <TrendingUp size={14} /> },
+    { label: t('devicePage.tabBenefit'), icon: <DollarSign size={14} /> },
+    { label: t('devicePage.tabAeConfig'), icon: <Shield size={14} /> },
+    { label: t('devicePage.tabQa'), icon: <Activity size={14} /> },
+    // [v3.0.6.11-103 Wave 10] 重复页合并: 吸收 DeviceFaultPage (故障登记/维修进度/统计)
+    { label: t('devicePage.tabFault'), icon: <AlertCircle size={14} /> },
   ]
 
   // 统计数据
@@ -794,11 +800,11 @@ export default function DevicePage() {
     if (cur === 'idle') {
       setExamFlow(f => ({ ...f, [device.id]: 'running' }))
       setTimeout(() => setExamFlow(f => ({ ...f, [device.id]: 'done' })), 1500)
-      showFeedback('success', `已为 ${device.name} 开始检查流程（演示: 进行中）`)
+      showFeedback('success', t('devicePage.examStarted', { name: device.name }))
     } else if (cur === 'running') {
-      showFeedback('success', `${device.name} 检查进行中（演示）`)
+      showFeedback('success', t('devicePage.examRunning', { name: device.name }))
     } else {
-      showFeedback('success', `${device.name} 检查已完成（演示）`)
+      showFeedback('success', t('devicePage.examDone', { name: device.name }))
     }
   }
 
@@ -810,9 +816,9 @@ export default function DevicePage() {
   // [W4-B] 创建保养计划 → POST /device-mgmt/maintenance-plans (替换原 mock)
   const handleMaintSubmit = async () => {
     if (!maintForm.deviceId || !maintForm.planDate) {
-      showFeedback('error', '请填写必填项'); return
+      showFeedback('error', t('devicePage.requiredFields')); return
     }
-    showFeedback('loading', '处理中...')
+    showFeedback('loading', t('devicePage.processing'))
     const device = DEVICE_EFFICIENCY.find(d => d.id === maintForm.deviceId)
     const res = await deviceMgmtApi.createMaintenancePlan({
       deviceId: maintForm.deviceId,
@@ -823,26 +829,26 @@ export default function DevicePage() {
       content: maintForm.content,
       estimatedCost: maintForm.estimatedCost ? Number(maintForm.estimatedCost) : undefined,
       assignee: maintForm.assignee,
-    }).catch(() => ({ success: false, error: { message: '创建失败' } }))
+    }).catch(() => ({ success: false, error: { message: t('devicePage.createFailed') } }))
     if (res.success) {
       setShowMaintForm(false)
       setMaintForm({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
-      showFeedback('success', `维保计划已创建：${maintForm.deviceId}，计划日期 ${maintForm.planDate}`)
+      showFeedback('success', t('devicePage.maintCreated', { deviceId: maintForm.deviceId, date: maintForm.planDate }))
       await loadMaintenancePlans()
     } else {
-      showFeedback('error', res.error?.message ?? '✗ 创建失败')
+      showFeedback('error', res.error?.message ?? t('devicePage.maintCreateFail'))
     }
   }
 
   // [W4-B] 删除保养计划 → DELETE /device-mgmt/maintenance-plans/:id
   const handleMaintDelete = async (plan: MaintPlanRow) => {
-    if (!window.confirm(`确认删除「${plan.deviceName}」的保养计划？`)) return
+    if (!window.confirm(t('devicePage.confirmDeletePlan', { name: plan.deviceName }))) return
     const res = await deviceMgmtApi.deleteMaintenancePlan(plan.id).catch(() => ({ success: false }))
     if (res.success) {
       setMaintenancePlans(list => list.filter(p => p.id !== plan.id))
-      showFeedback('success', '保养计划已删除')
+      showFeedback('success', t('devicePage.planDeleted'))
     } else {
-      showFeedback('error', '✗ 删除失败')
+      showFeedback('error', t('devicePage.deleteFailed'))
     }
   }
 
@@ -851,17 +857,17 @@ export default function DevicePage() {
     const res = await deviceMgmtApi.updateMaintenancePlan(plan.id, { status: 'COMPLETED' }).catch(() => ({ success: false }))
     if (res.success) {
       setMaintenancePlans(list => list.filter(p => p.id !== plan.id))
-      showFeedback('success', '保养计划已完成')
+      showFeedback('success', t('devicePage.planCompleted'))
       await loadMaintenancePlans()
     } else {
-      showFeedback('error', '✗ 操作失败')
+      showFeedback('error', t('devicePage.opFailed'))
     }
   }
 
   // [G005 Wave1A P1-2] 新增设备 → POST /devices (deviceApi.create 真实)
   const handleCreateDevice = async () => {
-    if (!deviceForm.name.trim()) { showFeedback('error', '请填写设备名称'); return }
-    showFeedback('loading', '处理中...')
+    if (!deviceForm.name.trim()) { showFeedback('error', t('devicePage.warnDeviceName')); return }
+    showFeedback('loading', t('devicePage.processing'))
     const res = await deviceApi.create({
       code: `DV-${Date.now().toString(36).toUpperCase()}`,
       name: deviceForm.name.trim(),
@@ -869,7 +875,7 @@ export default function DevicePage() {
       manufacturer: deviceForm.model.trim() || undefined,
       location: deviceForm.dept.trim() || undefined,
     })
-    if (!res.success) { showFeedback('error', res.error?.message ?? '✗ 创建失败'); return }
+    if (!res.success) { showFeedback('error', res.error?.message ?? t('devicePage.maintCreateFail')); return }
     if (res.data) {
       const row: DeviceEfficiencyData = {
         id: res.data.id,
@@ -898,7 +904,7 @@ export default function DevicePage() {
       setApiDevices(prev => [row, ...prev])
       setShowDeviceModal(false)
       setDeviceForm({ name: '', model: '', dept: '', modality: 'CT' })
-      showFeedback('success', `设备已新增: ${res.data.name}`)
+      showFeedback('success', t('devicePage.deviceCreated', { name: res.data.name }))
     }
   }
 
@@ -909,9 +915,9 @@ export default function DevicePage() {
       setDeletedIds(prev => new Set(prev).add(device.id))
       setApiDevices(prev => prev.filter(d => d.id !== device.id))
       if (selectedDevice?.id === device.id) setShowDetail(false)
-      showFeedback('success', `设备已删除: ${device.name}`)
+      showFeedback('success', t('devicePage.deviceDeleted', { name: device.name }))
     } else {
-      showFeedback('error', '✗ 删除失败')
+      showFeedback('error', t('devicePage.deleteFailed'))
     }
   }
 
@@ -960,7 +966,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.inUse}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>使用中设备</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statInUse')}</div>
             </div>
           </div>
         </div>
@@ -974,7 +980,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.idle}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>空闲设备</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statIdle')}</div>
             </div>
           </div>
         </div>
@@ -988,7 +994,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.maint + stats.fault}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>维护/故障中</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statMaintFault')}</div>
             </div>
           </div>
         </div>
@@ -1002,7 +1008,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.totalTodayExams}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>今日检查量</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statTodayExams')}</div>
             </div>
           </div>
         </div>
@@ -1013,14 +1019,14 @@ export default function DevicePage() {
         {/* 实时状态看板 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Monitor size={14} style={{ color: C.accent }} /> 设备运行状态看板
+            <Monitor size={14} style={{ color: C.accent }} /> {t('devicePage.statusBoard')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { label: '使用中', count: stats.inUse, color: C.success, icon: <Play size={14} /> },
-              { label: '空闲', count: stats.idle, color: C.accent, icon: <Pause size={14} /> },
-              { label: '维护中', count: stats.maint, color: C.warning, icon: <Settings size={14} /> },
-              { label: '故障', count: stats.fault, color: C.danger, icon: <AlertCircle size={14} /> },
+              { label: t('devicePage.stInUse'), count: stats.inUse, color: C.success, icon: <Play size={14} /> },
+              { label: t('devicePage.stIdle'), count: stats.idle, color: C.accent, icon: <Pause size={14} /> },
+              { label: t('devicePage.stMaint'), count: stats.maint, color: C.warning, icon: <Settings size={14} /> },
+              { label: t('devicePage.stFault'), count: stats.fault, color: C.danger, icon: <AlertCircle size={14} /> },
             ].map(item => (
               <div key={item.label} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -1040,7 +1046,7 @@ export default function DevicePage() {
         {/* 使用时长统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Timer size={14} style={{ color: C.info }} /> 使用时长统计
+            <Timer size={14} style={{ color: C.info }} /> {t('devicePage.usageHours')}
           </div>
           <ChartContainer height={140}>
             <ChartBar data={[
@@ -1065,7 +1071,7 @@ export default function DevicePage() {
         {/* 故障率统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <AlertTriangle size={14} style={{ color: C.danger }} /> 故障率统计
+            <AlertTriangle size={14} style={{ color: C.danger }} /> {t('devicePage.faultRate')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {DOWNTIME_DATA.slice(0, 5).map(item => (
@@ -1079,7 +1085,7 @@ export default function DevicePage() {
                   }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700, color: item.faultCount >= 3 ? C.danger : item.faultCount >= 2 ? C.warning : C.success, width: 40, textAlign: 'right' }}>
-                  {item.faultCount}次
+                  {t('devicePage.faultCountSuffix', { count: item.faultCount })}
                 </span>
               </div>
             ))}
@@ -1089,7 +1095,7 @@ export default function DevicePage() {
         {/* 开机率统计 */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Power size={14} style={{ color: C.success }} /> 开机率统计
+            <Power size={14} style={{ color: C.success }} /> {t('devicePage.uptimeRate')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {UPTIME_STATS.slice(0, 5).map(item => (
@@ -1113,13 +1119,13 @@ export default function DevicePage() {
       {/* 今日检查量排名 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <TrendingUp size={14} style={{ color: C.accent }} /> 今日检查量排名
+          <TrendingUp size={14} style={{ color: C.accent }} /> {t('devicePage.todayRanking')}
         </div>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {['排名', '设备名称', '类型', '今日检查', '等待人数', '平均等待'].map(h => (
+                {[t('devicePage.thRank'), t('devicePage.thDeviceName'), t('devicePage.thType'), t('devicePage.thTodayExams'), t('devicePage.thWaiting'), t('devicePage.thAvgWait')].map(h => (
                   <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
                 ))}
               </tr>
@@ -1139,7 +1145,7 @@ export default function DevicePage() {
                   <td style={{ padding: '9px 10px', textAlign: 'center' }}><ModalityBadge modality={item.modality} /></td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.accent }}>{item.examCount}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', color: item.waitingCount > 8 ? C.warning : C.textMid }}>{item.waitingCount}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.avgWaitTime > 20 ? C.danger : item.avgWaitTime > 10 ? C.warning : C.success }}>{item.avgWaitTime}分钟</td>
+                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.avgWaitTime > 20 ? C.danger : item.avgWaitTime > 10 ? C.warning : C.success }}>{t('devicePage.minutesSuffix', { count: item.avgWaitTime })}</td>
                 </tr>
               ))}
             </tbody>
@@ -1191,7 +1197,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{maintenancePlans.length}</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>待执行计划</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.maintPending')}</div>
             </div>
           </div>
         </div>
@@ -1204,7 +1210,7 @@ export default function DevicePage() {
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
                 {duePlans.length}
               </div>
-              <div style={{ fontSize: 12, color: C.textLight }}>30天内到期</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.due30')}</div>
             </div>
           </div>
         </div>
@@ -1215,7 +1221,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>维保记录</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.maintRecords')}</div>
             </div>
           </div>
         </div>
@@ -1228,7 +1234,7 @@ export default function DevicePage() {
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
                 ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}万
               </div>
-              <div style={{ fontSize: 12, color: C.textLight }}>累计维保费用</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.totalMaintCost')}</div>
             </div>
           </div>
         </div>
@@ -1242,9 +1248,9 @@ export default function DevicePage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Bell size={16} color={C.danger} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>维保到期提醒</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>{t('devicePage.maintDueReminder')}</span>
           </div>
-          <span style={{ fontSize: 12, color: C.danger }}>共 {duePlans.length} 项待执行</span>
+          <span style={{ fontSize: 12, color: C.danger }}>{t('devicePage.dueCount', { count: duePlans.length })}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
           {duePlans
@@ -1263,7 +1269,7 @@ export default function DevicePage() {
                       fontSize: 12, fontWeight: 700, color: daysLeft <= 7 ? C.danger : C.warning,
                       background: `${daysLeft <= 7 ? C.danger : C.warning}15`, padding: '2px 6px', borderRadius: 8
                     }}>
-                      {daysLeft <= 0 ? '今天' : `${daysLeft}天后`}
+                      {daysLeft <= 0 ? t('devicePage.daysLeftToday') : t('devicePage.daysLeftSuffix', { count: daysLeft })}
                     </span>
                   </div>
                 </div>
@@ -1275,7 +1281,7 @@ export default function DevicePage() {
       <MaintenanceHistoryTable records={maintHistory} />
       {maintPlansLoading && (
         <div style={{ padding: '8px 12px', marginBottom: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
-          ⏳ 正在从 API 加载保养计划...
+          ⏳ {t('devicePage.loadingPlans')}
         </div>
       )}
       <MaintenancePlanTable
@@ -1288,9 +1294,9 @@ export default function DevicePage() {
       {/* 维保费用统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <DollarSign size={14} style={{ color: C.success }} /> 维保费用统计（月度）
+          <DollarSign size={14} style={{ color: C.success }} /> {t('devicePage.maintCostMonthly')}
         </div>
-        <ChartContainer height={200} state={MAINTENANCE_COST_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无维保费用数据">
+        <ChartContainer height={200} state={MAINTENANCE_COST_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noMaintCostData')}>
           <ChartBar data={MAINTENANCE_COST_DATA}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
@@ -1320,7 +1326,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.avgUtil}%</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>平均利用率</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.avgUtilization')}</div>
             </div>
           </div>
         </div>
@@ -1331,7 +1337,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>96.1%</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>平均开机率</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.avgUptime')}</div>
             </div>
           </div>
         </div>
@@ -1342,7 +1348,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.fault}</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>故障设备</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.faultDevices')}</div>
             </div>
           </div>
         </div>
@@ -1351,9 +1357,9 @@ export default function DevicePage() {
       {/* 7天检查量趋势 LineChart */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <TrendingUp size={14} style={{ color: C.accent }} /> 7天检查量趋势
+          <TrendingUp size={14} style={{ color: C.accent }} /> {t('devicePage.weeklyTrend')}
         </div>
-        <ChartContainer height={220} state={WEEKLY_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无7天趋势数据">
+        <ChartContainer height={220} state={WEEKLY_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noWeeklyData')}>
           <LineChart data={WEEKLY_TREND_DATA}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: C.textLight }} />
@@ -1370,7 +1376,7 @@ export default function DevicePage() {
       {/* 使用时段热力图 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BarChart2 size={14} style={{ color: C.info }} /> 使用时段分布（周一~周日，8-18时）
+          <BarChart2 size={14} style={{ color: C.info }} /> {t('devicePage.heatmapTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(11, 1fr)', gap: 3, minWidth: 500 }}>
@@ -1406,29 +1412,29 @@ export default function DevicePage() {
       {/* 故障代码分类 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginTop: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <AlertCircle size={14} style={{ color: C.danger }} /> 故障代码分类与MTBF分析
+          <AlertCircle size={14} style={{ color: C.danger }} /> {t('devicePage.faultCodeAnalysis')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
           {/* 故障趋势图 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>故障趋势（近6月）</div>
-            <ChartContainer height={160} state={FAULT_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无故障趋势数据">
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t('devicePage.faultTrend')}</div>
+            <ChartContainer height={160} state={FAULT_TREND_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noFaultTrendData')}>
               <LineChart data={FAULT_TREND_DATA}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
                 <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="critical" name="严重" stroke={C.danger} strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="major" name="主要" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="minor" name="轻微" stroke={C.info} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="critical" name={t('devicePage.sevCritical')} stroke={C.danger} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="major" name={t('devicePage.sevMajor')} stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="minor" name={t('devicePage.sevMinor')} stroke={C.info} strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ChartContainer>
           </div>
           {/* Top5 故障柱状图 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>前 5 故障类型</div>
-            <ChartContainer height={160} state={FAULT_CODES.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无故障类型数据">
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>{t('devicePage.top5Faults')}</div>
+            <ChartContainer height={160} state={FAULT_CODES.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noFaultTypeData')}>
               <ChartBar data={FAULT_CODES.sort((a, b) => b.count - a.count).slice(0, 5).map(f => ({ name: f.description.length > 8 ? f.description.slice(0, 8) + '...' : f.description, count: f.count }))} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis type="number" tick={{ fontSize: 12, fill: C.textLight }} />
@@ -1444,7 +1450,7 @@ export default function DevicePage() {
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {['故障代码', '分类', '描述', '严重级别', 'MTBF(天)', '发生次数', '涉及设备'].map(h => (
+                {[t('devicePage.thFaultCode'), t('devicePage.thCategory'), t('devicePage.thDesc'), t('devicePage.thSeverity'), t('devicePage.thMtbf'), t('devicePage.thCount'), t('devicePage.thDevices')].map(h => (
                   <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                 ))}
               </tr>
@@ -1465,7 +1471,7 @@ export default function DevicePage() {
                       padding: '2px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700,
                       background: f.severity === 'critical' ? `${C.danger}15` : f.severity === 'major' ? `${C.warning}15` : `${C.info}15`,
                       color: f.severity === 'critical' ? C.danger : f.severity === 'major' ? C.warning : C.info
-                    }}>{f.severity === 'critical' ? '严重' : f.severity === 'major' ? '主要' : '轻微'}</span>
+                    }}>{f.severity === 'critical' ? t('devicePage.sevCritical') : f.severity === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>
                   </td>
                   <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{f.mtbf}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: f.count >= 4 ? C.danger : f.count >= 2 ? C.warning : C.success }}>{f.count}</td>
@@ -1476,9 +1482,9 @@ export default function DevicePage() {
           </table></div>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>平均MTBF: <strong style={{ color: C.info }}>{Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length)}天</strong></span>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>总故障次数: <strong style={{ color: C.danger }}>{FAULT_CODES.reduce((s, f) => s + f.count, 0)}次</strong></span>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>严重故障占比: <strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.avgMtbf')}<strong style={{ color: C.info }}>{t('devicePage.daysSuffix', { count: Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length) })}</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.totalFaults')}<strong style={{ color: C.danger }}>{t('devicePage.faultCountSuffix', { count: FAULT_CODES.reduce((s, f) => s + f.count, 0) })}</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.criticalShare')}<strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
         </div>
       </div>
     </div>
@@ -1498,7 +1504,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}亿</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>半年总收入</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.halfYearRevenue')}</div>
             </div>
           </div>
         </div>
@@ -1509,7 +1515,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>半年总检查量</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.halfYearExams')}</div>
             </div>
           </div>
         </div>
@@ -1520,7 +1526,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{totalFaultCount}次</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>故障次数</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.faultTimes')}</div>
             </div>
           </div>
         </div>
@@ -1531,7 +1537,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}万</div>
-              <div style={{ fontSize: 12, color: C.textLight }}>故障停机损失</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.downtimeLoss')}</div>
             </div>
           </div>
         </div>
@@ -1541,9 +1547,9 @@ export default function DevicePage() {
         {/* 检查量趋势图 LineChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <TrendingUp size={14} style={{ color: C.accent }} /> 检查量趋势（近6月）
+            <TrendingUp size={14} style={{ color: C.accent }} /> {t('devicePage.examTrendTitle')}
           </div>
-          <ChartContainer height={200} state={examTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无检查量趋势数据">
+          <ChartContainer height={200} state={examTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noExamTrendData')}>
             <LineChart data={examTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
@@ -1561,9 +1567,9 @@ export default function DevicePage() {
         {/* 设备利用率饼图 PieChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <PieChartIcon size={14} style={{ color: C.warning }} /> 设备利用率分布（按类型）
+            <PieChartIcon size={14} style={{ color: C.warning }} /> {t('devicePage.utilizationDist')}
           </div>
-          <ChartContainer height={200} state={utilizationPieData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无利用率分布数据">
+          <ChartContainer height={200} state={utilizationPieData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('devicePage.noUtilData')}>
             <RePieChart>
               <Pie
                 data={utilizationPieData}
@@ -1586,14 +1592,14 @@ export default function DevicePage() {
       {/* 故障停机损失统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <AlertCircle size={14} style={{ color: C.danger }} /> 故障停机损失统计
+          <AlertCircle size={14} style={{ color: C.danger }} /> {t('devicePage.downtimeLossStats')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
-            { label: '故障设备数', value: `${DOWNTIME_DATA.filter(d => d.faultCount > 0).length} 台`, color: C.danger },
-            { label: '总停机时长', value: `${totalDowntimeHours} 小时`, color: C.warning },
-            { label: '总损失金额', value: `¥${(totalDowntimeLoss / 10000).toFixed(1)} 万`, color: C.danger },
-            { label: '平均MTBF', value: `${Math.round(DOWNTIME_DATA.reduce((s, d) => s + d.mtbf, 0) / DOWNTIME_DATA.length)} 天`, color: C.info },
+            { label: t('devicePage.downtimeDevices'), value: `${DOWNTIME_DATA.filter(d => d.faultCount > 0).length} 台`, color: C.danger },
+            { label: t('devicePage.totalDowntime'), value: `${totalDowntimeHours} 小时`, color: C.warning },
+            { label: t('devicePage.totalLoss'), value: `¥${(totalDowntimeLoss / 10000).toFixed(1)} 万`, color: C.danger },
+            { label: t('devicePage.avgMtbfShort'), value: `${Math.round(DOWNTIME_DATA.reduce((s, d) => s + d.mtbf, 0) / DOWNTIME_DATA.length)} 天`, color: C.info },
           ].map(item => (
             <div key={item.label} style={{
               background: `${item.color}0d`, borderRadius: 10, padding: '12px 14px',
@@ -1607,12 +1613,12 @@ export default function DevicePage() {
         <div style={{ overflowX: 'auto' }}>
           <VirtualTable
             columns={[
-              { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
-              { title: '故障次数', dataIndex: 'faultCount', key: 'faultCount', width: 100, render: (v: number) => <span style={{ color: v >= 3 ? C.danger : C.textMid }}>{v}</span> },
-              { title: '停机时长', dataIndex: 'downtimeHours', key: 'downtimeHours', width: 110, render: (v: number) => <span style={{ color: v > 24 ? C.danger : C.textMid }}>{v}h</span> },
-              { title: '损失金额', dataIndex: 'lossAmount', key: 'lossAmount', width: 120, render: (v: number) => <span style={{ fontWeight: 700, color: C.warning }}>¥{v.toLocaleString()}</span> },
-              { title: 'MTBF', dataIndex: 'mtbf', key: 'mtbf', width: 90, render: (v: number) => <span style={{ color: C.textMid }}>{v}天</span> },
-              { title: '故障描述', dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: t('devicePage.colDevice'), dataIndex: 'deviceName', key: 'deviceName', render: (v: string) => <span style={{ fontWeight: 600, color: C.textDark }}>{v}</span> },
+              { title: t('devicePage.colFaultCount'), dataIndex: 'faultCount', key: 'faultCount', width: 100, render: (v: number) => <span style={{ color: v >= 3 ? C.danger : C.textMid }}>{v}</span> },
+              { title: t('devicePage.colDowntime'), dataIndex: 'downtimeHours', key: 'downtimeHours', width: 110, render: (v: number) => <span style={{ color: v > 24 ? C.danger : C.textMid }}>{v}h</span> },
+              { title: t('devicePage.colLoss'), dataIndex: 'lossAmount', key: 'lossAmount', width: 120, render: (v: number) => <span style={{ fontWeight: 700, color: C.warning }}>¥{v.toLocaleString()}</span> },
+              { title: t('devicePage.colMtbf'), dataIndex: 'mtbf', key: 'mtbf', width: 90, render: (v: number) => <span style={{ color: C.textMid }}>{t('devicePage.daysSuffix', { count: v })}</span> },
+              { title: t('devicePage.colDesc'), dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
             ]}
             dataSource={DOWNTIME_DATA}
             rowKey={(item) => `${item.deviceName}-${item.faultCount}`}
@@ -1625,13 +1631,13 @@ export default function DevicePage() {
       {/* ROI 投资回报率计算器 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginTop: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <DollarSign size={14} style={{ color: C.success }} /> ROI 投资回报率分析
+          <DollarSign size={14} style={{ color: C.success }} /> {t('devicePage.roiTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${C.border}` }}>
-                {['设备', '购置成本', '年收入', '年维保', '年其他', '年利润', '折旧方式', '年折旧', 'ROI', '回收期'].map(h => (
+                {[t('devicePage.roiThDevice'), t('devicePage.roiThCost'), t('devicePage.roiThRevenue'), t('devicePage.roiThMaint'), t('devicePage.roiThOther'), t('devicePage.roiThProfit'), t('devicePage.roiThDeprMethod'), t('devicePage.roiThDepr'), t('devicePage.roiThRoi'), t('devicePage.roiThPayback')].map(h => (
                   <th key={h} style={{ padding: '8px 8px', textAlign: 'center', fontWeight: 700, color: C.primary }}>{h}</th>
                 ))}
               </tr>
@@ -1650,7 +1656,7 @@ export default function DevicePage() {
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.warning }}>¥{(d.annualMaintCost / 10000).toFixed(0)}万</td>
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(d.annualOtherCost / 10000).toFixed(0)}万</td>
                     <td style={{ padding: '8px 8px', textAlign: 'right', fontWeight: 700, color: annualProfit > 0 ? C.success : C.danger }}>¥{(annualProfit / 10000).toFixed(0)}万</td>
-                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{d.depreciationMethod === 'straight' ? '直线法' : '加速法'}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{d.depreciationMethod === 'straight' ? t('devicePage.deprStraight') : t('devicePage.deprAccelerated')}</td>
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}万</td>
                     <td style={{ padding: '8px 8px', textAlign: 'center' }}>
                       <span style={{
@@ -1659,7 +1665,7 @@ export default function DevicePage() {
                         color: roi > 50 ? C.success : roi > 20 ? C.warning : C.danger
                       }}>{roi.toFixed(1)}%</span>
                     </td>
-                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{payback < 1 ? '<1年' : `${payback.toFixed(1)}年`}</td>
+                    <td style={{ padding: '8px 8px', textAlign: 'center', color: C.textMid }}>{payback < 1 ? t('devicePage.under1Year') : t('devicePage.yearsSuffix', { count: payback.toFixed(1) })}</td>
                   </tr>
                 )
               })}
@@ -1667,9 +1673,9 @@ export default function DevicePage() {
           </table></div>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 }}>
-          <span style={{ fontSize: 12, color: C.textMid }}>平均ROI: <strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
-          <span style={{ fontSize: 12, color: C.textMid }}>最短回收期: <strong style={{ color: C.info }}>{Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1)}年</strong></span>
-          <span style={{ fontSize: 12, color: C.textMid }}>总投资: <strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.avgRoi')}<strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.shortestPayback')}<strong style={{ color: C.info }}>{t('devicePage.yearsSuffix', { count: Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1) })}</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.totalInvestment')}<strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
         </div>
       </div>
     </div>
@@ -1691,7 +1697,7 @@ export default function DevicePage() {
   const renderDeviceDetailTab = () => (
     <div style={{ textAlign: 'center', padding: '60px 20px', color: C.textLight }}>
       <Activity size={40} style={{ marginBottom: 12, opacity: 0.4 }} />
-      <div style={{ fontSize: 14 }}>请从「设备列表」选择一个设备查看详情</div>
+      <div style={{ fontSize: 14 }}>{t('devicePage.detailHint')}</div>
     </div>
   )
 
@@ -1716,7 +1722,7 @@ export default function DevicePage() {
             borderRadius: '16px 16px 0 0'
           }}>
             <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} /> 添加维保计划
+              <Plus size={16} /> {t('devicePage.addMaintPlan')}
             </div>
             <button onClick={() => setShowMaintForm(false)} style={{
               background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
@@ -1728,24 +1734,24 @@ export default function DevicePage() {
           <div style={{ padding: 20 }}>
             <div style={{ display: 'grid', gap: 12 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>设备 *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deviceRequired')}</label>
                 <select value={maintForm.deviceId} onChange={e => setMaintForm(f => ({ ...f, deviceId: e.target.value }))} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none'
                 }}>
-                  <option value="">请选择设备</option>
+                  <option value="">{t('devicePage.selectDevice')}</option>
                   {DEVICE_EFFICIENCY.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>计划日期 *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.planDateRequired')}</label>
                 <input type="date" value={maintForm.planDate} onChange={e => setMaintForm(f => ({ ...f, planDate: e.target.value }))} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>保养类型</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.maintType')}</label>
                 <select value={maintForm.type} onChange={e => setMaintForm(f => ({ ...f, type: e.target.value }))} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none'
@@ -1758,36 +1764,30 @@ export default function DevicePage() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>保养内容</label>
-                <textarea value={maintForm.content} onChange={e => setMaintForm(f => ({ ...f, content: e.target.value }))} placeholder="请输入保养内容..." style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.maintContent')}</label>
+                <textarea value={maintForm.content} onChange={e => setMaintForm(f => ({ ...f, content: e.target.value }))} placeholder={t('devicePage.placeholderContent')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', minHeight: 60, resize: 'vertical', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>预计费用</label>
-                <input type="number" value={maintForm.estimatedCost} onChange={e => setMaintForm(f => ({ ...f, estimatedCost: e.target.value }))} placeholder="请输入预计费用" style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.estCost')}</label>
+                <input type="number" value={maintForm.estimatedCost} onChange={e => setMaintForm(f => ({ ...f, estimatedCost: e.target.value }))} placeholder={t('devicePage.placeholderCost')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>负责人</label>
-                <input value={maintForm.assignee} onChange={e => setMaintForm(f => ({ ...f, assignee: e.target.value }))} placeholder="请输入负责人" style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.assignee')}</label>
+                <input value={maintForm.assignee} onChange={e => setMaintForm(f => ({ ...f, assignee: e.target.value }))} placeholder={t('devicePage.placeholderAssignee')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              <button onClick={() => setShowMaintForm(false)} style={{
-                flex: 1, padding: '9px 12px', borderRadius: 8, border: `1px solid ${C.border}`,
-                background: C.white, color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer'
-              }}>取消</button>
-              <button onClick={handleMaintSubmit} style={{
-                flex: 1, padding: '9px 12px', borderRadius: 8, border: 'none',
-                background: C.primary, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-              }}>确认添加</button>
+              <ActionButton action="cancel" block size="default" onClick={() => setShowMaintForm(false)}>{t('devicePage.cancel')}</ActionButton>
+              <ActionButton action="submit" block size="default" onClick={handleMaintSubmit}>{t('devicePage.confirmAdd')}</ActionButton>
             </div>
           </div>
         </div>
@@ -1816,7 +1816,7 @@ export default function DevicePage() {
             borderRadius: '16px 16px 0 0'
           }}>
             <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} /> 新增设备
+              <Plus size={16} /> {t('devicePage.addDevice')}
             </div>
             <button onClick={() => setShowDeviceModal(false)} style={{
               background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
@@ -1828,28 +1828,28 @@ export default function DevicePage() {
           <div style={{ padding: 20 }}>
             <div style={{ display: 'grid', gap: 12 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>设备名称 *</label>
-                <input value={deviceForm.name} onChange={e => setDeviceForm(f => ({ ...f, name: e.target.value }))} placeholder="如 CT-3（联影 uCT 960）" style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deviceNameRequired')}</label>
+                <input value={deviceForm.name} onChange={e => setDeviceForm(f => ({ ...f, name: e.target.value }))} placeholder={t('devicePage.placeholderDeviceName')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>型号 / 厂商</label>
-                <input value={deviceForm.model} onChange={e => setDeviceForm(f => ({ ...f, model: e.target.value }))} placeholder="如 uCT 960 / 联影" style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.modelMfg')}</label>
+                <input value={deviceForm.model} onChange={e => setDeviceForm(f => ({ ...f, model: e.target.value }))} placeholder={t('devicePage.placeholderModel')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>科室 / 位置</label>
-                <input value={deviceForm.dept} onChange={e => setDeviceForm(f => ({ ...f, dept: e.target.value }))} placeholder="如 CT检查室3" style={{
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deptLocation')}</label>
+                <input value={deviceForm.dept} onChange={e => setDeviceForm(f => ({ ...f, dept: e.target.value }))} placeholder={t('devicePage.placeholderDept')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>模态 *</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.modalityRequired')}</label>
                 <select value={deviceForm.modality} onChange={e => setDeviceForm(f => ({ ...f, modality: e.target.value }))} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textDark, outline: 'none'
@@ -1858,7 +1858,7 @@ export default function DevicePage() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>状态</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.status')}</label>
                 <input value="空闲 (新增默认)" disabled style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
                   fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: 'var(--bg-primary)'
@@ -1866,14 +1866,8 @@ export default function DevicePage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              <button onClick={() => setShowDeviceModal(false)} style={{
-                flex: 1, padding: '9px 12px', borderRadius: 8, border: `1px solid ${C.border}`,
-                background: C.white, color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer'
-              }}>取消</button>
-              <button onClick={handleCreateDevice} style={{
-                flex: 1, padding: '9px 12px', borderRadius: 8, border: 'none',
-                background: C.accent, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
-              }}>确认新增</button>
+              <ActionButton action="cancel" block size="default" onClick={() => setShowDeviceModal(false)}>{t('devicePage.cancel')}</ActionButton>
+              <ActionButton action="submit" block size="default" onClick={handleCreateDevice}>{t('devicePage.confirmCreate')}</ActionButton>
             </div>
           </div>
         </div>
@@ -1888,7 +1882,7 @@ export default function DevicePage() {
     <div style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
       {loading && (
         <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
-          ⏳ 正在从 API 加载设备统计...
+          ⏳ {t('devicePage.loadingStats')}
         </div>
       )}
       {loadError && !loading && (
@@ -1904,13 +1898,13 @@ export default function DevicePage() {
           icon={<Monitor size={22} style={{ color: C.primary }} />}
           title={
             <>
-              影像设备管理
+              {t('devicePage.title')}
               <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#92400e', marginLeft: 4 }}>
-                部分演示数据
+                {t('devicePage.demoBadge')}
               </span>
             </>
           }
-          subtitle={`设备总数 ${stats.total} 台 · 使用中 ${stats.inUse} 台 · 空闲 ${stats.idle} 台 · 维护 ${stats.maint} 台`}
+          subtitle={t('devicePage.subtitle', { total: stats.total, inUse: stats.inUse, idle: stats.idle, maint: stats.maint })}
           actions={
             <>
               <button style={{
@@ -1920,14 +1914,14 @@ export default function DevicePage() {
                 const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                 btn.disabled = true;
                 const orig = btn.innerHTML;
-                btn.innerHTML = '⏳ 导出中...';
+                btn.innerHTML = t('devicePage.exporting');
                 await new Promise(r => setTimeout(r, 1500));
                 localStorage.setItem('g005_device_export', JSON.stringify({ timestamp: new Date().toISOString(), deviceCount: 8 }));
-                btn.innerHTML = '✅ 导出成功';
+                btn.innerHTML = t('devicePage.exported');
                 btn.style.color = C.success;
                 setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.color = ''; }, 2000);
               }}>
-                <Download size={13} /> 导出报表
+                <Download size={13} /> {t('devicePage.exportReport')}
               </button>
               <button
                 onClick={() => setShowDeviceModal(true)}
@@ -1936,7 +1930,7 @@ export default function DevicePage() {
                   background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
                 }}
               >
-                <Plus size={13} /> 新增设备
+                <Plus size={13} /> {t('devicePage.addDevice')}
               </button>
               <button
                 onClick={() => { setActiveTab(3); setShowMaintForm(true) }}
@@ -1945,7 +1939,7 @@ export default function DevicePage() {
                   background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
                 }}
               >
-                <Plus size={13} /> 添加维保
+                <Plus size={13} /> {t('devicePage.addMaint')}
               </button>
             </>
           }
@@ -1989,6 +1983,8 @@ export default function DevicePage() {
         {activeTab === 5 && renderBenefitAnalysisTab()}
         {activeTab === 6 && renderAETitleConfig()}
         {activeTab === 7 && renderQATestPlanner()}
+        {/* [v3.0.6.11-103 Wave 10] 重复页合并: 嵌入 DeviceFaultPage */}
+        {activeTab === 8 && <DeviceFaultPage />}
       </div>
 
       {/* 设备详情弹窗 */}

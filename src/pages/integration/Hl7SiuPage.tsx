@@ -22,6 +22,7 @@ const Hl7SiuPage: React.FC = () => {
   const [parsedResult, setParsedResult] = useState<Record<string, string> | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [sending, setSending] = useState(false)
+  const [parsing, setParsing] = useState(false)
   const [lastValues, setLastValues] = useState<any>(null)
 
   const handleGenerate = async () => {
@@ -81,33 +82,26 @@ const Hl7SiuPage: React.FC = () => {
     }
   }
 
-  const handleParse = () => {
-    const result: Record<string, string> = {}
-    parseRaw.split('\r').forEach(line => {
-      if (line.startsWith('MSH')) {
-        const s = line.split('|')
-        result['发送应用'] = s[2] || ''
-        result['发送机构'] = s[3] || ''
-        result['接收应用'] = s[4] || ''
-        result['接收机构'] = s[5] || ''
-        result['消息时间'] = s[6] || ''
-        result['消息类型'] = s[8] || ''
-        result['控制ID'] = s[9] || ''
-      } else if (line.startsWith('PID')) {
-        const s = line.split('|')
-        result['患者ID'] = s[3]?.split('^')[0] || ''
-        result['患者姓名'] = s[5]?.split('^')[0] || ''
-        result['性别'] = s[8] || ''
-      } else if (line.startsWith('SCH')) {
-        const s = line.split('|')
-        result['医生ID'] = s[3]?.split('^')[0] || ''
-        result['医生姓名'] = s[4] || ''
-        result['科室'] = s[5] || ''
-        result['开始时间'] = s[7] || ''
-        result['结束时间'] = s[8] || ''
+  // 解析：调用后端 POST /hl7/siu/parse (backend hl7-siu module)
+  const handleParse = async () => {
+    if (!parseRaw.trim()) {
+      message.warning('请粘贴待解析的 HL7 SIU 消息')
+      return
+    }
+    setParsing(true)
+    try {
+      const res = await hl7Api.siuParse({ raw: parseRaw })
+      if (res.success && res.data && typeof res.data === 'object') {
+        setParsedResult(res.data as Record<string, string>)
+        message.success('后端解析完成')
+      } else {
+        message.error(res.error?.message || '解析失败')
       }
-    })
-    setParsedResult(result)
+    } catch {
+      message.error('解析请求失败')
+    } finally {
+      setParsing(false)
+    }
   }
 
   return (
@@ -144,7 +138,7 @@ const Hl7SiuPage: React.FC = () => {
         { key: 'parse', label: <span><Eye size={14} /> 解析消息</span>, children: (
           <Card>
             <TextArea rows={6} value={parseRaw} onChange={e => setParseRaw(e.target.value)} placeholder="粘贴HL7 SIU消息..." style={{ fontFamily: 'monospace', marginBottom: 16 }} />
-            <Button type="primary" onClick={handleParse}>解析</Button>
+            <Button type="primary" loading={parsing} onClick={() => void handleParse()}>解析</Button>
             {parsedResult && (
               <div style={{ marginTop: 16 }}>
                 <Text strong>解析结果:</Text>

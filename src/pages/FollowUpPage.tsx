@@ -84,6 +84,21 @@ export default function FollowUpPage() {
   // [v3.0.6.11-99 Wave3B] 统计 (GET /followups/stats, 失败回退本地派生)
   const [stats, setStats] = useState<FollowUpStats | null>(null);
 
+  // [v3.0.6.11-103 Wave 1B] 报告→随访触发模式 (GET /followup-trigger-rules/mode)
+  const [triggerMode, setTriggerMode] = useState<'auto' | 'hint' | null>(null);
+
+  // [v3.0.6.11-103 Wave 1B] 检查联动 (POST /followups/from-exam): 检查完成 → 自动创建随访计划
+  const [showFromExamModal, setShowFromExamModal] = useState(false);
+  const [fromExamForm, setFromExamForm] = useState({ examId: '', templateId: '' });
+  const [fromExamTemplates, setFromExamTemplates] = useState<FollowUpTemplate[]>([]);
+  const [fromExamBusy, setFromExamBusy] = useState(false);
+
+  // [v3.0.6.11-103 Wave 1B] 编辑随访计划 (PUT /followups/:id)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editPlan, setEditPlan] = useState<FollowUpPatient | null>(null);
+  const [editForm, setEditForm] = useState({ patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true });
+  const [editBusy, setEditBusy] = useState(false);
+
   const loadFollowUps = async (): Promise<boolean> => {
     setLoading(true);
     setLoadError(null);
@@ -136,6 +151,101 @@ export default function FollowUpPage() {
     }).catch(() => { /* 统计失败回退本地 */ });
     return () => { cancelled = true; };
   }, [followUpList.length, followUpList]);
+
+  // [v3.0.6.11-103 Wave 1B] 报告→随访触发模式: GET /followup-trigger-rules/mode (auto/hint)
+  useEffect(() => {
+    let cancelled = false;
+    followupApi.getTriggerMode().then(res => {
+      if (cancelled || !res.success || !res.data) return;
+      if (res.data.mode === 'auto' || res.data.mode === 'hint') setTriggerMode(res.data.mode);
+    }).catch(() => { /* 触发模式不可用不阻塞 */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // [v3.0.6.11-103 Wave 1B] 检查联动: 打开弹窗时加载模板列表 (POST /followups/from-exam)
+  const openFromExam = async () => {
+    setFromExamForm({ examId: '', templateId: '' });
+    setShowFromExamModal(true);
+    setFromExamTemplates([]);
+    try {
+      const res = await followupTemplatesApi.list();
+      if (res.success) setFromExamTemplates(res.data.data);
+    } catch { /* 模板不可用允许空 */ }
+  };
+
+  const handleFromExam = async () => {
+    if (!fromExamForm.examId.trim()) {
+      setLoadError('请填写检查ID');
+      return;
+    }
+    setFromExamBusy(true);
+    setLoadError(null);
+    try {
+      const res = await followupApi.fromExam(fromExamForm.examId.trim(), fromExamForm.templateId || undefined);
+      if (res.success && res.data) {
+        window.alert(`检查联动成功: 为该检查生成 ${String((res.data as any)?.total ?? 0)} 条随访计划`);
+        setShowFromExamModal(false);
+        void loadFollowUps();
+      } else {
+        setLoadError(res.error?.message ?? '检查联动失败');
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '检查联动失败');
+    } finally {
+      setFromExamBusy(false);
+    }
+  };
+
+  // [v3.0.6.11-103 Wave 1B] 编辑随访计划 (PUT /followups/:id)
+  const openEditPlan = (item: FollowUpPatient) => {
+    setEditPlan(item);
+    setEditForm({
+      patientName: item.patientName,
+      planDate: (item.examDate || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      intervalDays: item.intervalDays ?? 30,
+      note: item.notes ?? '',
+      reminderEnabled: item.reminderEnabled ?? true,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditPlan = async () => {
+    if (!editPlan) return;
+    if (!editForm.patientName.trim() || !editForm.planDate) {
+      setLoadError('请填写患者姓名与随访日期');
+      return;
+    }
+    setEditBusy(true);
+    setLoadError(null);
+    try {
+      const res = await followupApi.update(editPlan.id, {
+        patientName: editForm.patientName.trim(),
+        planDate: editForm.planDate,
+        intervalDays: Number(editForm.intervalDays) || 30,
+        note: editForm.note,
+        reminderEnabled: editForm.reminderEnabled,
+      });
+      if (res.success) {
+        setFollowUpList(list => list.map(p => p.id === editPlan.id ? {
+          ...p,
+          patientName: editForm.patientName.trim(),
+          examDate: editForm.planDate,
+          notes: editForm.note || undefined,
+          intervalDays: Number(editForm.intervalDays) || 30,
+          reminderEnabled: editForm.reminderEnabled,
+        } : p));
+        setShowEditModal(false);
+        setEditPlan(null);
+        void loadFollowUps();
+      } else {
+        setLoadError(res.error?.message ?? '保存失败');
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '保存失败');
+    } finally {
+      setEditBusy(false);
+    }
+  };
 
   // [v3.0.6.11-99 Wave3B] 模板库 Modal 状态
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -767,6 +877,18 @@ export default function FollowUpPage() {
           }}>
             {dataSource === 'real' ? '真实数据' : '演示回退'}
           </span>
+          {/* [v3.0.6.11-103 Wave 1B] 报告→随访触发模式 (GET /followup-trigger-rules/mode) */}
+          <span style={{
+            fontSize: 11, padding: '2px 10px', borderRadius: 10, fontWeight: 600,
+            background: triggerMode === 'auto' ? 'rgba(22,119,255,0.15)' : 'rgba(148,163,184,0.15)',
+            color: triggerMode === 'auto' ? '#1677ff' : '#64748b',
+            border: `1px solid ${triggerMode === 'auto' ? '#93c5fd' : '#e2e8f0'}`,
+          }} data-testid="followup-trigger-mode">
+            触发模式: {triggerMode === 'auto' ? '自动创建' : triggerMode === 'hint' ? '仅提示' : '—'}
+          </span>
+          <button style={{ ...buttonStyle, backgroundColor: '#1677ff' }} onClick={() => void openFromExam()}>
+            <Calendar size={14} /> 检查联动
+          </button>
           <button style={{ ...buttonStyle, backgroundColor: '#722ed1' }} onClick={openTemplates}>
             <LayoutTemplate size={14} /> 随访模板
           </button>
@@ -1297,6 +1419,14 @@ export default function FollowUpPage() {
                   )}
                   {!isTerminal(item.status) && (
                     <button
+                      style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4}}
+                      onClick={() => openEditPlan(item)}
+                    >
+                      <Pencil size={12} /> 编辑
+                    </button>
+                  )}
+                  {!isTerminal(item.status) && (
+                    <button
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleCancel(item)}
                     >
@@ -1722,6 +1852,127 @@ export default function FollowUpPage() {
                 disabled={tplLoading}
               >
                 <Play size={14} /> {tplLoading ? '生成中...' : '确认应用'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-103 Wave 1B] 检查联动: 检查完成 → 自动创建随访计划 (POST /followups/from-exam) */}
+      {showFromExamModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowFromExamModal(false)}>
+          <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
+            <h2 style={modalTitleStyle}>检查联动 (from-exam)</h2>
+            <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
+              检查完成后 → 按模板间隔自动批量创建随访计划 (POST /followups/from-exam)
+            </p>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>检查ID *</label>
+              <input
+                type="text"
+                value={fromExamForm.examId}
+                onChange={e => setFromExamForm(f => ({ ...f, examId: e.target.value }))}
+                placeholder="例如 exam-001 或检查号"
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>随访模板 (可选)</label>
+              <select
+                style={selectStyle}
+                value={fromExamForm.templateId}
+                onChange={e => setFromExamForm(f => ({ ...f, templateId: e.target.value }))}
+              >
+                <option value="">不指定模板（按默认间隔）</option>
+                {fromExamTemplates.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}（{(t.intervals ?? []).join('/')}天）</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={modalButtonContainer}>
+              <button style={cancelButtonStyle} onClick={() => setShowFromExamModal(false)}>取消</button>
+              <button
+                style={{ ...buttonStyle, backgroundColor: '#1677ff' }}
+                onClick={() => void handleFromExam()}
+                disabled={fromExamBusy}
+              >
+                <Play size={14} /> {fromExamBusy ? '生成中...' : '确认联动'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [v3.0.6.11-103 Wave 1B] 编辑随访计划 (PUT /followups/:id) */}
+      {showEditModal && editPlan && (
+        <div style={modalOverlayStyle} onClick={() => setShowEditModal(false)}>
+          <div style={modalStyle} onClick={e => e.stopPropagation()}>
+            <h2 style={modalTitleStyle}>编辑随访计划 · {editPlan.patientId}</h2>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>患者姓名 *</label>
+              <input
+                type="text"
+                value={editForm.patientName}
+                onChange={e => setEditForm(f => ({ ...f, patientName: e.target.value }))}
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>随访日期 *</label>
+                <input
+                  type="date"
+                  value={editForm.planDate}
+                  onChange={e => setEditForm(f => ({ ...f, planDate: e.target.value }))}
+                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>间隔天数</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={editForm.intervalDays}
+                  onChange={e => setEditForm(f => ({ ...f, intervalDays: Number(e.target.value) }))}
+                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>随访备注</label>
+              <textarea
+                value={editForm.note}
+                onChange={e => setEditForm(f => ({ ...f, note: e.target.value }))}
+                placeholder="随访内容 / 注意事项"
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={editForm.reminderEnabled}
+                  onChange={e => setEditForm(f => ({ ...f, reminderEnabled: e.target.checked }))}
+                />
+                启用到期提醒
+              </label>
+            </div>
+
+            <div style={modalButtonContainer}>
+              <button style={cancelButtonStyle} onClick={() => setShowEditModal(false)}>取消</button>
+              <button
+                style={{ ...buttonStyle, backgroundColor: '#1677ff' }}
+                onClick={() => void handleEditPlan()}
+                disabled={editBusy}
+              >
+                <Save size={14} /> {editBusy ? '保存中...' : '保存修改'}
               </button>
             </div>
           </div>

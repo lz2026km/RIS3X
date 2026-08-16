@@ -3,6 +3,7 @@
 // [G005 Wave1B] 5 处裸 fetch → dentalApi (后端 /dental/ortho/aligner-plans* 真实实现)
 import React, { useState, useEffect, useRef } from "react";
 import { dentalApi } from "../../services/api/dentalApi";
+import { t } from "../../i18n/appI18n";
 import {
   Card,
   Space,
@@ -16,6 +17,10 @@ import {
   Progress,
   Steps,
   Slider,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
 } from "antd";
 import {
   Activity,
@@ -30,6 +35,7 @@ import {
   SkipBack,
   Layers,
   Box,
+  Plus,
 } from "lucide-react";
 
 export const DentalAlignerPage: React.FC = () => {
@@ -59,12 +65,82 @@ export const DentalAlignerPage: React.FC = () => {
     setCurrentStage(p.currentStage || 0);
     setMode("detail");
     try {
+      // [G005 W3-B] 详情刷新: GET /dental/ortho/aligner-plans/:id (getAlignerPlan)
+      const detail = await dentalApi.getAlignerPlan(p.id);
+      if (detail.success && detail.data) setCurrent({ ...p, ...detail.data });
       const [sr, pr] = await Promise.all([
         dentalApi.getAlignerStages(p.id),
         dentalApi.getAlignerProgress(p.id),
       ]);
       if (sr.success) setStages(sr.data || []);
       if (pr.success) setProgress(pr.data);
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+    }
+  };
+
+  // [G005 W3-B] 新建矫治计划: POST /dental/ortho/aligner-plans (createAlignerPlan)
+  const [createModal, setCreateModal] = useState(false);
+  const [createForm] = Form.useForm();
+  const [creating, setCreating] = useState(false);
+  const handleCreatePlan = async () => {
+    try {
+      const values = await createForm.validateFields();
+      setCreating(true);
+      const res = await dentalApi.createAlignerPlan({
+        ...values,
+        status: "pending",
+        currentStage: 0,
+        totalStages: values.totalStages ?? 14,
+        wearDaysPerStage: values.wearDaysPerStage ?? 7,
+      });
+      if (res.success && res.data) {
+        message.success("矫治计划已创建");
+        setCreateModal(false);
+        createForm.resetFields();
+        setPlans((prev) => [res.data, ...prev]);
+      } else {
+        message.error(res.error?.message ?? "创建失败");
+      }
+    } catch {
+      // 表单校验失败或取消
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  // [G005 W3-B] 生成阶段: POST /dental/ortho/aligner-plans/:id/stages (generateAlignerStages)
+  const handleGenerateStages = async () => {
+    if (!current) return;
+    try {
+      const res = await dentalApi.generateAlignerStages(current.id);
+      if (res.success) {
+        message.success("矫治阶段已生成");
+        const sr = await dentalApi.getAlignerStages(current.id);
+        if (sr.success) setStages(sr.data || []);
+      } else {
+        message.error(res.error?.message ?? "生成失败");
+      }
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+    }
+  };
+
+  // [G005 W3-B] 更新进度: POST /dental/ortho/aligner-plans/:id/progress (updateAlignerProgress)
+  const handleUpdateProgress = async () => {
+    if (!current) return;
+    try {
+      const res = await dentalApi.updateAlignerProgress(current.id, {
+        currentStage: currentStage + 1,
+        patientCompliance: 0.9,
+      });
+      if (res.success) {
+        message.success("进度已更新");
+        const pr = await dentalApi.getAlignerProgress(current.id);
+        if (pr.success) setProgress(pr.data);
+      } else {
+        message.error(res.error?.message ?? "更新失败");
+      }
     } catch (e) {
       console.warn("[F03] Error:", (e as Error)?.message);
     }
@@ -180,6 +256,8 @@ export const DentalAlignerPage: React.FC = () => {
           <Tag color="cyan">v3.0.6.8-92</Tag>
           <Tag color="blue">Planmeca Align 对标</Tag>
           <Tag color="purple">Invisalign 对标</Tag>
+          {/* [G005 W3-B] 新建矫治计划: POST /dental/ortho/aligner-plans (createAlignerPlan) */}
+          <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setCreateModal(true)}>{t("w3b.alignerCreate")}</Button>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}>
@@ -263,6 +341,33 @@ export const DentalAlignerPage: React.FC = () => {
             </Col>
           ))}
         </Row>
+        {/* [G005 W3-B] 新建矫治计划 Modal: createAlignerPlan (POST /dental/ortho/aligner-plans) */}
+        <Modal
+          title={t("w3b.alignerCreate")}
+          open={createModal}
+          onCancel={() => { setCreateModal(false); createForm.resetFields(); }}
+          onOk={() => void handleCreatePlan()}
+          confirmLoading={creating}
+          width={480}
+        >
+          <Form form={createForm} layout="vertical" size="small" initialValues={{ totalStages: 14, wearDaysPerStage: 7 }}>
+            <Form.Item name="patientName" label={t("w3b.patientName")} rules={[{ required: true, message: "请输入患者姓名" }]}>
+              <Input placeholder="请输入患者姓名" />
+            </Form.Item>
+            <Form.Item name="diagnosis" label={t("w3b.diagnosis")}>
+              <Input placeholder="如：牙列拥挤" />
+            </Form.Item>
+            <Form.Item name="totalStages" label="总阶段数">
+              <InputNumber style={{ width: "100%" }} min={4} max={60} />
+            </Form.Item>
+            <Form.Item name="wearDaysPerStage" label="每副佩戴天数">
+              <InputNumber style={{ width: "100%" }} min={1} max={30} />
+            </Form.Item>
+            <Form.Item name="doctor" label="主治医生">
+              <Input placeholder="可选" />
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
     );
   }
@@ -486,6 +591,23 @@ export const DentalAlignerPage: React.FC = () => {
                 }}
               >
                 提交加工 (6副)
+              </Button>
+              {/* [G005 W3-B] 生成阶段 + 进度更新 (generateAlignerStages / updateAlignerProgress) */}
+              <Button
+                block
+                icon={<Layers size={14} />}
+                onClick={() => void handleGenerateStages()}
+                disabled={stages.length > 0}
+              >
+                {t("w3b.alignerGenerateStages")}
+              </Button>
+              <Button
+                block
+                icon={<CheckCircle2 size={14} />}
+                onClick={() => void handleUpdateProgress()}
+                disabled={currentStage >= stages.length - 1}
+              >
+                {t("w3b.alignerUpdateProgress")}
               </Button>
             </Space>
           </Card>

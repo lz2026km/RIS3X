@@ -6,6 +6,7 @@ import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
   Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
   Download, CloudDownload, CheckCircle2, Clock, SlidersHorizontal, History,
+  LayoutDashboard, Table2, Users,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar,
@@ -13,6 +14,11 @@ import {
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
+import type {
+  WorklistOverviewDto,
+  WorklistModalityItemDto,
+  WorklistTechnicianStatsDto,
+} from '../services/api/worklistApi'
 import { dicomDimseApi, dicomWebApi } from '../services/api/dicomApi'
 import { ChartContainer } from '../components/charts'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
@@ -46,7 +52,9 @@ import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import BatchActionBar from '../components/batch/BatchActionBar'
 import { AppButton } from '../components/common/AppButton'
+import { ActionButton } from '../components/common/ActionButton'
 import { PageHeader } from '../components/common/PageHeader'
+import { EmptyState } from '../components/common/EmptyState'
 import { useOperationLog } from '../hooks/useOperationLog'
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
 import { SmartSortPanel } from '../components/worklist/SmartSortPanel'
@@ -477,6 +485,26 @@ export default function WorklistPage() {
     } catch { /* 统计不可用不阻断 */ }
   }, [])
   useEffect(() => { void fetchServerStats() }, [fetchServerStats])
+
+  // [v3.0.6.11-103 Wave 1B] 今日总览 / 模态分组 / 技师明细:
+  //   GET /worklist/overview · GET /worklist/by-modality · GET /worklist/technician-stats
+  const [overview, setOverview] = useState<WorklistOverviewDto | null>(null)
+  const [byModality, setByModality] = useState<WorklistModalityItemDto[]>([])
+  const [technicianStats, setTechnicianStats] = useState<WorklistTechnicianStatsDto | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      worklistApi.getOverview(),
+      worklistApi.getByModality(),
+      worklistApi.getTechnicianStats(),
+    ]).then(([ov, bm, ts]) => {
+      if (cancelled) return
+      if (ov.success && ov.data) setOverview(ov.data)
+      if (bm.success && Array.isArray(bm.data?.items)) setByModality(bm.data!.items)
+      if (ts.success && ts.data) setTechnicianStats(ts.data)
+    }).catch(() => { /* 总览/明细不可用不阻断 */ })
+    return () => { cancelled = true }
+  }, [])
 
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
     try { return JSON.parse(localStorage.getItem('worklist-filter-presets') || '[]') }
@@ -1511,6 +1539,10 @@ export default function WorklistPage() {
           <span>实时设备状态</span>
         </>
       }
+      breadcrumb={[
+        { label: '首页', onClick: () => navigate('/') },
+        { label: '检查工作列表' },
+      ]}
       style={{ marginBottom: 0 }}
     />
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -1554,14 +1586,13 @@ export default function WorklistPage() {
             列配置{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
           </AppButton>
 
-          <AppButton
-            variant="primary"
+          <ActionButton
+            action="refresh"
             size="compact"
             onClick={handleRefresh}
-            icon={<RefreshCw size={12} />}
           >
             刷新列表
-          </AppButton>
+          </ActionButton>
 
           {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-2)] 影像预取按钮 (勾选行或全部) */}
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -1870,7 +1901,7 @@ export default function WorklistPage() {
             <Monitor size={13} /> 模态 SLA 概况
           </div>
           {modalitySla.length === 0 ? (
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+            <EmptyState type="nodata" style={{ padding: '12px 0', gap: 6 }} />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {modalitySla.map(m => {
@@ -1998,6 +2029,168 @@ export default function WorklistPage() {
         </Card>
       )}
 
+      {/* [v3.0.6.11-103 Wave 1B] 今日总览 / 模态分组 / 技师明细:
+          GET /worklist/overview · GET /worklist/by-modality · GET /worklist/technician-stats */}
+      {(overview || byModality.length > 0 || technicianStats) && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: 16,
+          marginBottom: 16,
+        }} data-testid="worklist-overview-panel">
+          {/* 今日总览 */}
+          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <LayoutDashboard size={13} /> {t('worklist.overview.title')}
+              {overview?.date && (
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{overview.date}</span>
+              )}
+            </div>
+            {!overview ? (
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+            ) : (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                  {[
+                    [t('worklist.overview.todayExams'), `${overview.todayTotal}`],
+                    [t('worklist.overview.todayCompleted'), `${overview.completedToday}`],
+                    [t('worklist.overview.completedRate'), `${overview.completedRate}%`],
+                    [t('worklist.overview.avgDuration'), `${overview.avgDurationMin}min`],
+                  ].map(([label, value]) => (
+                    <div key={label} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '8px 10px' }}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#1e40af', lineHeight: 1.2 }}>{value}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 44, marginBottom: 8 }}>
+                  {(overview.byHour ?? []).filter(h => {
+                    const hour = Number(h.hour.slice(0, 2))
+                    return hour >= 8 && hour <= 20
+                  }).map(h => (
+                    <div key={h.hour} title={`${h.hour} 共 ${h.count} 项`} style={{
+                      flex: 1, height: `${Math.max(3, Math.min(100, Math.round((h.count / Math.max(1, Math.max(...(overview.byHour ?? []).map(x => x.count), 1))) * 100)))}%`,
+                      background: '#3b82f6', borderRadius: '2px 2px 0 0', opacity: 0.75,
+                    }} />
+                  ))}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {Object.entries(overview.byStatus ?? {}).map(([status, count]) => (
+                    <span key={status} style={{
+                      padding: '2px 10px', borderRadius: 999, background: 'var(--content-bg)',
+                      color: 'var(--text-secondary)', fontSize: 11,
+                    }}>
+                      {status}: <b>{count}</b>
+                    </span>
+                  ))}
+                  {Object.keys(overview.byStatus ?? {}).length === 0 && (
+                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>暂无状态分布</span>
+                  )}
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
+                    {t('worklist.overview.peakHour', { hour: overview.peakHour })}
+                  </span>
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* 模态分组 */}
+          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Table2 size={13} /> {t('worklist.byModality.title')}
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+                GET /worklist/by-modality
+              </span>
+            </div>
+            {byModality.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {byModality.map(m => {
+                  const maxTotal = Math.max(1, ...byModality.map(x => x.total))
+                  return (
+                    <div key={m.modality} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 40, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{m.modality}</span>
+                      <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
+                        <div style={{
+                          width: `${Math.round((m.total / maxTotal) * 100)}%`, height: '100%', borderRadius: 999,
+                          background: m.inProgress > 0 ? '#d97706' : '#3b82f6', transition: 'width 0.4s',
+                        }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 150, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {m.total} 项 · {t('worklist.byModality.inProgress')} {m.inProgress} · {t('worklist.byModality.todayCompleted')} {m.todayCompleted}
+                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 60, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {t('worklist.byModality.avgDuration', { min: m.avgDurationMin })}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </Card>
+
+          {/* 技师维度明细 */}
+          <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
+            background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Users size={13} /> {t('worklist.technicianStats.title')}
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
+                GET /worklist/technician-stats
+              </span>
+            </div>
+            {!technicianStats || (technicianStats.technicians ?? []).length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>暂无数据</div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                  <span style={{
+                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-success-bg)',
+                    color: '#059669', fontSize: 11,
+                  }}>{t('worklist.technicianStats.completed', { count: technicianStats.summary?.totalCompleted })}</span>
+                  <span style={{
+                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-warning-bg)',
+                    color: '#d97706', fontSize: 11,
+                  }}>{t('worklist.technicianStats.retake', { count: technicianStats.summary?.totalRetake, rate: technicianStats.summary?.retakeRate })}</span>
+                  <span style={{
+                    padding: '2px 10px', borderRadius: 999, background: 'var(--color-info-bg)',
+                    color: '#2563eb', fontSize: 11,
+                  }}>{t('worklist.technicianStats.avg', { min: technicianStats.summary?.avgDurationMin, count: technicianStats.summary?.technicianCount })}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {technicianStats.technicians.slice(0, 6).map(tech => {
+                    const maxDone = Math.max(1, ...technicianStats.technicians.map(x => x.completedCount))
+                    return (
+                      <div key={tech.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 56, fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tech.name}</span>
+                        <div style={{ flex: 1, height: 7, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
+                          <div style={{
+                            width: `${Math.round((tech.completedCount / maxDone) * 100)}%`, height: '100%', borderRadius: 999,
+                            background: tech.retakeCount > 0 ? '#f59e0b' : '#22c55e', transition: 'width 0.4s',
+                          }} />
+                        </div>
+                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 130, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          {t('worklist.technicianStats.row', {
+                            done: tech.completedCount,
+                            min: tech.avgDurationMin,
+                            retake: tech.retakeCount > 0 ? t('worklist.technicianStats.retakeSuffix', { count: tech.retakeCount }) : '',
+                          })}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+
       <BatchToolbar
         batch={batch}
         onChange={setBatch}
@@ -2121,20 +2314,16 @@ export default function WorklistPage() {
           <Printer size={20} />
         </AppButton>
 
-        <button
+        <AppButton
+          variant="primary"
+          size="compact"
           onClick={handleRefresh}
-          style={{
-            width: 48, height: 48, borderRadius: 12, background: '#1e40af',
-            border: 'none', boxShadow: '0 4px 12px rgba(30,58,95,0.3)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', color: '#fff', transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#2563eb'; e.currentTarget.style.transform = 'scale(1.05)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#1e40af'; e.currentTarget.style.transform = 'scale(1)' }}
+          style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(30,58,95,0.3)' }}
           title="刷新数据"
+          testId="fab-refresh"
         >
           <RefreshCw size={20} />
-        </button>
+        </AppButton>
       </div>
 
       <div style={{
@@ -2172,8 +2361,8 @@ export default function WorklistPage() {
               <div><span style={{ color: 'var(--text-secondary)' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => void savePatientInfo()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>保存</button>
+              <ActionButton action="cancel" size="compact" onClick={() => setPatientInfoModalExam(null)}>取消</ActionButton>
+              <ActionButton action="save" size="compact" onClick={() => void savePatientInfo()}>保存</ActionButton>
             </div>
           </Card>
         </div>
@@ -2316,8 +2505,8 @@ export default function WorklistPage() {
               <div><span style={{ color: 'var(--text-secondary)' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => void submitReport()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>提交报告</button>
+              <ActionButton action="cancel" size="compact" onClick={() => setReportModalExam(null)}>取消</ActionButton>
+              <ActionButton action="submit" size="compact" onClick={() => void submitReport()}>提交报告</ActionButton>
             </div>
           </Card>
         </div>
@@ -2338,8 +2527,13 @@ export default function WorklistPage() {
             <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{confirmModalConfig.title}</h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
-              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: confirmModalConfig.variant === 'danger' ? '#dc2626' : '#1e40af', color: '#fff', cursor: 'pointer' }}>确认</button>
+              <ActionButton action="cancel" size="compact" onClick={() => setConfirmModalConfig(null)}>取消</ActionButton>
+              <ActionButton
+                action={confirmModalConfig.variant === 'danger' ? 'delete' : 'submit'}
+                variant={confirmModalConfig.variant === 'danger' ? 'danger' : 'primary'}
+                size="compact"
+                onClick={confirmModalConfig.onConfirm}
+              >确认</ActionButton>
             </div>
           </Card>
         </div>
@@ -2377,7 +2571,7 @@ export default function WorklistPage() {
               )}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>确定</button>
+              <ActionButton action="submit" size="compact" onClick={() => setBatchResultModalData(null)}>确定</ActionButton>
             </div>
           </Card>
         </div>
@@ -2414,8 +2608,8 @@ export default function WorklistPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => { window.print(); setPrintPreviewModalData(null) }} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>打印</button>
+              <ActionButton action="cancel" size="compact" onClick={() => setPrintPreviewModalData(null)}>取消</ActionButton>
+              <ActionButton action="print" size="compact" onClick={() => { window.print(); setPrintPreviewModalData(null) }}>打印</ActionButton>
             </div>
           </Card>
         </div>
@@ -2477,14 +2671,8 @@ export default function WorklistPage() {
               })}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={resetColumnConfig} style={{
-                padding: '8px 16px', border: '1px solid var(--border-color)', borderRadius: 6,
-                background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13,
-              }}>恢复默认</button>
-              <button onClick={() => setShowColumnConfig(false)} style={{
-                padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af',
-                color: '#fff', cursor: 'pointer', fontSize: 13,
-              }}>应用</button>
+              <ActionButton action="refresh" variant="default" size="compact" onClick={resetColumnConfig}>恢复默认</ActionButton>
+              <ActionButton action="submit" size="compact" onClick={() => setShowColumnConfig(false)}>应用</ActionButton>
             </div>
           </Card>
         </div>

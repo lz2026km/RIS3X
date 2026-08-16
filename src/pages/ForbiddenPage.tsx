@@ -1,32 +1,50 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { ShieldX, ScanLine, ArrowLeft, Home } from 'lucide-react';
+import { t } from '../i18n/appI18n';
+import { ActionButton } from '../components/common/ActionButton';
 
 export default function ForbiddenPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#e2e8f0' }}>
-      <div style={{ background: '#1e293b', padding: 32, borderRadius: 12, width: 420, textAlign: 'center', boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
-        <div style={{ fontSize: 56, fontWeight: 800, color: '#ef4444', marginBottom: 8 }}>403</div>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f8fafc' }}>无访问权限</h1>
-        <p style={{ marginTop: 8, marginBottom: 20, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(ellipse at 30% 20%, #1e3a5f 0%, #0f172a 60%)', color: '#e2e8f0', padding: 24 }}>
+      <div style={{
+        background: 'rgba(30, 41, 59, 0.92)', backdropFilter: 'blur(8px)',
+        padding: 48, borderRadius: 16, width: 460, textAlign: 'center',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.45)', border: '1px solid #334155',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 18,
+            background: 'linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(239,68,68,0.35)',
+          }}>
+            <ScanLine size={36} color="#fff" />
+          </div>
+          <div style={{ fontSize: 64, fontWeight: 800, color: '#f87171', lineHeight: 1, letterSpacing: '-0.02em' }}>
+            {t('w8.forbidden.code')}
+          </div>
+        </div>
+        <h1 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <ShieldX size={20} color="#f87171" />{t('w8.forbidden.title')}
+        </h1>
+        <p style={{ marginTop: 8, marginBottom: 6, fontSize: 13, color: '#94a3b8', lineHeight: 1.7 }}>
           {user
-            ? `当前用户 ${user.name}（${user.role}）无权访问该页面。`
-            : '请先登录后再访问该页面。'}
+            ? t('w8.forbidden.hintLogged', { name: user.name, role: user.role })
+            : t('w8.forbidden.hintGuest')}
         </p>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-          <button
-            onClick={() => navigate(-1)}
-            style={{ padding: '10px 18px', borderRadius: 6, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 13, cursor: 'pointer' }}
-          >
-            返回上一页
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            style={{ padding: '10px 18px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-          >
-            返回首页
-          </button>
+        <p style={{ margin: '0 0 24px', fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
+          {t('w8.forbidden.needPermission')}
+        </p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <ActionButton action="cancel" onClick={() => navigate(-1)} icon={<ArrowLeft size={16} />}>
+            {t('w8.forbidden.back')}
+          </ActionButton>
+          <ActionButton action="create" onClick={() => navigate('/')} icon={<Home size={16} />}>
+            {t('w8.forbidden.home')}
+          </ActionButton>
         </div>
       </div>
     </div>

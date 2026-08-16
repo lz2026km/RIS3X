@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 DevicePage "设备故障" Tab (src/pages/DevicePage.tsx), 文件保留, 旧路由 /device-fault 已 redirect → /devices。功能未删除, 请勿单独继续扩展本页。
 import { Card } from 'antd'
 // G005 放射科RIS系统 - 设备故障登记页面（故障报修→维修→验收闭环管理）
 import { useState, useEffect } from 'react'

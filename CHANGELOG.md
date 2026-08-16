@@ -1,3 +1,61 @@
+## v3.0.6.11-103 (2026-08-16) — 大规模升级（99999 升级点）：后端 961 端点全量前端 UI 补齐（consultations/critical/worklist/followup/cosign/report/dicom-sr/compress/measurement/眼科/口腔/运维/系统管理 ~400 端点）+UI 专业美化（放射主题 70+ token/33 放射图标/仪表盘组件 8/表格 DataTable 统一/按钮表单模态规范）+整改（24 薄页专业级改造+5 组重复页合并 redirect）+流程贯通（技师工作台端到端 7 态/报告工作台端到端 7 态/检查与报告状态机门禁/危急值 5 步流程/随访自动触发）+翻译严查（高频 20 页 t() 化 ~4000 键/i18n 6191 键对称）+PACS 对标新增（结构化报告 V3/语音听写 V2/SNOMED+ICD 自动编码/教学病例库/科研导出中心/设备调度甘特图 V2）+全量交互回归 381 路由 0 失败
+
+> **目标**: 99999 升级点——后端有前端无全补齐 + 空表/简单页整改 + 重复页面合并 + 放射专业 UI 美化 + 技师/报告工作站流程贯通 + 翻译严查 + PACS 对标新增
+> **范围**: 30 agents 二十波实施（285 suites/3146 tests，前端 tsc 841，vite build 成功，Playwright 689+25 全过）
+
+### Wave 1-4: 后端 961 端点全量前端 UI 补齐（~400 端点）
+
+- **协作与工作流**（W1A/W1B）：consultations 20 端点（登记/待会诊/按患者按医生查询/编辑/通知记录）+ critical-alert 12 端点（详情/按报告搜索/通信日志）+ cosign 9 端点（详情/历史/规则）+ worklist 26 端点（总览/模态分组/技师明细/时间线/备注）+ followup 19 端点（编辑/检查联动/触发模式）+ tech-schedule 11 端点全 UI
+- **报告与影像**（W2A/W2B）：report 27 端点（统计总览/医生维度/每日趋势/病灶/关联信息/模板应用/归档策略）+ report-annotation 8 + dual-read 8 + sign-v2 10 + export-center 10 + dicom-sr 15（测量模板库/PDF 封装查询）+ dicom-compress 17（real-jpeg2000/转码）+ measurement-v2 17（服务端计算/坐标换算/标注编辑）+ dicom-share + export-approval + pathology 8（病例列表）
+- **临床专科**（W3A/W3B）：eye-optometry 12（验光档案/OK 镜/视力记录/订单）+ eye-tele 12（远程流/会诊答复）+ eye-edu 10（标注项目）+ eye-subspecialty 13（检查记录/处方）+ eye-pixel 7 + dental 129 端点中 16 个补 UI（正畸/矫治/头影/种植/排班/病历）+ mammo/nuclear/screening（筛查趋势）
+- **系统运维**（W4A/W4B）：pacs-admin 22（服务器详情）+ vna 20（存储分析/校验/重复分析）+ backup + dept-announcement 10 + hl7-siu + insurance-audits（新建审核）+ auto-collection 16 + audit 4（概览/活跃/趋势/高危）+ consent-education 3 + emergency-channel 3（新建 EmergencyChannelPage）+ print 14 + teach 5
+
+### Wave 5-7: 放射专业 UI 美化
+
+- **主题包**：radiologyTheme（医疗蓝 #2563eb 色板/功能色/背景层级/圆角阴影密度/antd getRadiologyTheme）+ ThemeTokens 13→70+ token + 33 放射专属图标（CT/MR/DR/CR/US/MG/NM/PET/DSA/RF 设备 + 部位/流程/状态/辐射警示）+ PageHeader 面包屑/返回/操作区 + StatCard 渐变/趋势 + EmptyState 4 定制 SVG
+- **仪表盘组件**（8 个）：DashboardCard/KpiCard(迷你趋势图)/TrendChart/ProgressRing(语义色)/SkeletonCard + DataTable 统一（斑马纹/固定表头/空态/加载态/分页）+ 接入 Worklist/Report/Exam/Patient 4 主表 + Director/Department/ReportKpi 3 仪表盘升级
+- **表单/按钮/模态规范**：ActionButton（10 类标准动作+图标）+ FormField（label 100px/必填/错误）+ FormSubmitBar + StateView 三态 + AppModal 4 档宽度 + AppDrawer 3 档 + 5 页接入示范
+
+### Wave 8-10: 空表/简单页整改 + 重复页面合并
+
+- **24 薄页专业级改造**：AiMarketplace/ForbiddenPage/PatientPortal/ReportCompare 等 12 页 + DentalEndo/Inventory/Pediatric/Perio/Surgery/Snomed/RoutingRule/EmrTemplates/ExportApproval 等 12 页（KPI 卡/真表格/标准按钮/加载态/seed 回退/i18n）
+- **5 组重复页合并**（保守+redirect）：QualityControlPage→QCPage、RadiologyQCDashboard→QCPage、DeviceFaultPage→DevicePage、AppointmentManagementPage→AppointmentPage、TechSchedulePage→SchedulePage（旧路由 Navigate redirect，文件保留 @deprecated）
+
+### Wave 11-13: 技师/报告工作站流程贯通 + 流程门禁
+
+- **技师工作台**：FlowStatusBar 7 态 Steps + TechWorkbenchPage（今日检查/房间状态/重拍/交接班/紧急插队 5 Tab + 4 概览卡）+ ExamDetailView 剂量记录（DLP/CTDI）+ 完成强制校验（图像合格/剂量/备注）+ 重拍闭环（QC_REJECT→IN_PROGRESS）
+- **报告工作台**：ReportFlowBar 7 态 + ReportWritePage 增强（模板智能匹配/一键测量插入/既往对比/快捷键 Ctrl+S/Ctrl+Enter/Ctrl+T/收藏夹）+ ReportReviewPage 增强（diff 高亮/快捷退回/危急值一键处置/随访建议）
+- **流程门禁**：检查状态机合法流转表（SCHEDULED→ARRIVED→IN_PROGRESS→COMPLETED 防跳转 400）+ 报告状态机收紧（WRITING→SUBMITTED→INITIAL_REVIEW→FINAL/CO_SIGN→PUBLISHED）+ 危急值 5 步流程后端化（触发→通知→确认→处置→闭环，跳步 400）+ 随访发布自动触发 + 提醒队列 + spec 21 用例
+
+### Wave 14-16: 翻译严查
+
+- **高频 20 页全量 t() 化**：InsuranceAudit(542 处)/PrintManagement(559)/Statistics(496)/QCPage(683)/ReportWrite(407)/ExamPage(247)/DevicePage(140)/NationalReport(185)/CancerScreen(140)/HomePage(140)/SchedulePage(160)/AIStructured(105)/ClinicalData(120)/EquipmentLifecycle(175)/ConsultationPage/OperationsCenter(187)/RadiologyQCDashboard(259)/GreenIT/CloudStorage 等 + i18n appI18n 6191 键 zh/en 完全对称（1 键不对称已修复）+ 命名空间规范化
+- **i18n 修复**：W14 脚本损坏恢复（HEAD 2983 键全保留 + 本波新增 3200+ 键，0 丢失）+ compressV2.realRatioFailed en 侧补齐
+
+### Wave 17-18: PACS 对标新增
+
+- **结构化报告 V3**：所见即所得四区（所见/印象/建议/结论）+ 段落锁定/解锁申请 + / 宏命令（4 个）+ 段落子模板（6 组）+ 预览模式
+- **语音听写工作台 V2**：会话状态机（start/append/end）+ 确定性识别（自动标点/四区分段）+ 80+ 放射热词库 + 5 种语音命令词 + 一键写入报告
+- **SNOMED/ICD 自动编码**：36 词 ICD-10 + 40+ SNOMED 字典 + 分节提取 + 置信度 + 人工确认 + 写入报告结构化字段
+- **教学病例库**：病例收藏/分类树/分享 QR/评论/考试模式（确定性抽题评分≥60）/错题本
+- **科研数据导出中心**：数据集构建（模态/病种/时间/医生/结果）+ 字段分组 + CSV/JSON/Excel 任务 + 历史统计（姓名脱敏）
+- **设备调度甘特图 V2**：设备×7 天三色块 + 拖拽调整（15 分钟吸附）+ 冲突检测建议 + 维护块 CRUD + 利用率统计
+
+### Wave 19: 全站点击/Tab/红蓝屏检查
+
+- **click-all 全量回归**：381 路由（新增 8：/tech/workbench /report/structured-v3 /report/asr-dictation /report/auto-coding /teach/case-library /research/export-center /devices/schedule /emergency-channel + redirect 兼容路由）689 passed 0 失败（26.9 分钟）+ 基线 25 passed
+- **红蓝屏修复**：click-all 探针覆盖所有新页 + 修复 device-schedule flaky（Date.now 同毫秒 ID 冲突→自增计数器）+ tech-ops 时间敏感 spec 固定参考时间 + seed 日期统一当日零点
+
+### 验证结果
+
+- 后端: tsc 0 错误、jest **285 suites / 3146 tests 全部通过**（+5 suites +72 tests）
+- 前端: tsc 841（较基线 843 净减 2）、vite build 成功（PWA 580 entries）
+- **全量交互回归：click-all 381 路由 + 基线 = 714/714 通过（0 失败）**
+- **代码量指标**：① 增加行数 33,117 行（净 +25,894）② 增加功能 ~55 项 ③ 新增文件 40 个（涉及 201 文件）④ 总代码 1,520,498 行
+
+---
+
+
 ## v3.0.6.11-101 (2026-08-16) — 大规模升级（99999 升级点）：影像 V2 全链（HTJ2K/JPEG-LS 真编码+4D 真实帧+DL 降噪+影像对比+病理 WSI+分割深化+MPR/VR/CPR+测量标注+AI 增强）+技师 V2 全链（双检轮转/工作量预测/利用率/急诊插队/跨机房/预约分布/值班大屏）+报告 V2 全链（规则引擎/水印签章/质控 V2/升级链/危急值 V2/模板审批/AI 助理 V2/模板库 V2/导出中心/AI 二次检出/会诊 V2/互评/对比/检索/质控闭环）+99999 升级点（i18n 1798 键/公共组件 81 处/MSW 215 端点）+全量交互回归 373 路由 0 失败
 
 > **目标**: 99999 升级点——R 影像 V2 + Q 技师 V2 + S 报告 V2 完整 + 99999 升级点（放射流程/技师/报告/影像全链深化）

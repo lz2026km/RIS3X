@@ -8,6 +8,7 @@ import {
   CancelFollowUpSchema,
   CreateFollowUpPlanSchema,
   FromExamFollowUpSchema,
+  FromReportFollowUpSchema,
   ListFollowUpQuerySchema,
   MissFollowUpSchema,
   UpdateFollowUpPlanSchema,
@@ -25,10 +26,23 @@ type ListQuery = z.infer<typeof ListFollowUpQuerySchema>
 export class FollowUpController {
   constructor(private readonly svc: FollowUpService) {}
 
-  // ⚠️ 静态子路由 (due/stats/from-exam) 必须先于 :id, 避免被 :id 通配拦截
+  // ⚠️ 静态子路由 (due/stats/from-exam/reminder-queue/from-report) 必须先于 :id, 避免被 :id 通配拦截
   @Get('due')
   due(@Query('days') days?: string) {
     return this.svc.due(Number(days ?? 7))
+  }
+
+  // [v3.0.6.11-103 Wave 13] 随访到期提醒队列: 逾期/今日到期/未来 N 天分组
+  @Get('reminder-queue')
+  reminderQueue(@Query('days') days?: string) {
+    return this.svc.reminderQueue(Number(days ?? 7))
+  }
+
+  // [v3.0.6.11-103 Wave 13] 随访自动触发强化: 报告手动补建随访 (关键词规则触发, 不受 auto/hint 模式限制)
+  @Post('from-report')
+  @HttpCode(HttpStatus.CREATED)
+  fromReport(@Body(new ZodValidationPipe(FromReportFollowUpSchema)) body: z.infer<typeof FromReportFollowUpSchema>) {
+    return this.svc.fromReport(body)
   }
 
   // [v3.0.6.11-99 Wave3B] 统计: 完成率/失访率/异常率/按类别/按时段

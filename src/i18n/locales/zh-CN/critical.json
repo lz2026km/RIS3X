@@ -46,5 +46,16 @@
   "notified": "已通知待确认",
   "overdue": "超时未完成",
   "completed": "已完成",
-  "statsTitle": "危急值统计"
+  "statsTitle": "危急值统计",
+  "byReport": "按报告查询",
+  "byReportPlaceholder": "输入报告 ID 查询关联告警",
+  "byReportSearch": "查询",
+  "relatedAlerts": "关联告警",
+  "noRelatedAlerts": "该报告暂无关联危急值告警",
+  "communicationLog": "通知记录",
+  "communicationLogEmpty": "暂无通知记录",
+  "channel": "通道",
+  "communicationAt": "时间",
+  "alertDetail": "告警详情",
+  "alertDetailRefresh": "刷新详情"
 }

@@ -76,7 +76,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid, Stethoscope, Smile, Anchor, AlignCenter, Scissors, Baby } from 'lucide-react';
-import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
+import { Cable, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
 // [v3.0.6.11-100 Wave 4A] 语音工作站图标
 import { Headphones } from 'lucide-react';
 import { ScanEye, Microscope, RefreshCw, PlayCircle, MonitorPlay, TimerReset, FlaskConical, Braces, PackageOpen, HeartPulse, Radiation, Boxes, Syringe, Contact, UserRound, UserPlus } from 'lucide-react';
@@ -157,12 +157,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/appointments",
         icon: <CalendarClock size={18} />,
         labelKey: "nav.appointment",
-        roles: ["医生", "技师", "护士", "主任", "管理员",],
-      },
-      {
-        path: "/appointment-management",
-        icon: <CalendarCog size={18} />,
-        labelKey: "nav.appointmentManage",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
       {
@@ -377,6 +371,25 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.snomedEncode",
         roles: ["医生", "主任", "管理员",],
       },
+      // [v3.0.6.11-103 Wave 17] PACS 对标第一批: 结构化报告 V3 / 语音听写 V2 / 自动编码
+      {
+        path: "/report/v4/structured",
+        icon: <Layers size={18} />,
+        labelKey: "nav.structuredReportV3",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/asr/dictation",
+        icon: <Mic size={18} />,
+        labelKey: "nav.asrDictation",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/snomed/auto-coding",
+        icon: <Code size={18} />,
+        labelKey: "nav.autoCoding",
+        roles: ["医生", "主任", "管理员",],
+      },
       {
         path: "/snomed/encoder",
         icon: <Code size={18} />,
@@ -445,12 +458,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员", "医生"],
       },
       {
-        path: "/quality-control",
-        icon: <ShieldCheck size={18} />,
-        labelKey: "nav.qualityControlV3",
-        roles: ["主任", "管理员"],
-      },
-      {
         path: "/critical-value-center",
         icon: <ShieldAlert size={18} />,
         labelKey: "nav.criticalValueCenter",
@@ -463,12 +470,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员"],
       },
       // [v3.0.6.8-27] 放射科质控总看板(新增)
-      {
-        path: "/qc-dashboard",
-        icon: <ShieldCheck size={18} />,
-        labelKey: "nav.qcDashboard",
-        roles: ["主任", "管理员"],
-      },
       {
         path: "/qc-image",
         icon: <Camera size={18} />,
@@ -955,6 +956,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.teachLecture",
         roles: ["医生", "主任", "技师", "管理员",],
       },
+      // [G005 v3.0.6.11-103 Wave 18] 教学病例库 (收藏/分类/分享评论/考试模式)
+      {
+        path: "/teach/case-library",
+        icon: <BookOpen size={18} />,
+        labelKey: "nav.teachingCaseLibrary",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
       {
         path: "/finding-library",
         icon: <Library size={18} />,
@@ -1372,6 +1380,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.deviceOps",
         roles: ["主任", "管理员"],
       },
+      // [G005 v3.0.6.11-103 Wave 18] 设备调度甘特图 V2 (周视图/拖拽/冲突检测)
+      {
+        path: "/ops/device-gantt",
+        icon: <Calendar size={18} />,
+        labelKey: "nav.deviceGantt",
+        roles: ["主任", "管理员", "技师"],
+      },
       {
         path: "/ops/hr",
         icon: <Contact size={18} />,
@@ -1390,13 +1405,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     icon: <Monitor size={18} />,
     labelKey: "nav.kpiWall",
     roles: ["主任", "管理员"],
-  },
-  // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班
-  {
-    path: "/ops/tech-schedule",
-    icon: <CalendarCog size={18} />,
-    labelKey: "nav.techSchedule",
-    roles: ["主任", "管理员", "技师"],
   },
   // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
   {
@@ -1439,6 +1447,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     icon: <PieChart size={18} />,
     labelKey: "nav.techOverview",
     roles: ["主任", "管理员", "技师"],
+  },
+  // [v3.0.6.11-103 Wave 11] 技师工作站: 端到端应用流程贯通
+  {
+    path: "/tech/workbench",
+    icon: <ClipboardCheck size={18} />,
+    labelKey: "nav.techWorkbench",
+    roles: ["技师", "主任", "管理员"],
   },
       {
         path: "/operations/occupancy",
@@ -2078,6 +2093,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.research",
         roles: ["医生", "主任", "管理员"],
       },
+      // [G005 v3.0.6.11-103 Wave 18] 科研数据导出中心 (数据集/字段/CSV·JSON·Excel)
+      {
+        path: "/research/export-center",
+        icon: <Download size={18} />,
+        labelKey: "nav.researchExportCenter",
+        roles: ["医生", "主任", "管理员"],
+      },
       {
         path: "/report-templates",
         icon: <FileType2 size={18} />,
@@ -2113,6 +2135,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Settings size={18} />,
         labelKey: "nav.systemAdmin",
         roles: ["管理员"],
+      },
+      // [v3.0.6.11-103 Wave 4B] 急诊通道管理 (backend Roles: ADMIN/DIRECTOR/DOCTOR)
+      {
+        path: "/emergency-channel",
+        icon: <HeartPulse size={18} />,
+        labelKey: "nav.emergencyChannel",
+        roles: ["主任", "管理员", "医生"],
       },
       {
         path: "/audit-compliance",
@@ -2457,12 +2486,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/devices",
         icon: <Cpu size={18} />,
         labelKey: "nav.devices",
-        roles: ["技师", "管理员"],
-      },
-      {
-        path: "/device-fault",
-        icon: <Wrench size={18} />,
-        labelKey: "nav.faultRegister",
         roles: ["技师", "管理员"],
       },
       {

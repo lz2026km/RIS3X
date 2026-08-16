@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
+import { t } from "../i18n/appI18n";
 import {
   storageConfigApi,
   type StorageConfigDto,
@@ -41,44 +42,49 @@ import {
 const { Text } = Typography;
 
 const NOTIFY_CHANNEL_LABELS: Record<string, string> = {
-  email: "邮件",
-  sms: "短信",
-  wechat: "企业微信",
-  dingtalk: "钉钉",
-  app: "站内信",
+  email: "email",
+  sms: "sms",
+  wechat: "wechat",
+  dingtalk: "dingtalk",
+  app: "app",
 };
+const notifyChannelLabel = (k: string) => t(`cloudStorage.channel${k.charAt(0).toUpperCase()}${k.slice(1)}`);
 
 const TIER_COLORS: Record<string, string> = { hot: "#dc2626", warm: "#f59e0b", cold: "#3b82f6" };
-const TIER_LABELS: Record<string, string> = { hot: "热存", warm: "温存", cold: "冷归档" };
-const NODE_TYPE_LABELS: Record<string, string> = { primary: "主存储", tier2: "二级", archive: "归档", backup: "备份" };
+const tierLabel = (tier: string) => t(`cloudStorage.tier${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
+const nodeTypeLabel = (tier: string) => t(`cloudStorage.node${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
 
-const STATUS_MAP: Record<string, { color: string; label: string }> = {
-  online: { color: "green", label: "在线" },
-  syncing: { color: "blue", label: "同步中" },
-  offline: { color: "red", label: "离线" },
-  readonly: { color: "orange", label: "只读" },
+const STATUS_COLORS: Record<string, string> = {
+  online: "green",
+  syncing: "blue",
+  offline: "red",
+  readonly: "orange",
 };
+const statusLabel = (s: string) => t(`cloudStorage.status${s.charAt(0).toUpperCase()}${s.slice(1)}`);
 
 // [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动来源徽标映射
-const DRIVER_SOURCE_META: Record<string, { label: string; color: string; desc: string }> = {
-  "aws-sigv4-native": { label: "SigV4 原生驱动", color: "geekblue", desc: "AWS SDK 风格 SigV4 签名, 直连 S3/MinIO REST API" },
-  simulated: { label: "本地模拟", color: "gold", desc: "内存模拟对象存储 (无真实 S3 端点)" },
-  "local-fs": { label: "本地文件系统", color: "green", desc: "DICOM/VNA/Uploads 目录聚合" },
+const DRIVER_SOURCE_META: Record<string, { color: string; descKey: string }> = {
+  "aws-sigv4-native": { color: "geekblue", descKey: "cloudStorage.driverSigv4Desc" },
+  simulated: { color: "gold", descKey: "cloudStorage.driverSimDesc" },
+  "local-fs": { color: "green", descKey: "cloudStorage.driverLocalFsDesc" },
 };
+const driverSourceLabel = (k: string) => t(k === "aws-sigv4-native" ? "cloudStorage.driverSigv4" : k === "simulated" ? "cloudStorage.driverSim" : "cloudStorage.driverLocalFs");
 
 // [G005 v3.0.6.11-99 Wave 7A (G-28)] 生命周期转存层徽标
-const TIER_TRANSITION_META: Record<string, { label: string; color: string }> = {
-  tier2: { label: "二级转存", color: "blue" },
-  archive: { label: "冷归档", color: "purple" },
-  backup: { label: "备份", color: "green" },
+const TIER_TRANSITION_META: Record<string, { color: string }> = {
+  tier2: { color: "blue" },
+  archive: { color: "purple" },
+  backup: { color: "green" },
 };
+const transitionLabel = (tier: string) => t(`cloudStorage.trans${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
 
-const JOB_TYPE: Record<string, { color: string; label: string }> = {
-  auto_archive: { color: "blue", label: "自动归档" },
-  manual_archive: { color: "purple", label: "手动归档" },
-  restore: { color: "green", label: "恢复" },
-  purge: { color: "red", label: "清理" },
+const JOB_TYPE: Record<string, { color: string }> = {
+  auto_archive: { color: "blue" },
+  manual_archive: { color: "purple" },
+  restore: { color: "green" },
+  purge: { color: "red" },
 };
+const jobTypeLabel = (type: string) => t(type === "auto_archive" ? "cloudStorage.jobAutoArchive" : type === "manual_archive" ? "cloudStorage.jobManualArchive" : type === "restore" ? "cloudStorage.jobRestore" : "cloudStorage.jobPurge");
 
 const JOB_STATUS: Record<string, { color: string }> = {
   success: { color: "green" },
@@ -110,12 +116,13 @@ function formatBytesShort(bytes: number | undefined): string {
 const BAR_PALETTE = ["#0ea5e9", "#06b6d4", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 
 // [G005 v3.0.6.11-100 Wave 3B (G-28)] 复制任务状态徽标
-const REP_STATUS_META: Record<string, { label: string; color: string }> = {
-  queued: { label: "排队中", color: "orange" },
-  running: { label: "复制中", color: "blue" },
-  completed: { label: "已完成", color: "green" },
-  failed: { label: "失败", color: "red" },
+const REP_STATUS_META: Record<string, { color: string }> = {
+  queued: { color: "orange" },
+  running: { color: "blue" },
+  completed: { color: "green" },
+  failed: { color: "red" },
 };
+const repStatusLabel = (s: string) => t(`cloudStorage.rep${s.charAt(0).toUpperCase()}${s.slice(1)}`);
 
 // ─────────────────────────── 监控大盘 (原有) ───────────────────────────
 
@@ -193,9 +200,9 @@ function StorageMonitorTab() {
       const res = await storageConfigApi.saveAlertsConfig(values);
       if (res.success && res.data) {
         setAlertsConfig(res.data);
-        message.success(`容量预警配置已保存: 警告 ${res.data.warnPercent}% / 严重 ${res.data.criticalPercent}%`);
+        message.success(t("cloudStorage.monitor.alertsSaved", { warn: res.data.warnPercent, crit: res.data.criticalPercent }));
       } else {
-        message.error(res.error?.message ?? "容量预警配置保存失败");
+        message.error(res.error?.message ?? t("cloudStorage.monitor.alertsSaveFailed"));
       }
     } catch {
       /* 校验失败忽略 */
@@ -211,20 +218,20 @@ function StorageMonitorTab() {
     <>
       <Card
         size="small"
-        title={<Space><BellRing size={16} />容量预警配置<Text type="secondary" style={{ fontSize: 12 }}>警告/严重阈值 · 超限通知渠道 (内存 + 环境 seed 回退)</Text></Space>}
-        extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={alertsSaving} onClick={() => void saveAlertsConfig()}>保存</Button>}
+        title={<Space><BellRing size={16} />{t("cloudStorage.monitor.alertsTitle")}<Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.monitor.alertsSub")}</Text></Space>}
+        extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={alertsSaving} onClick={() => void saveAlertsConfig()}>{t("cloudStorage.monitor.save")}</Button>}
         style={{ marginBottom: 16 }}
         loading={alertsLoading}
       >
         <Form form={alertsForm} layout="inline" initialValues={{ warnPercent: 80, criticalPercent: 90, notifyChannels: ["email", "sms"] }}>
-          <Form.Item name="warnPercent" label="警告阈值 (%)" rules={[{ required: true, message: "必填" }]}>
+          <Form.Item name="warnPercent" label={t("cloudStorage.monitor.warnPercent")} rules={[{ required: true, message: t("cloudStorage.required") }]}>
             <InputNumber min={1} max={100} style={{ width: 90 }} />
           </Form.Item>
-          <Form.Item name="criticalPercent" label="严重阈值 (%)" rules={[{ required: true, message: "必填" }]}>
+          <Form.Item name="criticalPercent" label={t("cloudStorage.monitor.criticalPercent")} rules={[{ required: true, message: t("cloudStorage.required") }]}>
             <InputNumber min={1} max={100} style={{ width: 90 }} />
           </Form.Item>
-          <Form.Item name="notifyChannels" label="通知渠道" rules={[{ required: true, message: "至少选择一个渠道" }]}>
-            <Select mode="multiple" placeholder="选择通知渠道" style={{ minWidth: 260 }} options={Object.entries(NOTIFY_CHANNEL_LABELS).map(([value, label]) => ({ value, label }))} />
+          <Form.Item name="notifyChannels" label={t("cloudStorage.monitor.channelsLabel")} rules={[{ required: true, message: t("cloudStorage.monitor.channelsRequired") }]}>
+            <Select mode="multiple" placeholder={t("cloudStorage.monitor.channelsPlaceholder")} style={{ minWidth: 260 }} options={Object.keys(NOTIFY_CHANNEL_LABELS).map((value) => ({ value, label: notifyChannelLabel(value) }))} />
           </Form.Item>
         </Form>
       </Card>
@@ -236,19 +243,19 @@ function StorageMonitorTab() {
         loading={monitorLoading}
         title={
           <Space>
-            <Gauge size={16} />存储监控大屏
-            <Text type="secondary" style={{ fontSize: 12 }}>容量环形图 · 30 天增长率趋势 · 各桶用量 · IO 计数 · 复制队列 (桶派生 + seed 回退)</Text>
+            <Gauge size={16} />{t("cloudStorage.monitor.title")}
+            <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.monitor.sub")}</Text>
           </Space>
         }
         extra={
           <Space>
-            <Tooltip title={monitor?.source === "derived" ? "指标由桶/对象统计实时派生" : "无桶数据, 展示 seed 回退示例值"}>
+            <Tooltip title={monitor?.source === "derived" ? t("cloudStorage.monitor.sourceDerived") : t("cloudStorage.monitor.sourceFallback")}>
               <Tag color={monitor?.source === "derived" ? "blue" : "orange"} icon={<Database size={12} />}>
-                数据源: {monitor?.source === "derived" ? "桶统计派生" : "seed 回退"}
+                {t("cloudStorage.monitor.dataSource", { source: monitor?.source === "derived" ? t("cloudStorage.monitor.sourceBucket") : t("cloudStorage.monitor.sourceSeed") })}
               </Tag>
             </Tooltip>
             <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void loadMonitor(); void loadRepStatus(); }}>
-              刷新
+              {t("cloudStorage.refresh")}
             </Button>
           </Space>
         }
@@ -260,8 +267,8 @@ function StorageMonitorTab() {
                 <PieChart>
                   <Pie
                     data={[
-                      { name: "已用", value: monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3 },
-                      { name: "可用", value: Math.max(0, (monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4) - (monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3)) },
+                      { name: t("cloudStorage.monitor.used"), value: monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3 },
+                      { name: t("cloudStorage.monitor.available"), value: Math.max(0, (monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4) - (monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3)) },
                     ]}
                     dataKey="value"
                     nameKey="name"
@@ -277,10 +284,10 @@ function StorageMonitorTab() {
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ marginTop: -6 }}>
-                <Text strong style={{ fontSize: 15 }}>容量使用率 {capacityLevel === "critical" ? "严重超限" : capacityLevel === "warn" ? "容量预警" : "正常"} · {monitor?.usedPercent ?? usedPct.toFixed(1)}%</Text>
+                <Text strong style={{ fontSize: 15 }}>{t("cloudStorage.monitor.usageRate", { level: capacityLevel === "critical" ? t("cloudStorage.monitor.levelCritical") : capacityLevel === "warn" ? t("cloudStorage.monitor.levelWarn") : t("cloudStorage.monitor.levelOk"), pct: monitor?.usedPercent ?? usedPct.toFixed(1) })}</Text>
                 <div>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    已用 {formatBytes(monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3)} / 总 {formatBytes(monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4)}
+                    {t("cloudStorage.monitor.usedOfTotal", { used: formatBytes(monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3), total: formatBytes(monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4) })}
                   </Text>
                 </div>
               </div>
@@ -292,12 +299,12 @@ function StorageMonitorTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
-                <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} labelFormatter={(l) => `日期 ${l}`} />
-                <Line type="monotone" dataKey="usedBytes" name="已用容量" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+                <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} labelFormatter={(l) => t("cloudStorage.monitor.datePrefix", { date: l })} />
+                <Line type="monotone" dataKey="usedBytes" name={t("cloudStorage.monitor.usedCapacity")} stroke="#0ea5e9" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
             <div style={{ textAlign: "center", marginTop: 4 }}>
-              <Tag color="geekblue" icon={<TrendingUp size={12} />}>30 天增长率 {monitor?.growthRatePct30d ?? "—"}% (按日均外推)</Tag>
+              <Tag color="geekblue" icon={<TrendingUp size={12} />}>{t("cloudStorage.monitor.growth30d", { rate: monitor?.growthRatePct30d ?? "—" })}</Tag>
             </div>
           </Col>
         </Row>
@@ -305,14 +312,14 @@ function StorageMonitorTab() {
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={12}>
-          <Card size="small" title={<Space><Boxes size={15} />各桶用量 (TB/GB)</Space>} style={{ height: "100%" }}>
+          <Card size="small" title={<Space><Boxes size={15} />{t("cloudStorage.monitor.bucketUsage")}</Space>} style={{ height: "100%" }}>
             <ResponsiveContainer width="100%" height={230}>
               <BarChart data={(monitor?.buckets ?? []).map((b) => ({ name: b.name, usedBytes: b.usedBytes, pct: b.percentOfTotal }))} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
-                <ChartTooltip formatter={(v: unknown, n: unknown) => [`${formatBytes(Number(v))}`, n === "pct" ? "占比" : "已用容量"]} />
-                <Bar dataKey="usedBytes" name="已用容量" radius={[4, 4, 0, 0]}>
+                <ChartTooltip formatter={(v: unknown, n: unknown) => [`${formatBytes(Number(v))}`, n === "pct" ? t("cloudStorage.monitor.pctShare") : t("cloudStorage.monitor.usedCapacity")]} />
+                <Bar dataKey="usedBytes" name={t("cloudStorage.monitor.usedCapacity")} radius={[4, 4, 0, 0]}>
                   {(monitor?.buckets ?? []).map((b, i) => <Cell key={b.name} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />)}
                 </Bar>
               </BarChart>
@@ -328,22 +335,22 @@ function StorageMonitorTab() {
           <Row gutter={12} style={{ marginBottom: 12 }}>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="读取 IO/分" value={monitor?.ioCounts.readPerMin ?? 0} precision={1} valueStyle={{ color: "#0891b2", fontSize: 18 }} prefix={<Eye size={13} />} />
+                <Statistic title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} valueStyle={{ color: "#0891b2", fontSize: 18 }} prefix={<Eye size={13} />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="写入 IO/分" value={monitor?.ioCounts.writePerMin ?? 0} precision={1} valueStyle={{ color: "#10b981", fontSize: 18 }} prefix={<UploadCloud size={13} />} />
+                <Statistic title={t("cloudStorage.monitor.ioWrite")} value={monitor?.ioCounts.writePerMin ?? 0} precision={1} valueStyle={{ color: "#10b981", fontSize: 18 }} prefix={<UploadCloud size={13} />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="上传 PUT/分" value={monitor?.ioCounts.putPerMin ?? 0} precision={1} valueStyle={{ color: "#8b5cf6", fontSize: 18 }} prefix={<Cloud size={13} />} />
+                <Statistic title={t("cloudStorage.monitor.ioPut")} value={monitor?.ioCounts.putPerMin ?? 0} precision={1} valueStyle={{ color: "#8b5cf6", fontSize: 18 }} prefix={<Cloud size={13} />} />
               </Card>
             </Col>
             <Col span={6}>
               <Card size="small">
-                <Statistic title="删除/分" value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} valueStyle={{ color: "#dc2626", fontSize: 18 }} prefix={<Trash2 size={13} />} />
+                <Statistic title={t("cloudStorage.monitor.ioDelete")} value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} valueStyle={{ color: "#dc2626", fontSize: 18 }} prefix={<Trash2 size={13} />} />
               </Card>
             </Col>
           </Row>
@@ -352,20 +359,20 @@ function StorageMonitorTab() {
             loading={repLoading}
             title={
               <Space>
-                <Repeat size={14} />复制队列状态
+                <Repeat size={14} />{t("cloudStorage.monitor.repQueueTitle")}
                 {monitor && (
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    队列深度 {monitor.replication.pending + monitor.replication.running} · 待复制 {formatBytes(monitor.replication.pendingBytes)}
+                    {t("cloudStorage.monitor.queueDepth", { n: monitor.replication.pending + monitor.replication.running, size: formatBytes(monitor.replication.pendingBytes) })}
                   </Text>
                 )}
               </Space>
             }
             extra={
               <Space size={4}>
-                <Tag color="orange">排队 {repStatus?.pending ?? 0}</Tag>
-                <Tag color="blue">复制中 {repStatus?.running ?? 0}</Tag>
-                <Tag color="green">完成 {repStatus?.completed ?? 0}</Tag>
-                <Tag color="red">失败 {repStatus?.failed ?? 0}</Tag>
+                <Tag color="orange">{t("cloudStorage.monitor.repQueuedTag", { n: repStatus?.pending ?? 0 })}</Tag>
+                <Tag color="blue">{t("cloudStorage.monitor.repRunningTag", { n: repStatus?.running ?? 0 })}</Tag>
+                <Tag color="green">{t("cloudStorage.monitor.repCompletedTag", { n: repStatus?.completed ?? 0 })}</Tag>
+                <Tag color="red">{t("cloudStorage.monitor.repFailedTag", { n: repStatus?.failed ?? 0 })}</Tag>
               </Space>
             }
           >
@@ -377,99 +384,99 @@ function StorageMonitorTab() {
                 pagination={false}
                 scroll={{ x: 'max-content' }}
                 columns={[
-                  { title: "任务", dataIndex: "id", key: "id", width: 90, render: (id: string) => <Text code>{id}</Text> },
-                  { title: "源 → 目标", key: "route", width: 210, render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket} @ ${t.region}` },
-                  { title: "对象", key: "objs", width: 80, render: (_: unknown, t: ReplicationTaskDto) => `${t.objectsCopied}/${t.objectsTotal}` },
-                  { title: "进度", dataIndex: "progress", key: "progress", width: 110, render: (p: number, t: ReplicationTaskDto) => <Progress percent={p} size="small" status={t.status === "completed" ? "success" : "active"} /> },
-                  { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const meta = REP_STATUS_META[s] ?? { label: s, color: "default" }; return <Tag color={meta.color}>{meta.label}</Tag>; } },
+                  { title: t("cloudStorage.monitor.thTask"), dataIndex: "id", key: "id", width: 90, render: (id: string) => <Text code>{id}</Text> },
+                  { title: t("cloudStorage.monitor.thRoute"), key: "route", width: 210, render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket} @ ${t.region}` },
+                  { title: t("cloudStorage.monitor.thObjects"), key: "objs", width: 80, render: (_: unknown, t: ReplicationTaskDto) => `${t.objectsCopied}/${t.objectsTotal}` },
+                  { title: t("cloudStorage.monitor.thProgress"), dataIndex: "progress", key: "progress", width: 110, render: (p: number, t: ReplicationTaskDto) => <Progress percent={p} size="small" status={t.status === "completed" ? "success" : "active"} /> },
+                  { title: t("cloudStorage.monitor.thStatus"), dataIndex: "status", key: "status", width: 90, render: (s: string) => { const meta = REP_STATUS_META[s] ?? { color: "default" }; return <Tag color={meta.color}>{repStatusLabel(s)}</Tag>; } },
                 ]}
               />
             ) : (
-              <Alert type="info" showIcon icon={<Globe2 size={14} />} message="暂无跨区复制任务 — 在「桶管理」页签对桶执行「复制到区域」后在此追踪状态。" />
+              <Alert type="info" showIcon icon={<Globe2 size={14} />} message={t("cloudStorage.monitor.noRepTasks")} />
             )}
           </Card>
         </Col>
       </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="总对象数" value={totalObjects} styles={{ content: { color: "#0ea5e9" } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总容量 (TB)" value={(totalCapacity / 1024).toFixed(1)} styles={{ content: { color: "#1e40af" } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.totalObjects")} value={totalObjects} styles={{ content: { color: "#0ea5e9" } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} styles={{ content: { color: "#1e40af" } }} /></Card></Col>
         <Col span={4}>
           <Card>
-            <Statistic title="已用 (TB)" value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: { color: capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#059669" } }} />
+            <Statistic title={t("cloudStorage.monitor.usedTb")} value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: { color: capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#059669" } }} />
             {capacityLevel !== "ok" && (
               <Alert
                 type={capacityLevel === "critical" ? "error" : "warning"}
                 showIcon
                 icon={<AlertCircle size={14} />}
                 style={{ marginTop: 8, padding: "4px 8px" }}
-                message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? `严重: 已用容量超过严重阈值 ${criticalPct}%` : `警告: 已用容量超过警告阈值 ${warnPct}%`}</span>}
+                message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? t("cloudStorage.monitor.criticalMsg", { pct: criticalPct }) : t("cloudStorage.monitor.warnMsg", { pct: warnPct })}</span>}
               />
             )}
           </Card>
         </Col>
         <Col span={4}>
           <Card>
-            <Tooltip title={twentyFourH.derived ? "由真实存储统计按 30 天日均近似 (读取≈写入×3)" : "后端无 24h 吞吐字段, 展示示例值"}>
-              <Statistic title="24h 写入" prefix={twentyFourH.derived ? "≈ " : "示例值 "} value={formatBytes(twentyFourH.write)} styles={{ content: { color: "#10b981" } }} />
+            <Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}>
+              <Statistic title={t("cloudStorage.monitor.write24h")} prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `} value={formatBytes(twentyFourH.write)} styles={{ content: { color: "#10b981" } }} />
             </Tooltip>
           </Card>
         </Col>
         <Col span={4}>
           <Card>
-            <Tooltip title={twentyFourH.derived ? "由真实存储统计按 30 天日均近似 (读取≈写入×3)" : "后端无 24h 吞吐字段, 展示示例值"}>
-              <Statistic title="24h 读取" prefix={twentyFourH.derived ? "≈ " : "示例值 "} value={formatBytes(twentyFourH.read)} styles={{ content: { color: "#0891b2" } }} />
+            <Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}>
+              <Statistic title={t("cloudStorage.monitor.read24h")} prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `} value={formatBytes(twentyFourH.read)} styles={{ content: { color: "#0891b2" } }} />
             </Tooltip>
           </Card>
         </Col>
-        <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.compressionSaved")} value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
       </Row>
 
       {/* [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动状态徽标 + 数据源徽标 */}
-      <Card size="small" style={{ marginBottom: 16 }} title={<Space><ShieldCheck size={16} />驱动状态与数据源</Space>}>
+      <Card size="small" style={{ marginBottom: 16 }} title={<Space><ShieldCheck size={16} />{t("cloudStorage.monitor.driverStatusTitle")}</Space>}>
         <Space size={8} wrap>
           <Tag icon={<Cloud size={12} />} color={storageStats?.driver === "s3" ? "cyan" : "green"}>
-            {storageStats?.driver === "s3" ? "S3 / MinIO" : "本地存储"}
+            {storageStats?.driver === "s3" ? "S3 / MinIO" : t("cloudStorage.monitor.localStorage")}
           </Tag>
           {(() => {
-            const meta: { label: string; color: string; desc: string } =
+            const meta: { color: string; descKey: string } =
               DRIVER_SOURCE_META[storageStats?.source ?? ""]
               ?? (storageStats?.driver === "s3" ? DRIVER_SOURCE_META["aws-sigv4-native"] : DRIVER_SOURCE_META["local-fs"])
-              ?? { label: "未知来源", color: "default", desc: "驱动来源未上报" };
+              ?? { color: "default", descKey: "cloudStorage.monitor.sourceNotReported" };
             return (
-              <Tooltip title={meta.desc}>
+              <Tooltip title={t(meta.descKey)}>
                 <Tag color={meta.color} icon={storageStats?.source === "aws-sigv4-native" ? <CheckCircle size={12} /> : <HardDrive size={12} />}>
-                  {meta.label}
+                  {driverSourceLabel(storageStats?.source === "aws-sigv4-native" ? "aws-sigv4-native" : storageStats?.source === "simulated" ? "simulated" : "local-fs")}
                 </Tag>
               </Tooltip>
             );
           })()}
-          <Tooltip title={storageStats?.source === "aws-sigv4-native" ? "统计来自真实 S3 API (ListObjectsV2)" : "统计来自内存模拟/本地目录"}>
+          <Tooltip title={storageStats?.source === "aws-sigv4-native" ? t("cloudStorage.monitor.realStatsTooltip") : t("cloudStorage.monitor.mockStatsTooltip")}>
             <Tag color={storageStats?.source === "aws-sigv4-native" ? "blue" : "orange"} icon={<Database size={12} />}>
-              数据源: {storageStats?.source === "aws-sigv4-native" ? "真实" : storageStats ? "模拟" : "示例"}
+              {t("cloudStorage.monitor.dataSource", { source: storageStats?.source === "aws-sigv4-native" ? t("cloudStorage.monitor.sourceReal") : storageStats ? t("cloudStorage.monitor.sourceMock") : t("cloudStorage.monitor.sourceSample") })}
             </Tag>
           </Tooltip>
-          <Tooltip title={twentyFourH.derived ? "24h 吞吐由存储统计按 30 天日均近似" : "展示示例值"}>
+          <Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.throughputTooltip") : t("cloudStorage.monitor.showSample")}>
             <Tag color={twentyFourH.derived ? "geekblue" : "default"} icon={<TrendingUp size={12} />}>
-              24h 吞吐: {twentyFourH.derived ? "统计派生" : "示例值"}
+              {t("cloudStorage.monitor.throughput", { source: twentyFourH.derived ? t("cloudStorage.monitor.throughputDerived") : t("cloudStorage.monitor.samplePrefix") })}
             </Tag>
           </Tooltip>
           {storageStats?.latencyMs !== undefined && (
-            <Tag color="purple" icon={<Activity size={12} />}>驱动延迟 {storageStats.latencyMs} ms</Tag>
+            <Tag color="purple" icon={<Activity size={12} />}>{t("cloudStorage.monitor.driverLatency", { ms: storageStats.latencyMs })}</Tag>
           )}
         </Space>
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
-          <Card title={<Space><HardDrive size={16} />存储节点 ({nodes.length})<Tag color="green">{(nodes.filter(n => n.status === "online").length)} 在线</Tag></Space>}>
+          <Card title={<Space><HardDrive size={16} />{t("cloudStorage.monitor.nodesTitle", { n: nodes.length })}<Tag color="green">{t("cloudStorage.monitor.onlineTag", { n: nodes.filter(n => n.status === "online").length })}</Tag></Space>}>
             <Table scroll={{ x: 'max-content' }}
               dataSource={nodes}
               rowKey="id"
               size="small"
               pagination={false}
               columns={[
-                { title: "节点", dataIndex: "name", key: "name", width: 220, render: (n: string, r: any) => (
+                { title: t("cloudStorage.monitor.thNode"), dataIndex: "name", key: "name", width: 220, render: (n: string, r: any) => (
                   <Space>
                     <Layers size={14} color={TIER_COLORS[r.tier]} />
                     <div>
@@ -478,72 +485,72 @@ function StorageMonitorTab() {
                     </div>
                   </Space>
                 ) },
-                { title: "层级", dataIndex: "tier", key: "tier", width: 80, render: (t: string) => <Tag color={TIER_COLORS[t]}>{TIER_LABELS[t]}</Tag> },
-                { title: "类型", dataIndex: "type", key: "type", width: 100, render: (t: string) => NODE_TYPE_LABELS[t] ?? t },
-                { title: "区域", dataIndex: "region", key: "region", width: 140 },
-                { title: "容量使用", key: "usage", width: 200, render: (_: any, r: any) => {
+                { title: t("cloudStorage.monitor.thTier"), dataIndex: "tier", key: "tier", width: 80, render: (tier: string) => <Tag color={TIER_COLORS[tier]}>{tierLabel(tier)}</Tag> },
+                { title: t("cloudStorage.monitor.thType"), dataIndex: "type", key: "type", width: 100, render: (t: string) => nodeTypeLabel(t) },
+                { title: t("cloudStorage.monitor.thRegion"), dataIndex: "region", key: "region", width: 140 },
+                { title: t("cloudStorage.monitor.thUsage"), key: "usage", width: 200, render: (_: any, r: any) => {
                   const pct = (r.usedGb / r.capacityGb) * 100;
                   return <Progress percent={pct} size="small" status={pct > 80 ? "exception" : "active"} format={(p) => `${(p ?? 0).toFixed(1)}%`} />;
                 } },
-                { title: "超限标记", key: "over", width: 90, render: (_: any, r: any) => {
+                { title: t("cloudStorage.monitor.thOver"), key: "over", width: 90, render: (_: any, r: any) => {
                   const pct = (r.usedGb / r.capacityGb) * 100;
-                  if (pct >= criticalPct) return <Tag color="red">严重超限</Tag>;
-                  if (pct >= warnPct) return <Tag color="orange">容量预警</Tag>;
-                  return <Tag>正常</Tag>;
+                  if (pct >= criticalPct) return <Tag color="red">{t("cloudStorage.monitor.levelCritical")}</Tag>;
+                  if (pct >= warnPct) return <Tag color="orange">{t("cloudStorage.monitor.levelWarn")}</Tag>;
+                  return <Tag>{t("cloudStorage.monitor.levelOk")}</Tag>;
                 } },
-                { title: "对象数", dataIndex: "objectsCount", key: "obj", width: 110, render: (n: number) => n.toLocaleString() },
-                { title: "读延迟", dataIndex: "readLatencyMs", key: "rl", width: 90, render: (n: number) => `${n} ms` },
-                { title: "写延迟", dataIndex: "writeLatencyMs", key: "wl", width: 90, render: (n: number) => `${n} ms` },
-                { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const st = STATUS_MAP[s] ?? { color: "gray", label: s }; return <Tag color={st.color}>{st.label}</Tag> } },
+                { title: t("cloudStorage.monitor.thObjectCount"), dataIndex: "objectsCount", key: "obj", width: 110, render: (n: number) => n.toLocaleString() },
+                { title: t("cloudStorage.monitor.thReadLatency"), dataIndex: "readLatencyMs", key: "rl", width: 90, render: (n: number) => `${n} ms` },
+                { title: t("cloudStorage.monitor.thWriteLatency"), dataIndex: "writeLatencyMs", key: "wl", width: 90, render: (n: number) => `${n} ms` },
+                { title: t("cloudStorage.monitor.thStatus"), dataIndex: "status", key: "status", width: 100, render: (s: string) => <Tag color={STATUS_COLORS[s] ?? "gray"}>{statusLabel(s)}</Tag> },
               ]}
             
             />
           </Card>
         </Col>
         <Col span={8}>
-          <Card title={<Space><Archive size={16} />分层存储</Space>} style={{ marginBottom: 16 }}>
+          <Card title={<Space><Archive size={16} />{t("cloudStorage.monitor.tieredStorage")}</Space>} style={{ marginBottom: 16 }}>
             {TIER_METRICS.map(m => (
               <div key={m.tier} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                   <Space>
                     <div style={{ width: 10, height: 10, background: TIER_COLORS[m.tier], borderRadius: 2 }} />
-                    <Text strong>{TIER_LABELS[m.tier]}层</Text>
+                    <Text strong>{t("cloudStorage.monitor.tierLayer", { label: tierLabel(m.tier) })}</Text>
                   </Space>
-                  <Text>{m.objects.toLocaleString()} 个对象 | {(m.sizeGb / 1024).toFixed(1)} TB</Text>
+                  <Text>{t("cloudStorage.monitor.objectsOf", { n: m.objects.toLocaleString(), size: (m.sizeGb / 1024).toFixed(1) })}</Text>
                 </div>
                 <Progress percent={m.pctOfTotal} showInfo={false} strokeColor={TIER_COLORS[m.tier]} />
-                <Text type="secondary" style={{ fontSize: 11 }}>保留 {m.retentionDays} 天 | ${m.monthlyCostUsd}/月</Text>
+                <Text type="secondary" style={{ fontSize: 11 }}>{t("cloudStorage.monitor.retention", { days: m.retentionDays, cost: m.monthlyCostUsd })}</Text>
               </div>
             ))}
           </Card>
-          <Card title={<Space><TrendingUp size={16} />压缩统计</Space>}>
-            <Statistic title="原始大小" value={`${(COMPRESSION.rawBytes / 1e12).toFixed(2)} TB`} />
+          <Card title={<Space><TrendingUp size={16} />{t("cloudStorage.monitor.compressionTitle")}</Space>}>
+            <Statistic title={t("cloudStorage.monitor.rawSize")} value={`${(COMPRESSION.rawBytes / 1e12).toFixed(2)} TB`} />
             <div style={{ marginTop: 8 }}>
-              <Text>压缩后 {(COMPRESSION.compressedBytes / 1e12).toFixed(2)} TB</Text>
+              <Text>{t("cloudStorage.monitor.compressedAfter", { size: (COMPRESSION.compressedBytes / 1e12).toFixed(2) })}</Text>
             </div>
             <Progress percent={COMPRESSION.ratio * 100} strokeColor="#7c3aed" format={(p) => `${((p ?? 0) / 100).toFixed(2)}x`} />
-            <Alert type="success" showIcon title={`节省 ${COMPRESSION.savedGb} GB 存储空间`} style={{ marginTop: 8 }} />
+            <Alert type="success" showIcon title={t("cloudStorage.monitor.savedSpace", { gb: COMPRESSION.savedGb })} style={{ marginTop: 8 }} />
           </Card>
         </Col>
       </Row>
 
-      <Card title={<Space><Repeat size={16} />归档任务 ({ARCHIVE_JOBS.length})</Space>}>
+      <Card title={<Space><Repeat size={16} />{t("cloudStorage.monitor.archiveJobs", { n: ARCHIVE_JOBS.length })}</Space>}>
         <Table scroll={{ x: 'max-content' }}
           dataSource={jobsPagination.pageData}
           rowKey="id"
           size="small"
           pagination={jobsPagination.pagination}
           columns={[
-            { title: "任务", dataIndex: "id", key: "id", width: 110 },
-            { title: "类型", dataIndex: "type", key: "type", width: 110, render: (t: string) => { const jt = JOB_TYPE[t] ?? { color: "blue", label: t }; return <Tag color={jt.color}>{jt.label}</Tag> } },
-            { title: "源", dataIndex: "source", key: "src", width: 130 },
-            { title: "目标", dataIndex: "target", key: "dst", width: 130 },
-            { title: "对象数", dataIndex: "objects", key: "o", width: 80 },
-            { title: "大小", dataIndex: "bytes", key: "b", width: 100, render: (b: number) => `${(b / 1024 / 1024).toFixed(1)} MB` },
-            { title: "开始", dataIndex: "startedAt", key: "s", width: 160, render: (t: string) => new Date(t).toLocaleString("zh-CN") },
-            { title: "耗时", dataIndex: "duration", key: "d", width: 80, render: (d: number) => `${d}s` },
-            { title: "进度", dataIndex: "progress", key: "p", width: 140, render: (p: number) => <Progress percent={p} size="small" status={p === 100 ? "success" : "active"} /> },
-            { title: "状态", dataIndex: "status", key: "st", width: 90, render: (s: string) => <Tag color={JOB_STATUS[s]?.color}>{s === "success" ? "成功" : s === "running" ? "进行中" : s === "failed" ? "失败" : "排队"}</Tag> },
+            { title: t("cloudStorage.monitor.thTask"), dataIndex: "id", key: "id", width: 110 },
+            { title: t("cloudStorage.monitor.thType"), dataIndex: "type", key: "type", width: 110, render: (t: string) => { const jt = JOB_TYPE[t] ?? { color: "blue" }; return <Tag color={jt.color}>{jobTypeLabel(t)}</Tag> } },
+            { title: t("cloudStorage.monitor.thSource"), dataIndex: "source", key: "src", width: 130 },
+            { title: t("cloudStorage.monitor.thTarget"), dataIndex: "target", key: "dst", width: 130 },
+            { title: t("cloudStorage.monitor.thObjectCount"), dataIndex: "objects", key: "o", width: 80 },
+            { title: t("cloudStorage.monitor.thSize"), dataIndex: "bytes", key: "b", width: 100, render: (b: number) => `${(b / 1024 / 1024).toFixed(1)} MB` },
+            { title: t("cloudStorage.monitor.thStarted"), dataIndex: "startedAt", key: "s", width: 160, render: (t: string) => new Date(t).toLocaleString("zh-CN") },
+            { title: t("cloudStorage.monitor.thDuration"), dataIndex: "duration", key: "d", width: 80, render: (d: number) => `${d}s` },
+            { title: t("cloudStorage.monitor.thProgress"), dataIndex: "progress", key: "p", width: 140, render: (p: number) => <Progress percent={p} size="small" status={p === 100 ? "success" : "active"} /> },
+            { title: t("cloudStorage.monitor.thStatus"), dataIndex: "status", key: "st", width: 90, render: (s: string) => <Tag color={JOB_STATUS[s]?.color}>{s === "success" ? t("cloudStorage.jobStatusSuccess") : s === "running" ? t("cloudStorage.jobStatusRunning") : s === "failed" ? t("cloudStorage.jobStatusFailed") : t("cloudStorage.jobStatusQueued")}</Tag> },
           ]}
        
         />
@@ -589,7 +596,7 @@ function StorageConfigTab() {
       setStats(res.data.active);
       setEnvDriver(res.data.envDriver);
     } else {
-      messageApi.error(res.error?.message ?? "加载存储配置失败");
+      messageApi.error(res.error?.message ?? t("cloudStorage.config.loadFailed"));
     }
     setLoading(false);
   };
@@ -606,12 +613,12 @@ function StorageConfigTab() {
     if (res.success && res.data) {
       setTestResult(res.data);
       if (res.data.status === "active") {
-        messageApi.success(res.data.detail ?? "连接成功");
+        messageApi.success(res.data.detail ?? t("cloudStorage.config.connSuccess"));
       } else {
-        messageApi.warning(res.data.detail ?? "连接失败");
+        messageApi.warning(res.data.detail ?? t("cloudStorage.config.connFailed"));
       }
     } else {
-      messageApi.error(res.error?.message ?? "连接测试失败");
+      messageApi.error(res.error?.message ?? t("cloudStorage.config.testFailed"));
     }
     setTesting(false);
   };
@@ -621,15 +628,15 @@ function StorageConfigTab() {
     setSaving(true);
     const res = await storageConfigApi.save(values as StorageConfigDto);
     if (res.success && res.data) {
-      messageApi.success(res.data.applied ? "配置已保存并生效" : "配置已保存 (运行时驱动由环境变量 STORAGE_DRIVER 控制)");
+      messageApi.success(res.data.applied ? t("cloudStorage.config.savedApplied") : t("cloudStorage.config.savedEnvControlled"));
       void load();
     } else {
-      messageApi.error(res.error?.message ?? "保存失败");
+      messageApi.error(res.error?.message ?? t("cloudStorage.config.saveFailed"));
     }
     setSaving(false);
   };
 
-  const driverLabel = driver === "s3" ? "S3 / MinIO 对象存储" : "本地文件系统";
+  const driverLabel = driver === "s3" ? t("cloudStorage.config.driverS3") : t("cloudStorage.config.driverLocal");
   const activeColor = stats?.status === "active" ? "#16a34a" : "#dc2626";
 
   return (
@@ -638,19 +645,19 @@ function StorageConfigTab() {
       <Row gutter={16}>
         <Col span={14}>
           <Card
-            title={<Space><Settings size={16} />存储驱动配置<Text type="secondary" style={{ fontSize: 12 }}>对标 GE True PACS Cloud / Sectra One Cloud</Text></Space>}
+            title={<Space><Settings size={16} />{t("cloudStorage.config.title")}<Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.config.benchmark")}</Text></Space>}
             extra={
               <Space>
-                <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
-                <Button type="primary" icon={<PlugZap size={14} />} onClick={() => void onTest()} loading={testing}>连接测试</Button>
-                <Button icon={<Save size={14} />} onClick={() => void onSave()} loading={saving} disabled={testing}>保存配置</Button>
+                <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>{t("cloudStorage.refresh")}</Button>
+                <Button type="primary" icon={<PlugZap size={14} />} onClick={() => void onTest()} loading={testing}>{t("cloudStorage.config.testConnection")}</Button>
+                <Button icon={<Save size={14} />} onClick={() => void onSave()} loading={saving} disabled={testing}>{t("cloudStorage.config.saveConfig")}</Button>
               </Space>
             }
           >
             <Form form={form} layout="vertical" initialValues={{ driver: "local", endpoint: "http://localhost:9000", region: "us-east-1" }}>
-              <Form.Item name="driver" label="存储驱动" rules={[{ required: true, message: "请选择存储驱动" }]}>
+              <Form.Item name="driver" label={t("cloudStorage.config.driverLabel")} rules={[{ required: true, message: t("cloudStorage.config.needDriver") }]}>
                 <Radio.Group>
-                  <Radio.Button value="local"><Database size={14} /> 本地存储</Radio.Button>
+                  <Radio.Button value="local"><Database size={14} /> {t("cloudStorage.config.localRadio")}</Radio.Button>
                   <Radio.Button value="s3"><Cloud size={14} /> S3 / MinIO</Radio.Button>
                 </Radio.Group>
               </Form.Item>
@@ -660,11 +667,11 @@ function StorageConfigTab() {
                 showIcon
                 icon={<AlertCircle size={14} />}
                 style={{ marginBottom: 16 }}
-                message={`当前选择: ${driverLabel}`}
+                message={t("cloudStorage.config.currentChoice", { driver: driverLabel })}
                 description={
                   driver === "s3"
-                    ? "DICOM / VNA / Files 对象将写入 S3/MinIO (AWS SigV4, 无需 AWS SDK)。bucket 需预先创建。"
-                    : "数据存储于本机目录 (DICOM_STORAGE_DIR / VNA_STORAGE_DIR / FILES_STORAGE_DIR)。"
+                    ? t("cloudStorage.config.s3Desc")
+                    : t("cloudStorage.config.localDesc")
                 }
               />
 
@@ -672,29 +679,29 @@ function StorageConfigTab() {
                 <>
                   <Row gutter={12}>
                     <Col span={12}>
-                      <Form.Item name="endpoint" label="端点" rules={[{ required: true, message: "端点必填" }]}>
+                      <Form.Item name="endpoint" label={t("cloudStorage.config.endpoint")} rules={[{ required: true, message: t("cloudStorage.config.endpointRequired") }]}>
                         <Input placeholder="http://localhost:9000" />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Form.Item name="bucket" label="存储桶" rules={[{ required: true, message: "存储桶必填" }]}>
+                      <Form.Item name="bucket" label={t("cloudStorage.config.bucket")} rules={[{ required: true, message: t("cloudStorage.config.bucketRequired") }]}>
                         <Input placeholder="g005" />
                       </Form.Item>
                     </Col>
                   </Row>
                   <Row gutter={12}>
                     <Col span={8}>
-                      <Form.Item name="region" label="区域" rules={[{ required: true, message: "区域必填" }]}>
+                      <Form.Item name="region" label={t("cloudStorage.config.region")} rules={[{ required: true, message: t("cloudStorage.config.regionRequired") }]}>
                         <Input placeholder="us-east-1" />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="accessKey" label="访问密钥" rules={[{ required: true, message: "访问密钥必填" }]}>
+                      <Form.Item name="accessKey" label={t("cloudStorage.config.accessKey")} rules={[{ required: true, message: t("cloudStorage.config.accessKeyRequired") }]}>
                         <Input placeholder="minioadmin" />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="secretKey" label="私有密钥" rules={[{ required: true, message: "私有密钥必填" }]}>
+                      <Form.Item name="secretKey" label={t("cloudStorage.config.secretKey")} rules={[{ required: true, message: t("cloudStorage.config.secretKeyRequired") }]}>
                         <Input.Password placeholder="••••••••" />
                       </Form.Item>
                     </Col>
@@ -709,57 +716,57 @@ function StorageConfigTab() {
                 type={testResult.status === "active" ? "success" : "error"}
                 showIcon
                 icon={testResult.status === "active" ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                message={testResult.detail ?? (testResult.status === "active" ? "连接成功" : "连接失败")}
-                description={testResult.latencyMs !== undefined ? `延迟 ${testResult.latencyMs} ms` : undefined}
+                message={testResult.detail ?? (testResult.status === "active" ? t("cloudStorage.config.connSuccess") : t("cloudStorage.config.connFailed"))}
+                description={testResult.latencyMs !== undefined ? t("cloudStorage.config.latency", { ms: testResult.latencyMs }) : undefined}
               />
             )}
           </Card>
         </Col>
 
         <Col span={10}>
-          <Card title={<Space><Activity size={16} />驱动状态与存储统计</Space>} loading={loading}>
+          <Card title={<Space><Activity size={16} />{t("cloudStorage.config.statsTitle")}</Space>} loading={loading}>
             <div style={{ marginBottom: 12 }}>
               <Space>
                 <div style={{ width: 10, height: 10, background: activeColor, borderRadius: "50%" }} />
                 <Text strong style={{ fontSize: 15 }}>
-                  当前驱动: {stats?.driver === "s3" ? "S3 / MinIO" : "本地存储"}
+                  {t("cloudStorage.config.currentDriver", { driver: stats?.driver === "s3" ? "S3 / MinIO" : t("cloudStorage.monitor.localStorage") })}
                   <Tag color={stats?.status === "active" ? "green" : "red"} style={{ marginLeft: 8 }}>
-                    {stats?.status === "active" ? "运行中" : "异常"}
+                    {stats?.status === "active" ? t("cloudStorage.config.running") : t("cloudStorage.config.abnormal")}
                   </Tag>
                 </Text>
               </Space>
             </div>
             {envDriver && (
               <Alert type="warning" showIcon style={{ marginBottom: 12 }}
-                message={`环境变量 STORAGE_DRIVER=${envDriver} 已固定运行时驱动, 页面保存的配置不覆盖环境变量。`} />
+                message={t("cloudStorage.config.envDriverMsg", { env: envDriver })} />
             )}
             <Row gutter={12}>
               <Col span={12}>
                 <Card size="small" style={{ marginBottom: 12 }}>
-                  <Statistic title="已用容量" value={formatBytes(stats?.usedBytes)} valueStyle={{ color: "#dc2626", fontSize: 20 }} />
+                  <Statistic title={t("cloudStorage.config.usedBytes")} value={formatBytes(stats?.usedBytes)} valueStyle={{ color: "#dc2626", fontSize: 20 }} />
                 </Card>
               </Col>
               <Col span={12}>
                 <Card size="small" style={{ marginBottom: 12 }}>
-                  <Statistic title="对象数" value={stats?.objectCount ?? 0} valueStyle={{ color: "#0ea5e9", fontSize: 20 }} />
+                  <Statistic title={t("cloudStorage.config.objectCount")} value={stats?.objectCount ?? 0} valueStyle={{ color: "#0ea5e9", fontSize: 20 }} />
                 </Card>
               </Col>
             </Row>
             {stats?.truncated && (
-              <Alert type="info" showIcon message="对象数超过统计上限 (5000), 统计为抽样结果。" style={{ marginBottom: 12 }} />
+              <Alert type="info" showIcon message={t("cloudStorage.config.truncatedMsg")} style={{ marginBottom: 12 }} />
             )}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <Clock size={14} color="var(--text-secondary)" />
-              <Text type="secondary" style={{ fontSize: 12 }}>{stats?.detail ?? "暂无统计"}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{stats?.detail ?? t("cloudStorage.config.noStats")}</Text>
             </div>
             {stats?.latencyMs !== undefined && (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Activity size={14} color="var(--text-secondary)" />
-                <Text type="secondary" style={{ fontSize: 12 }}>驱动延迟 {stats.latencyMs} ms</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.monitor.driverLatency", { ms: stats.latencyMs })}</Text>
               </div>
             )}
             <Alert type="success" showIcon icon={<CheckCircle size={14} />} style={{ marginTop: 12 }}
-              message="归档链路已就绪" description="DICOM (C-STORE / STOW-RS) → VNA → Files 全部经过统一存储抽象层。" />
+              message={t("cloudStorage.config.archiveReady")} description={t("cloudStorage.config.archiveReadyDesc")} />
           </Card>
         </Col>
       </Row>
@@ -769,11 +776,12 @@ function StorageConfigTab() {
 
 // ─────────────────────────── 桶管理 (G-28 v3.0.6.11-91) ───────────────────────────
 
-const PROVIDER_LABELS: Record<string, { label: string; color: string }> = {
-  s3: { label: "AWS S3", color: "orange" },
-  minio: { label: "MinIO", color: "geekblue" },
-  local: { label: "本地", color: "green" },
+const PROVIDER_LABELS: Record<string, { color: string }> = {
+  s3: { color: "orange" },
+  minio: { color: "geekblue" },
+  local: { color: "green" },
 };
+const providerLabel = (p: string) => t(p === "s3" ? "cloudStorage.providerS3" : p === "minio" ? "cloudStorage.providerMinio" : "cloudStorage.providerLocal");
 
 function objectIcon(key: string) {
   if (key.endsWith(".json")) return <FileJson size={14} />;
@@ -818,7 +826,7 @@ function BucketObjectsModal({
     if (res.success && Array.isArray(res.data)) {
       setObjects(res.data);
       setSelectedKeys([]);
-    } else message.error(res.error?.message ?? "对象列表加载失败");
+    } else message.error(res.error?.message ?? t("cloudStorage.objects.loadFailed"));
     setLoading(false);
   };
 
@@ -829,7 +837,7 @@ function BucketObjectsModal({
 
   const download = async (obj: StorageObjectDto) => {
     if (!bucket) return;
-    message.loading({ content: `正在生成 ${obj.key} 模拟下载…`, key: "dl" });
+    message.loading({ content: t("cloudStorage.objects.downloading", { key: obj.key }), key: "dl" });
     const res = await storageConfigApi.downloadObject(bucket.name, obj.key);
     if (res.success && res.data) {
       const d = res.data;
@@ -841,9 +849,9 @@ function BucketObjectsModal({
       a.download = d.filename || obj.key;
       a.click();
       URL.revokeObjectURL(url);
-      message.success({ content: `已下载 ${d.filename} (${formatBytes(d.size)})`, key: "dl" });
+      message.success({ content: t("cloudStorage.objects.downloaded", { name: d.filename, size: formatBytes(d.size) }), key: "dl" });
     } else {
-      message.error({ content: res.error?.message ?? "下载失败", key: "dl" });
+      message.error({ content: res.error?.message ?? t("cloudStorage.objects.downloadFailed"), key: "dl" });
     }
   };
 
@@ -852,11 +860,11 @@ function BucketObjectsModal({
     setBatchDeleting(true);
     const res = await storageConfigApi.batchDeleteObjects(bucket.name, keys);
     if (res.success && res.data) {
-      message.success(`已删除 ${res.data.deleted.length} 个对象${res.data.missing.length ? `, ${res.data.missing.length} 个未命中` : ""}`);
+      message.success(t("cloudStorage.objects.deletedCount", { n: res.data.deleted.length }) + (res.data.missing.length ? `, ${t("cloudStorage.objects.missCount", { n: res.data.missing.length })}` : ""));
       void load(bucket.name);
       onChanged();
     } else {
-      message.error(res.error?.message ?? "批量删除失败");
+      message.error(res.error?.message ?? t("cloudStorage.objects.batchDeleteFailed"));
     }
     setBatchDeleting(false);
   };
@@ -866,11 +874,11 @@ function BucketObjectsModal({
     setDeletingKey(obj.key);
     const res = await storageConfigApi.batchDeleteObjects(bucket.name, [obj.key]);
     if (res.success && res.data) {
-      message.success(`已删除 ${obj.key}`);
+      message.success(t("cloudStorage.objects.deletedKey", { key: obj.key }));
       void load(bucket.name);
       onChanged();
     } else {
-      message.error(res.error?.message ?? "删除失败");
+      message.error(res.error?.message ?? t("cloudStorage.objects.deleteFailed"));
     }
     setDeletingKey(null);
   };
@@ -888,7 +896,7 @@ function BucketObjectsModal({
     if (res.success && res.data) {
       setSignedUrlInfo(res.data);
     } else {
-      message.error(res.error?.message ?? "签名 URL 生成失败");
+      message.error(res.error?.message ?? t("cloudStorage.objects.signUrlFailed"));
     }
     setSigningKey(null);
   };
@@ -897,9 +905,9 @@ function BucketObjectsModal({
     if (!signedUrlInfo) return;
     try {
       await navigator.clipboard.writeText(signedUrlInfo.url);
-      message.success("签名 URL 已复制到剪贴板");
+      message.success(t("cloudStorage.objects.urlCopied"));
     } catch {
-      message.error("复制失败, 请手动选择复制");
+      message.error(t("cloudStorage.objects.copyFailedManual"));
     }
   };
 
@@ -908,13 +916,13 @@ function BucketObjectsModal({
     setCopying(true);
     const res = await storageConfigApi.copyObject(bucket.name, { key: copyKey, targetBucket: copyTarget });
     if (res.success && res.data) {
-      message.success(`已复制 ${copyKey} → ${res.data.targetBucket} (${formatBytes(res.data.size)})`);
+      message.success(t("cloudStorage.objects.copied", { key: copyKey, target: res.data.targetBucket, size: formatBytes(res.data.size) }));
       setCopyVisible(false);
       setCopyKey(null);
       void load(bucket.name);
       onChanged();
     } else {
-      message.error(res.error?.message ?? "复制失败");
+      message.error(res.error?.message ?? t("cloudStorage.objects.copyFailed"));
     }
     setCopying(false);
   };
@@ -926,7 +934,7 @@ function BucketObjectsModal({
       title={
         <Space>
           <Boxes size={16} color="#0ea5e9" />
-          {bucket?.name} 对象列表 ({objects.length})
+          {t("cloudStorage.objects.title", { bucket: bucket?.name, n: objects.length })}
         </Space>
       }
       open={visible}
@@ -938,7 +946,7 @@ function BucketObjectsModal({
         type="info"
         showIcon
         style={{ marginBottom: 12 }}
-        message="上传为本地模拟 (仅注册元数据)，下载生成 JSON/文本 Blob 模拟真实拉取。批量删除/复制为内存模拟 (source=simulated)。"
+        message={t("cloudStorage.objects.uploadInfo")}
       />
       <Space style={{ marginBottom: 12 }} wrap>
         <Upload
@@ -952,11 +960,11 @@ function BucketObjectsModal({
               .uploadObject(bucket.name, { key: file.name, size: file.size })
               .then((res) => {
                 if (res.success && res.data) {
-                  message.success(`模拟上传成功: ${res.data.key} (${formatBytes(res.data.size)})`);
+                  message.success(t("cloudStorage.objects.uploadSuccess", { key: res.data.key, size: formatBytes(res.data.size) }));
                   void load(bucket.name);
                   onChanged();
                 } else {
-                  message.error(res.error?.message ?? "上传失败");
+                  message.error(res.error?.message ?? t("cloudStorage.objects.uploadFailed"));
                 }
               })
               .finally(() => setUploading(false));
@@ -964,14 +972,14 @@ function BucketObjectsModal({
           }}
         >
           <Button type="primary" icon={<UploadCloud size={14} />} loading={uploading} disabled={!bucket}>
-            上传对象 (本地模拟)
+            {t("cloudStorage.objects.uploadObject")}
           </Button>
         </Upload>
         <Popconfirm
-          title={`确认批量删除选中的 ${selectedKeys.length} 个对象?`}
-          description="内存态删除, 不可恢复"
-          okText="删除"
-          cancelText="取消"
+          title={t("cloudStorage.objects.confirmBatchDelete", { n: selectedKeys.length })}
+          description={t("cloudStorage.objects.memoryDelete")}
+          okText={t("cloudStorage.delete")}
+          cancelText={t("cloudStorage.cancel")}
           disabled={selectedKeys.length === 0}
           onConfirm={() => void deleteKeys(selectedKeys as string[])}
         >
@@ -981,7 +989,7 @@ function BucketObjectsModal({
             disabled={selectedKeys.length === 0 || !bucket}
             loading={batchDeleting}
           >
-            批量删除{selectedKeys.length ? ` (${selectedKeys.length})` : ""}
+            {t("cloudStorage.objects.batchDelete")}{selectedKeys.length ? ` (${selectedKeys.length})` : ""}
           </Button>
         </Popconfirm>
       </Space>
@@ -998,7 +1006,7 @@ function BucketObjectsModal({
         }}
         columns={[
           {
-            title: "对象键",
+            title: t("cloudStorage.objects.thKey"),
             dataIndex: "key",
             key: "key",
             render: (k: string) => (
@@ -1009,44 +1017,44 @@ function BucketObjectsModal({
             ),
           },
           {
-            title: "大小",
+            title: t("cloudStorage.objects.thSize"),
             dataIndex: "size",
             key: "size",
             width: 120,
             render: (s: number) => formatBytes(s),
           },
           {
-            title: "修改时间",
+            title: t("cloudStorage.objects.thModified"),
             dataIndex: "modified",
             key: "modified",
             width: 180,
             render: (m: string) => new Date(m).toLocaleString("zh-CN"),
           },
           {
-            title: "操作",
+            title: t("cloudStorage.objects.thActions"),
             key: "action",
             width: 300,
             render: (_: unknown, obj: StorageObjectDto) => (
               <Space size={4}>
                 <Button size="small" icon={<Download size={13} />} onClick={() => void download(obj)}>
-                  下载
+                  {t("cloudStorage.objects.download")}
                 </Button>
-                <Tooltip title="生成带过期时间的 CDN 签名下载 URL">
+                <Tooltip title={t("cloudStorage.objects.signUrlTooltip")}>
                   <Button size="small" icon={<Link2 size={13} />} loading={signingKey === obj.key} onClick={() => void getSignedUrl(obj)}>
-                    签名 URL
+                    {t("cloudStorage.objects.signUrl")}
                   </Button>
                 </Tooltip>
                 <Button size="small" icon={<CopyIcon size={13} />} disabled={copyTargets.length === 0} onClick={() => openCopy(obj)}>
-                  复制到…
+                  {t("cloudStorage.objects.copyTo")}
                 </Button>
                 <Popconfirm
-                  title={`确认删除对象 ${obj.key}?`}
-                  okText="删除"
-                  cancelText="取消"
+                  title={t("cloudStorage.objects.confirmDeleteObject", { key: obj.key })}
+                  okText={t("cloudStorage.delete")}
+                  cancelText={t("cloudStorage.cancel")}
                   onConfirm={() => void deleteOne(obj)}
                 >
                   <Button size="small" danger icon={<Trash2 size={13} />} loading={deletingKey === obj.key}>
-                    删除
+                    {t("cloudStorage.delete")}
                   </Button>
                 </Popconfirm>
               </Space>
@@ -1056,38 +1064,38 @@ function BucketObjectsModal({
       />
 
       <Modal
-        title={<Space><CopyIcon size={16} color="#0ea5e9" />复制对象到其他桶</Space>}
+        title={<Space><CopyIcon size={16} color="#0ea5e9" />{t("cloudStorage.objects.copyModalTitle")}</Space>}
         open={copyVisible}
         onCancel={() => setCopyVisible(false)}
         onOk={() => void doCopy()}
         confirmLoading={copying}
-        okText="复制"
-        cancelText="取消"
+        okText={t("cloudStorage.objects.copy")}
+        cancelText={t("cloudStorage.cancel")}
         destroyOnHidden
       >
         <div style={{ marginBottom: 8 }}>
-          <Text strong>对象: {copyKey}</Text>
+          <Text strong>{t("cloudStorage.objects.objectLabel", { key: copyKey })}</Text>
         </div>
         <Select
           style={{ width: "100%" }}
-          placeholder="选择目标桶"
+          placeholder={t("cloudStorage.objects.selectTarget")}
           value={copyTarget}
           onChange={setCopyTarget}
-          options={copyTargets.map((b) => ({ value: b.name, label: `${b.name} (${PROVIDER_LABELS[b.provider]?.label ?? b.provider})` }))}
+          options={copyTargets.map((b) => ({ value: b.name, label: `${b.name} (${providerLabel(b.provider)})` }))}
         />
         {copyTarget && (
-          <Alert type="info" showIcon style={{ marginTop: 8 }} message={`${copyKey} 将复制到 ${copyTarget}, 同名覆盖 (source=simulated)`} />
+          <Alert type="info" showIcon style={{ marginTop: 8 }} message={t("cloudStorage.objects.copyInfo", { key: copyKey, target: copyTarget })} />
         )}
       </Modal>
 
       {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] CDN 签名 URL 弹窗 */}
       <Modal
-        title={<Space><Link2 size={16} color="#0ea5e9" />CDN 签名下载 URL</Space>}
+        title={<Space><Link2 size={16} color="#0ea5e9" />{t("cloudStorage.objects.cdnTitle")}</Space>}
         open={!!signedUrlInfo}
         onCancel={() => setSignedUrlInfo(null)}
         footer={[
-          <Button key="copy" type="primary" icon={<ClipboardCopy size={14} />} onClick={() => void copySignedUrl()}>复制 URL</Button>,
-          <Button key="close" onClick={() => setSignedUrlInfo(null)}>关闭</Button>,
+          <Button key="copy" type="primary" icon={<ClipboardCopy size={14} />} onClick={() => void copySignedUrl()}>{t("cloudStorage.objects.copyUrl")}</Button>,
+          <Button key="close" onClick={() => setSignedUrlInfo(null)}>{t("cloudStorage.objects.close")}</Button>,
         ]}
         width={640}
         destroyOnHidden
@@ -1098,14 +1106,14 @@ function BucketObjectsModal({
               type="info"
               showIcon
               style={{ marginBottom: 12 }}
-              message={`对象: ${signedUrlInfo.bucket}/${signedUrlInfo.key}`}
+              message={t("cloudStorage.objects.objectLabel", { key: `${signedUrlInfo.bucket}/${signedUrlInfo.key}` })}
               description={
                 <Space size={6} wrap>
                   <Tag color={signedUrlInfo.source === "aws-sigv4-native" ? "geekblue" : "gold"}>
-                    {signedUrlInfo.source === "aws-sigv4-native" ? "SigV4 原生预签名" : "本地模拟 (source=simulated)"}
+                    {signedUrlInfo.source === "aws-sigv4-native" ? t("cloudStorage.objects.sigv4Presigned") : t("cloudStorage.objects.localSim")}
                   </Tag>
-                  <Tag color="purple">有效期 {signedUrlInfo.expiresInSec} 秒</Tag>
-                  <Tag color="orange">过期时间 {new Date(signedUrlInfo.expiresAt).toLocaleString("zh-CN")}</Tag>
+                  <Tag color="purple">{t("cloudStorage.objects.expiresIn", { sec: signedUrlInfo.expiresInSec })}</Tag>
+                  <Tag color="orange">{t("cloudStorage.objects.expiresAt", { time: new Date(signedUrlInfo.expiresAt).toLocaleString("zh-CN") })}</Tag>
                 </Space>
               }
             />
@@ -1140,7 +1148,7 @@ function StorageBucketsTab() {
     setLoading(true);
     const res = await storageConfigApi.listBuckets();
     if (res.success && Array.isArray(res.data)) setBuckets(res.data);
-    else message.error(res.error?.message ?? "桶列表加载失败");
+    else message.error(res.error?.message ?? t("cloudStorage.buckets.loadFailed"));
     setLoading(false);
   };
 
@@ -1159,12 +1167,12 @@ function StorageBucketsTab() {
         region: values.region.trim() || "us-east-1",
       });
       if (res.success && res.data) {
-        message.success(`桶已创建: ${res.data.name} (${res.data.provider}/${res.data.region})`);
+        message.success(t("cloudStorage.buckets.created", { name: res.data.name, provider: providerLabel(res.data.provider), region: res.data.region }));
         setCreateVisible(false);
         createForm.resetFields();
         void load();
       } else {
-        message.error(res.error?.message ?? "桶创建失败");
+        message.error(res.error?.message ?? t("cloudStorage.buckets.createFailed"));
       }
     } catch {
       /* 校验失败忽略 */
@@ -1176,10 +1184,10 @@ function StorageBucketsTab() {
     setDeleting(bucket.name);
     const res = await storageConfigApi.deleteBucket(bucket.name);
     if (res.success) {
-      message.success(`桶 ${bucket.name} 已删除`);
+      message.success(t("cloudStorage.buckets.deleted", { name: bucket.name }));
       void load();
     } else {
-      message.error(res.error?.message ?? "删除失败");
+      message.error(res.error?.message ?? t("cloudStorage.buckets.deleteFailed"));
     }
     setDeleting(null);
   };
@@ -1214,12 +1222,12 @@ function StorageBucketsTab() {
       region: replicateRegion.trim() || "us-east-1",
     });
     if (res.success && res.data) {
-      message.success(`复制任务 ${res.data.id} 已创建: ${res.data.sourceBucket} → ${res.data.targetBucket} @ ${res.data.region}`);
+      message.success(t("cloudStorage.buckets.repTaskCreated", { id: res.data.id, src: res.data.sourceBucket, dst: res.data.targetBucket, region: res.data.region }));
       setRepTask(res.data);
       await pollRepStatus();
       void load();
     } else {
-      message.error(res.error?.message ?? "跨区复制任务创建失败");
+      message.error(res.error?.message ?? t("cloudStorage.buckets.repTaskFailed"));
     }
     setReplicating(false);
   };
@@ -1231,27 +1239,27 @@ function StorageBucketsTab() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="桶数量" value={buckets.length} valueStyle={{ color: "#0ea5e9" }} prefix={<Boxes size={14} />} />
+            <Statistic title={t("cloudStorage.buckets.count")} value={buckets.length} valueStyle={{ color: "#0ea5e9" }} prefix={<Boxes size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="对象总数" value={totalObjects.toLocaleString()} valueStyle={{ color: "#0891b2" }} prefix={<Inbox size={14} />} />
+            <Statistic title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} valueStyle={{ color: "#0891b2" }} prefix={<Inbox size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="占用容量" value={formatBytes(totalBytes)} valueStyle={{ color: "#dc2626" }} prefix={<HardDrive size={14} />} />
+            <Statistic title={t("cloudStorage.buckets.usedBytes")} value={formatBytes(totalBytes)} valueStyle={{ color: "#dc2626" }} prefix={<HardDrive size={14} />} />
           </Card>
         </Col>
       </Row>
 
       <Card
-        title={<Space><Boxes size={16} />云存储桶 <Text type="secondary" style={{ fontSize: 12 }}>S3 / MinIO / 本地 — 桶 CRUD + 对象列表 + 模拟上传下载</Text><Tag color="gold" icon={<Database size={12} />}>数据源: 内存模拟 (source=simulated)</Tag></Space>}
+        title={<Space><Boxes size={16} />{t("cloudStorage.buckets.title")} <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.buckets.sub")}</Text><Tag color="gold" icon={<Database size={12} />}>{t("cloudStorage.buckets.dataSourceTag")}</Tag></Space>}
         extra={
           <Space>
-            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
-            <Button type="primary" icon={<FolderPlus size={14} />} onClick={() => setCreateVisible(true)}>新建桶</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>{t("cloudStorage.refresh")}</Button>
+            <Button type="primary" icon={<FolderPlus size={14} />} onClick={() => setCreateVisible(true)}>{t("cloudStorage.buckets.newBucket")}</Button>
           </Space>
         }
       >
@@ -1264,7 +1272,7 @@ function StorageBucketsTab() {
           pagination={false}
           columns={[
             {
-              title: "桶名称",
+              title: t("cloudStorage.buckets.thName"),
               dataIndex: "name",
               key: "name",
               width: 200,
@@ -1276,70 +1284,70 @@ function StorageBucketsTab() {
               ),
             },
             {
-              title: "提供商",
+              title: t("cloudStorage.buckets.thProvider"),
               dataIndex: "provider",
               key: "provider",
               width: 120,
               render: (p: BucketProvider) => {
-                const cfg = PROVIDER_LABELS[p] ?? { label: p, color: "default" };
-                return <Tag color={cfg.color}>{cfg.label}</Tag>;
+                const cfg = PROVIDER_LABELS[p] ?? { color: "default" };
+                return <Tag color={cfg.color}>{providerLabel(p)}</Tag>;
               },
             },
             {
-              title: "租户",
+              title: t("cloudStorage.buckets.thTenant"),
               dataIndex: "tenantId",
               key: "tenantId",
               width: 130,
-              render: (t: string) => (
-                <Tooltip title="多租户桶隔离 (x-tenant-id 校验, 非 default 租户桶自动前缀)">
-                  <Tag color={t === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
-                    {t === "default" ? "默认租户" : t}
+              render: (tenantId: string) => (
+                <Tooltip title={t("cloudStorage.buckets.tenantTooltip")}>
+                  <Tag color={tenantId === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
+                    {tenantId === "default" ? t("cloudStorage.buckets.defaultTenant") : tenantId}
                   </Tag>
                 </Tooltip>
               ),
             },
-            { title: "区域", dataIndex: "region", key: "region", width: 140 },
+            { title: t("cloudStorage.buckets.thRegion"), dataIndex: "region", key: "region", width: 140 },
             {
-              title: "对象数",
+              title: t("cloudStorage.buckets.thObjectCount"),
               dataIndex: "objectCount",
               key: "objectCount",
               width: 100,
               render: (n: number) => n.toLocaleString(),
             },
             {
-              title: "占用",
+              title: t("cloudStorage.buckets.thUsed"),
               dataIndex: "usedBytes",
               key: "usedBytes",
               width: 120,
               render: (b: number) => formatBytes(b),
             },
             {
-              title: "创建时间",
+              title: t("cloudStorage.buckets.thCreatedAt"),
               dataIndex: "createdAt",
               key: "createdAt",
               width: 170,
               render: (c: string) => new Date(c).toLocaleString("zh-CN"),
             },
             {
-              title: "操作",
+              title: t("cloudStorage.buckets.thActions"),
               key: "action",
               width: 240,
               render: (_: unknown, r: StorageBucketDto) => (
                 <Space size={4}>
-                  <Tooltip title="对象列表">
-                    <Button size="small" icon={<Eye size={13} />} onClick={() => openObjects(r)}>对象</Button>
+                  <Tooltip title={t("cloudStorage.buckets.objectsTooltip")}>
+                    <Button size="small" icon={<Eye size={13} />} onClick={() => openObjects(r)}>{t("cloudStorage.buckets.objects")}</Button>
                   </Tooltip>
-                  <Tooltip title="整桶跨区复制 (内存队列任务)">
-                    <Button size="small" icon={<Globe2 size={13} />} disabled={r.objectCount === 0} onClick={() => openReplicate(r)}>复制到区域</Button>
+                  <Tooltip title={t("cloudStorage.buckets.replicateTooltip")}>
+                    <Button size="small" icon={<Globe2 size={13} />} disabled={r.objectCount === 0} onClick={() => openReplicate(r)}>{t("cloudStorage.buckets.replicateToRegion")}</Button>
                   </Tooltip>
                   <Popconfirm
-                    title={`确认删除桶 ${r.name}?`}
-                    description="删除后桶内对象一并移除 (内存态)"
-                    okText="删除"
-                    cancelText="取消"
+                    title={t("cloudStorage.buckets.confirmDeleteBucket", { name: r.name })}
+                    description={t("cloudStorage.buckets.deleteBucketDesc")}
+                    okText={t("cloudStorage.delete")}
+                    cancelText={t("cloudStorage.cancel")}
                     onConfirm={() => void onDelete(r)}
                   >
-                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === r.name}>删除</Button>
+                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === r.name}>{t("cloudStorage.delete")}</Button>
                   </Popconfirm>
                 </Space>
               ),
@@ -1349,36 +1357,36 @@ function StorageBucketsTab() {
       </Card>
 
       <Modal
-        title={<Space><FolderPlus size={16} color="#0ea5e9" />新建存储桶</Space>}
+        title={<Space><FolderPlus size={16} color="#0ea5e9" />{t("cloudStorage.buckets.createTitle")}</Space>}
         open={createVisible}
         onCancel={() => setCreateVisible(false)}
         onOk={() => void onCreate()}
         confirmLoading={creating}
-        okText="创建"
-        cancelText="取消"
+        okText={t("cloudStorage.buckets.create")}
+        cancelText={t("cloudStorage.cancel")}
       >
         <Form form={createForm} layout="vertical" initialValues={{ provider: "s3", region: "us-east-1" }} style={{ marginTop: 8 }}>
           <Form.Item
             name="name"
-            label="桶名称"
+            label={t("cloudStorage.buckets.thName")}
             rules={[
-              { required: true, message: "桶名称必填" },
-              { pattern: /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i, message: "仅允许字母/数字/点/中划线" },
-              { max: 63, message: "最长 63 字符" },
+              { required: true, message: t("cloudStorage.buckets.nameRequired") },
+              { pattern: /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i, message: t("cloudStorage.buckets.namePattern") },
+              { max: 63, message: t("cloudStorage.buckets.maxLength") },
             ]}
           >
             <Input placeholder="g005-backup" prefix={<Cloud size={13} />} />
           </Form.Item>
-          <Form.Item name="provider" label="提供商" rules={[{ required: true, message: "请选择提供商" }]}>
+          <Form.Item name="provider" label={t("cloudStorage.buckets.thProvider")} rules={[{ required: true, message: t("cloudStorage.buckets.needProvider") }]}>
             <Select
               options={[
-                { value: "s3", label: "AWS S3" },
-                { value: "minio", label: "MinIO" },
-                { value: "local", label: "本地文件系统" },
+                { value: "s3", label: t("cloudStorage.providerS3") },
+                { value: "minio", label: t("cloudStorage.providerMinio") },
+                { value: "local", label: t("cloudStorage.config.driverLocal") },
               ]}
             />
           </Form.Item>
-          <Form.Item name="region" label="区域" rules={[{ required: true, message: "区域必填" }]}>
+          <Form.Item name="region" label={t("cloudStorage.buckets.regionLabel")} rules={[{ required: true, message: t("cloudStorage.buckets.regionRequired") }]}>
             <Input placeholder="us-east-1 / cn-north-1" />
           </Form.Item>
         </Form>
@@ -1386,43 +1394,43 @@ function StorageBucketsTab() {
 
       {/* [G005 v3.0.6.11-100 Wave 3B (G-28)] 跨区复制任务 Modal + 状态追踪 */}
       <Modal
-        title={<Space><Globe2 size={16} color="#0ea5e9" />跨区复制 — {replicateSrc?.name}</Space>}
+        title={<Space><Globe2 size={16} color="#0ea5e9" />{t("cloudStorage.buckets.replicateTitle", { name: replicateSrc?.name })}</Space>}
         open={replicateVisible}
         onCancel={() => setReplicateVisible(false)}
         onOk={() => void doReplicate()}
         confirmLoading={replicating}
-        okText="创建复制任务"
-        cancelText="取消"
+        okText={t("cloudStorage.buckets.createRepTask")}
+        cancelText={t("cloudStorage.cancel")}
         destroyOnHidden
       >
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 12 }}
-          message={`将把 ${replicateSrc?.name} 内全部 ${replicateSrc?.objectCount ?? 0} 个对象 (${formatBytes(replicateSrc?.usedBytes)}) 复制到目标桶, 目标区域为 {region}`}
+          message={t("cloudStorage.buckets.replicateInfo", { name: replicateSrc?.name, count: replicateSrc?.objectCount ?? 0, size: formatBytes(replicateSrc?.usedBytes) })}
         />
         <div style={{ marginBottom: 12 }}>
-          <Text strong style={{ display: "block", marginBottom: 6 }}>目标桶</Text>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>{t("cloudStorage.buckets.targetBucket")}</Text>
           <Select
             style={{ width: "100%" }}
-            placeholder="选择目标桶 (不可与源桶相同)"
+            placeholder={t("cloudStorage.buckets.selectTargetHint")}
             value={replicateTarget}
             onChange={setReplicateTarget}
-            options={repTargets.map((b) => ({ value: b.name, label: `${b.name} (${PROVIDER_LABELS[b.provider]?.label ?? b.provider} / ${b.region})` }))}
+            options={repTargets.map((b) => ({ value: b.name, label: `${b.name} (${providerLabel(b.provider)} / ${b.region})` }))}
           />
         </div>
         <div style={{ marginBottom: 12 }}>
-          <Text strong style={{ display: "block", marginBottom: 6 }}>目标区域</Text>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>{t("cloudStorage.buckets.targetRegion")}</Text>
           <Select
             style={{ width: "100%" }}
             value={replicateRegion}
             onChange={setReplicateRegion}
             options={[
-              { value: "us-east-1", label: "us-east-1 (弗吉尼亚北部)" },
-              { value: "us-west-2", label: "us-west-2 (俄勒冈)" },
-              { value: "eu-west-1", label: "eu-west-1 (爱尔兰)" },
-              { value: "ap-southeast-1", label: "ap-southeast-1 (新加坡)" },
-              { value: "cn-north-1", label: "cn-north-1 (北京)" },
+              { value: "us-east-1", label: t("cloudStorage.buckets.regionUsEast1") },
+              { value: "us-west-2", label: t("cloudStorage.buckets.regionUsWest2") },
+              { value: "eu-west-1", label: t("cloudStorage.buckets.regionEuWest1") },
+              { value: "ap-southeast-1", label: t("cloudStorage.buckets.regionApSoutheast1") },
+              { value: "cn-north-1", label: t("cloudStorage.buckets.regionCnNorth1") },
             ]}
           />
         </div>
@@ -1433,20 +1441,20 @@ function StorageBucketsTab() {
             message={
               <Space wrap>
                 <Text code>{repTask.id}</Text>
-                <Tag color={REP_STATUS_META[repTask.status]?.color}>{REP_STATUS_META[repTask.status]?.label ?? repTask.status}</Tag>
+                <Tag color={REP_STATUS_META[repTask.status]?.color}>{repStatusLabel(repTask.status)}</Tag>
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                  {repTask.objectsCopied}/{repTask.objectsTotal} 对象 · {formatBytes(repTask.bytesCopied)} · @ {repTask.region}
+                  {t("cloudStorage.buckets.repProgress", { copied: repTask.objectsCopied, total: repTask.objectsTotal, bytes: formatBytes(repTask.bytesCopied), region: repTask.region })}
                 </Text>
               </Space>
             }
-            description={repTask.status === "completed" ? "跨区复制已完成, 目标桶对象数已更新。" : "任务已入队, 可在监控大盘「复制队列状态」查看最新进度。"}
+            description={repTask.status === "completed" ? t("cloudStorage.buckets.repDoneDesc") : t("cloudStorage.buckets.repQueuedDesc")}
           />
         )}
         {repTasks.length > 0 && (
           <div style={{ marginTop: 12 }}>
             <Space style={{ marginBottom: 6 }}>
-              <Text strong style={{ fontSize: 13 }}>最近复制任务</Text>
-              {repPolling && <Tag color="blue">刷新中…</Tag>}
+              <Text strong style={{ fontSize: 13 }}>{t("cloudStorage.buckets.recentRepTasks")}</Text>
+              {repPolling && <Tag color="blue">{t("cloudStorage.buckets.refreshing")}</Tag>}
             </Space>
             <Table
               size="small"
@@ -1454,10 +1462,10 @@ function StorageBucketsTab() {
               dataSource={repTasks.slice(0, 4)}
               pagination={false}
               columns={[
-                { title: "任务", dataIndex: "id", key: "id", width: 100, render: (id: string) => <Text code>{id}</Text> },
-                { title: "源 → 目标", key: "route", render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket}` },
-                { title: "区域", dataIndex: "region", key: "region", width: 110 },
-                { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const meta = REP_STATUS_META[s] ?? { label: s, color: "default" }; return <Tag color={meta.color}>{meta.label}</Tag>; } },
+                { title: t("cloudStorage.monitor.thTask"), dataIndex: "id", key: "id", width: 100, render: (id: string) => <Text code>{id}</Text> },
+                { title: t("cloudStorage.buckets.thRoute"), key: "route", render: (_: unknown, t: ReplicationTaskDto) => `${t.sourceBucket} → ${t.targetBucket}` },
+                { title: t("cloudStorage.buckets.thRegion"), dataIndex: "region", key: "region", width: 110 },
+                { title: t("cloudStorage.monitor.thStatus"), dataIndex: "status", key: "status", width: 90, render: (s: string) => <Tag color={REP_STATUS_META[s]?.color}>{repStatusLabel(s)}</Tag> },
               ]}
             />
           </div>
@@ -1489,7 +1497,7 @@ function LifecyclePoliciesTab() {
       storageConfigApi.listBuckets(),
     ]);
     if (pRes.success && Array.isArray(pRes.data)) setPolicies(pRes.data);
-    else message.error(pRes.error?.message ?? "策略列表加载失败");
+    else message.error(pRes.error?.message ?? t("cloudStorage.lifecycle.loadFailed"));
     if (bRes.success && Array.isArray(bRes.data)) setBuckets(bRes.data);
     setLoading(false);
   };
@@ -1529,7 +1537,7 @@ function LifecyclePoliciesTab() {
         enabled: values.enabled ?? true,
       };
       if (payload.deleteAfterDays !== null && payload.deleteAfterDays !== undefined && payload.deleteAfterDays < payload.afterDays) {
-        message.error("删除天数必须 ≥ 转存天数");
+        message.error(t("cloudStorage.lifecycle.deleteDaysRule"));
         setSaving(false);
         return;
       }
@@ -1537,11 +1545,11 @@ function LifecyclePoliciesTab() {
         ? await storageConfigApi.updateLifecyclePolicy(editing.id, payload)
         : await storageConfigApi.createLifecyclePolicy(payload);
       if (res.success && res.data) {
-        message.success(editing ? `策略 ${res.data.id} 已更新` : `策略 ${res.data.id} 已创建`);
+        message.success(editing ? t("cloudStorage.lifecycle.updated", { id: res.data.id }) : t("cloudStorage.lifecycle.created", { id: res.data.id }));
         setModalVisible(false);
         void load();
       } else {
-        message.error(res.error?.message ?? (editing ? "策略更新失败" : "策略创建失败"));
+        message.error(res.error?.message ?? (editing ? t("cloudStorage.lifecycle.updateFailed") : t("cloudStorage.lifecycle.createFailed")));
       }
     } catch {
       /* 校验失败忽略 */
@@ -1553,10 +1561,10 @@ function LifecyclePoliciesTab() {
     setDeleting(p.id);
     const res = await storageConfigApi.deleteLifecyclePolicy(p.id);
     if (res.success) {
-      message.success(`策略 ${p.id} 已删除`);
+      message.success(t("cloudStorage.lifecycle.deleted", { id: p.id }));
       void load();
     } else {
-      message.error(res.error?.message ?? "删除失败");
+      message.error(res.error?.message ?? t("cloudStorage.lifecycle.deleteFailed"));
     }
     setDeleting(null);
   };
@@ -1565,10 +1573,10 @@ function LifecyclePoliciesTab() {
     setToggling(p.id);
     const res = await storageConfigApi.updateLifecyclePolicy(p.id, { enabled });
     if (res.success && res.data) {
-      message.success(`策略 ${p.id} 已${enabled ? "启用" : "停用"}`);
+      message.success(enabled ? t("cloudStorage.lifecycle.toggledOn", { id: p.id }) : t("cloudStorage.lifecycle.toggledOff", { id: p.id }));
       setPolicies((prev) => prev.map((x) => (x.id === p.id ? { ...x, enabled: res.data!.enabled } : x)));
     } else {
-      message.error(res.error?.message ?? "状态切换失败");
+      message.error(res.error?.message ?? t("cloudStorage.lifecycle.toggleFailed"));
     }
     setToggling(null);
   };
@@ -1579,11 +1587,11 @@ function LifecyclePoliciesTab() {
     <>
       <Card
         size="small"
-        title={<Space><CalendarClock size={16} />对象生命周期策略<Text type="secondary" style={{ fontSize: 12 }}>转存层 (二级/归档/备份) · 天数规则 · 启用开关 (内存 + seed, 多租户隔离)</Text></Space>}
+        title={<Space><CalendarClock size={16} />{t("cloudStorage.lifecycle.title")}<Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.lifecycle.sub")}</Text></Space>}
         extra={
           <Space>
-            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>
-            <Button type="primary" icon={<FolderPlus size={14} />} onClick={openCreate}>新建策略</Button>
+            <Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>{t("cloudStorage.refresh")}</Button>
+            <Button type="primary" icon={<FolderPlus size={14} />} onClick={openCreate}>{t("cloudStorage.lifecycle.newPolicy")}</Button>
           </Space>
         }
         style={{ marginBottom: 16 }}
@@ -1597,14 +1605,14 @@ function LifecyclePoliciesTab() {
           pagination={{ pageSize: 10, showSizeChanger: false }}
           columns={[
             {
-              title: "策略 ID",
+              title: t("cloudStorage.lifecycle.thId"),
               dataIndex: "id",
               key: "id",
               width: 110,
               render: (id: string) => <Text code>{id}</Text>,
             },
             {
-              title: "桶",
+              title: t("cloudStorage.lifecycle.thBucket"),
               dataIndex: "bucket",
               key: "bucket",
               width: 180,
@@ -1616,38 +1624,38 @@ function LifecyclePoliciesTab() {
               ),
             },
             {
-              title: "前缀",
+              title: t("cloudStorage.lifecycle.thPrefix"),
               dataIndex: "prefix",
               key: "prefix",
               width: 180,
-              render: (p: string) => (p ? <Tag>{p}</Tag> : <Tag color="default">全部 (*)</Tag>),
+              render: (p: string) => (p ? <Tag>{p}</Tag> : <Tag color="default">{t("cloudStorage.lifecycle.allPrefix")}</Tag>),
             },
             {
-              title: "转存层",
+              title: t("cloudStorage.lifecycle.thTransitionTier"),
               dataIndex: "transitionTo",
               key: "transitionTo",
               width: 120,
               render: (t: LifecycleTransitionTier) => {
-                const meta = TIER_TRANSITION_META[t] ?? { label: t, color: "default" };
-                return <Tag color={meta.color}>{meta.label}</Tag>;
+                const meta = TIER_TRANSITION_META[t] ?? { color: "default" };
+                return <Tag color={meta.color}>{transitionLabel(t)}</Tag>;
               },
             },
             {
-              title: "转存天数",
+              title: t("cloudStorage.lifecycle.thTransitionDays"),
               dataIndex: "afterDays",
               key: "afterDays",
               width: 110,
-              render: (d: number) => `${d} 天`,
+              render: (d: number) => t("cloudStorage.lifecycle.days", { d }),
             },
             {
-              title: "删除天数",
+              title: t("cloudStorage.lifecycle.thDeleteDays"),
               dataIndex: "deleteAfterDays",
               key: "deleteAfterDays",
               width: 110,
-              render: (d?: number) => (d !== undefined && d !== null ? `${d} 天` : <Text type="secondary">—</Text>),
+              render: (d?: number) => (d !== undefined && d !== null ? t("cloudStorage.lifecycle.days", { d }) : <Text type="secondary">—</Text>),
             },
             {
-              title: "启用",
+              title: t("cloudStorage.lifecycle.thEnabled"),
               dataIndex: "enabled",
               key: "enabled",
               width: 100,
@@ -1656,37 +1664,37 @@ function LifecyclePoliciesTab() {
               ),
             },
             {
-              title: "租户",
+              title: t("cloudStorage.lifecycle.thTenant"),
               dataIndex: "tenantId",
               key: "tenantId",
               width: 130,
-              render: (t: string) => (
-                <Tag color={t === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
-                  {t === "default" ? "默认租户" : t}
+              render: (tenantId: string) => (
+                <Tag color={tenantId === "default" ? "default" : "volcano"} icon={<ShieldCheck size={12} />}>
+                  {tenantId === "default" ? t("cloudStorage.buckets.defaultTenant") : tenantId}
                 </Tag>
               ),
             },
             {
-              title: "更新时间",
+              title: t("cloudStorage.lifecycle.thUpdatedAt"),
               dataIndex: "updatedAt",
               key: "updatedAt",
               width: 170,
               render: (u: string) => new Date(u).toLocaleString("zh-CN"),
             },
             {
-              title: "操作",
+              title: t("cloudStorage.lifecycle.thActions"),
               key: "action",
               width: 130,
               render: (_: unknown, p: LifecyclePolicyDto) => (
                 <Space size={4}>
-                  <Button size="small" icon={<Settings size={13} />} onClick={() => openEdit(p)}>编辑</Button>
+                  <Button size="small" icon={<Settings size={13} />} onClick={() => openEdit(p)}>{t("cloudStorage.lifecycle.edit")}</Button>
                   <Popconfirm
-                    title={`确认删除策略 ${p.id}?`}
-                    okText="删除"
-                    cancelText="取消"
+                    title={t("cloudStorage.lifecycle.confirmDelete", { id: p.id })}
+                    okText={t("cloudStorage.delete")}
+                    cancelText={t("cloudStorage.cancel")}
                     onConfirm={() => void onDelete(p)}
                   >
-                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === p.id}>删除</Button>
+                    <Button size="small" danger icon={<Trash2 size={13} />} loading={deleting === p.id}>{t("cloudStorage.delete")}</Button>
                   </Popconfirm>
                 </Space>
               ),
@@ -1696,44 +1704,44 @@ function LifecyclePoliciesTab() {
       </Card>
 
       <Modal
-        title={<Space><CalendarClock size={16} color="#0ea5e9" />{editing ? `编辑策略 ${editing.id}` : "新建生命周期策略"}</Space>}
+        title={<Space><CalendarClock size={16} color="#0ea5e9" />{editing ? t("cloudStorage.lifecycle.editTitle", { id: editing.id }) : t("cloudStorage.lifecycle.createTitle")}</Space>}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => void onSubmit()}
         confirmLoading={saving}
-        okText={editing ? "保存" : "创建"}
-        cancelText="取消"
+        okText={editing ? t("cloudStorage.lifecycle.save") : t("cloudStorage.lifecycle.create")}
+        cancelText={t("cloudStorage.cancel")}
         destroyOnHidden
       >
         <Form form={form} layout="vertical" style={{ marginTop: 8 }}>
-          <Form.Item name="bucket" label="桶" rules={[{ required: true, message: "请选择桶" }]}>
+          <Form.Item name="bucket" label={t("cloudStorage.lifecycle.thBucket")} rules={[{ required: true, message: t("cloudStorage.lifecycle.needBucket") }]}>
             <Select
-              placeholder="选择存储桶"
+              placeholder={t("cloudStorage.lifecycle.selectBucketPlaceholder")}
               disabled={!!editing}
               options={bucketNames.map((n) => ({ value: n, label: n }))}
             />
           </Form.Item>
-          <Form.Item name="prefix" label="对象前缀" tooltip="空 = 桶内全部对象">
-            <Input placeholder="如 ct- / study- (留空表示全部)" prefix={<Inbox size={13} />} />
+          <Form.Item name="prefix" label={t("cloudStorage.lifecycle.objectPrefix")} tooltip={t("cloudStorage.lifecycle.prefixTooltip")}>
+            <Input placeholder={t("cloudStorage.lifecycle.prefixPlaceholder")} prefix={<Inbox size={13} />} />
           </Form.Item>
-          <Form.Item name="transitionTo" label="转存层" rules={[{ required: true, message: "请选择转存层" }]}>
+          <Form.Item name="transitionTo" label={t("cloudStorage.lifecycle.thTransitionTier")} rules={[{ required: true, message: t("cloudStorage.lifecycle.needTier") }]}>
             <Select
-              options={Object.entries(TIER_TRANSITION_META).map(([value, meta]) => ({ value, label: meta.label }))}
+              options={Object.keys(TIER_TRANSITION_META).map((value) => ({ value, label: transitionLabel(value) }))}
             />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="afterDays" label="转存天数 (afterDays)" rules={[{ required: true, message: "必填" }]}>
+              <Form.Item name="afterDays" label={t("cloudStorage.lifecycle.afterDaysLabel")} rules={[{ required: true, message: t("cloudStorage.required") }]}>
                 <InputNumber min={1} max={3650} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="deleteAfterDays" label="删除天数 (可空)" tooltip="为空则不自动删除">
-                <InputNumber min={1} max={36500} style={{ width: "100%" }} placeholder="不删除" />
+              <Form.Item name="deleteAfterDays" label={t("cloudStorage.lifecycle.deleteAfterDaysLabel")} tooltip={t("cloudStorage.lifecycle.deleteAfterTooltip")}>
+                <InputNumber min={1} max={36500} style={{ width: "100%" }} placeholder={t("cloudStorage.lifecycle.noDelete")} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="enabled" label="启用" valuePropName="checked">
+          <Form.Item name="enabled" label={t("cloudStorage.lifecycle.enabledLabel")} valuePropName="checked">
             <Switch />
           </Form.Item>
         </Form>
@@ -1751,9 +1759,9 @@ export default function CloudStorageDashboardPage() {
         <Space size={16}>
           <Cloud size={36} color="#fff" />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>云存储与归档平台</div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{t("cloudStorage.pageTitle")}</div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
-              存储抽象层: 本地 ↔ S3/MinIO 双驱动 | 对标 GE True PACS Cloud / Sectra One Cloud / Fujifilm 云原生
+              {t("cloudStorage.pageSub")}
             </div>
           </div>
         </Space>
@@ -1764,22 +1772,22 @@ export default function CloudStorageDashboardPage() {
         items={[
           {
             key: "monitor",
-            label: <Space><FileArchive size={14} />监控大盘</Space>,
+            label: <Space><FileArchive size={14} />{t("cloudStorage.tabMonitor")}</Space>,
             children: <StorageMonitorTab />,
           },
           {
             key: "config",
-            label: <Space><Settings size={14} />存储配置</Space>,
+            label: <Space><Settings size={14} />{t("cloudStorage.tabConfig")}</Space>,
             children: <StorageConfigTab />,
           },
           {
             key: "buckets",
-            label: <Space><Boxes size={14} />桶管理</Space>,
+            label: <Space><Boxes size={14} />{t("cloudStorage.tabBuckets")}</Space>,
             children: <StorageBucketsTab />,
           },
           {
             key: "lifecycle",
-            label: <Space><CalendarClock size={14} />生命周期策略</Space>,
+            label: <Space><CalendarClock size={14} />{t("cloudStorage.tabLifecycle")}</Space>,
             children: <LifecyclePoliciesTab />,
           },
         ]}

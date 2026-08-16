@@ -3,6 +3,7 @@ import { Card } from 'antd'
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
+import { t } from '../i18n/appI18n'
 import { datareportApi, type NationalReportDto, type DataReportDto, type ExamStatisticsDto, type ReportLogDto, type MonthlyTrendDto } from '../services/api/datareportApi'
 import {
   BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
@@ -732,10 +733,10 @@ const FHIRReportPanel = () => {
   }
 
   const fhirTabs = [
-    { key: 'report', label: '诊断报告' },
-    { key: 'observation', label: '观察' },
-    { key: 'bundle', label: 'FHIR 资源包' },
-    { key: 'export', label: 'FHIR导出' },
+    { key: 'report', label: t('nationalReport.fhirTabReport') },
+    { key: 'observation', label: t('nationalReport.fhirTabObservation') },
+    { key: 'bundle', label: t('nationalReport.fhirTabBundle') },
+    { key: 'export', label: t('nationalReport.fhirTabExport') },
   ]
 
   return (
@@ -743,13 +744,13 @@ const FHIRReportPanel = () => {
       {/* FHIR信息头 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FileJson size={18} color={COLORS.primary} /> FHIR R4 标准化报告
+          <FileJson size={18} color={COLORS.primary} /> {t('nationalReport.fhirTitle')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>版本:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirVersion')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
           <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>IHE-RAD-IG v3.0</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>验证:</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>符合IG规范</span></div>
-          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>资源数:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>{mockFHIRBundle.entry.length}</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirValidation')}</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>符合IG规范</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.fhirResourceCount')}</span> <span style={{ fontSize: 12, fontWeight: 600 }}>{mockFHIRBundle.entry.length}</span></div>
         </div>
       </div>
 
@@ -782,12 +783,12 @@ const FHIRReportPanel = () => {
       {fhirView === 'export' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>导出 FHIR 资源包</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>将生成符合 FHIR R4 标准的 Bundle 资源包，包含诊断报告和观察资源</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('nationalReport.fhirExportTitle')}</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>{t('nationalReport.fhirExportDesc')}</div>
           <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <Download size={16} /> 导出 FHIR 资源包 (JSON)
+            <Download size={16} /> {t('nationalReport.fhirExportBtn')}
           </button>
-          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> FHIR 资源包导出成功</div>}
+          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> {t('nationalReport.fhirExportSuccess')}</div>}
         </div>
       )}
     </div>
@@ -813,11 +814,11 @@ const MultiRegulatorPanel = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Globe size={18} color={COLORS.primary} /> 监管机构配置
+          <Globe size={18} color={COLORS.primary} /> {t('nationalReport.regConfig')}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleBatchSubmit} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Send size={14} /> {batchStatus === 'submitting' ? '批量提交中...' : '批量提交全部'}
+            <Send size={14} /> {batchStatus === 'submitting' ? t('nationalReport.batchSubmitting') : t('nationalReport.batchSubmitAll')}
           </button>
         </div>
       </div>
@@ -838,13 +839,13 @@ const MultiRegulatorPanel = () => {
                   padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
                   background: reg.status === 'online' ? '#d1fae5' : reg.status === 'degraded' ? '#fef3c7' : '#fee2e2',
                   color: reg.status === 'online' ? '#16a34a' : reg.status === 'degraded' ? '#d97706' : '#dc2626'
-                }}>{reg.status === 'online' ? '在线' : reg.status === 'degraded' ? '降级' : '离线'}</div>
+                }}>{reg.status === 'online' ? t('nationalReport.regOnline') : reg.status === 'degraded' ? t('nationalReport.regDegraded') : t('nationalReport.regOffline')}</div>
               </div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>接口: {reg.endpoint}</div>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>上次提交: {reg.lastSubmission}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>{t('nationalReport.regEndpoint', { endpoint: reg.endpoint })}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.regLastSubmit', { time: reg.lastSubmission })}</div>
               {subStatus && (
                 <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? '#d1fae5' : '#fef3c7', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? '#16a34a' : '#d97706' }}>
-                  {subStatus.status === 'success' ? '提交成功' : '提交中...'}
+                  {subStatus.status === 'success' ? t('nationalReport.submittedOk') : t('nationalReport.submittingShort')}
                 </div>
               )}
             </div>
@@ -855,7 +856,7 @@ const MultiRegulatorPanel = () => {
       {/* 提交状态 */}
       {batchStatus === 'done' && (
         <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#16a34a' }}>
-          <CheckCircle size={14} /> 批量提交完成：{regulatorTargets.filter(t => t.status === 'online').length}个监管机构数据已成功提交
+          <CheckCircle size={14} /> {t('nationalReport.batchDone', { count: regulatorTargets.filter(t => t.status === 'online').length })}
         </div>
       )}
     </div>
@@ -879,13 +880,13 @@ const PreSubmissionValidation = () => {
             <span style={{ fontSize: 28, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
           </div>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>验证评分</div>
-        <div style={{ fontSize: 12, color: COLORS.textMuted }}>基于 {validationChecks.length} 项校验规则</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('nationalReport.validateScore')}</div>
+        <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.validateRules', { count: validationChecks.length })}</div>
       </div>
 
       {/* 校验明细 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>数据质量校验明细</div>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>{t('nationalReport.validateDetail')}</div>
         <div style={{ padding: 8 }}>
           {validationChecks.map(check => (
             <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? 'var(--content-bg)' : check.status === 'warning' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' }}>
@@ -899,7 +900,7 @@ const PreSubmissionValidation = () => {
                 background: check.type === 'completeness' ? 'var(--color-info-bg)' : check.type === 'consistency' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
                 color: check.type === 'completeness' ? '#2563eb' : check.type === 'consistency' ? '#7c3aed' : '#d97706'
               }}>
-                {check.type === 'completeness' ? '完整性' : check.type === 'consistency' ? '一致性' : '业务规则'}
+                {check.type === 'completeness' ? t('nationalReport.typeCompleteness') : check.type === 'consistency' ? t('nationalReport.typeConsistency') : t('nationalReport.typeBusiness')}
               </span>
             </div>
           ))}
@@ -910,7 +911,7 @@ const PreSubmissionValidation = () => {
         <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
           <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
           <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-            <strong>数据质量提示：</strong>{validationChecks.filter(v => v.status !== 'pass').length}项校验未通过，建议修正后再提交。
+            <strong>数据质量提示：</strong>{t('nationalReport.validateWarning', { count: validationChecks.filter(v => v.status !== 'pass').length })}
           </div>
         </div>
       )}
@@ -926,13 +927,13 @@ const SubmissionAuditTrail = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Clock size={16} color={COLORS.primary} /> 提交历史记录
+          <Clock size={16} color={COLORS.primary} /> {t('nationalReport.auditHistory')}
         </div>
         <div style={{ overflowX: 'auto' }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: 'var(--bg-card)' }}>
-                {['报告类型', '提交时间', '目标机构', '状态', '签名指纹', '回执编号', '版本'].map(h => (
+                {[t('nationalReport.thReportType'), t('nationalReport.thSubmitTime'), t('nationalReport.thTarget'), t('nationalReport.thStatus'), t('nationalReport.thSignature'), t('nationalReport.thReceipt'), t('nationalReport.thVersion')].map(h => (
                   <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -949,11 +950,11 @@ const SubmissionAuditTrail = () => {
                       padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
                       background: s.status === 'success' ? '#d1fae5' : s.status === 'failed' ? '#fee2e2' : s.status === 'amended' ? '#fef3c7' : '#dbeafe',
                       color: s.status === 'success' ? '#16a34a' : s.status === 'failed' ? '#dc2626' : s.status === 'amended' ? '#d97706' : '#2563eb'
-                    }}>{s.status === 'success' ? '成功' : s.status === 'failed' ? '失败' : s.status === 'amended' ? '已修正' : '待处理'}</span>
+                    }}>{s.status === 'success' ? t('nationalReport.statusSuccess') : s.status === 'failed' ? t('nationalReport.statusFailed') : s.status === 'amended' ? t('nationalReport.statusAmended') : t('nationalReport.statusPending')}</span>
                   </td>
                   <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted, fontFamily: 'monospace' }}>{s.signature.substring(0, 12)}...</td>
                   <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted }}>{s.receiptId || '-'}</td>
-                  <td style={{ padding: '10px 12px' }}>v{s.version}{s.amendedVersion ? ` (原v${s.amendedVersion})` : ''}</td>
+                  <td style={{ padding: '10px 12px' }}>v{s.version}{s.amendedVersion ? ` ${t('nationalReport.origVersion', { version: s.amendedVersion })}` : ''}</td>
                 </tr>
               ))}
             </tbody>
@@ -966,15 +967,15 @@ const SubmissionAuditTrail = () => {
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Fingerprint size={16} color={COLORS.primary} /> 签名详情
+              <Fingerprint size={16} color={COLORS.primary} /> {t('nationalReport.signatureDetail')}
             </div>
             <button onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名指纹:</span><div style={{ fontSize: 12, fontWeight: 600, fontFamily: 'monospace', wordBreak: 'break-all' }}>{selectedSubmission.signature}</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名算法:</span><div style={{ fontSize: 12, fontWeight: 600 }}>SHA-256 with RSA</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名时间:</span><div style={{ fontSize: 12, fontWeight: 600 }}>{selectedSubmission.submittedAt}</div></div>
-            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名人:</span><div style={{ fontSize: 12, fontWeight: 600 }}>放射科主任 (数字证书)</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigFingerprint')}</span><div style={{ fontSize: 12, fontWeight: 600, fontFamily: 'monospace', wordBreak: 'break-all' }}>{selectedSubmission.signature}</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigAlgorithm')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>SHA-256 with RSA</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigTime')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>{selectedSubmission.submittedAt}</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigPerson')}</span><div style={{ fontSize: 12, fontWeight: 600 }}>{t('nationalReport.sigPersonValue')}</div></div>
           </div>
         </div>
       )}
@@ -983,19 +984,19 @@ const SubmissionAuditTrail = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>总提交次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.totalSubmissions')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>成功次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.successCount')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>失败次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.failedCount')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
-          <div style={{ fontSize: 12, color: COLORS.textMuted }}>修正版本数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.amendedCount')}</div>
         </div>
       </div>
     </div>
@@ -1050,16 +1051,16 @@ const ScheduledReportsPanel = () => {
     setSaving(false)
   }
 
-  const scheduleLabels: Record<string, string> = { daily: '每日', weekly: '每周', monthly: '每月', quarterly: '每季度' }
+  const scheduleLabels: Record<string, string> = { daily: t('nationalReport.scheduleDaily'), weekly: t('nationalReport.scheduleWeekly'), monthly: t('nationalReport.scheduleMonthly'), quarterly: t('nationalReport.scheduleQuarterly') }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Calendar size={18} color={COLORS.primary} /> 自动报告计划
+          <Calendar size={18} color={COLORS.primary} /> {t('nationalReport.scheduleTitle')}
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Plus size={14} /> 新建计划
+          <Plus size={14} /> {t('nationalReport.newPlan')}
         </button>
       </div>
 
@@ -1095,16 +1096,16 @@ const ScheduledReportsPanel = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>上次执行</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.lastRun')}</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>下次执行</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.nextRun')}</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.nextRun}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, color: COLORS.textMuted }}>收件人</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>{s.recipients.length}人</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.recipients')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>{t('nationalReport.recipientCount', { count: s.recipients.length })}</div>
             </div>
           </div>
 
@@ -1116,7 +1117,7 @@ const ScheduledReportsPanel = () => {
             </div>
             <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
               style={{ padding: '6px 14px', background: s.enabled ? COLORS.primary : '#d1d5db', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: s.enabled ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Repeat size={14} /> {runStatus === s.id ? '运行中...' : '立即执行'}
+              <Repeat size={14} /> {runStatus === s.id ? t('nationalReport.running') : t('nationalReport.runNow')}
             </button>
           </div>
         </div>
@@ -1126,7 +1127,7 @@ const ScheduledReportsPanel = () => {
       <div style={{ padding: '12px 16px', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
         <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
-          <strong>自动重试：</strong>提交失败时将自动重试最多3次，间隔5分钟。当前无待重试任务。
+          <strong>自动重试：</strong>{t('nationalReport.autoRetry')}
         </div>
       </div>
 
@@ -1134,23 +1135,23 @@ const ScheduledReportsPanel = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
           <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> 新建自动报告计划</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
               <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>计划名称 *</label>
-                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder="如: 月度国家数据报告上报" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planNameRequired')}</label>
+                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>报告类型</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planType')}</label>
                   <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
-                    {['国家数据报告', '科室数据报告', '影像质量报告', '剂量监测报告'].map(t => <option key={t} value={t}>{t}</option>)}
+                    {[{v: '国家数据报告', l: t('nationalReport.planTypeNational')}, {v: '科室数据报告', l: t('nationalReport.planTypeDept')}, {v: '影像质量报告', l: t('nationalReport.planTypeQuality')}, {v: '剂量监测报告', l: t('nationalReport.planTypeDose')}].map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>执行频率</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.scheduleFreq')}</label>
                   <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     {Object.entries(scheduleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
@@ -1158,19 +1159,19 @@ const ScheduledReportsPanel = () => {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>导出格式</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.exportFormat')}</label>
                   <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
                     {['PDF', 'CSV', 'Excel', 'XML'].map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>收件人（逗号分隔）</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.recipientsLabel')}</label>
                   <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder="如: a@h.cn, b@h.cn" style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>取消</button>
-                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? '创建中...' : '创建计划'}</button>
+                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('nationalReport.cancel')}</button>
+                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? t('nationalReport.creating') : t('nationalReport.createPlan')}</button>
               </div>
             </div>
           </Card>
@@ -1257,7 +1258,7 @@ export default function NationalReportPage() {
       const failed = [examRes, doseRes, logRes, trendRes, qualityRes].filter(
         r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success),
       )
-      if (failed.length > 0) setLoadError('部分数据加载失败，已展示缓存数据')
+      if (failed.length > 0) setLoadError(t('nationalReport.loadError'))
       setLoading(false)
     })()
     return () => { cancelled = true }
@@ -1306,7 +1307,7 @@ export default function NationalReportPage() {
       setDetailItem(Array.isArray(res.data) ? res.data[0] : res.data)
     } else {
       setDetailItem(null)
-      setLoadError(res.error?.message ?? '详情加载失败')
+      setLoadError(res.error?.message ?? t('nationalReport.errDetail'))
     }
     setDetailLoading(false)
   }
@@ -1343,16 +1344,16 @@ export default function NationalReportPage() {
       }
       if (res.success) {
         setCreateOpen(false)
-        setSubmitSuccess(`${createType === 'national' ? '辐射剂量' : '报告质量'}数据新建成功`)
+        setSubmitSuccess(t('nationalReport.createdSuccess', { type: createType === 'national' ? t('nationalReport.typeDose') : t('nationalReport.typeQuality') }))
         if (createType === 'national') await refreshDoseData()
         else await refreshQualityData()
         await refreshLogs()
         setTimeout(() => setSubmitSuccess(''), 3000)
       } else {
-        setLoadError(res.error?.message ?? '创建失败')
+        setLoadError(res.error?.message ?? t('nationalReport.errCreate'))
       }
     } catch (e: any) {
-      setLoadError('创建失败: ' + (e?.message || String(e)))
+      setLoadError(t('nationalReport.errCreateDetail', { msg: e?.message || String(e) }))
     } finally {
       setCreating(false)
     }
@@ -1415,10 +1416,10 @@ export default function NationalReportPage() {
         await refreshDoseData()
       }
       await refreshLogs()
-      setSubmitSuccess(`${submitType === 'exam' ? '检查统计' : submitType === 'dose' ? '辐射剂量' : '报告质量'}数据已提交上报`)
+      setSubmitSuccess(t('nationalReport.submittedSuccess', { type: submitType === 'exam' ? t('nationalReport.typeExam') : submitType === 'dose' ? t('nationalReport.typeDose') : t('nationalReport.typeQuality') }))
       setTimeout(() => setSubmitSuccess(''), 3000)
     } catch (e: any) {
-      setLoadError('上报失败: ' + (e?.message || String(e)))
+      setLoadError(t('nationalReport.errSubmit', { msg: e?.message || String(e) }))
     } finally {
       setSubmitLoading(false)
     }
@@ -1426,11 +1427,11 @@ export default function NationalReportPage() {
 
   const handleExport = (type: 'exam' | 'dose' | 'quality') => {
     if (type === 'exam') {
-      exportToCSV(examStats, 'exam_statistics.csv', ['ID', '设备类型', '检查项目', '检查数量', '阳性数', '阳性率', '平均报告时间', '合格率'])
+      exportToCSV(examStats, 'exam_statistics.csv', ['ID', t('nationalReport.thModality'), t('nationalReport.thExamType'), t('nationalReport.thExamCount'), t('nationalReport.thPositive'), t('nationalReport.thPositiveRate'), t('nationalReport.thAvgTime'), t('nationalReport.thQualifiedRate')])
     } else if (type === 'dose') {
-      exportToCSV(doseData, 'dose_report.csv', ['ID', '上报月份', '设备类型', '总检查数', '总DLP', '平均DLP', '总CTDI', '平均CTDI', '预警次数', '高剂量人数', '状态'])
+      exportToCSV(doseData, 'dose_report.csv', ['ID', t('nationalReport.thMonth'), t('nationalReport.thModality'), t('nationalReport.csvTotalExams'), t('nationalReport.thTotalDlp'), t('nationalReport.thAvgDlp'), t('nationalReport.csvTotalCtdi'), t('nationalReport.csvAvgCtdi'), t('nationalReport.thAlertCount'), t('nationalReport.thHighDose'), t('nationalReport.thStatus')])
     } else {
-      exportToCSV(qualityReportData, 'quality_report.csv', ['ID', '上报月份', '总报告数', '合格数', '优秀数', '合格率', '优秀率', '平均分', '常见问题', '改进措施', '状态'])
+      exportToCSV(qualityReportData, 'quality_report.csv', ['ID', t('nationalReport.thMonth'), t('nationalReport.thTotalReports'), t('nationalReport.thQualified'), t('nationalReport.thExcellent'), t('nationalReport.thQualifiedRate'), t('nationalReport.thExcellentRate'), t('nationalReport.thAvgScore'), t('nationalReport.thIssues'), t('nationalReport.improvement'), t('nationalReport.thStatus')])
     }
   }
 
@@ -1441,9 +1442,9 @@ export default function NationalReportPage() {
         <div>
           <div style={styles.headerTitle}>
             <Database size={24} />
-            <span>国家数据上报</span>
+            <span>{t('nationalReport.title')}</span>
           </div>
-          <div style={styles.headerSubtitle}>CT/MRI/X线检查统计数据上报 · 辐射剂量数据上报 · 报告质量数据上报</div>
+          <div style={styles.headerSubtitle}>{t('nationalReport.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
@@ -1455,15 +1456,15 @@ export default function NationalReportPage() {
             }}
           >
             <Plus size={16} />
-            新建上报
+            {t('nationalReport.newReport')}
           </button>
           <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => handleExport(activeTab as any)}>
             <Download size={16} />
-            导出报表
+            {t('nationalReport.exportReport')}
           </button>
           <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { setSubmitType(activeTab as any); setShowSubmitModal(true); }}>
             <Upload size={16} />
-            上报数据
+            {t('nationalReport.submitData')}
           </button>
         </div>
       </div>
@@ -1476,7 +1477,7 @@ export default function NationalReportPage() {
       )}
       {loading && (
         <div style={{ margin: '12px 24px 0', padding: '10px 14px', background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <RefreshCw size={14} /> 数据加载中...
+          <RefreshCw size={14} /> {t('nationalReport.loading')}
         </div>
       )}
 
@@ -1485,53 +1486,53 @@ export default function NationalReportPage() {
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <BarChart3 size={14} />
-            本期检查总数
+            {t('nationalReport.totalExams')}
           </div>
           <div style={styles.statValue}>{totalExams.toLocaleString()}</div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
             <TrendingUp size={14} />
-            <span>较上月 +12.5%</span>
+            <span>{t('nationalReport.momUp')}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <Activity size={14} />
-            阳性检出总数
+            {t('nationalReport.totalPositive')}
           </div>
           <div style={{ ...styles.statValue, color: COLORS.warning }}>{totalPositive.toLocaleString()}</div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>阳性率 {((totalPositive / totalExams) * 100).toFixed(1)}%</span>
+            <span>{t('nationalReport.positiveRate', { rate: ((totalPositive / totalExams) * 100).toFixed(1) })}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <ShieldCheck size={14} />
-            平均合格率
+            {t('nationalReport.avgQualified')}
           </div>
           <div style={{ ...styles.statValue, color: COLORS.success }}>{avgQualifiedRate.toFixed(1)}%</div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
             <CheckCircle size={14} />
-            <span>达到标准</span>
+            <span>{t('nationalReport.meetsStandard')}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <AlertTriangle size={14} />
-            待上报报表
+            {t('nationalReport.pendingReports')}
           </div>
           <div style={{ ...styles.statValue, color: pendingReports > 0 ? COLORS.warning : COLORS.success }}>{pendingReports}</div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>需及时上报</span>
+            <span>{t('nationalReport.submitPrompt')}</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>
             <Calendar size={14} />
-            上报周期
+            {t('nationalReport.reportCycle')}
           </div>
           <div style={styles.statValue}>{selectedMonth}</div>
           <div style={{ ...styles.statChange, color: COLORS.textMuted }}>
-            <span>月度上报</span>
+            <span>{t('nationalReport.monthly')}</span>
           </div>
         </div>
       </div>
@@ -1541,20 +1542,20 @@ export default function NationalReportPage() {
         {/* 左侧面板 */}
         <div style={styles.leftPanel}>
           <div style={styles.panelHeader}>
-            <span>上报类型</span>
+            <span>{t('nationalReport.reportTypePanel')}</span>
             <Filter size={14} />
           </div>
           <div style={styles.panelBody}>
             {[
-              { key: 'exam', label: '检查统计数据', icon: Scan, count: examStats.length },
-              { key: 'dose', label: '辐射剂量数据', icon: Radio, count: doseData.length },
-              { key: 'quality', label: '报告质量数据', icon: ShieldCheck, count: qualityData.length },
-              { key: 'log', label: '上报记录', icon: Clock, count: reportLogs.length },
-              { key: 'fhir', label: 'FHIR标准化', icon: FileJson, count: 3 },
-              { key: 'regulator', label: '多监管机构', icon: Globe, count: regulatorTargets.length },
-              { key: 'validation', label: '预提交验证', icon: CheckCircle, count: validationChecks.length },
-              { key: 'audit', label: '审计追踪', icon: Fingerprint, count: submissionHistory.length },
-              { key: 'schedule', label: '计划报告', icon: Calendar, count: scheduledReports.length },
+              { key: 'exam', label: t('nationalReport.navExam'), icon: Scan, count: examStats.length },
+              { key: 'dose', label: t('nationalReport.navDose'), icon: Radio, count: doseData.length },
+              { key: 'quality', label: t('nationalReport.navQuality'), icon: ShieldCheck, count: qualityData.length },
+              { key: 'log', label: t('nationalReport.navLog'), icon: Clock, count: reportLogs.length },
+              { key: 'fhir', label: t('nationalReport.navFhir'), icon: FileJson, count: 3 },
+              { key: 'regulator', label: t('nationalReport.navRegulator'), icon: Globe, count: regulatorTargets.length },
+              { key: 'validation', label: t('nationalReport.navValidation'), icon: CheckCircle, count: validationChecks.length },
+              { key: 'audit', label: t('nationalReport.navAudit'), icon: Fingerprint, count: submissionHistory.length },
+              { key: 'schedule', label: t('nationalReport.navSchedule'), icon: Calendar, count: scheduledReports.length },
             ].map(item => (
               <div
                 key={item.key}
@@ -1567,7 +1568,7 @@ export default function NationalReportPage() {
                 <item.icon size={18} color={activeTab === item.key ? COLORS.primary : COLORS.textMuted} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '13px', fontWeight: 500 }}>{item.label}</div>
-                  <div style={{ fontSize: '11px', color: COLORS.textMuted }}>共 {item.count} 条</div>
+                  <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('nationalReport.countSuffix', { count: item.count })}</div>
                 </div>
                 {activeTab === item.key && <ChevronRight size={16} color={COLORS.primary} />}
               </div>
@@ -1576,7 +1577,7 @@ export default function NationalReportPage() {
 
           {/* 月度趋势图 */}
           <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>检查量趋势</div>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>{t('nationalReport.examTrend')}</div>
             <div style={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={160}>
                 <LineChart data={monthlyTrends}>
@@ -1598,13 +1599,13 @@ export default function NationalReportPage() {
         <div style={styles.middlePanel}>
           <div style={styles.tabContainer}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
-              <span style={{ fontWeight: 600 }}>{activeTab === 'exam' ? '检查统计报表' : activeTab === 'dose' ? '辐射剂量报表' : activeTab === 'quality' ? '报告质量报表' : '上报记录'}</span>
+              <span style={{ fontWeight: 600 }}>{activeTab === 'exam' ? t('nationalReport.tabExam') : activeTab === 'dose' ? t('nationalReport.tabDose') : activeTab === 'quality' ? t('nationalReport.tabQuality') : t('nationalReport.tabLog')}</span>
             </div>
             <div style={styles.searchBox}>
               <Search size={14} color={COLORS.textMuted} />
               <input
                 type="text"
-                placeholder="搜索..."
+                placeholder={t('nationalReport.searchPlaceholder')}
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 style={{ ...styles.input, border: 'none', background: 'transparent', width: '120px', padding: '4px' }}
@@ -1618,13 +1619,13 @@ export default function NationalReportPage() {
               <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>设备类型</th>
-                    <th style={styles.th}>检查项目</th>
-                    <th style={styles.th}>检查数量</th>
-                    <th style={styles.th}>阳性数</th>
-                    <th style={styles.th}>阳性率</th>
-                    <th style={styles.th}>平均报告时间</th>
-                    <th style={styles.th}>合格率</th>
+                    <th style={styles.th}>{t('nationalReport.thModality')}</th>
+                    <th style={styles.th}>{t('nationalReport.thExamType')}</th>
+                    <th style={styles.th}>{t('nationalReport.thExamCount')}</th>
+                    <th style={styles.th}>{t('nationalReport.thPositive')}</th>
+                    <th style={styles.th}>{t('nationalReport.thPositiveRate')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAvgTime')}</th>
+                    <th style={styles.th}>{t('nationalReport.thQualifiedRate')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1635,7 +1636,7 @@ export default function NationalReportPage() {
                       <td style={{ ...styles.td, fontWeight: 600 }}>{item.examCount.toLocaleString()}</td>
                       <td style={{ ...styles.td, color: COLORS.warning }}>{item.positiveCount}</td>
                       <td style={styles.td}>{item.positiveRate}%</td>
-                      <td style={styles.td}>{item.avgReportTime}分钟</td>
+                      <td style={styles.td}>{t('nationalReport.minutes', { count: item.avgReportTime })}</td>
                       <td style={{ ...styles.td, color: item.qualifiedRate >= 95 ? COLORS.success : COLORS.warning }}>{item.qualifiedRate}%</td>
                     </tr>
                   ))}
@@ -1648,16 +1649,16 @@ export default function NationalReportPage() {
               <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>上报月份</th>
-                    <th style={styles.th}>设备类型</th>
-                    <th style={styles.th}>检查总数</th>
-                    <th style={styles.th}>总DLP(mGy·cm)</th>
-                    <th style={styles.th}>平均DLP</th>
-                    <th style={styles.th}>平均CTDIvol</th>
-                    <th style={styles.th}>预警次数</th>
-                    <th style={styles.th}>高剂量人数</th>
-                    <th style={styles.th}>状态</th>
-                    <th style={styles.th}>操作</th>
+                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
+                    <th style={styles.th}>{t('nationalReport.thModality')}</th>
+                    <th style={styles.th}>{t('nationalReport.thTotalExams')}</th>
+                    <th style={styles.th}>{t('nationalReport.thTotalDlp')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAvgDlp')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAvgCtdi')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAlertCount')}</th>
+                    <th style={styles.th}>{t('nationalReport.thHighDose')}</th>
+                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAction')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1677,7 +1678,7 @@ export default function NationalReportPage() {
                           style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                           onClick={() => void handleViewDetail('national', item.id)}
                         >
-                          <Eye size={14} /> 详情
+                          <Eye size={14} /> {t('nationalReport.detail')}
                         </button>
                       </td>
                     </tr>
@@ -1691,16 +1692,16 @@ export default function NationalReportPage() {
               <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>上报月份</th>
-                    <th style={styles.th}>总报告数</th>
-                    <th style={styles.th}>合格数</th>
-                    <th style={styles.th}>优秀数</th>
-                    <th style={styles.th}>合格率</th>
-                    <th style={styles.th}>优秀率</th>
-                    <th style={styles.th}>平均分</th>
-                    <th style={styles.th}>常见问题</th>
-                    <th style={styles.th}>状态</th>
-                    <th style={styles.th}>操作</th>
+                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
+                    <th style={styles.th}>{t('nationalReport.thTotalReports')}</th>
+                    <th style={styles.th}>{t('nationalReport.thQualified')}</th>
+                    <th style={styles.th}>{t('nationalReport.thExcellent')}</th>
+                    <th style={styles.th}>{t('nationalReport.thQualifiedRate')}</th>
+                    <th style={styles.th}>{t('nationalReport.thExcellentRate')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAvgScore')}</th>
+                    <th style={styles.th}>{t('nationalReport.thIssues')}</th>
+                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
+                    <th style={styles.th}>{t('nationalReport.thAction')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1726,7 +1727,7 @@ export default function NationalReportPage() {
                           style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                           onClick={() => void handleViewDetail('data', item.id)}
                         >
-                          <Eye size={14} /> 详情
+                          <Eye size={14} /> {t('nationalReport.detail')}
                         </button>
                       </td>
                     </tr>
@@ -1755,12 +1756,12 @@ export default function NationalReportPage() {
               <div style={{ overflowX: "auto" }}><table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>上报类型</th>
-                    <th style={styles.th}>上报月份</th>
-                    <th style={styles.th}>上报时间</th>
-                    <th style={styles.th}>操作人</th>
-                    <th style={styles.th}>状态</th>
-                    <th style={styles.th}>备注</th>
+                    <th style={styles.th}>{t('nationalReport.thReportType')}</th>
+                    <th style={styles.th}>{t('nationalReport.thMonth')}</th>
+                    <th style={styles.th}>{t('nationalReport.thSubmitTime')}</th>
+                    <th style={styles.th}>{t('nationalReport.thOperator')}</th>
+                    <th style={styles.th}>{t('nationalReport.thStatus')}</th>
+                    <th style={styles.th}>{t('nationalReport.thNote')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1768,7 +1769,7 @@ export default function NationalReportPage() {
                     <tr key={item.id}>
                       <td style={styles.td}>
                         <span style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, backgroundColor: item.reportType === 'dose' ? '#fef3c7' : item.reportType === 'exam' ? '#dbeafe' : '#d1fae5', color: item.reportType === 'dose' ? '#d97706' : item.reportType === 'exam' ? '#2563eb' : '#16a34a' }}>
-                          {item.reportType === 'dose' ? '辐射剂量' : item.reportType === 'exam' ? '检查统计' : '报告质量'}
+                          {item.reportType === 'dose' ? t('nationalReport.typeDose') : item.reportType === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality')}
                         </span>
                       </td>
                       <td style={styles.td}>{item.reportMonth}</td>
@@ -1786,11 +1787,11 @@ export default function NationalReportPage() {
           {/* 分页 */}
           <div style={styles.pagination}>
             <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-              共 {activeTab === 'exam' ? filteredExamData.length : activeTab === 'dose' ? filteredDoseData.length : activeTab === 'quality' ? qualityData.length : reportLogs.length} 条记录
+              {t('nationalReport.recordCount', { count: activeTab === 'exam' ? filteredExamData.length : activeTab === 'dose' ? filteredDoseData.length : activeTab === 'quality' ? qualityData.length : reportLogs.length })}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>上一页</button>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(currentPage + 1)}>下一页</button>
+              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>{t('nationalReport.prevPage')}</button>
+              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(currentPage + 1)}>{t('nationalReport.nextPage')}</button>
             </div>
           </div>
         </div>
@@ -1799,7 +1800,7 @@ export default function NationalReportPage() {
         <div style={styles.rightPanel}>
           {/* 设备分布 */}
           <div style={styles.panelHeader}>
-            <span>设备类型分布</span>
+            <span>{t('nationalReport.deviceDist')}</span>
             <PieChartIcon size={14} />
           </div>
           <div style={styles.chartContainer}>
@@ -1833,14 +1834,14 @@ export default function NationalReportPage() {
 
           {/* 上报进度 */}
           <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
-            <span>本期上报进度</span>
+            <span>{t('nationalReport.reportProgress')}</span>
             <Globe size={14} />
           </div>
           <div style={{ padding: '12px' }}>
             {[
-              { label: '检查统计数据', progress: 80, color: COLORS.ct },
-              { label: '辐射剂量数据', progress: 65, color: COLORS.mri },
-              { label: '报告质量数据', progress: 50, color: COLORS.dr },
+              { label: t('nationalReport.navExam'), progress: 80, color: COLORS.ct },
+              { label: t('nationalReport.navDose'), progress: 65, color: COLORS.mri },
+              { label: t('nationalReport.navQuality'), progress: 50, color: COLORS.dr },
             ].map((item, idx) => (
               <div key={idx} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -1856,7 +1857,7 @@ export default function NationalReportPage() {
 
           {/* 最新上报动态 */}
           <div style={{ ...styles.panelHeader, borderTop: '1px solid var(--border-color)' }}>
-            <span>最新上报动态</span>
+            <span>{t('nationalReport.latestActivity')}</span>
             <Activity size={14} />
           </div>
           <div style={{ ...styles.panelBody, padding: '12px' }}>
@@ -1866,7 +1867,7 @@ export default function NationalReportPage() {
                   <FileText size={14} color={COLORS.primary} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{item.reportType === 'dose' ? '辐射剂量' : item.reportType === 'exam' ? '检查统计' : '报告质量'}数据已{item.status}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{t('nationalReport.dataUpdated', { type: item.reportType === 'dose' ? t('nationalReport.typeDose') : item.reportType === 'exam' ? t('nationalReport.typeExam') : t('nationalReport.typeQuality'), status: item.status })}</div>
                   <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{item.submitTime}</div>
                 </div>
               </div>
@@ -1875,19 +1876,19 @@ export default function NationalReportPage() {
 
           {/* 快捷操作 */}
           <div style={{ padding: '12px', borderTop: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>快捷操作</div>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('nationalReport.quickActions')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('exam')}>
                 <Download size={14} />
-                导出检查统计
+                {t('nationalReport.exportExam')}
               </button>
               <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('dose')}>
                 <Download size={14} />
-                导出剂量数据
+                {t('nationalReport.exportDose')}
               </button>
               <button style={{ ...styles.button, ...styles.buttonOutline, justifyContent: 'center' }} onClick={() => handleExport('quality')}>
                 <Download size={14} />
-                导出质量报告
+                {t('nationalReport.exportQuality')}
               </button>
             </div>
           </div>
@@ -1897,7 +1898,7 @@ export default function NationalReportPage() {
       {/* 底部统计图 */}
       <div style={styles.bottomPanel}>
         <div style={styles.panelHeader}>
-          <span>年度各设备检查量对比</span>
+          <span>{t('nationalReport.yearlyComparison')}</span>
           <BarChart3 size={14} />
         </div>
         <div style={{ padding: '16px' }}>
@@ -1923,49 +1924,49 @@ export default function NationalReportPage() {
         <div style={styles.modal} onClick={() => setDetailOpen(false)}>
           <div style={{ ...styles.modalContent, maxWidth: 640 }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <span>{detailType === 'national' ? '辐射剂量上报详情' : '报告质量上报详情'}</span>
+              <span>{detailType === 'national' ? t('nationalReport.detailTitleDose') : t('nationalReport.detailTitleQuality')}</span>
               <X size={18} style={{ cursor: 'pointer' }} onClick={() => setDetailOpen(false)} />
             </div>
             <div style={styles.modalBody}>
               {detailLoading ? (
                 <div style={{ ...styles.emptyState }}>
                   <RefreshCw size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                  <div style={{ marginTop: 8 }}>详情加载中...</div>
+                  <div style={{ marginTop: 8 }}>{t('nationalReport.detailLoading')}</div>
                 </div>
               ) : !detailItem ? (
                 <div style={styles.emptyState}>
                   <AlertCircle size={32} style={{ marginBottom: 8 }} />
-                  <div>未找到该上报记录或记录已被删除</div>
+                  <div>{t('nationalReport.notFound')}</div>
                 </div>
               ) : (
                 <div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', fontSize: 13 }}>
                     {detailType === 'national' ? (
                       <>
-                        <div><span style={{ color: COLORS.textMuted }}>上报月份：</span><b>{detailItem.reportMonth ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>设备类型：</span>{getModalityBadge(detailItem.modality ?? '-')}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>检查总数：</span><b>{(detailItem.totalExams ?? 0).toLocaleString()}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>总DLP：</span><b>{(detailItem.totalDLP ?? 0).toLocaleString()} mGy·cm</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>平均DLP：</span><b>{detailItem.avgDLP ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>平均CTDIvol：</span><b>{detailItem.avgCTDI ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>预警次数：</span><b style={{ color: detailItem.alertCount > 0 ? COLORS.warning : COLORS.success }}>{detailItem.alertCount ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>高剂量人数：</span><b>{detailItem.highDoseCount ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>状态：</span>{getStatusBadge(detailItem.status ?? '-')}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>上报时间：</span>{detailItem.submitTime || '-'}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>确认时间：</span>{detailItem.confirmTime || '-'}</div>
-                        <div><span style={{ color: COLORS.textMuted }}>确认机构：</span>{detailItem.confirmOrg || '-'}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fMonth')}</span><b>{detailItem.reportMonth ?? '-'}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fModality')}</span>{getModalityBadge(detailItem.modality ?? '-')}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalExams')}</span><b>{(detailItem.totalExams ?? 0).toLocaleString()}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalDlp')}</span><b>{(detailItem.totalDLP ?? 0).toLocaleString()} mGy·cm</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgDlp')}</span><b>{detailItem.avgDLP ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgCtdi')}</span><b>{detailItem.avgCTDI ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAlertCount')}</span><b style={{ color: detailItem.alertCount > 0 ? COLORS.warning : COLORS.success }}>{detailItem.alertCount ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fHighDose')}</span><b>{detailItem.highDoseCount ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fStatus')}</span>{getStatusBadge(detailItem.status ?? '-')}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fSubmitTime')}</span>{detailItem.submitTime || '-'}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fConfirmTime')}</span>{detailItem.confirmTime || '-'}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fConfirmOrg')}</span>{detailItem.confirmOrg || '-'}</div>
                       </>
                     ) : (
                       <>
-                        <div><span style={{ color: COLORS.textMuted }}>上报月份：</span><b>{detailItem.reportMonth ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>报告类型：</span><b>{detailItem.reportType ?? '-'}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>总报告数：</span><b>{(detailItem.totalReports ?? 0).toLocaleString()}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>合格数：</span><b>{detailItem.qualifiedReports ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>优秀数：</span><b>{detailItem.excellentReports ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>合格率：</span><b style={{ color: (detailItem.qualifiedRate ?? 0) >= 95 ? COLORS.success : COLORS.warning }}>{detailItem.qualifiedRate ?? 0}%</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>优秀率：</span><b>{detailItem.excellentRate ?? 0}%</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>平均分：</span><b>{detailItem.avgScore ?? 0}</b></div>
-                        <div><span style={{ color: COLORS.textMuted }}>状态：</span>{getStatusBadge(detailItem.status ?? '-')}</div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fMonth')}</span><b>{detailItem.reportMonth ?? '-'}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fReportType')}</span><b>{detailItem.reportType ?? '-'}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fTotalReports')}</span><b>{(detailItem.totalReports ?? 0).toLocaleString()}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fQualified')}</span><b>{detailItem.qualifiedReports ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fExcellent')}</span><b>{detailItem.excellentReports ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fQualifiedRate')}</span><b style={{ color: (detailItem.qualifiedRate ?? 0) >= 95 ? COLORS.success : COLORS.warning }}>{detailItem.qualifiedRate ?? 0}%</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fExcellentRate')}</span><b>{detailItem.excellentRate ?? 0}%</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fAvgScore')}</span><b>{detailItem.avgScore ?? 0}</b></div>
+                        <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fStatus')}</span>{getStatusBadge(detailItem.status ?? '-')}</div>
                       </>
                     )}
                   </div>
@@ -1973,7 +1974,7 @@ export default function NationalReportPage() {
                     <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}>
                       {detailItem.commonIssues?.length > 0 && (
                         <div style={{ marginBottom: 8 }}>
-                          <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>常见问题</div>
+                          <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>{t('nationalReport.commonIssues')}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.commonIssues.map((issue: string, idx: number) => (
                               <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 4, fontSize: 12 }}>{issue}</span>
@@ -1983,7 +1984,7 @@ export default function NationalReportPage() {
                       )}
                       {detailItem.improvementMeasures?.length > 0 && (
                         <div>
-                          <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 4 }}>改进措施</div>
+                          <div style={{ fontWeight: 600, color: COLORS.success, marginBottom: 4 }}>{t('nationalReport.improvement')}</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                             {detailItem.improvementMeasures.map((m: string, idx: number) => (
                               <span key={idx} style={{ padding: '2px 8px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 4, fontSize: 12 }}>{m}</span>
@@ -1998,7 +1999,7 @@ export default function NationalReportPage() {
             </div>
             <div style={styles.modalFooter}>
               <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setDetailOpen(false)}>
-                关闭
+                {t('nationalReport.close')}
               </button>
             </div>
           </div>
@@ -2010,7 +2011,7 @@ export default function NationalReportPage() {
         <div style={styles.modal} onClick={() => setCreateOpen(false)}>
           <div style={{ ...styles.modalContent, maxWidth: 560 }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <span>新建{createType === 'national' ? '辐射剂量' : '报告质量'}上报</span>
+              <span>{t('nationalReport.createDose')}</span>
               <X size={18} style={{ cursor: 'pointer' }} onClick={() => setCreateOpen(false)} />
             </div>
             <div style={styles.modalBody}>
@@ -2019,81 +2020,81 @@ export default function NationalReportPage() {
                   style={{ ...styles.button, flex: 1, ...(createType === 'national' ? styles.buttonPrimary : styles.buttonOutline) }}
                   onClick={() => setCreateType('national')}
                 >
-                  辐射剂量上报
+                  {t('nationalReport.btnDoseReport')}
                 </button>
                 <button
                   style={{ ...styles.button, flex: 1, ...(createType === 'data' ? styles.buttonPrimary : styles.buttonOutline) }}
                   onClick={() => setCreateType('data')}
                 >
-                  报告质量上报
+                  {t('nationalReport.btnQualityReport')}
                 </button>
               </div>
 
               {createType === 'national' ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>上报月份 *</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fMonthRequired')}</label>
                     <input type="month" value={createForm.reportMonth} onChange={e => setCreateForm(f => ({ ...f, reportMonth: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>设备类型 *</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fModalityRequired')}</label>
                     <select value={createForm.modality} onChange={e => setCreateForm(f => ({ ...f, modality: e.target.value }))} style={styles.input}>
                       {['CT', 'MRI', 'DR', 'MG', 'DSA'].map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>检查总数 *</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fTotalExamsRequired')}</label>
                     <input type="number" min={0} value={createForm.totalExams} onChange={e => setCreateForm(f => ({ ...f, totalExams: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>总DLP (mGy·cm)</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fTotalDlpForm')}</label>
                     <input type="number" min={0} value={createForm.totalDLP} onChange={e => setCreateForm(f => ({ ...f, totalDLP: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>平均DLP</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fAvgDlpForm')}</label>
                     <input type="number" min={0} value={createForm.avgDLP} onChange={e => setCreateForm(f => ({ ...f, avgDLP: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>平均CTDIvol</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fAvgCtdiForm')}</label>
                     <input type="number" min={0} value={createForm.avgCTDI} onChange={e => setCreateForm(f => ({ ...f, avgCTDI: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>预警次数</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fAlertCountForm')}</label>
                     <input type="number" min={0} value={createForm.alertCount} onChange={e => setCreateForm(f => ({ ...f, alertCount: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>高剂量人数</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fHighDoseForm')}</label>
                     <input type="number" min={0} value={createForm.highDoseCount} onChange={e => setCreateForm(f => ({ ...f, highDoseCount: e.target.value }))} style={styles.input} />
                   </div>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>上报月份 *</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fMonthRequired')}</label>
                     <input type="month" value={createForm.reportMonth} onChange={e => setCreateForm(f => ({ ...f, reportMonth: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>总报告数 *</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fTotalReportsRequired')}</label>
                     <input type="number" min={0} value={createForm.totalReports} onChange={e => setCreateForm(f => ({ ...f, totalReports: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>合格报告数</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fQualifiedReports')}</label>
                     <input type="number" min={0} value={createForm.qualifiedReports} onChange={e => setCreateForm(f => ({ ...f, qualifiedReports: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>优秀报告数</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fExcellentReports')}</label>
                     <input type="number" min={0} value={createForm.excellentReports} onChange={e => setCreateForm(f => ({ ...f, excellentReports: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>合格率 (%)</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fQualifiedRateForm')}</label>
                     <input type="number" min={0} max={100} value={createForm.qualifiedRate} onChange={e => setCreateForm(f => ({ ...f, qualifiedRate: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>优秀率 (%)</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fExcellentRateForm')}</label>
                     <input type="number" min={0} max={100} value={createForm.excellentRate} onChange={e => setCreateForm(f => ({ ...f, excellentRate: e.target.value }))} style={styles.input} />
                   </div>
                   <div style={styles.formGroup}>
-                    <label style={styles.formLabel}>平均分</label>
+                    <label style={styles.formLabel}>{t('nationalReport.fAvgScoreForm')}</label>
                     <input type="number" min={0} max={100} value={createForm.avgScore} onChange={e => setCreateForm(f => ({ ...f, avgScore: e.target.value }))} style={styles.input} />
                   </div>
                 </div>
@@ -2101,10 +2102,10 @@ export default function NationalReportPage() {
             </div>
             <div style={styles.modalFooter}>
               <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setCreateOpen(false)}>
-                取消
+                {t('nationalReport.cancel')}
               </button>
               <button style={{ ...styles.button, ...styles.buttonPrimary }} disabled={creating} onClick={() => void handleCreate()}>
-                {creating ? '创建中...' : <><Check size={14} /> 创建上报</>}
+                {creating ? t('nationalReport.creating') : <><Check size={14} /> {t('nationalReport.createReport')}</>}
               </button>
             </div>
           </div>
@@ -2116,35 +2117,35 @@ export default function NationalReportPage() {
         <div style={styles.modal} onClick={() => setShowSubmitModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <span>确认上报数据</span>
+              <span>{t('nationalReport.confirmTitle')}</span>
               <X size={18} style={{ cursor: 'pointer' }} onClick={() => setShowSubmitModal(false)} />
             </div>
             <div style={styles.modalBody}>
               <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px' }}>
                 <div style={{ fontSize: '13px', marginBottom: '8px' }}>
-                  <strong>上报类型：</strong>
-                  {submitType === 'exam' ? '检查统计数据' : submitType === 'dose' ? '辐射剂量数据' : '报告质量数据'}
+                  <strong>{t('nationalReport.confirmType')}</strong>
+                  {submitType === 'exam' ? t('nationalReport.navExam') : submitType === 'dose' ? t('nationalReport.navDose') : t('nationalReport.navQuality')}
                 </div>
                 <div style={{ fontSize: '13px', marginBottom: '8px' }}>
-                  <strong>上报周期：</strong>{selectedMonth}
+                  <strong>{t('nationalReport.confirmCycle')}</strong>{selectedMonth}
                 </div>
                 <div style={{ fontSize: '13px' }}>
-                  <strong>上报内容：</strong>
-                  {submitType === 'exam' ? `${examStats.length} 条检查统计数据` :
-                    submitType === 'dose' ? `${doseData.filter(d => d.reportMonth === selectedMonth).length} 条辐射剂量数据` :
-                   `${qualityData.length} 条报告质量数据`}
+                  <strong>{t('nationalReport.confirmContent')}</strong>
+                  {submitType === 'exam' ? t('nationalReport.confirmExamCount', { count: examStats.length }) :
+                    submitType === 'dose' ? t('nationalReport.confirmDoseCount', { count: doseData.filter(d => d.reportMonth === selectedMonth).length }) :
+                   t('nationalReport.confirmQualityCount', { count: qualityData.length })}
                 </div>
               </div>
               <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
-                确认后将数据上报至国家卫生健康委员会数据平台，请确保数据准确无误。
+                {t('nationalReport.confirmHint')}
               </div>
             </div>
             <div style={styles.modalFooter}>
               <button style={{ ...styles.button, background: 'var(--bg-card)', color: COLORS.textDark }} onClick={() => setShowSubmitModal(false)}>
-                取消
+                {t('nationalReport.cancel')}
               </button>
               <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => void handleSubmitReport()}>
-                {submitLoading ? <><RefreshCw size={14} /> 上报中...</> : <><Check size={14} /> 确认上报</>}
+                {submitLoading ? <><RefreshCw size={14} /> {t('nationalReport.submitting')}</> : <><Check size={14} /> {t('nationalReport.confirmSubmit')}</>}
               </button>
             </div>
           </div>
