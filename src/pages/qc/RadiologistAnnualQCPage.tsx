@@ -8,6 +8,9 @@ import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
+import { EmptyState } from "../../components/common/EmptyState";
+import { AppText } from "../../components/common/AppText";
+import { THEME_TOKENS } from "../../components/common/ThemeTokens";
 import { DOCTOR_MASTER } from '../../data/master';
 import { DOCTOR_PERFORMANCE_PRE } from "../../data/_generators";
 import { qcextApi, type RadiologistAnnualDto } from '../../services/api/qcextApi';
@@ -132,11 +135,11 @@ export default function RadiologistAnnualQCPage() {
               <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "var(--bg-card)" }}>
-                    <th style={{ padding: 8, textAlign: "left", fontWeight: 600, color: "#475569" }}>指标</th>
+                    <th style={{ padding: 8, textAlign: "left", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>指标</th>
                     <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: "#1e40af" }}>{selected.name}</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: "#475569" }}>科室平均</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: "#475569" }}>差值</th>
-                    <th style={{ padding: 8, textAlign: "center", fontWeight: 600, color: "#475569" }}>结论</th>
+                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>科室平均</th>
+                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>差值</th>
+                    <th style={{ padding: 8, textAlign: "center", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>结论</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,8 +199,8 @@ export default function RadiologistAnnualQCPage() {
                 {d.name[0]}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: "#64748b" }}>{d.id} · {d.title}</div>
+                <AppText size="sm" weight={600} style={{ display: "block" }}>{d.name}</AppText>
+                <AppText size="xs" color="muted" as="div">{d.id} · {d.title}</AppText>
               </div>
               {selectedId === d.id && <ChevronRight size={14} color="#3b82f6" />}
             </button>
@@ -214,13 +217,13 @@ export default function RadiologistAnnualQCPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
-                  <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
+                  <AppText size="sm" color="secondary" style={{ marginTop: 4, display: "block" }}>
                     {selected.id} · {selected.title} · {selected.subspecialty} · 工龄 {selected.yearsOfExperience} 年
-                  </div>
+                  </AppText>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 26, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "#f59e0b" }}>{selected.annualQCScore}</div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>年度质控分</div>
+                  <AppText size="xs" color="muted" as="div">年度质控分</AppText>
                 </div>
               </div>
               <StatCardGrid columns={5} gap={8}>
@@ -252,7 +255,7 @@ export default function RadiologistAnnualQCPage() {
                   </div>
                 </div>
               ) : (
-                <div style={{ padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 14 }}>暂无历史评分数据</div>
+                <EmptyState description="暂无历史评分数据" />
               )}
             </div>
           </div>

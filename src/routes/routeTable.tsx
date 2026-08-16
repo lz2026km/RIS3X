@@ -242,8 +242,14 @@ const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
 const KpiWallPage = lazy(() => import("../pages/ops/KpiWallPage"));
 // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
 const TechSchedulePage = lazy(() => import("../pages/ops/TechSchedulePage"));
+// [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
+const TechOpsPage = lazy(() => import("../pages/tech/TechOpsPage"));
 // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板 (运营组)
 const TechnicianKpiDashboardPage = lazy(() => import("../pages/tech/TechnicianKpiDashboardPage"));
+// [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
+const TechRotationPage = lazy(() => import("../pages/tech/TechRotationPage"));
+// [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+const TechOverviewPage = lazy(() => import("../pages/tech/TechOverviewPage"));
 // [v3.0.6.11-88] Wave6A 血管分析工作台
 const VesselAnalysisPage = lazy(() => import("../pages/cardiac/VesselAnalysisPage"));
 const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
@@ -335,6 +341,11 @@ const RadiologistAnnualQCPage = lazy(
 const QcImageAiPage = lazy(() => import("../pages/qc/QcImageAiPage"));
 // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
 const QcPdcaPage = lazy(() => import("../pages/qc/QcPdcaPage"));
+// [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
+const QcAnalyticsPage = lazy(() => import("../pages/qc/QcAnalyticsPage"));
+// [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 (F11) + 水印签章 V2 (F8)
+const ReportRulesPage = lazy(() => import("../pages/qc/ReportRulesPage"));
+const ReportWatermarkPage = lazy(() => import("../pages/qc/ReportWatermarkPage"));
 // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
 const ExamRoomStatusBoard = lazy(
   () => import("../pages/tech/ExamRoomStatusBoard"),
@@ -453,6 +464,9 @@ const RoomOccupancyPage = lazy(
   () => import("../pages/operations/RoomOccupancyPage"),
 );
 const DicomSharePage = lazy(() => import("../pages/imaging/DicomSharePage"));
+const ImagingComparePage = lazy(
+  () => import("../pages/imaging/ImagingComparePage"),
+); // [G005 v3.0.6.11-101 Wave 2A] 影像对比
 const SchedulingCenterPage = lazy(
   () => import("../pages/operations/SchedulingCenterPage"),
 );
@@ -475,6 +489,8 @@ const FusionPage = lazy(() => import("../pages/dicom/FusionPage"));
 const FusionV2Page = lazy(() => import("../pages/dicom/FusionV2Page"));
 const VolumeViewerPage = lazy(() => import("../pages/dicom/VolumeViewerPage"));
 const SegmentationPage = lazy(() => import("../pages/dicom/SegmentationPage")); // [v3.0.6.11-62] 3D 分割与定量
+// [v3.0.6.11-101 Wave 2B] 病理切片 WSI 浏览与标注
+const WsiViewerPage = lazy(() => import("../pages/imaging/WsiViewerPage"));
 const TerminologyServerPage = lazy(
   () => import("../pages/clinical/TerminologyServerPage"),
 );
@@ -504,6 +520,8 @@ const AiCadPage = lazy(() => import("../pages/ai/AiCadPage"));
 const AiDraftPage = lazy(() => import("../pages/ai/AiDraftPage"));
 const AiRadsPage = lazy(() => import("../pages/ai/AiRadsPage"));
 const AiReviewPage = lazy(() => import("../pages/ai/AiReviewPage"));
+// [v3.0.6.11-101 Wave 3C] AI 增强工作台: 多器官检出 + 草稿评分 + 智能挂片
+const AiEnhancedPage = lazy(() => import("../pages/ai/AiEnhancedPage"));
 const AiProvidersPage = lazy(() => import("../pages/ai/AiProvidersPage"));
 const ClinicalCalculatorHubPage = lazy(
   () => import("../pages/clinical/ClinicalCalculatorHubPage"),
@@ -642,6 +660,13 @@ const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
 // [Sprint 4] F16 Tele-Sign
 const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
 
+// [v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 + 委员会会诊 V2 + 报告互评 (三面板一页三 Tab)
+const ReportV2Page = lazy(() => import("../pages/report-v2/ReportV2Page"));
+
+// [v3.0.6.11-101 Wave 3A] 多平面重建 V2 工作室 (MPR 三平面联动 + VR + CPR + 切割)
+const VolumeStudioPage = lazy(
+  () => import("../pages/imaging/VolumeStudioPage"),
+);
 // [v3.0.6.11-41] A11-A13 PACS 对标补齐
 const ThirdPartyAiPage = lazy(() => import("../pages/ai/ThirdPartyAiPage"));
 const MprPage = lazy(() => import("../pages/dicom/MprPage"));
@@ -823,9 +848,13 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/fusion-v2": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-22] Multi-modal fusion V2
   "/dicom/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] 3D Volume Rendering
   "/dicom/segmentation": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-62] 3D 分割与定量
+  // [v3.0.6.11-101 Wave 2B] 病理切片 WSI 浏览与标注
+  "/pathology/wsi-viewer": ["医生", "主任", "技师", "管理员"],
   "/dicom/mpr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MPR
   "/dicom/mip": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MIP
   "/dicom/vr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] VR
+  // [v3.0.6.11-101 Wave 3A] 多平面重建 V2 工作室
+  "/dicom/volume-studio": ["医生", "技师", "主任", "管理员"],
   "/dicom/post-processing": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] Post-Processing
   "/dicom/dbt": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] DBT
   "/dicom/hanging-protocols": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-60] Auto-hanging 自动布局
@@ -945,8 +974,14 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ops/kpi-wall": ["主任", "管理员"],
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
   "/ops/tech-schedule": ["主任", "管理员", "技师"],
+  // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2
+  "/ops/tech-ops": ["主任", "管理员", "技师"],
   // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
   "/tech/kpi": ["主任", "管理员", "技师"],
+  // [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
+  "/tech/rotation": ["主任", "管理员", "技师"],
+  // [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+  "/tech/overview": ["主任", "管理员", "技师"],
   "/ortho-specialty": ["医生", "主任", "管理员"],
   "/neuro-specialty": ["医生", "主任", "管理员"],
 };
@@ -1139,8 +1174,14 @@ export const routes: RouteObject[] = [
   wrapped("/ops/kpi-wall", React.createElement(KpiWallPage)),
   // [v3.0.6.11-99 Wave 6B (tech-schedule)] 技师排班管理
   wrapped("/ops/tech-schedule", React.createElement(TechSchedulePage)),
+  // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2
+  wrapped("/ops/tech-ops", React.createElement(TechOpsPage)),
   // [v3.0.6.11-100 Wave 1A] 技师 KPI 看板
   wrapped("/tech/kpi", React.createElement(TechnicianKpiDashboardPage)),
+  // [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
+  wrapped("/tech/rotation", React.createElement(TechRotationPage)),
+  // [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+  wrapped("/tech/overview", React.createElement(TechOverviewPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
   // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
@@ -1287,14 +1328,20 @@ export const routes: RouteObject[] = [
   ),
   wrapped("/dicom/fusion", React.createElement(FusionPage)), // [v3.0.6.11-18] PET-CT/MR fusion
   wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
+  // [G005 v3.0.6.11-101 Wave 2A] 影像对比: 多时点/多序列/多模态并排 + 同步浏览
+  wrapped("/imaging-compare", React.createElement(ImagingComparePage)),
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
   wrapped("/dicom/segmentation", React.createElement(SegmentationPage)), // [v3.0.6.11-62] 3D 分割与定量 (结节/骨/肝/肺)
+  // [v3.0.6.11-101 Wave 2B] 病理切片 WSI 浏览与标注
+  wrapped("/pathology/wsi-viewer", React.createElement(WsiViewerPage)),
   // [v3.0.6.11-99 Wave 4A] 病灶追踪 (登记/跨期对比/趋势图/随访联动)
   wrapped("/dicom/lesion-tracking", React.createElement(LesionTrackingPage)),
   // [v3.0.6.11-41] A12 影像处理补齐路由
   wrapped("/dicom/mpr", React.createElement(MprPage)),
   wrapped("/dicom/mip", React.createElement(MipPage)),
   wrapped("/dicom/vr", React.createElement(VrPage)),
+  // [v3.0.6.11-101 Wave 3A] 多平面重建 V2 工作室 (MPR 三平面联动 + VR + CPR + 切割)
+  wrapped("/dicom/volume-studio", React.createElement(VolumeStudioPage)),
   wrapped("/dicom/post-processing", React.createElement(PostProcessingPage)),
   wrapped("/dicom/dbt", React.createElement(DbtPage)),
   // [v3.0.6.11-60] Auto-hanging 自动布局协议管理
@@ -1304,6 +1351,8 @@ export const routes: RouteObject[] = [
   wrapped("/ai-draft", React.createElement(AiDraftPage)),
   wrapped("/ai/rads-scoring", React.createElement(AiRadsPage)),
   wrapped("/ai/review", React.createElement(AiReviewPage)),
+  // [v3.0.6.11-101 Wave 3C] AI 增强工作台
+  wrapped("/ai/enhanced", React.createElement(AiEnhancedPage)),
   wrapped("/ai/providers", React.createElement(AiProvidersPage)),
   wrapped(
     "/clinical-calculators",
@@ -1370,6 +1419,13 @@ export const routes: RouteObject[] = [
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环
   wrapped("/qc/pdca", React.createElement(QcPdcaPage)),
+  // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
+  wrapped("/qc/analytics", React.createElement(QcAnalyticsPage)),
+  // [G005 v3.0.6.11-101 Wave 6A] 报告 V2: 质控规则引擎 + 水印签章 V2
+  wrapped("/report-v2/rules", React.createElement(ReportRulesPage)),
+  wrapped("/report-v2/watermark", React.createElement(ReportWatermarkPage)),
+  // [G005 v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 + 委员会会诊 V2 + 报告互评
+  wrapped("/report-v2/workbench", React.createElement(ReportV2Page)),
   // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板 + 重拍分析
   wrapped("/tech/room-status", React.createElement(ExamRoomStatusBoard)),
   wrapped("/tech/retake-analytics", React.createElement(RetakeRateAnalyticsPage)),

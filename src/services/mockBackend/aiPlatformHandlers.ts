@@ -167,6 +167,9 @@ let marketplaceApps: PlatformRecord[] = [
 ];
 
 // ==================== handlers ====================
+// [G005 v3.0.6.11-101 Wave 1B (G-10)] 降噪处理历史 (内存, 对齐 backend ring buffer)
+let denoiseHistoryStore: Array<Record<string, unknown>> = [];
+
 export const aiPlatformHandlers = [
   http.get(`${API}/models`, async ({ request }) => {
     await delay(delayMs());
@@ -327,6 +330,8 @@ export const aiPlatformHandlers = [
     await delay(delayMs(180, 420));
     const strength = Math.max(0, Math.min(100, Number(body?.strength ?? 50)));
     const modelId = String(body?.modelId ?? 'unet');
+    const kernel = String(body?.kernel ?? 'median');
+    const preset = String(body?.preset ?? 'standard');
     const psnr = Math.round((22 + (100 - strength) * 0.16) * 10) / 10;
     const ssim = Math.round(Math.min(0.98, 0.7 + (100 - strength) * 0.0024) * 1000) / 1000;
     return HttpResponse.json({
@@ -336,13 +341,29 @@ export const aiPlatformHandlers = [
         psnr,
         ssim,
         elapsedMs: 160 + Math.round(strength * 4),
-        algorithm: 'median-3x3 (msw 模拟)',
+        algorithm: `${kernel} (msw 模拟)`,
         source: 'msw',
         modelId,
         strength,
+        kernel,
+        preset,
+        noiseReduction: Math.round((1 - strength / 200) * 100) / 100,
+        noiseEstimate: { type: 'gaussian', sigma: strength / 4, variance: (strength / 4) ** 2, poissonSigma: 0, snrDb: 15, level: strength, method: 'msw-estimate' },
         width: 256,
         height: 256,
       },
     });
+  }),
+
+  // ----- [G005 v3.0.6.11-101 Wave 1B (G-10)] 降噪处理历史 (内存, 对齐 backend) -----
+  http.get(`${API}/denoise/history`, async () => {
+    await delay(delayMs(20, 80));
+    return HttpResponse.json({ success: true, data: denoiseHistoryStore });
+  }),
+
+  http.post(`${API}/denoise/history/clear`, async () => {
+    await delay(delayMs(20, 60));
+    denoiseHistoryStore = [];
+    return HttpResponse.json({ success: true, data: { cleared: true, count: 0 } });
   }),
 ];

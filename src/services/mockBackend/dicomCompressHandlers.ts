@@ -40,12 +40,16 @@ interface MswInstance {
 }
 
 const SYNTAXES = [
-  { uid: '1.2.840.10008.1.2.4.90', name: 'JPEG 2000 Lossless (Predictive)', lossy: false },
+  { uid: '1.2.840.10008.1.2.4.90', name: 'JPEG 2000 Lossless (OpenJPEG WASM)', lossy: false },
   { uid: '1.2.840.10008.1.2.4.91', name: 'JPEG 2000 Lossy (Predictive)', lossy: true },
   { uid: '1.2.840.10008.1.2.5', name: 'RLE Lossless', lossy: false },
-  { uid: '1.2.840.10008.1.2.4.80', name: 'JPEG-LS Lossless (RLE)', lossy: false },
-  { uid: '1.2.840.10008.1.2.4.81', name: 'JPEG-LS Lossy (Predictive)', lossy: true },
+  { uid: '1.2.840.10008.1.2.4.80', name: 'JPEG-LS Lossless (LOCO-I)', lossy: false },
+  { uid: '1.2.840.10008.1.2.4.81', name: 'JPEG-LS Near-Lossless (LOCO-I)', lossy: true },
   { uid: '1.2.840.10008.1.2.4.50', name: 'JPEG Baseline Lossy (Predictive)', lossy: true },
+  { uid: '1.2.840.10008.1.2.4.201', name: 'HTJ2K (High-Throughput JPEG 2000)', lossy: false },
+  { uid: '1.2.840.10008.1.2.4.202', name: 'HTJ2K Lossy (DWT 9/7)', lossy: true },
+  { uid: '1.2.840.10008.1.2.5.2', name: 'Run-Length Encoded (RLE Generic)', lossy: false },
+  { uid: '1.2.840.10008.1.2.4.60', name: 'JPEG Lossless (Raw Copy)', lossy: false },
 ];
 
 const INSTANCES: MswInstance[] = [
@@ -398,6 +402,94 @@ export const dicomCompressHandlers = [
     const fileId = body?.fileId ?? 'CT_CHEST/CT_CHEST_001.dcm';
     const uploaded = body?.dataBase64 ? base64ToBytes(body.dataBase64) : undefined;
     const task = createTask(fileId, '1.2.840.10008.1.2.4.90', 100, uploaded);
+    return HttpResponse.json(task);
+  }),
+
+  // [v3.0.6.11-101 W1A] 全算法基准 (8 算法, 含 PSNR 与推荐)
+  http.post(`${API}/benchmark`, async ({ request }) => {
+    await delay(240);
+    const body = (await request.json()) as { fileId?: string; quality?: number; dataBase64?: string };
+    const fileId = body?.fileId ?? 'CT_CHEST/CT_CHEST_001.dcm';
+    const uploaded = body?.dataBase64 ? base64ToBytes(body.dataBase64) : undefined;
+    const quality = body?.quality ?? 85;
+    const inst = INSTANCES.find(i => i.fileId === fileId);
+    const modality = uploaded ? 'UPLOAD' : (inst?.modality ?? 'CT');
+    const rows = uploaded ? 64 : (inst?.rows ?? 512);
+    const columns = uploaded ? 64 : (inst?.columns ?? 512);
+    const originalSize = uploaded?.length ?? (inst?.sizeBytes ?? 525474);
+    const candidates: Array<{ kind: string; uid: string; name: string; lossless: boolean; estRatio: number; estMs: number }> = [
+      { kind: 'jpeg2000', uid: '1.2.840.10008.1.2.4.90', name: 'JPEG 2000 Lossless (OpenJPEG WASM)', lossless: true, estRatio: 0.35, estMs: 420 },
+      { kind: 'jpeg-ls', uid: '1.2.840.10008.1.2.4.80', name: 'JPEG-LS Lossless (LOCO-I)', lossless: true, estRatio: 0.32, estMs: 210 },
+      { kind: 'htj2k', uid: '1.2.840.10008.1.2.4.201', name: 'HTJ2K (High-Throughput)', lossless: true, estRatio: 0.28, estMs: 160 },
+      { kind: 'rle', uid: '1.2.840.10008.1.2.5', name: 'RLE Lossless', lossless: true, estRatio: 0.55, estMs: 90 },
+      { kind: 'predictive', uid: '1.2.840.10008.1.2.4.91', name: 'JPEG 2000 Lossy (Predictive)', lossless: false, estRatio: 0.2, estMs: 150 },
+      { kind: 'htj2k', uid: '1.2.840.10008.1.2.4.202', name: 'HTJ2K Lossy (DWT 9/7)', lossless: false, estRatio: 0.18, estMs: 120 },
+      { kind: 'jpeg-ls-nearlossless', uid: '1.2.840.10008.1.2.4.81', name: 'JPEG-LS Near-Lossless', lossless: false, estRatio: 0.16, estMs: 200 },
+      { kind: 'run-length', uid: '1.2.840.10008.1.2.5.2', name: 'Run-Length (RLE Generic)', lossless: true, estRatio: 0.6, estMs: 70 },
+    ];
+    const runs = candidates.map(c => {
+      const compressedSize = Math.max(16, Math.round(originalSize * c.estRatio));
+      const ratio = Math.round((originalSize / compressedSize) * 100) / 100;
+      return {
+        kind: c.kind,
+        transferSyntax: c.uid,
+        name: c.name,
+        lossless: c.lossless,
+        compressedSize,
+        ratio,
+        savedPercent: Math.round((1 - compressedSize / originalSize) * 1000) / 10,
+        psnr: c.lossless ? null : 38 + Math.round(Math.random() * 6 * 10) / 10,
+        elapsedMs: c.estMs,
+        source: c.kind === 'jpeg2000' ? 'real' : 'rle-approx',
+        recommendation: c.lossless ? (modality === 'CT' || modality === 'MR' ? '大体积序列首选' : '高保真') : '近无损档',
+      };
+    });
+    const recommended = modality === 'US' || modality === 'NM' || modality === 'XA' ? '1.2.840.10008.1.2.4.81' : '1.2.840.10008.1.2.4.201';
+    const recommendedName = runs.find(r => r.transferSyntax === recommended)?.name ?? '';
+    return HttpResponse.json({
+      instanceId: fileId,
+      modality,
+      originalSize,
+      quality,
+      rows,
+      columns,
+      runs,
+      recommended,
+      recommendedName,
+      totalElapsedMs: runs.reduce((s, r) => s + r.elapsedMs, 0),
+    });
+  }),
+
+  // [v3.0.6.11-101 W1A] 按模态推荐策略
+  http.get(`${API}/strategies`, async () => {
+    await delay(60);
+    const rules = [
+      { modality: 'CT', modalityName: 'CT', recommendedSyntax: '1.2.840.10008.1.2.4.201', reason: 'CT 大体积序列优先高速吞吐 HTJ2K 无损', lossless: true, quality: 100, estimatedRatio: 0.28 },
+      { modality: 'MR', modalityName: 'MR', recommendedSyntax: '1.2.840.10008.1.2.4.201', reason: 'MR 多时相序列 HTJ2K 块级并行最优', lossless: true, quality: 100, estimatedRatio: 0.24 },
+      { modality: 'DX', modalityName: 'DR', recommendedSyntax: '1.2.840.10008.1.2.4.80', reason: 'DR 高分辨率大灰阶 JPEG-LS 无损保真', lossless: true, quality: 100, estimatedRatio: 0.32 },
+      { modality: 'CR', modalityName: 'CR', recommendedSyntax: '1.2.840.10008.1.2.4.80', reason: 'CR 平片 JPEG-LS 无损压缩比最优', lossless: true, quality: 100, estimatedRatio: 0.35 },
+      { modality: 'MG', modalityName: 'MG', recommendedSyntax: '1.2.840.10008.1.2.4.80', reason: '乳腺摄影必须无损 (BI-RADS 质控)', lossless: true, quality: 100, estimatedRatio: 0.3 },
+      { modality: 'US', modalityName: 'US', recommendedSyntax: '1.2.840.10008.1.2.4.81', reason: '超声可接受近无损以提升吞吐', lossless: false, quality: 92, estimatedRatio: 0.18 },
+      { modality: 'NM', modalityName: 'NM', recommendedSyntax: '1.2.840.10008.1.2.4.81', reason: '核医学低噪声近无损足够', lossless: false, quality: 92, estimatedRatio: 0.15 },
+      { modality: 'PT', modalityName: 'PET', recommendedSyntax: '1.2.840.10008.1.2.4.81', reason: 'PET SUV 定量需近无损', lossless: false, quality: 95, estimatedRatio: 0.2 },
+      { modality: 'XA', modalityName: 'DSA', recommendedSyntax: '1.2.840.10008.1.2.4.81', reason: 'DSA 动态序列近无损保帧', lossless: false, quality: 92, estimatedRatio: 0.16 },
+      { modality: 'RF', modalityName: 'RF', recommendedSyntax: '1.2.840.10008.1.2.4.81', reason: '胃肠动态近无损', lossless: false, quality: 92, estimatedRatio: 0.18 },
+      { modality: 'OT', modalityName: 'OT', recommendedSyntax: '1.2.840.10008.1.2.5', reason: '其他类型 RLE 通用兜底', lossless: true, quality: 100, estimatedRatio: 0.5 },
+    ];
+    return HttpResponse.json(rules.map(r => ({ ...r, recommendedName: SYNTAXES.find(s => s.uid === r.recommendedSyntax)?.name ?? '' })));
+  }),
+
+  // [v3.0.6.11-101 W1A] 实例转码
+  http.post(`${API}/transcode`, async ({ request }) => {
+    await delay(160);
+    const body = (await request.json()) as { fileId?: string; targetSyntax?: string; quality?: number; dataBase64?: string };
+    const fileId = body?.fileId ?? 'CT_CHEST/CT_CHEST_001.dcm';
+    const targetSyntax = body?.targetSyntax ?? '1.2.840.10008.1.2.4.201';
+    const quality = body?.quality ?? 100;
+    const uploaded = body?.dataBase64 ? base64ToBytes(body.dataBase64) : undefined;
+    const syntax = SYNTAXES.find(s => s.uid === targetSyntax);
+    const task = createTask(fileId, targetSyntax, syntax?.lossy ? quality : 100, uploaded);
+    task.algorithmName = `转码: ${syntax?.name ?? targetSyntax}`;
     return HttpResponse.json(task);
   }),
 

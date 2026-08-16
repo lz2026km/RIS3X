@@ -133,11 +133,29 @@ export interface TriggerWorkflowEventDto {
 }
 
 // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端 POST /ai-platform/denoise)
+// [G005 v3.0.6.11-101 Wave 1B (G-10)] 扩展: 可配置核 / 3 档预设 / 噪声估计 / 处理历史
+export type DenoiseKernel = "median" | "gaussian" | "bilateral" | "nlmeans" | "dl";
+export type DenoisePreset = "light" | "standard" | "strong";
+
 export interface AiPlatformDenoiseDto {
   imageBase64?: string;
   studyId?: string;
   modelId?: string;
   strength?: number;
+  kernel?: DenoiseKernel;
+  preset?: DenoisePreset;
+  noiseEstimate?: boolean;
+  backendHint?: string;
+}
+
+export interface AiPlatformNoiseEstimate {
+  type: "gaussian" | "poisson" | "mixed";
+  sigma: number;
+  variance: number;
+  poissonSigma: number;
+  snrDb: number;
+  level: number;
+  method: string;
 }
 
 export interface AiPlatformDenoiseResult {
@@ -151,6 +169,31 @@ export interface AiPlatformDenoiseResult {
   height?: number;
   modelId?: string;
   strength?: number;
+  kernel?: DenoiseKernel;
+  preset?: DenoisePreset;
+  passes?: number;
+  noiseReduction?: number;
+  varianceBefore?: number;
+  varianceAfter?: number;
+  noiseEstimate?: AiPlatformNoiseEstimate;
+  backend?: string;
+  historyId?: string;
+}
+
+export interface AiPlatformDenoiseHistoryItem {
+  id: string;
+  createdAt: string;
+  modelId?: string;
+  kernel?: string;
+  strength?: number;
+  preset?: string;
+  psnr: number;
+  ssim: number;
+  source: string;
+  algorithm: string;
+  noiseEstimate?: AiPlatformNoiseEstimate | null;
+  backend?: string;
+  elapsedMs?: number;
 }
 
 // [G005 v3.0.6.11-91 W1-B P1 第12轮] 模型测试结果 (后端 aiplatform.service.testAiModel:
@@ -283,10 +326,22 @@ export const aiPlatformApi = {
     return { ...res, data: unwrap<AiPlatformStats>(res) };
   },
 
-  // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端: 确定性中值滤波/合成帧 + PSNR/SSIM)
+  // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (后端: 确定性核/合成帧 + PSNR/SSIM)
+  // [G005 v3.0.6.11-101 Wave 1B (G-10)] 可配置核 + 预设 + 噪声估计
   denoise: async (data: AiPlatformDenoiseDto) => {
     const res = await api.post<unknown>("/ai-platform/denoise", data);
     return { ...res, data: unwrap<AiPlatformDenoiseResult>(res) };
+  },
+
+  // [G005 v3.0.6.11-101 Wave 1B (G-10)] 降噪处理历史 (后端: 内存 ring buffer)
+  denoiseHistory: async () => {
+    const res = await api.get<unknown>("/ai-platform/denoise/history");
+    return { ...res, data: unwrapList<AiPlatformDenoiseHistoryItem>(res) };
+  },
+
+  clearDenoiseHistory: async () => {
+    const res = await api.post<unknown>("/ai-platform/denoise/history/clear", {});
+    return { ...res, data: unwrap<{ cleared: boolean; count: number }>(res) };
   },
 
   // [v3.0.6.11-50] 对接后端 GET /ai-platform/medical-devices (aiplatform.controller)

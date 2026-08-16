@@ -100,6 +100,7 @@ export const NAMESPACES = [
   "worklistSmart",
   "dicomSr",
   "dicom4d",
+  "dlDenoise",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

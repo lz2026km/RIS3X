@@ -3,11 +3,14 @@
  * 数据源: GET /worklist/room-status (后端按 device.location 聚合派生)
  * 实时: 30s 轮询 + socket 'room-status-refresh' / 'worklist-refresh' 推送刷新
  */
-import { Alert, Button, Card, Col, Row, Space, Spin, Statistic, Tag, Tooltip } from 'antd'
+import { Alert, Button, Card, Col, Row, Space, Spin, Tag, Tooltip } from 'antd'
 import { Activity, AlertTriangle, Camera, CheckCircle2, Clock, Database, DoorOpen, Hourglass, Monitor, PauseCircle, RefreshCw, UserRound, Users } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { worklistApi, type RoomStatusItemDto } from '../../services/api/worklistApi'
 import { realtime } from '../../services/realtime'
+import { PageHeader } from '../../components/common/PageHeader'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { EmptyState } from '../../components/common/EmptyState'
 
 const STATUS_META: Record<RoomStatusItemDto['status'], { label: string; color: string; bg: string; border: string }> = {
   in_use: { label: '检查中', color: '#059669', bg: '#d1fae5', border: '#34d399' },
@@ -110,33 +113,37 @@ export default function ExamRoomStatusBoard() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }} wrap>
-        <Monitor size={20} color="#3b82f6" />
-        <span style={{ fontSize: 18, fontWeight: 700 }}>检查间实时状态看板</span>
-        <Tag color="cyan">v3.0.6.11-100 Wave 1B</Tag>
-        <Tag color="geekblue">房间级 / 30s 轮询 + 实时推送</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
-        {updatedAt && <span style={{ fontSize: 12, color: '#94a3b8' }}>更新于 {updatedAt} · 第 {tick} 次轮询</span>}
-      </Space>
+      <PageHeader
+        icon={<Monitor size={20} color="#3b82f6" />}
+        title="检查间实时状态看板"
+        subtitle={updatedAt ? `更新于 ${updatedAt} · 第 ${tick} 次轮询` : '房间级 / 30s 轮询 + 实时推送'}
+        actions={
+          <>
+            <Tag color="cyan">v3.0.6.11-100 Wave 1B</Tag>
+            <Tag color="geekblue">房间级 / 30s 轮询 + 实时推送</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+          </>
+        }
+      />
 
       {error && (
         <Alert type="warning" showIcon message="部分数据未加载" description={error} style={{ marginBottom: 16 }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="房间总数" value={stats.total} prefix={<DoorOpen size={14} />} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="检查中" value={stats.inUse} prefix={<Activity size={14} />} loading={loading} styles={{ content: { color: '#059669' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="超时待检" value={stats.overdue} prefix={<AlertTriangle size={14} />} loading={loading} styles={{ content: { color: '#dc2626' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已暂停" value={stats.paused} prefix={<PauseCircle size={14} />} loading={loading} styles={{ content: { color: '#d97706' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="排队等待" value={stats.waiting} prefix={<Hourglass size={14} />} loading={loading} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="待检人次" value={stats.queue} prefix={<Users size={14} />} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 16 }}>
+        <StatCard title="房间总数" value={stats.total} icon={<DoorOpen size={16} />} color="info" loading={loading} />
+        <StatCard title="检查中" value={stats.inUse} icon={<Activity size={16} />} color="success" loading={loading} />
+        <StatCard title="超时待检" value={stats.overdue} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
+        <StatCard title="已暂停" value={stats.paused} icon={<PauseCircle size={16} />} color="warning" loading={loading} />
+        <StatCard title="排队等待" value={stats.waiting} icon={<Hourglass size={16} />} color="info" loading={loading} />
+        <StatCard title="待检人次" value={stats.queue} icon={<Users size={16} />} color="primary" loading={loading} />
+      </StatCardGrid>
 
       {loading && rooms.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin size="large" /></div>
       ) : statusOrder.length === 0 ? (
-        <Alert type="info" showIcon message="暂无检查间数据" style={{ marginBottom: 16 }} />
+        <EmptyState description="暂无检查间数据" />
       ) : (
         <Row gutter={[14, 14]}>
           {statusOrder.map((room) => {

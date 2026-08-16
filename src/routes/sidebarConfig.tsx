@@ -84,7 +84,7 @@ import { PenLine, TextSelect, BookMarked, FileCheck2, KeyRound, FileSearch, Badg
 import { Workflow, Route, Bug, Store, Glasses, EyeOff, Focus, Grid3X3, GitMerge, Images } from 'lucide-react';
 import { PenSquare, FolderTree, FileType2, FileUp, Blend, BellRing, NotebookText, ToggleRight, Settings2, ListFilter, Cog, Ribbon, Map, Files, SquareStack } from 'lucide-react';
 import { Cuboid, GalleryVerticalEnd, Layers3, ScanLine, ScanSearch, SearchCheck, FolderHeart, AlarmClock, Timer } from 'lucide-react';
-import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal } from 'lucide-react';
+import { AlertOctagon, ChartLine, Command, Crown, ExternalLink, RadioTower, Webhook, Atom, LifeBuoy, Home, Mail, SlidersHorizontal, Repeat2, PieChart } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -272,6 +272,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dual-read",
         icon: <Users size={18} />,
         labelKey: "nav.dualRead",
+        roles: ["医生", "主任", "管理员",],
+      },
+      // [G005 v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 + 委员会会诊 + 报告互评
+      {
+        path: "/report-v2/workbench",
+        icon: <ShieldAlert size={18} />,
+        labelKey: "nav.reportV2Workbench",
         roles: ["医生", "主任", "管理员",],
       },
       {
@@ -487,6 +494,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.qcPdca",
         roles: ["主任", "管理员"],
       },
+      // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析
+      {
+        path: "/qc/analytics",
+        icon: <TrendingUp size={18} />,
+        labelKey: "nav.qcAnalytics",
+        roles: ["主任", "管理员"],
+      },
       {
         path: "/cosign",
         icon: React.createElement(UserCheck, { size: 18 }),
@@ -621,6 +635,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.fusionV2",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      // [G005 v3.0.6.11-101 Wave 2A] 影像对比: 多时点/多序列/多模态并排 + 同步浏览
+      {
+        path: "/imaging-compare",
+        icon: <GitCompare size={18} />,
+        labelKey: "nav.imagingCompare",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
       {
         path: "/dicom/volume-viewer",
         icon: <Cuboid size={18} />,
@@ -632,6 +653,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom/segmentation",
         icon: <Layers size={18} />,
         labelKey: "nav.segmentation",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-101 Wave 2B] 病理切片 WSI 全切片浏览与标注
+      {
+        path: "/pathology/wsi-viewer",
+        icon: <Microscope size={18} />,
+        labelKey: "nav.wsiViewer",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       // [v3.0.6.11-99 Wave 4A] 病灶追踪 (登记/跨期对比/趋势图/随访联动)
@@ -658,6 +686,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom/vr",
         icon: <GalleryVerticalEnd size={18} />,
         labelKey: "nav.vr",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-101 Wave 3A] 多平面重建 V2 工作室 (MPR 三平面联动 + VR + CPR + 切割)
+      {
+        path: "/dicom/volume-studio",
+        icon: <Boxes size={18} />,
+        labelKey: "nav.volumeStudio",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       {
@@ -832,6 +867,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Brain size={18} />,
         labelKey: "nav.aiReview",
         roles: ["医生", "主任", "管理员",],
+      },
+      // [v3.0.6.11-101 Wave 3C] AI 增强工作台: 多器官检出 + 草稿评分 + 智能挂片
+      {
+        path: "/ai/enhanced",
+        icon: <Sparkles size={18} />,
+        labelKey: "nav.aiEnhanced",
+        roles: ["医生", "主任", "技师", "管理员",],
       },
       {
         path: "/ai/providers",
@@ -1356,6 +1398,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     labelKey: "nav.techSchedule",
     roles: ["主任", "管理员", "技师"],
   },
+  // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
+  {
+    path: "/ops/tech-ops",
+    icon: <Radiation size={18} />,
+    labelKey: "nav.techOps",
+    roles: ["主任", "管理员", "技师"],
+  },
   // [v3.0.6.11-100 Wave 1B] 技师工作站: 检查间实时看板
   {
     path: "/tech/room-status",
@@ -1375,6 +1424,20 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     path: "/tech/kpi",
     icon: <Gauge size={18} />,
     labelKey: "nav.techKpi",
+    roles: ["主任", "管理员", "技师"],
+  },
+  // [v3.0.6.11-101 Wave 4A] 技师工作站 V2: 双检间轮转 + 工作量预测
+  {
+    path: "/tech/rotation",
+    icon: <Repeat2 size={18} />,
+    labelKey: "nav.techRotation",
+    roles: ["主任", "管理员", "技师"],
+  },
+  // [v3.0.6.11-101 Wave 5] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+  {
+    path: "/tech/overview",
+    icon: <PieChart size={18} />,
+    labelKey: "nav.techOverview",
     roles: ["主任", "管理员", "技师"],
   },
       {

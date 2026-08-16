@@ -28,9 +28,12 @@ describe('DicomCompressService (real codec)', () => {
     jest.useRealTimers()
   })
 
-  it('getSupportedSyntaxes returns six transfer syntaxes', () => {
-    expect(svc.getSupportedSyntaxes()).toHaveLength(6)
-    expect(svc.getSupportedSyntaxes()[0].name).toContain('JPEG 2000')
+  it('getSupportedSyntaxes returns ten transfer syntaxes (8 algorithms)', () => {
+    const syntaxes = svc.getSupportedSyntaxes()
+    expect(syntaxes).toHaveLength(10)
+    expect(syntaxes[0].name).toContain('JPEG 2000')
+    expect(syntaxes.some(s => s.name.includes('HTJ2K'))).toBe(true)
+    expect(syntaxes.some(s => s.name.includes('JPEG-LS Lossless'))).toBe(true)
   })
 
   it('compress on a real sample file produces a real ratio > 1 (RLE)', async () => {

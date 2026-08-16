@@ -22,6 +22,17 @@ const RealJpeg2000Schema = z.object({
   quality: z.number().int().min(1).max(100).optional(),
   dataBase64: z.string().optional(),
 })
+const BenchmarkSchema = z.object({
+  fileId: z.string().min(1),
+  quality: z.number().int().min(1).max(100).optional(),
+  dataBase64: z.string().optional(),
+})
+const TranscodeSchema = z.object({
+  fileId: z.string().min(1),
+  targetSyntax: z.string().min(1),
+  quality: z.number().int().min(1).max(100).optional(),
+  dataBase64: z.string().optional(),
+})
 
 @ApiTags('dicom-compress')
 @ApiBearerAuth()
@@ -88,6 +99,24 @@ export class DicomCompressController {
   @ApiOperation({ summary: 'Real JPEG2000 encode via OpenJPEG WASM (lossless, DICOM J2K codestream)' })
   realJpeg2000(@Body(new ZodValidationPipe(RealJpeg2000Schema)) body: { fileId: string; quality?: number; dataBase64?: string }) {
     return this.service.realJpeg2000(body.fileId, { quality: body.quality, dataBase64: body.dataBase64 })
+  }
+
+  @Post('benchmark')
+  @ApiOperation({ summary: '[v3.0.6.11-101] 全算法对比基准 (JPEG2000/JPEG-LS/HTJ2K/RLE/Predictive, 含 PSNR)' })
+  benchmark(@Body(new ZodValidationPipe(BenchmarkSchema)) body: { fileId: string; quality?: number; dataBase64?: string }) {
+    return this.service.benchmark(body.fileId, { quality: body.quality, dataBase64: body.dataBase64 })
+  }
+
+  @Get('strategies')
+  @ApiOperation({ summary: '[v3.0.6.11-101] 按模态返回推荐压缩策略 (确定性规则表)' })
+  getStrategies() {
+    return this.service.getStrategies()
+  }
+
+  @Post('transcode')
+  @ApiOperation({ summary: '[v3.0.6.11-101] 实例转码: 目标传输语法重新编码' })
+  transcode(@Body(new ZodValidationPipe(TranscodeSchema)) body: { fileId: string; targetSyntax: string; quality?: number; dataBase64?: string }) {
+    return this.service.transcode(body.fileId, body.targetSyntax, { quality: body.quality, dataBase64: body.dataBase64 })
   }
 
   @Get('ratios')

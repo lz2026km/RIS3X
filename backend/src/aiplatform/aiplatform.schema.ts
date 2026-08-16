@@ -57,9 +57,14 @@ export const TriggerWorkflowEventSchema = z.object({
 })
 
 // [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (POST /ai-platform/denoise)
+// [G005 v3.0.6.11-101 Wave 1B (G-10)] 扩展: kernel / preset / noiseEstimate / backendHint
 export const DenoiseImageSchema = z.object({
   imageBase64: z.string().max(20_000_000).optional(),
   studyId: z.string().max(200).optional(),
   modelId: z.string().max(120).optional(),
   strength: z.number().min(0).max(100).optional(),
+  kernel: z.enum(['median', 'gaussian', 'bilateral', 'nlmeans', 'dl']).optional(),
+  preset: z.enum(['light', 'standard', 'strong']).optional(),
+  noiseEstimate: z.boolean().optional(),
+  backendHint: z.string().max(200).optional(),
 })

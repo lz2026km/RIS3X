@@ -3,13 +3,18 @@
  * 数据源: GET /worklist/retake-stats?from&to&dimension (tech|modality|reason)
  * 视图: 趋势折线 (recharts) + 原因饼图 + 技师/模态热力图 + 维度切换
  */
-import { Alert, Button, Card, Col, Empty, Radio, Row, Space, Statistic, Tag, Tooltip } from 'antd'
+import { Alert, Button, Card, Col, Radio, Row, Space, Tag, Tooltip } from 'antd'
 import { BarChart3, Camera, Database, PieChart as PieIcon, RefreshCw, TrendingUp, Wrench } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip as ReTooltip, XAxis, YAxis,
 } from 'recharts'
 import { worklistApi, type RetakeStatsDto } from '../../services/api/worklistApi'
+import { PageHeader } from '../../components/common/PageHeader'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { EmptyState } from '../../components/common/EmptyState'
+import { AppText } from '../../components/common/AppText'
+import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 
 const REASON_COLORS: Record<string, string> = {
   motion_artifact: '#ef4444', positioning: '#f59e0b', wrong_protocol: '#8b5cf6',
@@ -111,13 +116,18 @@ export default function RetakeRateAnalyticsPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }} wrap>
-        <BarChart3 size={20} color="#7c3aed" />
-        <span style={{ fontSize: 18, fontWeight: 700 }}>重拍率统计与分析</span>
-        <Tag color="purple">v3.0.6.11-100 Wave 1B</Tag>
-        <Tag color="geekblue">趋势 / 原因分类 / 技师模态热力</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(dimension, rangeDays)}>刷新</Button>
-      </Space>
+      <PageHeader
+        icon={<BarChart3 size={20} color="#7c3aed" />}
+        title="重拍率统计与分析"
+        subtitle="趋势 / 原因分类 / 技师模态热力"
+        actions={
+          <>
+            <Tag color="purple">v3.0.6.11-100 Wave 1B</Tag>
+            <Tag color="geekblue">趋势 / 原因分类 / 技师模态热力</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(dimension, rangeDays)}>刷新</Button>
+          </>
+        }
+      />
 
       <Space style={{ marginBottom: 16 }} wrap>
         <Radio.Group
@@ -134,7 +144,7 @@ export default function RetakeRateAnalyticsPage() {
           value={rangeDays}
           onChange={(e) => setRangeDays(e.target.value as number)}
         />
-        {stats && <span style={{ fontSize: 12, color: '#94a3b8' }}>统计区间 {stats.from.slice(0, 10)} ~ {stats.to.slice(0, 10)}</span>}
+        {stats && <AppText size="xs" color="muted">统计区间 {stats.from.slice(0, 10)} ~ {stats.to.slice(0, 10)}</AppText>}
       </Space>
 
       {error && (
@@ -142,12 +152,12 @@ export default function RetakeRateAnalyticsPage() {
           action={<Button size="small" onClick={() => void load(dimension, rangeDays)}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="完成检查数" value={stats?.summary.totalCompleted ?? 0} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="重拍次数" value={stats?.summary.totalRetakes ?? 0} prefix={<Camera size={14} />} loading={loading} styles={{ content: { color: '#dc2626' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="重拍率" value={stats?.summary.retakeRate ?? 0} suffix="%" precision={1} loading={loading} styles={{ content: { color: rateColor(stats?.summary.retakeRate ?? 0) } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="重拍检查数" value={stats?.summary.examRetakeCount ?? 0} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+        <StatCard title="完成检查数" value={stats?.summary.totalCompleted ?? 0} icon={<Camera size={16} />} color="primary" loading={loading} />
+        <StatCard title="重拍次数" value={stats?.summary.totalRetakes ?? 0} icon={<Camera size={16} />} color="error" loading={loading} />
+        <StatCard title="重拍率" value={stats?.summary.retakeRate ?? 0} suffix="%" color={rateColor(stats?.summary.retakeRate ?? 0)} loading={loading} />
+        <StatCard title="重拍检查数" value={stats?.summary.examRetakeCount ?? 0} icon={<BarChart3 size={16} />} color="warning" loading={loading} />
+      </StatCardGrid>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={14}>
@@ -155,7 +165,7 @@ export default function RetakeRateAnalyticsPage() {
             {loading && !stats ? (
               <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
             ) : trendChart.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无趋势数据" />
+              <EmptyState description="暂无趋势数据" />
             ) : (
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={trendChart} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
@@ -178,7 +188,7 @@ export default function RetakeRateAnalyticsPage() {
             {loading && !stats ? (
               <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
             ) : pieData.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无重拍记录" />
+              <EmptyState description="暂无重拍记录" />
             ) : (
               <>
                 <ResponsiveContainer width="100%" height={200}>
@@ -191,7 +201,7 @@ export default function RetakeRateAnalyticsPage() {
                 </ResponsiveContainer>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
                   {pieData.map((p) => (
-                    <span key={p.name} style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4, color: '#64748b' }}>
+                    <span key={p.name} style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4, color: THEME_TOKENS.textSecondary }}>
                       <span style={{ width: 10, height: 10, borderRadius: 2, background: p.color, display: 'inline-block' }} />
                       {p.name} {p.value}
                     </span>
@@ -209,7 +219,7 @@ export default function RetakeRateAnalyticsPage() {
             {loading && !stats ? (
               <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
             ) : heatRows.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无明细" />
+              <EmptyState description="暂无明细" />
             ) : (
               <ResponsiveContainer width="100%" height={Math.max(220, heatRows.length * 44)}>
                 <BarChart data={heatRows} layout="vertical" margin={{ top: 4, right: 16, left: 24, bottom: 0 }}>
@@ -233,12 +243,12 @@ export default function RetakeRateAnalyticsPage() {
             {loading && !stats ? (
               <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
             ) : heatRows.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无热力数据" />
+              <EmptyState description="暂无热力数据" />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {heatRows.map((b) => (
                   <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ width: 90, fontSize: 12, color: '#475569', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.label}</span>
+                    <span style={{ width: 90, fontSize: 12, color: THEME_TOKENS.textSecondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.label}</span>
                     <div style={{ flex: 1, display: 'flex', gap: 3 }}>
                       {[0, 1, 2, 3, 4].map((i) => {
                         const threshold = (i + 1) * 20
@@ -280,7 +290,7 @@ export default function RetakeRateAnalyticsPage() {
       <Card size="small">
         <Space>
           <Database size={14} color={source === 'api' ? '#10b981' : '#f59e0b'} />
-          <span style={{ fontSize: 12, color: '#64748b' }}>
+          <span style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
             {source === 'api'
               ? '数据源: GET /worklist/retake-stats (后端聚合) · 维度 ' + (dimension === 'tech' ? '技师' : dimension === 'modality' ? '模态' : '原因')
               : '数据源: 演示回退 (接口不可用, 基于 seed 派生)'}

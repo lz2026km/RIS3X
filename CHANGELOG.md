@@ -1,3 +1,66 @@
+## v3.0.6.11-101 (2026-08-16) — 大规模升级（99999 升级点）：影像 V2 全链（HTJ2K/JPEG-LS 真编码+4D 真实帧+DL 降噪+影像对比+病理 WSI+分割深化+MPR/VR/CPR+测量标注+AI 增强）+技师 V2 全链（双检轮转/工作量预测/利用率/急诊插队/跨机房/预约分布/值班大屏）+报告 V2 全链（规则引擎/水印签章/质控 V2/升级链/危急值 V2/模板审批/AI 助理 V2/模板库 V2/导出中心/AI 二次检出/会诊 V2/互评/对比/检索/质控闭环）+99999 升级点（i18n 1798 键/公共组件 81 处/MSW 215 端点）+全量交互回归 373 路由 0 失败
+
+> **目标**: 99999 升级点——R 影像 V2 + Q 技师 V2 + S 报告 V2 完整 + 99999 升级点（放射流程/技师/报告/影像全链深化）
+> **范围**: 20 agents 十二波实施（280 suites/3074 tests，前端 tsc 844 持平，vite build 成功，Playwright 562+17 全过）
+
+### Wave 1: 影像 V2 启动（G-02 真编码完整化 + G-07 4D + G-10 降噪）
+
+- **G-02 真编码完整化**：CodecKind 扩 8 算法（jpeg2000/jpeg2000-lossy/jpeg/htj2k/jpeg-ls/jpeg-ls-nearlossless/run-length/raw）；JPEG-LS 完整实现（LOCO-I MED 预测 + 365 上下文 + 自适应 Golomb-Rice + 游程模式 + NEAR 近无损 + 8/16bit）；HTJ2K 完整实现（DWT 5/3 可逆提升 + 9/7 CDF 带 K 归一化 + 块级独立熵编码 + 码块并行）；算法基准端点（8 算法对比含 PSNR/耗时/推荐）+ 按模态策略建议（CT/MR→HTJ2K、DR/MG→JPEG-LS、US/NM→近无损）+ 实例转码端点；DicomCompressPage 升级（策略卡片/推荐标签/PSNR 列/HTJ2K/JPEG-LS 提示）+ spec 30 用例（无损位一致/近无损容差/PSNR 阈值）
+- **G-07 4D 真实帧源**：phase-engine 纯函数（cardiac 0-19/respiratory 0-9 相位分箱 + RR 间期/ECG 曲线 + 插值参数 + 确定性 PRNG）；从 dicomInstance 真实系列派生相位 + seed 回退；phase-info/movie 端点；Dicom4dPage 升级（真实数据驱动 + 相位曲线 SVG + 时相分布 + ECG/RR 面板 + 播放控制）
+- **G-10 DL 降噪**：model-loader 三级回退（ONNX→WASM→Mock）；noise-estimator（Laplacian-MAD σ 估计 + 高斯/泊松/混合分类）；denoise-pipeline（归一化→推理→反归一化 + Median/Gaussian/Bilateral/NL-means 核 + 3 档预设 + 处理历史）；DlDenoisePage 升级（对比滑块/噪声自动估计/核选择）
+
+### Wave 2: 影像 V2 中段（影像对比 + 病理 WSI + 分割深化）
+
+- **影像对比**：imaging-compare 模块（同患者多时点/多序列会话 2-4 视口 + 同步控制平移缩放/窗宽窗位/翻页联动 + 差异指标直方图/像素差热区占比/统计）；ImagingComparePage 新页（2x2 视口 + 同步控制条 + 差异面板）+ spec 18 用例
+- **病理切片 WSI**：pathology 模块（金字塔 level 元数据 + 确定性 PNG 瓦片自研 libpng 流程 zlib+CRC32 + H&E 组织图案种子绑定跨瓦片无缝 + 标注 CRUD）；WsiViewerPage 新页（层级切换/拖拽/缩放/tile 拼接/矩形圆形多边形标注/缩略图导航）+ spec 17 用例
+- **影像分割深化**：segmentation-v2（5 算法：区域生长 26 连通域/Otsu 自动阈值/Canny 简化/K-means 4 类/活动轮廓简化 + RLE 3D 掩码 + 体积面积统计 + 测量联动等效球直径）；SegmentationPage 重写（算法参数面板/种子点击选点/多结果彩色叠加/联动弹窗）+ spec 49 用例
+
+### Wave 3: 影像 V2 收尾 + AI 增强（MPR/VR/CPR + 测量标注 + AI 三件套）
+
+- **MPR/VR/CPR**：volume-v2（三平面正交联动 + 相交线参数 + CPR 弧长重采样拉直图 + 光线投射体绘制固定步长 + 传输函数 LUT 骨骼/软组织/血管 + yaw/pitch + 切割平面）；VolumeStudioPage 新页（四 Tab：三平面十字线/VR 旋转/CPR 路径编辑/切割）+ spec 20 用例
+- **测量标注 V2**：measurement-v2（8 工具：直线/角度/椭圆面积/矩形面积/多边形鞋带/折线长度/Cobb 角/Agatston 钙化评分 + 像素/世界坐标双向换算 + 标注↔测量关联 + 版本回滚）；MeasurementPanel 升级（8 工具工具栏 + 属性面板 + 双向同步）+ spec 41 用例
+- **AI 增强**：ai-v2（8 类器官自动检出灰度统计确定性推理 + 报告草稿四维评分 0-100 + 智能挂片规则表 10 条 + 医生历史偏好）；AiEnhancedPage 新页（检出置信度/评分雷达/挂片推荐）+ spec 22 用例
+
+### Wave 4-5: 技师工作站 V2 全链（6 模块）
+
+- **双检间轮转**：tech-v2 轮转计划生成（确定性贪心最小累计工作量 + 技能矩阵 + 房间约束 + 单日单班次/连续天数约束 + 执行记录/历史）+ 工作量预测（小时粒度 WMA [0.4/0.3/0.2/0.1] + 周模式 + 预约趋势 + 7 天置信带）；TechRotationPage 新页（甘特图/均衡条形/预测折线）+ spec 29 用例
+- **利用率/急诊/跨机房**：tech-ops（30 天设备利用率时间序列 + 高峰低谷时段 + 急诊插入冲突检测（DEFER/MOVE_DEVICE 调整方案）+ 跨机房贪心优化前后等待对比）；TechOpsPage 新页（热力图/统计卡/插入建议/排程表）+ spec 16 用例
+- **预约分布/值班大屏**：tech-overview（类型/时段/星期/设备分桶 + 波峰识别 + 爽约率 + 值班概览 + 房间实时流）；TechOverviewPage 新页（热力图/环形饼图/波峰柱状/大屏网格 10s 刷新）+ spec 21 用例
+
+### Wave 6-8: 报告 V2 全链（17 模块）
+
+- **质控规则引擎**：report-rules（18 条放射内置规则：结论为空/侧别缺失/随访缺失/数值无单位/结论所见冲突/尺寸超限/CT 值超 3000HU 等 + 9 运算符 + 严重级别 + 自定义规则 CRUD + 规则集绑定）；ReportRulesPage 新页（规则列表/违规表/一键修正/规则编辑器）+ spec 33 用例
+- **水印签章 V2**：report-sign-v2（文字水印位置/旋转/透明度/间距 + LOGO 图像水印 + sha256 防篡改校验码 + 签名申请/审批/驳回/撤销状态机）；ReportWatermarkPage 新页（水印预览滑块/校验码验证/签署时间线）+ spec 16 用例
+- **质控 V2**：report-qc-v2（5 维度 4 子项确定性评分 0-100 + A/B/C/D 等级 + 缺陷自动识别 + 任务创建/分配/一级/二次复核/关闭 + 缺陷分布/月度趋势统计）；ReportQcV2Panel 组件 + spec 28 用例
+- **危急值升级链 V2**：critical-escalation（3 级配置：一级电话/二级值班/三级科主任 + 每级超时 + tick 确定性自动升级 + 状态机 NOTIFYING→PENDING→CONFIRMED/ESCALATED/CLOSED + 响应耗时统计）；CriticalEscalationV2 组件（Steps 阶梯/倒计时/手动升级）+ spec 18 用例
+- **危急值 V2**：critical-v2（24 条规则库阈值边界语义 + 自动判定级别/描述/建议处置 + 电话/短信/消息三渠道通知 + 接受/拒绝/备注确认 + 触发率/确认及时率/超时率统计）；CriticalValuePanelV2 组件 + spec 27 用例
+- **模板审批 V2**：template-approval（状态机 draft→pending→approved/rejected→published 非法流转拒绝 + 版本递增快照 + 按科室/角色审批人 + 收藏/使用统计）；TemplateApprovalPanelV2 组件 + spec 27 用例
+- **AI 报告助理 V2**：ai-draft-v2（五类结构化字段提取部位/征象/测量/对比/结论 + 字段置信度 + 可追溯 ID + 多模态模板库确定性回退 + 逐段溯源草稿生成 + 9 类修改建议）；AIDraftPanelV2 组件 + spec 29 用例
+- **模板库 V2**：template-library-v2（三轴分类树模态/科室/用途 + 标签 + 搜索 + 确定性推荐评分 38 个内置放射模板 + 使用统计/收藏/复制/JSON 导入导出）；TemplateLibraryPanelV2 组件 + spec 30 用例
+- **导出中心 V2**：report-export-center-v2（5 格式 PDF/DOCX 概念 + HTML/CSV/DICOM SR 完整生成 + 任务流 PENDING→COMPLETED + 批量导出角色权限 + 下载/历史/统计）；ReportExportCenterPanelV2 组件 + spec 33 用例
+- **AI 二次检出 V2**：ai-second-read（定稿前风险项：漏诊/描述缺项/结论不一致 + 风险评分 + 忽略/采纳/加入报告交互）；SecondReadPanel 组件 + spec 14 用例
+- **会诊 V2**：consultation-v2（会诊室成员确定性选取 + 发言时序 seq + 投票汇总通过率 + 结论生成签名列表 + markdown 导出）；ConsultationV2Panel 组件 + spec 15 用例
+- **报告互评**：report-peer-review（按科室确定性分配/指定评审人 + 三维度 5 分制 + 待评/已评/超时 + 平均分/分布统计）；PeerReviewPanel 组件 + spec 15 用例
+- **报告对比 V2**：report-compare-v2（LCS 行级 diff 相同/修改/新增/删除 + 关键字段对比 + 相似度 0-100 二元组 75%+行级 25% + 三类预设）；ReportComparePanel 组件（红绿 diff 视图/相似度圆环）+ spec 16 用例
+- **报告检索 V2**：report-search-v2（自然语言解析近 N 天/模态/机构/医生/诊断词 + 跨机构检索相关性排序 + 高亮片段 + 聚合统计 + 13 份 4 机构语料）；ReportSearchV2Panel 组件 + spec 15 用例
+- **质控闭环**：qc-analytics（缺陷→整改→复查→关闭 PDCA 闭环状态机 + 缺陷率周/月趋势 + 帕累托 + 科室排名 + 环比改善率 + 质控驾驶舱 KPI）；QcAnalyticsPage 新页 + MSW handler + spec 28 用例
+
+### Wave 9-11: 99999 升级点（i18n/公共组件/MSW 真实化）
+
+- **i18n 补全**：appI18n 新增 899×2 键（common/techRotation/techOps/techOverview/reportRules/reportWatermark/reportV2/qcAnalytics/segmentationV2/compressV2 命名空间）+ 聚合 i18n 通用状态/操作/表头键 + 11 页面硬编码文案全量走 t()（TechRotation/TechOps/TechOverview/ReportRules/ReportWatermark/QcAnalytics/Segmentation/Compress/ReportV2 等）+ zh/en 完全对称
+- **公共组件接入**：6 组件 81 处替换（StatCard 37/EmptyState 17/AppText 20/ThemeTokens 10/PageHeader 7/VirtualTable 2）覆盖 8 页面（ExamRoomStatusBoard/RetakeRateAnalytics/TechnicianKpiDashboard/DicomShare/ImageQualityControl/TechRotation/RadiologistAnnualQC/PeerReview）
+- **MSW 真实化**：23 个新 handler 文件覆盖 215 端点（imaging-compare/volume-v2/measurement-v2/ai-v2/tech-v2/tech-ops/tech-overview/report-qc-v2/critical-escalation/critical-v2/template-approval/report-compare-v2/report-search-v2/report-rules/report-sign-v2/ai-draft-v2/template-library-v2/export-center-v2/ai-second-read/consultation-v2/peer-review/segmentation-v2/pathology）+ 统一 API_BASE 动态路径 + FNV-1a 确定性数据
+
+### 验证结果
+
+- 后端: tsc 0 错误、jest **280 suites / 3074 tests 全部通过**（+42 suites +641 tests）
+- 前端: tsc 844（基线持平 0 新增）、vite build 成功（570 entries precache）
+- **全量交互回归：click-all 373 路由 + 基线 17 = 579/579 通过（0 失败，44.5 分钟）**（新增 11 路由：/imaging-compare、/pathology/wsi-viewer、/dicom/volume-studio、/tech/rotation、/ops/tech-ops、/tech/overview、/report-v2/rules、/report-v2/watermark、/report-v2/workbench、/ai/enhanced、/qc/analytics）
+- **代码量指标**：① 增加行数 ~59,163 行（新增 207 文件 52,706 行 + 修改 922 文件净 +5,573 行）② 增加功能 ~120 项 ③ 增加文件 207 个新文件 ④ 总代码 ~1,483,945 行
+
+---
+
+
 # CHANGELOG
 
 ## v3.0.6.11-100 (2026-08-08) — 大规模升级（99999 升级点）：技师工作站 KPI/房间/重拍/协作+报告工作站 危急值网关/委员会会诊/MIP/标注/全文模板/随访触发+PACS G-19 LLM+RAG/G-28 CDN监控/G-21 双阅 BI-RADS+后端 0 前端 5 模块新页+UI 组件化+流程闭环 3 卡口+全量交互回归 377 路由 0 失败
@@ -823,7 +886,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-100 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-73 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -860,7 +923,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-100 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-72 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -1091,7 +1154,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-100.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-53.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -1223,7 +1286,7 @@
 ## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-100
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-49
 
 ### A13: 后端安全加固
 

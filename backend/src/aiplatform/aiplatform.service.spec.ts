@@ -15,6 +15,7 @@ import {
   ssim,
   syntheticFrame,
 } from './denoise-processor'
+import { estimateNoise } from './noise-estimator'
 
 const makePrisma = () =>
   ({
@@ -133,3 +134,110 @@ describe('AiPlatformService.denoiseImage (G-10)', () => {
     expect((lo.data as any).strength).toBe(0)
   })
 })
+
+describe('AiPlatformService.denoiseImage (G-10 Wave 1B: 可配置核/噪声估计/预设)', () => {
+  const svc = new AiPlatformService(makePrisma())
+
+  it('kernel=gaussian: 输出可解码, 算法名含 gaussian, 噪声水平下降', async () => {
+    const { noisy } = syntheticFrame(2, 50)
+    const png = encodePng(256, 256, noisy, 1).toString('base64')
+    const r = await svc.denoiseImage({ imageBase64: png, strength: 50, kernel: 'gaussian' })
+    const d = r.data as any
+    expect(d.source).toBe('backend')
+    expect(d.algorithm).toContain('gaussian')
+    expect(d.kernel).toBe('gaussian')
+    const decoded = decodePng(Buffer.from(d.denoisedBase64, 'base64'))!
+    expect(decoded.width).toBe(256)
+    // 噪声 σ 估计下降 (Laplacian-MAD)
+    const afterSigma = estimateNoise(new Uint8Array(decoded.data), 256, 256, 1).sigma
+    const beforeSigma = estimateNoise(noisy, 256, 256, 1).sigma
+    expect(afterSigma).toBeLessThan(beforeSigma)
+    expect(d.noiseReduction).toBeGreaterThan(0)
+  })
+
+  it('kernel=bilateral / nlmeans: 均返回 backend 结果且预设标记正确', async () => {
+    const { noisy } = syntheticFrame(2, 50)
+    const png = encodePng(256, 256, noisy, 1).toString('base64')
+    for (const kernel of ['bilateral', 'nlmeans'] as const) {
+      const r = await svc.denoiseImage({ imageBase64: png, strength: 50, kernel })
+      const d = r.data as any
+      expect(d.source).toBe('backend')
+      expect(d.algorithm).toContain(kernel)
+      expect(d.preset).toBe('standard')
+    }
+  })
+
+  it('kernel=dl: 走模型接口 (mock 后端), backendProvider 标注 deterministic-mock', async () => {
+    const { noisy } = syntheticFrame(2, 50)
+    const png = encodePng(256, 256, noisy, 1).toString('base64')
+    const r = await svc.denoiseImage({ imageBase64: png, strength: 50, kernel: 'dl', modelId: 'unet' })
+    const d = r.data as any
+    expect(d.source).toBe('backend')
+    expect(d.algorithm).toBe('dl-model')
+    expect(d.backend).toContain('deterministic-mock')
+    const decoded = decodePng(Buffer.from(d.denoisedBase64, 'base64'))!
+    expect(decoded.width).toBe(256)
+  })
+
+  it('noiseEstimate: 合成路径自动估计噪声等级 (σ/类型/level)', async () => {
+    const r = await svc.denoiseImage({ strength: 60, noiseEstimate: true })
+    const d = r.data as any
+    expect(d.noiseEstimate).toBeDefined()
+    expect(d.noiseEstimate.sigma).toBeGreaterThan(0)
+    expect(['gaussian', 'poisson', 'mixed']).toContain(d.noiseEstimate.type)
+    expect(d.noiseEstimate.level).toBeGreaterThan(0)
+    expect(d.noiseEstimate.level).toBeLessThanOrEqual(100)
+  })
+
+  it('noiseEstimate: false 时不返回估计', async () => {
+    const r = await svc.denoiseImage({ strength: 40, noiseEstimate: false })
+    expect((r.data as any).noiseEstimate).toBeUndefined()
+  })
+
+  it('preset=strong: 强度映射 + passes=2', async () => {
+    const { noisy } = syntheticFrame(2, 50)
+    const png = encodePng(256, 256, noisy, 1).toString('base64')
+    const r = await svc.denoiseImage({ imageBase64: png, strength: 30, preset: 'strong', kernel: 'median' })
+    const d = r.data as any
+    expect(d.preset).toBe('strong')
+    expect(d.passes).toBe(2)
+    expect(d.algorithm).toBe('median-3x3-x2')
+  })
+
+  it('preset=light 显式: passes=1 即使 strength>=50', async () => {
+    const { noisy } = syntheticFrame(2, 50)
+    const png = encodePng(256, 256, noisy, 1).toString('base64')
+    const r = await svc.denoiseImage({ imageBase64: png, strength: 60, preset: 'light', kernel: 'median' })
+    const d = r.data as any
+    expect(d.preset).toBe('light')
+    expect(d.passes).toBe(1)
+  })
+
+  it('处理历史: denoise 后 history 有记录, clear 后为空', async () => {
+    const h1 = await svc.denoiseHistory()
+    const countBefore = (h1.data as any[]).length
+    await svc.denoiseImage({ strength: 50, modelId: 'unet' })
+    const h2 = await svc.denoiseHistory()
+    const items = h2.data as any[]
+    expect(items.length).toBe(countBefore + 1)
+    expect(items[0]?.kernel).toBe('median')
+    expect(items[0]?.psnr).toBeGreaterThan(0)
+    expect(items[0]?.id).toContain('dn-')
+    const cleared = await svc.clearDenoiseHistory()
+    expect((cleared.data as any).cleared).toBe(true)
+    const h3 = await svc.denoiseHistory()
+    expect((h3.data as any[]).length).toBe(0)
+  })
+})
+
+function varianceOfArray(data: Uint8Array): number {
+  let s = 0
+  for (let i = 0; i < data.length; i++) s += data[i]!
+  const m = s / data.length
+  let v = 0
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i]! - m
+    v += d * d
+  }
+  return v / data.length
+}

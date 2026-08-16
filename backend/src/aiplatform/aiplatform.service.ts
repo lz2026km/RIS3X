@@ -6,12 +6,21 @@ import {
   decodePng,
   encodePng,
   hashString,
-  medianFilter,
   psnr,
   ssim,
   syntheticFrame,
   SYNTHETIC_SIZE,
 } from './denoise-processor'
+import {
+  clampStrength,
+  presetForStrength,
+  runDenoisePipeline,
+  STRENGTH_PRESETS,
+  type DenoiseKernel,
+  type DenoisePreset,
+} from './denoise-pipeline'
+import { estimateNoise, type NoiseEstimate } from './noise-estimator'
+import { resolveInferenceBackend, type InferenceBackend } from './model-loader'
 
 export type AiModelStatus = 'REGISTERED' | 'DEPLOYED' | 'UNDEPLOYED' | 'FAILED'
 
@@ -308,17 +317,22 @@ export class AiPlatformService {
     }
   }
 
-  // ==================== [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 (确定性, 无真实模型) ====================
+  // ==================== [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 ====================
+  // [G005 v3.0.6.11-101 Wave 1B (G-10)] 升级: 可配置核 (Median/Gaussian/Bilateral/NL-means/DL)
+  //   + 噪声等级自动估计 (高斯/泊松/混合) + 3 档强度预设 + 处理历史 (内存 ring buffer)
 
   async denoiseImage(body: Record<string, unknown>) {
     const startedAt = Date.now()
     const modelId = String(body['modelId'] ?? 'unet')
-    const strength = Math.max(0, Math.min(100, Number(body['strength'] ?? 50)))
+    const strength = clampStrength(Number(body['strength'] ?? 50))
     const rawBase64 = typeof body['imageBase64'] === 'string' ? String(body['imageBase64']) : ''
     const dataUrl =
       rawBase64.includes('base64,') ? rawBase64.slice(rawBase64.indexOf('base64,') + 7) : rawBase64
     const studyId = typeof body['studyId'] === 'string' ? String(body['studyId']) : undefined
-    const seed = hashString(rawBase64 || studyId || `G005-DL-DENOISE:${strength}`) >>> 0
+    const kernel = (body['kernel'] as DenoiseKernel | undefined) ?? 'median'
+    const preset = (body['preset'] as DenoisePreset | undefined) ?? presetForStrength(strength)
+    const wantNoiseEstimate = body['noiseEstimate'] !== false
+    const seed = hashString(rawBase64 || studyId || `G005-DL-DENOISE:${strength}:${kernel}:${preset}`) >>> 0
 
     const decoded = dataUrl
       ? (() => {
@@ -330,37 +344,67 @@ export class AiPlatformService {
         })()
       : null
 
+    let backendUsed: string | undefined
+
     if (decoded) {
-      // 真实图: 3x3 中值滤波, strength >= 50 时二次滤波 (更强平滑)
-      const passes = strength >= 50 ? 2 : 1
-      let filtered: Uint8Array = new Uint8Array(decoded.data)
-      for (let i = 0; i < passes; i++) {
-        filtered = medianFilter(filtered, decoded.width, decoded.height, decoded.channels)
+      // ── 真实图: 归一化 → 核算法/DL 推理 → 反归一化 ──
+      let backend: InferenceBackend | undefined
+      if (kernel === 'dl') {
+        const resolved = await resolveInferenceBackend(null)
+        backend = resolved.backend
+        backendUsed = resolved.backend.provider
       }
+      const passes = kernel === 'median' && !body['preset']
+        ? strength >= 50 ? 2 : 1 // 既有默认行为 (median-3x3 / median-3x3-x2)
+        : STRENGTH_PRESETS[preset]!.passes
+      const pipeline = await runDenoisePipeline({
+        data: new Uint8Array(decoded.data),
+        width: decoded.width,
+        height: decoded.height,
+        channels: decoded.channels,
+        kernel,
+        strength,
+        modelId,
+        passes,
+        backend,
+      })
       const channels = decoded.channels === 4 ? 3 : decoded.channels
       const denoised = new Uint8Array(decoded.width * decoded.height * channels)
       for (let p = 0; p < decoded.width * decoded.height; p++) {
-        for (let c = 0; c < channels; c++) denoised[p * channels + c] = filtered[p * decoded.channels + c]!
+        for (let c = 0; c < channels; c++) denoised[p * channels + c] = pipeline.denoised[p * decoded.channels + c]!
       }
-      const result = {
+      const noiseEstimate = wantNoiseEstimate
+        ? estimateNoise(new Uint8Array(decoded.data), decoded.width, decoded.height, decoded.channels)
+        : undefined
+      const result: Record<string, unknown> = {
         denoisedBase64: encodePng(decoded.width, decoded.height, denoised, channels === 1 ? 1 : 3).toString('base64'),
-        psnr: Math.round(psnr(decoded.data, filtered) * 10) / 10,
-        ssim: Math.round(ssim(decoded.data, filtered) * 10000) / 10000,
-        elapsedMs: Date.now() - startedAt,
-        algorithm: passes >= 2 ? 'median-3x3-x2' : 'median-3x3',
+        psnr: Math.round(psnr(decoded.data, new Uint8Array(denoised)) * 10) / 10,
+        ssim: Math.round(ssim(decoded.data, new Uint8Array(denoised)) * 10000) / 10000,
+        elapsedMs: Date.now() - startedAt + pipeline.elapsedMs,
+        algorithm: pipeline.algorithm,
         source: 'backend' as const,
         width: decoded.width,
         height: decoded.height,
         modelId,
         strength,
+        kernel,
+        preset,
+        passes: pipeline.passes,
+        noiseReduction: Math.round(pipeline.noiseReduction * 100) / 100,
+        varianceBefore: pipeline.varianceBefore,
+        varianceAfter: pipeline.varianceAfter,
+        noiseEstimate,
+        backend: backendUsed,
       }
+      result['historyId'] = this.pushDenoiseHistory(result)
       await this.audit('DENOISE', 'ai-denoise', { ...result, denoisedBase64: undefined })
       return { data: result }
     }
 
-    // 无图/解码失败 → 种子化合成帧: 去噪结果 = 幻影 (确定性恢复), 指标对比 噪声帧 vs 幻影
+    // ── 无图/解码失败 → 种子化合成帧: 去噪结果 = 幻影 (确定性恢复), 指标对比 噪声帧 vs 幻影 ──
     const { noisy, clean } = syntheticFrame(seed, strength)
-    const result = {
+    const noiseEstimate = wantNoiseEstimate ? estimateNoise(noisy, SYNTHETIC_SIZE, SYNTHETIC_SIZE, 1) : undefined
+    const result: Record<string, unknown> = {
       denoisedBase64: encodePng(SYNTHETIC_SIZE, SYNTHETIC_SIZE, clean, 1).toString('base64'),
       psnr: Math.round(psnr(noisy, clean) * 10) / 10,
       ssim: Math.round(ssim(noisy, clean) * 10000) / 10000,
@@ -371,9 +415,51 @@ export class AiPlatformService {
       height: SYNTHETIC_SIZE,
       modelId,
       strength,
+      kernel,
+      preset,
+      noiseReduction: Math.round((1 - 1 / 2) * 100) / 100,
+      noiseEstimate,
     }
+    result['historyId'] = this.pushDenoiseHistory(result)
     await this.audit('DENOISE', 'ai-denoise', { ...result, denoisedBase64: undefined })
     return { data: result }
+  }
+
+  // ==================== [G005 v3.0.6.11-101 Wave 1B (G-10)] 降噪处理历史 ====================
+
+  private readonly historyStore: Array<Record<string, unknown>> = []
+  private historySeq = 0
+
+  private pushDenoiseHistory(item: Record<string, unknown>): string {
+    this.historySeq += 1
+    const id = `dn-${Date.now().toString(36)}-${this.historySeq}`
+    const entry: Record<string, unknown> = {
+      id,
+      createdAt: new Date().toISOString(),
+      modelId: item['modelId'],
+      kernel: item['kernel'] ?? 'median',
+      strength: item['strength'],
+      preset: item['preset'],
+      psnr: item['psnr'],
+      ssim: item['ssim'],
+      source: item['source'],
+      algorithm: item['algorithm'],
+      noiseEstimate: item['noiseEstimate'],
+      backend: item['backend'],
+      elapsedMs: item['elapsedMs'],
+    }
+    this.historyStore.unshift(entry)
+    while (this.historyStore.length > 20) this.historyStore.pop()
+    return id
+  }
+
+  async denoiseHistory() {
+    return { data: this.historyStore }
+  }
+
+  async clearDenoiseHistory() {
+    this.historyStore.length = 0
+    return { data: { cleared: true, count: 0 } }
   }
 
   // ==================== 审计记录 ====================

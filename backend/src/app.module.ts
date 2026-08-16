@@ -112,6 +112,8 @@ import { NuclearStatsModule } from "./modules/nuclear-stats/nuclear-stats.module
 import { ScreeningModule } from "./modules/screening/screening.module";
 import { DicomShareModule } from "./modules/dicom-share/dicom-share.module";
 import { TreatmentPlansModule } from "./modules/treatment-plans/treatment-plan.module";
+// [v3.0.6.11-101 Wave 2B] 病理切片 WSI 浏览与标注 (孤儿模块, 可无 DB 启动)
+import { PathologyModule } from "./modules/pathology/pathology.module";
 // [G005 Wave1A] 后端扩充 (P1 六模块 + 医保审核写操作)
 import { PacsAdminModule } from "./modules/pacs-admin/pacs-admin.module";
 import { ConsultationsModule } from "./modules/consultations/consultations.module";
@@ -152,6 +154,42 @@ import { EyeTeleModule } from "./modules/eye-tele/eye-tele.module";
 import { EyePixelModule } from "./modules/eye-pixel/eye-pixel.module";
 // [v3.0.6.11-100 Wave 4A] 移动审批 (mobile-approval): 待办/通过/驳回/委派/历史
 import { MobileApprovalModule } from "./modules/mobile-approval/mobile-approval.module";
+// [G005 v3.0.6.11-101 Wave 2A] 影像对比 (imaging-compare): 多时点/多序列/多模态并排 + 同步浏览 + 差异指标
+import { ImagingCompareModule } from "./modules/imaging-compare/imaging-compare.module";
+// [v3.0.6.11-101 Wave 2C] 影像分割深化 (segmentation-v2): 多算法分割 + 结果管理 + 测量联动
+import { SegmentationV2Module } from "./modules/segmentation-v2/segmentation-v2.module";
+// [v3.0.6.11-101 Wave 3B] 影像测量 V2 (measurement-v2): 8 工具确定性测量 + 标注 V2 双向同步 (孤儿模块)
+import { MeasurementV2Module } from "./modules/measurement-v2/measurement-v2.module";
+// [v3.0.6.11-101 Wave 3C] AI 增强 (ai-v2): 多器官自动检出 + 报告草稿评分 + 智能挂片 (孤儿模块, 无 DB 可启动)
+import { AiV2Module } from "./modules/ai-v2/ai-v2.module";
+// [v3.0.6.11-101 Wave 4A] 技师工作站 V2 (tech-v2): 双检间轮转 + 工作量预测 (孤儿模块, 无 DB 可启动)
+import { TechV2Module } from "./modules/tech-v2/tech-v2.module";
+// [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 设备利用率历史 + 紧急插入 + 跨机房排程优化 (孤儿模块, 无 DB 可启动)
+import { TechOpsModule } from "./modules/tech-ops/tech-ops.module";
+// [v3.0.6.11-101 Wave 5 (tech-overview)] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏 (孤儿模块, 无 DB 可启动)
+import { TechOverviewModule } from "./modules/tech-overview/tech-overview.module";
+// [v3.0.6.11-101 Wave 6B] 报告质控 V2 (report-qc-v2): 多维智能评分 + 质控任务流 + 二次复核 + 统计 (孤儿模块, 无 DB 可启动)
+import { ReportQcV2Module } from "./modules/report-qc-v2/report-qc-v2.module";
+// [v3.0.6.11-101 Wave 6B] 危急值升级链 V2 (critical-escalation): 升级链配置/执行状态机/响应耗时统计 (孤儿模块, 无 DB 可启动)
+import { CriticalEscalationModule } from "./modules/critical-escalation/critical-escalation.module";
+// [v3.0.6.11-101 Wave 7A (F1)] AI 报告助理 V2 (ai-draft-v2): 结构化字段提取 + 多模态草稿生成 + 信心溯源 + 修改建议 (孤儿模块, 无 DB 可启动)
+import { AiDraftV2Module } from "./modules/ai-draft-v2/ai-draft-v2.module";
+// [v3.0.6.11-101 Wave 6A F11] 报告质控规则引擎: 18+ 内置规则 + 自定义规则 CRUD + 规则集绑定 (孤儿模块, 无 DB 可启动)
+import { ReportRulesModule } from "./modules/report-rules/report-rules.module";
+// [v3.0.6.11-101 Wave 6A F8] 水印签章 V2: 报告水印 (文字/图像/防篡改校验码) + 电子签名申请/审批/记录 (孤儿模块, 无 DB 可启动)
+import { ReportSignV2Module } from "./modules/report-sign-v2/report-sign-v2.module";
+// [v3.0.6.11-101 Wave 7C F14] AI 二次检出 V2: 定稿前 AI 复查 (漏诊/缺项/不一致) + 忽略/采纳/加入报告 (孤儿模块)
+import { AiSecondReadModule } from "./modules/ai-second-read/ai-second-read.module";
+// [v3.0.6.11-101 Wave 7C F6] 委员会会诊 V2: 会诊室/发言时序/投票汇总/结论签名/记录导出 (孤儿模块, 独立于 consultations)
+import { ConsultationV2Module } from "./modules/consultation-v2/consultation-v2.module";
+// [v3.0.6.11-101 Wave 7C F9] 报告互评: 按科室确定性分配 + 三维度 5 分制 + 评语/状态/统计 (孤儿模块)
+import { ReportPeerReviewModule } from "./modules/report-peer-review/report-peer-review.module";
+// [v3.0.6.11-101 Wave 8A (F16)] 报告对比 V2: 同患者不同时点/双阅双报告/医生与AI 逐段diff + 关键字段 + 相似度 (孤儿模块)
+import { ReportCompareV2Module } from "./modules/report-compare-v2/report-compare-v2.module";
+// [v3.0.6.11-101 Wave 8A] 报告检索 V2: 关键词全文 + 结构化条件 + 自然语言解析 + 跨机构检索 + 高亮/聚合 (孤儿模块)
+import { ReportSearchV2Module } from "./modules/report-search-v2/report-search-v2.module";
+// [v3.0.6.11-101 Wave 8B] 报告质控闭环与趋势分析 (qc-analytics): 缺陷→整改→复查→关闭 + 帕累托/科室排名/驾驶舱 (孤儿模块, 无 DB 可启动)
+import { QcAnalyticsModule } from "./modules/qc-analytics/qc-analytics.module";
 
 @Module({
   imports: [
@@ -318,6 +356,42 @@ import { MobileApprovalModule } from "./modules/mobile-approval/mobile-approval.
     EyePixelModule,
     // [v3.0.6.11-100 Wave 4A] 移动审批
     MobileApprovalModule,
+    // [G005 v3.0.6.11-101 Wave 2A] 影像对比 (imaging-compare)
+    ImagingCompareModule,
+    // [v3.0.6.11-101 Wave 2C] 影像分割深化 (segmentation-v2)
+    SegmentationV2Module,
+    // [v3.0.6.11-101 Wave 2B] 病理切片 WSI 浏览与标注
+    PathologyModule,
+    // [v3.0.6.11-101 Wave 3B] 影像测量 V2 + 标注 V2 双向同步
+    MeasurementV2Module,
+    // [v3.0.6.11-101 Wave 3C] AI 增强 (ai-v2)
+    AiV2Module,
+    // [v3.0.6.11-101 Wave 4A] 技师工作站 V2 (tech-v2): 双检间轮转 + 工作量预测
+    TechV2Module,
+    // [v3.0.6.11-101 Wave 4B (tech-ops)] 技师工作站 V2: 利用率历史 + 紧急插入 + 跨机房优化
+    TechOpsModule,
+    // [v3.0.6.11-101 Wave 5 (tech-overview)] 技师工作站 V2 收尾: 患者预约分布 + 技师值班大屏
+    TechOverviewModule,
+    // [v3.0.6.11-101 Wave 6A F11] 报告质控规则引擎 (孤儿模块, 无 DB 可启动)
+    ReportRulesModule,
+    // [v3.0.6.11-101 Wave 6A F8] 水印签章 V2 (孤儿模块, 无 DB 可启动)
+    ReportSignV2Module,
+    // [v3.0.6.11-101 Wave 6B] 报告质控 V2 (report-qc-v2): 多维智能评分 + 任务流 + 二次复核 + 统计
+    ReportQcV2Module,
+    // [v3.0.6.11-101 Wave 6B] 危急值升级链 V2 (critical-escalation): 升级链配置/执行/统计
+    CriticalEscalationModule,
+    // [v3.0.6.11-101 Wave 7A (F1)] AI 报告助理 V2 (ai-draft-v2): 结构化字段 + 草稿生成 + 溯源 + 建议 (孤儿模块)
+    AiDraftV2Module,
+    // [v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 (F14) + 委员会会诊 V2 (F6) + 报告互评 (F9) (孤儿模块)
+    AiSecondReadModule,
+    ConsultationV2Module,
+    ReportPeerReviewModule,
+    // [v3.0.6.11-101 Wave 8A (F16)] 报告对比 V2 (report-compare-v2): 逐段 diff + 关键字段 + 相似度 (孤儿模块)
+    ReportCompareV2Module,
+    // [v3.0.6.11-101 Wave 8A] 报告检索 V2 (report-search-v2): 自然语言 + 跨机构 + 高亮/聚合 (孤儿模块)
+    ReportSearchV2Module,
+    // [v3.0.6.11-101 Wave 8B] 报告质控闭环与趋势分析 (qc-analytics): 缺陷→整改→复查→关闭 + 帕累托/科室排名/驾驶舱 (孤儿模块)
+    QcAnalyticsModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -6,11 +6,15 @@ import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
 import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
 import { RETAKE_REASON_OPTIONS, worklistApi } from '../../services/api/worklistApi'
 import {
-  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Empty, Modal, type TableProps,
+  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Modal, type TableProps,
 } from 'antd'
 import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw, XCircle } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BarChart3 } from 'lucide-react'
+import { PageHeader } from '../../components/common/PageHeader'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { EmptyState } from '../../components/common/EmptyState'
+import { AppText } from '../../components/common/AppText'
+import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 
 const MODALITY_OPTIONS = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => ({ label: m, value: m }))
 const STATUS_META: Record<string, { color: string; label: string }> = {
@@ -184,13 +188,18 @@ export default function ImageQualityControlPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }} wrap>
-        <Camera size={20} color="#3b82f6" />
-        <span style={{ fontSize: 18, fontWeight: 700 }}>影像质控专项</span>
-        <Tag color="cyan">v3.0.6.11-75</Tag>
-        <Tag color="geekblue">ACR 模体 / AI 评分 / 剂量合规</Tag>
-        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
-      </Space>
+      <PageHeader
+        icon={<Camera size={20} color="#3b82f6" />}
+        title="影像质控专项"
+        subtitle="ACR 模体 / AI 评分 / 剂量合规"
+        actions={
+          <>
+            <Tag color="cyan">v3.0.6.11-75</Tag>
+            <Tag color="geekblue">ACR 模体 / AI 评分 / 剂量合规</Tag>
+            <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
+          </>
+        }
+      />
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
@@ -206,14 +215,14 @@ export default function ImageQualityControlPage() {
         ))}
       </div>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="A 级设备" value={deviceStats.a} prefix={<CheckCircle size={14} />} loading={loading} styles={{ content: { color: '#10b981' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="B 级" value={deviceStats.b} prefix={<Activity size={14} />} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="C 级" value={deviceStats.c} prefix={<AlertTriangle size={14} />} loading={loading} styles={{ content: { color: '#f59e0b' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="D 级(需关注)" value={deviceStats.d} prefix={<AlertTriangle size={14} />} loading={loading} styles={{ content: { color: '#dc2626' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI 平均分" value={statsV2?.avgOverall ?? 0} suffix="/5" loading={loading} styles={{ content: { color: '#7c3aed' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI 评分总数" value={statsV2?.totalScores ?? 0} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={150} gap={12} style={{ marginBottom: 16 }}>
+        <StatCard title="A 级设备" value={deviceStats.a} icon={<CheckCircle size={16} />} color="success" loading={loading} />
+        <StatCard title="B 级" value={deviceStats.b} icon={<Activity size={16} />} color="info" loading={loading} />
+        <StatCard title="C 级" value={deviceStats.c} icon={<AlertTriangle size={16} />} color="warning" loading={loading} />
+        <StatCard title="D 级(需关注)" value={deviceStats.d} icon={<AlertTriangle size={16} />} color="error" loading={loading} />
+        <StatCard title="AI 平均分" value={statsV2?.avgOverall ?? 0} suffix="/5" color="#7c3aed" loading={loading} />
+        <StatCard title="AI 评分总数" value={statsV2?.totalScores ?? 0} icon={<ScanLine size={16} />} color="primary" loading={loading} />
+      </StatCardGrid>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={8}>
@@ -225,7 +234,7 @@ export default function ImageQualityControlPage() {
               <Button type="primary" block onClick={handleScore} loading={scoring}>
                 {scoring ? 'AI 评分中...' : '开始 AI 评分'}
               </Button>
-              <div style={{ fontSize: 12, color: '#64748b' }}>
+              <div style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
                 评分维度: 伪影(运动/金属/环) · 摆位(体位/旋转/偏移) · 曝光(不足/正常/过度)
               </div>
             </Space>
@@ -243,7 +252,7 @@ export default function ImageQualityControlPage() {
                   <Col span={12}><Statistic title="综合分" value={statsV2.avgOverall ?? 0} suffix="/5" valueStyle={{ fontSize: 16, color: '#7c3aed' }} /></Col>
                 </Row>
               </Space>
-            ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+            ) : <EmptyState description="暂无评分统计" />}
           </Card>
         </Col>
 
@@ -252,7 +261,7 @@ export default function ImageQualityControlPage() {
             {loading ? (
               <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
             ) : results.length === 0 ? (
-              <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description="暂无评分记录" />
+              <EmptyState description="暂无评分记录" />
             ) : (
               <Table rowKey="id" size="small" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
             )}
@@ -306,10 +315,10 @@ export default function ImageQualityControlPage() {
         okButtonProps={{ loading: qcBusy === `${retakeTarget?.id}:retake`, danger: true }}
         cancelText="取消"
       >
-        <div style={{ marginBottom: 12, fontSize: 13, color: '#475569' }}>
+        <AppText size="sm" color="secondary" style={{ marginBottom: 12, display: 'block' }}>
           检查将退回「检查中」状态并累计重拍次数 (QC_REJECT → IN_PROGRESS)
-        </div>
-        <div style={{ marginBottom: 6, fontSize: 12, color: '#64748b' }}>重拍原因 (用于重拍率统计分析)</div>
+        </AppText>
+        <AppText size="xs" color="muted" style={{ marginBottom: 6, display: 'block' }}>重拍原因 (用于重拍率统计分析)</AppText>
         <Select
           style={{ width: '100%' }}
           placeholder="请选择重拍原因"

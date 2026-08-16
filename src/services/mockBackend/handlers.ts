@@ -180,6 +180,32 @@ import { diagnosisAccuracyHandlers } from './diagnosisAccuracyHandlers';
 import { mammoQcHandlers } from './mammoQcHandlers';
 // [G005 Wave 3A v3.0.6.11-99] qc-pdca 质控闭环 (qcPdcaApi)
 import { qcPdcaHandlers } from './qcPdcaHandlers';
+// [G005 Wave 8B v3.0.6.11-101] qc-analytics 报告质控闭环与趋势分析 (qcAnalyticsApi)
+import { qcAnalyticsHandlers } from './qcAnalyticsHandlers';
+// [G005 Wave 11 v3.0.6.11-101-99999] Wave 1-8 新模块 MSW 补齐 (与后端响应结构一致, 确定性数据)
+import { imagingCompareHandlers } from './imagingCompareHandlers'; // Wave 2A 影像对比
+import { volumeV2Handlers } from './volumeV2Handlers'; // Wave 3A 多平面重建 V2
+import { measurementV2Handlers } from './measurementV2Handlers'; // Wave 3B 影像测量 V2
+import { aiV2Handlers } from './aiV2Handlers'; // Wave 5B AI 增强 (organ/draft-score/hanging)
+import { techV2Handlers } from './techV2Handlers'; // Wave 6B 技师轮转 + 预测
+import { techOpsHandlers } from './techOpsHandlers'; // Wave 6B 技师运营
+import { techOverviewHandlers } from './techOverviewHandlers'; // Wave 6C 技师值班大屏
+import { reportQcV2Handlers } from './reportQcV2Handlers'; // Wave 6B 报告质控 V2
+import { criticalEscalationHandlers } from './criticalEscalationHandlers'; // Wave 6B 危急值升级链
+import { criticalV2Handlers } from './criticalV2Handlers'; // Wave 6C 危急值管理 V2
+import { templateApprovalHandlers } from './templateApprovalHandlers'; // Wave 6C 模板审批流
+import { reportCompareV2Handlers } from './reportCompareV2Handlers'; // Wave 8A 报告对比 V2
+import { reportSearchV2Handlers } from './reportSearchV2Handlers'; // Wave 8A 报告检索 V2
+import { reportRulesHandlers } from './reportRulesHandlers'; // Wave 6A 报告质控规则引擎
+import { reportSignV2Handlers } from './reportSignV2Handlers'; // Wave 6A 水印签章 V2
+import { aiDraftV2Handlers } from './aiDraftV2Handlers'; // Wave 7A AI 报告助理 V2
+import { templateLibraryV2Handlers } from './templateLibraryV2Handlers'; // Wave 7B 模板库 V2
+import { reportExportCenterV2Handlers } from './reportExportCenterV2Handlers'; // Wave 7B 报告导出中心 V2
+import { aiSecondReadHandlers } from './aiSecondReadHandlers'; // Wave 7C AI 二次检出
+import { consultationV2Handlers } from './consultationV2Handlers'; // Wave 7C 委员会会诊 V2
+import { reportPeerReviewHandlers } from './reportPeerReviewHandlers'; // Wave 7C 报告互评
+import { segmentationV2Handlers } from './segmentationV2Handlers'; // Wave 2C 影像分割 V2
+import { pathologyHandlers } from './pathologyHandlers'; // Wave 2B 病理切片 WSI
 import {
   INITIAL_CHECK_SUMMARY,
 } from '@data/reportInitialCheckMock';
@@ -5203,6 +5229,31 @@ export const handlers = [
   ...diagnosisAccuracyHandlers, // [W3-A] 诊断符合率 (diagnosisAccuracyApi)
   ...mammoQcHandlers, // [W3-A] 乳腺影像质量管理 (mammoQcApi)
   ...qcPdcaHandlers, // [G005 Wave 3A v3.0.6.11-99] PDCA 质控闭环 (qcPdcaApi)
+  ...qcAnalyticsHandlers, // [G005 Wave 8B v3.0.6.11-101] 报告质控闭环与趋势分析 (qcAnalyticsApi)
+  // [G005 Wave 11 v3.0.6.11-101-99999] Wave 1-8 新模块 MSW 补齐 (仅追加, 不影响既有注册顺序)
+  ...pathologyHandlers, // [Wave 2B] 病理切片 WSI (/pathology/*)
+  ...imagingCompareHandlers, // [Wave 2A] 影像对比 (/imaging-compare/*)
+  ...segmentationV2Handlers, // [Wave 2C] 影像分割 V2 (/segmentation-v2/*)
+  ...measurementV2Handlers, // [Wave 3B] 影像测量 V2 (/measurement-v2/*)
+  ...volumeV2Handlers, // [Wave 3A] 多平面重建 V2 (/volume-v2/*)
+  ...aiV2Handlers, // [Wave 5B] AI 增强 (/ai-v2/*)
+  ...techV2Handlers, // [Wave 6B] 技师轮转+预测 (/tech-v2/*)
+  ...techOpsHandlers, // [Wave 6B] 技师运营 (/tech-ops/*)
+  ...techOverviewHandlers, // [Wave 6C] 技师值班大屏 (/tech-overview/*)
+  ...reportQcV2Handlers, // [Wave 6B] 报告质控 V2 (/report-qc-v2/*)
+  ...criticalEscalationHandlers, // [Wave 6B] 危急值升级链 (/critical-escalation/*)
+  ...criticalV2Handlers, // [Wave 6C] 危急值管理 V2 (/critical-v2/*)
+  ...templateApprovalHandlers, // [Wave 6C] 模板审批流 (/template-approval/*)
+  ...reportCompareV2Handlers, // [Wave 8A] 报告对比 V2 (/report-compare-v2/*)
+  ...reportSearchV2Handlers, // [Wave 8A] 报告检索 V2 (/report-search-v2/*)
+  ...reportRulesHandlers, // [Wave 6A] 报告质控规则引擎 (/report-rules/*)
+  ...reportSignV2Handlers, // [Wave 6A] 水印签章 V2 (/report-sign-v2/*)
+  ...aiDraftV2Handlers, // [Wave 7A] AI 报告助理 V2 (/ai-draft-v2/*)
+  ...templateLibraryV2Handlers, // [Wave 7B] 模板库 V2 (/template-library-v2/*)
+  ...reportExportCenterV2Handlers, // [Wave 7B] 报告导出中心 V2 (/report-export-center-v2/*)
+  ...aiSecondReadHandlers, // [Wave 7C] AI 二次检出 (/ai-second-read/*)
+  ...consultationV2Handlers, // [Wave 7C] 委员会会诊 V2 (/consultation-v2/*)
+  ...reportPeerReviewHandlers, // [Wave 7C] 报告互评 (/report-peer-review/*)
   ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,

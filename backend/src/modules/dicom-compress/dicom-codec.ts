@@ -16,6 +16,8 @@
  */
 
 import { jpeg2000Encode, jpeg2000Decode } from './jpeg2000'
+import { jpegLsEncode, jpegLsDecode } from './jpeg-ls-codec'
+import { htj2kEncode, htj2kDecode } from './htj2k-codec'
 
 export interface ParsedDicom {
   rows: number
@@ -31,7 +33,15 @@ export interface ParsedDicom {
   fileSize: number
 }
 
-export type CodecKind = 'rle' | 'predictive' | 'jpeg2000'
+export type CodecKind =
+  | 'rle'
+  | 'predictive'
+  | 'jpeg2000'
+  | 'htj2k'
+  | 'jpeg-ls'
+  | 'jpeg-ls-nearlossless'
+  | 'run-length'
+  | 'raw'
 
 /**
  * 编码结果来源标注:
@@ -406,7 +416,7 @@ export async function compressPixelData(
   meta: Pick<ParsedDicom, 'bitsAllocated' | 'pixelRepresentation' | 'rows' | 'columns' | 'samplesPerPixel'>,
   codec: { kind: CodecKind; quality: number },
 ): Promise<Buffer> {
-  if (codec.kind === 'rle') {
+  if (codec.kind === 'rle' || codec.kind === 'run-length') {
     return rleEncode(pixelData, meta.bitsAllocated)
   }
   if (codec.kind === 'jpeg2000') {
@@ -418,6 +428,27 @@ export async function compressPixelData(
       samplesPerPixel: meta.samplesPerPixel,
     })
   }
+  if (codec.kind === 'htj2k') {
+    return htj2kEncode(pixelData, {
+      bitsAllocated: meta.bitsAllocated,
+      pixelRepresentation: meta.pixelRepresentation,
+      quality: codec.quality,
+      columns: meta.columns,
+    })
+  }
+  if (codec.kind === 'jpeg-ls' || codec.kind === 'jpeg-ls-nearlossless') {
+    const near = codec.kind === 'jpeg-ls-nearlossless' ? Math.max(1, Math.round((100 - codec.quality) / 6)) : 0
+    return jpegLsEncode(pixelData, {
+      bitsAllocated: meta.bitsAllocated,
+      pixelRepresentation: meta.pixelRepresentation,
+      near,
+      quality: codec.quality,
+      columns: meta.columns,
+    })
+  }
+  if (codec.kind === 'raw') {
+    return Buffer.from(pixelData)
+  }
   return predictiveEncode(pixelData, {
     bitsAllocated: meta.bitsAllocated,
     pixelRepresentation: meta.pixelRepresentation,
@@ -426,7 +457,7 @@ export async function compressPixelData(
 }
 
 export async function decompressPixelData(packed: Buffer, meta: CodecMeta): Promise<Buffer> {
-  if (meta.kind === 'rle') {
+  if (meta.kind === 'rle' || meta.kind === 'run-length') {
     return rleDecode(packed, meta.pixelCount * sampleBytes(meta.bitsAllocated))
   }
   if (meta.kind === 'jpeg2000') {
@@ -436,6 +467,23 @@ export async function decompressPixelData(packed: Buffer, meta: CodecMeta): Prom
       bitsAllocated: meta.bitsAllocated,
       pixelCount: meta.pixelCount,
     })
+  }
+  if (meta.kind === 'htj2k') {
+    return htj2kDecode(packed, {
+      bitsAllocated: meta.bitsAllocated,
+      pixelRepresentation: meta.pixelRepresentation,
+      pixelCount: meta.pixelCount,
+    })
+  }
+  if (meta.kind === 'jpeg-ls' || meta.kind === 'jpeg-ls-nearlossless') {
+    return jpegLsDecode(packed, {
+      bitsAllocated: meta.bitsAllocated,
+      pixelRepresentation: meta.pixelRepresentation,
+      pixelCount: meta.pixelCount,
+    })
+  }
+  if (meta.kind === 'raw') {
+    return Buffer.from(packed)
   }
   return predictiveDecode(packed, {
     bitsAllocated: meta.bitsAllocated,
@@ -459,6 +507,6 @@ export function codecMetaFrom(
     columns: parsed.columns,
     pixelCount: Math.floor(parsed.pixelData.length / sampleBytes(parsed.bitsAllocated)),
     samplesPerPixel: parsed.samplesPerPixel,
-    source: codec.kind === 'jpeg2000' ? 'real' : 'rle-approx',
+    source: codec.kind === 'jpeg2000' ? 'real' : codec.kind === 'htj2k' || codec.kind === 'jpeg-ls' || codec.kind === 'jpeg-ls-nearlossless' ? 'rle-approx' : 'rle-approx',
   }
 }

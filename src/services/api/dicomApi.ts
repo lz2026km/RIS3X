@@ -395,42 +395,20 @@ export const dicomDimseApi = {
 // ══════════════════════════════════════════════════════════════════════════
 // DICOM 4D
 // ══════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-101 Wave 1B (G-07)] 4D 真实帧源: 统一委托到专用模块 dicom4dApi
+// (含新端点 phase-info / movie, 避免双实现漂移)
 
-export interface Series4D {
-  seriesUid: string
-  studyUid: string
-  patientName: string
-  patientId: string
-  modality: string
-  seriesDescription: string
-  frameCount: number
-  frameRate: number
-  gatingType: 'cardiac' | 'respiratory' | 'both'
-  dimensions: { width: number; height: number }
-}
-
-export interface FrameData4D {
-  frameIndex: number
-  timestamp: string
-  phase: number
-  dataUrl: string
-}
-
-export interface PhaseInfo4D {
-  seriesUid: string
-  gatingType: 'cardiac' | 'respiratory' | 'both'
-  cardiacPhase: number
-  respiratoryPhase: number
-  cardiacCycleMs: number
-  respiratoryCycleMs: number
-  frameCount: number
-}
-
-export const dicom4dApi = {
-  list: () => api.post<Series4D[]>('/dicom/4d/list', {}),
-  frames: (seriesUid: string) => api.post<FrameData4D[]>('/dicom/4d/frames', { seriesUid }),
-  phase: (seriesUid: string) => api.get<PhaseInfo4D>(`/dicom/4d/phase/${encodeURIComponent(seriesUid)}`),
-}
+export {
+  dicom4dApi,
+  type Series4D,
+  type FrameData4D,
+  type PhaseInfo4D,
+  type PhaseInfoDetail4D,
+  type PhaseDistribution4D,
+  type PhaseBin,
+  type MovieData4D,
+  type EcgPoint4D,
+} from './dicom4dApi'
 
 // ══════════════════════════════════════════════════════════════════════════
 // Volume 3D Rendering

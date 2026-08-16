@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Activity, Heart, Play, Pause, SkipBack, SkipForward, RotateCcw, Clock, Zap } from 'lucide-react'
+import { Activity, Heart, Play, Pause, SkipBack, SkipForward, RotateCcw, Clock, Zap, BarChart3, TrendingUp } from 'lucide-react'
 import { Select, Card, Slider, Tag, message } from 'antd'
-import { dicom4dApi, type Series4D } from '../../services/api/dicomApi'
+import { dicom4dApi, type Series4D, type PhaseInfoDetail4D, type MovieData4D } from '../../services/api/dicomApi'
 
 interface PhaseState {
   cardiacPhase: number
   respiratoryPhase: number
-  frames: Array<{ frameIndex: number; timestamp: string; phase: number; dataUrl: string }>
+  frames: Array<{ frameIndex: number; timestamp: string; phase: number; dataUrl: string; cardiacPhase?: number; respiratoryPhase?: number }>
   frameRate: number
   cardiacCycleMs: number
   respiratoryCycleMs: number
@@ -134,6 +134,81 @@ function formatTime(ms: number): string {
   return `${m}:${sec.toString().padStart(2, '0')}`
 }
 
+/** [G-07] 相位曲线图 (SVG polyline): cardiac/respiratory 相位随帧变化 */
+function PhaseCurveChart(props: {
+  frames: PhaseState['frames']
+  frameRate: number
+  currentFrame: number
+  showCardiac: boolean
+  showRespiratory: boolean
+}) {
+  const { frames, frameRate, currentFrame, showCardiac, showRespiratory } = props
+  const n = Math.max(2, frames.length)
+  const w = 560
+  const h = 120
+  const pad = 4
+
+  const points = (pick: (f: PhaseState['frames'][number]) => number) => {
+    return frames
+      .map((f, i) => {
+        const x = pad + (i / (n - 1)) * (w - pad * 2)
+        const y = h - pad - (pick(f) / 100) * (h - pad * 2)
+        return `${x.toFixed(1)},${y.toFixed(1)}`
+      })
+      .join(' ')
+  }
+
+  const cardiacPts = points((f) => ((f.cardiacPhase ?? 0) / 19) * 100)
+  const respiratoryPts = points((f) => ((f.respiratoryPhase ?? 0) / 9) * 100)
+  const cx = pad + (currentFrame / Math.max(1, n - 1)) * (w - pad * 2)
+
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: '100%' }} preserveAspectRatio="none">
+      <line x1={cx} y1={0} x2={cx} y2={h} stroke="#facc15" strokeWidth={1} strokeDasharray="3 2" />
+      {showCardiac && <polyline points={cardiacPts} fill="none" stroke="#ef4444" strokeWidth={1.5} />}
+      {showRespiratory && <polyline points={respiratoryPts} fill="none" stroke="#60a5fa" strokeWidth={1.5} />}
+      <text x={w - 2} y={10} fontSize={8} fill="#ef4444" textAnchor="end">cardiac</text>
+      {showRespiratory && <text x={w - 2} y={20} fontSize={8} fill="#60a5fa" textAnchor="end">respiratory</text>}
+      <text x={pad} y={h - 2} fontSize={8} fill="#64748b">0</text>
+      <text x={w - pad - 18} y={h - 2} fontSize={8} fill="#64748b">{Math.round(((n - 1) / frameRate) * 1000)}ms</text>
+    </svg>
+  )
+}
+
+/** [G-07] 相位分布条形图 (20/10 bin, 含空 bin) */
+function PhaseDistributionBars(props: {
+  bins: Array<{ phase: number; count: number }>
+  maxCount: number
+  color: string
+  label: string
+}) {
+  const { bins, maxCount, color, label } = props
+  if (bins.length === 0) return null
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+        <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
+        <span style={{ fontSize: 9, color: '#475569' }}>({bins.length} 相)</span>
+      </div>
+      <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 34 }}>
+        {bins.map((b) => (
+          <div
+            key={b.phase}
+            title={`${label} 相位 ${b.phase}: ${b.count} 帧`}
+            style={{
+              flex: 1,
+              height: maxCount > 0 ? `${Math.max(6, Math.round((b.count / maxCount) * 100))}%` : '8%',
+              background: b.count > 0 ? color : '#334155',
+              borderRadius: 1,
+              opacity: b.count > 0 ? 1 : 0.4,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Dicom4dPage() {
   const { t } = useTranslation('dicom')
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -154,6 +229,9 @@ export default function Dicom4dPage() {
   const [frameImages, setFrameImages] = useState<Record<number, HTMLImageElement>>({})
   // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 合成帧回退标注 (帧数据缺失)
   const [syntheticFrames, setSyntheticFrames] = useState(false)
+  // [G005 v3.0.6.11-101 Wave 1B (G-07)] 真实帧源: 时相分布 + 电影渲染数据 (真实数据驱动)
+  const [phaseDetail, setPhaseDetail] = useState<PhaseInfoDetail4D | null>(null)
+  const [movieData, setMovieData] = useState<MovieData4D | null>(null)
 
   const currentFrameDataUrl = phaseState?.frames[currentFrame]?.dataUrl || ''
 
@@ -173,7 +251,7 @@ export default function Dicom4dPage() {
       if (cancelled) return
       if (res.success && Array.isArray(res.data)) {
         setSeriesList(res.data)
-        if (res.data.length > 0) setSelectedUid(res.data[0].seriesUid)
+        if (res.data.length > 0) setSelectedUid(res.data[0]?.seriesUid ?? '')
         setSeriesLoadError(null)
       } else {
         setSeriesLoadError('4D 序列列表加载失败')
@@ -186,9 +264,11 @@ export default function Dicom4dPage() {
     if (!uid) return
     setLoading(true)
     try {
-      const [framesRes, phaseRes] = await Promise.all([
+      const [framesRes, phaseRes, detailRes, movieRes] = await Promise.all([
         dicom4dApi.frames(uid),
         dicom4dApi.phase(uid),
+        dicom4dApi.phaseInfo(uid),
+        dicom4dApi.movie(uid),
       ])
       const s = seriesList.find(x => x.seriesUid === uid)
       const frameCount = s?.frameCount ?? 32
@@ -206,23 +286,33 @@ export default function Dicom4dPage() {
               timestamp: new Date(Date.now() + i * intervalMs).toISOString(),
               phase: Math.round((i / Math.max(1, frameCount)) * 100),
               dataUrl: '',
+              cardiacPhase: Math.round((i / Math.max(1, frameCount)) * 19),
+              respiratoryPhase: Math.round((i / Math.max(1, frameCount)) * 9),
             }))
       const effectiveRate = synthFrames.length > 0 && synthFrames[0]?.timestamp && synthFrames[1]?.timestamp
-        ? Math.max(1, Math.min(8, Math.round(1000 / Math.max(1, new Date(synthFrames[1].timestamp).getTime() - new Date(synthFrames[0].timestamp).getTime()))))
-        : Math.max(1, Math.min(8, frameRate))
+        ? Math.max(1, Math.min(30, Math.round(1000 / Math.max(1, new Date(synthFrames[1].timestamp).getTime() - new Date(synthFrames[0].timestamp).getTime()))))
+        : Math.max(1, Math.min(30, frameRate))
       const phaseMeta = phaseRes.success ? phaseRes.data : null
+      // [G-07] 真实数据驱动: 帧级相位来自后端 phase 派生, 缺失时用周期推算
+      const withPhases = synthFrames.map((f, i) => {
+        const cp = f.cardiacPhase ?? Math.round((i / Math.max(1, synthFrames.length)) * 19)
+        const rp = f.respiratoryPhase ?? Math.round((i / Math.max(1, synthFrames.length)) * 9)
+        return { ...f, cardiacPhase: cp, respiratoryPhase: rp }
+      })
       setPhaseState({
-        frames: synthFrames,
+        frames: withPhases,
         frameRate: effectiveRate,
         cardiacPhase: phaseMeta?.cardiacPhase ?? 0,
         respiratoryPhase: phaseMeta?.respiratoryPhase ?? 0,
         cardiacCycleMs: phaseMeta?.cardiacCycleMs ?? 800,
         respiratoryCycleMs: phaseMeta?.respiratoryCycleMs ?? 4000,
       })
+      setPhaseDetail(detailRes.success ? detailRes.data : null)
+      setMovieData(movieRes.success ? movieRes.data : null)
       setCurrentFrame(0)
       setCardiacPhase(phaseMeta?.cardiacPhase ?? 0)
       setRespiratoryPhase(phaseMeta?.respiratoryPhase ?? 0)
-      setFps(effectiveRate)
+      setFps(Math.min(8, effectiveRate))
       setPlaying(false)
       setSyntheticFrames(!usable)
     } catch {
@@ -237,6 +327,8 @@ export default function Dicom4dPage() {
         timestamp: new Date(Date.now() + i * intervalMs).toISOString(),
         phase: Math.round((i / Math.max(1, frameCount)) * 100),
         dataUrl: '',
+        cardiacPhase: Math.round((i / Math.max(1, frameCount)) * 19),
+        respiratoryPhase: Math.round((i / Math.max(1, frameCount)) * 9),
       }))
       setPhaseState({
         frames: synthFrames,
@@ -246,6 +338,8 @@ export default function Dicom4dPage() {
         cardiacCycleMs: 800,
         respiratoryCycleMs: 4000,
       })
+      setPhaseDetail(null)
+      setMovieData(null)
       setCurrentFrame(0)
       setCardiacPhase(0)
       setRespiratoryPhase(0)
@@ -290,9 +384,11 @@ export default function Dicom4dPage() {
           }
         }
         setCurrentFrame(frame)
+        const f = phaseState?.frames[frame]
+        // [G-07] 真实数据驱动: 帧级相位直接取后端派生值
         const p = frame / Math.max(1, frameCount)
-        setCardiacPhase(Math.round(Math.sin(p * Math.PI * 2 * 3) * 0.5 + 0.5) * 100)
-        setRespiratoryPhase(Math.round(Math.sin(p * Math.PI * 2 * 0.75) * 0.5 + 0.5) * 100)
+        setCardiacPhase(f?.cardiacPhase ?? Math.round(Math.sin(p * Math.PI * 2 * 3) * 0.5 + 0.5) * 100)
+        setRespiratoryPhase(f?.respiratoryPhase ?? Math.round(Math.sin(p * Math.PI * 2 * 0.75) * 0.5 + 0.5) * 100)
       }
       if (!stopped) animRef.current = requestAnimationFrame(tick)
     }
@@ -325,6 +421,20 @@ export default function Dicom4dPage() {
       return { frame: i, inspiration: p < 0.5 }
     })
   }, [phaseState, frameCount, showRespiratory])
+
+  // [G-07] 相位分布 (来自 phase-info 端点, 真实数据)
+  const distBins = useMemo(() => {
+    const dist = phaseDetail?.distribution
+    if (!dist) return null
+    const cardiacMax = Math.max(1, ...dist.cardiac.map(b => b.count))
+    const respiratoryMax = Math.max(1, ...dist.respiratory.map(b => b.count))
+    return {
+      cardiac: dist.cardiac,
+      respiratory: dist.respiratory,
+      cardiacMax,
+      respiratoryMax,
+    }
+  }, [phaseDetail])
 
   const frameBlink = playing
     ? { animation: 'g005-frame-blink 0.6s steps(2, start) infinite' }
@@ -360,6 +470,9 @@ export default function Dicom4dPage() {
     if (showRespiratory) drawLungMotion(ctx, respiratoryPhase / 100, w, h)
   }, [currentFrame, cardiacPhase, respiratoryPhase, frameCount, showCardiac, showRespiratory, frameImages])
 
+  const phaseCurveFrames = phaseState?.frames ?? []
+  const currentFrameData = phaseState?.frames[currentFrame]
+
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <style>{`@keyframes g005-frame-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }`}</style>
@@ -368,6 +481,9 @@ export default function Dicom4dPage() {
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title', '4D 动态成像')}</span>
         {syntheticFrames && (
           <Tag color="orange" style={{ marginLeft: 8 }}>{t('dicom4d.synthetic', '合成帧 (数据缺失回退)')}</Tag>
+        )}
+        {!syntheticFrames && phaseState && (
+          <Tag color="green" style={{ marginLeft: 8 }}>真实帧源 · phase 派生</Tag>
         )}
       </div>
 
@@ -455,7 +571,7 @@ export default function Dicom4dPage() {
             <span style={{ fontSize: 11, color: '#94a3b8' }}>{fps} fps</span>
             <Slider
               min={1}
-              max={8}
+              max={Math.max(1, Math.min(30, phaseState?.frameRate ?? 8))}
               value={fps}
               onChange={(v) => setFps(v)}
               style={{ width: 120, margin: '0 4px' }}
@@ -495,7 +611,38 @@ export default function Dicom4dPage() {
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 40, textAlign: 'right', ...frameBlink }}>
               {currentFrame + 1} / {frameCount}
             </span>
+            {currentFrameData && (
+              <span style={{ fontSize: 9, color: '#64748b', minWidth: 60, textAlign: 'right' }}>
+                {(currentFrameData as { sopInstanceUid?: string }).sopInstanceUid
+                  ? `sop:${(currentFrameData as { sopInstanceUid?: string }).sopInstanceUid?.slice(-8)}`
+                  : ''}
+              </span>
+            )}
           </div>
+
+          {/* [G-07] 相位曲线图 (真实帧相位驱动) */}
+          {phaseCurveFrames.length > 1 && (
+            <div style={{ marginTop: 4, background: PANEL_BG, borderRadius: 4, padding: '6px 12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <TrendingUp size={11} color="#facc15" />
+                <span style={{ fontSize: 10, color: '#64748b' }}>相位曲线 (帧序 → 时相)</span>
+                {movieData && (
+                  <span style={{ fontSize: 9, color: '#475569', marginLeft: 'auto' }}>
+                    {movieData.interpolationMode === 'linear' ? `线性插值 · 补 ${movieData.interpolatedFrames} 帧` : `相位分箱 · 每相 ${movieData.framesPerPhase} 帧`}
+                  </span>
+                )}
+              </div>
+              <div style={{ height: 110 }}>
+                <PhaseCurveChart
+                  frames={phaseCurveFrames}
+                  frameRate={phaseState?.frameRate ?? 10}
+                  currentFrame={currentFrame}
+                  showCardiac={showCardiac}
+                  showRespiratory={showRespiratory}
+                />
+              </div>
+            </div>
+          )}
 
           {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-07)] 心动周期门控标记: 时间轴分段着色 */}
           {showCardiac && cardiacSegments.length > 0 && (
@@ -640,6 +787,75 @@ export default function Dicom4dPage() {
               </div>
             </div>
           </Card>
+
+          {/* [G-07] 时相分布 (phase-info 真实数据) */}
+          <Card
+            size="small"
+            title={
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                <BarChart3 size={12} style={{ marginRight: 4, color: '#facc15' }} />
+                时相分布
+              </span>
+            }
+            style={{ background: PANEL_BG, border: '1px solid #334155' }}
+            headStyle={{ borderBottom: '1px solid #334155', padding: '6px 10px', minHeight: 0 }}
+            bodyStyle={{ padding: '10px' }}
+          >
+            {distBins ? (
+              <>
+                {showCardiac && (
+                  <PhaseDistributionBars bins={distBins.cardiac} maxCount={distBins.cardiacMax} color="#ef4444" label="cardiac 0-19" />
+                )}
+                {showRespiratory && (
+                  <PhaseDistributionBars bins={distBins.respiratory} maxCount={distBins.respiratoryMax} color="#60a5fa" label="respiratory 0-9" />
+                )}
+                <div style={{ fontSize: 9, color: '#475569', marginTop: 6 }}>
+                  {distBins.cardiac.reduce((s, b) => s + b.count, 0)} 帧 · {phaseDetail?.distribution?.totalFrames ?? 0} 总帧
+                  {phaseDetail && ` · 周期 ${phaseDetail.cardiacCycleMs}ms / ${phaseDetail.respiratoryCycleMs}ms`}
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 10, color: '#475569' }}>时相分布数据不可用 (回退)</div>
+            )}
+          </Card>
+
+          {/* [G-07] 电影渲染数据: 心电/RR 间期 (movie 端点真实数据) */}
+          {movieData && (
+            <Card
+              size="small"
+              title={
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                  <TrendingUp size={12} style={{ marginRight: 4, color: '#22c55e' }} />
+                  心电 / RR 间期
+                </span>
+              }
+              style={{ background: PANEL_BG, border: '1px solid #334155' }}
+              headStyle={{ borderBottom: '1px solid #334155', padding: '6px 10px', minHeight: 0 }}
+              bodyStyle={{ padding: '10px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
+                <span>心率 <b style={{ color: '#22c55e' }}>{movieData.bpm}</b> bpm</span>
+                <span>周期 {Math.round(movieData.cycleMs)} ms</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 40, marginBottom: 4 }}>
+                {movieData.rrIntervals.map((rr, i) => {
+                  const min = Math.min(...movieData.rrIntervals)
+                  const max = Math.max(...movieData.rrIntervals)
+                  const hPx = max > min ? 8 + ((rr - min) / (max - min)) * 28 : 20
+                  return (
+                    <div
+                      key={i}
+                      title={`RR#${i + 1}: ${rr} ms`}
+                      style={{ flex: 1, background: '#22c55e', borderRadius: 1, height: hPx, opacity: 0.85 }}
+                    />
+                  )
+                })}
+              </div>
+              <div style={{ fontSize: 9, color: '#475569' }}>
+                {movieData.interpolationMode} · {movieData.framesPerPhase} 帧/相 · {movieData.phaseSequence.length} 帧序列
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>

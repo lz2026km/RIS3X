@@ -10,6 +10,9 @@ import { worklistApi, type TechnicianDashboardDto } from '../../services/api/wor
 import TechnicianKpiCards, { type KpiTotals } from '../../components/worklist/TechnicianKpiCards'
 import TechnicianRankingTable from '../../components/worklist/TechnicianRankingTable'
 import { ChartContainer } from '../../components/charts'
+import { PageHeader } from '../../components/common/PageHeader'
+import { AppText } from '../../components/common/AppText'
+import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 
 const todayStr = () => {
   const d = new Date()
@@ -95,49 +98,49 @@ export default function TechnicianKpiDashboardPage() {
   return (
     <div style={{ padding: 20, maxWidth: 1240, margin: '0 auto' }}>
       {/* 头部 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <BarChart3 size={18} color="#1e40af" />
-          <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-primary)' }}>技师 KPI 看板</span>
-          <Tag color="blue" style={{ fontSize: 11 }}>Wave 1A</Tag>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <CalendarRange size={14} color="var(--text-secondary)" />
-          <Select
-            size="small"
-            value={preset}
-            style={{ width: 110 }}
-            onChange={applyPreset}
-            options={RANGE_PRESETS.map((r) => ({ value: r.label, label: r.label }))}
-            data-testid="tech-kpi-range-preset"
-          />
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => { setFrom(e.target.value); setPreset('自定义') }}
-            style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
-            data-testid="tech-kpi-from"
-          />
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>至</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => { setTo(e.target.value); setPreset('自定义') }}
-            style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
-            data-testid="tech-kpi-to"
-          />
-          <Select
-            size="small"
-            style={{ width: 120 }}
-            placeholder="全部技师"
-            allowClear
-            value={technicianId}
-            onChange={setTechnicianId}
-            options={techOptions}
-            data-testid="tech-kpi-technician"
-          />
-        </div>
-      </div>
+      <PageHeader
+        icon={<BarChart3 size={18} color="#1e40af" />}
+        title="技师 KPI 看板"
+        subtitle={<Tag color="blue" style={{ fontSize: 11 }}>Wave 1A</Tag>}
+        actions={
+          <>
+            <CalendarRange size={14} color="var(--text-secondary)" />
+            <Select
+              size="small"
+              value={preset}
+              style={{ width: 110 }}
+              onChange={applyPreset}
+              options={RANGE_PRESETS.map((r) => ({ value: r.label, label: r.label }))}
+              data-testid="tech-kpi-range-preset"
+            />
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => { setFrom(e.target.value); setPreset('自定义') }}
+              style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              data-testid="tech-kpi-from"
+            />
+            <AppText size="xs" color="secondary">至</AppText>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => { setTo(e.target.value); setPreset('自定义') }}
+              style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '3px 8px', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              data-testid="tech-kpi-to"
+            />
+            <Select
+              size="small"
+              style={{ width: 120 }}
+              placeholder="全部技师"
+              allowClear
+              value={technicianId}
+              onChange={setTechnicianId}
+              options={techOptions}
+              data-testid="tech-kpi-technician"
+            />
+          </>
+        }
+      />
 
       {/* 数据源徽标 */}
       <div style={{
@@ -153,7 +156,7 @@ export default function TechnicianKpiDashboardPage() {
           : '数据源: 本地 demo 回退 (后端不可用)'}
       </div>
 
-      {error && <div style={{ color: '#dc2626', fontSize: 12, marginBottom: 12 }}>{error}</div>}
+      {error && <AppText size="xs" color="error" style={{ marginBottom: 12, display: 'block' }}>{error}</AppText>}
 
       {loading && !data ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Spin /></div>
@@ -170,10 +173,10 @@ export default function TechnicianKpiDashboardPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                 <TrendingUp size={13} color="#2563eb" />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>完成量趋势</span>
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)' }}>
+                <AppText size="sm" weight={700} color="primary" style={{ color: THEME_TOKENS.textPrimary }}>完成量趋势</AppText>
+                <AppText size="xs" color="secondary" style={{ marginLeft: 'auto' }}>
                   区间 {from || '全部'} ~ {to || '今天'} · 近 7/30 日完成量
-                </span>
+                </AppText>
               </div>
               <div style={{ height: 260 }}>
                 <ChartContainer state={loading ? 'loading' : trendView.length > 0 ? 'ready' : 'empty'}>
@@ -205,7 +208,7 @@ export default function TechnicianKpiDashboardPage() {
             marginTop: 16, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
             padding: '14px 18px', overflow: 'auto',
           }} data-testid="tech-kpi-detail-table">
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>技师明细 ({data?.technicians.length ?? 0})</div>
+            <AppText size="sm" weight={700} style={{ color: THEME_TOKENS.textPrimary, display: 'block', marginBottom: 10 }}>技师明细 ({data?.technicians.length ?? 0})</AppText>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 860 }}>
               <thead>
                 <tr style={{ color: 'var(--text-secondary)' }}>

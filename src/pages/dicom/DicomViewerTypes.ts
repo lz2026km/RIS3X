@@ -168,3 +168,208 @@ export const ANNOTATION_COLOR_NAMES: Record<string, string> = {
   '#ffffff': '白',
   '#ffcc00': '金黄',
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-101 Wave 3B] 影像测量 V2 + 标注 V2 双向同步
+// ════════════════════════════════════════════════════════════════════════════
+
+/** 测量 V2 八工具 (后端 measurement-v2 模块同构) */
+export type MeasureV2Type = 'line' | 'angle' | 'ellipseArea' | 'rectangleArea' | 'polygonArea' | 'polyline' | 'cobb' | 'calciumScore'
+/** 标注 V2 对象类型 */
+export type AnnotationV2Type = 'text' | 'arrow' | 'rect' | 'ellipse' | 'freehand'
+
+export interface Point2D {
+  x: number
+  y: number
+}
+
+export interface MeasureV2Meta {
+  type: MeasureV2Type
+  label: string
+  unit: string
+  minPoints: number
+  fixedPoints: number
+  deterministic: boolean
+  formula: string
+  precision: number
+}
+
+export interface MeasureV2Result {
+  type: MeasureV2Type
+  value: number
+  unit: string
+  formula: string
+  deterministic: boolean
+  precision: number
+  detail?: Record<string, number>
+}
+
+export interface MeasureV2Version {
+  version: number
+  value: number
+  unit: string
+  points: Point2D[]
+  worldPoints: Point2D[]
+  label: string
+  color: string
+  note: string
+  createdAt: string
+}
+
+export interface MeasureV2Record {
+  id: string
+  studyUid: string
+  seriesUid: string
+  type: MeasureV2Type
+  points: Point2D[]
+  worldPoints: Point2D[]
+  value: number
+  unit: string
+  label: string
+  color: string
+  visible: boolean
+  formula: string
+  deterministic: boolean
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+  version: number
+  versions: MeasureV2Version[]
+  annotationId: string | null
+}
+
+export interface AnnotationV2Version {
+  version: number
+  type: AnnotationV2Type
+  pixelPoints: Point2D[]
+  worldPoints: Point2D[]
+  text: string
+  color: string
+  fontSize: number
+  note: string
+  createdAt: string
+}
+
+export interface AnnotationV2Record {
+  id: string
+  studyUid: string
+  seriesUid: string
+  type: AnnotationV2Type
+  pixelPoints: Point2D[]
+  worldPoints: Point2D[]
+  text: string
+  color: string
+  fontSize: number
+  visible: boolean
+  locked: boolean
+  measurementId: string | null
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+  version: number
+  versions: AnnotationV2Version[]
+}
+
+/** 测量 V2 八工具元数据 (与后端一致, 前端本地兜底计算用) */
+export const MEASURE_V2_META: Record<MeasureV2Type, MeasureV2Meta> = {
+  line: { type: 'line', label: '直线长度', unit: 'mm', minPoints: 2, fixedPoints: 2, deterministic: true, formula: '√(dx²+dy²)×spacing', precision: 2 },
+  angle: { type: 'angle', label: '角度', unit: '°', minPoints: 3, fixedPoints: 3, deterministic: true, formula: 'atan2 三点夹角', precision: 2 },
+  ellipseArea: { type: 'ellipseArea', label: '椭圆面积', unit: 'mm²', minPoints: 2, fixedPoints: 2, deterministic: true, formula: 'π·a·b', precision: 2 },
+  rectangleArea: { type: 'rectangleArea', label: '矩形面积', unit: 'mm²', minPoints: 2, fixedPoints: 2, deterministic: true, formula: '宽×高', precision: 2 },
+  polygonArea: { type: 'polygonArea', label: '多边形面积', unit: 'mm²', minPoints: 3, fixedPoints: 0, deterministic: true, formula: '鞋带公式', precision: 2 },
+  polyline: { type: 'polyline', label: '折线长度', unit: 'mm', minPoints: 2, fixedPoints: 0, deterministic: true, formula: 'Σ 线段距离', precision: 2 },
+  cobb: { type: 'cobb', label: 'Cobb角', unit: '°', minPoints: 4, fixedPoints: 4, deterministic: true, formula: '两条线夹角 (锐角)', precision: 2 },
+  calciumScore: { type: 'calciumScore', label: '钙化评分', unit: 'AU', minPoints: 1, fixedPoints: 0, deterministic: true, formula: 'Agatston 简化: Σ 面积×HU权重', precision: 1 },
+}
+
+export const MEASURE_V2_TOOL_ORDER: MeasureV2Type[] = ['line', 'angle', 'ellipseArea', 'rectangleArea', 'polygonArea', 'polyline', 'cobb', 'calciumScore']
+
+/** 测量 V2 本地确定性计算 (与后端 computeMeasurement 一致, 后端不可达时兜底) */
+export function computeMeasureV2(type: MeasureV2Type, points: Point2D[], pixelSpacing: [number, number], huValues?: number[], huThreshold = 130): MeasureV2Result {
+  const meta = MEASURE_V2_META[type]
+  const round = (v: number) => {
+    const factor = 10 ** meta.precision
+    return Math.round(v * factor) / factor
+  }
+  const dist = (a: Point2D, b: Point2D) => Math.hypot(b.x - a.x, b.y - a.y)
+  const lineDeg = (a: Point2D, b: Point2D) => Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI)
+  let value = 0
+  switch (type) {
+    case 'line':
+      value = points.length >= 2 ? dist(points[0]!, points[1]!) * pixelSpacing[0] : 0
+      break
+    case 'angle': {
+      if (points.length >= 3) {
+        const [p1, vertex, p2] = points
+        let deg = Math.abs(lineDeg(vertex!, p2!) - lineDeg(vertex!, p1!))
+        if (deg > 180) deg = 360 - deg
+        value = deg
+      }
+      break
+    }
+    case 'ellipseArea': {
+      if (points.length >= 2) {
+        const [p1, p2] = points
+        const rx = (Math.abs(p2!.x - p1!.x) / 2) * pixelSpacing[0]
+        const ry = (Math.abs(p2!.y - p1!.y) / 2) * pixelSpacing[1]
+        value = Math.PI * rx * ry
+      }
+      break
+    }
+    case 'rectangleArea': {
+      if (points.length >= 2) {
+        const [p1, p2] = points
+        value = Math.abs(p2!.x - p1!.x) * pixelSpacing[0] * Math.abs(p2!.y - p1!.y) * pixelSpacing[1]
+      }
+      break
+    }
+    case 'polygonArea': {
+      if (points.length >= 3) {
+        let sum = 0
+        for (let i = 0; i < points.length; i++) {
+          const cur = points[i]!
+          const nxt = points[(i + 1) % points.length]!
+          sum += cur.x * nxt.y - nxt.x * cur.y
+        }
+        value = (Math.abs(sum) / 2) * pixelSpacing[0] * pixelSpacing[1]
+      }
+      break
+    }
+    case 'polyline': {
+      let total = 0
+      for (let i = 1; i < points.length; i++) total += dist(points[i - 1]!, points[i]!)
+      value = total * pixelSpacing[0]
+      break
+    }
+    case 'cobb': {
+      if (points.length >= 4) {
+        let diff = Math.abs(lineDeg(points[2]!, points[3]!) - lineDeg(points[0]!, points[1]!)) % 180
+        if (diff > 90) diff = 180 - diff
+        value = diff
+      }
+      break
+    }
+    case 'calciumScore': {
+      const voxelArea = pixelSpacing[0] * pixelSpacing[1]
+      const n = Math.min(points.length, huValues?.length ?? 0)
+      for (let i = 0; i < n; i++) {
+        const hu = huValues![i]!
+        if (hu < huThreshold) continue
+        let weight = 1
+        if (hu >= 400) weight = 4
+        else if (hu >= 300) weight = 3
+        else if (hu >= 200) weight = 2
+        value += voxelArea * weight
+      }
+      break
+    }
+  }
+  return {
+    type,
+    value: round(value),
+    unit: meta.unit,
+    formula: meta.formula,
+    deterministic: true,
+    precision: meta.precision,
+  }
+}

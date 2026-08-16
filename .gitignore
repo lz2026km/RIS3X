@@ -98,3 +98,8 @@ e2e/screenshots-88/
 *-debug.mjs
 
 screenshots/
+e2e/screenshots/
+e2e/screenshots-*/
+e2e/.click-all-88-results/
+test-results/
+playwright-report/

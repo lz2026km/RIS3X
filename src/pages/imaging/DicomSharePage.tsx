@@ -5,13 +5,16 @@
 import dayjs from 'dayjs'
 import { shareApi, type ShareRecord, type ShareStats } from '../../services/api/shareApi'
 import {
-  Card, Space, Tag, Button, Table, Select, Row, Col, Statistic, message, Modal, Form, Input, DatePicker, Spin, Alert, Empty, Popconfirm, Typography, Descriptions,
+  Card, Space, Tag, Button, Select, message, Modal, Form, Input, DatePicker, Spin, Alert, Popconfirm, Descriptions,
 } from 'antd'
 import { Share2, Send, Download, Link2, Trash2, Eye } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Inbox, RefreshCw } from 'lucide-react'
-
-const { Text } = Typography
+import { RefreshCw } from 'lucide-react'
+import { PageHeader } from '../../components/common/PageHeader'
+import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { EmptyState } from '../../components/common/EmptyState'
+import { AppText } from '../../components/common/AppText'
+import { VirtualTable } from '../../components/common/VirtualTable'
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   sent: { color: 'blue', label: '已发送' },
@@ -36,8 +39,6 @@ const DicomSharePage: React.FC = () => {
   const [shareModal, setShareModal] = useState(false)
   const [shareForm] = Form.useForm()
   const [creating, setCreating] = useState(false)
-  // [W2-C] 受控分页
-  const [sharePage, setSharePage] = useState(1)
   // [W1-B] 详情: shareApi.get (GET /dicom-share/shares/:id)
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailShare, setDetailShare] = useState<ShareRecord | null>(null)
@@ -143,7 +144,7 @@ const DicomSharePage: React.FC = () => {
   }
 
   const columns = [
-    { title: '编号', dataIndex: 'id', key: 'id', width: 100, render: (v: string) => <Text code>{v}</Text> },
+    { title: '编号', dataIndex: 'id', key: 'id', width: 100, render: (v: string) => <AppText size="xs" as="span" style={{ fontFamily: 'monospace' }}>{v}</AppText> },
     { title: '检查', dataIndex: 'studyId', key: 'studyId', width: 150, ellipsis: true },
     { title: '患者', dataIndex: 'patientName', key: 'patient', width: 90 },
     { title: '来源', dataIndex: 'fromDept', key: 'from', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
@@ -170,33 +171,43 @@ const DicomSharePage: React.FC = () => {
 
   return (
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }} wrap>
-        <Share2 size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM 跨科室共享</span>
-        <Tag color="cyan">v3.0.6.11-75</Tag>
-        <Tag color="purple">DICOM TLS / WADO</Tag>
-        <Button type="primary" icon={<Send size={12} />} onClick={() => setShareModal(true)}>创建共享</Button>
-      </Space>
+      <PageHeader
+        icon={<Share2 size={20} color="#2563eb" />}
+        title="DICOM 跨科室共享"
+        subtitle="DICOM TLS / WADO 安全传输"
+        actions={
+          <>
+            <Tag color="cyan">v3.0.6.11-75</Tag>
+            <Button type="primary" icon={<Send size={12} />} onClick={() => setShareModal(true)}>创建共享</Button>
+          </>
+        }
+      />
 
       {error && (
         <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }}
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> 重试</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="共享总数" value={stats?.total ?? shares.length} prefix={<Share2 size={14} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="待处理" value={stats?.pendingCount ?? 0} loading={loading} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已接收" value={stats?.receivedCount ?? 0} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="传输总量" value={stats?.totalSizeMb ?? 0} suffix="MB" loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title="共享总数" value={stats?.total ?? shares.length} icon={<Share2 size={16} />} color="primary" loading={loading} />
+        <StatCard title="待处理" value={stats?.pendingCount ?? 0} icon={<Eye size={16} />} color="warning" loading={loading} />
+        <StatCard title="已接收" value={stats?.receivedCount ?? 0} icon={<Download size={16} />} color="success" loading={loading} />
+        <StatCard title="传输总量" value={stats?.totalSizeMb ?? 0} suffix="MB" icon={<Link2 size={16} />} color="info" loading={loading} />
+      </StatCardGrid>
 
       <Card size="small" title="传输记录" extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48 }}><Spin size="large" /></div>
-        ) : shares.length === 0 ? (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无共享记录" />
         ) : (
-          <Table dataSource={shares} rowKey="id" columns={columns} pagination={{ current: sharePage, pageSize: 10, total: shares.length, onChange: setSharePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 1200 }} />
+          <VirtualTable<ShareRecord>
+            columns={columns}
+            dataSource={shares}
+            rowKey="id"
+            height={460}
+            pageSize={10}
+            width={1200}
+            emptyText={<EmptyState description="暂无共享记录" />}
+          />
         )}
       </Card>
 
@@ -228,7 +239,7 @@ const DicomSharePage: React.FC = () => {
           <div style={{ textAlign: 'center', padding: 40 }}><Spin size="large" /></div>
         ) : detailShare ? (
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="编号" span={2}><Text code>{detailShare.id}</Text></Descriptions.Item>
+            <Descriptions.Item label="编号" span={2}><AppText size="xs" as="span" style={{ fontFamily: 'monospace' }}>{detailShare.id}</AppText></Descriptions.Item>
             <Descriptions.Item label="检查">{detailShare.studyId}</Descriptions.Item>
             <Descriptions.Item label="患者">{detailShare.patientName}</Descriptions.Item>
             <Descriptions.Item label="来源科室">{detailShare.fromDept}</Descriptions.Item>
@@ -237,12 +248,12 @@ const DicomSharePage: React.FC = () => {
             <Descriptions.Item label="状态"><Tag color={STATUS_META[detailShare.status]?.color}>{STATUS_META[detailShare.status]?.label ?? detailShare.status}</Tag></Descriptions.Item>
             <Descriptions.Item label="大小">{detailShare.sizeMb ?? 0} MB</Descriptions.Item>
             <Descriptions.Item label="有效期至">{detailShare.expiresAt ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="访问密码">{detailShare.password ? <Text code>{detailShare.password}</Text> : '-'}</Descriptions.Item>
-            <Descriptions.Item label="链接" span={2}>{detailShare.url ? <Text copyable style={{ fontSize: 12 }}>{detailShare.url}</Text> : '-'}</Descriptions.Item>
+            <Descriptions.Item label="访问密码">{detailShare.password ? <AppText size="xs" as="span" style={{ fontFamily: 'monospace' }}>{detailShare.password}</AppText> : '-'}</Descriptions.Item>
+            <Descriptions.Item label="链接" span={2}>{detailShare.url ? <AppText size="xs" as="span" style={{ cursor: 'pointer' }}>{detailShare.url}</AppText> : '-'}</Descriptions.Item>
             <Descriptions.Item label="创建时间" span={2}>{detailShare.createdAt}</Descriptions.Item>
           </Descriptions>
         ) : (
-          <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="未加载到详情" />
+          <EmptyState description="未加载到详情" />
         )}
       </Modal>
     </div>

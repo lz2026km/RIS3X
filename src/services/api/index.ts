@@ -659,6 +659,17 @@ export type {
   VolumeSegmentationDto,
 } from "./volumeApi";
 
+// [v3.0.6.11-101 Wave 2C] 影像分割深化 (segmentation-v2)
+export { segmentationV2Api } from "./segmentationV2Api";
+export type {
+  SegmentationV2Algorithm,
+  ThresholdMode,
+  OrganClass,
+  SegmentationV2SegmentDto,
+  SegmentSummaryDto,
+  SegmentationV2HistoryItemDto,
+} from "./segmentationV2Api";
+
 export { worklistApi } from "./worklistApi";
 export type {
   WorklistItemDto,
@@ -745,4 +756,63 @@ export type {
   ExportAuditDto,
   DataQualityScoreDto,
 } from "./researchApi";
+
+// [v3.0.6.11-101 Wave 3B] 影像测量 V2 + 标注 V2 双向同步 (8 工具确定性测量 / 标注 CRUD / 版本回滚)
+export { measurementV2Api } from "./measurementV2Api";
+export type {
+  MeasureV2Type,
+  AnnotationV2Type,
+  Point2D,
+  MeasurementTypeMeta,
+  ComputeResult,
+  MeasurementV2Record,
+  MeasurementV2Version,
+  AnnotationV2Record,
+  AnnotationV2Version,
+  CreateMeasurementV2Dto,
+  CreateAnnotationV2Dto,
+  ConvertCoordinatesInput,
+  ConvertCoordinatesResult,
+} from "./measurementV2Api";
+
+// [v3.0.6.11-101 Wave 7C] 报告 V2: AI 二次检出 V2 (F14) + 委员会会诊 V2 (F6) + 报告互评 (F9)
+export { aiSecondReadApi } from "./aiSecondReadApi";
+export type {
+  SecondReadCategory,
+  SecondReadSeverity,
+  SecondReadRiskStatus,
+  SecondReadRiskLevel,
+  SecondReadRiskItem,
+  SecondReadFeatureStats,
+  SecondReadResult,
+  SecondReadInput,
+  SecondReadStatsData,
+} from "./aiSecondReadApi";
+export { consultationV2Api } from "./consultationV2Api";
+export type {
+  RoomMemberRole,
+  MemberStatus,
+  RoomStatus,
+  VoteOpinion,
+  RoomMember,
+  RoomMessage,
+  RoomVote,
+  SignatureEntry,
+  RoomConclusion,
+  ConsultationRoomV2,
+  VoteSummary,
+  ExportRecord,
+  ConsultationV2Stats,
+  CreateRoomInput,
+} from "./consultationV2Api";
+export { reportPeerReviewApi } from "./reportPeerReviewApi";
+export type {
+  ScoreDimension,
+  PeerReviewStatus,
+  PeerScores,
+  PeerReviewTask,
+  PeerReviewStats,
+  AssignPeerReviewInput,
+  PeerDimensionMeta,
+} from "./reportPeerReviewApi";
 

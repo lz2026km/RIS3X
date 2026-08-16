@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query, HttpCode } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AiPlatformService } from './aiplatform.service'
@@ -83,9 +83,25 @@ export class AiPlatformController {
   // ==================== [G005 v3.0.6.11-90 Wave 4B (G-10)] DL 降噪 ====================
 
   @Post('denoise')
-  @ApiOperation({ summary: 'DL 降噪: 无真实模型时确定性中值滤波/合成帧 + PSNR/SSIM 指标' })
+  @HttpCode(200)
+  @ApiOperation({ summary: 'DL 降噪: 可配置核 (Median/Gaussian/Bilateral/NL-means/DL) + 噪声估计 + 3 档预设' })
   denoiseImage(@Body(new ZodValidationPipe(DenoiseImageSchema)) body: Record<string, unknown>) {
     return this.svc.denoiseImage(body)
+  }
+
+  // ==================== [G005 v3.0.6.11-101 Wave 1B (G-10)] 降噪处理历史 ====================
+
+  @Get('denoise/history')
+  @ApiOperation({ summary: '[G-10] DL 降噪处理历史 (内存 ring buffer, 最近 20 条)' })
+  denoiseHistory() {
+    return this.svc.denoiseHistory()
+  }
+
+  @Post('denoise/history/clear')
+  @HttpCode(200)
+  @ApiOperation({ summary: '[G-10] 清空降噪处理历史' })
+  clearDenoiseHistory() {
+    return this.svc.clearDenoiseHistory()
   }
 
   // ==================== 既有端点 ====================

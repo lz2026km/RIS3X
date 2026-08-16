@@ -104,6 +104,45 @@ export interface CompressRatioDto {
   source?: 'real' | 'estimated'
 }
 
+// [v3.0.6.11-101 W1A] G-02 真编码完整化: benchmark / strategy / transcode
+export interface CodecBenchmarkRun {
+  kind: string
+  transferSyntax: string
+  name: string
+  lossless: boolean
+  compressedSize: number
+  ratio: number
+  savedPercent: number
+  psnr: number | null
+  elapsedMs: number
+  source: 'real' | 'rle-approx'
+  recommendation: string
+}
+
+export interface CodecBenchmarkResult {
+  instanceId: string
+  modality?: string
+  originalSize: number
+  quality: number
+  rows?: number
+  columns?: number
+  runs: CodecBenchmarkRun[]
+  recommended: string
+  recommendedName: string
+  totalElapsedMs: number
+}
+
+export interface CompressStrategy {
+  modality: string
+  modalityName: string
+  recommendedSyntax: string
+  recommendedName: string
+  reason: string
+  lossless: boolean
+  quality: number
+  estimatedRatio: number
+}
+
 export const dicomCompressApi = {
   listInstances: () => api.get<CompressInstance[]>('/dicom/compress/instances'),
 
@@ -114,6 +153,18 @@ export const dicomCompressApi = {
   // [G005 Wave3A P16] 真实 JPEG2000 编码 (后端 POST /dicom/compress/real-jpeg2000, OpenJPEG WASM)
   realJpeg2000: (data: { fileId: string; quality?: number; dataBase64?: string }) =>
     api.post<DicomCompressTask>('/dicom/compress/real-jpeg2000', data),
+
+  // [v3.0.6.11-101 W1A] 全算法对比基准 (8 算法, 含 PSNR 与推荐)
+  benchmark: (data: { fileId: string; quality?: number; dataBase64?: string }) =>
+    api.post<CodecBenchmarkResult>('/dicom/compress/benchmark', data),
+
+  // [v3.0.6.11-101 W1A] 按模态推荐压缩策略
+  getStrategies: () =>
+    api.get<CompressStrategy[]>('/dicom/compress/strategies'),
+
+  // [v3.0.6.11-101 W1A] 实例转码到目标传输语法
+  transcode: (data: { fileId: string; targetSyntax: string; quality?: number; dataBase64?: string }) =>
+    api.post<DicomCompressTask>('/dicom/compress/transcode', data),
 
   getSyntaxes: () =>
     api.get<Array<{ uid: string; name: string; lossy: boolean }>>('/dicom/compress/syntaxes'),
