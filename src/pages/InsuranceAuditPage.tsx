@@ -3796,10 +3796,10 @@ export default function InsuranceAuditPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `保险审核历史-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `insurance-audit-history-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    setToastMessage(`已导出 ${filteredHistory.length} 条审核历史记录`);
+    setToastMessage(t("insuranceAudit.exportedRecords", { count: filteredHistory.length }));
   };
 
   // 过滤后的电子凭证数据
@@ -4088,7 +4088,7 @@ export default function InsuranceAuditPage() {
                   fill="var(--content-bg)"
                   strokeDasharray="5 5"
                   strokeWidth={2}
-                  name="日预算"
+                  name={t("insuranceAudit.chartDailyBudget")}
                 />
                 <Area
                   type="monotone"
@@ -4096,7 +4096,7 @@ export default function InsuranceAuditPage() {
                   stroke="#16a34a"
                   fill="#dcfce7"
                   strokeWidth={2}
-                  name="实际使用"
+                  name={t("insuranceAudit.chartActualUsage")}
                 />
               </AreaChart>
             </ChartContainer>
@@ -4215,13 +4215,13 @@ export default function InsuranceAuditPage() {
                 <Bar
                   dataKey="budget"
                   fill="var(--border-color)"
-                  name="月度预算"
+                  name={t("insuranceAudit.chartMonthlyBudget")}
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="amount"
                   fill="#3b82f6"
-                  name="实际使用"
+                  name={t("insuranceAudit.chartActualUsage")}
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -4327,7 +4327,7 @@ export default function InsuranceAuditPage() {
                 stroke="#8b5cf6"
                 fill="#f3e8ff"
                 strokeWidth={2}
-                name="审核通过率"
+                  name={t("insuranceAudit.chartApprovalRate")}
               />
             </AreaChart>
           </ChartContainer>
@@ -5701,7 +5701,7 @@ export default function InsuranceAuditPage() {
                     stroke={DANGER}
                     fill="#fee2e2"
                     strokeWidth={2}
-                    name="拒赔率"
+                    name={t("insuranceAudit.chartDenialRate")}
                   />
                 </AreaChart>
               </ChartContainer>
@@ -6791,7 +6791,7 @@ export default function InsuranceAuditPage() {
       <ConfirmDialog
         open={!!ruleToDelete}
         title={t("insuranceAudit.deleteRuleConfirm")}
-        message={`确定要删除规则 "${ruleToDelete?.examName}" 吗?该操作不可撤销。`}
+        message={t("insuranceAudit.ruleDeletedConfirm", { name: ruleToDelete?.examName })}
         confirmText={t("insuranceAudit.delete")}
         variant="danger"
         onCancel={() => setRuleToDelete(null)}
@@ -6801,7 +6801,7 @@ export default function InsuranceAuditPage() {
               prev.filter((r) => r.id !== ruleToDelete.id),
             );
             setToastType("success");
-            setToastMessage(`已删除规则: ${ruleToDelete.examName}`);
+            setToastMessage(t("insuranceAudit.ruleDeleted", { name: ruleToDelete.examName }));
             setRuleToDelete(null);
           }
         }}

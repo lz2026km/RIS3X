@@ -572,7 +572,7 @@ export default function WorklistPage() {
         setCheckIn(prev => ({ ...prev, isProcessing: false }))
         setConfirmModalConfig({
           open: true,
-          title: '签到失败',
+          title: t('worklistPage.checkin.failTitle'),
           message: `检查 ${matchedExam.accessionNumber || matchedExam.id} 当前状态为「${displayExamStatus(matchedExam.status)}」，无法签到`,
           onConfirm: () => setConfirmModalConfig(null),
         })
@@ -586,16 +586,16 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '签到失败',
-          message: res.error?.message ?? '签到失败，请稍后重试',
+          title: t('worklistPage.checkin.failTitle'),
+          message: res.error?.message ?? t('worklistPage.checkin.failMsg'),
           onConfirm: () => setConfirmModalConfig(null),
         })
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '签到失败',
-        message: err instanceof Error ? err.message : '签到失败，请稍后重试',
+        title: t('worklistPage.checkin.failTitle'),
+        message: err instanceof Error ? err.message : t('worklistPage.checkin.failMsg'),
         onConfirm: () => setConfirmModalConfig(null),
       })
     } finally {
@@ -605,7 +605,7 @@ export default function WorklistPage() {
 
   const handlePrintLabel = () => {
     if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: '提示', message: '请先选择要打印标签的检查项目', onConfirm: () => setConfirmModalConfig(null) })
+      setConfirmModalConfig({ open: true, title: '提示', message: t('worklistPage.msg.selectPrintItems'), onConfirm: () => setConfirmModalConfig(null) })
       return
     }
     setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) })
@@ -702,7 +702,7 @@ export default function WorklistPage() {
       : filteredExams.length > 0 ? filteredExams : exams
     const studyUids = source.map(e => e.id).filter(Boolean)
     if (studyUids.length === 0) {
-      showPrefetchMsg(scope === 'selected' ? '请先勾选要预取的检查' : '当前列表无检查可预取')
+      showPrefetchMsg(scope === 'selected' ? t('worklistPage.prefetch.selectFirst') : t('worklistPage.prefetch.emptyList'))
       return
     }
     setPrefetchBusy(true)
@@ -711,11 +711,11 @@ export default function WorklistPage() {
       if (res.success && res.data) {
         showPrefetchMsg(`影像预取已提交: 新入队 ${res.data.queued} 项, 已缓存 ${res.data.cached} 项`)
       } else {
-        showPrefetchMsg(res.error?.message ?? '预取提交失败')
+        showPrefetchMsg(res.error?.message ?? t('worklistPage.prefetch.failed'))
       }
       await refreshPrefetchStatus()
     } catch (err) {
-      showPrefetchMsg(err instanceof Error ? err.message : '预取服务不可用')
+      showPrefetchMsg(err instanceof Error ? err.message : t('worklistPage.prefetch.serviceUnavailable'))
     } finally {
       setPrefetchBusy(false)
       setTimeout(() => { void refreshPrefetchStatus() }, 3000)
@@ -823,23 +823,23 @@ export default function WorklistPage() {
 
   // ---- B1. 列配置面板 (localStorage) ----
   const WORKLIST_COLUMNS: Array<{ key: string; label: string; default: boolean }> = [
-    { key: 'priority', label: '优先级', default: true },
-    { key: 'patientName', label: '患者姓名', default: true },
-    { key: 'demographics', label: '性别/年龄', default: true },
-    { key: 'examItemName', label: '检查项目', default: true },
-    { key: 'device', label: '检查设备', default: true },
-    { key: 'roomId', label: '检查室', default: false },
-    { key: 'images', label: '图像', default: true },
-    { key: 'prefetch', label: '预取状态', default: false },
-    { key: 'transfer', label: '传输状态', default: false },
-    { key: 'patientType', label: '患者类型', default: true },
-    { key: 'status', label: '状态', default: true },
-    { key: 'criticalFinding', label: '危急值', default: true },
-    { key: 'technologistName', label: '技师', default: false },
-    { key: 'radiologistId', label: '报告医生', default: true },
-    { key: 'createdTime', label: '申请时间', default: true },
+    { key: 'priority', label: t('worklistPage.col.priority'), default: true },
+    { key: 'patientName', label: t('worklistPage.col.patientName'), default: true },
+    { key: 'demographics', label: t('worklistPage.col.demographics'), default: true },
+    { key: 'examItemName', label: t('worklistPage.col.examItemName'), default: true },
+    { key: 'device', label: t('worklistPage.col.device'), default: true },
+    { key: 'roomId', label: t('worklistPage.col.roomId'), default: false },
+    { key: 'images', label: t('worklistPage.col.images'), default: true },
+    { key: 'prefetch', label: t('worklistPage.col.prefetch'), default: false },
+    { key: 'transfer', label: t('worklistPage.col.transfer'), default: false },
+    { key: 'patientType', label: t('worklistPage.col.patientType'), default: true },
+    { key: 'status', label: t('worklistPage.col.status'), default: true },
+    { key: 'criticalFinding', label: t('worklistPage.col.criticalFinding'), default: true },
+    { key: 'technologistName', label: t('worklistPage.col.technologistName'), default: false },
+    { key: 'radiologistId', label: t('worklistPage.col.radiologistId'), default: true },
+    { key: 'createdTime', label: t('worklistPage.col.createdTime'), default: true },
     { key: 'sla', label: 'SLA', default: true },
-    { key: 'actions', label: '操作', default: true },
+    { key: 'actions', label: t('worklistPage.col.actions'), default: true },
   ]
   const [showColumnConfig, setShowColumnConfig] = useState(false)
   const [columnConfig, setColumnConfig] = useState<Record<string, boolean>>(() => {
@@ -1185,7 +1185,7 @@ export default function WorklistPage() {
 
   const batchActionQuick = useCallback((action: string) => {
     if (selectedIds.size === 0) {
-      setConfirmModalConfig({ open: true, title: '提示', message: '请先在列表勾选需要批量操作的检查项目', onConfirm: () => setConfirmModalConfig(null) })
+      setConfirmModalConfig({ open: true, title: '提示', message: t('worklistPage.msg.selectForBatch'), onConfirm: () => setConfirmModalConfig(null) })
       return
     }
     handleBatchAction(action)
@@ -1227,16 +1227,16 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '保存失败',
-          message: res.error?.message ?? '修改患者信息失败',
+          title: t('worklistPage.msg.saveFailed'),
+          message: res.error?.message ?? t('worklistPage.msg.editPatientFailed'),
           onConfirm: () => setConfirmModalConfig(null),
         })
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '保存失败',
-        message: err instanceof Error ? err.message : '修改患者信息失败',
+        title: t('worklistPage.msg.saveFailed'),
+        message: err instanceof Error ? err.message : t('worklistPage.msg.editPatientFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
     }
@@ -1264,16 +1264,16 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '分配失败',
-          message: res.error?.message ?? '分配设备失败',
+          title: t('worklistPage.msg.operationFailed'),
+          message: res.error?.message ?? t('worklistPage.msg.assignDeviceFailed'),
           onConfirm: () => setConfirmModalConfig(null),
         })
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '分配失败',
-        message: err instanceof Error ? err.message : '分配设备失败',
+        title: t('worklistPage.msg.operationFailed'),
+        message: err instanceof Error ? err.message : t('worklistPage.msg.assignDeviceFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
     }
@@ -1298,16 +1298,16 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '分配失败',
-          message: res.error?.message ?? '分配报告医生失败',
+          title: t('worklistPage.msg.operationFailed'),
+          message: res.error?.message ?? t('worklistPage.msg.assignDoctorFailed'),
           onConfirm: () => setConfirmModalConfig(null),
         })
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '分配失败',
-        message: err instanceof Error ? err.message : '分配报告医生失败',
+        title: t('worklistPage.msg.operationFailed'),
+        message: err instanceof Error ? err.message : t('worklistPage.msg.assignDoctorFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
     }
@@ -1346,16 +1346,16 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '提交失败',
-          message: res.error?.message ?? '提交报告失败',
+          title: t('worklistPage.msg.operationFailed'),
+          message: res.error?.message ?? t('worklistPage.msg.submitFailed'),
           onConfirm: () => setConfirmModalConfig(null),
         })
       }
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '提交失败',
-        message: err instanceof Error ? err.message : '提交报告失败',
+        title: t('worklistPage.msg.operationFailed'),
+        message: err instanceof Error ? err.message : t('worklistPage.msg.submitFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
     }
@@ -1380,7 +1380,7 @@ export default function WorklistPage() {
       setConfirmModalConfig({
         open: true,
         title: '提示',
-        message: '请先选择要打印的报告',
+        message: t('worklistPage.msg.selectPrintReports'),
         onConfirm: () => setConfirmModalConfig(null)
       })
       return
@@ -1428,7 +1428,7 @@ export default function WorklistPage() {
       } else {
         setConfirmModalConfig({
           open: true,
-          title: '操作失败',
+          title: t('worklistPage.msg.operationFailed'),
           message: res.error?.message ?? `无法切换到「${EXAM_STATUS_TO_CN[target] ?? target}」`,
           onConfirm: () => setConfirmModalConfig(null),
         })
@@ -1437,8 +1437,8 @@ export default function WorklistPage() {
     } catch (err) {
       setConfirmModalConfig({
         open: true,
-        title: '操作失败',
-        message: err instanceof Error ? err.message : '状态切换失败',
+        title: t('worklistPage.msg.operationFailed'),
+        message: err instanceof Error ? err.message : t('worklistPage.msg.statusSwitchFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
       void refreshAfterMutation()
@@ -1448,7 +1448,7 @@ export default function WorklistPage() {
   const handleStartExam = useCallback((exam: RadiologyExam) => {
     setConfirmModalConfig({
       open: true,
-      title: '开始检查',
+      title: t('worklistPage.msg.startExam'),
       message: `确认开始检查 ${exam.patientName} 的 ${exam.examItemName}？`,
       onConfirm: () => {
         replayExamActorTo(exam, { type: 'START_EXAM', by: exam.technologistId ?? 'system', technologistId: exam.technologistId ?? 'system', imagesAcquired: 0 })
@@ -1461,7 +1461,7 @@ export default function WorklistPage() {
   const handleCancelExam = useCallback((exam: RadiologyExam) => {
     setConfirmModalConfig({
       open: true,
-      title: '取消检查',
+      title: t('worklistPage.msg.cancelExam'),
       message: `确认取消 ${exam.patientName} 的检查?该操作不可撤销。`,
       variant: 'danger',
       onConfirm: () => {
@@ -1479,10 +1479,10 @@ export default function WorklistPage() {
 
   // Enhanced batch actions
   const enhancedBatchActions = [
-    { key: 'assign', label: '批量签到', icon: <UserCheck size={14} />, confirm: '确认签到?' },
-    { key: 'start', label: '批量开始', icon: <Play size={14} />, confirm: '确认开始?' },
-    { key: 'complete', label: '批量完成', icon: <CheckCircle size={14} />, confirm: '确认完成?' },
-    { key: 'cancel', label: '批量取消', icon: <X size={14} />, confirm: '确认取消?' },
+    { key: 'assign', label: t('worklistPage.batch.signin'), icon: <UserCheck size={14} />, confirm: t('worklistPage.batch.confirmSignin') },
+    { key: 'start', label: t('worklistPage.batch.start'), icon: <Play size={14} />, confirm: t('worklistPage.batch.confirmStart') },
+    { key: 'complete', label: t('worklistPage.batch.complete'), icon: <CheckCircle size={14} />, confirm: t('worklistPage.batch.confirmComplete') },
+    { key: 'cancel', label: t('worklistPage.batch.cancel'), icon: <X size={14} />, confirm: t('worklistPage.batch.confirmCancel') },
   ]
 
   // Keyboard shortcuts
@@ -1504,9 +1504,9 @@ export default function WorklistPage() {
     }),
   ])
   useNavigationShortcuts([
-    { sequence: ['g', 'w'], action: () => { window.location.href = '/worklist' }, description: '导航到工作列表' },
-    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams' }, description: '导航到检查' },
-    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: '导航到报告' },
+    { sequence: ['g', 'w'], action: () => { window.location.href = '/worklist' }, description: t('worklistPage.nav.worklist') },
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exams' }, description: t('worklistPage.nav.exams') },
+    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: t('worklistPage.nav.reports') },
   ])
 
   return (
@@ -1518,7 +1518,7 @@ export default function WorklistPage() {
     >
       {loading && <LoadingBanner message={t('worklist.loadingApi')} />}
       {loadError && !loading && (
-        <ErrorBanner message={`${loadError} (已 fallback 到本地 initialData)`} />
+        <ErrorBanner message={`${loadError} (t('worklistPage.errorFallback')`} />
       )}
       <div style={{
         display: 'flex',
@@ -1529,19 +1529,19 @@ export default function WorklistPage() {
     <PageHeader
       variant="flex"
       icon={<ClipboardList size={24} />}
-      title="检查工作列表"
+      title={t('worklistPage.header.title')}
       subtitle={
         <>
-          <span>DICOM 检查列表</span>
+          <span>{t('worklistPage.header.subtitle.dicom')}</span>
           <span style={{ color: '#cbd5e1' }}>·</span>
-          <span>对接HIS/PACS预约系统</span>
+          <span>{t('worklistPage.header.subtitle.his')}</span>
           <span style={{ color: '#cbd5e1' }}>·</span>
-          <span>实时设备状态</span>
+          <span>{t('worklistPage.header.subtitle.realtime')}</span>
         </>
       }
       breadcrumb={[
-        { label: '首页', onClick: () => navigate('/') },
-        { label: '检查工作列表' },
+        { label: t('worklistPage.header.breadcrumb.home'), onClick: () => navigate('/') },
+        { label: t('worklistPage.header.breadcrumb.worklist') },
       ]}
       style={{ marginBottom: 0 }}
     />
@@ -1559,7 +1559,7 @@ export default function WorklistPage() {
             border: '1px solid #d1fae5',
           }}>
             <Wifi size={12} />
-            DICOM WL 已连接
+            {t('worklistPage.dicomConnected')}
           </div>
 
           <div style={{
@@ -1569,9 +1569,9 @@ export default function WorklistPage() {
             border: '1px solid var(--border-color)',
             overflow: 'hidden',
           }}>
-            <ViewModeButton mode="list" icon={<LayoutList size={14} />} label="列表" />
-            <ViewModeButton mode="card" icon={<LayoutGrid size={14} />} label="卡片" />
-            <ViewModeButton mode="kanban" icon={<Kanban size={14} />} label="看板" />
+            <ViewModeButton mode="list" icon={<LayoutList size={14} />} label={t('worklistPage.viewMode.list')} />
+            <ViewModeButton mode="card" icon={<LayoutGrid size={14} />} label={t('worklistPage.viewMode.card')} />
+            <ViewModeButton mode="kanban" icon={<Kanban size={14} />} label={t('worklistPage.viewMode.kanban')} />
           </div>
 
           {/* [G005 v3.0.6.11-99 Wave 10E-1] 列配置面板入口 */}
@@ -1583,7 +1583,7 @@ export default function WorklistPage() {
             title={allColumnsShown ? '配置列表列显隐' : `已隐藏 ${hiddenColumnKeys.length} 列`}
             testId="column-config-btn"
           >
-            列配置{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
+            {t('worklistPage.columnConfig.title')}{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
           </AppButton>
 
           <ActionButton
@@ -1605,7 +1605,7 @@ export default function WorklistPage() {
               testId="prefetch-selected"
               title={`预取已勾选的 ${selectedIds.size} 项检查影像`}
             >
-              预取{selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+              {t('worklistPage.btn.prefetch')}{selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
             </AppButton>
             <AppButton
               variant="default"
@@ -1630,7 +1630,7 @@ export default function WorklistPage() {
           borderRadius: 12, padding: '10px 16px', marginBottom: 12, fontSize: 12,
         }} data-testid="prefetch-status-bar">
           <span style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <CloudDownload size={13} /> 影像预取
+            <CloudDownload size={13} /> {t('worklistPage.prefetch.title')}
           </span>
           <div style={{ flex: 1, minWidth: 160, background: 'var(--bg-deep)', borderRadius: 999, height: 8, overflow: 'hidden', position: 'relative' }}>
             <div style={{
@@ -1639,18 +1639,18 @@ export default function WorklistPage() {
             }} />
           </div>
           <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-            已缓存 <b style={{ color: prefetchStats.pending > 0 ? '#2563eb' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
-            {prefetchStats.pending > 0 && <span style={{ color: '#d97706', marginLeft: 6 }}>排队中 {prefetchStats.pending}</span>}
+            {t('worklistPage.prefetch.cached')} <b style={{ color: prefetchStats.pending > 0 ? '#2563eb' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
+            {prefetchStats.pending > 0 && <span style={{ color: '#d97706', marginLeft: 6 }}>{t('worklistPage.prefetch.queuing')} {prefetchStats.pending}</span>}
           </span>
           {prefetchStats.pending === 0 && prefetchStats.total > 0 && (
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 10px', borderRadius: 999,
               background: '#dcfce7', color: '#059669', fontWeight: 700, whiteSpace: 'nowrap',
             }} data-testid="prefetch-done-tag">
-              <CheckCircle2 size={12} /> 预取完成
+              <CheckCircle2 size={12} /> {t('worklistPage.prefetch.done')}
             </span>
           )}
-          {prefetchBusy && <span style={{ color: '#64748b', whiteSpace: 'nowrap' }}>提交中...</span>}
+          {prefetchBusy && <span style={{ color: '#64748b', whiteSpace: 'nowrap' }}>{t('worklistPage.prefetch.submitting')}</span>}
         </div>
       )}
       {prefetchMsg && (
@@ -1694,9 +1694,9 @@ export default function WorklistPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>全部检查</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.totalExams')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                等待中: {stats.waiting}
+                {t('worklistPage.stats.waiting')}: {stats.waiting}
               </div>
             </div>
             <MiniSparkline color="#3b82f6" />
@@ -1716,9 +1716,9 @@ export default function WorklistPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>危重/紧急</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.criticalUrgent')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                SLA超期: {slaCriticalExams.length}
+                {t('worklistPage.stats.slaOverdue')}: {slaCriticalExams.length}
               </div>
             </div>
             <div style={{ width: 80, height: 30 }}>
@@ -1744,9 +1744,9 @@ export default function WorklistPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>待完成</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.pending')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                平均等待: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
+                {t('worklistPage.stats.avgWait')}: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
                   const t = e.createdTime ? new Date(e.createdTime).getTime() : 0;
                   return t > 0 ? s + (Date.now() - t) / 60000 : s
                 }, 0) / filteredExams.length) : 0}min
@@ -1769,9 +1769,9 @@ export default function WorklistPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>已完成</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.completed')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                检查中: {stats.inProgress}项
+                {t('worklistPage.stats.inProgress')}: {stats.inProgress}{t('worklistPage.stats.items')}
               </div>
             </div>
             <MiniSparkline color="#059669" />
@@ -1791,10 +1791,10 @@ export default function WorklistPage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> SLA 超时分布
+              <Clock size={13} /> {t('worklistPage.sla.title')}
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              平均等待 <b style={{ color: avgWaitMinutes > 30 ? '#d97706' : '#059669' }}>{avgWaitMinutes}</b> min
+              {t('worklistPage.sla.avgWait')} <b style={{ color: avgWaitMinutes > 30 ? '#d97706' : '#059669' }}>{avgWaitMinutes}</b> min
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 96 }}>
@@ -1810,15 +1810,15 @@ export default function WorklistPage() {
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
-            <span>超时占比 <b style={{ color: slaExceedRate > 30 ? '#dc2626' : '#059669' }}>{slaExceedRate}%</b></span>
-            <span>SLA 阈值 30min / 60min</span>
+            <span>{t('worklistPage.sla.exceedRate')} <b style={{ color: slaExceedRate > 30 ? '#dc2626' : '#059669' }}>{slaExceedRate}%</b></span>
+            <span>{t('worklistPage.sla.threshold')}</span>
           </div>
           {/* 近 7 日超时率迷你趋势 */}
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>近 7 日超时率</span>
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('worklistPage.sla.last7days')}</span>
               <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                峰值 <b style={{ color: '#d97706' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
+                {t('worklistPage.sla.peak')} <b style={{ color: '#d97706' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 34 }}>
@@ -1840,14 +1840,14 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={13} /> 今日进度
+            <CheckCircle2 size={13} /> {t('worklistPage.todayProgress.title')}
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
             {todayProgress.percent}%
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 10px' }}>
-            已完成 <b style={{ color: '#059669' }}>{todayProgress.done}</b> / {todayProgress.total} 项
-            {todayProgress.pending > 0 && <span style={{ color: '#d97706' }}> · 待完成 {todayProgress.pending}</span>}
+            {t('worklistPage.todayProgress.done')} <b style={{ color: '#059669' }}>{todayProgress.done}</b> / {todayProgress.total} {t('worklistPage.stats.items')}
+            {todayProgress.pending > 0 && <span style={{ color: '#d97706' }}> · {t('worklistPage.todayProgress.pending')} {todayProgress.pending}</span>}
           </div>
           <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-deep)', overflow: 'hidden' }}>
             <div style={{
@@ -1862,26 +1862,26 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <UserCheck size={13} /> 今日批量概况
+            <UserCheck size={13} /> {t('worklistPage.todayBatch.title')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
             <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#2563eb', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>今日已签到</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.checkedIn')}</div>
             </div>
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#059669', lineHeight: 1.2 }}>{todayBatchCounts.started}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>今日已开始</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.started')}</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <AppButton variant="default" size="compact" icon={<UserCheck size={11} />} onClick={() => batchActionQuick('assign')}>批量签到</AppButton>
-            <AppButton variant="default" size="compact" icon={<Play size={11} />} onClick={() => batchActionQuick('start')}>批量开始</AppButton>
-            <AppButton variant="default" size="compact" icon={<CheckCircle size={11} />} onClick={() => batchActionQuick('complete')}>批量完成</AppButton>
+            <AppButton variant="default" size="compact" icon={<UserCheck size={11} />} onClick={() => batchActionQuick('assign')}>{t('worklistPage.todayBatch.signin')}</AppButton>
+            <AppButton variant="default" size="compact" icon={<Play size={11} />} onClick={() => batchActionQuick('start')}>{t('worklistPage.todayBatch.start')}</AppButton>
+            <AppButton variant="default" size="compact" icon={<CheckCircle size={11} />} onClick={() => batchActionQuick('complete')}>{t('worklistPage.todayBatch.complete')}</AppButton>
           </div>
           {serverStats && Number((serverStats as { completedToday?: number }).completedToday ?? 0) > 0 && (
             <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
-              服务端当日完成: <b style={{ color: '#059669' }}>{todayBatchCounts.serverCompleted}</b>
+              {t('worklistPage.todayBatch.serverCompleted')}: <b style={{ color: '#059669' }}>{todayBatchCounts.serverCompleted}</b>
             </div>
           )}
         </Card>
@@ -1898,7 +1898,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Monitor size={13} /> 模态 SLA 概况
+            <Monitor size={13} /> {t('worklistPage.modalitySla.title')}
           </div>
           {modalitySla.length === 0 ? (
             <EmptyState type="nodata" style={{ padding: '12px 0', gap: 6 }} />
@@ -1929,10 +1929,10 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ClipboardList size={13} /> 今日小时分布 (7-20时)
+            <ClipboardList size={13} /> {t('worklistPage.hourly.title')} (7-20时)
             {todayHourly.peakCount > 0 && (
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
-                高峰 <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> ({todayHourly.peakCount} 项)
+                {t('worklistPage.hourly.peak')} <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> ({todayHourly.peakCount} 项)
               </span>
             )}
           </div>
@@ -1960,12 +1960,12 @@ export default function WorklistPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <History size={13} /> 批量操作动态
+              <History size={13} /> {t('worklistPage.batchActivity.title')}
             </div>
             {batchActivity.length > 0 && (
               <button onClick={clearBatchActivity} style={{
                 border: 'none', background: 'none', fontSize: 11, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline',
-              }}>清空</button>
+              }}>{t('worklistPage.batchActivity.clear')}</button>
             )}
           </div>
           {batchActivity.length === 0 ? (
@@ -2330,7 +2330,7 @@ export default function WorklistPage() {
         marginTop: 20, padding: '12px 0', textAlign: 'center',
         fontSize: 12, color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)',
       }}>
-        G005 放射科RIS系统 · 检查工作列表 · {new Date().toLocaleDateString('zh-CN')}
+        {t('worklistPage.footer', { date: new Date().toLocaleDateString('zh-CN') })}
       </div>
 
       {patientInfoModalExam && (
@@ -2349,20 +2349,20 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>修改患者信息</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.patientInfo.title')}</h3>
               <button onClick={() => setPatientInfoModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>患者姓名：</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>性别：</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>年龄：</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.name')}</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.gender')}</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.age')}</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.patientInfo.type')}</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setPatientInfoModalExam(null)}>取消</ActionButton>
-              <ActionButton action="save" size="compact" onClick={() => void savePatientInfo()}>保存</ActionButton>
+              <ActionButton action="cancel" size="compact" onClick={() => setPatientInfoModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
+              <ActionButton action="save" size="compact" onClick={() => void savePatientInfo()}>{t('worklistPage.patientInfo.save')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2384,12 +2384,12 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配检查设备</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.deviceSelect.title')}</h3>
               <button onClick={() => setDeviceSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>当前检查：{deviceSelectModalExam.examItemName}</div>
+            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>{t('worklistPage.deviceSelect.currentExam')}{deviceSelectModalExam.examItemName}</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
                 <div
@@ -2427,19 +2427,19 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配报告医生</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.doctorSelect.title')}</h3>
               <button onClick={() => setDoctorSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
-              当前检查：{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
+              {t('worklistPage.doctorSelect.currentExam')}{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
               <span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
-                当前报告医生：{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : '未分配')}
+                {t('worklistPage.doctorSelect.currentDoctor')}{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : '未分配')}
               </span>
             </div>
             {doctorOptionsLoading && (
-              <div style={{ padding: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>正在加载医生列表...</div>
+              <div style={{ padding: 12, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{t('worklistPage.doctorSelect.loading')}</div>
             )}
             {!doctorOptionsLoading && doctorOptions.length === 0 && (
               <div style={{ padding: 12, fontSize: 12, color: '#b45309', textAlign: 'center' }}>
@@ -2463,8 +2463,8 @@ export default function WorklistPage() {
                     <Stethoscope size={16} style={{ color: '#1e40af' }} />
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{doctor.name}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
-                      {doctor.title || '放射科医生'}
-                      {isAssigned ? ' · 已分配' : ''}
+                      {doctor.title || t('worklistPage.doctorSelect.radioDoctor')}
+                      {isAssigned ? ` · ${t('worklistPage.doctorSelect.assigned')}` : ''}
                     </span>
                   </div>
                 )
@@ -2479,7 +2479,7 @@ export default function WorklistPage() {
           ref={reportFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
+          aria-label={normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -2491,22 +2491,22 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
-                {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
+                {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
               </h3>
               <button onClick={() => setReportModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: 'var(--text-secondary)' }}>患者：</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>检查项目：</span>{reportModalExam.examItemName}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>临床诊断：</span>{reportModalExam.clinicalDiagnosis}</div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>检查所见：</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
-              <div><span style={{ color: 'var(--text-secondary)' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.patient')}</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.examItem')}</span>{reportModalExam.examItemName}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.clinicalDiag')}</span>{reportModalExam.clinicalDiagnosis}</div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.findings')}</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder={t('worklistPage.report.findingsPlaceholder')} /></div>
+              <div><span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.report.diagnosis')}</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder={t('worklistPage.report.diagnosisPlaceholder')} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setReportModalExam(null)}>取消</ActionButton>
-              <ActionButton action="submit" size="compact" onClick={() => void submitReport()}>提交报告</ActionButton>
+              <ActionButton action="cancel" size="compact" onClick={() => setReportModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
+              <ActionButton action="submit" size="compact" onClick={() => void submitReport()}>{t('worklistPage.report.submit')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2527,13 +2527,13 @@ export default function WorklistPage() {
             <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{confirmModalConfig.title}</h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setConfirmModalConfig(null)}>取消</ActionButton>
+              <ActionButton action="cancel" size="compact" onClick={() => setConfirmModalConfig(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
               <ActionButton
                 action={confirmModalConfig.variant === 'danger' ? 'delete' : 'submit'}
                 variant={confirmModalConfig.variant === 'danger' ? 'danger' : 'primary'}
                 size="compact"
                 onClick={confirmModalConfig.onConfirm}
-              >确认</ActionButton>
+              >{t('worklistPage.confirm.confirm')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2555,14 +2555,14 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>批量操作结果</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.batchResult.title')}</h3>
               <button onClick={() => setBatchResultModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ marginBottom: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
               <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
-              <div style={{ fontSize: 14, color: '#166534' }}>操作完成</div>
+              <div style={{ fontSize: 14, color: '#166534' }}>{t('worklistPage.batchResult.done')}</div>
               <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
               {batchResultModalData.results.length > 1 && (
                 <div style={{ marginTop: 8, fontSize: 12, color: '#b45309', maxHeight: 120, overflow: 'auto' }}>
@@ -2571,7 +2571,7 @@ export default function WorklistPage() {
               )}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <ActionButton action="submit" size="compact" onClick={() => setBatchResultModalData(null)}>确定</ActionButton>
+              <ActionButton action="submit" size="compact" onClick={() => setBatchResultModalData(null)}>{t('worklistPage.batchResult.ok')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2593,23 +2593,23 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>打印预览</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.printPreview.title')}</h3>
               <button onClick={() => setPrintPreviewModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
             <div style={{ marginBottom: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
-              即将打印 {printPreviewModalData.examIds.length} 份报告
+              {t('worklistPage.printPreview.count', { count: printPreviewModalData.examIds.length })}
             </div>
             <div style={{ background: 'var(--content-bg)', padding: 16, borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>打印内容预览</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('worklistPage.printPreview.content')}</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                报告列表：{printPreviewModalData.examIds.join(', ')}
+                {t('worklistPage.printPreview.reportList')}: {printPreviewModalData.examIds.join(', ')}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <ActionButton action="cancel" size="compact" onClick={() => setPrintPreviewModalData(null)}>取消</ActionButton>
-              <ActionButton action="print" size="compact" onClick={() => { window.print(); setPrintPreviewModalData(null) }}>打印</ActionButton>
+              <ActionButton action="cancel" size="compact" onClick={() => setPrintPreviewModalData(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
+              <ActionButton action="print" size="compact" onClick={() => { window.print(); setPrintPreviewModalData(null) }}>{t('worklistPage.printPreview.print')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2640,7 +2640,7 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <SlidersHorizontal size={16} /> 列表列配置
+                <SlidersHorizontal size={16} /> {t('worklistPage.columnConfig.panelTitle')}
               </h3>
               <button onClick={() => setShowColumnConfig(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }} aria-label="关闭">
                 <X size={18} />
@@ -2665,14 +2665,14 @@ export default function WorklistPage() {
                       style={{ accentColor: '#1e40af', cursor: 'pointer' }}
                     />
                     <span style={{ color: isOn ? '#1e40af' : 'var(--text-secondary)', fontWeight: isOn ? 600 : 400 }}>{c.label}</span>
-                    {c.key === 'actions' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>恒显示</span>}
+                    {c.key === 'actions' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{t('worklistPage.columnConfig.alwaysShow')}</span>}
                   </label>
                 )
               })}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <ActionButton action="refresh" variant="default" size="compact" onClick={resetColumnConfig}>恢复默认</ActionButton>
-              <ActionButton action="submit" size="compact" onClick={() => setShowColumnConfig(false)}>应用</ActionButton>
+              <ActionButton action="refresh" variant="default" size="compact" onClick={resetColumnConfig}>{t('worklistPage.btn.resetDefault')}</ActionButton>
+              <ActionButton action="submit" size="compact" onClick={() => setShowColumnConfig(false)}>{t('worklistPage.btn.apply')}</ActionButton>
             </div>
           </Card>
         </div>

@@ -9,6 +9,7 @@ import { PageContainer } from "../components/common/PageContainer";
 import { StatCard as CommonStatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
 import { ErrorBanner } from "../components/feedback";
+import { t } from '../i18n/appI18n';
 import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
@@ -477,7 +478,7 @@ export default function PatientPage() {
         setLoadError(null);
       } else {
         setPatients(initialPatients);
-        setLoadError("API 不可用，使用本地数据");
+        setLoadError("{t('patientPage.apiUnavailable')}");
       }
       setLoading(false);
     })();
@@ -721,17 +722,17 @@ export default function PatientPage() {
   // 表单验证
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof PatientFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = "请输入患者姓名";
-    if (!formData.idCard.trim()) errors.idCard = "请输入身份证号";
+    if (!formData.name.trim()) errors.name = t('patientPage.errNameRequired');
+    if (!formData.idCard.trim()) errors.idCard = t('patientPage.errIdCardRequired');
     else if (formData.idCard.length !== 18)
-      errors.idCard = "身份证号格式不正确";
-    if (!formData.phone.trim()) errors.phone = "请输入联系电话";
+      errors.idCard = t('patientPage.errIdCardFormat');
+    if (!formData.phone.trim()) errors.phone = t('patientPage.errPhoneRequired');
     else if (!/^1[3-9]\d{9}$/.test(formData.phone))
-      errors.phone = "手机号格式不正确";
+      errors.phone = t('patientPage.errPhoneFormat');
     if (!formData.emergencyContact.trim())
-      errors.emergencyContact = "请输入联系人姓名";
+      errors.emergencyContact = t('patientPage.errContactNameRequired');
     if (!formData.emergencyPhone.trim())
-      errors.emergencyPhone = "请输入联系人电话";
+      errors.emergencyPhone = t('patientPage.errContactPhoneRequired');
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -796,7 +797,7 @@ export default function PatientPage() {
   const handleDeletePatient = async (patient: Patient) => {
     try {
       const res = await patientApi.delete(patient.id);
-      if (!res.success) throw new Error(res.error?.message ?? "删除失败");
+      if (!res.success) throw new Error(res.error?.message ?? "{t('patientPage.deleteFailed')}");
       setToast({ show: true, type: "success", message: `患者 ${patient.name} 已删除` });
       setPatients((prev) => prev.filter((p) => p.id !== patient.id));
       if (selectedPatient?.id === patient.id) {
@@ -809,7 +810,7 @@ export default function PatientPage() {
         if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
       })();
     } catch (e) {
-      setToast({ show: true, type: "error", message: (e as Error)?.message ?? "删除失败" });
+      setToast({ show: true, type: "error", message: (e as Error)?.message ?? "删除{t('patientPage.importFail')}" });
     }
   };
 
@@ -827,23 +828,23 @@ export default function PatientPage() {
         link.download = res.data.filename || `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
         link.click();
         URL.revokeObjectURL(url);
-        setToast({ show: true, type: "success", message: `已导出 ${res.data.count} 条患者记录` });
+        setToast({ show: true, type: "success", message: `{t('patientPage.exportedCount', {count: res.data.count})}` });
         return;
       }
-      throw new Error(res.error?.message ?? "导出接口无数据");
+      throw new Error(res.error?.message ?? "{t('patientPage.exportFailed')}");
     } catch {
       const csvContent = [
         [
-          "患者ID",
-          "姓名",
-          "性别",
-          "年龄",
-          "身份证",
-          "电话",
-          "患者类型",
-          "过敏史",
-          "建档日期",
-          "累计检查",
+          t('patientPage.patientId'),
+          t('patientPage.name'),
+          t('patientPage.gender'),
+          t('patientPage.age'),
+          t('patientPage.idCard'),
+          t('patientPage.phone'),
+          t('patientPage.type'),
+          t('patientPage.allergyHistory'),
+          t('patientPage.registrationDate'),
+          t('patientPage.cumulativeExam'),
         ].join(","),
         ...filteredPatients.map((p) =>
           [
@@ -868,7 +869,7 @@ export default function PatientPage() {
       link.href = url;
       link.download = `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
-      setToast({ show: true, type: "success", message: `已导出 ${filteredPatients.length} 条患者记录 (本地)` });
+      setToast({ show: true, type: "success", message: `{t('patientPage.exportedCountLocal', {count: filteredPatients.length})}` });
     }
   };
 
@@ -904,7 +905,7 @@ export default function PatientPage() {
   const handleImportSubmit = async () => {
     const rows = parseImportText(importText);
     if (rows.length === 0) {
-      setToast({ show: true, type: "error", message: "未解析到患者数据, 请检查 JSON/CSV 格式" });
+      setToast({ show: true, type: "error", message: "{t('patientPage.importNotParsed')}" });
       return;
     }
     setImporting(true);
@@ -916,13 +917,13 @@ export default function PatientPage() {
         setToast({
           show: true,
           type: res.data.errors.length > 0 ? "info" : "success",
-          message: `导入完成: 成功 ${res.data.imported} / 跳过 ${res.data.skipped} / 失败 ${res.data.errors.length}`,
+          message: `{t('patientPage.importComplete')} ${res.data.imported} / {t('patientPage.importSkip')} ${res.data.skipped} / {t("patientPage.importFail")} ${res.data.errors.length}`,
         });
       } else {
         setToast({ show: true, type: "error", message: res.error?.message ?? "导入失败" });
       }
     } catch (e) {
-      setToast({ show: true, type: "error", message: "导入失败: " + ((e as Error)?.message ?? String(e)) });
+      setToast({ show: true, type: "error", message: "{t('patientPage.importError')}: " + ((e as Error)?.message ?? String(e)) });
     } finally {
       setImporting(false);
       void (async () => {
@@ -1003,7 +1004,7 @@ export default function PatientPage() {
             <Target size={24} color="#fff" />
             <div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
-                患者主索引 (PMI) 搜索
+                {t('patientPage.pmiSearchTitle')}
               </div>
               <div
                 style={{
@@ -1012,7 +1013,7 @@ export default function PatientPage() {
                   marginTop: 2,
                 }}
               >
-                支持姓名、身份证、手机号、主索引ID多条件检索
+                {t('patientPage.pmiSearchSubtitle')}
               </div>
             </div>
           </div>
@@ -1056,7 +1057,7 @@ export default function PatientPage() {
                 value={pmiSearchQuery}
                 onChange={(e) => handlePMISearch(e.target.value)}
                 onFocus={() => setPmiSearchFocused(true)}
-                placeholder="输入姓名、身份证、手机号或主索引ID进行搜索..."
+                placeholder={t("patientPage.pmiSearchPlaceholder")}
                 autoFocus
                 style={{
                   flex: 1,
@@ -1096,18 +1097,18 @@ export default function PatientPage() {
               gap: 16,
             }}
           >
-            <span>支持模糊匹配</span>
+            <span>{t('patientPage.pmiSupportFuzzy')}</span>
             <span>·</span>
-            <span>姓名/身份证/手机号/主索引ID</span>
+            <span>{t('patientPage.pmiFields')}</span>
             <span>·</span>
-            <span>显示匹配度置信度</span>
+            <span>{t('patientPage.pmiShowConfidence')}</span>
           </div>
         </div>
         <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
           {pmiSearchResults.length === 0 && pmiSearchQuery && (
             <div style={{ textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
               <Search size={32} color="#cbd5e1" style={{ marginBottom: 8 }} />
-              <div>未找到匹配的患者记录</div>
+              <div>{t('patientPage.pmiNoResult')}</div>
             </div>
           )}
           {pmiSearchResults.length === 0 && !pmiSearchQuery && (
@@ -1117,7 +1118,7 @@ export default function PatientPage() {
                 color="#cbd5e1"
                 style={{ marginBottom: 8 }}
               />
-              <div>请输入搜索条件开始查询</div>
+              <div>{t('patientPage.pmiEmptyHint')}</div>
             </div>
           )}
           {pmiSearchResults.map((result) => (
@@ -1228,7 +1229,7 @@ export default function PatientPage() {
                   >
                     {result.confidence}%
                   </div>
-                  <AppText size="xs" color="secondary" as="div">匹配度</AppText>
+                  <AppText size="xs" color="secondary" as="div">{t('patientPage.matchConfidence')}</AppText>
                 </div>
               </div>
               <div
@@ -1326,7 +1327,7 @@ export default function PatientPage() {
                   }}
                 >
                   <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    匹配字段:
+                    {t('patientPage.matchFields')}
                   </span>
                   {result.matchFields.map((f) => (
                     <span
@@ -1350,7 +1351,7 @@ export default function PatientPage() {
                   >
                     <Link size={12} color="#f59e0b" />
                     <AppText size="xs" weight={600} color="warning" as="span">
-                      有归并记录
+                      {t('patientPage.hasMergeHistory')}
                     </AppText>
                   </div>
                 )}
@@ -1375,7 +1376,7 @@ export default function PatientPage() {
                   >
                     <History size={14} color="#f59e0b" />
                     <AppText size="xs" weight={700} as="span" style={{ color: "#92400e" }}>
-                      患者归并历史
+                      {t('patientPage.patientMergeHistory')}
                     </AppText>
                   </div>
                   {result.mergeHistory.map((m, i) => (
@@ -1516,7 +1517,7 @@ export default function PatientPage() {
             }}
           >
             <CreditCard size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">身份证</AppText>
+            <AppText size="xs" color="secondary" as="span">{t('patientPage.idCard')}</AppText>
           </div>
           <AppText size="xs" color="secondary" as="div" style={{ fontFamily: "monospace" }}>
             {result.idCard}
@@ -1532,7 +1533,7 @@ export default function PatientPage() {
             }}
           >
             <Phone size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">手机号</AppText>
+            <AppText size="xs" color="secondary" as="span">{t('patientPage.phone')}</AppText>
           </div>
           <AppText size="xs" color="secondary" as="div">{result.phone}</AppText>
         </div>
@@ -1546,7 +1547,7 @@ export default function PatientPage() {
             }}
           >
             <Shield size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">医保类型</AppText>
+            <AppText size="xs" color="secondary" as="span">{t('patientPage.insuranceType')}</AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.insuranceType}
@@ -1562,7 +1563,7 @@ export default function PatientPage() {
             }}
           >
             <User size={14} color="var(--text-secondary)" />
-            <AppText size="xs" color="secondary" as="span">就诊类型</AppText>
+            <AppText size="xs" color="secondary" as="span">{t('patientPage.visitType')}</AppText>
           </div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.patientType}
@@ -1588,7 +1589,7 @@ export default function PatientPage() {
           <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
-          <AppText size="xs" color="secondary" as="div">累计检查次数</AppText>
+          <AppText size="xs" color="secondary" as="div">{t('patientPage.totalExamTimes')}</AppText>
         </div>
         <div
           style={{
@@ -1608,7 +1609,7 @@ export default function PatientPage() {
           >
             {result.examStats.positiveRate}%
           </div>
-          <AppText size="xs" color="secondary" as="div">阳性率</AppText>
+          <AppText size="xs" color="secondary" as="div">{t('patientPage.positiveRate')}</AppText>
         </div>
         <div
           style={{
@@ -1622,7 +1623,7 @@ export default function PatientPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.lastExamDate}
           </div>
-          <AppText size="xs" color="secondary" as="div">最近检查日期</AppText>
+          <AppText size="xs" color="secondary" as="div">{t('patientPage.lastExamDate')}</AppText>
         </div>
       </div>
       {result.hasMergeHistory && (
@@ -1645,7 +1646,7 @@ export default function PatientPage() {
           >
             <History size={16} color="#f59e0b" />
             <span style={{ fontSize: 14, fontWeight: 700, color: "#92400e" }}>
-              患者归并历史
+              {t('patientPage.patientMergeHistory')}
             </span>
             <span
               style={{
@@ -1657,7 +1658,7 @@ export default function PatientPage() {
                 color: "#fff",
               }}
             >
-              {result.mergeHistory.length} 条记录
+              {result.mergeHistory.length} {t('patientPage.recordsCount')}
             </span>
           </div>
           {result.mergeHistory.map((m, i) => (
@@ -1727,28 +1728,28 @@ export default function PatientPage() {
         }}
       >
         <StatCard
-          label="总患者数"
+          label={t("patientPage.totalPatients")}
           value={statistics.totalPatients}
           icon={<Users size={24} />}
           color="#1e40af"
           bgColor="#eff6ff"
         />
         <StatCard
-          label="门诊患者"
+          label={t("patientPage.outpatientPatients")}
           value={statistics.outpatients}
           icon={<UserCheck size={24} />}
           color="#3b82f6"
           bgColor="#eff6ff"
         />
         <StatCard
-          label="住院患者"
+          label={t("patientPage.inpatientPatients")}
           value={statistics.inpatients}
           icon={<Activity size={24} />}
           color="#8b5cf6"
           bgColor="#f5f3ff"
         />
         <StatCard
-          label="今日新增"
+          label={t("patientPage.todayNew")}
           value={statistics.todayNew}
           icon={<PlusCircle size={24} />}
           color="#16a34a"
@@ -1764,28 +1765,28 @@ export default function PatientPage() {
         }}
       >
         <StatCard
-          label="体检患者"
+          label={t("patientPage.checkupPatients")}
           value={statistics.healthCheck}
           icon={<Heart size={24} />}
           color="#06b6d4"
           bgColor="#ecfeff"
         />
         <StatCard
-          label="急诊患者"
+          label={t("patientPage.emergencyPatients")}
           value={statistics.emergency}
           icon={<AlertCircle size={24} />}
           color="#f59e0b"
           bgColor="#fffbeb"
         />
         <StatCard
-          label="有过敏史"
+          label={t("patientPage.withAllergy")}
           value={statistics.withAllergy}
           icon={<AlertTriangle size={24} />}
           color="#dc2626"
           bgColor="#fef2f2"
         />
         <StatCard
-          label="复诊率"
+          label={t("patientPage.returnRate")}
           value={`${statistics.returnRate}%`}
           icon={<TrendingUp size={24} />}
           color="#0ea5e9"
@@ -1802,9 +1803,9 @@ export default function PatientPage() {
       >
         <PieChartSimple
           data={statistics.typeDistribution}
-          title="患者类型分布"
+          title={t("patientPage.patientTypeDistribution")}
         />
-        <PieChartSimple data={statistics.genderDistribution} title="男女比例" />
+        <PieChartSimple data={statistics.genderDistribution} title={t("patientPage.genderDistribution")} />
       </div>
       <div
         style={{
@@ -1816,13 +1817,13 @@ export default function PatientPage() {
       >
         <BarChartSimple
           data={statistics.ageGroups}
-          title="年龄段分布"
-          xLabel="年龄段"
+          title={t("patientPage.ageDistribution")}
+          xLabel={t("patientPage.ageGroup")}
         />
         <BarChartSimple
           data={statistics.examFrequency}
-          title="检查频次分布"
-          xLabel="检查次数"
+          title={t("patientPage.examFrequency")}
+          xLabel={t("patientPage.examTimes")}
         />
       </div>
       <Card bordered={false}
@@ -1842,9 +1843,9 @@ export default function PatientPage() {
             marginBottom: 16,
           }}
         >
-          患者明细 (
+          {t('patientPage.patientDetail')} (
           <span style={{ fontWeight: 400, color: "var(--text-secondary)" }}>
-            点击查看详情
+            {t('patientPage.clickToViewDetail')}
           </span>
           )
         </div>
@@ -2004,7 +2005,7 @@ export default function PatientPage() {
                         {p.allergyHistory}
                       </span>
                     ) : (
-                      <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>无</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>
                     )}
                   </td>
                   <td
@@ -2093,8 +2094,7 @@ export default function PatientPage() {
             fontSize: 14,
           }}
         >
-          🔒 资源级访问被拒绝
-          (checkAccess)：当前用户无权读取患者资源，请联系管理员。
+          {t('patientPage.accessDenied')}
         </div>
       )}
       {loadError && !loading && <ErrorBanner message={loadError} />}
@@ -2119,10 +2119,10 @@ export default function PatientPage() {
             }}
           >
             <Stethoscope size={22} color="#1e40af" />
-            患者管理
+            {t('patientPage.patientManagement')}
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
-            患者档案 · 就诊记录 · 过敏史管理 · 数据分析
+            {t('patientPage.patientSubtitle')}
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -2143,7 +2143,7 @@ export default function PatientPage() {
             }}
           >
             <Target size={14} />
-            PMI搜索
+            {t('patientPage.pmiSearch')}
           </button>
           <button
             onClick={() => setShowImportModal(true)}
@@ -2162,7 +2162,7 @@ export default function PatientPage() {
             }}
           >
             <Upload size={14} />
-            批量导入
+            {t('patientPage.batchImport')}
           </button>
           <button
             onClick={() => void handleExport()}
@@ -2181,7 +2181,7 @@ export default function PatientPage() {
             }}
           >
             <Download size={14} />
-            导出
+            {t('patientPage.export')}
           </button>
           <button
             onClick={() => setShowRegistrationWizard(true)}
@@ -2201,7 +2201,7 @@ export default function PatientPage() {
             }}
           >
             <Layers3 size={14} />
-            注册向导
+            {t('patientPage.registrationWizard')}
           </button>
           <PermissionGate permission="patient.create">
             <button
@@ -2222,7 +2222,7 @@ export default function PatientPage() {
               }}
             >
               <UserPlus size={14} />
-              新建患者
+              {t('patientPage.newPatient')}
             </button>
           </PermissionGate>
         </div>
@@ -2270,28 +2270,28 @@ export default function PatientPage() {
           }}
         >
           <StatCard
-            label="总患者数"
+            label={t("patientPage.totalPatients")}
             value={statistics.totalPatients}
             icon={<Users size={22} />}
             color="#1e40af"
             bgColor="#eff6ff"
           />
           <StatCard
-            label="住院患者"
+            label={t("patientPage.inpatientPatients")}
             value={statistics.inpatients}
             icon={<Activity size={22} />}
             color="#8b5cf6"
             bgColor="#f5f3ff"
           />
           <StatCard
-            label="今日新增"
+            label={t("patientPage.todayNew")}
             value={statistics.todayNew}
             icon={<PlusCircle size={22} />}
             color="#16a34a"
             bgColor="#f0fdf4"
           />
           <StatCard
-            label="有过敏史"
+            label={t("patientPage.withAllergy")}
             value={statistics.withAllergy}
             icon={<AlertTriangle size={22} />}
             color="#dc2626"
@@ -2313,7 +2313,7 @@ export default function PatientPage() {
       >
         <TabButton
           tabKey="list"
-          label="患者列表"
+          label={t("patientPage.patientList")}
           icon={<Users size={16} />}
           isActive={activeTab === "list"}
           onClick={() => setActiveTab("list")}
@@ -2321,7 +2321,7 @@ export default function PatientPage() {
         />
         <TabButton
           tabKey="detail"
-          label="患者详情"
+          label={t("patientPage.patientDetailTab")}
           icon={<Eye size={16} />}
           isActive={activeTab === "detail"}
           onClick={() => setActiveTab("detail")}
@@ -2329,14 +2329,14 @@ export default function PatientPage() {
         />
         <TabButton
           tabKey="form"
-          label="新建/编辑"
+          label={t("patientPage.newOrEdit")}
           icon={<UserPlus size={16} />}
           isActive={activeTab === "form"}
           onClick={handleNewPatient}
         />
         <TabButton
           tabKey="analytics"
-          label="患者分析"
+          label={t("patientPage.patientAnalytics")}
           icon={<PieChart size={16} />}
           isActive={activeTab === "analytics"}
           onClick={() => setActiveTab("analytics")}
@@ -2449,7 +2449,7 @@ export default function PatientPage() {
           setToast({
             show: true,
             type: "success",
-            message: `患者 ${newPatient.name} 注册成功！`,
+            message: `患者 ${newPatient.name} {t('patientPage.registerSuccess')}`,
           });
         }}
       />
@@ -2534,11 +2534,8 @@ export default function PatientPage() {
                   marginBottom: 10,
                   lineHeight: 1.8,
                 }}
-              >
-                支持 <strong>JSON 数组</strong> 或 <strong>CSV</strong>{" "}
-                (表头: 姓名/性别/年龄/身份证/电话/类型)。冲突判断: 身份证或
-                (姓名+电话) 相同则跳过。性别支持 男/女 或 MALE/FEMALE。
-              </div>
+                dangerouslySetInnerHTML={{ __html: t('patientPage.importHint') }}
+              />
               <textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
@@ -2572,7 +2569,7 @@ export default function PatientPage() {
                   }}
                 >
                   <Upload size={13} />
-                  上传 .csv / .json 文件
+                  {t('patientPage.uploadFile')}
                   <input
                     type="file"
                     accept=".csv,.json,text/csv,application/json"
@@ -2596,7 +2593,7 @@ export default function PatientPage() {
                   }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
-                    导入完成: 成功 {importResult.imported} / 跳过 {importResult.skipped} / 失败 {importResult.errors.length}
+                    {t('patientPage.importComplete')}: {t('patientPage.success')} {importResult.imported} / {t('patientPage.importSkip')} {importResult.skipped} / {t('patientPage.importFail')} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (
                     <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
@@ -2631,7 +2628,7 @@ export default function PatientPage() {
                   cursor: "pointer",
                 }}
               >
-                关闭
+                {t('patientPage.close')}
               </button>
               <button
                 onClick={() => void handleImportSubmit()}
@@ -2651,7 +2648,7 @@ export default function PatientPage() {
                 }}
               >
                 <Upload size={13} />
-                {importing ? "导入中..." : "开始导入"}
+                {importing ? "{t('patientPage.importing')}" : "{t('patientPage.startImport')}"}
               </button>
             </div>
           </div>

@@ -13,24 +13,25 @@ import {
   type PortalImageStudyDto,
 } from '../../services/api'
 import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
+import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
 
 // ===== Constants =====
 const MODALITIES: Array<{ value: string; label: string; parts: string[] }> = [
-  { value: 'CT', label: 'CT 计算机断层', parts: ['头部', '胸部', '腹部', '腰椎'] },
-  { value: 'MR', label: 'MR 磁共振', parts: ['颅脑', '颈椎', '腰椎', '膝关节'] },
-  { value: 'DR', label: 'DR 数字化X线', parts: ['胸部', '腰椎', '四肢', '腹部'] },
-  { value: 'US', label: '超声', parts: ['腹部', '甲状腺', '乳腺', '心脏'] },
+  { value: 'CT', label: t('selfService.modality.ct'), parts: [t('selfService.part.head'), t('selfService.part.chest'), t('selfService.part.abdomen'), t('selfService.part.lumbar')] },
+  { value: 'MR', label: t('selfService.modality.mr'), parts: [t('selfService.part.brain'), t('selfService.part.cervical'), t('selfService.part.lumbar'), t('selfService.part.knee')] },
+  { value: 'DR', label: t('selfService.modality.dr'), parts: [t('selfService.part.chest'), t('selfService.part.lumbar'), t('selfService.part.limbs'), t('selfService.part.abdomen')] },
+  { value: 'US', label: t('selfService.modality.us'), parts: [t('selfService.part.abdomen'), t('selfService.part.thyroid'), t('selfService.part.breast'), t('selfService.part.heart')] },
 ]
 
 // [v3.0.6.11-96 Wave3B G-30 P2] 随访类型选项
 const FOLLOWUP_TYPES = [
-  { value: '复查', label: '常规复查', intervalDays: 30 },
-  { value: '增强随访', label: '增强随访', intervalDays: 90 },
-  { value: '结节随访', label: '结节/占位随访', intervalDays: 180 },
-  { value: '术后随访', label: '术后随访', intervalDays: 90 },
+  { value: '复查', label: t('selfService.followupType.routine'), intervalDays: 30 },
+  { value: '增强随访', label: t('selfService.followupType.enhanced'), intervalDays: 90 },
+  { value: '结节随访', label: t('selfService.followupType.nodule'), intervalDays: 180 },
+  { value: '术后随访', label: t('selfService.followupType.postop'), intervalDays: 90 },
 ]
 
 // [v3.0.6.11-96 Wave3B G-30 P2] 随访计划演示回退数据 (followupApi 不可用时)
@@ -45,7 +46,7 @@ const FOLLOWUP_STATE_LABEL: Record<string, string> = {
 
 const TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']
 
-const FEEDBACK_CATEGORIES = ['就诊体验', '检查流程', '报告服务', '影像服务', '其他']
+const FEEDBACK_CATEGORIES = [t('selfService.feedbackCategory.experience'), t('selfService.feedbackCategory.process'), t('selfService.feedbackCategory.report'), t('selfService.feedbackCategory.imaging'), t('selfService.feedbackCategory.other')]
 
 const APPOINTMENT_STATE_LABEL: Record<string, string> = {
   SCHEDULED: '已预约', CONFIRMED: '已确认', REGISTERED: '已登记', CHECKED_IN: '已到检',
@@ -119,7 +120,7 @@ function MiniCalendar(props: {
   const cells: Array<string | null> = []
   for (let i = 0; i < startDow; i++) cells.push(null)
   for (let d = 1; d <= daysInMonth; d++) cells.push(fmtDate(new Date(year, monthIndex, d)))
-  const weekdayHeaders = ['一', '二', '三', '四', '五', '六', '日']
+  const weekdayHeaders = [t('selfService.weekday.mon'), t('selfService.weekday.tue'), t('selfService.weekday.wed'), t('selfService.weekday.thu'), t('selfService.weekday.fri'), t('selfService.weekday.sat'), t('selfService.weekday.sun')]
   return (
     <div style={{ userSelect: 'none' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -127,13 +128,13 @@ function MiniCalendar(props: {
           type="button"
           onClick={() => onMonthChange(new Date(year, monthIndex - 1, 1))}
           style={{ ...styles.btn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
-        >上月</button>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{year}年{monthIndex + 1}月</div>
+        >{t('selfService.booking.prevMonth')}</button>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('selfService.calendar.yearMonth', { year, month: monthIndex + 1 })}</div>
         <button
           type="button"
           onClick={() => onMonthChange(new Date(year, monthIndex + 1, 1))}
           style={{ ...styles.btn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }}
-        >下月</button>
+        >{t('selfService.booking.nextMonth')}</button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
         {weekdayHeaders.map(w => (
@@ -240,10 +241,10 @@ export default function SelfServicePortal() {
         const item = Array.isArray(res.data) ? res.data[0] : res.data
         setClinicalDetail(item ?? null)
       } else {
-        message.error(res.error?.message ?? '临床数据加载失败')
+        message.error(res.error?.message ?? t('selfService.clinicalDrawer.loadFailed'))
       }
     } catch {
-      message.error('临床数据加载失败，请稍后重试')
+      message.error(t('selfService.clinicalDrawer.loadRetry'))
     } finally {
       setClinicalDetailLoading(false)
     }
@@ -261,7 +262,7 @@ export default function SelfServicePortal() {
       if (nurseRes.success && Array.isArray(nurseRes.data)) setNurseContacts(nurseRes.data)
       if (techRes.success && Array.isArray(techRes.data)) setTechContacts(techRes.data)
     } catch {
-      message.error('医护联系方式加载失败，请稍后重试')
+      message.error(t('selfService.contacts.loadFailed'))
     } finally {
       setContactsLoading(false)
     }
@@ -298,7 +299,7 @@ export default function SelfServicePortal() {
     link.download = `报告_${report.id}.txt`
     link.click()
     URL.revokeObjectURL(link.href)
-    message.success('报告已下载')
+    message.success(t('selfService.reports.downloaded'))
   }
 
   const downloadExamReport = async (examId: string) => {
@@ -332,19 +333,19 @@ export default function SelfServicePortal() {
         link.download = `检查报告_${report.id}.txt`
         link.click()
         URL.revokeObjectURL(link.href)
-        message.success('报告已下载')
+        message.success(t('selfService.reports.downloaded'))
       } else {
-        message.error(res.error?.message ?? '报告下载失败')
+        message.error(res.error?.message ?? t('selfService.reports.downloadFailed'))
       }
     } catch {
-      message.error('报告下载失败，请稍后重试')
+      message.error(t('selfService.reports.downloadRetry'))
     }
   }
 
   const handleLogin = async () => {
     const keyword = loginId.trim()
     if (!keyword) {
-      message.warning('请输入手机号或证件号')
+      message.warning(t('selfService.login.inputRequired'))
       return
     }
     setLoginLoading(true)
@@ -361,10 +362,10 @@ export default function SelfServicePortal() {
         setUser(match)
         setLoggedIn(true)
       } else {
-        setLoginError('未查询到匹配的患者信息，请确认输入是否正确')
+        setLoginError(t('selfService.login.notFound'))
       }
     } catch {
-      setLoginError('查询服务暂不可用，请稍后重试')
+      setLoginError(t('selfService.login.serviceUnavailable'))
     } finally {
       setLoginLoading(false)
     }
@@ -416,9 +417,9 @@ export default function SelfServicePortal() {
         if (reportRes.success && reportRes.data && Array.isArray(reportRes.data)) setReports(reportRes.data)
         if (eduRes.success && Array.isArray(eduRes.data)) setEducations(eduRes.data)
         if (clinicalRes.success && Array.isArray(clinicalRes.data)) setClinicalData(clinicalRes.data)
-        if (!userRes.success && !examsRes.success) setLoadError('数据加载失败，请稍后重试')
+        if (!userRes.success && !examsRes.success) setLoadError(t('selfService.clinicalDrawer.loadRetry'))
       } catch {
-        setLoadError('数据加载失败，请稍后重试')
+        setLoadError(t('selfService.clinicalDrawer.loadRetry'))
       }
       if (!cancelled) setLoading(false)
     })()
@@ -467,7 +468,7 @@ export default function SelfServicePortal() {
   const submitFollowup = async () => {
     if (!user) return
     if (!followupForm.date) {
-      message.warning('请选择随访日期')
+      message.warning(t('selfService.followup.dateRequired'))
       return
     }
     setFollowupCreating(true)
@@ -483,10 +484,10 @@ export default function SelfServicePortal() {
       if (res.success && res.data) {
         setFollowups(prev => [res.data as FollowUpPlan, ...prev])
         setFollowupSource('api')
-        message.success('随访预约成功')
+        message.success(t('selfService.followup.bookSuccess'))
         setFollowupForm({ ...followupForm, note: '' })
       } else {
-        message.error(res.error?.message ?? '预约失败，请稍后重试')
+        message.error(res.error?.message ?? t('selfService.booking.bookFailed'))
       }
     } catch {
       // 失败回退: 本地新增并标注
@@ -506,7 +507,7 @@ export default function SelfServicePortal() {
       }
       setFollowups(prev => [local, ...prev])
       if (followupSource !== 'fallback') setFollowupSource('fallback')
-      message.warning('随访服务暂不可用，已在本地登记（回退）')
+      message.warning(t('selfService.followup.serviceUnavailable'))
     } finally {
       setFollowupCreating(false)
     }
@@ -523,13 +524,13 @@ export default function SelfServicePortal() {
         const data = (res.data as { data?: FollowUpPlan } | null)?.data ?? res.data
         setFollowups(prev => prev.map(p => p.id === plan.id ? data as FollowUpPlan : p))
         setFollowupSource('api')
-        message.success('随访完成登记成功')
+        message.success(t('selfService.followup.completeSuccess'))
       } else {
-        message.error(res.error?.message ?? '登记失败，请稍后重试')
+        message.error(res.error?.message ?? t('selfService.followup.completeFailed'))
       }
     } catch {
       setFollowups(prev => prev.map(p => p.id === plan.id ? { ...p, status: 'COMPLETED', completedAt: new Date().toISOString(), note: `${p.note}（本地完成登记，同步失败待重试）` } as FollowUpPlan : p))
-      message.warning('随访服务暂不可用，已本地标注完成（同步待重试）')
+      message.warning(t('selfService.followup.completeLocal'))
     } finally {
       setFollowupCompletingId(null)
     }
@@ -568,7 +569,7 @@ export default function SelfServicePortal() {
 
   const submitBooking = async () => {
     if (!booking.modality || !booking.bodyPart || !booking.date || !booking.slot) {
-      message.warning('请完整选择检查类型、部位、日期和时段')
+      message.warning(t('selfService.booking.fillAll'))
       return
     }
     if (!user) return
@@ -582,15 +583,15 @@ export default function SelfServicePortal() {
         scheduledAt: `${booking.date}T${booking.slot}:00+08:00`,
       })
       if (res.success && res.data) {
-        message.success('预约成功')
+        message.success(t('selfService.booking.booked'))
         setBookingDone(res.data)
         setAppointments(prev => [res.data!, ...prev])
         setBooking({})
       } else {
-        message.error(res.error?.message ?? '预约失败，请稍后重试')
+        message.error(res.error?.message ?? t('selfService.booking.bookFailed'))
       }
     } catch {
-      message.error('预约服务暂不可用，请稍后重试')
+      message.error(t('selfService.booking.serviceUnavailable'))
     } finally {
       setBookingLoading(false)
     }
@@ -633,7 +634,7 @@ export default function SelfServicePortal() {
 
   const submitFeedback = async () => {
     if (!rating || rating < 1) {
-      message.warning('请先选择星级评分')
+      message.warning(t('selfService.feedback.ratingRequired'))
       return
     }
     setSubmitting(true)
@@ -646,15 +647,15 @@ export default function SelfServicePortal() {
         comment: feedbackComment,
       })
       if (res.success && res.data) {
-        message.success('感谢您的反馈，我们会持续改进服务')
+        message.success(t('selfService.feedback.thanks'))
         setRating(0)
         setFeedbackCategory(undefined)
         setFeedbackComment('')
       } else {
-        message.error(res.error?.message ?? '反馈提交失败，请稍后重试')
+        message.error(res.error?.message ?? t('selfService.feedback.submitFailed'))
       }
     } catch {
-      message.error('反馈服务暂不可用，请稍后重试')
+      message.error(t('selfService.feedback.serviceUnavailable'))
     } finally {
       setSubmitting(false)
     }
@@ -673,20 +674,20 @@ export default function SelfServicePortal() {
     return (
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>患者自助服务</h2>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>输入手机号或证件号查询</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('selfService.login.title')}</h2>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>{t('selfService.login.hint')}</p>
           <input
-            placeholder="手机号 / 身份证号"
+            placeholder={t('selfService.login.placeholder')}
             value={loginId}
             onChange={e => setLoginId(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !loginLoading && void handleLogin()}
             style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}
           />
           <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 15 }} onClick={() => void handleLogin()} disabled={loginLoading}>
-            {loginLoading ? '查询中...' : '查询'}
+            {loginLoading ? t('selfService.login.searching') : t('selfService.login.search')}
           </button>
           {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 16, textAlign: 'left' }} />}
-          <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>演示账号：输入 13800138000 或 P001</div>
+          <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>{t('selfService.login.demo')}</div>
         </Card>
       </div>
     )
@@ -696,7 +697,7 @@ export default function SelfServicePortal() {
     return (
       <div style={styles.container}>
         <div style={{ padding: 80, textAlign: 'center' }}>
-          <Spin size="large" tip="正在加载患者服务数据...">
+          <Spin size="large" tip={t('selfService.loading')}>
             <div style={{ height: 60 }} />
           </Spin>
         </div>
@@ -707,24 +708,24 @@ export default function SelfServicePortal() {
   const tabItems = [
     {
       key: 'home',
-      label: '首页',
+      label: t('selfService.tab.home'),
       children: (
         <div>
           <div style={styles.statRow}>
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title="检查记录" value={exams.length} suffix="次" />
+              <Statistic title={t('selfService.home.examRecords')} value={exams.length} suffix={t('selfService.home.examRecordsSuffix')} />
             </Card>
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title="待完成预约" value={upcomingAppointments.length} suffix="项" />
+              <Statistic title={t('selfService.home.pendingAppointments')} value={upcomingAppointments.length} suffix={t('selfService.home.pendingAppointmentsSuffix')} />
             </Card>
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title="已出报告" value={reports.length} suffix="份" />
+              <Statistic title={t('selfService.home.reports')} value={reports.length} suffix={t('selfService.home.reportsSuffix')} />
             </Card>
           </div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>今日待办</h3>
+            <h3 style={styles.subTitle}>{t('selfService.home.todayTodo')}</h3>
             {upcomingAppointments.length === 0 && reports.length === 0 ? (
-              <Empty description="暂无待办事项" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.home.noTodo')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <div>
                 {upcomingAppointments.slice(0, 3).map(a => (
@@ -735,7 +736,7 @@ export default function SelfServicePortal() {
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)} 检查</div>
                     </div>
-                    <Tag color="processing">预约提醒</Tag>
+                    <Tag color="processing">{t('selfService.home.appointmentReminder')}</Tag>
                   </div>
                 ))}
                 {reports.length > 0 && (
@@ -744,11 +745,11 @@ export default function SelfServicePortal() {
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                         {latestReport?.modality ?? ''} · {latestReport?.bodyPart ?? '影像'} 报告已发布
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>签发时间 {fmtDateTime(latestReport?.signedAt)}</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>{t('selfService.home.signedTime')} {fmtDateTime(latestReport?.signedAt)}</div>
                     </div>
                     <div>
-                      <Tag color="success">报告通知</Tag>
-                      <button style={{ ...styles.btn, marginLeft: 8 }} onClick={() => { setActiveTab('reports') }}>去查看</button>
+                      <Tag color="success">{t('selfService.home.reportNotice')}</Tag>
+                      <button style={{ ...styles.btn, marginLeft: 8 }} onClick={() => { setActiveTab('reports') }}>{t('selfService.home.viewReport')}</button>
                     </div>
                   </div>
                 )}
@@ -757,7 +758,7 @@ export default function SelfServicePortal() {
           </Card>
           {upcomingAppointments.length > 0 && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>最近预约</h3>
+              <h3 style={styles.subTitle}>{t('selfService.home.recentAppointments')}</h3>
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
                   <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
@@ -774,23 +775,23 @@ export default function SelfServicePortal() {
     },
     {
       key: 'booking',
-      label: '检查预约',
+      label: t('selfService.tab.booking'),
       children: (
         <div>
           {bookingDone && (
             <Card bordered={false} style={{ ...styles.card, border: '1px solid var(--color-success-border)', background: 'var(--color-success-bg)' }} styles={{ body: { padding: 0 } }}>
-              <h3 style={{ ...styles.subTitle, color: 'var(--color-success)' }}>预约成功</h3>
+              <h3 style={{ ...styles.subTitle, color: 'var(--color-success)' }}>{t('selfService.booking.success')}</h3>
               <div style={styles.grid2}>
-                <div><div style={styles.label}>检查类型</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? '未指定部位'}）</div></div>
-                <div><div style={styles.label}>预约时间</div><div style={styles.value}>{fmtDateTime(bookingDone.scheduledAt)}</div></div>
-                <div><div style={styles.label}>预约单号</div><div style={styles.value}>{bookingDone.id}</div></div>
-                <div><div style={styles.label}>状态</div><div style={styles.value}>{APPOINTMENT_STATE_LABEL[bookingDone.state] ?? bookingDone.state}</div></div>
+                <div><div style={styles.label}>{t('selfService.booking.examType')}</div><div style={styles.value}>{bookingDone.modality}（{bookingDone.bodyPart ?? '未指定部位'}）</div></div>
+                <div><div style={styles.label}>{t('selfService.booking.appointmentTime')}</div><div style={styles.value}>{fmtDateTime(bookingDone.scheduledAt)}</div></div>
+                <div><div style={styles.label}>{t('selfService.booking.appointmentId')}</div><div style={styles.value}>{bookingDone.id}</div></div>
+                <div><div style={styles.label}>{t('selfService.booking.status')}</div><div style={styles.value}>{APPOINTMENT_STATE_LABEL[bookingDone.state] ?? bookingDone.state}</div></div>
               </div>
               <p style={{ fontSize: 12, color: '#059669', marginTop: 12 }}>请按预约时间提前 15 分钟到放射科登记台报到，检查当天请携带本人有效证件。</p>
             </Card>
           )}
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>选择检查类型</h3>
+            <h3 style={styles.subTitle}>{t('selfService.booking.selectType')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {MODALITIES.map(m => (
                 <button
@@ -813,7 +814,7 @@ export default function SelfServicePortal() {
           </Card>
           {booking.modality && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>选择检查部位</h3>
+              <h3 style={styles.subTitle}>{t('selfService.booking.selectPart')}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 {modalityParts.map(p => (
                   <button
@@ -834,7 +835,7 @@ export default function SelfServicePortal() {
           )}
           {booking.modality && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>选择检查日期</h3>
+              <h3 style={styles.subTitle}>{t('selfService.booking.selectDate')}</h3>
               <MiniCalendar
                 month={calendarMonth}
                 selected={booking.date}
@@ -845,7 +846,7 @@ export default function SelfServicePortal() {
           )}
           {booking.modality && booking.date && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>选择时段 — {booking.date}</h3>
+              <h3 style={styles.subTitle}>{t('selfService.booking.selectSlot')} — {booking.date}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {TIME_SLOTS.map(s => (
                   <button
@@ -870,10 +871,10 @@ export default function SelfServicePortal() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {booking.modality} · {booking.bodyPart} · {booking.date} {booking.slot}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>确认后将为您创建预约，请按时到检</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t('selfService.booking.confirmHint')}</div>
               </div>
               <button style={{ ...styles.btn, padding: '12px 28px', fontSize: 14 }} onClick={() => void submitBooking()} disabled={bookingLoading}>
-                {bookingLoading ? '提交中...' : '确认预约'}
+                {bookingLoading ? t('selfService.booking.submitting') : t('selfService.booking.confirm')}
               </button>
             </Card>
           )}
@@ -882,18 +883,18 @@ export default function SelfServicePortal() {
     },
     {
       key: 'reports',
-      label: '我的报告',
+      label: t('selfService.tab.reports'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>报告列表（{reports.length}）</h3>
+            <h3 style={styles.subTitle}>{t('selfService.reports.title')}（{reports.length}）</h3>
             {reports.length === 0 ? (
-              <Empty description="暂无已发布报告" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.reports.noReports')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <table style={styles.table}>
                 <thead><tr>
-                  <th style={styles.th}>检查项目</th><th style={styles.th}>部位</th><th style={styles.th}>检查日期</th>
-                  <th style={styles.th}>状态</th><th style={styles.th}>签发时间</th><th style={styles.th}>操作</th>
+                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>{t('selfService.reports.col.examDate')}</th>
+                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.signedAt')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
                 </tr></thead>
                 <tbody>
                   {reports.map(r => (
@@ -905,7 +906,7 @@ export default function SelfServicePortal() {
                       <td style={styles.td}>{fmtDateTime(r.signedAt)}</td>
                       <td style={styles.td}>
                         <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => setExpandedReport(expandedReport === r.id ? null : r.id)}>
-                          {expandedReport === r.id ? '收起' : '查看报告'}
+                          {expandedReport === r.id ? t('selfService.reports.collapse') : t('selfService.reports.viewReport')}
                         </button>
                       </td>
                     </tr>
@@ -952,7 +953,7 @@ export default function SelfServicePortal() {
           )}
           {!selectedReport && exams.filter(e => e.reportContent).length > 0 && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>历史检查报告</h3>
+              <h3 style={styles.subTitle}>{t('selfService.reports.historyTitle')}</h3>
               {exams.filter(e => e.reportContent).map(exam => (
                 <div key={exam.id} style={styles.todoItem}>
                   <div>
@@ -961,7 +962,7 @@ export default function SelfServicePortal() {
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button style={{ ...styles.btnGreen }} onClick={() => setExpandedReport(expandedReport === exam.id ? null : exam.id)}>
-                      {expandedReport === exam.id ? '收起' : '查看'}
+                      {expandedReport === exam.id ? t('selfService.reports.collapse') : t('selfService.reports.view')}
                     </button>
                     <button style={{ ...styles.btnGreen, background: '#059669' }} onClick={() => void downloadExamReport(exam.id)}>
                       下载
@@ -975,8 +976,8 @@ export default function SelfServicePortal() {
                 return (
                   <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                     {exam.reportContent}
-                    {exam.diagnosis && <div style={{ marginTop: 12 }}><div style={styles.label}>诊断意见</div><div style={styles.value}>{exam.diagnosis}</div></div>}
-                    {exam.recommendations && <div style={{ marginTop: 8 }}><div style={styles.label}>建议</div><div style={styles.value}>{exam.recommendations}</div></div>}
+                    {exam.diagnosis && <div style={{ marginTop: 12 }}><div style={styles.label}>{t('selfService.reports.diagnosisLabel')}</div><div style={styles.value}>{exam.diagnosis}</div></div>}
+                    {exam.recommendations && <div style={{ marginTop: 8 }}><div style={styles.label}>{t('selfService.reports.recommendationsLabel')}</div><div style={styles.value}>{exam.recommendations}</div></div>}
                   </div>
                 )
               })()}
@@ -987,18 +988,18 @@ export default function SelfServicePortal() {
     },
     {
       key: 'images',
-      label: '我的影像',
+      label: t('selfService.tab.images'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>可查看的检查</h3>
+            <h3 style={styles.subTitle}>{t('selfService.images.viewableTitle')}</h3>
             {viewableExams.length === 0 ? (
-              <Empty description="暂无可用影像" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.images.noImages')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <table style={styles.table}>
                 <thead><tr>
-                  <th style={styles.th}>检查项目</th><th style={styles.th}>日期</th><th style={styles.th}>部位</th>
-                  <th style={styles.th}>状态</th><th style={styles.th}>操作</th>
+                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>日期</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th>
+                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
                 </tr></thead>
                 <tbody>
                   {viewableExams.map(exam => (
@@ -1009,9 +1010,9 @@ export default function SelfServicePortal() {
                       <td style={styles.td}><span style={styles.badge(exam.reportStatus)}>{exam.reportStatus}</span></td>
                       <td style={styles.td}>
                         <button style={styles.btn} onClick={() => setSelectedExam(selectedExam?.id === exam.id ? null : exam)}>
-                          {selectedExam?.id === exam.id ? '收起' : '查看影像'}
+                          {selectedExam?.id === exam.id ? t('selfService.images.collapse') : t('selfService.images.viewImage')}
                         </button>
-                        <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(exam)}>打开影像浏览器</button>
+                        <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(exam)}>{t('selfService.images.openViewer')}</button>
                       </td>
                     </tr>
                   ))}
@@ -1021,7 +1022,7 @@ export default function SelfServicePortal() {
           </Card>
           {selectedExam && (
             <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={styles.subTitle}>电子胶片 — {selectedExam.examItem}</h3>
+              <h3 style={styles.subTitle}>{t('selfService.images.electronicFilm')} — {selectedExam.examItem}</h3>
               {study && study.series.length > 0 && (
                 <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
@@ -1050,9 +1051,9 @@ export default function SelfServicePortal() {
                       <div><label style={styles.label}>窗宽</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
                       <div><label style={styles.label}>窗位</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
                       <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
-                        {img.invert ? '取消反转' : '反转'}
+                        {img.invert ? t('selfService.images.cancelInvert') : t('selfService.images.invert')}
                       </button>
-                      <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(selectedExam)}>完整查看</button>
+                      <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(selectedExam)}>{t('selfService.images.fullView')}</button>
                     </div>
                   </div>
                 ))}
@@ -1060,15 +1061,15 @@ export default function SelfServicePortal() {
             </Card>
           )}
           <Card bordered={false} style={{ ...styles.card, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-            <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>影像下载凭证</h3>
-            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>生成凭证后可在自助终端领取影像光盘</p>
+            <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>{t('selfService.voucher.title')}</h3>
+            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{t('selfService.voucher.hint')}</p>
             {!voucherCode ? (
-              <button style={styles.voucherBtn} onClick={generateVoucher}>生成下载凭证</button>
+              <button style={styles.voucherBtn} onClick={generateVoucher}>{t('selfService.voucher.generate')}</button>
             ) : (
               <div>
-                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>您的下载凭证：</div>
+                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{t('selfService.voucher.yourVoucher')}：</div>
                 <div style={styles.voucherCode}>{voucherCode}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>有效期：24小时</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t('selfService.voucher.validity')}</div>
               </div>
             )}
           </Card>
@@ -1077,13 +1078,13 @@ export default function SelfServicePortal() {
     },
     {
       key: 'education',
-      label: '宣教资料',
+      label: t('selfService.tab.education'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>健康宣教（{educations.length}）</h3>
+            <h3 style={styles.subTitle}>{t('selfService.education.title')}（{educations.length}）</h3>
             {educations.length === 0 ? (
-              <Empty description="暂无宣教资料" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.education.noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               educations.map((edu, idx) => {
                 const id = edu.id ?? edu.key ?? `edu-${idx}`
@@ -1098,8 +1099,8 @@ export default function SelfServicePortal() {
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                           {title}
-                          {contentType === 'video' && <Tag color="blue">视频</Tag>}
-                          {contentType === 'audio' && <Tag color="purple">音频</Tag>}
+                          {contentType === 'video' && <Tag color="blue">{t('selfService.education.video')}</Tag>}
+                          {contentType === 'audio' && <Tag color="purple">{t('selfService.education.audio')}</Tag>}
                           {contentType === 'text' && <Tag>图文</Tag>}
                           {edu.category === 'pre_exam' && <Tag color="orange">检查前</Tag>}
                           {edu.category === 'post_exam' && <Tag color="cyan">检查后</Tag>}
@@ -1108,7 +1109,7 @@ export default function SelfServicePortal() {
                       </div>
                       {body && (
                         <button style={{ ...styles.btn, background: '#475569' }} onClick={() => setExpandedEdu(isOpen ? null : id)}>
-                          {isOpen ? '收起' : '查看详情'}
+                          {isOpen ? t('selfService.education.collapse') : t('selfService.education.viewDetail')}
                         </button>
                       )}
                     </div>
@@ -1128,18 +1129,18 @@ export default function SelfServicePortal() {
     },
     {
       key: 'clinical',
-      label: '临床数据',
+      label: t('selfService.tab.clinical'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>临床数据记录（{clinicalData.length}）</h3>
+            <h3 style={styles.subTitle}>{t('selfService.clinical.title')}（{clinicalData.length}）</h3>
             {clinicalData.length === 0 ? (
-              <Empty description="暂无临床数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.clinical.noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <table style={styles.table}>
                 <thead><tr>
-                  <th style={styles.th}>检查项目</th><th style={styles.th}>部位</th><th style={styles.th}>日期</th>
-                  <th style={styles.th}>状态</th><th style={styles.th}>操作</th>
+                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>日期</th>
+                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
                 </tr></thead>
                 <tbody>
                   {clinicalData.map(d => (
@@ -1164,33 +1165,33 @@ export default function SelfServicePortal() {
     },
     {
       key: 'contacts',
-      label: '联系医护',
+      label: t('selfService.tab.contacts'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>医护联系方式</span>
+              <span>{t('selfService.contacts.title')}</span>
               <button style={{ ...styles.btn, background: '#475569' }} onClick={() => void openContacts()} disabled={contactsLoading}>
-                {contactsLoading ? '加载中...' : '刷新'}
+                {contactsLoading ? t('selfService.contacts.loading') : t('selfService.contacts.refresh')}
               </button>
             </h3>
             {contactsLoading ? (
               <div style={{ textAlign: 'center', padding: 40 }}>
-                <Spin size="small" tip="加载联系方式..." />
+                <Spin size="small" tip={t('selfService.contacts.loadContacts')} />
               </div>
             ) : doctorContacts.length === 0 && nurseContacts.length === 0 && techContacts.length === 0 ? (
-              <Empty description="点击右上角「刷新」加载医护联系方式" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <Empty description={t('selfService.contacts.emptyHint')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {[
-                  { title: '放射科医生', color: '#1e40af', users: doctorContacts },
-                  { title: '放射科护士', color: '#0d9488', users: nurseContacts },
-                  { title: '技师', color: '#7c3aed', users: techContacts },
+                  { title: t('selfService.contacts.doctor'), color: '#1e40af', users: doctorContacts },
+                  { title: t('selfService.contacts.nurse'), color: '#0d9488', users: nurseContacts },
+                  { title: t('selfService.contacts.tech'), color: '#7c3aed', users: techContacts },
                 ].map(group => (
                   <div key={group.title} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
                     {group.users.length === 0 ? (
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('selfService.contacts.noContacts')}</div>
                     ) : (
                       group.users.map(u => (
                         <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
@@ -1211,12 +1212,12 @@ export default function SelfServicePortal() {
     },
     {
       key: 'followup',
-      label: '随访管理',
+      label: t('selfService.tab.followup'),
       children: (
         <div>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>我的随访计划（{followups.length}）</span>
+              <span>{t('selfService.followup.title')}（{followups.length}）</span>
               {followupSource === 'api'
                 ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>followupApi 实时</span>
                 : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>演示回退（followupApi 不可用）</span>}
@@ -1246,7 +1247,7 @@ export default function SelfServicePortal() {
                       <Tag color={p.reminderEnabled ? 'green' : 'default'} style={{ margin: 0 }}>
                         {p.reminderEnabled ? '提醒已开启' : '未开启提醒'}
                       </Tag>
-                      {p.status === 'OVERDUE' && <Tag color="error" style={{ margin: 0 }}>已逾期请尽快复查</Tag>}
+                      {p.status === 'OVERDUE' && <Tag color="error" style={{ margin: 0 }}>{t('selfService.followup.overdue')}</Tag>}
                       {p.status === 'COMPLETED' && p.completedAt && (
                         <Tag color="success" style={{ margin: 0 }}>完成于 {fmtDateTime(p.completedAt)}</Tag>
                       )}
@@ -1257,7 +1258,7 @@ export default function SelfServicePortal() {
                         onClick={() => void completeFollowup(p)}
                         disabled={followupCompletingId === p.id}
                       >
-                        {followupCompletingId === p.id ? '登记中...' : '完成登记'}
+                        {followupCompletingId === p.id ? t('selfService.followup.registering') : t('selfService.followup.completeReg')}
                       </button>
                     )}
                   </div>
@@ -1266,14 +1267,14 @@ export default function SelfServicePortal() {
             )}
           </Card>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-            <h3 style={styles.subTitle}>自助预约随访</h3>
+            <h3 style={styles.subTitle}>{t('selfService.followup.bookTitle')}</h3>
             <div style={styles.grid2}>
               <div>
-                <div style={styles.label}>随访日期</div>
+                <div style={styles.label}>{t('selfService.followup.dateLabel')}</div>
                 <Input type="date" value={followupForm.date} onChange={e => setFollowupForm({ ...followupForm, date: e.target.value })} style={{ width: '100%' }} />
               </div>
               <div>
-                <div style={styles.label}>随访类型</div>
+                <div style={styles.label}>{t('selfService.followup.typeLabel')}</div>
                 <Select
                   value={followupForm.type}
                   onChange={v => setFollowupForm({ ...followupForm, type: v })}
@@ -1283,12 +1284,12 @@ export default function SelfServicePortal() {
               </div>
             </div>
             <div style={{ marginTop: 14 }}>
-              <div style={styles.label}>备注说明</div>
-              <Input.TextArea rows={2} maxLength={200} showCount value={followupForm.note} onChange={e => setFollowupForm({ ...followupForm, note: e.target.value })} placeholder="如：乳腺 BI-RADS 3 定期复查（选填）" />
+              <div style={styles.label}>{t('selfService.followup.noteLabel')}</div>
+              <Input.TextArea rows={2} maxLength={200} showCount value={followupForm.note} onChange={e => setFollowupForm({ ...followupForm, note: e.target.value })} placeholder={t('selfService.followup.notePlaceholder')} />
             </div>
             <div style={{ marginTop: 16 }}>
               <button style={{ ...styles.btn, padding: '10px 28px', fontSize: 13 }} onClick={() => void submitFollowup()} disabled={followupCreating}>
-                {followupCreating ? '提交中...' : '提交随访预约'}
+                {followupCreating ? t('selfService.followup.submitting') : t('selfService.followup.submit')}
               </button>
             </div>
             <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>提交后将在预约日期到期时提醒，检查时请携带既往影像资料。</p>
@@ -1298,13 +1299,13 @@ export default function SelfServicePortal() {
     },
     {
       key: 'feedback',
-      label: '满意度反馈',
+      label: t('selfService.tab.feedback'),
       children: (
         <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={styles.subTitle}>服务满意度评价</h3>
+          <h3 style={styles.subTitle}>{t('selfService.feedback.title')}</h3>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>您的评价将帮助我们持续改进服务品质，感谢您的参与。</p>
           <div style={{ marginBottom: 24 }}>
-            <div style={styles.label}>总体满意度</div>
+            <div style={styles.label}>{t('selfService.feedback.overallSatisfaction')}</div>
             <Rate
               value={rating}
               onChange={setRating}
@@ -1312,14 +1313,14 @@ export default function SelfServicePortal() {
             />
             {rating > 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1e40af' }}>
-                {rating === 5 ? '非常满意' : rating === 4 ? '满意' : rating === 3 ? '一般' : rating === 2 ? '不满意' : '非常不满意'}
+                {rating === 5 ? t('selfService.rating.verySatisfied') : rating === 4 ? t('selfService.rating.satisfied') : rating === 3 ? t('selfService.rating.average') : rating === 2 ? t('selfService.rating.dissatisfied') : t('selfService.rating.veryDissatisfied')}
               </div>
             )}
           </div>
           <div style={{ marginBottom: 24, maxWidth: 360 }}>
-            <div style={styles.label}>评价分类</div>
+            <div style={styles.label}>{t('selfService.feedback.category')}</div>
             <Select
-              placeholder="请选择评价分类"
+              placeholder={t('selfService.feedback.selectCategory')}
               style={{ width: '100%' }}
               value={feedbackCategory}
               onChange={setFeedbackCategory}
@@ -1327,18 +1328,18 @@ export default function SelfServicePortal() {
             />
           </div>
           <div style={{ marginBottom: 24 }}>
-            <div style={styles.label}>您的建议与意见</div>
+            <div style={styles.label}>{t('selfService.feedback.suggestion')}</div>
             <Input.TextArea
               rows={4}
               maxLength={500}
               showCount
-              placeholder="请输入您的意见或建议（选填）"
+              placeholder={t('selfService.feedback.placeholder')}
               value={feedbackComment}
               onChange={e => setFeedbackComment(e.target.value)}
             />
           </div>
           <button style={{ ...styles.btn, padding: '10px 32px', fontSize: 14 }} onClick={() => void submitFeedback()} disabled={submitting}>
-            {submitting ? '提交中...' : '提交反馈'}
+            {submitting ? t('selfService.feedback.submitting') : t('selfService.feedback.submit')}
           </button>
         </Card>
       ),
@@ -1351,8 +1352,8 @@ export default function SelfServicePortal() {
       {/* 患者身份卡 */}
       <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
         <div style={styles.header}>
-          <h2 style={styles.title}>患者自助服务</h2>
-          <button style={{ ...styles.btn, background: '#64748b' }} onClick={handleLogout}>退出</button>
+          <h2 style={styles.title}>{t('selfService.login.title')}</h2>
+          <button style={{ ...styles.btn, background: '#64748b' }} onClick={handleLogout}>{t('selfService.patientCard.logout')}</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
           <div style={{
@@ -1363,14 +1364,14 @@ export default function SelfServicePortal() {
           </div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>患者编号：{user?.id ?? '-'}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('selfService.patientCard.patientId')}：{user?.id ?? '-'}</div>
           </div>
         </div>
         <div style={styles.grid2}>
-          <div><div style={styles.label}>性别/年龄</div><div style={styles.value}>{user?.gender ?? '-'} / {user?.age ?? '-'}岁</div></div>
-          <div><div style={styles.label}>证件号</div><div style={styles.value}>{user?.idNumber ?? '-'}</div></div>
-          <div><div style={styles.label}>手机号</div><div style={styles.value}>{user?.phone ?? '-'}</div></div>
-          <div><div style={styles.label}>注册日期</div><div style={styles.value}>{user?.createdAt ? fmtDate(new Date(user.createdAt)) : '-'}</div></div>
+          <div><div style={styles.label}>{t('selfService.patientCard.genderAge')}</div><div style={styles.value}>{user?.gender ?? '-'} / {user?.age ?? '-'}岁</div></div>
+          <div><div style={styles.label}>{t('selfService.patientCard.idNumber')}</div><div style={styles.value}>{user?.idNumber ?? '-'}</div></div>
+          <div><div style={styles.label}>{t('selfService.patientCard.phone')}</div><div style={styles.value}>{user?.phone ?? '-'}</div></div>
+          <div><div style={styles.label}>{t('selfService.patientCard.registerDate')}</div><div style={styles.value}>{user?.createdAt ? fmtDate(new Date(user.createdAt)) : '-'}</div></div>
         </div>
       </Card>
 
@@ -1408,7 +1409,7 @@ export default function SelfServicePortal() {
             />
             {(clinicalDetail as any).labValues && (
               <div style={{ marginTop: 16, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
-                <div style={styles.label}>检验/生命体征</div>
+                <div style={styles.label}>{t('selfService.clinicalDrawer.labValues')}</div>
                 <div style={{ ...styles.value, fontSize: 13, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
               </div>
             )}

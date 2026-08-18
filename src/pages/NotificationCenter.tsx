@@ -16,6 +16,7 @@ import { realtime, type RealtimePayload } from '../services/realtime'
 import { getCurrentUser } from '../utils/auth'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { formatTime } from '../utils/date';
+import { t } from '../i18n/appI18n'
 
 // ============================================================
 // 常量定义
@@ -31,21 +32,21 @@ const BG = 'var(--bg-primary)'
 const WHITE = '#ffffff'
 
 const NOTIFICATION_TYPES = [
-  { key: 'all', label: '全部', icon: <Bell size={14} />, color: PRIMARY },
-  { key: 'report_completed', label: '报告', icon: <FileText size={14} />, color: '#3b82f6' },
-  { key: 'critical_value', label: '危急值', icon: <AlertTriangle size={14} />, color: DANGER },
+  { key: 'all', label: t('notification.typeAll'), icon: <Bell size={14} />, color: PRIMARY },
+  { key: 'report_completed', label: t('notification.typeReport'), icon: <FileText size={14} />, color: '#3b82f6' },
+  { key: 'critical_value', label: t('notification.typeCritical'), icon: <AlertTriangle size={14} />, color: DANGER },
   // [v3.0.6.11-99 Wave10B] 新增筛选类型: 随访 / 质控
-  { key: 'followup', label: '随访', icon: <Calendar size={14} />, color: '#8b5cf6' },
-  { key: 'quality', label: '质控', icon: <BarChart3 size={14} />, color: '#10b981' },
-  { key: 'system', label: '系统', icon: <Settings size={14} />, color: 'var(--text-secondary)' },
-  { key: 'appointment', label: '预约', icon: <Calendar size={14} />, color: SUCCESS },
-  { key: 'consultation', label: '会诊', icon: <MessageSquare size={14} />, color: PURPLE },
+  { key: 'followup', label: t('notification.typeFollowup'), icon: <Calendar size={14} />, color: '#8b5cf6' },
+  { key: 'quality', label: t('notification.typeQuality'), icon: <BarChart3 size={14} />, color: '#10b981' },
+  { key: 'system', label: t('notification.typeSystem'), icon: <Settings size={14} />, color: 'var(--text-secondary)' },
+  { key: 'appointment', label: t('notification.typeAppointment'), icon: <Calendar size={14} />, color: SUCCESS },
+  { key: 'consultation', label: t('notification.typeConsultation'), icon: <MessageSquare size={14} />, color: PURPLE },
 ]
 
 const PRIORITY_CONFIG = {
-  high: { label: '紧急', color: DANGER, bg: '#ef444422' },
-  normal: { label: '普通', color: ACCENT, bg: '#3b82f622' },
-  low: { label: '低', color: GRAY, bg: 'var(--bg-deep)' },
+  high: { label: t('notification.priorityHigh'), color: DANGER, bg: '#ef444422' },
+  normal: { label: t('notification.priorityNormal'), color: ACCENT, bg: '#3b82f622' },
+  low: { label: t('notification.priorityLow'), color: GRAY, bg: 'var(--bg-deep)' },
 }
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -140,7 +141,7 @@ function getRelativeTime(dt: string): string {
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
-  if (minutes < 1) return '刚刚'
+  if (minutes < 1) return t('time.justNow')
   if (minutes < 60) return `${minutes}分钟前`
   if (hours < 24) return `${hours}小时前`
   if (days < 7) return `${days}天前`
@@ -270,7 +271,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
                 background: '#05966920', color: '#059669',
                 padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
               }}>
-                报表已生成
+                {t('notification.reportGenerated')}
               </span>
             )}
             <span style={{
@@ -284,7 +285,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
                 background: DANGER, color: WHITE,
                 padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
               }}>
-                未读
+                {t('notification.unread')}
               </span>
             )}
           </div>
@@ -306,20 +307,20 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           {/* 元信息 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
             <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>通知ID</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('notification.id')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.id}</div>
             </div>
             <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>接收人</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('notification.recipient')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.recipientName}</div>
             </div>
             <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
-              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>发送时间</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('notification.sentTime')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.sentAt)}</div>
             </div>
             {notification.readAt && (
               <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>阅读时间</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('notification.readTime')}</div>
                 <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.readAt)}</div>
               </div>
             )}
@@ -331,7 +332,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
               background: `${ACCENT}10`, padding: 12, borderRadius: 8,
               border: `1px solid ${ACCENT}30`, marginBottom: 16,
             }}>
-              <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>相关信息</div>
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{t('notification.relatedInfo')}</div>
               <div style={{ fontSize: 13, color: PRIMARY, marginBottom: 8 }}>
                 类型: {notification.relatedType} | ID: {notification.relatedId}
               </div>
@@ -344,7 +345,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
                 }}
               >
                 <Eye size={14} />
-                查看详情
+                {t('notification.viewDetail')}
               </button>
             </div>
           )}
@@ -364,13 +365,13 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             }}
           >
             <CheckCheck size={14} />
-            标记已读
+            {t('notification.markRead')}
           </button>
           <button onClick={onClose} style={{
             padding: '8px 20px', borderRadius: 6, border: 'none',
             background: PRIMARY, color: WHITE, fontSize: 13, cursor: 'pointer',
           }}>
-            关闭
+            {t('notification.close')}
           </button>
         </div>
       </div>
@@ -390,11 +391,11 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
               ID: {notification.relatedId}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>即将跳转到相关页面查看详情</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('notification.jumpHint')}</div>
             <button onClick={handleCloseJumpModal} style={{
               marginTop: 20, padding: '10px 24px', background: '#1e40af', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
-            }}>确定</button>
+            }}>{t('notification.confirm')}</button>
           </div>
         </div>
       )}
@@ -495,7 +496,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
               background: '#05966920', color: '#059669',
               padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
             }}>
-              报表已生成
+              {t('notification.reportGenerated')}
             </span>
           )}
           {notification.priority === 'high' && (
@@ -503,7 +504,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
               background: DANGER, color: WHITE,
               padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
             }}>
-              紧急
+              {t('notification.priorityHigh')}
             </span>
           )}
         </div>
@@ -518,7 +519,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
                 background: 'var(--bg-card)', color: ACCENT, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}
-              title="标记已读"
+              title={t('notification.markRead')}
             >
               <Check size={14} />
             </button>
@@ -530,7 +531,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
               background: 'var(--bg-card)', color: DANGER, fontSize: 12, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
             }}
-            title="删除"
+            title={t('notification.delete')}
           >
             <Trash2 size={14} />
           </button>
@@ -592,56 +593,56 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Settings size={16} />
-        通知设置
+        {t('notification.settings')}
       </div>
 
-      <SectionTitle>通知类型</SectionTitle>
+      <SectionTitle>{t('notification.settingsTypes')}</SectionTitle>
       <SettingRow
-        label="报告完成通知"
+        label={t('notification.settingReport')}
         checked={settings.reportCompleted}
         onChange={v => onUpdate('reportCompleted', v)}
         icon={<FileText size={16} />}
       />
       <SettingRow
-        label="危急值通知"
+        label={t('notification.settingCritical')}
         checked={settings.criticalValue}
         onChange={v => onUpdate('criticalValue', v)}
         icon={<AlertTriangle size={16} />}
       />
       <SettingRow
-        label="系统通知"
+        label={t('notification.settingSystem')}
         checked={settings.systemNotify}
         onChange={v => onUpdate('systemNotify', v)}
         icon={<Settings size={16} />}
       />
       <SettingRow
-        label="预约提醒"
+        label={t('notification.settingAppointment')}
         checked={settings.appointment}
         onChange={v => onUpdate('appointment', v)}
         icon={<Calendar size={16} />}
       />
       <SettingRow
-        label="会诊消息"
+        label={t('notification.settingConsultation')}
         checked={settings.consultation}
         onChange={v => onUpdate('consultation', v)}
         icon={<MessageSquare size={16} />}
       />
 
-      <SectionTitle>接收方式</SectionTitle>
+      <SectionTitle>{t('notification.settingsChannels')}</SectionTitle>
       <SettingRow
-        label="邮件通知"
+        label={t('notification.settingEmail')}
         checked={settings.emailNotify}
         onChange={v => onUpdate('emailNotify', v)}
         icon={<Mail size={16} />}
       />
       <SettingRow
-        label="短信通知"
+        label={t('notification.settingSms')}
         checked={settings.smsNotify}
         onChange={v => onUpdate('smsNotify', v)}
         icon={<Smartphone size={16} />}
       />
       <SettingRow
-        label="推送通知"
+        label={t('notification.settingPush')}
         checked={settings.pushNotify}
         onChange={v => onUpdate('pushNotify', v)}
         icon={<BellRing size={16} />}
@@ -651,7 +652,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
           <AlertCircle size={16} color={WARNING} style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
-            温馨提示：危急值通知不受以上设置影响，始终保持开启状态。设置变更将在5分钟内生效。
+            {t('notification.settingsTip')}
           </div>
         </div>
       </div>
@@ -703,7 +704,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
       byDay[day]!.count += 1
       if (n.status === 'unread') byDay[day]!.unread += 1
     })
-    const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const labels = [t('notification.weekMon'), t('notification.weekTue'), t('notification.weekWed'), t('notification.weekThu'), t('notification.weekFri'), t('notification.weekSat'), t('notification.weekSun')]
     const rows = Object.entries(byDay).map(([day, v], i) => ({
       day: labels[i % 7] ?? day.slice(5),
       count: v.count,
@@ -735,28 +736,28 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <BarChart3 size={16} />
-        通知统计
+        {t('notification.stats')}
       </div>
 
       {/* 今日概览 */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>今日概览</div>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('notification.todayOverview')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
-            <div style={{ fontSize: 12, color: GRAY }}>今日总数</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('notification.todayTotal')}</div>
           </div>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
-            <div style={{ fontSize: 12, color: GRAY }}>已读</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('notification.read')}</div>
           </div>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
-            <div style={{ fontSize: 12, color: GRAY }}>未读</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('notification.unread')}</div>
           </div>
           <div style={{ background: 'var(--color-error-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.critical}</div>
-            <div style={{ fontSize: 12, color: GRAY }}>危急值</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{t('notification.typeCritical')}</div>
           </div>
         </div>
       </div>
@@ -794,7 +795,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
 
       {/* 类型分布 */}
       <div>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>类型分布</div>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('notification.typeDistribution')}</div>
         {typeDistribution.map(type => (
           <div key={type.key} style={{ marginBottom: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -824,7 +825,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
 
       {/* [v3.0.6.11-99 Wave10B] 类型环形占比 + 阅读率 */}
       <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 12, color: GRAY, marginBottom: 10 }}>类型占比 / 阅读情况</div>
+        <div style={{ fontSize: 12, color: GRAY, marginBottom: 10 }}>{t('notification.ratioRead')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ position: 'relative', width: 104, height: 104, flexShrink: 0 }}>
             <svg viewBox="0 0 100 100" width={104} height={104}>
@@ -858,7 +859,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
               <text x="50" y="47" textAnchor="middle" fontSize="14" fontWeight="700" fill={PRIMARY}>
                 {notifications.length}
               </text>
-              <text x="50" y="60" textAnchor="middle" fontSize="7" fill="#94a3b8">全部通知</text>
+              <text x="50" y="60" textAnchor="middle" fontSize="7" fill="#94a3b8">{t('notification.allNotifications')}</text>
             </svg>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -895,10 +896,10 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
           </div>
           <div style={{ display: 'flex', gap: 14, marginTop: 4, fontSize: 10, color: GRAY }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: SUCCESS }} /> 已读
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: SUCCESS }} /> {t('notification.read')}
             </span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: DANGER }} /> 未读
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: DANGER }} /> {t('notification.unread')}
             </span>
           </div>
         </div>
@@ -935,7 +936,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Clock size={16} />
-        最新动态
+        {t('notification.latestActivity')}
       </div>
       {hourGroups.slice(0, 6).map(([hour, hourNotifs]) => (
         <div key={hour} style={{ marginBottom: 12 }}>
@@ -984,17 +985,17 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 // ============================================================
 function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
   const getStatus = () => {
-    if (!delivery.sent) return { label: '发送中', color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
-    if (!delivery.delivered) return { label: '发送失败', color: '#ef4444', bg: '#ef444422' }
-    if (delivery.read) return { label: '已阅读', color: '#059669', bg: '#22c55e22' }
-    return { label: '已送达', color: '#3b82f6', bg: '#3b82f622' }
+    if (!delivery.sent) return { label: t('notification.sending'), color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
+    if (!delivery.delivered) return { label: t('notification.sendFailed'), color: '#ef4444', bg: '#ef444422' }
+    if (delivery.read) return { label: t('notification.readDone'), color: '#059669', bg: '#22c55e22' }
+    return { label: t('notification.delivered'), color: '#3b82f6', bg: '#3b82f622' }
   }
   const s = getStatus()
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
       <span style={{ padding: '2px 8px', borderRadius: 4, background: s.bg, color: s.color, fontWeight: 500 }}>{s.label}</span>
       {delivery.retryCount > 0 && <span style={{ color: '#d97706' }}>重试{delivery.retryCount}次</span>}
-      <span style={{ color: 'var(--text-secondary)' }}>{delivery.channel === 'in-app' ? '应用内' : delivery.channel === 'sms' ? '短信' : '邮件'}</span>
+      <span style={{ color: 'var(--text-secondary)' }}>{delivery.channel === 'in-app' ? t('notification.channelInApp') : delivery.channel === 'sms' ? t('notification.channelSms') : t('notification.channelEmail')}</span>
     </div>
   )
 }
@@ -1003,12 +1004,12 @@ function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
 // Phase 4b - 规则引擎面板
 // ============================================================
 function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRule[]; onToggle: (id: string) => void; onDelete: (id: string) => void }) {
-  const EVENT_LABELS: Record<string, string> = { critical_value: '危急值', report_ready: '报告完成', schedule_change: '排班变更', appointment: '预约', system_alert: '系统告警' }
+  const EVENT_LABELS: Record<string, string> = { critical_value: t('notification.typeCritical'), report_ready: t('notification.eventReport'), schedule_change: t('notification.eventSchedule'), appointment: t('notification.typeAppointment'), system_alert: t('notification.eventSystemAlert') }
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Zap size={16} />
-        通知规则引擎
+        {t('notification.ruleEngine')}
       </div>
       {rules.map(rule => (
         <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1016,7 +1017,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
               <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
-                {rule.priority === 'high' ? '高优先级' : '普通'}
+                {rule.priority === 'high' ? t('notification.priorityHighLabel') : t('notification.priorityNormal')}
               </span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
@@ -1032,7 +1033,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
         </div>
       ))}
       <div style={{ marginTop: 12, padding: 12, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
-        规则引擎根据事件类型和条件自动匹配通知渠道
+        {t('notification.ruleEngineHint')}
       </div>
     </div>
   )
@@ -1046,23 +1047,23 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
     <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Settings size={16} />
-        用户偏好
+        {t('notification.preferences')}
       </div>
       {/* 免打扰 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>免打扰时段</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>{t('notification.quietHours')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
             style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
             <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>启用免打扰</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('notification.enableQuietHours')}</span>
         </div>
         {preferences.quietHoursEnabled && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input type="time" value={preferences.quietHoursStart} onChange={e => onUpdate({ ...preferences, quietHoursStart: e.target.value })}
               style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
-            <span style={{ color: 'var(--text-secondary)' }}>至</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('notification.to')}</span>
             <input type="time" value={preferences.quietHoursEnd} onChange={e => onUpdate({ ...preferences, quietHoursEnd: e.target.value })}
               style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
           </div>
@@ -1070,23 +1071,23 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
       </div>
       {/* 摘要模式 */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>摘要模式</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>{t('notification.digestMode')}</div>
         <select value={preferences.digestMode} onChange={e => onUpdate({ ...preferences, digestMode: e.target.value as any })}
           style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }}>
-          <option value="none">关闭</option>
-          <option value="daily">每日摘要</option>
-          <option value="weekly">每周摘要</option>
+          <option value="none">{t('notification.digestOff')}</option>
+          <option value="daily">{t('notification.digestDaily')}</option>
+          <option value="weekly">{t('notification.digestWeekly')}</option>
         </select>
         {preferences.digestMode !== 'none' && (
           <div style={{ marginTop: 8 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>发送时间：</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.sendTime')}</span>
             <input type="time" value={preferences.digestTime} onChange={e => onUpdate({ ...preferences, digestTime: e.target.value })}
               style={{ padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12 }} />
           </div>
         )}
       </div>
       <div style={{ padding: 8, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
-        变更将自动保存，5分钟内生效
+        {t('notification.autoSaveHint')}
       </div>
     </div>
   )
@@ -1098,11 +1099,11 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
 // 后端 GET/PUT /notifications/subscriptions/:userId, 失败回退 localStorage
 // ============================================================
 const SUBSCRIPTION_DEFS: Array<{ key: NotificationSubscriptionType; label: string; desc: string; icon: React.ReactNode }> = [
-  { key: 'CRITICAL', label: '危急值通知', desc: '危急检查结果实时提醒', icon: <AlertTriangle size={16} /> },
-  { key: 'REPORT', label: '报告完成', desc: '报告审核完成通知', icon: <FileText size={16} /> },
-  { key: 'FOLLOWUP', label: '随访提醒', desc: '随访计划到期提醒', icon: <Calendar size={16} /> },
-  { key: 'QUALITY', label: '质控通知', desc: '质控与缺陷整改通知', icon: <BarChart3 size={16} /> },
-  { key: 'SYSTEM', label: '系统公告', desc: '系统维护与升级公告', icon: <Settings size={16} /> },
+  { key: 'CRITICAL', label: t('notification.settingCritical'), desc: t('notification.subCriticalDesc'), icon: <AlertTriangle size={16} /> },
+  { key: 'REPORT', label: t('notification.eventReport'), desc: t('notification.subReportDesc'), icon: <FileText size={16} /> },
+  { key: 'FOLLOWUP', label: t('notification.subFollowup'), desc: t('notification.subFollowupDesc'), icon: <Calendar size={16} /> },
+  { key: 'QUALITY', label: t('notification.subQuality'), desc: t('notification.subQualityDesc'), icon: <BarChart3 size={16} /> },
+  { key: 'SYSTEM', label: t('notification.subSystem'), desc: t('notification.subSystemDesc'), icon: <Settings size={16} /> },
 ]
 
 const DEFAULT_SUBSCRIPTION_TYPES: NotificationSubscriptionType[] = ['CRITICAL', 'REPORT', 'FOLLOWUP', 'QUALITY', 'SYSTEM']
@@ -1140,10 +1141,10 @@ function SubscriptionPanel({
     }}>
       <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
         <BellRing size={16} />
-        订阅管理
-        {saving && <span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>保存中...</span>}
+        {t('notification.subscriptions')}
+        {saving && <span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>{t('notification.saving')}</span>}
       </div>
-      <div style={{ fontSize: 12, color: GRAY, marginBottom: 12 }}>选择需要接收的站内信 / 推送通知类型（危急值通知始终推荐开启）</div>
+      <div style={{ fontSize: 12, color: GRAY, marginBottom: 12 }}>{t('notification.subscriptionHint')}</div>
       {SUBSCRIPTION_DEFS.map(def => {
         const checked = types.includes(def.key)
         return (
@@ -1173,7 +1174,7 @@ function SubscriptionPanel({
         )
       })}
       <div style={{ marginTop: 12, padding: 8, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
-        订阅设置实时同步至服务端；后端不可用时保存于本地浏览器。
+        {t('notification.subscriptionSyncHint')}
       </div>
     </div>
   )
@@ -1262,7 +1263,7 @@ export default function NotificationCenter() {
       notificationsApi.getStats(userId),
     ])
     if (!historyRes.success) {
-      setLoadError(historyRes.error?.message ?? 'API 不可用，通知数据加载失败')
+      setLoadError(historyRes.error?.message ?? t('notification.loadError'))
       setLoading(false)
       return
     }
@@ -1470,13 +1471,13 @@ export default function NotificationCenter() {
   // Web Push: 订阅
   const handlePushSubscribe = useCallback(async () => {
     if (!vapidPublicKey) {
-      setLoadError('VAPID 公钥不可用（后端未配置）')
+      setLoadError(t('notification.vapidUnavailable'))
       return
     }
     setPushBusy(true)
     try {
       if (!('Notification' in window)) {
-        setLoadError('当前浏览器不支持 Web Notification')
+        setLoadError(t('notification.webNotificationUnsupported'))
         return
       }
       let permission = Notification.permission
@@ -1484,7 +1485,7 @@ export default function NotificationCenter() {
         permission = await Notification.requestPermission()
       }
       if (permission !== 'granted') {
-        setLoadError('通知权限被拒绝，无法订阅浏览器推送')
+        setLoadError(t('notification.permissionDenied'))
         return
       }
       const reg = await navigator.serviceWorker?.register('/sw.js')
@@ -1493,7 +1494,7 @@ export default function NotificationCenter() {
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
       })
       if (!sub) {
-        setLoadError('PushManager 订阅失败（浏览器或协议不支持）')
+        setLoadError(t('notification.pushSubscribeFailed'))
         return
       }
       const res = await notificationsApi.pushSubscribe({
@@ -1508,7 +1509,7 @@ export default function NotificationCenter() {
         setPushSubscribed(true)
         setLoadError(null)
       } else {
-        setLoadError(res.error?.message ?? '订阅保存失败')
+        setLoadError(res.error?.message ?? t('notification.subscribeSaveFailed'))
       }
     } catch (e) {
       setLoadError('浏览器推送订阅失败: ' + ((e as Error)?.message ?? '未知错误'))
@@ -1541,7 +1542,7 @@ export default function NotificationCenter() {
     setPushBusy(true)
     const res = await notificationsApi.sendPush({
       userId,
-      title: '浏览器推送测试',
+      title: t('notification.pushTestTitle'),
       content: '这是一条来自通知中心的测试推送 ' + new Date().toLocaleTimeString(),
       tag: 'g005-test',
     })
@@ -1559,7 +1560,7 @@ export default function NotificationCenter() {
   const [bcSaving, setBcSaving] = useState(false)
 
   const handleBroadcast = async () => {
-    if (!bcForm.title.trim() || !bcForm.content.trim()) { setLoadError('请填写标题和内容'); return }
+    if (!bcForm.title.trim() || !bcForm.content.trim()) { setLoadError(t('notification.fillTitleContent')); return }
     setBcSaving(true)
     setLoadError(null)
     try {
@@ -1577,7 +1578,7 @@ export default function NotificationCenter() {
         setBcForm({ type: 'SYSTEM', severity: 'INFO', title: '', content: '', userIds: '' })
         void loadData()
       } else {
-        setLoadError(res.error?.message ?? '广播发送失败')
+        setLoadError(res.error?.message ?? t('notification.broadcastFailed'))
       }
     } catch (e) {
       setLoadError('广播发送失败: ' + ((e as Error)?.message ?? '未知错误'))
@@ -1593,7 +1594,7 @@ export default function NotificationCenter() {
 
   return (
     <div data-testid="notification-center-page" style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
-      {loading && <LoadingBanner message="正在从 API 加载通知数据..." />}
+      {loading && <LoadingBanner message={t('notification.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 左侧边栏 */}
       <div style={{
@@ -1610,8 +1611,8 @@ export default function NotificationCenter() {
               <Bell size={22} color={PRIMARY} />
             </div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>通知中心</div>
-              <div style={{ fontSize: 12, color: GRAY }}>通知中心</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('notification.center')}</div>
+              <div style={{ fontSize: 12, color: GRAY }}>{t('notification.center')}</div>
             </div>
           </div>
 
@@ -1625,7 +1626,7 @@ export default function NotificationCenter() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {stats.unread > 0 ? <BellRing size={16} /> : <Check size={16} />}
               <span style={{ fontSize: 13, fontWeight: 600 }}>
-                {stats.unread > 0 ? `${stats.unread} 条未读` : '暂无未读'}
+                {stats.unread > 0 ? `${stats.unread} 条未读` : t('notification.noUnread')}
               </span>
             </div>
             {stats.unread > 0 && (
@@ -1636,7 +1637,7 @@ export default function NotificationCenter() {
                   padding: '3px 8px', color: WHITE, fontSize: 12, cursor: 'pointer',
                 }}
               >
-                一键已读
+                {t('notification.markAllRead')}
               </button>
             )}
           </div>
@@ -1694,9 +1695,9 @@ export default function NotificationCenter() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : '#d97706' }} />
             <span style={{ fontSize: 12, color: realtimeConnected ? '#059669' : '#b45309', fontWeight: 500 }}>
-              {realtimeConnected ? '实时推送已连接' : '轮询兜底中 (30s)'}
+              {realtimeConnected ? t('notification.realtimeConnected') : t('notification.pollingFallback')}
             </span>
-            <button onClick={() => void loadData()} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} title="刷新">
+            <button onClick={() => void loadData()} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} title={t('notification.refresh')}>
               <RefreshCw size={14} color={GRAY} />
             </button>
             {!showDeliveryTracking && (
@@ -1710,28 +1711,28 @@ export default function NotificationCenter() {
           <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <BellRing size={14} />
-              浏览器推送管理
+              {t('notification.pushManagement')}
             </div>
             <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, wordBreak: 'break-all' }}>
-              {vapidPublicKey ? `VAPID: ${vapidPublicKey.slice(0, 24)}…` : 'VAPID 公钥获取中…'}
+              {vapidPublicKey ? `VAPID: ${vapidPublicKey.slice(0, 24)}…` : t('notification.vapidLoading')}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {pushSubscribed ? (
                 <button onClick={() => void handlePushUnsubscribe()} disabled={pushBusy}
                   style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #fecaca', background: 'var(--bg-card)', color: DANGER, fontSize: 12, cursor: 'pointer' }}>
-                  退订推送
+                  {t('notification.unsubscribePush')}
                 </button>
               ) : (
                 <button onClick={() => void handlePushSubscribe()} disabled={pushBusy || !vapidPublicKey}
                   style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, cursor: 'pointer' }}>
-                  订阅推送
+                  {t('notification.subscribePush')}
                 </button>
               )}
               {isAdmin && (
                 <button onClick={() => void handlePushSend()} disabled={pushBusy}
                   style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                   <Send size={14} />
-                  测试发送
+                  {t('notification.testSend')}
                 </button>
               )}
             </div>
@@ -1748,7 +1749,7 @@ export default function NotificationCenter() {
             }}
           >
             <Settings size={16} />
-            通知设置
+            {t('notification.settings')}
           </button>
           <button
             onClick={() => { setShowPreferences(!showPreferences); setShowSettings(false) }}
@@ -1761,7 +1762,7 @@ export default function NotificationCenter() {
             }}
           >
             <Bell size={16} />
-            用户偏好
+            {t('notification.preferences')}
           </button>
           {stats.total > 0 && (
             <button
@@ -1774,7 +1775,7 @@ export default function NotificationCenter() {
               }}
             >
               <Trash2 size={14} />
-              清理已读通知
+              {t('notification.clearRead')}
             </button>
           )}
         </div>
@@ -1796,7 +1797,7 @@ export default function NotificationCenter() {
               <input
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
-                placeholder="搜索通知标题、内容..."
+                placeholder={t('notification.searchPlaceholder')}
                 style={{ border: 'none', outline: 'none', fontSize: 13, background: 'transparent', width: 200 }}
               />
               {searchText && (
@@ -1823,7 +1824,7 @@ export default function NotificationCenter() {
                 }}
               >
                 <Send size={14} />
-                广播通知
+                {t('notification.broadcast')}
               </button>
             )}
             <button
@@ -1835,7 +1836,7 @@ export default function NotificationCenter() {
               }}
             >
               <BarChart3 size={14} />
-              配送追踪
+              {t('notification.deliveryTracking')}
             </button>
             <button
               onClick={() => { setShowDeliveryTracking(false); setShowPreferences(false); setShowSettings(!showSettings) }}
@@ -1846,7 +1847,7 @@ export default function NotificationCenter() {
               }}
             >
               <Zap size={14} />
-              规则引擎
+              {t('notification.ruleEngine')}
             </button>
             <button
               onClick={() => void loadData()}
@@ -1857,7 +1858,7 @@ export default function NotificationCenter() {
               }}
             >
               <RefreshCw size={14} />
-              刷新
+              {t('notification.refresh')}
             </button>
           </div>
         </div>
@@ -1875,11 +1876,11 @@ export default function NotificationCenter() {
               padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 10,
               border: '1px solid var(--border-color)',
             }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: GRAY }}>阅读状态:</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: GRAY }}>{t('notification.readStatus')}</span>
               {([
-                ['all', '全部', notifications.length],
-                ['unread', '未读', notifications.filter(n => n.status === 'unread').length],
-                ['read', '已读', notifications.filter(n => n.status === 'read').length],
+                ['all', t('notification.typeAll'), notifications.length],
+                ['unread', t('notification.unread'), notifications.filter(n => n.status === 'unread').length],
+                ['read', t('notification.read'), notifications.filter(n => n.status === 'read').length],
               ] as Array<[typeof readFilter, string, number]>).map(([key, label, count]) => (
                 <button
                   key={key}
@@ -1902,7 +1903,7 @@ export default function NotificationCenter() {
                   onChange={e => setGroupByRead(e.target.checked)}
                   style={{ cursor: 'pointer' }}
                 />
-                按已读/未读分组
+                {t('notification.groupByRead')}
               </label>
               {groupByRead && (
                 <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
@@ -1920,14 +1921,14 @@ export default function NotificationCenter() {
                 borderRadius: 10, border: '1px solid var(--border-color)',
               }}>
                 <Bell size={48} color="#e2e8f0" style={{ marginBottom: 12 }} />
-                <div style={{ fontSize: 14, color: GRAY }}>暂无通知</div>
+                <div style={{ fontSize: 14, color: GRAY }}>{t('notification.noNotifications')}</div>
               </div>
             ) : groupByRead ? (
               /* [v3.0.6.11-99 Wave10B] 已读/未读分组视图 */
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {([
-                  ['unread', '未读通知', DANGER],
-                  ['read', '已读通知', SUCCESS],
+                  ['unread', t('notification.groupUnread'), DANGER],
+                  ['read', t('notification.groupRead'), SUCCESS],
                 ] as Array<['unread' | 'read', string, string]>).map(([key, label, color]) => {
                   const items = filteredNotifications.filter(n => n.status === key)
                   if (items.length === 0) return null
@@ -1955,7 +1956,7 @@ export default function NotificationCenter() {
                               display: 'flex', alignItems: 'center', gap: 4,
                             }}
                           >
-                            <CheckCheck size={12} /> 全部已读
+                            <CheckCheck size={12} /> {t('notification.allRead')}
                           </button>
                         )}
                       </div>
@@ -2036,13 +2037,13 @@ export default function NotificationCenter() {
                   <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 16, marginBottom: 16 }}>
                     <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <BarChart3 size={16} />
-                      配送追踪
+                      {t('notification.deliveryTracking')}
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
                       {[
-                        { label: '已发送', value: deliveryStatuses.filter(d => d.sent).length, color: ACCENT },
-                        { label: '已送达', value: deliveryStatuses.filter(d => d.delivered).length, color: SUCCESS },
-                        { label: '已阅读', value: deliveryStatuses.filter(d => d.read).length, color: '#059669' },
+                        { label: t('notification.sent'), value: deliveryStatuses.filter(d => d.sent).length, color: ACCENT },
+                        { label: t('notification.delivered'), value: deliveryStatuses.filter(d => d.delivered).length, color: SUCCESS },
+                        { label: t('notification.readDone'), value: deliveryStatuses.filter(d => d.read).length, color: '#059669' },
                       ].map(s => (
                         <div key={s.label} style={{ textAlign: 'center', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
                           <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
@@ -2062,7 +2063,7 @@ export default function NotificationCenter() {
                             {!d.delivered && (
                               <button onClick={() => setDeliveryStatuses(prev => prev.map(x => x.notificationId === d.notificationId ? { ...x, retryCount: x.retryCount + 1, delivered: true } : x))}
                                 style={{ padding: '3px 8px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
-                                重试
+                                {t('notification.retry')}
                               </button>
                             )}
                           </div>
@@ -2092,30 +2093,30 @@ export default function NotificationCenter() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowBroadcast(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>广播通知</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('notification.broadcast')}</div>
               <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>标题 *</label>
-                <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder="通知标题"
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcTitle')} *</label>
+                <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder={t('notification.bcTitlePlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>内容 *</label>
-                <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder="通知内容"
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcContent')} *</label>
+                <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder={t('notification.bcContentPlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>类型</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcType')}</label>
                   <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
                     style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
                     {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>严重级别</label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcSeverity')}</label>
                   <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
                     style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
                     {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
@@ -2123,13 +2124,13 @@ export default function NotificationCenter() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>接收用户ID (逗号分隔, 留空=全部)</label>
-                <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder="如 admin,doctor01 (留空广播全部)"
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcUsers')}</label>
+                <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder={t('notification.bcUsersPlaceholder')}
                   style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer' }}>取消</button>
-                <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? '发送中...' : '发送广播'}</button>
+                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer' }}>{t('notification.cancel')}</button>
+                <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? t('notification.sendingBroadcast') : t('notification.sendBroadcast')}</button>
               </div>
             </div>
           </div>

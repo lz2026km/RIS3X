@@ -15,6 +15,7 @@ import {
   type DepartmentDto,
   type IntegrationStatusDto,
 } from "../services/api/regionalApi";
+import { t } from "../i18n/appI18n";
 
 // Types
 type AccessApplication = AccessApplicationDto;
@@ -43,7 +44,7 @@ const ApplicationList: React.FC = () => {
       try {
         const res = await regionalApi.listApplications();
         if (res.success && Array.isArray(res.data)) setApps(res.data);
-      } catch { message.error('加载申请列表失败'); }
+      } catch { message.error(t('regionalImaging.loadAppsFailed')); }
       finally { setLoading(false); }
     })();
   }, []);
@@ -53,9 +54,9 @@ const ApplicationList: React.FC = () => {
       const res = await regionalApi.createApplication(newApp);
       if (res.success) {
         setApps(prev => [...prev, res.data as AccessApplication]);
-        message.success('申请已提交');
+        message.success(t('regionalImaging.appSubmitted'));
       }
-    } catch { message.error('提交申请失败'); }
+    } catch { message.error(t('regionalImaging.submitAppFailed')); }
     setShowModal(false);
     setNewApp({ patientName: "", patientId: "", hospital: "东华区第一医院", modality: "CT", reason: "" });
   };
@@ -63,21 +64,21 @@ const ApplicationList: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>调阅申请列表</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.appList')}</h3>
         <button style={styles.primaryBtn} onClick={() => setShowModal(true)}>
-          + 发起调阅申请
+          + {t('regionalImaging.newApp')}
         </button>
       </div>
       <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
-            <th style={styles.th}>申请ID</th>
-            <th style={styles.th}>患者姓名</th>
-            <th style={styles.th}>患者ID</th>
-            <th style={styles.th}>来源医院</th>
-            <th style={styles.th}>检查类型</th>
-            <th style={styles.th}>申请日期</th>
-            <th style={styles.th}>状态</th>
+            <th style={styles.th}>{t('regionalImaging.appId')}</th>
+            <th style={styles.th}>{t('regionalImaging.patientName')}</th>
+            <th style={styles.th}>{t('regionalImaging.patientId')}</th>
+            <th style={styles.th}>{t('regionalImaging.hospital')}</th>
+            <th style={styles.th}>{t('regionalImaging.modality')}</th>
+            <th style={styles.th}>{t('regionalImaging.applyDate')}</th>
+            <th style={styles.th}>{t('regionalImaging.status')}</th>
           </tr>
         </thead>
         <tbody>
@@ -102,10 +103,10 @@ const ApplicationList: React.FC = () => {
                   }}
                 >
                   {app.status === "pending"
-                    ? "待审批"
+                    ? t('regionalImaging.statusPending')
                     : app.status === "approved"
-                      ? "已通过"
-                      : "已拒绝"}
+                      ? t('regionalImaging.statusApproved')
+                      : t('regionalImaging.statusRejected')}
                 </span>
               </td>
             </tr>
@@ -115,9 +116,9 @@ const ApplicationList: React.FC = () => {
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
-            <h4 style={styles.modalTitle}>发起调阅申请</h4>
+            <h4 style={styles.modalTitle}>{t('regionalImaging.newApp')}</h4>
             <div style={styles.formGroup}>
-              <label style={styles.label}>患者姓名</label>
+              <label style={styles.label}>{t('regionalImaging.patientName')}</label>
               <input
                 style={styles.input}
                 value={newApp.patientName}
@@ -127,7 +128,7 @@ const ApplicationList: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>身份证号</label>
+              <label style={styles.label}>{t('regionalImaging.idCard')}</label>
               <input
                 style={styles.input}
                 value={newApp.patientId}
@@ -137,7 +138,7 @@ const ApplicationList: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>来源医院</label>
+              <label style={styles.label}>{t('regionalImaging.hospital')}</label>
               <select
                 style={styles.select}
                 value={newApp.hospital}
@@ -151,7 +152,7 @@ const ApplicationList: React.FC = () => {
               </select>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>检查类型</label>
+              <label style={styles.label}>{t('regionalImaging.modality')}</label>
               <select
                 style={styles.select}
                 value={newApp.modality}
@@ -166,7 +167,7 @@ const ApplicationList: React.FC = () => {
               </select>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>申请理由</label>
+              <label style={styles.label}>{t('regionalImaging.reason')}</label>
               <textarea
                 style={styles.textarea}
                 value={newApp.reason}
@@ -180,10 +181,10 @@ const ApplicationList: React.FC = () => {
                 style={styles.cancelBtn}
                 onClick={() => setShowModal(false)}
               >
-                取消
+                {t('regionalImaging.cancel')}
               </button>
               <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
-                <Send size={14} />提交申请
+                <Send size={14} />{t('regionalImaging.submitApp')}
               </button>
             </div>
           </div>
@@ -202,7 +203,7 @@ const ReceiveList: React.FC = () => {
       try {
         const res = await regionalApi.listApplications();
         if (res.success && Array.isArray(res.data)) setApps(res.data);
-      } catch { message.error('加载接收列表失败'); }
+      } catch { message.error(t('regionalImaging.loadReceiveFailed')); }
       finally { setLoading(false); }
     })();
   }, []);
@@ -211,31 +212,31 @@ const ReceiveList: React.FC = () => {
     try {
       await regionalApi.approveApplication(id);
       setApps(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
-      message.success('已批准');
-    } catch { message.error('批准失败'); }
+      message.success(t('regionalImaging.approved'));
+    } catch { message.error(t('regionalImaging.approveFailed')); }
   };
   const handleReject = async (id: string) => {
     try {
       await regionalApi.rejectApplication(id);
       setApps(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
-      message.success('已拒绝');
-    } catch { message.error('拒绝失败'); }
+      message.success(t('regionalImaging.rejected'));
+    } catch { message.error(t('regionalImaging.rejectFailed')); }
   };
 
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>接收列表 - 待审批</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.receiveList')}</h3>
       </div>
       <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
-            <th style={styles.th}>申请ID</th>
-            <th style={styles.th}>患者姓名</th>
-            <th style={styles.th}>来源医院</th>
-            <th style={styles.th}>检查类型</th>
-            <th style={styles.th}>申请理由</th>
-            <th style={styles.th}>操作</th>
+            <th style={styles.th}>{t('regionalImaging.appId')}</th>
+            <th style={styles.th}>{t('regionalImaging.patientName')}</th>
+            <th style={styles.th}>{t('regionalImaging.hospital')}</th>
+            <th style={styles.th}>{t('regionalImaging.modality')}</th>
+            <th style={styles.th}>{t('regionalImaging.reason')}</th>
+            <th style={styles.th}>{t('regionalImaging.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -253,13 +254,13 @@ const ReceiveList: React.FC = () => {
                     style={styles.approveBtn}
                     onClick={() => handleApprove(app.id)}
                   >
-                    批准
+                    {t('regionalImaging.approve')}
                   </button>
                   <button
                     style={styles.rejectBtn}
                     onClick={() => handleReject(app.id)}
                   >
-                    拒绝
+                    {t('regionalImaging.reject')}
                   </button>
                 </td>
               </tr>
@@ -291,7 +292,7 @@ const ConsultationRequests: React.FC = () => {
       try {
         const res = await regionalApi.listConsultationRequests();
         if (res.success && Array.isArray(res.data)) setConsultations(res.data);
-      } catch { message.error('加载会诊请求失败'); }
+      } catch { message.error(t('regionalImaging.loadConsultsFailed')); }
       finally { setLoading(false); }
     })();
   }, []);
@@ -305,9 +306,9 @@ const ConsultationRequests: React.FC = () => {
       });
       if (res.success) {
         setConsultations(prev => [...prev, res.data as ConsultationRequest]);
-        message.success('会诊请求已提交');
+        message.success(t('regionalImaging.consultSubmitted'));
       }
-    } catch { message.error('提交会诊请求失败'); }
+    } catch { message.error(t('regionalImaging.submitConsultFailed')); }
     setShowModal(false);
     setNewCon({ patientName: "", hospital: "东华区第一医院", diagnosis: "", priority: "normal" });
   };
@@ -315,21 +316,21 @@ const ConsultationRequests: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>会诊请求</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.consultRequests')}</h3>
         <button style={styles.primaryBtn} onClick={() => setShowModal(true)}>
-          + 发起会诊
+          + {t('regionalImaging.newConsult')}
         </button>
       </div>
       <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
-            <th style={styles.th}>会诊ID</th>
-            <th style={styles.th}>患者姓名</th>
-            <th style={styles.th}>发起医院</th>
-            <th style={styles.th}>诊断</th>
-            <th style={styles.th}>优先级</th>
-            <th style={styles.th}>状态</th>
-            <th style={styles.th}>专家</th>
+            <th style={styles.th}>{t('regionalImaging.consultId')}</th>
+            <th style={styles.th}>{t('regionalImaging.patientName')}</th>
+            <th style={styles.th}>{t('regionalImaging.initHospital')}</th>
+            <th style={styles.th}>{t('regionalImaging.diagnosis')}</th>
+            <th style={styles.th}>{t('regionalImaging.priority')}</th>
+            <th style={styles.th}>{t('regionalImaging.status')}</th>
+            <th style={styles.th}>{t('regionalImaging.expert')}</th>
           </tr>
         </thead>
         <tbody>
@@ -352,10 +353,10 @@ const ConsultationRequests: React.FC = () => {
                   }}
                 >
                   {con.priority === "critical"
-                    ? "危急"
+                    ? t('regionalImaging.priorityCritical')
                     : con.priority === "urgent"
-                      ? "紧急"
-                      : "普通"}
+                      ? t('regionalImaging.priorityUrgent')
+                      : t('regionalImaging.priorityNormal')}
                 </span>
               </td>
               <td style={styles.td}>
@@ -371,10 +372,10 @@ const ConsultationRequests: React.FC = () => {
                   }}
                 >
                   {con.status === "completed"
-                    ? "已完成"
+                    ? t('regionalImaging.statusCompleted')
                     : con.status === "in-progress"
-                      ? "进行中"
-                      : "待接诊"}
+                      ? t('regionalImaging.statusInProgress')
+                      : t('regionalImaging.statusPendingAccept')}
                 </span>
               </td>
               <td style={styles.td}>{con.expert || "-"}</td>
@@ -385,9 +386,9 @@ const ConsultationRequests: React.FC = () => {
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
-            <h4 style={styles.modalTitle}>发起会诊请求</h4>
+            <h4 style={styles.modalTitle}>{t('regionalImaging.consultRequestTitle')}</h4>
             <div style={styles.formGroup}>
-              <label style={styles.label}>患者姓名</label>
+              <label style={styles.label}>{t('regionalImaging.patientName')}</label>
               <input
                 style={styles.input}
                 value={newCon.patientName}
@@ -397,7 +398,7 @@ const ConsultationRequests: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>发起医院</label>
+              <label style={styles.label}>{t('regionalImaging.initHospital')}</label>
               <select
                 style={styles.select}
                 value={newCon.hospital}
@@ -411,7 +412,7 @@ const ConsultationRequests: React.FC = () => {
               </select>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>初步诊断</label>
+              <label style={styles.label}>{t('regionalImaging.initialDiagnosis')}</label>
               <input
                 style={styles.input}
                 value={newCon.diagnosis}
@@ -421,7 +422,7 @@ const ConsultationRequests: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>优先级</label>
+              <label style={styles.label}>{t('regionalImaging.priority')}</label>
               <select
                 style={styles.select}
                 value={newCon.priority}
@@ -429,9 +430,9 @@ const ConsultationRequests: React.FC = () => {
                   setNewCon({ ...newCon, priority: e.target.value as any })
                 }
               >
-                <option value="normal">普通</option>
-                <option value="urgent">紧急</option>
-                <option value="critical">危急</option>
+                <option value="normal">{t('regionalImaging.priorityNormal')}</option>
+                <option value="urgent">{t('regionalImaging.priorityUrgent')}</option>
+                <option value="critical">{t('regionalImaging.priorityCritical')}</option>
               </select>
             </div>
             <div style={styles.modalActions}>
@@ -439,10 +440,10 @@ const ConsultationRequests: React.FC = () => {
                 style={styles.cancelBtn}
                 onClick={() => setShowModal(false)}
               >
-                取消
+                {t('regionalImaging.cancel')}
               </button>
               <button style={{ ...styles.primaryBtn, display: 'flex', alignItems: 'center', gap: 4 }} onClick={handleSubmit}>
-                <Send size={14} />提交
+                <Send size={14} />{t('regionalImaging.submit')}
               </button>
             </div>
           </div>
@@ -456,17 +457,17 @@ const DicomViewer: React.FC = () => {
   const [activeTool, setActiveTool] = useState("pan");
   const [activeImage, setActiveImage] = useState(0);
   const tools = [
-    { id: "pan", label: "平移" },
-    { id: "zoom", label: "缩放" },
-    { id: "window", label: "窗宽窗位" },
-    { id: "measure", label: "测量" },
-    { id: "annotate", label: "标注" },
+    { id: "pan", label: t('regionalImaging.toolPan') },
+    { id: "zoom", label: t('regionalImaging.toolZoom') },
+    { id: "window", label: t('regionalImaging.toolWindow') },
+    { id: "measure", label: t('regionalImaging.toolMeasure') },
+    { id: "annotate", label: t('regionalImaging.toolAnnotate') },
   ];
 
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>DICOM图像查看器</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.dicomViewer')}</h3>
         <div style={styles.toolbar}>
           {tools.map((tool) => (
             <button
@@ -523,7 +524,7 @@ const AccessRecords: React.FC = () => {
       try {
         const res = await regionalApi.listAccessRecords();
         if (res.success && Array.isArray(res.data)) setRecords(res.data);
-      } catch { message.error('加载调阅记录失败'); }
+      } catch { message.error(t('regionalImaging.loadRecordsFailed')); }
       finally { setLoading(false); }
     })();
   }, []);
@@ -531,19 +532,19 @@ const AccessRecords: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>调阅记录历史</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.recordHistory')}</h3>
       </div>
       <div style={{ overflowX: "auto" }}><table style={styles.table}>
         <thead>
           <tr style={styles.tableHeaderRow}>
-            <th style={styles.th}>记录ID</th>
-            <th style={styles.th}>患者姓名</th>
-            <th style={styles.th}>身份证号</th>
-            <th style={styles.th}>检查类型</th>
-            <th style={styles.th}>来源医院</th>
-            <th style={styles.th}>调阅时间</th>
-            <th style={styles.th}>调阅人</th>
-            <th style={styles.th}>调阅目的</th>
+            <th style={styles.th}>{t('regionalImaging.recordId')}</th>
+            <th style={styles.th}>{t('regionalImaging.patientName')}</th>
+            <th style={styles.th}>{t('regionalImaging.idCard')}</th>
+            <th style={styles.th}>{t('regionalImaging.modality')}</th>
+            <th style={styles.th}>{t('regionalImaging.hospital')}</th>
+            <th style={styles.th}>{t('regionalImaging.accessTime')}</th>
+            <th style={styles.th}>{t('regionalImaging.accessor')}</th>
+            <th style={styles.th}>{t('regionalImaging.purpose')}</th>
           </tr>
         </thead>
         <tbody>
@@ -585,7 +586,7 @@ const CrossInstitutionQuery: React.FC = () => {
           setInstitutions(res.data);
           if (res.data.length > 0) setSelectedInstitution(res.data[0]!.id);
         }
-      } catch { message.error('加载机构列表失败'); }
+      } catch { message.error(t('regionalImaging.loadInstitutionsFailed')); }
       finally { setLoading(false); }
     })();
   }, []);
@@ -601,7 +602,7 @@ const CrossInstitutionQuery: React.FC = () => {
         setResults(res.data);
         setQueried(true);
       }
-    } catch { message.error('跨院查询失败'); }
+    } catch { message.error(t('regionalImaging.crossQueryFailed')); }
   };
 
   const handleRetrieve = (_study: any) => {
@@ -622,7 +623,7 @@ const CrossInstitutionQuery: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>跨机构影像查询</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.crossQuery')}</h3>
       </div>
       <div
         style={{
@@ -650,7 +651,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 marginBottom: 4,
               }}
             >
-              目标PACS
+                {t('regionalImaging.targetPacs')}
             </label>
             <select
               style={{
@@ -682,7 +683,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 marginBottom: 4,
               }}
             >
-              查询条件
+                {t('regionalImaging.queryType')}
             </label>
             <select
               style={{
@@ -696,9 +697,9 @@ const CrossInstitutionQuery: React.FC = () => {
               value={queryType}
               onChange={(e) => setQueryType(e.target.value)}
             >
-              <option value="patientId">患者ID</option>
-              <option value="patientName">患者姓名</option>
-              <option value="accession">检查号</option>
+              <option value="patientId">{t('regionalImaging.patientId')}</option>
+              <option value="patientName">{t('regionalImaging.patientName')}</option>
+              <option value="accession">{t('regionalImaging.accession')}</option>
             </select>
           </div>
           <div style={{ flex: 1 }}>
@@ -710,7 +711,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 marginBottom: 4,
               }}
             >
-              查询值
+                {t('regionalImaging.queryValue')}
             </label>
             <input
               style={{
@@ -723,7 +724,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 fontSize: 13,
                 boxSizing: "border-box",
               }}
-              placeholder="输入查询值"
+              placeholder={t('regionalImaging.queryValuePlaceholder')}
               value={queryValue}
               onChange={(e) => setQueryValue(e.target.value)}
             />
@@ -741,7 +742,7 @@ const CrossInstitutionQuery: React.FC = () => {
               }}
               onClick={handleQuery}
             >
-              查询 (C-FIND)
+              {t('regionalImaging.queryCFind')}
             </button>
           </div>
         </div>
@@ -755,13 +756,13 @@ const CrossInstitutionQuery: React.FC = () => {
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr style={styles.tableHeaderRow}>
-                <th style={styles.th}>患者ID</th>
-                <th style={styles.th}>姓名</th>
-                <th style={styles.th}>检查描述</th>
-                <th style={styles.th}>设备</th>
-                <th style={styles.th}>日期</th>
-                <th style={styles.th}>状态</th>
-                <th style={styles.th}>操作</th>
+                <th style={styles.th}>{t('regionalImaging.patientId')}</th>
+                <th style={styles.th}>{t('regionalImaging.name')}</th>
+                <th style={styles.th}>{t('regionalImaging.studyDescription')}</th>
+                <th style={styles.th}>{t('regionalImaging.device')}</th>
+                <th style={styles.th}>{t('regionalImaging.date')}</th>
+                <th style={styles.th}>{t('regionalImaging.status')}</th>
+                <th style={styles.th}>{t('regionalImaging.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -780,7 +781,7 @@ const CrossInstitutionQuery: React.FC = () => {
                           r.status === "available" ? "#10b981" : "#6b7280",
                       }}
                     >
-                      {r.status === "available" ? "可检索" : "不可用"}
+                      {r.status === "available" ? t('regionalImaging.available') : t('regionalImaging.unavailable')}
                     </span>
                   </td>
                   <td style={styles.td}>
@@ -828,7 +829,7 @@ const CrossInstitutionQuery: React.FC = () => {
                         }}
                         onClick={() => handleRetrieve(r)}
                       >
-                        C-MOVE 检索
+                        {t('regionalImaging.cMoveRetrieve')}
                       </button>
                     )}
                   </td>
@@ -859,7 +860,7 @@ const XDSIntegration: React.FC = () => {
       try {
         const res = await regionalApi.listAuditTrail();
         if (res.success && Array.isArray(res.data)) setAuditTrail(res.data);
-      } catch { message.error('加载审计日志失败'); }
+      } catch { message.error(t('regionalImaging.loadAuditFailed')); }
       finally { setLoadingAudit(false); }
     })();
   }, []);
@@ -871,7 +872,7 @@ const XDSIntegration: React.FC = () => {
         setDocs(res.data.filter(d => patientId ? d.patientId.includes(patientId) : true));
         setQueried(true);
       }
-    } catch { message.error('查询文档注册库失败'); }
+    } catch { message.error(t('regionalImaging.registryQueryFailed')); }
   };
 
   const handlePixQuery = async () => {
@@ -880,18 +881,18 @@ const XDSIntegration: React.FC = () => {
       if (res.success && res.data) {
         setPixResult(res.data as { local: string; remote: string });
       }
-    } catch { message.error('PIX查询失败'); }
+    } catch { message.error(t('regionalImaging.pixQueryFailed')); }
   };
 
   const handleRetrieveDoc = (_doc: DocumentEntry) => {
     // [v3.0.6.11-92] xdsService 仅有 list/query/register 方法, 后端无 XDS.b Retrieve (ITI-43) 数据源
-    message.info("文档检索服务待接入 (XDS Retrieve 数据源未就绪)");
+    message.info(t('regionalImaging.retrievePending'));
   };
 
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>IHE XDS-I 跨文档共享</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.xdsTitle')}</h3>
       </div>
       <div
         style={{
@@ -910,7 +911,7 @@ const XDSIntegration: React.FC = () => {
             marginBottom: 12,
           }}
         >
-          文档注册库查询
+            {t('regionalImaging.registryQuery')}
         </div>
         <div
           style={{
@@ -929,7 +930,7 @@ const XDSIntegration: React.FC = () => {
                 marginBottom: 4,
               }}
             >
-              患者ID
+                {t('regionalImaging.patientId')}
             </label>
             <input
               style={{
@@ -944,7 +945,7 @@ const XDSIntegration: React.FC = () => {
               }}
               value={patientId}
               onChange={(e) => setPatientId(e.target.value)}
-              placeholder="输入患者ID"
+              placeholder={t('regionalImaging.patientIdPlaceholder')}
             />
           </div>
           <button
@@ -959,7 +960,7 @@ const XDSIntegration: React.FC = () => {
             }}
             onClick={handleQueryRegistry}
           >
-            查询注册库
+            {t('regionalImaging.queryRegistry')}
           </button>
           <button
             style={{
@@ -973,7 +974,7 @@ const XDSIntegration: React.FC = () => {
             }}
             onClick={handlePixQuery}
           >
-            PIX/PDQ 交叉索引
+            {t('regionalImaging.pixPq')}
           </button>
         </div>
         {pixResult && (
@@ -987,7 +988,7 @@ const XDSIntegration: React.FC = () => {
             }}
           >
             <div style={{ fontSize: 12, color: "#3b82f6", marginBottom: 8 }}>
-              Patient Identity Cross-Reference (PIX) 结果
+              {t('regionalImaging.pixResultTitle')}
             </div>
             <div style={{ fontSize: 13 }}>
               本地ID: {pixResult.local} → 远程ID:{" "}
@@ -1004,13 +1005,13 @@ const XDSIntegration: React.FC = () => {
           <div style={{ overflowX: "auto" }}><table style={styles.table}>
             <thead>
               <tr style={styles.tableHeaderRow}>
-                <th style={styles.th}>患者ID</th>
-                <th style={styles.th}>姓名</th>
-                <th style={styles.th}>检查描述</th>
-                <th style={styles.th}>设备</th>
-                <th style={styles.th}>来源机构</th>
-                <th style={styles.th}>日期</th>
-                <th style={styles.th}>操作</th>
+                <th style={styles.th}>{t('regionalImaging.patientId')}</th>
+                <th style={styles.th}>{t('regionalImaging.name')}</th>
+                <th style={styles.th}>{t('regionalImaging.studyDescription')}</th>
+                <th style={styles.th}>{t('regionalImaging.device')}</th>
+                <th style={styles.th}>{t('regionalImaging.sourceInstitution')}</th>
+                <th style={styles.th}>{t('regionalImaging.date')}</th>
+                <th style={styles.th}>{t('regionalImaging.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1035,7 +1036,7 @@ const XDSIntegration: React.FC = () => {
                       }}
                       onClick={() => handleRetrieveDoc(d)}
                     >
-                      检索文档
+                      {t('regionalImaging.retrieveDoc')}
                     </button>
                   </td>
                 </tr>
@@ -1060,17 +1061,17 @@ const XDSIntegration: React.FC = () => {
             marginBottom: 12,
           }}
         >
-          跨机构访问审计日志
+            {t('regionalImaging.auditLog')}
         </div>
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
-              <th style={styles.th}>患者ID</th>
-              <th style={styles.th}>操作</th>
-              <th style={styles.th}>机构</th>
-              <th style={styles.th}>用户</th>
-              <th style={styles.th}>时间</th>
-              <th style={styles.th}>详情</th>
+              <th style={styles.th}>{t('regionalImaging.patientId')}</th>
+              <th style={styles.th}>{t('regionalImaging.actions')}</th>
+              <th style={styles.th}>{t('regionalImaging.institution')}</th>
+              <th style={styles.th}>{t('regionalImaging.user')}</th>
+              <th style={styles.th}>{t('regionalImaging.time')}</th>
+              <th style={styles.th}>{t('regionalImaging.detail')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1112,7 +1113,7 @@ const RegionalSharing: React.FC = () => {
         const res = await regionalApi.listRegionalImaging();
         if (res.success) setItems(listFrom<RegionalImagingDto>(res));
       } catch {
-        message.error("加载区域影像失败");
+        message.error(t('regionalImaging.loadSharingFailed'));
       } finally {
         setLoading(false);
       }
@@ -1132,10 +1133,10 @@ const RegionalSharing: React.FC = () => {
             : (d as RegionalImagingDto | undefined);
         setDetail(item ?? null);
       } else {
-        message.error(res.error?.message ?? "加载详情失败");
+        message.error(res.error?.message ?? t('regionalImaging.loadDetailFailed'));
       }
     } catch {
-      message.error("加载详情失败");
+      message.error(t('regionalImaging.loadDetailFailed'));
     } finally {
       setDetailLoading(false);
     }
@@ -1144,26 +1145,26 @@ const RegionalSharing: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>区域影像共享</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.sharing')}</h3>
         <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
           医联体成员机构影像工作量与质量统计{loading ? " (加载中...)" : ` (${items.length} 条)`}
         </span>
       </div>
       {loading ? (
-        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>{t('regionalImaging.loading')}</div>
       ) : (
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
-              <th style={styles.th}>机构名称</th>
-              <th style={styles.th}>设备类型</th>
-              <th style={styles.th}>检查量</th>
-              <th style={styles.th}>阳性数</th>
-              <th style={styles.th}>阳性率</th>
-              <th style={styles.th}>平均报告时长(h)</th>
-              <th style={styles.th}>报告合格率</th>
-              <th style={styles.th}>统计周期</th>
-              <th style={styles.th}>操作</th>
+              <th style={styles.th}>{t('regionalImaging.institutionName')}</th>
+              <th style={styles.th}>{t('regionalImaging.modalityType')}</th>
+              <th style={styles.th}>{t('regionalImaging.examCount')}</th>
+              <th style={styles.th}>{t('regionalImaging.positiveCount')}</th>
+              <th style={styles.th}>{t('regionalImaging.positiveRate')}</th>
+              <th style={styles.th}>{t('regionalImaging.avgReportTime')}</th>
+              <th style={styles.th}>{t('regionalImaging.qualifiedRate')}</th>
+              <th style={styles.th}>{t('regionalImaging.period')}</th>
+              <th style={styles.th}>{t('regionalImaging.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1188,7 +1189,7 @@ const RegionalSharing: React.FC = () => {
                 <td style={styles.td}>{it.period}</td>
                 <td style={styles.td}>
                   <button style={styles.approveBtn} onClick={() => handleView(it.id)}>
-                    {detailLoading ? "加载中..." : "详情/调阅"}
+                    {detailLoading ? t('regionalImaging.loading') : t('regionalImaging.detailRetrieve')}
                   </button>
                 </td>
               </tr>
@@ -1196,7 +1197,7 @@ const RegionalSharing: React.FC = () => {
             {items.length === 0 && (
               <tr>
                 <td style={{ ...styles.td, textAlign: "center" }} colSpan={9}>
-                  暂无区域影像数据
+                  {t('regionalImaging.noSharingData')}
                 </td>
               </tr>
             )}
@@ -1208,33 +1209,33 @@ const RegionalSharing: React.FC = () => {
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h4 style={styles.modalTitle}>区域影像详情 — {detail.institutionName}</h4>
             <div style={styles.formGroup}>
-              <label style={styles.label}>机构ID</label>
+              <label style={styles.label}>{t('regionalImaging.institutionId')}</label>
               <div style={styles.td}>{detail.institutionId}</div>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>设备类型</label>
+              <label style={styles.label}>{t('regionalImaging.modalityType')}</label>
               <div style={styles.td}>{detail.modality}</div>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>检查量 / 阳性数</label>
+              <label style={styles.label}>{t('regionalImaging.examPositive')}</label>
               <div style={styles.td}>
                 {detail.examCount.toLocaleString()} 例 / {detail.positiveCount.toLocaleString()} 例 (阳性率 {detail.positiveRate.toFixed(1)}%)
               </div>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>平均报告时长</label>
+              <label style={styles.label}>{t('regionalImaging.avgReportTime')}</label>
               <div style={styles.td}>{detail.avgReportTime.toFixed(1)} 小时</div>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>报告合格率</label>
+              <label style={styles.label}>{t('regionalImaging.qualifiedRate')}</label>
               <div style={styles.td}>{detail.qualifiedRate.toFixed(1)}%</div>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>统计周期</label>
+              <label style={styles.label}>{t('regionalImaging.period')}</label>
               <div style={styles.td}>{detail.period}</div>
             </div>
             <div style={styles.modalActions}>
-              <button style={styles.primaryBtn} onClick={() => setDetail(null)}>关闭</button>
+              <button style={styles.primaryBtn} onClick={() => setDetail(null)}>{t('regionalImaging.close')}</button>
             </div>
           </div>
         </div>
@@ -1262,7 +1263,7 @@ const DepartmentSchedule: React.FC = () => {
         if (sRes.success) setSchedule(listFrom<DepartmentScheduleDto>(sRes));
         if (dRes.success) setDepartments(listFrom<DepartmentDto>(dRes));
       } catch {
-        message.error("加载排班失败");
+        message.error(t('regionalImaging.loadScheduleFailed'));
       } finally {
         setLoading(false);
       }
@@ -1283,12 +1284,12 @@ const DepartmentSchedule: React.FC = () => {
         setSchedule((prev) =>
           prev.map((s) => (s.id === editing.id ? (updated ?? { ...editing, ...editForm }) : s)),
         );
-        message.success("排班已更新");
+        message.success(t('regionalImaging.scheduleUpdated'));
       } else {
-        message.error(res.error?.message ?? "更新排班失败");
+        message.error(res.error?.message ?? t('regionalImaging.updateScheduleFailed'));
       }
     } catch {
-      message.error("更新排班失败");
+      message.error(t('regionalImaging.updateScheduleFailed'));
     }
     setEditing(null);
   };
@@ -1298,7 +1299,7 @@ const DepartmentSchedule: React.FC = () => {
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>科室排班</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.schedule')}</h3>
         <select
           style={styles.select}
           value={deptFilter}
@@ -1313,17 +1314,17 @@ const DepartmentSchedule: React.FC = () => {
         </select>
       </div>
       {loading ? (
-        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+        <div style={{ color: "var(--text-secondary)", padding: "24px 0", textAlign: "center" }}>{t('regionalImaging.loading')}</div>
       ) : (
         <div style={{ overflowX: "auto" }}><table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
-              <th style={styles.th}>日期</th>
-              <th style={styles.th}>科室</th>
-              <th style={styles.th}>班次</th>
-              <th style={styles.th}>医生</th>
-              <th style={styles.th}>状态</th>
-              <th style={styles.th}>操作</th>
+              <th style={styles.th}>{t('regionalImaging.date')}</th>
+              <th style={styles.th}>{t('regionalImaging.department')}</th>
+              <th style={styles.th}>{t('regionalImaging.shift')}</th>
+              <th style={styles.th}>{t('regionalImaging.doctor')}</th>
+              <th style={styles.th}>{t('regionalImaging.status')}</th>
+              <th style={styles.th}>{t('regionalImaging.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1344,14 +1345,14 @@ const DepartmentSchedule: React.FC = () => {
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <button style={styles.approveBtn} onClick={() => openEdit(s)}>编辑</button>
+                  <button style={styles.approveBtn} onClick={() => openEdit(s)}>{t('regionalImaging.edit')}</button>
                 </td>
               </tr>
             ))}
             {visible.length === 0 && (
               <tr>
                 <td style={{ ...styles.td, textAlign: "center" }} colSpan={6}>
-                  暂无排班数据
+                  {t('regionalImaging.noScheduleData')}
                 </td>
               </tr>
             )}
@@ -1363,20 +1364,20 @@ const DepartmentSchedule: React.FC = () => {
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h4 style={styles.modalTitle}>编辑排班 — {editing.departmentName} {editing.date}</h4>
             <div style={styles.formGroup}>
-              <label style={styles.label}>班次</label>
+              <label style={styles.label}>{t('regionalImaging.shift')}</label>
               <select
                 style={styles.select}
                 value={editForm.shift}
                 onChange={(e) => setEditForm({ ...editForm, shift: e.target.value })}
               >
-                <option>白班</option>
-                <option>夜班</option>
-                <option>中班</option>
-                <option>值班</option>
+                <option>{t('regionalImaging.shiftDay')}</option>
+                <option>{t('regionalImaging.shiftNight')}</option>
+                <option>{t('regionalImaging.shiftMid')}</option>
+                <option>{t('regionalImaging.shiftOnDuty')}</option>
               </select>
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>医生姓名</label>
+              <label style={styles.label}>{t('regionalImaging.doctorName')}</label>
               <input
                 style={styles.input}
                 value={editForm.doctorName}
@@ -1384,7 +1385,7 @@ const DepartmentSchedule: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>医生ID</label>
+              <label style={styles.label}>{t('regionalImaging.doctorId')}</label>
               <input
                 style={styles.input}
                 value={editForm.doctorId}
@@ -1392,20 +1393,20 @@ const DepartmentSchedule: React.FC = () => {
               />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>状态</label>
+              <label style={styles.label}>{t('regionalImaging.status')}</label>
               <select
                 style={styles.select}
                 value={editForm.status}
                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
               >
-                <option>已排班</option>
-                <option>待确认</option>
-                <option>停诊</option>
+                <option>{t('regionalImaging.statusScheduled')}</option>
+                <option>{t('regionalImaging.statusConfirming')}</option>
+                <option>{t('regionalImaging.statusClosed')}</option>
               </select>
             </div>
             <div style={styles.modalActions}>
-              <button style={styles.cancelBtn} onClick={() => setEditing(null)}>取消</button>
-              <button style={styles.primaryBtn} onClick={handleSave}><Save size={14} />保存</button>
+              <button style={styles.cancelBtn} onClick={() => setEditing(null)}>{t('regionalImaging.cancel')}</button>
+              <button style={styles.primaryBtn} onClick={handleSave}><Save size={14} />{t('regionalImaging.save')}</button>
             </div>
           </div>
         </div>
@@ -1433,7 +1434,7 @@ const IntegrationStatus: React.FC = () => {
         if (mllp.success && mllp.data) next.mllp = mllp.data as IntegrationStatusDto;
         setStatuses(next);
       } catch {
-        message.error("加载集成状态失败");
+        message.error(t('regionalImaging.loadIntegrationFailed'));
       } finally {
         setLoading(false);
       }
@@ -1441,9 +1442,9 @@ const IntegrationStatus: React.FC = () => {
   }, []);
 
   const defs = [
-    { key: "fhir", name: "FHIR 集成", desc: "HL7 FHIR R4 资源互操作" },
-    { key: "ihe", name: "IHE XDS-I", desc: "跨机构文档共享注册 (XDS-I)" },
-    { key: "mllp", name: "HL7 MLLP", desc: "HL7 v2 消息网关" },
+    { key: "fhir", name: t('regionalImaging.integFhir'), desc: t('regionalImaging.integFhirDesc') },
+    { key: "ihe", name: t('regionalImaging.integIhe'), desc: t('regionalImaging.integIheDesc') },
+    { key: "mllp", name: t('regionalImaging.integMllp'), desc: t('regionalImaging.integMllpDesc') },
   ];
 
   const statusColor = (st: string | undefined): string => {
@@ -1454,15 +1455,15 @@ const IntegrationStatus: React.FC = () => {
   };
   const statusLabel = (st: string | undefined): string => {
     const s = (st ?? "").toUpperCase();
-    if (s === "CONNECTED" || s === "ACTIVE" || s === "ONLINE") return "正常";
-    if (s === "DEGRADED" || s === "RETRY") return "降级";
-    return st || "未知";
+    if (s === "CONNECTED" || s === "ACTIVE" || s === "ONLINE") return t('regionalImaging.statusNormal');
+    if (s === "DEGRADED" || s === "RETRY") return t('regionalImaging.statusDegraded');
+    return st || t('regionalImaging.statusUnknown');
   };
 
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
-        <h3 style={styles.sectionTitle}>区域集成状态</h3>
+        <h3 style={styles.sectionTitle}>{t('regionalImaging.integrationStatus')}</h3>
         <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
           FHIR / IHE XDS-I / HL7 MLLP 通道健康检查{loading ? " (加载中...)" : ""}
         </span>
@@ -1512,16 +1513,16 @@ const RegionalImagingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("applications");
 
   const tabs = [
-    { id: "applications", label: "申请列表" },
-    { id: "received", label: "接收列表" },
-    { id: "consultations", label: "会诊请求" },
-    { id: "viewer", label: "图像查看" },
-    { id: "records", label: "调阅记录" },
-    { id: "crossQuery", label: "跨院查询" },
-    { id: "xdsi", label: "XDS-I集成" },
-    { id: "sharing", label: "影像共享" },
-    { id: "schedule", label: "科室排班" },
-    { id: "integration", label: "集成状态" },
+    { id: "applications", label: t('regionalImaging.tabApplications') },
+    { id: "received", label: t('regionalImaging.tabReceived') },
+    { id: "consultations", label: t('regionalImaging.tabConsultations') },
+    { id: "viewer", label: t('regionalImaging.tabViewer') },
+    { id: "records", label: t('regionalImaging.tabRecords') },
+    { id: "crossQuery", label: t('regionalImaging.tabCrossQuery') },
+    { id: "xdsi", label: t('regionalImaging.tabXdsi') },
+    { id: "sharing", label: t('regionalImaging.tabSharing') },
+    { id: "schedule", label: t('regionalImaging.tabSchedule') },
+    { id: "integration", label: t('regionalImaging.tabIntegration') },
   ];
 
   const renderContent = () => {
@@ -1554,7 +1555,7 @@ const RegionalImagingPage: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.pageTitle}>区域影像协同平台</h2>
+        <h2 style={styles.pageTitle}>{t('regionalImaging.pageTitle')}</h2>
         <p style={styles.subtitle}>
           东华区第一医院 · 国家医学中心直属医院 · 青浦区分院 · 跨机构查询 · IHE
           XDS-I

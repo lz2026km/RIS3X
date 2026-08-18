@@ -5,6 +5,7 @@ import { followupApi, type FollowUpPlan, type FollowUpStats } from '../services/
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
+import { t } from '../i18n/appI18n';
 
 interface FollowUpPatient {
   id: string;
@@ -109,7 +110,7 @@ export default function FollowUpPage() {
         setDataSource('real');
         return true;
       } else {
-        throw new Error(res.error?.message ?? '加载失败');
+        throw new Error(res.error?.message ?? t('followUp.loadFailed'));
       }
     } catch (err) {
       // [v3.0.6.11-99 Wave3B] 演示回退: 接口不可用 → 内置种子 + 徽标
@@ -175,7 +176,7 @@ export default function FollowUpPage() {
 
   const handleFromExam = async () => {
     if (!fromExamForm.examId.trim()) {
-      setLoadError('请填写检查ID');
+      setLoadError(t('followUp.fillExamId'));
       return;
     }
     setFromExamBusy(true);
@@ -187,10 +188,10 @@ export default function FollowUpPage() {
         setShowFromExamModal(false);
         void loadFollowUps();
       } else {
-        setLoadError(res.error?.message ?? '检查联动失败');
+        setLoadError(res.error?.message ?? t('followUp.examLinkFail'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '检查联动失败');
+      setLoadError((err as Error)?.message ?? t('followUp.examLinkFail'));
     } finally {
       setFromExamBusy(false);
     }
@@ -212,7 +213,7 @@ export default function FollowUpPage() {
   const handleEditPlan = async () => {
     if (!editPlan) return;
     if (!editForm.patientName.trim() || !editForm.planDate) {
-      setLoadError('请填写患者姓名与随访日期');
+      setLoadError(t('followUp.fillPatientInfo'));
       return;
     }
     setEditBusy(true);
@@ -238,10 +239,10 @@ export default function FollowUpPage() {
         setEditPlan(null);
         void loadFollowUps();
       } else {
-        setLoadError(res.error?.message ?? '保存失败');
+        setLoadError(res.error?.message ?? t('followUp.saveFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '保存失败');
+      setLoadError((err as Error)?.message ?? t('followUp.saveFailed'));
     } finally {
       setEditBusy(false);
     }
@@ -265,9 +266,9 @@ export default function FollowUpPage() {
     try {
       const res = await followupTemplatesApi.list();
       if (res.success) setTemplates(res.data.data);
-      else setTplError(res.error?.message ?? '模板加载失败');
+      else setTplError(res.error?.message ?? t('followUp.templateLoadFailed'));
     } catch (err) {
-      setTplError((err as Error)?.message ?? '模板加载失败');
+      setTplError((err as Error)?.message ?? t('followUp.templateLoadFailed'));
     } finally {
       setTplLoading(false);
     }
@@ -444,10 +445,10 @@ export default function FollowUpPage() {
           item.id === id ? { ...item, status: '已完成' as const } : item
         ));
       } else {
-        setLoadError(res.error?.message ?? '操作失败');
+        setLoadError(res.error?.message ?? t('followUp.operationFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '操作失败');
+      setLoadError((err as Error)?.message ?? t('followUp.operationFailed'));
     }
     setShowModal(false);
     setSelectedPatient(null);
@@ -461,10 +462,10 @@ export default function FollowUpPage() {
         setFollowUpList(list => list.map(p => p.id === item.id ? { ...p, status: '已提醒' as const } : p));
         setLoadError(null);
       } else {
-        setLoadError(res.error?.message ?? '提醒失败');
+        setLoadError(res.error?.message ?? t('followUp.remindFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '提醒失败');
+      setLoadError((err as Error)?.message ?? t('followUp.remindFailed'));
     }
   };
 
@@ -472,17 +473,17 @@ export default function FollowUpPage() {
   const handleMiss = async (item: FollowUpPatient) => {
     const reason = window.prompt(`标记患者「${item.patientName}」失访，请填写失访原因：`, '电话无法接通');
     if (reason === null) return;
-    if (!reason.trim()) { setLoadError('请填写失访原因'); return; }
+    if (!reason.trim()) { setLoadError(t('followUp.fillMissReason')); return; }
     try {
       const res = await followupApi.miss(item.id, reason.trim());
       if (res.success) {
         setFollowUpList(list => list.map(p => p.id === item.id ? { ...p, status: '已失访' as const, reason } : p));
         setLoadError(null);
       } else {
-        setLoadError(res.error?.message ?? '标记失访失败');
+        setLoadError(res.error?.message ?? t('followUp.missFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '标记失访失败');
+      setLoadError((err as Error)?.message ?? t('followUp.missFailed'));
     }
   };
 
@@ -490,17 +491,17 @@ export default function FollowUpPage() {
   const handleCancel = async (item: FollowUpPatient) => {
     const reason = window.prompt(`取消患者「${item.patientName}」的随访计划，请填写取消原因：`, '患者拒绝随访');
     if (reason === null) return;
-    if (!reason.trim()) { setLoadError('请填写取消原因'); return; }
+    if (!reason.trim()) { setLoadError(t('followUp.fillCancelReason')); return; }
     try {
       const res = await followupApi.cancel(item.id, reason.trim());
       if (res.success) {
         setFollowUpList(list => list.map(p => p.id === item.id ? { ...p, status: '已取消' as const, reason } : p));
         setLoadError(null);
       } else {
-        setLoadError(res.error?.message ?? '取消失败');
+        setLoadError(res.error?.message ?? t('followUp.cancelFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '取消失败');
+      setLoadError((err as Error)?.message ?? t('followUp.cancelFailed'));
     }
   };
 
@@ -512,10 +513,10 @@ export default function FollowUpPage() {
         setFollowUpList(list => list.map(p => p.id === item.id ? { ...p, status: '进行中' as const } : p));
         setLoadError(null);
       } else {
-        setLoadError(res.error?.message ?? '操作失败');
+        setLoadError(res.error?.message ?? t('followUp.operationFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '操作失败');
+      setLoadError((err as Error)?.message ?? t('followUp.operationFailed'));
     }
   };
 
@@ -527,17 +528,17 @@ export default function FollowUpPage() {
       if (res.success) {
         setFollowUpList(list => list.filter(p => p.id !== item.id));
       } else {
-        setLoadError(res.error?.message ?? '删除失败');
+        setLoadError(res.error?.message ?? t('followUp.deleteFailed'));
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '删除失败');
+      setLoadError((err as Error)?.message ?? t('followUp.deleteFailed'));
     }
   };
 
   // [W4-B] 新建随访计划 → POST /followups
   const handleCreate = async () => {
     if (!newPlan.patientId || !newPlan.patientName || !newPlan.planDate) {
-      setLoadError('请填写患者ID、姓名与随访日期');
+      setLoadError(t('followUp.fillPatientFields'));
       return;
     }
     setSaving(true);
@@ -559,7 +560,7 @@ export default function FollowUpPage() {
         setLoadError(null);
       }
     } catch (err) {
-      setLoadError((err as Error)?.message ?? '创建失败');
+      setLoadError((err as Error)?.message ?? t('followUp.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -567,25 +568,25 @@ export default function FollowUpPage() {
 
   // [v3.0.6.11-99 Wave3B] 模板 CRUD
   const saveTemplate = async () => {
-    if (!tplForm.name.trim()) { setTplError('请填写模板名称'); return; }
+    if (!tplForm.name.trim()) { setTplError(t('followUp.fillTemplateName')); return; }
     const intervals = tplForm.intervals.split(/[,，\s]+/).map(n => Number(n)).filter(n => Number.isFinite(n) && n > 0);
-    if (intervals.length === 0) { setTplError('请至少填写一个间隔天数'); return; }
+    if (intervals.length === 0) { setTplError(t('followUp.fillIntervalDays')); return; }
     const items = tplForm.items.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean);
     setTplLoading(true);
     setTplError(null);
     try {
       if (tplEditing && tplForm.id) {
         const res = await followupTemplatesApi.update(tplForm.id, { name: tplForm.name.trim(), category: tplForm.category, intervals, items, active: tplForm.active });
-        if (!res.success) { setTplError(res.error?.message ?? '保存失败'); setTplLoading(false); return; }
+        if (!res.success) { setTplError(res.error?.message ?? t('followUp.saveFailed')); setTplLoading(false); return; }
       } else {
         const res = await followupTemplatesApi.create({ name: tplForm.name.trim(), category: tplForm.category, intervals, items, active: tplForm.active });
-        if (!res.success) { setTplError(res.error?.message ?? '保存失败'); setTplLoading(false); return; }
+        if (!res.success) { setTplError(res.error?.message ?? t('followUp.saveFailed')); setTplLoading(false); return; }
       }
       setTplForm({ name: '', category: '病种', intervals: '30,90,180', items: '', active: true });
       setTplEditing(false);
       await loadTemplates();
     } catch (err) {
-      setTplError((err as Error)?.message ?? '保存失败');
+      setTplError((err as Error)?.message ?? t('followUp.saveFailed'));
       setTplLoading(false);
     }
   };
@@ -603,10 +604,10 @@ export default function FollowUpPage() {
         setTemplates(list => list.filter(x => x.id !== t.id));
         if (tplForm.id === t.id) { setTplForm({ name: '', category: '病种', intervals: '30,90,180', items: '', active: true }); setTplEditing(false); }
       } else {
-        setTplError(res.error?.message ?? '删除失败');
+        setTplError(res.error?.message ?? t('followUp.deleteFailed'));
       }
     } catch (err) {
-      setTplError((err as Error)?.message ?? '删除失败');
+      setTplError((err as Error)?.message ?? t('followUp.deleteFailed'));
     }
   };
 
@@ -614,7 +615,7 @@ export default function FollowUpPage() {
   const applyTemplate = async () => {
     if (!tplApply) return;
     if (!tplApplyForm.patientId || !tplApplyForm.patientName || !tplApplyForm.planDate) {
-      setTplError('请填写患者ID、姓名与随访日期');
+      setTplError(t('followUp.fillPatientFields'));
       return;
     }
     setTplLoading(true);
@@ -631,10 +632,10 @@ export default function FollowUpPage() {
         setTplApplyForm({ patientId: '', patientName: '', planDate: new Date().toISOString().slice(0, 10) });
         void loadFollowUps();
       } else {
-        setTplError(res.error?.message ?? '应用失败');
+        setTplError(res.error?.message ?? t('followUp.applyFailed'));
       }
     } catch (err) {
-      setTplError((err as Error)?.message ?? '应用失败');
+      setTplError((err as Error)?.message ?? t('followUp.applyFailed'));
     } finally {
       setTplLoading(false);
     }
@@ -864,8 +865,8 @@ export default function FollowUpPage() {
     <div style={pageStyle}>
       <div style={headerStyle}>
         <div>
-          <h1 style={titleStyle}>放射科随访管理</h1>
-          <p style={subtitleStyle}>CT/MRI增强复查、对比剂反应随访、肿瘤影像跟踪 · 闭环状态机 + 模板库</p>
+          <h1 style={titleStyle}>{t('followUp.title')}</h1>
+          <p style={subtitleStyle}>{t('followUp.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {/* [v3.0.6.11-99 Wave3B] 数据源徽标 (真实/演示回退) */}
@@ -875,7 +876,7 @@ export default function FollowUpPage() {
             color: dataSource === 'real' ? '#059669' : '#d97706',
             border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
           }}>
-            {dataSource === 'real' ? '真实数据' : '演示回退'}
+            {dataSource === 'real' ? t('followUp.realData') : t('followUp.demoFallback')}
           </span>
           {/* [v3.0.6.11-103 Wave 1B] 报告→随访触发模式 (GET /followup-trigger-rules/mode) */}
           <span style={{
@@ -884,13 +885,13 @@ export default function FollowUpPage() {
             color: triggerMode === 'auto' ? '#1677ff' : '#64748b',
             border: `1px solid ${triggerMode === 'auto' ? '#93c5fd' : '#e2e8f0'}`,
           }} data-testid="followup-trigger-mode">
-            触发模式: {triggerMode === 'auto' ? '自动创建' : triggerMode === 'hint' ? '仅提示' : '—'}
+            {t('followUp.triggerMode')}: {triggerMode === 'auto' ? t('followUp.autoCreate') : triggerMode === 'hint' ? t('followUp.hintOnly') : '—'}
           </span>
           <button style={{ ...buttonStyle, backgroundColor: '#1677ff' }} onClick={() => void openFromExam()}>
-            <Calendar size={14} /> 检查联动
+            <Calendar size={14} /> {t('followUp.examLink')}
           </button>
           <button style={{ ...buttonStyle, backgroundColor: '#722ed1' }} onClick={openTemplates}>
-            <LayoutTemplate size={14} /> 随访模板
+            <LayoutTemplate size={14} /> {t('followUp.templates')}
           </button>
         </div>
       </div>
@@ -899,35 +900,35 @@ export default function FollowUpPage() {
       <div style={statsContainerStyle}>
         <div style={statCardStyle}>
           <div style={statValueStyle}>{displayStats.total}</div>
-          <div style={statLabelStyle}>总随访数</div>
+          <div style={statLabelStyle}>{t('followUp.totalCount')}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#52c41a' }}>{displayStats.completionRate}%</div>
-          <div style={statLabelStyle}>完成率 ({displayStats.completed})</div>
+          <div style={statLabelStyle}>{t('followUp.completionRate', { count: displayStats.completed })}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#ff4d4f' }}>{displayStats.missRate}%</div>
-          <div style={statLabelStyle}>失访率 ({displayStats.missed})</div>
+          <div style={statLabelStyle}>{t('followUp.missRate', { count: displayStats.missed })}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#ff4d4f' }}>{displayStats.abnormalRate}%</div>
-          <div style={statLabelStyle}>异常率·逾期 ({displayStats.overdue})</div>
+          <div style={statLabelStyle}>{t('followUp.abnormalRate', { count: displayStats.overdue })}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#faad14' }}>{displayStats.pending}</div>
-          <div style={statLabelStyle}>待随访</div>
+          <div style={statLabelStyle}>{t('followUp.statusPending')}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#1677ff' }}>{displayStats.reminded}</div>
-          <div style={statLabelStyle}>已提醒</div>
+          <div style={statLabelStyle}>{t('followUp.statusReminded')}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#1890ff' }}>{displayStats.inProgress}</div>
-          <div style={statLabelStyle}>进行中</div>
+          <div style={statLabelStyle}>{t('followUp.statusInProgress')}</div>
         </div>
         <div style={statCardStyle}>
           <div style={{ ...statValueStyle, color: '#52c41a' }}>{displayStats.completed}</div>
-          <div style={statLabelStyle}>已完成</div>
+          <div style={statLabelStyle}>{t('followUp.statusCompleted')}</div>
         </div>
       </div>
 
@@ -936,7 +937,7 @@ export default function FollowUpPage() {
         {/* 近 6 月随访趋势 */}
         <div style={{ ...statCardStyle }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Calendar size={14} /> 随访月度趋势 (byMonth)
+            <Calendar size={14} /> {t('followUp.monthlyTrend')}
           </div>
           {(() => {
             const byMonth: Array<{ month: string; total: number; completed: number; missed: number }> = (displayStats.byMonth ?? []).length > 0
@@ -956,7 +957,7 @@ export default function FollowUpPage() {
                 })()
             const maxTotal = Math.max(1, ...byMonth.map(b => b.total))
             return byMonth.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>暂无趋势数据</div>
+              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noTrendData')}</div>
             ) : (
               <div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 110 }}>
@@ -968,7 +969,7 @@ export default function FollowUpPage() {
                         height: `${(b.total / maxTotal) * 80}px`, minHeight: 5,
                         background: 'linear-gradient(180deg, #1890ff, #69c0ff)',
                       }} title={`${b.month}: 共 ${b.total} · 完成 ${b.completed}`} />
-                      <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{b.month.slice(5)}月</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{b.month.slice(5)}{t('followUp.monthSuffix')}</span>
                     </div>
                   ))}
                 </div>
@@ -983,7 +984,7 @@ export default function FollowUpPage() {
         {/* 类别分布 */}
         <div style={{ ...statCardStyle }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <LayoutTemplate size={14} /> 随访类别分布 (byCategory)
+            <LayoutTemplate size={14} /> {t('followUp.categoryDist')}
           </div>
           {(() => {
             const cats: Array<{ category: string; count: number }> = (displayStats.byCategory ?? []).length > 0
@@ -999,7 +1000,7 @@ export default function FollowUpPage() {
             const maxCat = Math.max(1, ...cats.map(c => c.count))
             const colors = ['#1890ff', '#722ed1', '#52c41a', '#fa8c16', '#eb2f96', '#13c2c2']
             return cats.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>暂无分类数据</div>
+              <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noCategoryData')}</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {cats.slice(0, 6).map((c, i) => (
@@ -1024,12 +1025,12 @@ export default function FollowUpPage() {
         {/* 即将到期清单 */}
         <div style={{ ...statCardStyle }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <BellRing size={14} /> 即将到期 (7 日内)
+            <BellRing size={14} /> {t('followUp.dueSoon')}
           </div>
           {dueList.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               <CheckCircle size={26} color="#52c41a" />
-              未来 7 天无到期随访
+              {t('followUp.noDueIn7Days')}
             </div>
           ) : (
             <div style={{ maxHeight: 190, overflowY: 'auto' }}>
@@ -1044,19 +1045,19 @@ export default function FollowUpPage() {
                   </span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{String(p.nextDate || '').slice(5)}</span>
                   <span style={{ fontSize: 11, color: p.status === 'OVERDUE' ? '#ff4d4f' : '#faad14', fontWeight: 600 }}>
-                    {p.status === 'OVERDUE' ? '已逾期' : '待随访'}
+                    {p.status === 'OVERDUE' ? t('followUp.statusOverdue') : t('followUp.statusPending')}
                   </span>
                 </div>
               ))}
               {dueList.length > 8 && (
                 <div style={{ textAlign: 'center', padding: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
-                  另有 {dueList.length - 8} 项…
+                  {t('followUp.moreItems', { count: dueList.length - 8 })}
                 </div>
               )}
             </div>
           )}
           <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
-            <Bell size={11} style={{ verticalAlign: 'text-bottom' }} /> 到期提醒由 followupApi.due(7) 实时获取
+            <Bell size={11} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.dueHint')}
           </div>
         </div>
       </div>
@@ -1064,13 +1065,13 @@ export default function FollowUpPage() {
       <div style={searchBarStyle}>
         <input
           type="text"
-          placeholder="搜索患者姓名或ID..."
+          placeholder={t('followUp.searchPlaceholder')}
           value={searchKeyword}
           onChange={e => setSearchKeyword(e.target.value)}
           style={inputStyle}
         />
-        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}><RotateCcw size={14} /> 重置</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}><Plus size={14} /> 新增随访</button>
+        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}><RotateCcw size={14} /> {t('followUp.reset')}</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}><Plus size={14} /> {t('followUp.create')}</button>
       </div>
 
       {/* [W4-B] 到期提醒横幅 (GET /followups/due?days=7) */}
@@ -1080,7 +1081,7 @@ export default function FollowUpPage() {
           backgroundColor: '#f9731622', border: '1px solid #ffd591',
           fontSize: '13px', color: '#ad6800'
         }}>
-          <strong><BellRing size={14} style={{ verticalAlign: 'text-bottom' }} /> 即将到期 ({dueList.length})：</strong>
+          <strong><BellRing size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.dueBanner', { count: dueList.length })}</strong>
           {dueList.slice(0, 5).map(p => `${p.patientName}(${p.nextDate.slice(0, 10)})`).join('、')}
           {dueList.length > 5 && ` 等${dueList.length}项`}
         </div>
@@ -1089,7 +1090,7 @@ export default function FollowUpPage() {
       {/* [W4-B] loading / error */}
       {loading && (
         <div style={{ marginBottom: '16px', padding: '16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px' }}>
-          <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> 加载随访计划中...
+          <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.loading')}
         </div>
       )}
       {loadError && !loading && (
@@ -1105,14 +1106,14 @@ export default function FollowUpPage() {
       {/* [v3.0.6.11-99 Wave10B] 状态筛选 Tab: 全部/待随访/逾期/已提醒/进行中/已完成/已失访/已取消 */}
       <div style={tabContainerStyle}>
         {([
-          ['all', '全部', displayStats.total],
-          ['pending', '待随访', displayStats.pending],
-          ['reminded', '已提醒', displayStats.reminded],
-          ['inprogress', '进行中', displayStats.inProgress],
-          ['completed', '已完成', displayStats.completed],
-          ['overdue', '逾期', displayStats.overdue],
-          ['missed', '已失访', displayStats.missed],
-          ['cancelled', '已取消', displayStats.cancelled],
+          ['all', t('followUp.tabAll'), displayStats.total],
+          ['pending', t('followUp.statusPending'), displayStats.pending],
+          ['reminded', t('followUp.statusReminded'), displayStats.reminded],
+          ['inprogress', t('followUp.statusInProgress'), displayStats.inProgress],
+          ['completed', t('followUp.statusCompleted'), displayStats.completed],
+          ['overdue', t('followUp.statusOverdue'), displayStats.overdue],
+          ['missed', t('followUp.statusMissed'), displayStats.missed],
+          ['cancelled', t('followUp.statusCancelled'), displayStats.cancelled],
         ] as Array<[typeof activeTab, string, number]>).map(([key, label, count]) => (
           <button key={key} style={tabStyle(activeTab === key)} onClick={() => setActiveTab(key)}>
             {label} ({count})
@@ -1123,9 +1124,9 @@ export default function FollowUpPage() {
       {/* [v3.0.6.11-99 Wave10B] 视图切换: 列表 / 日历 / 按患者分组 */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         {([
-          ['list', '列表视图'],
-          ['calendar', '日历视图'],
-          ['grouped', '按患者分组'],
+          ['list', t('followUp.viewList')],
+          ['calendar', t('followUp.viewCalendar')],
+          ['grouped', t('followUp.viewGrouped')],
         ] as Array<['list' | 'calendar' | 'grouped', string]>).map(([key, label]) => (
           <button
             key={key}
@@ -1141,7 +1142,7 @@ export default function FollowUpPage() {
           </button>
         ))}
         <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
-          共 {filteredList.length} 条 · 患者 {groupedByPatient.length} 人
+          {t('followUp.listSummary', { count: filteredList.length, patients: groupedByPatient.length })}
         </span>
       </div>
 
@@ -1149,7 +1150,7 @@ export default function FollowUpPage() {
       {viewMode === 'calendar' && (
         <div style={{ ...tableStyle, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a' }}>随访计划日历 · {calendarMonth}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a' }}>{t('followUp.calendarTitle', { month: calendarMonth })}</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 style={actionButtonStyle}
@@ -1159,7 +1160,7 @@ export default function FollowUpPage() {
                   setCalendarMonth(d.toISOString().slice(0, 7))
                 }}
               >
-                上月
+                {t('followUp.prevMonth')}
               </button>
               <button
                 style={actionButtonStyle}
@@ -1169,16 +1170,16 @@ export default function FollowUpPage() {
                   setCalendarMonth(d.toISOString().slice(0, 7))
                 }}
               >
-                下月
+                {t('followUp.nextMonth')}
               </button>
             </div>
           </div>
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6,
           }}>
-            {['一', '二', '三', '四', '五', '六', '日'].map(w => (
+            {['followUp.weekMon', 'followUp.weekTue', 'followUp.weekWed', 'followUp.weekThu', 'followUp.weekFri', 'followUp.weekSat', 'followUp.weekSun'].map(w => (
               <div key={w} style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', padding: '6px 0' }}>
-                {w}
+                {t(w)}
               </div>
             ))}
             {(() => {
@@ -1226,7 +1227,7 @@ export default function FollowUpPage() {
                             </span>
                           ))}
                           {plans.length > 3 && (
-                            <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>+{plans.length - 3} 项</span>
+                            <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>+{plans.length - 3} {t('followUp.itemSuffix')}</span>
                           )}
                         </div>
                       </>
@@ -1254,7 +1255,7 @@ export default function FollowUpPage() {
       {viewMode === 'grouped' && (
         <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
           {groupedByPatient.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 13 }}>暂无匹配的随访计划</div>
+            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 13 }}>{t('followUp.noMatchPlans')}</div>
           )}
           {groupedByPatient.map(g => {
             const expanded = expandedPatients.has(g.patientId)
@@ -1286,7 +1287,7 @@ export default function FollowUpPage() {
                       </span>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {g.items.length} 条计划 · 已完成 {completedCount} · 最近随访 {String(latest?.nextFollowUpDate || '').slice(0, 10)}
+                      {t('followUp.groupSummary', { count: g.items.length, completed: completedCount, recent: String(latest?.nextFollowUpDate || '').slice(0, 10) })}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1317,11 +1318,11 @@ export default function FollowUpPage() {
                       }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
-                            {item.notes || item.followUpType || '随访计划'}
+                            {item.notes || item.followUpType || t('followUp.planLabel')}
                             {item.examType && <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{item.examType}</span>}
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                            检查 {item.examDate} → 随访 {item.nextFollowUpDate}{item.intervalDays ? ` · 间隔 ${item.intervalDays} 天` : ''}
+                            {t('followUp.examToFollowUp', { examDate: item.examDate, nextDate: item.nextFollowUpDate })}{item.intervalDays ? ` · 间隔 ${item.intervalDays} 天` : ''}
                           </div>
                         </div>
                         <span style={getStatusTagStyle(item.status)}>{item.status}</span>
@@ -1329,7 +1330,7 @@ export default function FollowUpPage() {
                           style={{ ...actionButtonStyle, backgroundColor: '#1890ff' }}
                           onClick={() => { setSelectedPatient(item); setShowModal(true) }}
                         >
-                          <Eye size={12} /> 详情
+                          <Eye size={12} /> {t('followUp.detail')}
                         </button>
                       </div>
                     ))}
@@ -1347,13 +1348,13 @@ export default function FollowUpPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>患者信息</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>检查类型</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>随访类型</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>检查日期</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>随访日期</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>状态</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>操作</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.patientInfo')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.examType')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.followUpType')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.examDate')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.followUpDate')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.status')}</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '14px', color: 'var(--text-secondary)' }}>{t('followUp.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1382,7 +1383,7 @@ export default function FollowUpPage() {
                     style={{...actionButtonStyle, display: 'flex', alignItems: 'center', gap: 4}}
                     onClick={() => { setSelectedPatient(item); setShowModal(true); }}
                   >
-                    <Eye size={12} /> 详情
+                    <Eye size={12} /> {t('followUp.detail')}
                   </button>
                   {/* [v3.0.6.11-99 Wave3B] 状态机行操作: 提醒/开始/完成/失访/取消/删除 */}
                   {(item.status === '待随访' || item.status === '逾期') && (
@@ -1390,7 +1391,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleRemind(item)}
                     >
-                      <Bell size={12} /> 提醒
+                      <Bell size={12} /> {t('followUp.remind')}
                     </button>
                   )}
                   {!isTerminal(item.status) && item.status !== '进行中' && (
@@ -1398,7 +1399,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#722ed1', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleStart(item)}
                     >
-                      <Play size={12} /> 开始
+                      <Play size={12} /> {t('followUp.start')}
                     </button>
                   )}
                   {!isTerminal(item.status) && (
@@ -1406,7 +1407,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleComplete(item.id)}
                     >
-                      <CheckCircle size={12} /> 完成
+                      <CheckCircle size={12} /> {t('followUp.complete')}
                     </button>
                   )}
                   {!isTerminal(item.status) && (
@@ -1414,7 +1415,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#fa8c16', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleMiss(item)}
                     >
-                      <UserX size={12} /> 失访
+                      <UserX size={12} /> {t('followUp.miss')}
                     </button>
                   )}
                   {!isTerminal(item.status) && (
@@ -1422,7 +1423,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => openEditPlan(item)}
                     >
-                      <Pencil size={12} /> 编辑
+                      <Pencil size={12} /> {t('followUp.edit')}
                     </button>
                   )}
                   {!isTerminal(item.status) && (
@@ -1430,7 +1431,7 @@ export default function FollowUpPage() {
                       style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4}}
                       onClick={() => handleCancel(item)}
                     >
-                      <Ban size={12} /> 取消
+                      <Ban size={12} /> {t('followUp.cancel')}
                     </button>
                   )}
                   <button
@@ -1438,7 +1439,7 @@ export default function FollowUpPage() {
                     onClick={() => handleDelete(item)}
                   >
                     <Trash2 size={12} />
-                    删除
+                    {t('followUp.delete')}
                   </button>
                 </td>
               </tr>
@@ -1451,45 +1452,45 @@ export default function FollowUpPage() {
       {showModal && selectedPatient && (
         <div style={modalOverlayStyle} onClick={() => setShowModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>随访详情</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.detailTitle')}</h2>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者姓名</label>
+              <label style={labelStyle}>{t('followUp.patientName')}</label>
               <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.patientName}</div>
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者ID</label>
+              <label style={labelStyle}>{t('followUp.patientId')}</label>
               <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.patientId}</div>
             </div>
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>检查类型</label>
+                <label style={labelStyle}>{t('followUp.examType')}</label>
                 <span style={getExamTypeStyle(selectedPatient.examType)}>{selectedPatient.examType || '—'}</span>
               </div>
 
               <div style={formGroupStyle}>
-                <label style={labelStyle}>随访类型</label>
+                <label style={labelStyle}>{t('followUp.followUpType')}</label>
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.followUpType || '—'}</div>
               </div>
             </div>
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>检查日期</label>
+                <label style={labelStyle}>{t('followUp.examDate')}</label>
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.examDate}</div>
               </div>
 
               <div style={formGroupStyle}>
-                <label style={labelStyle}>随访日期</label>
+                <label style={labelStyle}>{t('followUp.followUpDate')}</label>
                 <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{selectedPatient.nextFollowUpDate}</div>
               </div>
             </div>
 
             {selectedPatient.reaction && (
               <div style={formGroupStyle}>
-                <label style={labelStyle}>对比剂反应</label>
+                <label style={labelStyle}>{t('followUp.contrastReaction')}</label>
                 <span style={{
                   padding: '4px 12px',
                   borderRadius: '4px',
@@ -1507,7 +1508,7 @@ export default function FollowUpPage() {
             )}
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>备注信息</label>
+              <label style={labelStyle}>{t('followUp.notes')}</label>
               <div style={{
                 fontSize: '14px',
                 color: 'var(--text-secondary)',
@@ -1516,12 +1517,12 @@ export default function FollowUpPage() {
                 borderRadius: '4px',
                 minHeight: '60px'
               }}>
-                {selectedPatient.notes || '无'}
+                {selectedPatient.notes || t('followUp.none')}
               </div>
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>更新随访状态</label>
+              <label style={labelStyle}>{t('followUp.updateStatus')}</label>
               <select
                 style={selectStyle}
                 value={selectedPatient.status}
@@ -1533,22 +1534,22 @@ export default function FollowUpPage() {
                   if (v === '已取消') { await handleCancel(selectedPatient); return; }
                 }}
               >
-                <option value="">选择状态</option>
-                <option value="已完成">已完成</option>
-                <option value="进行中">进行中</option>
-                <option value="已失访">已失访</option>
-                <option value="已取消">已取消</option>
+                <option value="">{t('followUp.selectStatus')}</option>
+                <option value="已完成">{t('followUp.statusCompleted')}</option>
+                <option value="进行中">{t('followUp.statusInProgress')}</option>
+                <option value="已失访">{t('followUp.statusMissed')}</option>
+                <option value="已取消">{t('followUp.statusCancelled')}</option>
               </select>
             </div>
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setShowModal(false)}>取消</button>
+              <button style={cancelButtonStyle} onClick={() => setShowModal(false)}>{t('followUp.cancel')}</button>
               <button
                 style={buttonStyle}
                 onClick={() => handleComplete(selectedPatient.id)}
                 disabled={isTerminal(selectedPatient.status)}
               >
-                <CheckCircle size={14} /> 确认完成
+                <CheckCircle size={14} /> {t('followUp.confirmComplete')}
               </button>
             </div>
           </div>
@@ -1559,33 +1560,33 @@ export default function FollowUpPage() {
       {showCreateModal && (
         <div style={modalOverlayStyle} onClick={() => setShowCreateModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>新建随访计划</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.createTitle')}</h2>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者ID *</label>
+              <label style={labelStyle}>{t('followUp.patientId')} *</label>
               <input
                 type="text"
                 value={newPlan.patientId}
                 onChange={e => setNewPlan(f => ({ ...f, patientId: e.target.value }))}
-                placeholder="例如 P202400001"
+                placeholder={t('followUp.patientIdExample')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者姓名 *</label>
+              <label style={labelStyle}>{t('followUp.patientName')} *</label>
               <input
                 type="text"
                 value={newPlan.patientName}
                 onChange={e => setNewPlan(f => ({ ...f, patientName: e.target.value }))}
-                placeholder="患者姓名"
+                placeholder={t('followUp.patientName')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>随访日期 *</label>
+                <label style={labelStyle}>{t('followUp.followUpDate')} *</label>
                 <input
                   type="date"
                   value={newPlan.planDate}
@@ -1594,7 +1595,7 @@ export default function FollowUpPage() {
                 />
               </div>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>间隔天数</label>
+                <label style={labelStyle}>{t('followUp.intervalDays')}</label>
                 <input
                   type="number"
                   min={1}
@@ -1607,7 +1608,7 @@ export default function FollowUpPage() {
 
             {newPlan.examId && (
               <div style={formGroupStyle}>
-                <label style={labelStyle}>来源检查 (检查联动)</label>
+                <label style={labelStyle}>{t('followUp.sourceExam')}</label>
                 <div style={{ fontSize: '13px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
                   examId: {newPlan.examId}
                 </div>
@@ -1615,7 +1616,7 @@ export default function FollowUpPage() {
             )}
             {newPlan.reportId && (
               <div style={formGroupStyle}>
-                <label style={labelStyle}>来源报告</label>
+                <label style={labelStyle}>{t('followUp.sourceReport')}</label>
                 <div style={{ fontSize: '13px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
                   reportId: {newPlan.reportId}
                 </div>
@@ -1623,11 +1624,11 @@ export default function FollowUpPage() {
             )}
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>随访备注</label>
+              <label style={labelStyle}>{t('followUp.followUpNote')}</label>
               <textarea
                 value={newPlan.note}
                 onChange={e => setNewPlan(f => ({ ...f, note: e.target.value }))}
-                placeholder="随访内容 / 注意事项"
+                placeholder={t('followUp.notePlaceholder')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
               />
             </div>
@@ -1639,18 +1640,18 @@ export default function FollowUpPage() {
                   checked={newPlan.reminderEnabled}
                   onChange={e => setNewPlan(f => ({ ...f, reminderEnabled: e.target.checked }))}
                 />
-                启用到期提醒
+                {t('followUp.enableReminder')}
               </label>
             </div>
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setShowCreateModal(false)}>取消</button>
+              <button style={cancelButtonStyle} onClick={() => setShowCreateModal(false)}>{t('followUp.cancel')}</button>
               <button
                 style={{ ...buttonStyle, backgroundColor: '#52c41a' }}
                 onClick={() => void handleCreate()}
                 disabled={saving}
               >
-                <Save size={14} /> {saving ? '保存中...' : '保存计划'}
+                <Save size={14} /> {saving ? t('followUp.saving') : t('followUp.savePlan')}
               </button>
             </div>
           </div>
@@ -1661,9 +1662,9 @@ export default function FollowUpPage() {
       {showTemplateModal && (
         <div style={modalOverlayStyle} onClick={() => setShowTemplateModal(false)}>
           <div style={{ ...modalStyle, width: '720px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>随访模板库</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.templateLibrary')}</h2>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
-              按病种 / 术式 / 检查类型配置默认间隔与随访项目，一键应用到患者批量生成随访计划
+              {t('followUp.templateLibraryDesc')}
             </p>
 
             {tplError && (
@@ -1679,38 +1680,38 @@ export default function FollowUpPage() {
             {/* 模板编辑表单 */}
             <div style={{ padding: '16px', border: '1px solid var(--border-color)', borderRadius: '8px', marginBottom: '16px' }}>
               <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {tplEditing ? '编辑模板' : '新建模板'}
+                {tplEditing ? t('followUp.editTemplate') : t('followUp.createTemplate')}
                 {tplEditing && (
                   <button
                     style={{ ...cancelButtonStyle, padding: '4px 12px', fontSize: '12px' }}
                     onClick={() => { setTplEditing(false); setTplForm({ name: '', category: '病种', intervals: '30,90,180', items: '', active: true }); }}
                   >
-                    <X size={12} /> 取消编辑
+                    <X size={12} /> {t('followUp.cancelEdit')}
                   </button>
                 )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>模板名称 *</label>
+                  <label style={labelStyle}>{t('followUp.templateName')} *</label>
                   <input
                     type="text"
                     value={tplForm.name}
                     onChange={e => setTplForm(f => ({ ...f, name: e.target.value }))}
-                    placeholder="例如: 肿瘤术后复查(CT)"
+                    placeholder={t('followUp.templateNameExample')}
                     style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={formGroupStyle}>
-                  <label style={labelStyle}>分类</label>
+                  <label style={labelStyle}>{t('followUp.category')}</label>
                   <select style={selectStyle} value={tplForm.category} onChange={e => setTplForm(f => ({ ...f, category: e.target.value }))}>
-                    <option value="病种">病种</option>
-                    <option value="术式">术式</option>
-                    <option value="检查类型">检查类型</option>
+                    <option value="病种">{t('followUp.categoryDisease')}</option>
+                    <option value="术式">{t('followUp.categorySurgery')}</option>
+                    <option value="检查类型">{t('followUp.categoryExamType')}</option>
                   </select>
                 </div>
               </div>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>间隔天数（逗号分隔，例: 30,90,180）*</label>
+                <label style={labelStyle}>{t('followUp.intervalDaysHint')} *</label>
                 <input
                   type="text"
                   value={tplForm.intervals}
@@ -1720,12 +1721,12 @@ export default function FollowUpPage() {
                 />
               </div>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>随访项目（逗号分隔，例: 影像学复查,肿瘤标志物）</label>
+                <label style={labelStyle}>{t('followUp.itemsHint')}</label>
                 <input
                   type="text"
                   value={tplForm.items}
                   onChange={e => setTplForm(f => ({ ...f, items: e.target.value }))}
-                  placeholder="影像学复查,肿瘤标志物"
+                  placeholder={t('followUp.itemsExample')}
                   style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
@@ -1736,7 +1737,7 @@ export default function FollowUpPage() {
                     checked={tplForm.active}
                     onChange={e => setTplForm(f => ({ ...f, active: e.target.checked }))}
                   />
-                  启用模板
+                  {t('followUp.enableTemplate')}
                 </label>
               </div>
               <div style={modalButtonContainer}>
@@ -1745,7 +1746,7 @@ export default function FollowUpPage() {
                   onClick={() => void saveTemplate()}
                   disabled={tplLoading}
                 >
-                  <Save size={13} /> {tplEditing ? '保存修改' : '创建模板'}
+                  <Save size={13} /> {tplEditing ? t('followUp.saveChanges') : t('followUp.createTemplate')}
                 </button>
               </div>
             </div>
@@ -1753,51 +1754,51 @@ export default function FollowUpPage() {
             {/* 模板列表 */}
             {tplLoading && !templates.length ? (
               <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
-                <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> 加载模板中...
+                <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.loadingTemplates')}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflow: 'auto' }}>
-                {templates.map(t => (
-                  <div key={t.id} style={{
+                {templates.map(tpl => (
+                  <div key={tpl.id} style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '12px 16px', border: '1px solid var(--border-color)', borderRadius: '8px'
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {t.name}
+                        {tpl.name}
                         <span style={{
                           fontSize: '11px', padding: '1px 8px', borderRadius: 10,
-                          background: t.active ? 'rgba(16,185,129,0.15)' : 'rgba(148,163,184,0.2)',
-                          color: t.active ? '#059669' : '#64748b', fontWeight: 600
+                          background: tpl.active ? 'rgba(16,185,129,0.15)' : 'rgba(148,163,184,0.2)',
+                          color: tpl.active ? '#059669' : '#64748b', fontWeight: 600
                         }}>
-                          {t.active ? '启用' : '停用'}
+                          {tpl.active ? t('followUp.enabled') : t('followUp.disabled')}
                         </span>
                       </div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                        分类: {t.category || '未分类'} · 间隔: {(t.intervals ?? []).join('/')}天 · 项目: {(t.items ?? []).join('、') || '—'}
+                        {t('followUp.templateMeta', { category: tpl.category || t('followUp.uncategorized'), intervals: (tpl.intervals ?? []).join('/'), items: (tpl.items ?? []).join('、') || '—' })}
                       </div>
                     </div>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => { setTplApply(t); setTplApplyForm(f => ({ ...f, planDate: new Date().toISOString().slice(0, 10) })); }}>
-                      <Play size={12} /> 应用
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#52c41a', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => { setTplApply(tpl); setTplApplyForm(f => ({ ...f, planDate: new Date().toISOString().slice(0, 10) })); }}>
+                      <Play size={12} /> {t('followUp.apply')}
                     </button>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => editTemplate(t)}>
-                      <Pencil size={12} /> 编辑
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => editTemplate(tpl)}>
+                      <Pencil size={12} /> {t('followUp.edit')}
                     </button>
-                    <button style={{ ...actionButtonStyle, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void deleteTemplate(t)}>
-                      <Trash2 size={12} /> 删除
+                    <button style={{ ...actionButtonStyle, backgroundColor: '#ff4d4f', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => void deleteTemplate(tpl)}>
+                      <Trash2 size={12} /> {t('followUp.delete')}
                     </button>
                   </div>
                 ))}
                 {templates.length === 0 && (
                   <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
-                    暂无模板，请在上方创建
+                    {t('followUp.noTemplates')}
                   </div>
                 )}
               </div>
             )}
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setShowTemplateModal(false)}>关闭</button>
+              <button style={cancelButtonStyle} onClick={() => setShowTemplateModal(false)}>{t('followUp.close')}</button>
             </div>
           </div>
         </div>
@@ -1807,35 +1808,35 @@ export default function FollowUpPage() {
       {tplApply && (
         <div style={modalOverlayStyle} onClick={() => setTplApply(null)}>
           <div style={{ ...modalStyle, width: '440px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>应用模板「{tplApply.name}」</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.applyTemplateTitle', { name: tplApply.name })}</h2>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
-              将按间隔 {(tplApply.intervals ?? []).join('/')} 天为患者批量生成 {tplApply.intervals?.length ?? 0} 条随访计划
+              {t('followUp.applyTemplateDesc', { intervals: (tplApply.intervals ?? []).join('/'), count: tplApply.intervals?.length ?? 0 })}
             </p>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者ID *</label>
+              <label style={labelStyle}>{t('followUp.patientId')} *</label>
               <input
                 type="text"
                 value={tplApplyForm.patientId}
                 onChange={e => setTplApplyForm(f => ({ ...f, patientId: e.target.value }))}
-                placeholder="例如 P202400001"
+                placeholder={t('followUp.patientIdExample')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者姓名 *</label>
+              <label style={labelStyle}>{t('followUp.patientName')} *</label>
               <input
                 type="text"
                 value={tplApplyForm.patientName}
                 onChange={e => setTplApplyForm(f => ({ ...f, patientName: e.target.value }))}
-                placeholder="患者姓名"
+                placeholder={t('followUp.patientName')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>随访基准日期 *</label>
+              <label style={labelStyle}>{t('followUp.baseDate')} *</label>
               <input
                 type="date"
                 value={tplApplyForm.planDate}
@@ -1845,13 +1846,13 @@ export default function FollowUpPage() {
             </div>
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setTplApply(null)}>取消</button>
+              <button style={cancelButtonStyle} onClick={() => setTplApply(null)}>{t('followUp.cancel')}</button>
               <button
                 style={{ ...buttonStyle, backgroundColor: '#52c41a' }}
                 onClick={() => void applyTemplate()}
                 disabled={tplLoading}
               >
-                <Play size={14} /> {tplLoading ? '生成中...' : '确认应用'}
+                <Play size={14} /> {tplLoading ? t('followUp.generating') : t('followUp.confirmApply')}
               </button>
             </div>
           </div>
@@ -1862,44 +1863,44 @@ export default function FollowUpPage() {
       {showFromExamModal && (
         <div style={modalOverlayStyle} onClick={() => setShowFromExamModal(false)}>
           <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>检查联动 (from-exam)</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.examLinkTitle')}</h2>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
-              检查完成后 → 按模板间隔自动批量创建随访计划 (POST /followups/from-exam)
+              {t('followUp.examLinkDesc')}
             </p>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>检查ID *</label>
+              <label style={labelStyle}>{t('followUp.examId')} *</label>
               <input
                 type="text"
                 value={fromExamForm.examId}
                 onChange={e => setFromExamForm(f => ({ ...f, examId: e.target.value }))}
-                placeholder="例如 exam-001 或检查号"
+                placeholder={t('followUp.examIdExample')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>随访模板 (可选)</label>
+              <label style={labelStyle}>{t('followUp.templateOptional')}</label>
               <select
                 style={selectStyle}
                 value={fromExamForm.templateId}
                 onChange={e => setFromExamForm(f => ({ ...f, templateId: e.target.value }))}
               >
-                <option value="">不指定模板（按默认间隔）</option>
-                {fromExamTemplates.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}（{(t.intervals ?? []).join('/')}天）</option>
+                <option value="">{t('followUp.noTemplateSpecified')}</option>
+                {fromExamTemplates.map(tmpl => (
+                  <option key={tmpl.id} value={tmpl.id}>{tmpl.name}（{(tmpl.intervals ?? []).join('/')}{t('followUp.day')}）</option>
                 ))}
               </select>
             </div>
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setShowFromExamModal(false)}>取消</button>
+              <button style={cancelButtonStyle} onClick={() => setShowFromExamModal(false)}>{t('followUp.cancel')}</button>
               <button
                 style={{ ...buttonStyle, backgroundColor: '#1677ff' }}
                 onClick={() => void handleFromExam()}
                 disabled={fromExamBusy}
               >
-                <Play size={14} /> {fromExamBusy ? '生成中...' : '确认联动'}
+                <Play size={14} /> {fromExamBusy ? t('followUp.generating') : t('followUp.confirmLink')}
               </button>
             </div>
           </div>
@@ -1910,10 +1911,10 @@ export default function FollowUpPage() {
       {showEditModal && editPlan && (
         <div style={modalOverlayStyle} onClick={() => setShowEditModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>编辑随访计划 · {editPlan.patientId}</h2>
+            <h2 style={modalTitleStyle}>{t('followUp.editTitle', { id: editPlan.patientId })}</h2>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>患者姓名 *</label>
+              <label style={labelStyle}>{t('followUp.patientName')} *</label>
               <input
                 type="text"
                 value={editForm.patientName}
@@ -1924,7 +1925,7 @@ export default function FollowUpPage() {
 
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>随访日期 *</label>
+                <label style={labelStyle}>{t('followUp.followUpDate')} *</label>
                 <input
                   type="date"
                   value={editForm.planDate}
@@ -1933,7 +1934,7 @@ export default function FollowUpPage() {
                 />
               </div>
               <div style={formGroupStyle}>
-                <label style={labelStyle}>间隔天数</label>
+                <label style={labelStyle}>{t('followUp.intervalDays')}</label>
                 <input
                   type="number"
                   min={1}
@@ -1945,11 +1946,11 @@ export default function FollowUpPage() {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>随访备注</label>
+              <label style={labelStyle}>{t('followUp.followUpNote')}</label>
               <textarea
                 value={editForm.note}
                 onChange={e => setEditForm(f => ({ ...f, note: e.target.value }))}
-                placeholder="随访内容 / 注意事项"
+                placeholder={t('followUp.notePlaceholder')}
                 style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
               />
             </div>
@@ -1961,18 +1962,18 @@ export default function FollowUpPage() {
                   checked={editForm.reminderEnabled}
                   onChange={e => setEditForm(f => ({ ...f, reminderEnabled: e.target.checked }))}
                 />
-                启用到期提醒
+                {t('followUp.enableReminder')}
               </label>
             </div>
 
             <div style={modalButtonContainer}>
-              <button style={cancelButtonStyle} onClick={() => setShowEditModal(false)}>取消</button>
+              <button style={cancelButtonStyle} onClick={() => setShowEditModal(false)}>{t('followUp.cancel')}</button>
               <button
                 style={{ ...buttonStyle, backgroundColor: '#1677ff' }}
                 onClick={() => void handleEditPlan()}
                 disabled={editBusy}
               >
-                <Save size={14} /> {editBusy ? '保存中...' : '保存修改'}
+                <Save size={14} /> {editBusy ? t('followUp.saving') : t('followUp.saveChanges')}
               </button>
             </div>
           </div>

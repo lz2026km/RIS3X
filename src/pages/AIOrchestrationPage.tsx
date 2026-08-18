@@ -21,6 +21,7 @@ import { PageHeader } from '../components/common/PageHeader'
 import { EmptyState } from '../components/common/EmptyState'
 import { srDocumentApi, type AiSrFindingPayload } from '../services/api/srReportApi';
 import { useNavigate } from 'react-router-dom';
+import { t } from '../i18n/appI18n';
 import {
   Cpu,
   Plus,
@@ -50,34 +51,34 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Inbox } from 'lucide-react'
 
 const MODEL_STATUS_META: Record<string, { color: string; label: string }> = {
-  REGISTERED: { color: 'default', label: '已注册' },
-  DEPLOYED: { color: 'success', label: '已部署' },
-  UNDEPLOYED: { color: 'orange', label: '已下线' },
-  FAILED: { color: 'error', label: '异常' },
+  REGISTERED: { color: 'default', label: t('aiOrch.statusRegistered') },
+  DEPLOYED: { color: 'success', label: t('aiOrch.statusDeployed') },
+  UNDEPLOYED: { color: 'orange', label: t('aiOrch.statusUndeployed') },
+  FAILED: { color: 'error', label: t('aiOrch.statusFailed') },
 };
 
 const JOB_STATUS_META: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
-  QUEUED: { color: 'default', icon: <Clock size={13} />, label: '排队中' },
-  RUNNING: { color: 'processing', icon: <Activity size={13} />, label: '推理中' },
-  COMPLETED: { color: 'success', icon: <CheckCircle size={13} />, label: '已完成' },
-  FAILED: { color: 'error', icon: <XCircle size={13} />, label: '失败' },
+  QUEUED: { color: 'default', icon: <Clock size={13} />, label: t('aiOrch.jobQueued') },
+  RUNNING: { color: 'processing', icon: <Activity size={13} />, label: t('aiOrch.jobRunning') },
+  COMPLETED: { color: 'success', icon: <CheckCircle size={13} />, label: t('aiOrch.jobCompleted') },
+  FAILED: { color: 'error', icon: <XCircle size={13} />, label: t('aiOrch.jobFailed') },
 };
 
 const TRIGGER_OPTIONS = [
-  { label: '检查完成 (ON_STUDY_COMPLETE)', value: 'ON_STUDY_COMPLETE' },
-  { label: '报告保存 (ON_REPORT_SAVE)', value: 'ON_REPORT_SAVE' },
-  { label: '检查登记 (ON_EXAM_CREATE)', value: 'ON_EXAM_CREATE' },
-  { label: '手动 (MANUAL)', value: 'MANUAL' },
+  { label: `${t('aiOrch.triggerStudyComplete')} (ON_STUDY_COMPLETE)`, value: 'ON_STUDY_COMPLETE' },
+  { label: `${t('aiOrch.triggerReportSave')} (ON_REPORT_SAVE)`, value: 'ON_REPORT_SAVE' },
+  { label: `${t('aiOrch.triggerExamCreate')} (ON_EXAM_CREATE)`, value: 'ON_EXAM_CREATE' },
+  { label: `${t('aiOrch.triggerManual')} (MANUAL)`, value: 'MANUAL' },
 ];
 
 const TRIGGER_LABEL: Record<string, string> = {
-  ON_STUDY_COMPLETE: '检查完成',
-  ON_REPORT_SAVE: '报告保存',
-  ON_EXAM_CREATE: '检查登记',
-  MANUAL: '手动',
-  event: '事件',
-  schedule: '定时',
-  api: 'API',
+  ON_STUDY_COMPLETE: t('aiOrch.triggerStudyComplete'),
+  ON_REPORT_SAVE: t('aiOrch.triggerReportSave'),
+  ON_EXAM_CREATE: t('aiOrch.triggerExamCreate'),
+  MANUAL: t('aiOrch.triggerManual'),
+  event: t('aiOrch.triggerEvent'),
+  schedule: t('aiOrch.triggerSchedule'),
+  api: t('aiOrch.triggerApi'),
 };
 
 const MODALITY_OPTIONS = ['CT', 'DR', 'MR', 'MG', 'PET', 'US', 'DSA', 'XA'].map((m) => ({ label: m, value: m }));
@@ -138,7 +139,7 @@ function FindingViewer({
       viewBox={`0 0 ${W} ${H}`}
       style={{ width: '100%', background: '#0b1220', borderRadius: 10, display: 'block', cursor: 'crosshair' }}
       role="img"
-      aria-label="AI 异常区域查看器"
+      aria-label={t('aiOrch.viewerAriaLabel')}
       onClick={() => onSelect(null)}
     >
       <defs>
@@ -188,7 +189,7 @@ function FindingViewer({
           </g>
         );
       })}
-      <text x="12" y="H - 10" fontSize="11" fill="#64748b">AI 推理结果 · 异常区域坐标 (点击查看器空白处取消高亮)</text>
+      <text x="12" y="H - 10" fontSize="11" fill="#64748b">{t('aiOrch.viewerHint')}</text>
     </svg>
   );
 }
@@ -254,7 +255,7 @@ export default function AIOrchestrationPage() {
     setModelsLoading(true);
     const res = await aiOrchestratorApi.listModels();
     if (res.success) setModels(res.data);
-    else message.warning(res.error?.message ?? '模型列表加载失败');
+    else message.warning(res.error?.message ?? t('aiOrch.loadModelsFailed'));
     setModelsLoading(false);
   }, []);
 
@@ -262,7 +263,7 @@ export default function AIOrchestrationPage() {
     setIntegrationsLoading(true);
     const res = await aiOrchestratorApi.listIntegrations();
     if (res.success) setIntegrations(res.data);
-    else message.warning(res.error?.message ?? '集成列表加载失败');
+    else message.warning(res.error?.message ?? t('aiOrch.loadIntegrationsFailed'));
     setIntegrationsLoading(false);
   }, []);
 
@@ -281,7 +282,7 @@ export default function AIOrchestrationPage() {
       setSrReports(res.data);
       setSrError(null);
     } else {
-      setSrError(res.error?.message ?? '结构化报告列表加载失败');
+      setSrError(res.error?.message ?? t('aiOrch.loadSrFailed'));
     }
     setSrLoading(false);
   }, []);
@@ -293,7 +294,7 @@ export default function AIOrchestrationPage() {
       setOrchestrations(res.data);
       setOrchError(null);
     } else {
-      setOrchError(res.error?.message ?? 'AI 编排列表加载失败');
+      setOrchError(res.error?.message ?? t('aiOrch.loadOrchFailed'));
     }
     setOrchLoading(false);
   }, []);
@@ -305,7 +306,7 @@ export default function AIOrchestrationPage() {
       setFusionJobs(res.data);
       setFusionError(null);
     } else {
-      setFusionError(res.error?.message ?? '融合工作区加载失败');
+      setFusionError(res.error?.message ?? t('aiOrch.loadFusionFailed'));
     }
     setFusionLoading(false);
   }, []);
@@ -317,7 +318,7 @@ export default function AIOrchestrationPage() {
       setAssistItems(res.data);
       setAssistError(null);
     } else {
-      setAssistError(res.error?.message ?? 'AI 辅助加载失败');
+      setAssistError(res.error?.message ?? t('aiOrch.loadAssistFailed'));
     }
     setAssistLoading(false);
   }, []);
@@ -371,7 +372,7 @@ export default function AIOrchestrationPage() {
         registerForm.resetFields();
         void fetchModels();
       } else {
-        message.error(res.error?.message ?? '注册失败');
+        message.error(res.error?.message ?? t('aiOrch.registerFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -381,27 +382,27 @@ export default function AIOrchestrationPage() {
   const handleDeploy = async (id: string) => {
     const res = await aiOrchestratorApi.deployModel(id);
     if (res.success) {
-      message.success('模型部署成功');
+      message.success(t('aiOrch.deploySuccess'));
       void fetchModels();
     } else {
-      message.error(res.error?.message ?? '部署失败');
+      message.error(res.error?.message ?? t('aiOrch.deployFailed'));
     }
   };
 
   const handleUndeploy = (id: string, name: string) => {
     Modal.confirm({
-      title: '确认下线模型',
+      title: t('aiOrch.undeployConfirmTitle'),
       content: `下线后 ${name} 将不再接收新的推理任务，确定继续？`,
-      okText: '下线',
+      okText: t('aiOrch.undeployOk'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: t('aiOrch.cancel'),
       onOk: async () => {
         const res = await aiOrchestratorApi.undeployModel(id);
         if (res.success) {
-          message.success('模型已下线');
+          message.success(t('aiOrch.undeploySuccess'));
           void fetchModels();
         } else {
-          message.error(res.error?.message ?? '下线失败');
+          message.error(res.error?.message ?? t('aiOrch.undeployFailed'));
         }
       },
     });
@@ -412,7 +413,7 @@ export default function AIOrchestrationPage() {
     if (res.success && res.data) {
       setTestResult(res.data);
     } else {
-      message.error(res.error?.message ?? '测试请求失败');
+      message.error(res.error?.message ?? t('aiOrch.testFailed'));
     }
   };
 
@@ -431,13 +432,13 @@ export default function AIOrchestrationPage() {
         },
       });
       if (res.success) {
-        message.success('工作流集成创建成功');
+        message.success(t('aiOrch.integrationCreated'));
         setIntegrationOpen(false);
         integrationForm.resetFields();
         void fetchIntegrations();
         void fetchModels();
       } else {
-        message.error(res.error?.message ?? '创建失败');
+        message.error(res.error?.message ?? t('aiOrch.createFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -459,7 +460,7 @@ export default function AIOrchestrationPage() {
         triggerForm.resetFields();
         void fetchJobs();
       } else {
-        message.error(res.error?.message ?? '触发失败');
+        message.error(res.error?.message ?? t('aiOrch.triggerFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -482,7 +483,7 @@ export default function AIOrchestrationPage() {
         eventForm.resetFields();
         void fetchJobs();
       } else {
-        message.error(res.error?.message ?? '事件触发失败');
+        message.error(res.error?.message ?? t('aiOrch.eventTriggerFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -516,7 +517,7 @@ export default function AIOrchestrationPage() {
         srForm.resetFields();
         void fetchStructuredReports();
       } else {
-        message.error(res.error?.message ?? '生成失败');
+        message.error(res.error?.message ?? t('aiOrch.generateFailed'));
       }
     } catch (err) {
       if (err instanceof Error) message.error(err.message);
@@ -527,8 +528,8 @@ export default function AIOrchestrationPage() {
 
   const copyAssistText = (text: string) => {
     void navigator.clipboard?.writeText(text).then(
-      () => message.success('建议已复制到剪贴板'),
-      () => message.warning('复制失败，请手动选择文本'),
+      () => message.success(t('aiOrch.copiedToClipboard')),
+      () => message.warning(t('aiOrch.copyFailed')),
     );
   };
 

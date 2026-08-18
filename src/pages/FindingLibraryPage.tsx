@@ -789,9 +789,9 @@ const ALL_FINDINGS = generateFindings()
 // ============================================================
 // 常量配置
 // ============================================================
-const BODY_PARTS = ['全部', '头部', '颈部', '胸部', '腹部', '骨盆', '脊柱', '四肢', '神经系统', '血管']
+const BODY_PART_KEYS = ['all', 'head', 'neck', 'chest', 'abdomen', 'pelvis', 'spine', 'extremities', 'nervousSystem', 'vascular'] as const
 const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'XR', '超声', 'CTA', 'MRA', 'DSA', 'MG']
-const DISEASE_TYPES = ['全部', '肿瘤', '炎症', '外伤', '血管病变', '先天畸形']
+const DISEASE_TYPE_KEYS = ['all', 'tumor', 'inflammation', 'trauma', 'vascularDisease', 'congenital'] as const
 const BODY_PART_COLORS: Record<string, string> = {
   '头部': '#8b5cf6',
   '颈部': '#06b6d4',
@@ -845,6 +845,26 @@ const MODALITY_COLORS: Record<string, string> = {
 // ============================================================
 export default function FindingLibraryPage() {
   const { t } = useTranslation('v3report')
+  const BODY_PARTS = useMemo(() => [
+    t('findingLib.filterAll'),
+    t('findingLib.filterHead'),
+    t('findingLib.filterNeck'),
+    t('findingLib.filterChest'),
+    t('findingLib.filterAbdomen'),
+    t('findingLib.filterPelvis'),
+    t('findingLib.filterSpine'),
+    t('findingLib.filterExtremities'),
+    t('findingLib.filterNervousSystem'),
+    t('findingLib.filterVascular'),
+  ], [t])
+  const DISEASE_TYPES = useMemo(() => [
+    t('findingLib.filterAll'),
+    t('findingLib.filterTumor'),
+    t('findingLib.filterInflammation'),
+    t('findingLib.filterTrauma'),
+    t('findingLib.filterVascularDisease'),
+    t('findingLib.filterCongenital'),
+  ], [t])
   // [v3.0.6.11-98 Wave2B (报告 P1)] 征象库双源: api=后端 /finding-library, fallback=内置 200 条
   //   注意: 状态声明须先于下方 effects (避免 TDZ)
   const [searchText, setSearchText] = useState('')
@@ -936,9 +956,9 @@ export default function FindingLibraryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText])
   // ---------- 状态 ----------
-  const [activeBodyPart, setActiveBodyPart] = useState('全部')
+  const [activeBodyPart, setActiveBodyPart] = useState(() => t('findingLib.filterAll'))
   const [activeModality, setActiveModality] = useState('全部')
-  const [activeDiseaseType, setActiveDiseaseType] = useState('全部')
+  const [activeDiseaseType, setActiveDiseaseType] = useState(() => t('findingLib.filterAll'))
   const [gridColumns, setGridColumns] = useState(4)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
@@ -953,7 +973,7 @@ export default function FindingLibraryPage() {
     total: findings.length,
     byBodyPart: BODY_PARTS.slice(1).map(bp => ({
       name: bp,
-      count: findings.filter(f => f.bodyPart === bp).length
+      count: findings.filter(f => f.bodyPart === (BODY_PART_REVERSE[bp] || bp)).length
     })),
     byModality: MODALITY_LIST.slice(1).map(m => ({
       name: m,
@@ -963,14 +983,38 @@ export default function FindingLibraryPage() {
   }), [findings])
 
   // ---------- 过滤 ----------
+  const BODY_PART_REVERSE: Record<string, string> = useMemo(() => ({
+    [t('findingLib.filterHead')]: '头部',
+    [t('findingLib.filterNeck')]: '颈部',
+    [t('findingLib.filterChest')]: '胸部',
+    [t('findingLib.filterAbdomen')]: '腹部',
+    [t('findingLib.filterPelvis')]: '骨盆',
+    [t('findingLib.filterSpine')]: '脊柱',
+    [t('findingLib.filterExtremities')]: '四肢',
+    [t('findingLib.filterNervousSystem')]: '神经系统',
+    [t('findingLib.filterVascular')]: '血管',
+  }), [t])
+  const DISEASE_TYPE_REVERSE: Record<string, string> = useMemo(() => ({
+    [t('findingLib.filterTumor')]: '肿瘤',
+    [t('findingLib.filterInflammation')]: '炎症',
+    [t('findingLib.filterTrauma')]: '外伤',
+    [t('findingLib.filterVascularDisease')]: '血管病变',
+    [t('findingLib.filterCongenital')]: '先天畸形',
+  }), [t])
   const filteredFindings = useMemo(() => {
     return findings.filter(f => {
       // 部位
-      if (activeBodyPart !== '全部' && f.bodyPart !== activeBodyPart) return false
+      if (activeBodyPart !== t('findingLib.filterAll')) {
+        const dataVal = BODY_PART_REVERSE[activeBodyPart] || activeBodyPart
+        if (f.bodyPart !== dataVal) return false
+      }
       // 检查类型
       if (activeModality !== '全部' && !f.modality.includes(activeModality)) return false
       // 疾病类型
-      if (activeDiseaseType !== '全部' && f.diseaseType !== activeDiseaseType) return false
+      if (activeDiseaseType !== t('findingLib.filterAll')) {
+        const dataVal = DISEASE_TYPE_REVERSE[activeDiseaseType] || activeDiseaseType
+        if (f.diseaseType !== dataVal) return false
+      }
       // 搜索
       if (searchText) {
         const s = searchText.toLowerCase()
@@ -1792,7 +1836,8 @@ export default function FindingLibraryPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {BODY_PARTS.map(bp => {
-                const count = bp === '全部' ? ALL_FINDINGS.length : ALL_FINDINGS.filter(f => f.bodyPart === bp).length
+                const dataVal = BODY_PART_REVERSE[bp] || bp
+                const count = bp === t('findingLib.filterAll') ? ALL_FINDINGS.length : ALL_FINDINGS.filter(f => f.bodyPart === dataVal).length
                 const isActive = activeBodyPart === bp
                 return (
                   <button
@@ -1802,8 +1847,8 @@ export default function FindingLibraryPage() {
                       padding: '7px 10px',
                       borderRadius: 6,
                       border: 'none',
-                      background: isActive ? (BODY_PART_BG[bp] || COLORS.infoBg) : 'transparent',
-                      color: isActive ? (BODY_PART_COLORS[bp] || COLORS.info) : COLORS.textMuted,
+                      background: isActive ? (BODY_PART_BG[dataVal] || COLORS.infoBg) : 'transparent',
+                      color: isActive ? (BODY_PART_COLORS[dataVal] || COLORS.info) : COLORS.textMuted,
                       fontSize: 12,
                       fontWeight: isActive ? 600 : 400,
                       cursor: 'pointer',
@@ -1860,6 +1905,7 @@ export default function FindingLibraryPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {DISEASE_TYPES.map(dt => {
+                const dataVal = DISEASE_TYPE_REVERSE[dt] || dt
                 const isActive = activeDiseaseType === dt
                 return (
                   <button
@@ -1869,8 +1915,8 @@ export default function FindingLibraryPage() {
                       padding: '6px 10px',
                       borderRadius: 6,
                       border: 'none',
-                      background: isActive ? (DISEASE_BG[dt] || COLORS.infoBg) : 'transparent',
-                      color: isActive ? (DISEASE_COLORS[dt] || COLORS.info) : COLORS.textMuted,
+                      background: isActive ? (DISEASE_BG[dataVal] || COLORS.infoBg) : 'transparent',
+                      color: isActive ? (DISEASE_COLORS[dataVal] || COLORS.info) : COLORS.textMuted,
                       fontSize: 12,
                       fontWeight: isActive ? 600 : 400,
                       cursor: 'pointer',
@@ -1961,7 +2007,7 @@ export default function FindingLibraryPage() {
               ))}
             </div>
             <button
-              onClick={() => { setActiveBodyPart('全部'); setActiveModality('全部'); setActiveDiseaseType('全部'); setSearchText(''); setShowFavoritesOnly(false) }}
+              onClick={() => { setActiveBodyPart(t('findingLib.filterAll')); setActiveModality('全部'); setActiveDiseaseType(t('findingLib.filterAll')); setSearchText(''); setShowFavoritesOnly(false) }}
               style={{
                 padding: '6px 12px',
                 borderRadius: 6,
